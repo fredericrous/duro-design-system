@@ -1,6 +1,6 @@
 {
   "name": "@fredericrous/duro-design-system",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -23,12 +23,15 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
-  "dependencies": {
+  "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-strict-dom": "^0.0.55"
   },
   "devDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-strict-dom": "^0.0.55",
     "@babel/preset-typescript": "^7.28.5",
     "@eslint/js": "^9.0.0",
     "@storybook/addon-a11y": "10.2.8",

@@ -1,3 +1,5 @@
+import "./strict.css"
+
 // Components
 export { Alert, type AlertVariant } from "./components/Alert/Alert"
 export { Button, type ButtonVariant, type ButtonSize } from "./components/Button/Button"
