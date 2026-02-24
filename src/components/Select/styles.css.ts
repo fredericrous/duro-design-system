@@ -79,15 +79,15 @@ export const styles = css.create({
     color: colors.text,
     borderRadius: radii.sm,
     cursor: "pointer",
-    backgroundColor: {
-      default: "transparent",
-      ":hover": colors.bgCardHover,
-    },
+    backgroundColor: "transparent",
     transitionProperty: "background-color",
     transitionDuration: "150ms",
   },
   itemSelected: {
     color: colors.accent,
     fontWeight: typography.fontWeightMedium,
+  },
+  itemHighlighted: {
+    backgroundColor: colors.bgCardHover,
   },
 })

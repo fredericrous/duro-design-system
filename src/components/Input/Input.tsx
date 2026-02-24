@@ -14,6 +14,7 @@ interface InputProps {
   placeholder?: string
   required?: boolean
   minLength?: number
+  pattern?: string
   autoComplete?: "on" | "off" | "email" | "username" | "current-password" | "new-password" | "name" | "tel" | "url"
   value?: string
   defaultValue?: string
@@ -28,6 +29,7 @@ export function Input({
   placeholder,
   required,
   minLength,
+  pattern,
   autoComplete,
   value,
   defaultValue,
@@ -35,6 +37,10 @@ export function Input({
   onChange,
 }: InputProps) {
   const ctx = useFieldContext()
+
+  // react-strict-dom omits web-only `pattern` from its types, but the
+  // underlying DOM element supports it. Type-assert to pass it through.
+  const extraProps = pattern !== undefined ? { pattern } : undefined
 
   return (
     <html.input
@@ -52,6 +58,7 @@ export function Input({
       aria-invalid={ctx?.invalid || variant === "error" || undefined}
       onChange={onChange}
       style={[styles.base, styles[variant]]}
+      {...(extraProps as Record<string, unknown>)}
     />
   )
 }

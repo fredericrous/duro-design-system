@@ -56,6 +56,10 @@ export const styles = css.create({
     minWidth: 160,
     zIndex: 50,
   },
+  popupEnd: {
+    left: "auto",
+    right: 0,
+  },
   item: {
     display: "flex",
     alignItems: "center",
@@ -68,12 +72,12 @@ export const styles = css.create({
     color: colors.text,
     borderRadius: radii.sm,
     cursor: "pointer",
-    backgroundColor: {
-      default: "transparent",
-      ":hover": colors.bgCardHover,
-    },
+    backgroundColor: "transparent",
     transitionProperty: "background-color",
     transitionDuration: "150ms",
+  },
+  itemHighlighted: {
+    backgroundColor: colors.bgCardHover,
   },
   linkItem: {
     textDecoration: "none",
