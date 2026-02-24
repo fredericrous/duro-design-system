@@ -276,8 +276,15 @@ interface ItemProps {
 }
 
 function Item({ value: itemValue, children }: ItemProps) {
-  const { value: selectedValue, setValue, close, registerLabel, highlightedId, setHighlightedId, registerItem } =
-    useSelect()
+  const {
+    value: selectedValue,
+    setValue,
+    close,
+    registerLabel,
+    highlightedId,
+    setHighlightedId,
+    registerItem,
+  } = useSelect()
   const id = useId()
   const ref = useRef<HTMLDivElement>(null)
   const isSelected = selectedValue === itemValue
