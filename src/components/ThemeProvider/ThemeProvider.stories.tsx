@@ -1,19 +1,19 @@
-import type React from "react";
-import type { Meta, StoryObj } from "@storybook/react";
-import { css, html } from "react-strict-dom";
-import { ThemeProvider, type ThemeName } from "./ThemeProvider";
-import { colors } from "../../tokens/colors.css";
-import { radii } from "../../tokens/spacing.css";
-import { shadows } from "../../tokens/shadows.css";
-import { typography } from "../../tokens/typography.css";
+import type React from "react"
+import type { Meta, StoryObj } from "@storybook/react"
+import { css, html } from "react-strict-dom"
+import { ThemeProvider, type ThemeName } from "./ThemeProvider"
+import { colors } from "../../tokens/colors.css"
+import { radii } from "../../tokens/spacing.css"
+import { shadows } from "../../tokens/shadows.css"
+import { typography } from "../../tokens/typography.css"
 
 const meta: Meta<typeof ThemeProvider> = {
   title: "Theme/ThemeProvider",
   component: ThemeProvider,
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof ThemeProvider>;
+export default meta
+type Story = StoryObj<typeof ThemeProvider>
 
 const sampleStyles = css.create({
   container: {
@@ -63,16 +63,14 @@ const sampleStyles = css.create({
   successSwatch: { backgroundColor: colors.success },
   warningSwatch: { backgroundColor: colors.warning },
   accentSwatch: { backgroundColor: colors.accent },
-});
+})
 
 function SampleContent() {
   return (
     <html.div style={sampleStyles.container}>
       <html.div style={sampleStyles.card}>
         <html.div style={sampleStyles.title}>Sample Card</html.div>
-        <html.span style={sampleStyles.muted}>
-          This is a muted description.
-        </html.span>
+        <html.span style={sampleStyles.muted}>This is a muted description.</html.span>
       </html.div>
       <html.div style={sampleStyles.card}>
         <html.span style={sampleStyles.accent}>Accent colored text</html.span>
@@ -84,7 +82,7 @@ function SampleContent() {
         <html.div style={[sampleStyles.swatch, sampleStyles.accentSwatch]} />
       </html.div>
     </html.div>
-  );
+  )
 }
 
 export const Dark: Story = {
@@ -94,7 +92,7 @@ export const Dark: Story = {
       <SampleContent />
     </ThemeProvider>
   ),
-};
+}
 
 export const Light: Story = {
   args: { theme: "light" },
@@ -103,7 +101,7 @@ export const Light: Story = {
       <SampleContent />
     </ThemeProvider>
   ),
-};
+}
 
 export const HighContrast: Story = {
   args: { theme: "high-contrast" },
@@ -112,7 +110,7 @@ export const HighContrast: Story = {
       <SampleContent />
     </ThemeProvider>
   ),
-};
+}
 
 const sideBySideStyles = css.create({
   wrapper: {
@@ -130,7 +128,7 @@ const sideBySideStyles = css.create({
     marginBottom: 8,
     color: "#888",
   },
-});
+})
 
 export const AllThemes: Story = {
   render: () => (
@@ -145,4 +143,4 @@ export const AllThemes: Story = {
       ))}
     </html.div>
   ),
-};
+}

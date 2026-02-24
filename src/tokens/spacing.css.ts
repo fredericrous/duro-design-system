@@ -1,4 +1,4 @@
-import { css } from "react-strict-dom";
+import { css } from "react-strict-dom"
 
 export const spacing = css.defineVars({
   xs: "4px",
@@ -7,11 +7,11 @@ export const spacing = css.defineVars({
   lg: "24px",
   xl: "32px",
   xxl: "48px",
-});
+})
 
 export const radii = css.defineVars({
   sm: "8px",
   md: "12px",
   lg: "16px",
   full: "9999px",
-});
+})

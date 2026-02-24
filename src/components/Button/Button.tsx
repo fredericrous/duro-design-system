@@ -1,18 +1,18 @@
-import type { ReactNode } from "react";
-import { html } from "react-strict-dom";
-import { styles } from "./styles.css";
+import type { ReactNode } from "react"
+import { html } from "react-strict-dom"
+import { styles } from "./styles.css"
 
-export type ButtonVariant = "primary" | "secondary" | "link" | "danger";
-export type ButtonSize = "default" | "small";
+export type ButtonVariant = "primary" | "secondary" | "link" | "danger"
+export type ButtonSize = "default" | "small"
 
 interface ButtonProps {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  fullWidth?: boolean;
-  disabled?: boolean;
-  type?: "button" | "submit";
-  onClick?: () => void;
-  children: ReactNode;
+  variant?: ButtonVariant
+  size?: ButtonSize
+  fullWidth?: boolean
+  disabled?: boolean
+  type?: "button" | "submit"
+  onClick?: () => void
+  children: ReactNode
 }
 
 export function Button({
@@ -39,5 +39,5 @@ export function Button({
     >
       {children}
     </html.button>
-  );
+  )
 }

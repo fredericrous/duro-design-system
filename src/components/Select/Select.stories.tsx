@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { Select } from "./Select";
+import type { Meta, StoryObj } from "@storybook/react"
+import { Select } from "./Select"
 
 const meta: Meta = {
   title: "Components/Select",
-};
+}
 
-export default meta;
-type Story = StoryObj;
+export default meta
+type Story = StoryObj
 
 export const Default: Story = {
   render: () => (
@@ -28,7 +28,7 @@ export const Default: Story = {
       </Select.Popup>
     </Select.Root>
   ),
-};
+}
 
 export const WithPlaceholder: Story = {
   render: () => (
@@ -53,4 +53,4 @@ export const WithPlaceholder: Story = {
       </Select.Popup>
     </Select.Root>
   ),
-};
+}

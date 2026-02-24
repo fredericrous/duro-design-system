@@ -1,4 +1,4 @@
-import { css } from "react-strict-dom";
+import { css } from "react-strict-dom"
 
 export const colors = css.defineVars({
   // Backgrounds
@@ -39,4 +39,4 @@ export const colors = css.defineVars({
   infoBg: "rgba(59, 130, 246, 0.1)",
   infoBorder: "rgba(59, 130, 246, 0.3)",
   infoText: "#93c5fd",
-});
+})

@@ -1,14 +1,14 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { css, html } from "react-strict-dom";
-import { Field } from "./Field";
-import { Input } from "../Input/Input";
+import type { Meta, StoryObj } from "@storybook/react"
+import { css, html } from "react-strict-dom"
+import { Field } from "./Field"
+import { Input } from "../Input/Input"
 
 const meta: Meta = {
   title: "Components/Field",
-};
+}
 
-export default meta;
-type Story = StoryObj;
+export default meta
+type Story = StoryObj
 
 export const Default: Story = {
   render: () => (
@@ -18,7 +18,7 @@ export const Default: Story = {
       <Field.Description>3-32 characters, letters and numbers only.</Field.Description>
     </Field.Root>
   ),
-};
+}
 
 export const WithError: Story = {
   render: () => (
@@ -28,11 +28,11 @@ export const WithError: Story = {
       <Field.Error>Please enter a valid email address.</Field.Error>
     </Field.Root>
   ),
-};
+}
 
 const stackStyles = css.create({
   stack: { display: "flex", flexDirection: "column", gap: 16, maxWidth: 400 },
-});
+})
 
 export const FormExample: Story = {
   render: () => (
@@ -54,4 +54,4 @@ export const FormExample: Story = {
       </Field.Root>
     </html.div>
   ),
-};
+}

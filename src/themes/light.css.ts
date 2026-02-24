@@ -1,6 +1,6 @@
-import { css } from "react-strict-dom";
-import { colors } from "../tokens/colors.css";
-import { shadows } from "../tokens/shadows.css";
+import { css } from "react-strict-dom"
+import { colors } from "../tokens/colors.css"
+import { shadows } from "../tokens/shadows.css"
 
 export const lightTheme = css.createTheme(colors, {
   bg: "#ffffff",
@@ -26,10 +26,10 @@ export const lightTheme = css.createTheme(colors, {
   infoBg: "rgba(37, 99, 235, 0.08)",
   infoBorder: "rgba(37, 99, 235, 0.3)",
   infoText: "#2563eb",
-});
+})
 
 export const lightShadows = css.createTheme(shadows, {
   sm: "0 2px 4px rgba(0, 0, 0, 0.08)",
   md: "0 4px 12px rgba(0, 0, 0, 0.12)",
   lg: "0 8px 24px rgba(0, 0, 0, 0.16)",
-});
+})

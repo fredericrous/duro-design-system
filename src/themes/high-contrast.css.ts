@@ -1,6 +1,6 @@
-import { css } from "react-strict-dom";
-import { colors } from "../tokens/colors.css";
-import { shadows } from "../tokens/shadows.css";
+import { css } from "react-strict-dom"
+import { colors } from "../tokens/colors.css"
+import { shadows } from "../tokens/shadows.css"
 
 export const highContrastTheme = css.createTheme(colors, {
   bg: "#000000",
@@ -26,10 +26,10 @@ export const highContrastTheme = css.createTheme(colors, {
   infoBg: "rgba(96, 165, 250, 0.15)",
   infoBorder: "rgba(96, 165, 250, 0.5)",
   infoText: "#bfdbfe",
-});
+})
 
 export const highContrastShadows = css.createTheme(shadows, {
   sm: "0 2px 4px rgba(0, 0, 0, 0.6)",
   md: "0 4px 12px rgba(0, 0, 0, 0.7)",
   lg: "0 8px 24px rgba(0, 0, 0, 0.8)",
-});
+})

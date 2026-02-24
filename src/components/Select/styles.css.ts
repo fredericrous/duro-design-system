@@ -1,8 +1,8 @@
-import { css } from "react-strict-dom";
-import { colors } from "../../tokens/colors.css";
-import { radii, spacing } from "../../tokens/spacing.css";
-import { typography } from "../../tokens/typography.css";
-import { shadows } from "../../tokens/shadows.css";
+import { css } from "react-strict-dom"
+import { colors } from "../../tokens/colors.css"
+import { radii, spacing } from "../../tokens/spacing.css"
+import { typography } from "../../tokens/typography.css"
+import { shadows } from "../../tokens/shadows.css"
 
 export const styles = css.create({
   root: {
@@ -90,4 +90,4 @@ export const styles = css.create({
     color: colors.accent,
     fontWeight: typography.fontWeightMedium,
   },
-});
+})

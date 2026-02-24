@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { Menu } from "./Menu";
+import type { Meta, StoryObj } from "@storybook/react"
+import { Menu } from "./Menu"
 
 const meta: Meta = {
   title: "Components/Menu",
-};
+}
 
-export default meta;
-type Story = StoryObj;
+export default meta
+type Story = StoryObj
 
 export const Default: Story = {
   render: () => (
@@ -19,7 +19,7 @@ export const Default: Story = {
       </Menu.Popup>
     </Menu.Root>
   ),
-};
+}
 
 export const WithLinks: Story = {
   render: () => (
@@ -32,4 +32,4 @@ export const WithLinks: Story = {
       </Menu.Popup>
     </Menu.Root>
   ),
-};
+}

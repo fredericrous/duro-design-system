@@ -1,8 +1,7 @@
-import { css } from "react-strict-dom";
+import { css } from "react-strict-dom"
 
 export const typography = css.defineVars({
-  fontFamily:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
   fontSizeXs: "0.75rem",
   fontSizeSm: "0.875rem",
   fontSizeMd: "1rem",
@@ -14,4 +13,4 @@ export const typography = css.defineVars({
   fontWeightSemibold: "600",
   fontWeightBold: "700",
   lineHeight: "1.5",
-});
+})
