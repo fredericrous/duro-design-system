@@ -4,8 +4,8 @@ export { Button, type ButtonVariant, type ButtonSize } from "./components/Button
 export { Card, type CardVariant, type CardSize } from "./components/Card/Card";
 export { Field } from "./components/Field/Field";
 export { Input, type InputVariant } from "./components/Input/Input";
-export { Select } from "./components/Select/Select";
 export { Menu } from "./components/Menu/Menu";
+export { Select } from "./components/Select/Select";
 export {
   ThemeProvider,
   type ThemeName,

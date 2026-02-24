@@ -1,4 +1,4 @@
-import type { Preview } from "@storybook/react-vite";
+import type { Preview } from "@storybook/react";
 import "../src/strict.css";
 import "../src/tokens/global-reset.css";
 import { ThemeDecorator } from "./ThemeDecorator";

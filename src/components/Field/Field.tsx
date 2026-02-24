@@ -36,7 +36,7 @@ interface LabelProps {
 function Label({ children }: LabelProps) {
   const ctx = useFieldContext();
   return (
-    <html.label htmlFor={ctx?.controlId} style={styles.label}>
+    <html.label for={ctx?.controlId} style={styles.label}>
       {children}
     </html.label>
   );

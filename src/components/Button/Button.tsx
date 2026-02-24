@@ -1,4 +1,4 @@
-import type { ReactNode, ButtonHTMLAttributes } from "react";
+import type { ReactNode } from "react";
 import { html } from "react-strict-dom";
 import { styles } from "./styles.css";
 
@@ -10,7 +10,7 @@ interface ButtonProps {
   size?: ButtonSize;
   fullWidth?: boolean;
   disabled?: boolean;
-  type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
+  type?: "button" | "submit";
   onClick?: () => void;
   children: ReactNode;
 }

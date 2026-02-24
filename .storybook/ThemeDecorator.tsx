@@ -1,4 +1,4 @@
-import type { Decorator } from "@storybook/react-vite";
+import type { Decorator } from "@storybook/react";
 import { css, html } from "react-strict-dom";
 import {
   ThemeProvider,

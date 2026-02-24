@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import { css, html } from "react-strict-dom";
 import { Button } from "./Button";
 

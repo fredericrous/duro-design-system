@@ -12,6 +12,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "declaration": true,
+    "declarationDir": "dist",
     "paths": {
       "@/*": ["./src/*"]
     }

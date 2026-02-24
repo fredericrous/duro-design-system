@@ -1,55 +1,63 @@
-import type { ReactNode } from "react";
-import { Menu as BaseMenu } from "@base-ui/react/menu";
-import { css } from "react-strict-dom";
+import { type ReactNode, createContext, useContext, useState, useCallback } from "react";
+import { html } from "react-strict-dom";
 import { styles } from "./styles.css";
 
-// Bridge helper
-function rsd(
-  ...rsdStyles: Parameters<typeof css.props>
-): { className: string; style?: React.CSSProperties } {
-  return css.props(...rsdStyles) as { className: string; style?: React.CSSProperties };
+// --- Context ---
+interface MenuContextValue {
+  open: boolean;
+  toggle: () => void;
+  close: () => void;
+}
+
+const MenuContext = createContext<MenuContextValue | null>(null);
+
+function useMenu() {
+  const ctx = useContext(MenuContext);
+  if (!ctx) throw new Error("Menu compound components must be used within Menu.Root");
+  return ctx;
 }
 
 // --- Root ---
 interface RootProps {
-  modal?: boolean;
   children: ReactNode;
 }
 
-function Root({ children, ...props }: RootProps) {
-  return <BaseMenu.Root {...props}>{children}</BaseMenu.Root>;
+function Root({ children }: RootProps) {
+  const [open, setOpen] = useState(false);
+  const toggle = useCallback(() => setOpen((v) => !v), []);
+  const close = useCallback(() => setOpen(false), []);
+
+  return (
+    <MenuContext.Provider value={{ open, toggle, close }}>
+      <html.div style={styles.root}>{children}</html.div>
+    </MenuContext.Provider>
+  );
 }
 
 // --- Trigger ---
 function Trigger({ children }: { children: ReactNode }) {
+  const { toggle } = useMenu();
+
   return (
-    <BaseMenu.Trigger {...rsd(styles.trigger)}>
+    <html.button type="button" onClick={toggle} style={styles.trigger}>
       {children}
-    </BaseMenu.Trigger>
+    </html.button>
   );
-}
-
-// --- Portal ---
-function Portal({ children }: { children: ReactNode }) {
-  return <BaseMenu.Portal>{children}</BaseMenu.Portal>;
-}
-
-// --- Positioner ---
-interface PositionerProps {
-  side?: "top" | "bottom";
-  alignment?: "start" | "center" | "end";
-  sideOffset?: number;
-  children: ReactNode;
-}
-
-function Positioner({ children, ...props }: PositionerProps) {
-  return <BaseMenu.Positioner {...props}>{children}</BaseMenu.Positioner>;
 }
 
 // --- Popup ---
 function Popup({ children }: { children: ReactNode }) {
+  const { open, close } = useMenu();
+
+  if (!open) return null;
+
   return (
-    <BaseMenu.Popup {...rsd(styles.popup)}>{children}</BaseMenu.Popup>
+    <>
+      <html.div style={styles.backdrop} onClick={close} />
+      <html.div role="menu" style={styles.popup}>
+        {children}
+      </html.div>
+    </>
   );
 }
 
@@ -60,10 +68,17 @@ interface ItemProps {
 }
 
 function Item({ onClick, children }: ItemProps) {
+  const { close } = useMenu();
+
+  const handleClick = () => {
+    onClick?.();
+    close();
+  };
+
   return (
-    <BaseMenu.Item onClick={onClick} {...rsd(styles.item)}>
+    <html.div role="menuitem" onClick={handleClick} style={styles.item}>
       {children}
-    </BaseMenu.Item>
+    </html.div>
   );
 }
 
@@ -74,21 +89,18 @@ interface LinkItemProps {
 }
 
 function LinkItem({ href, children }: LinkItemProps) {
+  const { close } = useMenu();
+
   return (
-    <BaseMenu.Item
-      render={<a href={href} />}
-      {...rsd(styles.item)}
-    >
+    <html.a href={href} onClick={close} role="menuitem" style={[styles.item, styles.linkItem]}>
       {children}
-    </BaseMenu.Item>
+    </html.a>
   );
 }
 
 export const Menu = {
   Root,
   Trigger,
-  Portal,
-  Positioner,
   Popup,
   Item,
   LinkItem,

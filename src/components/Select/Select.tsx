@@ -1,13 +1,24 @@
-import type { ReactNode } from "react";
-import { Select as BaseSelect } from "@base-ui/react/select";
-import { css } from "react-strict-dom";
+import { type ReactNode, createContext, useContext, useState, useCallback, useMemo } from "react";
+import { html } from "react-strict-dom";
 import { styles } from "./styles.css";
 
-// Bridge helper: extracts className + style from css.props() for base-ui
-function rsd(
-  ...rsdStyles: Parameters<typeof css.props>
-): { className: string; style?: React.CSSProperties } {
-  return css.props(...rsdStyles) as { className: string; style?: React.CSSProperties };
+// --- Context ---
+interface SelectContextValue {
+  open: boolean;
+  toggle: () => void;
+  close: () => void;
+  value: string | null;
+  setValue: (value: string) => void;
+  labels: Map<string, string>;
+  registerLabel: (value: string, label: string) => void;
+}
+
+const SelectContext = createContext<SelectContextValue | null>(null);
+
+function useSelect() {
+  const ctx = useContext(SelectContext);
+  if (!ctx) throw new Error("Select compound components must be used within Select.Root");
+  return ctx;
 }
 
 // --- Root ---
@@ -15,64 +26,86 @@ interface RootProps {
   name?: string;
   defaultValue?: string;
   value?: string;
-  onValueChange?: (value: string) => void;
+  onValueChange?: (value: string | null) => void;
   children: ReactNode;
 }
 
-function Root({ children, ...props }: RootProps) {
-  return <BaseSelect.Root {...props}>{children}</BaseSelect.Root>;
+function Root({ defaultValue, value: controlledValue, onValueChange, children }: RootProps) {
+  const [internalValue, setInternalValue] = useState(defaultValue ?? null);
+  const [open, setOpen] = useState(false);
+  const [labels] = useState(() => new Map<string, string>());
+
+  const value = controlledValue !== undefined ? controlledValue : internalValue;
+
+  const toggle = useCallback(() => setOpen((v) => !v), []);
+  const close = useCallback(() => setOpen(false), []);
+
+  const setValue = useCallback(
+    (v: string) => {
+      if (controlledValue === undefined) {
+        setInternalValue(v);
+      }
+      onValueChange?.(v);
+    },
+    [controlledValue, onValueChange],
+  );
+
+  const registerLabel = useCallback(
+    (v: string, label: string) => {
+      labels.set(v, label);
+    },
+    [labels],
+  );
+
+  const ctx = useMemo(
+    () => ({ open, toggle, close, value, setValue, labels, registerLabel }),
+    [open, toggle, close, value, setValue, labels, registerLabel],
+  );
+
+  return (
+    <SelectContext.Provider value={ctx}>
+      <html.div style={styles.root}>{children}</html.div>
+    </SelectContext.Provider>
+  );
 }
 
 // --- Trigger ---
-interface TriggerProps {
-  children: ReactNode;
-}
+function Trigger({ children }: { children: ReactNode }) {
+  const { toggle } = useSelect();
 
-function Trigger({ children }: TriggerProps) {
   return (
-    <BaseSelect.Trigger {...rsd(styles.trigger)}>
+    <html.button type="button" onClick={toggle} style={styles.trigger}>
       {children}
-    </BaseSelect.Trigger>
+    </html.button>
   );
 }
 
 // --- Value ---
 function Value({ placeholder }: { placeholder?: string }) {
-  return <BaseSelect.Value placeholder={placeholder} />;
+  const { value, labels } = useSelect();
+  const display = value ? (labels.get(value) ?? value) : null;
+
+  return <html.span style={display ? styles.value : styles.placeholder}>{display ?? placeholder}</html.span>;
 }
 
 // --- Icon ---
 function Icon({ children }: { children?: ReactNode }) {
-  return (
-    <BaseSelect.Icon {...rsd(styles.icon)}>
-      {children ?? <>&#9662;</>}
-    </BaseSelect.Icon>
-  );
-}
-
-// --- Portal ---
-function Portal({ children }: { children: ReactNode }) {
-  return <BaseSelect.Portal>{children}</BaseSelect.Portal>;
-}
-
-// --- Positioner ---
-interface PositionerProps {
-  side?: "top" | "bottom";
-  alignment?: "start" | "center" | "end";
-  sideOffset?: number;
-  children: ReactNode;
-}
-
-function Positioner({ children, ...props }: PositionerProps) {
-  return (
-    <BaseSelect.Positioner {...props}>{children}</BaseSelect.Positioner>
-  );
+  return <html.span style={styles.icon}>{children ?? "\u25BE"}</html.span>;
 }
 
 // --- Popup ---
 function Popup({ children }: { children: ReactNode }) {
+  const { open, close } = useSelect();
+
+  if (!open) return null;
+
   return (
-    <BaseSelect.Popup {...rsd(styles.popup)}>{children}</BaseSelect.Popup>
+    <>
+      <html.div style={styles.backdrop} onClick={close} />
+      <html.div role="listbox" style={styles.popup}>
+        {children}
+      </html.div>
+    </>
   );
 }
 
@@ -82,17 +115,32 @@ interface ItemProps {
   children: ReactNode;
 }
 
-function Item({ value, children }: ItemProps) {
+function Item({ value: itemValue, children }: ItemProps) {
+  const { value: selectedValue, setValue, close, registerLabel } = useSelect();
+  const isSelected = selectedValue === itemValue;
+
+  // Extract text content for the value display
+  const textContent =
+    typeof children === "string" ? children : typeof children === "number" ? String(children) : null;
+  if (textContent) {
+    registerLabel(itemValue, textContent);
+  }
+
+  const handleClick = () => {
+    setValue(itemValue);
+    close();
+  };
+
   return (
-    <BaseSelect.Item value={value} {...rsd(styles.item)}>
+    <html.div role="option" aria-selected={isSelected} onClick={handleClick} style={[styles.item, isSelected && styles.itemSelected]}>
       {children}
-    </BaseSelect.Item>
+    </html.div>
   );
 }
 
 // --- ItemText ---
 function ItemText({ children }: { children: ReactNode }) {
-  return <BaseSelect.ItemText>{children}</BaseSelect.ItemText>;
+  return <html.span>{children}</html.span>;
 }
 
 export const Select = {
@@ -100,8 +148,6 @@ export const Select = {
   Trigger,
   Value,
   Icon,
-  Portal,
-  Positioner,
   Popup,
   Item,
   ItemText,

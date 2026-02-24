@@ -31,7 +31,8 @@ export function ThemeProvider({ theme = "dark", children }: ThemeProviderProps) 
   const overrides = themeMap[theme];
 
   return (
-    <html.div style={[overrides?.[0], overrides?.[1], styles.root]}>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <html.div style={[overrides?.[0], overrides?.[1], styles.root] as any}>
       {children}
     </html.div>
   );

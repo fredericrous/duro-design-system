@@ -1,12 +1,11 @@
-import reactStrictPostCSS from "react-strict-dom/postcss-plugin";
+import babelConfig from "./babel.config.js"
 
 export default {
-  plugins: [
-    reactStrictPostCSS({
-      include: ["src/**/*.{ts,tsx}"],
-      babelConfig: {
-        presets: ["@babel/preset-typescript"],
-      },
-    }),
-  ],
-};
+  plugins: {
+    "react-strict-dom/postcss-plugin": {
+      include: ["src/**/*.{ts,tsx}", ".storybook/**/*.{ts,tsx}"],
+      babelConfig,
+      useLayers: true,
+    },
+  },
+}

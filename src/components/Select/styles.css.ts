@@ -5,6 +5,10 @@ import { typography } from "../../tokens/typography.css";
 import { shadows } from "../../tokens/shadows.css";
 
 export const styles = css.create({
+  root: {
+    position: "relative",
+    display: "inline-flex",
+  },
   trigger: {
     display: "inline-flex",
     alignItems: "center",
@@ -20,24 +24,46 @@ export const styles = css.create({
     backgroundColor: colors.bgCard,
     borderWidth: 1,
     borderStyle: "solid",
-    borderColor: colors.border,
+    borderColor: {
+      default: colors.border,
+      ":hover": colors.accent,
+    },
     borderRadius: radii.sm,
     cursor: "pointer",
     transitionProperty: "border-color",
     transitionDuration: "150ms",
   },
+  value: {
+    color: colors.text,
+  },
+  placeholder: {
+    color: colors.textMuted,
+  },
   icon: {
     fontSize: typography.fontSizeXs,
     color: colors.textMuted,
   },
+  backdrop: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 49,
+  },
   popup: {
+    position: "absolute",
+    top: "100%",
+    left: 0,
+    marginTop: spacing.xs,
     backgroundColor: colors.bgCard,
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: colors.border,
     borderRadius: radii.sm,
     boxShadow: shadows.md,
-    padding: spacing.xs,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
     minWidth: 120,
     zIndex: 50,
   },
@@ -49,14 +75,16 @@ export const styles = css.create({
     paddingLeft: spacing.md,
     paddingRight: spacing.md,
     fontSize: typography.fontSizeSm,
+    fontFamily: typography.fontFamily,
     color: colors.text,
     borderRadius: radii.sm,
     cursor: "pointer",
+    backgroundColor: {
+      default: "transparent",
+      ":hover": colors.bgCardHover,
+    },
     transitionProperty: "background-color",
     transitionDuration: "150ms",
-  },
-  itemHighlighted: {
-    backgroundColor: colors.bgCardHover,
   },
   itemSelected: {
     color: colors.accent,

@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type React from "react";
+import type { Meta, StoryObj } from "@storybook/react";
 import { css, html } from "react-strict-dom";
-import { ThemeProvider } from "./ThemeProvider";
+import { ThemeProvider, type ThemeName } from "./ThemeProvider";
 import { colors } from "../../tokens/colors.css";
 import { radii } from "../../tokens/spacing.css";
 import { shadows } from "../../tokens/shadows.css";
@@ -88,7 +89,7 @@ function SampleContent() {
 
 export const Dark: Story = {
   args: { theme: "dark" },
-  render: (args) => (
+  render: (args: { theme?: ThemeName; children?: React.ReactNode }) => (
     <ThemeProvider {...args}>
       <SampleContent />
     </ThemeProvider>
@@ -97,7 +98,7 @@ export const Dark: Story = {
 
 export const Light: Story = {
   args: { theme: "light" },
-  render: (args) => (
+  render: (args: { theme?: ThemeName; children?: React.ReactNode }) => (
     <ThemeProvider {...args}>
       <SampleContent />
     </ThemeProvider>
@@ -106,7 +107,7 @@ export const Light: Story = {
 
 export const HighContrast: Story = {
   args: { theme: "high-contrast" },
-  render: (args) => (
+  render: (args: { theme?: ThemeName; children?: React.ReactNode }) => (
     <ThemeProvider {...args}>
       <SampleContent />
     </ThemeProvider>
