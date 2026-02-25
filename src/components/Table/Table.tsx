@@ -108,10 +108,7 @@ function Row({ children }: { children: ReactNode }) {
     >
       {variant === "bordered"
         ? childArray.map((child, index) => (
-            <CellIndexContext.Provider
-              key={index}
-              value={{ index, total: childArray.length }}
-            >
+            <CellIndexContext.Provider key={index} value={{ index, total: childArray.length }}>
               {child}
             </CellIndexContext.Provider>
           ))
