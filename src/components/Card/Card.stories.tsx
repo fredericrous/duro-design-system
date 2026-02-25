@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect } from "storybook/test"
 import { css, html } from "react-strict-dom"
 import { Card } from "./Card"
 import { colors } from "../../tokens/colors.css"
@@ -28,6 +29,10 @@ export const Elevated: Story = {
     header: "Elevated Card",
     children: "This card has a shadow and larger radius, like a page-level container.",
   },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Elevated Card")).toBeInTheDocument()
+    await expect(canvas.getByText(/shadow and larger radius/)).toBeInTheDocument()
+  },
 }
 
 export const Outlined: Story = {
@@ -35,6 +40,9 @@ export const Outlined: Story = {
     variant: "outlined",
     header: "Outlined Card",
     children: "A bordered card section with a title.",
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Outlined Card")).toBeInTheDocument()
   },
 }
 
@@ -49,6 +57,9 @@ export const Interactive: Story = {
   args: {
     variant: "interactive",
     children: "Hover me! I translate up and show an accent border.",
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/Hover me/)).toBeInTheDocument()
   },
 }
 
@@ -99,4 +110,10 @@ export const AllVariants: Story = {
       </html.div>
     </html.div>
   ),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Elevated")).toBeInTheDocument()
+    await expect(canvas.getByText("Outlined")).toBeInTheDocument()
+    await expect(canvas.getByText("Background only")).toBeInTheDocument()
+    await expect(canvas.getByText("Hover to interact")).toBeInTheDocument()
+  },
 }

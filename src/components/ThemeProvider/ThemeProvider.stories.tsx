@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect } from "storybook/test"
 import { css, html } from "react-strict-dom"
 import { ThemeProvider, type ThemeName } from "./ThemeProvider"
 import { colors } from "../../tokens/colors.css"
@@ -92,6 +93,10 @@ export const Dark: Story = {
       <SampleContent />
     </ThemeProvider>
   ),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Sample Card")).toBeInTheDocument()
+    await expect(canvas.getByText("Accent colored text")).toBeInTheDocument()
+  },
 }
 
 export const Light: Story = {
@@ -101,6 +106,9 @@ export const Light: Story = {
       <SampleContent />
     </ThemeProvider>
   ),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Sample Card")).toBeInTheDocument()
+  },
 }
 
 export const HighContrast: Story = {
@@ -110,6 +118,9 @@ export const HighContrast: Story = {
       <SampleContent />
     </ThemeProvider>
   ),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Sample Card")).toBeInTheDocument()
+  },
 }
 
 const sideBySideStyles = css.create({
@@ -143,4 +154,10 @@ export const AllThemes: Story = {
       ))}
     </html.div>
   ),
+  play: async ({ canvas }) => {
+    // All three theme labels rendered
+    await expect(canvas.getByText("dark")).toBeInTheDocument()
+    await expect(canvas.getByText("light")).toBeInTheDocument()
+    await expect(canvas.getByText("high-contrast")).toBeInTheDocument()
+  },
 }

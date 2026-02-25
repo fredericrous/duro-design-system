@@ -15,6 +15,11 @@ interface ButtonProps {
   children: ReactNode
 }
 
+const sizeMap = {
+  default: styles.sizeDefault,
+  small: styles.sizeSmall,
+} as const
+
 export function Button({
   variant = "primary",
   size = "default",
@@ -29,13 +34,7 @@ export function Button({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      style={[
-        styles.base,
-        size === "default" ? styles.sizeDefault : styles.sizeSmall,
-        styles[variant],
-        fullWidth && styles.fullWidth,
-        disabled && styles.disabled,
-      ]}
+      style={[styles.base, sizeMap[size], styles[variant], fullWidth && styles.fullWidth, disabled && styles.disabled]}
     >
       {children}
     </html.button>

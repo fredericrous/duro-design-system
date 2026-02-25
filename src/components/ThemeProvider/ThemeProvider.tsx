@@ -10,7 +10,7 @@ interface ThemeProviderProps {
   children: ReactNode
 }
 
-const themeMap: Record<string, readonly [ReturnType<typeof css.createTheme>, ReturnType<typeof css.createTheme>]> = {
+const themeMap: Partial<Record<ThemeName, readonly [typeof lightTheme, typeof lightShadows]>> = {
   light: [lightTheme, lightShadows],
   "high-contrast": [highContrastTheme, highContrastShadows],
 }
@@ -21,11 +21,13 @@ const styles = css.create({
   },
 })
 
+// react-strict-dom's style prop rejects Theme<VarGroup<{named keys}>> because the
+// concrete VarGroup lacks the generic index signature. This is a known typing gap.
+type DivStyle = Parameters<typeof html.div>[0]["style"]
+
 export function ThemeProvider({ theme = "dark", children }: ThemeProviderProps) {
   const overrides = themeMap[theme]
+  const themeStyles = [overrides?.[0], overrides?.[1], styles.root] as DivStyle
 
-  return (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <html.div style={[overrides?.[0], overrides?.[1], styles.root] as any}>{children}</html.div>
-  )
+  return <html.div style={themeStyles}>{children}</html.div>
 }

@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, fn } from "storybook/test"
 import { css, html } from "react-strict-dom"
 import { Button } from "./Button"
 
 const meta: Meta<typeof Button> = {
   title: "Components/Button",
   component: Button,
+  args: {
+    onClick: fn(),
+  },
   argTypes: {
     variant: {
       control: "select",
@@ -24,18 +28,39 @@ type Story = StoryObj<typeof Button>
 
 export const Primary: Story = {
   args: { variant: "primary", children: "Primary Button" },
+  play: async ({ args, canvas, userEvent }) => {
+    const button = canvas.getByRole("button", { name: "Primary Button" })
+    await expect(button).toBeInTheDocument()
+    await expect(button).toBeEnabled()
+
+    await userEvent.click(button)
+    await expect(args.onClick).toHaveBeenCalledTimes(1)
+  },
 }
 
 export const Secondary: Story = {
   args: { variant: "secondary", children: "Secondary Button" },
+  play: async ({ canvas }) => {
+    const button = canvas.getByRole("button", { name: "Secondary Button" })
+    await expect(button).toBeInTheDocument()
+    await expect(button).toBeEnabled()
+  },
 }
 
 export const Link: Story = {
   args: { variant: "link", children: "Link Button" },
+  play: async ({ args, canvas, userEvent }) => {
+    const button = canvas.getByRole("button", { name: "Link Button" })
+    await userEvent.click(button)
+    await expect(args.onClick).toHaveBeenCalled()
+  },
 }
 
 export const Danger: Story = {
   args: { variant: "danger", children: "Delete" },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("button", { name: "Delete" })).toBeInTheDocument()
+  },
 }
 
 export const Small: Story = {
@@ -48,6 +73,13 @@ export const FullWidth: Story = {
 
 export const Disabled: Story = {
   args: { variant: "primary", disabled: true, children: "Disabled" },
+  play: async ({ args, canvas, userEvent }) => {
+    const button = canvas.getByRole("button", { name: "Disabled" })
+    await expect(button).toBeDisabled()
+
+    await userEvent.click(button)
+    await expect(args.onClick).not.toHaveBeenCalled()
+  },
 }
 
 const rowStyles = css.create({
@@ -88,4 +120,11 @@ export const AllVariants: Story = {
       </html.div>
     </html.div>
   ),
+  play: async ({ canvas }) => {
+    const buttons = canvas.getAllByRole("button")
+    await expect(buttons.length).toBe(10)
+
+    const disabledButtons = buttons.filter((b: HTMLElement) => (b as HTMLButtonElement).disabled)
+    await expect(disabledButtons.length).toBe(3)
+  },
 }
