@@ -1,0 +1,41 @@
+{
+  "name": "@duro/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./strict.css": "./src/strict.css",
+    "./reset.css": "./src/tokens/global-reset.css"
+  },
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-strict-dom": "^0.0.55"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.28.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vite-plugin-babel": "^1.5.0",
+    "vite-plugin-dts": "^4.0.0"
+  },
+  "sideEffects": [
+    "**/*.css",
+    "./src/strict.css"
+  ]
+}
