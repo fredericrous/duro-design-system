@@ -15,7 +15,7 @@ export const Default: Story = {
     const handleProfile = fn()
     return (
       <Menu.Root>
-        <Menu.Trigger>Options &#9662;</Menu.Trigger>
+        <Menu.Trigger>Options  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{verticalAlign: "middle"}}><path d="M6 9l6 6 6-6" /></svg></Menu.Trigger>
         <Menu.Popup>
           <Menu.Item onClick={handleSettings}>Settings</Menu.Item>
           <Menu.Item onClick={handleProfile}>Profile</Menu.Item>
@@ -54,7 +54,7 @@ export const Default: Story = {
 export const KeyboardNavigation: Story = {
   render: () => (
     <Menu.Root>
-      <Menu.Trigger>Navigate &#9662;</Menu.Trigger>
+      <Menu.Trigger>Navigate  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{verticalAlign: "middle"}}><path d="M6 9l6 6 6-6" /></svg></Menu.Trigger>
       <Menu.Popup>
         <Menu.Item>First</Menu.Item>
         <Menu.Item>Second</Menu.Item>
@@ -102,7 +102,7 @@ export const KeyboardNavigation: Story = {
 export const WithLinks: Story = {
   render: () => (
     <Menu.Root>
-      <Menu.Trigger>Account &#9662;</Menu.Trigger>
+      <Menu.Trigger>Account  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{verticalAlign: "middle"}}><path d="M6 9l6 6 6-6" /></svg></Menu.Trigger>
       <Menu.Popup>
         <Menu.LinkItem href="#admin">Admin</Menu.LinkItem>
         <Menu.LinkItem href="#settings">Settings</Menu.LinkItem>

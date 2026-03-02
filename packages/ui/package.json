@@ -40,7 +40,7 @@
     "react-strict-dom": "^0.0.55"
   },
   "dependencies": {
-    "@duro/tokens": "workspace:*"
+    "@duro/tokens": "workspace:^"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.28.0",

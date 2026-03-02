@@ -70,7 +70,7 @@ importers:
   packages/ui:
     dependencies:
       '@duro/tokens':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../tokens
       react:
         specifier: ^19.0.0

@@ -37,7 +37,8 @@ export const styles = css.create({
     color: colors.textMuted,
   },
   icon: {
-    fontSize: typography.fontSizeXs,
+    display: "flex",
+    alignItems: "center",
     color: colors.textMuted,
   },
   backdrop: {

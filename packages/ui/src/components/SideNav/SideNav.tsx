@@ -116,7 +116,11 @@ function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
         style={[styles.groupTrigger, hasActiveChild && styles.groupTriggerActive]}
         aria-expanded={isExpanded}
       >
-        <html.span style={[styles.chevron, isExpanded && styles.chevronOpen]}>&#9656;</html.span>
+        <html.span style={[styles.chevron, isExpanded && styles.chevronOpen]}>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </html.span>
         {label}
       </html.button>
       {isExpanded && children}

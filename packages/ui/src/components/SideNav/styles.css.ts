@@ -39,8 +39,8 @@ export const styles = css.create({
     color: colors.text,
   },
   chevron: {
-    display: 'inline-block',
-    fontSize: '0.6rem',
+    display: 'inline-flex',
+    alignItems: 'center',
     transitionProperty: 'transform',
     transitionDuration: '150ms',
     transitionTimingFunction: 'ease',
