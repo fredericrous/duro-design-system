@@ -16,12 +16,6 @@ export {Tabs} from './components/Tabs/Tabs'
 export {ThemeProvider, type ThemeName} from './components/ThemeProvider/ThemeProvider'
 export {Tooltip} from './components/Tooltip/Tooltip'
 
-// Tokens
-export {colors} from './tokens/colors.css'
-export {spacing, radii} from './tokens/spacing.css'
-export {typography} from './tokens/typography.css'
-export {shadows} from './tokens/shadows.css'
-
-// Themes
-export {lightTheme, lightShadows} from './themes/light.css'
-export {highContrastTheme, highContrastShadows} from './themes/high-contrast.css'
+// Tokens (re-exported from @duro/tokens for backward compatibility)
+export {colors, spacing, radii, typography, shadows} from '@duro/tokens'
+export {lightTheme, lightShadows, highContrastTheme, highContrastShadows} from '@duro/tokens'

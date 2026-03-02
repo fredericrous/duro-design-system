@@ -2,10 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
-    "paths": {
-      "@duro/tokens": ["../tokens/dist/index.d.ts"]
-    }
+    "rootDir": "src"
   },
   "include": ["src"],
   "exclude": ["dist", "node_modules"]
