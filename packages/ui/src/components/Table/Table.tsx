@@ -1,11 +1,11 @@
-import { type ReactNode, createContext, useContext, Children } from "react"
-import { html } from "react-strict-dom"
-import { styles } from "./styles.css"
+import {type ReactNode, createContext, useContext, Children} from 'react'
+import {html} from 'react-strict-dom'
+import {styles} from './styles.css'
 
 // --- Types ---
 
-export type TableVariant = "default" | "striped" | "bordered"
-export type TableSize = "sm" | "md"
+export type TableVariant = 'default' | 'striped' | 'bordered'
+export type TableSize = 'sm' | 'md'
 
 // --- Context ---
 
@@ -20,7 +20,7 @@ const TableContext = createContext<TableContextValue | null>(null)
 
 function useTable() {
   const ctx = useContext(TableContext)
-  if (!ctx) throw new Error("Table compound components must be used within Table.Root")
+  if (!ctx) throw new Error('Table compound components must be used within Table.Root')
   return ctx
 }
 
@@ -37,9 +37,9 @@ interface RootProps {
   columns: number
 }
 
-function Root({ children, variant = "default", size = "md", columns }: RootProps) {
+function Root({children, variant = 'default', size = 'md', columns}: RootProps) {
   return (
-    <TableContext.Provider value={{ variant, size, columns, isHeader: false }}>
+    <TableContext.Provider value={{variant, size, columns, isHeader: false}}>
       <html.div role="table" style={styles.root}>
         {children}
       </html.div>
@@ -49,7 +49,7 @@ function Root({ children, variant = "default", size = "md", columns }: RootProps
 
 // --- Header ---
 
-function Header({ children }: { children: ReactNode }) {
+function Header({children}: {children: ReactNode}) {
   return (
     <HeaderContext.Provider value={true}>
       <html.div role="rowgroup" style={styles.header}>
@@ -61,15 +61,15 @@ function Header({ children }: { children: ReactNode }) {
 
 // --- Body ---
 
-function Body({ children }: { children: ReactNode }) {
-  const { variant } = useTable()
+function Body({children}: {children: ReactNode}) {
+  const {variant} = useTable()
   const childArray = Children.toArray(children)
 
   return (
     <HeaderContext.Provider value={false}>
       <html.div role="rowgroup">
         {childArray.map((child, index) => {
-          if (variant === "striped") {
+          if (variant === 'striped') {
             return (
               <RowIndexContext.Provider key={index} value={index}>
                 {child}
@@ -88,8 +88,8 @@ const RowIndexContext = createContext<number>(-1)
 
 // --- Row ---
 
-function Row({ children }: { children: ReactNode }) {
-  const { variant, columns } = useTable()
+function Row({children}: {children: ReactNode}) {
+  const {variant, columns} = useTable()
   const isHeader = useContext(HeaderContext)
   const rowIndex = useContext(RowIndexContext)
   const isEvenRow = rowIndex >= 0 && rowIndex % 2 === 1
@@ -103,12 +103,12 @@ function Row({ children }: { children: ReactNode }) {
         styles.row,
         styles.gridColumns(columns),
         !isHeader && styles.bodyRow,
-        !isHeader && variant === "striped" && isEvenRow && styles.stripedEven,
+        !isHeader && variant === 'striped' && isEvenRow && styles.stripedEven,
       ]}
     >
-      {variant === "bordered"
+      {variant === 'bordered'
         ? childArray.map((child, index) => (
-            <CellIndexContext.Provider key={index} value={{ index, total: childArray.length }}>
+            <CellIndexContext.Provider key={index} value={{index, total: childArray.length}}>
               {child}
             </CellIndexContext.Provider>
           ))
@@ -118,25 +118,25 @@ function Row({ children }: { children: ReactNode }) {
 }
 
 // Cell index context for bordered variant
-const CellIndexContext = createContext<{ index: number; total: number }>({
+const CellIndexContext = createContext<{index: number; total: number}>({
   index: 0,
   total: 0,
 })
 
 // --- HeaderCell ---
 
-function HeaderCell({ children }: { children: ReactNode }) {
-  const { size, variant } = useTable()
-  const { index, total } = useContext(CellIndexContext)
-  const isLast = variant === "bordered" && index === total - 1
+function HeaderCell({children}: {children: ReactNode}) {
+  const {size, variant} = useTable()
+  const {index, total} = useContext(CellIndexContext)
+  const isLast = variant === 'bordered' && index === total - 1
 
   return (
     <html.div
       role="columnheader"
       style={[
         styles.headerCell,
-        size === "sm" ? styles.cellSm : styles.cellMd,
-        variant === "bordered" && styles.borderedCell,
+        size === 'sm' ? styles.cellSm : styles.cellMd,
+        variant === 'bordered' && styles.borderedCell,
         isLast && styles.borderedCellLast,
       ]}
     >
@@ -147,18 +147,18 @@ function HeaderCell({ children }: { children: ReactNode }) {
 
 // --- Cell ---
 
-function Cell({ children }: { children: ReactNode }) {
-  const { size, variant } = useTable()
-  const { index, total } = useContext(CellIndexContext)
-  const isLast = variant === "bordered" && index === total - 1
+function Cell({children}: {children: ReactNode}) {
+  const {size, variant} = useTable()
+  const {index, total} = useContext(CellIndexContext)
+  const isLast = variant === 'bordered' && index === total - 1
 
   return (
     <html.div
       role="cell"
       style={[
         styles.cell,
-        size === "sm" ? styles.cellSm : styles.cellMd,
-        variant === "bordered" && styles.borderedCell,
+        size === 'sm' ? styles.cellSm : styles.cellMd,
+        variant === 'bordered' && styles.borderedCell,
         isLast && styles.borderedCellLast,
       ]}
     >

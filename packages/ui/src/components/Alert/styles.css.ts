@@ -1,14 +1,14 @@
-import { css } from "react-strict-dom"
-import { colors } from "../../tokens/colors.css"
-import { radii, spacing } from "../../tokens/spacing.css"
-import { typography } from "../../tokens/typography.css"
+import {css} from 'react-strict-dom'
+import {colors} from '../../tokens/colors.css'
+import {radii, spacing} from '../../tokens/spacing.css'
+import {typography} from '../../tokens/typography.css'
 
 export const styles = css.create({
   base: {
     padding: spacing.md,
     borderRadius: radii.sm,
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     fontSize: typography.fontSizeSm,
     lineHeight: typography.lineHeight,
   },

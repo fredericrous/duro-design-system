@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react"
+import {createContext, useContext} from 'react'
 
 export interface SideNavContextValue {
   activeValue: string | null
@@ -13,6 +13,6 @@ export const SideNavContext = createContext<SideNavContextValue | null>(null)
 
 export function useSideNav() {
   const ctx = useContext(SideNavContext)
-  if (!ctx) throw new Error("SideNav compound components must be used within SideNav.Root")
+  if (!ctx) throw new Error('SideNav compound components must be used within SideNav.Root')
   return ctx
 }

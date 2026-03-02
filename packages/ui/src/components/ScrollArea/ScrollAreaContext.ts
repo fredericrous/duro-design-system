@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react"
+import {createContext, useContext} from 'react'
 
 export interface ScrollAreaContextValue {
   viewportRef: React.RefObject<HTMLDivElement | null>
@@ -16,6 +16,6 @@ export const ScrollAreaContext = createContext<ScrollAreaContextValue | null>(nu
 
 export function useScrollArea() {
   const ctx = useContext(ScrollAreaContext)
-  if (!ctx) throw new Error("ScrollArea compound components must be used within ScrollArea.Root")
+  if (!ctx) throw new Error('ScrollArea compound components must be used within ScrollArea.Root')
   return ctx
 }

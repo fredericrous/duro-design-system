@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo, useRef, useId, useEffect } from "react"
-import { useControllableValue } from "../../hooks/useControllableValue"
-import type { SelectContextValue } from "./SelectContext"
+import {useState, useCallback, useMemo, useRef, useId, useEffect} from 'react'
+import {useControllableValue} from '../../hooks/useControllableValue'
+import type {SelectContextValue} from './SelectContext'
 
 interface UseSelectRootOptions {
   defaultValue?: string
@@ -8,15 +8,23 @@ interface UseSelectRootOptions {
   onValueChange?: (value: string | null) => void
 }
 
-export function useSelectRoot({ defaultValue, value: controlledValue, onValueChange }: UseSelectRootOptions) {
-  const [value, setValue] = useControllableValue<string | null>(controlledValue, defaultValue ?? null, onValueChange)
+export function useSelectRoot({
+  defaultValue,
+  value: controlledValue,
+  onValueChange,
+}: UseSelectRootOptions) {
+  const [value, setValue] = useControllableValue<string | null>(
+    controlledValue,
+    defaultValue ?? null,
+    onValueChange,
+  )
   const [open, setOpen] = useState(false)
   const [labels, setLabels] = useState<Record<string, string>>({})
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
   const listboxId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
-  const itemsRef = useRef(new Map<string, { value: string; element: HTMLElement }>())
+  const itemsRef = useRef(new Map<string, {value: string; element: HTMLElement}>())
   const orderRef = useRef<string[]>([])
 
   const close = useCallback(() => {
@@ -49,12 +57,12 @@ export function useSelectRoot({ defaultValue, value: controlledValue, onValueCha
   const registerLabel = useCallback((v: string, label: string) => {
     setLabels((prev) => {
       if (prev[v] === label) return prev
-      return { ...prev, [v]: label }
+      return {...prev, [v]: label}
     })
   }, [])
 
   const registerItem = useCallback((id: string, itemValue: string, element: HTMLElement) => {
-    itemsRef.current.set(id, { value: itemValue, element })
+    itemsRef.current.set(id, {value: itemValue, element})
     const map = itemsRef.current
     const ids = [...map.keys()]
     ids.sort((a, b) => {
@@ -81,7 +89,7 @@ export function useSelectRoot({ defaultValue, value: controlledValue, onValueCha
       if (order.length === 0) return
 
       switch (e.key) {
-        case "ArrowDown": {
+        case 'ArrowDown': {
           e.preventDefault()
           setHighlightedId((prev) => {
             const idx = prev ? order.indexOf(prev) : -1
@@ -89,7 +97,7 @@ export function useSelectRoot({ defaultValue, value: controlledValue, onValueCha
           })
           break
         }
-        case "ArrowUp": {
+        case 'ArrowUp': {
           e.preventDefault()
           setHighlightedId((prev) => {
             const idx = prev ? order.indexOf(prev) : 0
@@ -97,18 +105,18 @@ export function useSelectRoot({ defaultValue, value: controlledValue, onValueCha
           })
           break
         }
-        case "Home": {
+        case 'Home': {
           e.preventDefault()
           setHighlightedId(order[0])
           break
         }
-        case "End": {
+        case 'End': {
           e.preventDefault()
           setHighlightedId(order[order.length - 1])
           break
         }
-        case "Enter":
-        case " ": {
+        case 'Enter':
+        case ' ': {
           e.preventDefault()
           setHighlightedId((prev) => {
             if (prev) {
@@ -122,16 +130,16 @@ export function useSelectRoot({ defaultValue, value: controlledValue, onValueCha
           })
           break
         }
-        case "Escape":
-        case "Tab": {
+        case 'Escape':
+        case 'Tab': {
           close()
           break
         }
       }
     }
 
-    root.addEventListener("keydown", handleKeyDown)
-    return () => root.removeEventListener("keydown", handleKeyDown)
+    root.addEventListener('keydown', handleKeyDown)
+    return () => root.removeEventListener('keydown', handleKeyDown)
   }, [open, close, setValue])
 
   const ctx: SelectContextValue = useMemo(
@@ -149,8 +157,20 @@ export function useSelectRoot({ defaultValue, value: controlledValue, onValueCha
       registerItem,
       triggerRef,
     }),
-    [open, toggle, close, value, setValue, labels, registerLabel, listboxId, highlightedId, setHighlightedId, registerItem],
+    [
+      open,
+      toggle,
+      close,
+      value,
+      setValue,
+      labels,
+      registerLabel,
+      listboxId,
+      highlightedId,
+      setHighlightedId,
+      registerItem,
+    ],
   )
 
-  return { ctx, rootRef }
+  return {ctx, rootRef}
 }

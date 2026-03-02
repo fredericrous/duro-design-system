@@ -1,16 +1,16 @@
-import { css } from "react-strict-dom"
-import { colors } from "../../tokens/colors.css"
-import { radii, spacing } from "../../tokens/spacing.css"
-import { typography } from "../../tokens/typography.css"
+import {css} from 'react-strict-dom'
+import {colors} from '../../tokens/colors.css'
+import {radii, spacing} from '../../tokens/spacing.css'
+import {typography} from '../../tokens/typography.css'
 
 export const styles = css.create({
   // Root
   root: {
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.md,
-    overflow: "hidden",
+    overflow: 'hidden',
     backgroundColor: colors.bgCard,
     fontFamily: typography.fontFamily,
     color: colors.text,
@@ -23,9 +23,9 @@ export const styles = css.create({
 
   // Row
   row: {
-    display: "grid",
+    display: 'grid',
     borderBottomWidth: 1,
-    borderBottomStyle: "solid",
+    borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
   },
   rowLastChild: {
@@ -33,26 +33,26 @@ export const styles = css.create({
   },
   bodyRow: {
     backgroundColor: {
-      default: "transparent",
-      ":hover": colors.bgCardHover,
+      default: 'transparent',
+      ':hover': colors.bgCardHover,
     },
-    transitionProperty: "background-color",
-    transitionDuration: "150ms",
-    transitionTimingFunction: "ease",
+    transitionProperty: 'background-color',
+    transitionDuration: '150ms',
+    transitionTimingFunction: 'ease',
   },
 
   // Header cell
   headerCell: {
     fontWeight: typography.fontWeightSemibold,
     color: colors.textMuted,
-    textAlign: "start",
+    textAlign: 'start',
   },
 
   // Body cell
   cell: {
     color: colors.text,
-    display: "flex",
-    alignItems: "center",
+    display: 'flex',
+    alignItems: 'center',
   },
 
   // Size: sm
@@ -76,14 +76,14 @@ export const styles = css.create({
   stripedEven: {
     backgroundColor: {
       default: colors.bgCardHover,
-      ":hover": colors.bgCardHover,
+      ':hover': colors.bgCardHover,
     },
   },
 
   // Variant: bordered (cells get side borders)
   borderedCell: {
     borderRightWidth: 1,
-    borderRightStyle: "solid",
+    borderRightStyle: 'solid',
     borderRightColor: colors.border,
   },
   borderedCellLast: {

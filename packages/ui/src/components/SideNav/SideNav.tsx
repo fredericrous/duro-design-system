@@ -1,8 +1,8 @@
-import { type ReactNode, useState, useCallback, useRef, useEffect } from "react"
-import { html } from "react-strict-dom"
-import { styles } from "./styles.css"
-import { useControllableValue } from "../../hooks/useControllableValue"
-import { SideNavContext, useSideNav } from "./SideNavContext"
+import {type ReactNode, useState, useCallback, useRef, useEffect} from 'react'
+import {html} from 'react-strict-dom'
+import {styles} from './styles.css'
+import {useControllableValue} from '../../hooks/useControllableValue'
+import {SideNavContext, useSideNav} from './SideNavContext'
 
 // --- Root ---
 
@@ -13,11 +13,15 @@ interface RootProps {
   onValueChange?: (value: string) => void
 }
 
-function Root({ children, value: controlledValue, defaultValue, onValueChange }: RootProps) {
+function Root({children, value: controlledValue, defaultValue, onValueChange}: RootProps) {
   const [activeValue, onSelect] = useControllableValue<string | null>(
     controlledValue,
     defaultValue ?? null,
-    onValueChange ? (v) => { if (v !== null) onValueChange(v) } : undefined,
+    onValueChange
+      ? (v) => {
+          if (v !== null) onValueChange(v)
+        }
+      : undefined,
   )
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const orderRef = useRef<string[]>([])
@@ -54,7 +58,9 @@ function Root({ children, value: controlledValue, defaultValue, onValueChange }:
   }, [activeValue])
 
   return (
-    <SideNavContext.Provider value={{ activeValue, onSelect, expandedGroups, toggleGroup, registerItem, orderRef }}>
+    <SideNavContext.Provider
+      value={{activeValue, onSelect, expandedGroups, toggleGroup, registerItem, orderRef}}
+    >
       <html.nav role="navigation" style={styles.root}>
         {children}
       </html.nav>
@@ -71,9 +77,9 @@ interface GroupProps {
   defaultExpanded?: boolean
 }
 
-function Group({ children, label, groupKey, defaultExpanded }: GroupProps) {
+function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
   const key = groupKey ?? label
-  const { expandedGroups, toggleGroup, activeValue } = useSideNav()
+  const {expandedGroups, toggleGroup, activeValue} = useSideNav()
   const isExpanded = expandedGroups.has(key)
   const groupRef = useRef<HTMLDivElement>(null)
 
@@ -110,9 +116,7 @@ function Group({ children, label, groupKey, defaultExpanded }: GroupProps) {
         style={[styles.groupTrigger, hasActiveChild && styles.groupTriggerActive]}
         aria-expanded={isExpanded}
       >
-        <html.span style={[styles.chevron, isExpanded && styles.chevronOpen]}>
-          &#9656;
-        </html.span>
+        <html.span style={[styles.chevron, isExpanded && styles.chevronOpen]}>&#9656;</html.span>
         {label}
       </html.button>
       {isExpanded && children}
@@ -127,8 +131,8 @@ interface ItemProps {
   children: ReactNode
 }
 
-function Item({ value, children }: ItemProps) {
-  const { activeValue, onSelect, registerItem } = useSideNav()
+function Item({value, children}: ItemProps) {
+  const {activeValue, onSelect, registerItem} = useSideNav()
   const isActive = activeValue === value
 
   useEffect(() => {
@@ -141,7 +145,7 @@ function Item({ value, children }: ItemProps) {
       data-nav-value={value}
       onClick={() => onSelect(value)}
       style={[styles.item, isActive && styles.itemActive]}
-      aria-current={isActive ? "page" : undefined}
+      aria-current={isActive ? 'page' : undefined}
     >
       {children}
     </html.button>

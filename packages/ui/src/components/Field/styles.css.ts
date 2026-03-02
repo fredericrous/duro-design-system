@@ -1,12 +1,12 @@
-import { css } from "react-strict-dom"
-import { colors } from "../../tokens/colors.css"
-import { spacing } from "../../tokens/spacing.css"
-import { typography } from "../../tokens/typography.css"
+import {css} from 'react-strict-dom'
+import {colors} from '../../tokens/colors.css'
+import {spacing} from '../../tokens/spacing.css'
+import {typography} from '../../tokens/typography.css'
 
 export const styles = css.create({
   root: {
-    display: "flex",
-    flexDirection: "column",
+    display: 'flex',
+    flexDirection: 'column',
     gap: spacing.xs,
   },
   label: {

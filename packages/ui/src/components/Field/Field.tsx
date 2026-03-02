@@ -1,7 +1,7 @@
-import { type ReactNode, useId, useMemo } from "react"
-import { html } from "react-strict-dom"
-import { FieldContext, useFieldContext } from "./FieldContext"
-import { styles } from "./styles.css"
+import {type ReactNode, useId, useMemo} from 'react'
+import {html} from 'react-strict-dom'
+import {FieldContext, useFieldContext} from './FieldContext'
+import {styles} from './styles.css'
 
 // --- Root ---
 interface RootProps {
@@ -9,7 +9,7 @@ interface RootProps {
   children: ReactNode
 }
 
-function Root({ invalid = false, children }: RootProps) {
+function Root({invalid = false, children}: RootProps) {
   const id = useId()
   const ctx = useMemo(
     () => ({
@@ -33,7 +33,7 @@ interface LabelProps {
   children: ReactNode
 }
 
-function Label({ children }: LabelProps) {
+function Label({children}: LabelProps) {
   const ctx = useFieldContext()
   return (
     <html.label for={ctx?.controlId} style={styles.label}>
@@ -47,7 +47,7 @@ interface DescriptionProps {
   children: ReactNode
 }
 
-function Description({ children }: DescriptionProps) {
+function Description({children}: DescriptionProps) {
   const ctx = useFieldContext()
   return (
     <html.span id={ctx?.descriptionId} style={styles.description}>
@@ -61,7 +61,7 @@ interface ErrorProps {
   children?: ReactNode
 }
 
-function Error({ children }: ErrorProps) {
+function Error({children}: ErrorProps) {
   const ctx = useFieldContext()
   if (!ctx?.invalid && !children) return null
 

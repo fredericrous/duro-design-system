@@ -1,35 +1,35 @@
-import type { Meta, StoryObj } from "@storybook/react"
-import { expect } from "storybook/test"
-import { css, html } from "react-strict-dom"
-import { Table } from "./Table"
-import { Badge } from "../Badge/Badge"
-import { colors } from "../../tokens/colors.css"
+import type {Meta, StoryObj} from '@storybook/react'
+import {expect} from 'storybook/test'
+import {css, html} from 'react-strict-dom'
+import {Table} from './Table'
+import {Badge} from '../Badge/Badge'
+import {colors} from '../../tokens/colors.css'
 
 const meta: Meta = {
-  title: "Components/Table",
+  title: 'Components/Table',
 }
 
 export default meta
 type Story = StoryObj
 
 const services = [
-  { name: "Traefik", status: "Running", port: "443", uptime: "14d 3h" },
-  { name: "Pi-hole", status: "Running", port: "80", uptime: "14d 3h" },
-  { name: "Portainer", status: "Stopped", port: "9000", uptime: "\u2014" },
-  { name: "Grafana", status: "Running", port: "3000", uptime: "7d 12h" },
-  { name: "Prometheus", status: "Warning", port: "9090", uptime: "7d 12h" },
+  {name: 'Traefik', status: 'Running', port: '443', uptime: '14d 3h'},
+  {name: 'Pi-hole', status: 'Running', port: '80', uptime: '14d 3h'},
+  {name: 'Portainer', status: 'Stopped', port: '9000', uptime: '\u2014'},
+  {name: 'Grafana', status: 'Running', port: '3000', uptime: '7d 12h'},
+  {name: 'Prometheus', status: 'Warning', port: '9090', uptime: '7d 12h'},
 ]
 
 function statusVariant(status: string) {
   switch (status) {
-    case "Running":
-      return "success" as const
-    case "Stopped":
-      return "error" as const
-    case "Warning":
-      return "warning" as const
+    case 'Running':
+      return 'success' as const
+    case 'Stopped':
+      return 'error' as const
+    case 'Warning':
+      return 'warning' as const
     default:
-      return "default" as const
+      return 'default' as const
   }
 }
 
@@ -60,29 +60,29 @@ export const Default: Story = {
       </Table.Body>
     </Table.Root>
   ),
-  play: async ({ canvas }) => {
+  play: async ({canvas}) => {
     // ARIA table structure
-    await expect(canvas.getByRole("table")).toBeInTheDocument()
+    await expect(canvas.getByRole('table')).toBeInTheDocument()
 
-    const rowgroups = canvas.getAllByRole("rowgroup")
+    const rowgroups = canvas.getAllByRole('rowgroup')
     await expect(rowgroups.length).toBe(2) // header + body
 
     // Header cells
-    const columnHeaders = canvas.getAllByRole("columnheader")
+    const columnHeaders = canvas.getAllByRole('columnheader')
     await expect(columnHeaders.length).toBe(4)
-    await expect(columnHeaders[0]).toHaveTextContent("Service")
-    await expect(columnHeaders[1]).toHaveTextContent("Status")
-    await expect(columnHeaders[2]).toHaveTextContent("Port")
-    await expect(columnHeaders[3]).toHaveTextContent("Uptime")
+    await expect(columnHeaders[0]).toHaveTextContent('Service')
+    await expect(columnHeaders[1]).toHaveTextContent('Status')
+    await expect(columnHeaders[2]).toHaveTextContent('Port')
+    await expect(columnHeaders[3]).toHaveTextContent('Uptime')
 
     // Rows (1 header + 5 body)
-    const rows = canvas.getAllByRole("row")
+    const rows = canvas.getAllByRole('row')
     await expect(rows.length).toBe(6)
 
     // Body cells
-    const cells = canvas.getAllByRole("cell")
+    const cells = canvas.getAllByRole('cell')
     await expect(cells.length).toBe(20) // 5 rows * 4 columns
-    await expect(cells[0]).toHaveTextContent("Traefik")
+    await expect(cells[0]).toHaveTextContent('Traefik')
   },
 }
 
@@ -113,9 +113,9 @@ export const Striped: Story = {
       </Table.Body>
     </Table.Root>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("table")).toBeInTheDocument()
-    await expect(canvas.getAllByRole("row").length).toBe(6)
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('table')).toBeInTheDocument()
+    await expect(canvas.getAllByRole('row').length).toBe(6)
   },
 }
 
@@ -146,10 +146,10 @@ export const Bordered: Story = {
       </Table.Body>
     </Table.Root>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("table")).toBeInTheDocument()
-    await expect(canvas.getAllByRole("columnheader").length).toBe(4)
-    await expect(canvas.getAllByRole("cell").length).toBe(20)
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('table')).toBeInTheDocument()
+    await expect(canvas.getAllByRole('columnheader').length).toBe(4)
+    await expect(canvas.getAllByRole('cell').length).toBe(20)
   },
 }
 
@@ -180,15 +180,15 @@ export const Compact: Story = {
       </Table.Body>
     </Table.Root>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("table")).toBeInTheDocument()
-    await expect(canvas.getByText("Traefik")).toBeInTheDocument()
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('table')).toBeInTheDocument()
+    await expect(canvas.getByText('Traefik')).toBeInTheDocument()
   },
 }
 
 const storyStyles = css.create({
-  stack: { display: "flex", flexDirection: "column", gap: 24 },
-  label: { color: colors.textMuted, fontSize: "0.875rem", fontWeight: 600 },
+  stack: {display: 'flex', flexDirection: 'column', gap: 24},
+  label: {color: colors.textMuted, fontSize: '0.875rem', fontWeight: 600},
 })
 
 export const AllVariants: Story = {
@@ -300,9 +300,9 @@ export const AllVariants: Story = {
       </html.div>
     </html.div>
   ),
-  play: async ({ canvas }) => {
+  play: async ({canvas}) => {
     // All four tables render
-    const tables = canvas.getAllByRole("table")
+    const tables = canvas.getAllByRole('table')
     await expect(tables.length).toBe(4)
   },
 }

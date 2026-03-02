@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from "@storybook/react"
-import { expect } from "storybook/test"
-import { css, html } from "react-strict-dom"
-import { Tooltip } from "./Tooltip"
-import { Badge } from "../Badge/Badge"
+import type {Meta, StoryObj} from '@storybook/react'
+import {expect} from 'storybook/test'
+import {css, html} from 'react-strict-dom'
+import {Tooltip} from './Tooltip'
+import {Badge} from '../Badge/Badge'
 
 const meta: Meta = {
-  title: "Components/Tooltip",
+  title: 'Components/Tooltip',
 }
 
 export default meta
@@ -13,9 +13,9 @@ type Story = StoryObj
 
 const centerStyles = css.create({
   center: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 80,
     gap: 24,
   },
@@ -31,21 +31,21 @@ export const Default: Story = {
       </Tooltip.Root>
     </html.div>
   ),
-  play: async ({ canvas, userEvent }) => {
-    const trigger = canvas.getByText("Hover me")
+  play: async ({canvas, userEvent}) => {
+    const trigger = canvas.getByText('Hover me')
 
     // Tooltip not visible initially
-    await expect(canvas.queryByRole("tooltip")).not.toBeInTheDocument()
+    await expect(canvas.queryByRole('tooltip')).not.toBeInTheDocument()
 
     // Hover to show
     await userEvent.hover(trigger)
-    const tooltip = canvas.getByRole("tooltip")
+    const tooltip = canvas.getByRole('tooltip')
     await expect(tooltip).toBeInTheDocument()
-    await expect(tooltip).toHaveTextContent("This is a tooltip")
+    await expect(tooltip).toHaveTextContent('This is a tooltip')
 
     // Unhover to hide
     await userEvent.unhover(trigger)
-    await expect(canvas.queryByRole("tooltip")).not.toBeInTheDocument()
+    await expect(canvas.queryByRole('tooltip')).not.toBeInTheDocument()
   },
 }
 
@@ -96,16 +96,16 @@ export const WithBadge: Story = {
       </Tooltip.Root>
     </html.div>
   ),
-  play: async ({ canvas, userEvent }) => {
+  play: async ({canvas, userEvent}) => {
     // Hover first badge
-    await userEvent.hover(canvas.getByText("Secure"))
-    await expect(canvas.getByRole("tooltip")).toHaveTextContent("Security score: A+")
-    await userEvent.unhover(canvas.getByText("Secure"))
+    await userEvent.hover(canvas.getByText('Secure'))
+    await expect(canvas.getByRole('tooltip')).toHaveTextContent('Security score: A+')
+    await userEvent.unhover(canvas.getByText('Secure'))
 
     // Hover second badge
-    await userEvent.hover(canvas.getByText("Expiring"))
-    await expect(canvas.getByRole("tooltip")).toHaveTextContent("Certificate expires in 3 days")
-    await userEvent.unhover(canvas.getByText("Expiring"))
+    await userEvent.hover(canvas.getByText('Expiring'))
+    await expect(canvas.getByRole('tooltip')).toHaveTextContent('Certificate expires in 3 days')
+    await userEvent.unhover(canvas.getByText('Expiring'))
   },
 }
 

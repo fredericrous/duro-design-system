@@ -1,8 +1,8 @@
-import { type ReactNode, useRef, useId, useEffect } from "react"
-import { html } from "react-strict-dom"
-import { styles } from "./styles.css"
-import { SelectContext, useSelect } from "./SelectContext"
-import { useSelectRoot } from "./useSelectRoot"
+import {type ReactNode, useRef, useId, useEffect} from 'react'
+import {html} from 'react-strict-dom'
+import {styles} from './styles.css'
+import {SelectContext, useSelect} from './SelectContext'
+import {useSelectRoot} from './useSelectRoot'
 
 // --- Root ---
 interface RootProps {
@@ -13,13 +13,13 @@ interface RootProps {
   children: ReactNode
 }
 
-function Root({ name, defaultValue, value, onValueChange, children }: RootProps) {
-  const { ctx, rootRef } = useSelectRoot({ defaultValue, value, onValueChange })
+function Root({name, defaultValue, value, onValueChange, children}: RootProps) {
+  const {ctx, rootRef} = useSelectRoot({defaultValue, value, onValueChange})
 
   return (
     <SelectContext.Provider value={ctx}>
       <html.div ref={rootRef} style={styles.root}>
-        {name && <html.input type="hidden" name={name} value={ctx.value ?? ""} />}
+        {name && <html.input type="hidden" name={name} value={ctx.value ?? ''} />}
         {children}
       </html.div>
     </SelectContext.Provider>
@@ -27,8 +27,8 @@ function Root({ name, defaultValue, value, onValueChange, children }: RootProps)
 }
 
 // --- Trigger ---
-function Trigger({ children }: { children: ReactNode }) {
-  const { open, toggle, listboxId, highlightedId, triggerRef } = useSelect()
+function Trigger({children}: {children: ReactNode}) {
+  const {open, toggle, listboxId, highlightedId, triggerRef} = useSelect()
   const localRef = useRef<HTMLButtonElement>(null)
 
   // Sync local ref to context triggerRef
@@ -40,7 +40,7 @@ function Trigger({ children }: { children: ReactNode }) {
     <html.button
       ref={localRef}
       type="button"
-      role={"combobox" as "listbox"}
+      role={'combobox' as 'listbox'}
       onClick={toggle}
       aria-expanded={open}
       aria-haspopup="listbox"
@@ -54,21 +54,25 @@ function Trigger({ children }: { children: ReactNode }) {
 }
 
 // --- Value ---
-function Value({ placeholder }: { placeholder?: string }) {
-  const { value, labels } = useSelect()
+function Value({placeholder}: {placeholder?: string}) {
+  const {value, labels} = useSelect()
   const display = value ? (labels[value] ?? value) : null
 
-  return <html.span style={display ? styles.value : styles.placeholder}>{display ?? placeholder}</html.span>
+  return (
+    <html.span style={display ? styles.value : styles.placeholder}>
+      {display ?? placeholder}
+    </html.span>
+  )
 }
 
 // --- Icon ---
-function Icon({ children }: { children?: ReactNode }) {
-  return <html.span style={styles.icon}>{children ?? "\u25BE"}</html.span>
+function Icon({children}: {children?: ReactNode}) {
+  return <html.span style={styles.icon}>{children ?? '\u25BE'}</html.span>
 }
 
 // --- Popup ---
-function Popup({ children }: { children: ReactNode }) {
-  const { open, close, listboxId } = useSelect()
+function Popup({children}: {children: ReactNode}) {
+  const {open, close, listboxId} = useSelect()
 
   return (
     <>
@@ -91,7 +95,7 @@ interface ItemProps {
   children: ReactNode
 }
 
-function Item({ value: itemValue, children }: ItemProps) {
+function Item({value: itemValue, children}: ItemProps) {
   const {
     value: selectedValue,
     setValue,
@@ -133,7 +137,11 @@ function Item({ value: itemValue, children }: ItemProps) {
       aria-selected={isSelected}
       onClick={handleClick}
       onPointerEnter={() => setHighlightedId(id)}
-      style={[styles.item, isSelected && styles.itemSelected, isHighlighted && styles.itemHighlighted]}
+      style={[
+        styles.item,
+        isSelected && styles.itemSelected,
+        isHighlighted && styles.itemHighlighted,
+      ]}
     >
       {children}
     </html.div>
@@ -141,7 +149,7 @@ function Item({ value: itemValue, children }: ItemProps) {
 }
 
 // --- ItemText ---
-function ItemText({ children }: { children: ReactNode }) {
+function ItemText({children}: {children: ReactNode}) {
   return <html.span>{children}</html.span>
 }
 

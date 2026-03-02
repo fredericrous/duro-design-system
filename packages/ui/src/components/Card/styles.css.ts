@@ -1,8 +1,8 @@
-import { css } from "react-strict-dom"
-import { colors } from "../../tokens/colors.css"
-import { radii, spacing } from "../../tokens/spacing.css"
-import { shadows } from "../../tokens/shadows.css"
-import { typography } from "../../tokens/typography.css"
+import {css} from 'react-strict-dom'
+import {colors} from '../../tokens/colors.css'
+import {radii, spacing} from '../../tokens/spacing.css'
+import {shadows} from '../../tokens/shadows.css'
+import {typography} from '../../tokens/typography.css'
 
 export const styles = css.create({
   base: {
@@ -14,14 +14,14 @@ export const styles = css.create({
   elevated: {
     borderRadius: radii.lg,
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderColor: colors.border,
     boxShadow: shadows.md,
   },
   outlined: {
     borderRadius: radii.md,
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderColor: colors.border,
   },
   filled: {
@@ -30,22 +30,22 @@ export const styles = css.create({
   interactive: {
     borderRadius: radii.md,
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderColor: {
       default: colors.border,
-      ":hover": colors.accent,
+      ':hover': colors.accent,
     },
     backgroundColor: {
       default: colors.bgCard,
-      ":hover": colors.bgCardHover,
+      ':hover': colors.bgCardHover,
     },
-    cursor: "pointer",
-    transitionProperty: "background-color, border-color, transform",
-    transitionDuration: "150ms",
-    transitionTimingFunction: "ease",
+    cursor: 'pointer',
+    transitionProperty: 'background-color, border-color, transform',
+    transitionDuration: '150ms',
+    transitionTimingFunction: 'ease',
     transform: {
-      default: "translateY(0)",
-      ":hover": "translateY(-2px)",
+      default: 'translateY(0)',
+      ':hover': 'translateY(-2px)',
     },
   },
   // Sizes (padding)

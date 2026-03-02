@@ -1,16 +1,16 @@
-import type { ReactNode } from "react"
-import { html } from "react-strict-dom"
-import { styles } from "./styles.css"
+import type {ReactNode} from 'react'
+import {html} from 'react-strict-dom'
+import {styles} from './styles.css'
 
-export type ButtonVariant = "primary" | "secondary" | "link" | "danger"
-export type ButtonSize = "default" | "small"
+export type ButtonVariant = 'primary' | 'secondary' | 'link' | 'danger'
+export type ButtonSize = 'default' | 'small'
 
 interface ButtonProps {
   variant?: ButtonVariant
   size?: ButtonSize
   fullWidth?: boolean
   disabled?: boolean
-  type?: "button" | "submit"
+  type?: 'button' | 'submit'
   onClick?: () => void
   children: ReactNode
 }
@@ -21,11 +21,11 @@ const sizeMap = {
 } as const
 
 export function Button({
-  variant = "primary",
-  size = "default",
+  variant = 'primary',
+  size = 'default',
   fullWidth = false,
   disabled = false,
-  type = "button",
+  type = 'button',
   onClick,
   children,
 }: ButtonProps) {
@@ -34,7 +34,13 @@ export function Button({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      style={[styles.base, sizeMap[size], styles[variant], fullWidth && styles.fullWidth, disabled && styles.disabled]}
+      style={[
+        styles.base,
+        sizeMap[size],
+        styles[variant],
+        fullWidth && styles.fullWidth,
+        disabled && styles.disabled,
+      ]}
     >
       {children}
     </html.button>

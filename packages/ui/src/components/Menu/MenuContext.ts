@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react"
+import {createContext, useContext} from 'react'
 
 export interface MenuContextValue {
   open: boolean
@@ -15,6 +15,6 @@ export const MenuContext = createContext<MenuContextValue | null>(null)
 
 export function useMenu() {
   const ctx = useContext(MenuContext)
-  if (!ctx) throw new Error("Menu compound components must be used within Menu.Root")
+  if (!ctx) throw new Error('Menu compound components must be used within Menu.Root')
   return ctx
 }

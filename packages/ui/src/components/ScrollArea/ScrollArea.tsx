@@ -1,8 +1,8 @@
-import { type ReactNode, useRef, useCallback } from "react"
-import { html } from "react-strict-dom"
-import { styles } from "./styles.css"
-import { ScrollAreaContext, useScrollArea } from "./ScrollAreaContext"
-import { useScrollAreaRoot } from "./useScrollAreaRoot"
+import {type ReactNode, useRef, useCallback} from 'react'
+import {html} from 'react-strict-dom'
+import {styles} from './styles.css'
+import {ScrollAreaContext, useScrollArea} from './ScrollAreaContext'
+import {useScrollAreaRoot} from './useScrollAreaRoot'
 
 // --- Root ---
 
@@ -10,7 +10,7 @@ interface RootProps {
   children: ReactNode
 }
 
-function Root({ children }: RootProps) {
+function Root({children}: RootProps) {
   const ctx = useScrollAreaRoot()
 
   return (
@@ -27,11 +27,14 @@ interface ViewportProps {
   maxHeight?: number | string
 }
 
-function Viewport({ children, maxHeight }: ViewportProps) {
-  const { viewportRef } = useScrollArea()
+function Viewport({children, maxHeight}: ViewportProps) {
+  const {viewportRef} = useScrollArea()
 
   return (
-    <html.div ref={viewportRef} style={[styles.viewport, maxHeight != null && styles.viewportMaxHeight(maxHeight)]}>
+    <html.div
+      ref={viewportRef}
+      style={[styles.viewport, maxHeight != null && styles.viewportMaxHeight(maxHeight)]}
+    >
       {children}
     </html.div>
   )
@@ -43,8 +46,8 @@ interface ContentProps {
   children: ReactNode
 }
 
-function Content({ children }: ContentProps) {
-  const { contentRef } = useScrollArea()
+function Content({children}: ContentProps) {
+  const {contentRef} = useScrollArea()
   return (
     <html.div ref={contentRef} style={styles.content}>
       {children}
@@ -54,18 +57,19 @@ function Content({ children }: ContentProps) {
 
 // --- Scrollbar ---
 
-type ScrollbarOrientation = "vertical" | "horizontal"
+type ScrollbarOrientation = 'vertical' | 'horizontal'
 
 interface ScrollbarProps {
   orientation?: ScrollbarOrientation
   children: ReactNode
 }
 
-function Scrollbar({ orientation = "vertical", children }: ScrollbarProps) {
-  const { scrolling, scrollHeight, scrollWidth, clientHeight, clientWidth } = useScrollArea()
+function Scrollbar({orientation = 'vertical', children}: ScrollbarProps) {
+  const {scrolling, scrollHeight, scrollWidth, clientHeight, clientWidth} = useScrollArea()
 
   // Hide scrollbar when content fits
-  const hasOverflow = orientation === "vertical" ? scrollHeight > clientHeight : scrollWidth > clientWidth
+  const hasOverflow =
+    orientation === 'vertical' ? scrollHeight > clientHeight : scrollWidth > clientWidth
 
   if (!hasOverflow) return null
 
@@ -73,7 +77,7 @@ function Scrollbar({ orientation = "vertical", children }: ScrollbarProps) {
     <html.div
       style={[
         styles.scrollbar,
-        orientation === "vertical" ? styles.scrollbarVertical : styles.scrollbarHorizontal,
+        orientation === 'vertical' ? styles.scrollbarVertical : styles.scrollbarHorizontal,
         scrolling ? styles.scrollbarVisible : styles.scrollbarHidden,
       ]}
     >
@@ -88,13 +92,14 @@ interface ThumbProps {
   orientation?: ScrollbarOrientation
 }
 
-function Thumb({ orientation = "vertical" }: ThumbProps) {
-  const { viewportRef, scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = useScrollArea()
+function Thumb({orientation = 'vertical'}: ThumbProps) {
+  const {viewportRef, scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth} =
+    useScrollArea()
   const draggingRef = useRef(false)
   const startPosRef = useRef(0)
   const startScrollRef = useRef(0)
 
-  const isVertical = orientation === "vertical"
+  const isVertical = orientation === 'vertical'
 
   const thumbSizePercent = isVertical
     ? Math.max((clientHeight / scrollHeight) * 100, 10)

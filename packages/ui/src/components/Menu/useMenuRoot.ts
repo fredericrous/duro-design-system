@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useId, useEffect } from "react"
-import type { MenuContextValue } from "./MenuContext"
+import {useState, useCallback, useRef, useId, useEffect} from 'react'
+import type {MenuContextValue} from './MenuContext'
 
 export function useMenuRoot() {
   const [open, setOpen] = useState(false)
@@ -70,7 +70,7 @@ export function useMenuRoot() {
       if (order.length === 0) return
 
       switch (e.key) {
-        case "ArrowDown": {
+        case 'ArrowDown': {
           e.preventDefault()
           setHighlightedId((prev) => {
             const idx = prev ? order.indexOf(prev) : -1
@@ -78,7 +78,7 @@ export function useMenuRoot() {
           })
           break
         }
-        case "ArrowUp": {
+        case 'ArrowUp': {
           e.preventDefault()
           setHighlightedId((prev) => {
             const idx = prev ? order.indexOf(prev) : 0
@@ -86,18 +86,18 @@ export function useMenuRoot() {
           })
           break
         }
-        case "Home": {
+        case 'Home': {
           e.preventDefault()
           setHighlightedId(order[0])
           break
         }
-        case "End": {
+        case 'End': {
           e.preventDefault()
           setHighlightedId(order[order.length - 1])
           break
         }
-        case "Enter":
-        case " ": {
+        case 'Enter':
+        case ' ': {
           e.preventDefault()
           const items = itemsRef.current
           setHighlightedId((prev) => {
@@ -109,16 +109,16 @@ export function useMenuRoot() {
           })
           break
         }
-        case "Escape":
-        case "Tab": {
+        case 'Escape':
+        case 'Tab': {
           close()
           break
         }
       }
     }
 
-    root.addEventListener("keydown", handleKeyDown)
-    return () => root.removeEventListener("keydown", handleKeyDown)
+    root.addEventListener('keydown', handleKeyDown)
+    return () => root.removeEventListener('keydown', handleKeyDown)
   }, [open, close])
 
   const ctx: MenuContextValue = {
@@ -132,5 +132,5 @@ export function useMenuRoot() {
     triggerRef,
   }
 
-  return { ctx, rootRef }
+  return {ctx, rootRef}
 }

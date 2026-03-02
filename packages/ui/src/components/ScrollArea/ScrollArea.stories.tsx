@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from "@storybook/react"
-import { expect } from "storybook/test"
-import { css, html } from "react-strict-dom"
-import { ScrollArea } from "./ScrollArea"
+import type {Meta, StoryObj} from '@storybook/react'
+import {expect} from 'storybook/test'
+import {css, html} from 'react-strict-dom'
+import {ScrollArea} from './ScrollArea'
 
 const meta: Meta = {
-  title: "Components/ScrollArea",
+  title: 'Components/ScrollArea',
 }
 
 export default meta
@@ -14,8 +14,8 @@ const demoStyles = css.create({
   container: {
     width: 300,
     borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "#333333",
+    borderStyle: 'solid',
+    borderColor: '#333333',
     borderRadius: 8,
   },
   item: {
@@ -24,14 +24,14 @@ const demoStyles = css.create({
     paddingLeft: 16,
     paddingRight: 16,
     borderBottomWidth: 1,
-    borderBottomStyle: "solid",
-    borderBottomColor: "#1a1a1a",
+    borderBottomStyle: 'solid',
+    borderBottomColor: '#1a1a1a',
     fontSize: 14,
-    color: "#e5e5e5",
+    color: '#e5e5e5',
   },
 })
 
-const items = Array.from({ length: 30 }, (_, i) => `Item ${i + 1}`)
+const items = Array.from({length: 30}, (_, i) => `Item ${i + 1}`)
 
 export const Default: Story = {
   render: () => (
@@ -52,10 +52,10 @@ export const Default: Story = {
       </ScrollArea.Root>
     </html.div>
   ),
-  play: async ({ canvas }) => {
+  play: async ({canvas}) => {
     // Content renders
-    await expect(canvas.getByText("Item 1")).toBeInTheDocument()
-    await expect(canvas.getByText("Item 10")).toBeInTheDocument()
+    await expect(canvas.getByText('Item 1')).toBeInTheDocument()
+    await expect(canvas.getByText('Item 10')).toBeInTheDocument()
   },
 }
 
@@ -75,8 +75,8 @@ export const ShortContent: Story = {
       </ScrollArea.Root>
     </html.div>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Only one item")).toBeInTheDocument()
-    await expect(canvas.getByText("Two items")).toBeInTheDocument()
+  play: async ({canvas}) => {
+    await expect(canvas.getByText('Only one item')).toBeInTheDocument()
+    await expect(canvas.getByText('Two items')).toBeInTheDocument()
   },
 }

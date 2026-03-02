@@ -1,16 +1,16 @@
-import { css } from "react-strict-dom"
-import { colors } from "../../tokens/colors.css"
-import { radii, spacing } from "../../tokens/spacing.css"
-import { typography } from "../../tokens/typography.css"
-import { shadows } from "../../tokens/shadows.css"
+import {css} from 'react-strict-dom'
+import {colors} from '../../tokens/colors.css'
+import {radii, spacing} from '../../tokens/spacing.css'
+import {typography} from '../../tokens/typography.css'
+import {shadows} from '../../tokens/shadows.css'
 
 export const styles = css.create({
   root: {
-    position: "relative",
-    display: "inline-flex",
+    position: 'relative',
+    display: 'inline-flex',
   },
   popup: {
-    position: "absolute",
+    position: 'absolute',
     zIndex: 50,
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
@@ -23,34 +23,34 @@ export const styles = css.create({
     lineHeight: typography.lineHeight,
     borderRadius: radii.sm,
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderColor: colors.border,
     boxShadow: shadows.md,
-    whiteSpace: "nowrap",
-    pointerEvents: "none",
+    whiteSpace: 'nowrap',
+    pointerEvents: 'none',
   },
   top: {
-    bottom: "100%",
-    left: "50%",
-    transform: "translateX(-50%)",
+    bottom: '100%',
+    left: '50%',
+    transform: 'translateX(-50%)',
     marginBottom: spacing.xs,
   },
   bottom: {
-    top: "100%",
-    left: "50%",
-    transform: "translateX(-50%)",
+    top: '100%',
+    left: '50%',
+    transform: 'translateX(-50%)',
     marginTop: spacing.xs,
   },
   left: {
-    right: "100%",
-    top: "50%",
-    transform: "translateY(-50%)",
+    right: '100%',
+    top: '50%',
+    transform: 'translateY(-50%)',
     marginRight: spacing.xs,
   },
   right: {
-    left: "100%",
-    top: "50%",
-    transform: "translateY(-50%)",
+    left: '100%',
+    top: '50%',
+    transform: 'translateY(-50%)',
     marginLeft: spacing.xs,
   },
 })

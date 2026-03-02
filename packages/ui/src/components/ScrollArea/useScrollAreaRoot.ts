@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from "react"
-import type { ScrollAreaContextValue } from "./ScrollAreaContext"
+import {useState, useCallback, useRef, useEffect} from 'react'
+import type {ScrollAreaContextValue} from './ScrollAreaContext'
 
 export function useScrollAreaRoot(): ScrollAreaContextValue {
   const viewportRef = useRef<HTMLDivElement | null>(null)
@@ -54,8 +54,8 @@ export function useScrollAreaRoot(): ScrollAreaContextValue {
   useEffect(() => {
     const vp = viewportRef.current
     if (!vp) return
-    vp.addEventListener("scroll", handleScroll, { passive: true })
-    return () => vp.removeEventListener("scroll", handleScroll)
+    vp.addEventListener('scroll', handleScroll, {passive: true})
+    return () => vp.removeEventListener('scroll', handleScroll)
   }, [handleScroll])
 
   return {

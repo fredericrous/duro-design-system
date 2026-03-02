@@ -1,10 +1,18 @@
-import { type ReactNode, createContext, useContext, useState, useRef, useCallback, useId } from "react"
-import { html } from "react-strict-dom"
-import { styles } from "./styles.css"
+import {
+  type ReactNode,
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useCallback,
+  useId,
+} from 'react'
+import {html} from 'react-strict-dom'
+import {styles} from './styles.css'
 
 // --- Context ---
 
-type Placement = "top" | "bottom" | "left" | "right"
+type Placement = 'top' | 'bottom' | 'left' | 'right'
 
 interface TooltipContextValue {
   open: boolean
@@ -18,7 +26,7 @@ const TooltipContext = createContext<TooltipContextValue | null>(null)
 
 function useTooltip() {
   const ctx = useContext(TooltipContext)
-  if (!ctx) throw new Error("Tooltip compound components must be used within Tooltip.Root")
+  if (!ctx) throw new Error('Tooltip compound components must be used within Tooltip.Root')
   return ctx
 }
 
@@ -31,7 +39,7 @@ interface RootProps {
   delay?: number
 }
 
-function Root({ children, content, placement = "top", delay = 300 }: RootProps) {
+function Root({children, content, placement = 'top', delay = 300}: RootProps) {
   const [open, setOpen] = useState(false)
   const tooltipId = useId()
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -48,7 +56,7 @@ function Root({ children, content, placement = "top", delay = 300 }: RootProps) 
   }, [])
 
   return (
-    <TooltipContext.Provider value={{ open, show, hide, tooltipId, placement }}>
+    <TooltipContext.Provider value={{open, show, hide, tooltipId, placement}}>
       <html.div style={styles.root}>
         {children}
         {open && (
@@ -67,8 +75,8 @@ interface TriggerProps {
   children: ReactNode
 }
 
-function Trigger({ children }: TriggerProps) {
-  const { open, show, hide, tooltipId } = useTooltip()
+function Trigger({children}: TriggerProps) {
+  const {open, show, hide, tooltipId} = useTooltip()
 
   return (
     <html.div

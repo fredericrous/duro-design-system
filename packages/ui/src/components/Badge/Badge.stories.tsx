@@ -1,19 +1,19 @@
-import type { Meta, StoryObj } from "@storybook/react"
-import { expect } from "storybook/test"
-import { css, html } from "react-strict-dom"
-import { Badge } from "./Badge"
+import type {Meta, StoryObj} from '@storybook/react'
+import {expect} from 'storybook/test'
+import {css, html} from 'react-strict-dom'
+import {Badge} from './Badge'
 
 const meta: Meta<typeof Badge> = {
-  title: "Components/Badge",
+  title: 'Components/Badge',
   component: Badge,
   argTypes: {
     variant: {
-      control: "select",
-      options: ["default", "success", "warning", "error", "info"],
+      control: 'select',
+      options: ['default', 'success', 'warning', 'error', 'info'],
     },
     size: {
-      control: "select",
-      options: ["sm", "md"],
+      control: 'select',
+      options: ['sm', 'md'],
     },
   },
 }
@@ -22,38 +22,38 @@ export default meta
 type Story = StoryObj<typeof Badge>
 
 export const Default: Story = {
-  args: { children: "Badge" },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Badge")).toBeInTheDocument()
+  args: {children: 'Badge'},
+  play: async ({canvas}) => {
+    await expect(canvas.getByText('Badge')).toBeInTheDocument()
   },
 }
 
 export const Success: Story = {
-  args: { variant: "success", children: "Active" },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Active")).toBeInTheDocument()
+  args: {variant: 'success', children: 'Active'},
+  play: async ({canvas}) => {
+    await expect(canvas.getByText('Active')).toBeInTheDocument()
   },
 }
 
 export const Warning: Story = {
-  args: { variant: "warning", children: "Expiring" },
+  args: {variant: 'warning', children: 'Expiring'},
 }
 
 export const Error: Story = {
-  args: { variant: "error", children: "Expired" },
+  args: {variant: 'error', children: 'Expired'},
 }
 
 export const Info: Story = {
-  args: { variant: "info", children: "Updated" },
+  args: {variant: 'info', children: 'Updated'},
 }
 
 export const Small: Story = {
-  args: { variant: "success", size: "sm", children: "sm" },
+  args: {variant: 'success', size: 'sm', children: 'sm'},
 }
 
 const stackStyles = css.create({
-  row: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" },
-  stack: { display: "flex", flexDirection: "column", gap: 16 },
+  row: {display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap'},
+  stack: {display: 'flex', flexDirection: 'column', gap: 16},
 })
 
 export const AllVariants: Story = {
@@ -83,12 +83,12 @@ export const AllVariants: Story = {
       </html.div>
     </html.div>
   ),
-  play: async ({ canvas }) => {
+  play: async ({canvas}) => {
     // Each variant appears twice: once in md row, once in sm row
-    await expect(canvas.getAllByText("Default").length).toBe(2)
-    await expect(canvas.getAllByText("Success").length).toBe(2)
-    await expect(canvas.getAllByText("Warning").length).toBe(2)
-    await expect(canvas.getAllByText("Error").length).toBe(2)
-    await expect(canvas.getAllByText("Info").length).toBe(2)
+    await expect(canvas.getAllByText('Default').length).toBe(2)
+    await expect(canvas.getAllByText('Success').length).toBe(2)
+    await expect(canvas.getAllByText('Warning').length).toBe(2)
+    await expect(canvas.getAllByText('Error').length).toBe(2)
+    await expect(canvas.getAllByText('Info').length).toBe(2)
   },
 }

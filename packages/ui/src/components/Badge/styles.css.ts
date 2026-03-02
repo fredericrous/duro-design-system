@@ -1,18 +1,18 @@
-import { css } from "react-strict-dom"
-import { colors } from "../../tokens/colors.css"
-import { radii, spacing } from "../../tokens/spacing.css"
-import { typography } from "../../tokens/typography.css"
+import {css} from 'react-strict-dom'
+import {colors} from '../../tokens/colors.css'
+import {radii, spacing} from '../../tokens/spacing.css'
+import {typography} from '../../tokens/typography.css'
 
 export const styles = css.create({
   base: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     fontFamily: typography.fontFamily,
     fontWeight: typography.fontWeightMedium,
     lineHeight: 1,
     borderRadius: radii.full,
-    whiteSpace: "nowrap",
+    whiteSpace: 'nowrap',
   },
   sizeMd: {
     paddingTop: spacing.xs,
@@ -26,7 +26,7 @@ export const styles = css.create({
     paddingBottom: 2,
     paddingLeft: spacing.xs,
     paddingRight: spacing.xs,
-    fontSize: "0.625rem",
+    fontSize: '0.625rem',
   },
   default: {
     backgroundColor: colors.bgCardHover,

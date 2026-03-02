@@ -1,17 +1,17 @@
-import { css } from "react-strict-dom"
-import { colors } from "../../tokens/colors.css"
-import { radii, spacing } from "../../tokens/spacing.css"
-import { typography } from "../../tokens/typography.css"
-import { shadows } from "../../tokens/shadows.css"
+import {css} from 'react-strict-dom'
+import {colors} from '../../tokens/colors.css'
+import {radii, spacing} from '../../tokens/spacing.css'
+import {typography} from '../../tokens/typography.css'
+import {shadows} from '../../tokens/shadows.css'
 
 export const styles = css.create({
   root: {
-    position: "relative",
-    display: "inline-flex",
+    position: 'relative',
+    display: 'inline-flex',
   },
   trigger: {
-    display: "inline-flex",
-    alignItems: "center",
+    display: 'inline-flex',
+    alignItems: 'center',
     gap: spacing.sm,
     paddingTop: spacing.sm,
     paddingBottom: spacing.sm,
@@ -21,19 +21,19 @@ export const styles = css.create({
     fontSize: typography.fontSizeSm,
     color: colors.text,
     backgroundColor: {
-      default: "transparent",
-      ":hover": colors.bgCardHover,
+      default: 'transparent',
+      ':hover': colors.bgCardHover,
     },
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,
-    cursor: "pointer",
-    transitionProperty: "background-color, border-color",
-    transitionDuration: "150ms",
+    cursor: 'pointer',
+    transitionProperty: 'background-color, border-color',
+    transitionDuration: '150ms',
   },
   backdrop: {
-    position: "fixed",
+    position: 'fixed',
     top: 0,
     left: 0,
     right: 0,
@@ -41,13 +41,13 @@ export const styles = css.create({
     zIndex: 49,
   },
   popup: {
-    position: "absolute",
-    top: "100%",
+    position: 'absolute',
+    top: '100%',
     left: 0,
     marginTop: spacing.xs,
     backgroundColor: colors.bgCard,
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,
     boxShadow: shadows.md,
@@ -57,12 +57,12 @@ export const styles = css.create({
     zIndex: 50,
   },
   popupEnd: {
-    left: "auto",
+    left: 'auto',
     right: 0,
   },
   item: {
-    display: "flex",
-    alignItems: "center",
+    display: 'flex',
+    alignItems: 'center',
     paddingTop: spacing.sm,
     paddingBottom: spacing.sm,
     paddingLeft: spacing.md,
@@ -71,19 +71,19 @@ export const styles = css.create({
     fontFamily: typography.fontFamily,
     color: colors.text,
     borderRadius: radii.sm,
-    cursor: "pointer",
-    backgroundColor: "transparent",
-    transitionProperty: "background-color",
-    transitionDuration: "150ms",
+    cursor: 'pointer',
+    backgroundColor: 'transparent',
+    transitionProperty: 'background-color',
+    transitionDuration: '150ms',
   },
   itemHighlighted: {
     backgroundColor: colors.bgCardHover,
   },
   linkItem: {
-    textDecoration: "none",
+    textDecoration: 'none',
     color: {
       default: colors.text,
-      ":hover": colors.text,
+      ':hover': colors.text,
     },
   },
 })

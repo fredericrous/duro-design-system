@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react"
+import {createContext, useContext} from 'react'
 
 export interface SelectContextValue {
   open: boolean
@@ -19,6 +19,6 @@ export const SelectContext = createContext<SelectContextValue | null>(null)
 
 export function useSelect() {
   const ctx = useContext(SelectContext)
-  if (!ctx) throw new Error("Select compound components must be used within Select.Root")
+  if (!ctx) throw new Error('Select compound components must be used within Select.Root')
   return ctx
 }

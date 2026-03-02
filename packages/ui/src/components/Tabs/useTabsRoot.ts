@@ -1,6 +1,6 @@
-import { useCallback, useRef } from "react"
-import { useControllableValue } from "../../hooks/useControllableValue"
-import type { Orientation, TabsContextValue } from "./TabsContext"
+import {useCallback, useRef} from 'react'
+import {useControllableValue} from '../../hooks/useControllableValue'
+import type {Orientation, TabsContextValue} from './TabsContext'
 
 interface UseTabsRootOptions {
   value?: string
@@ -13,12 +13,16 @@ export function useTabsRoot({
   value: controlledValue,
   defaultValue,
   onValueChange,
-  orientation = "horizontal",
+  orientation = 'horizontal',
 }: UseTabsRootOptions): TabsContextValue {
   const [activeValue, onSelect] = useControllableValue<string | null>(
     controlledValue,
     defaultValue ?? null,
-    onValueChange ? (v) => { if (v !== null) onValueChange(v) } : undefined,
+    onValueChange
+      ? (v) => {
+          if (v !== null) onValueChange(v)
+        }
+      : undefined,
   )
   const tabsRef = useRef(new Map<string, boolean>())
   const orderRef = useRef<string[]>([])
@@ -34,5 +38,5 @@ export function useTabsRoot({
     }
   }, [])
 
-  return { activeValue, onSelect, orientation, registerTab, tabsRef, orderRef }
+  return {activeValue, onSelect, orientation, registerTab, tabsRef, orderRef}
 }

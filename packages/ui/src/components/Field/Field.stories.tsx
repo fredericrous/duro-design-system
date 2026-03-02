@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from "@storybook/react"
-import { expect } from "storybook/test"
-import { css, html } from "react-strict-dom"
-import { Field } from "./Field"
-import { Input } from "../Input/Input"
+import type {Meta, StoryObj} from '@storybook/react'
+import {expect} from 'storybook/test'
+import {css, html} from 'react-strict-dom'
+import {Field} from './Field'
+import {Input} from '../Input/Input'
 
 const meta: Meta = {
-  title: "Components/Field",
+  title: 'Components/Field',
 }
 
 export default meta
@@ -19,20 +19,20 @@ export const Default: Story = {
       <Field.Description>3-32 characters, letters and numbers only.</Field.Description>
     </Field.Root>
   ),
-  play: async ({ canvas }) => {
+  play: async ({canvas}) => {
     // Label is associated with input via htmlFor/id
-    const input = canvas.getByPlaceholderText("Enter username")
+    const input = canvas.getByPlaceholderText('Enter username')
     await expect(input).toBeInTheDocument()
 
-    const label = canvas.getByText("Username")
+    const label = canvas.getByText('Username')
     await expect(label).toBeInTheDocument()
-    await expect(label.tagName).toBe("LABEL")
+    await expect(label.tagName).toBe('LABEL')
 
     // Description text is present
-    await expect(canvas.getByText("3-32 characters, letters and numbers only.")).toBeInTheDocument()
+    await expect(canvas.getByText('3-32 characters, letters and numbers only.')).toBeInTheDocument()
 
     // Input should reference description via aria-describedby
-    await expect(input).toHaveAttribute("aria-describedby")
+    await expect(input).toHaveAttribute('aria-describedby')
   },
 }
 
@@ -44,19 +44,19 @@ export const WithError: Story = {
       <Field.Error>Please enter a valid email address.</Field.Error>
     </Field.Root>
   ),
-  play: async ({ canvas }) => {
-    const input = canvas.getByPlaceholderText("Enter email")
-    await expect(input).toHaveAttribute("aria-invalid", "true")
+  play: async ({canvas}) => {
+    const input = canvas.getByPlaceholderText('Enter email')
+    await expect(input).toHaveAttribute('aria-invalid', 'true')
 
     // Error message with alert role
-    const error = canvas.getByRole("alert")
+    const error = canvas.getByRole('alert')
     await expect(error).toBeInTheDocument()
-    await expect(error).toHaveTextContent("Please enter a valid email address.")
+    await expect(error).toHaveTextContent('Please enter a valid email address.')
   },
 }
 
 const stackStyles = css.create({
-  stack: { display: "flex", flexDirection: "column", gap: 16, maxWidth: 400 },
+  stack: {display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 400},
 })
 
 export const FormExample: Story = {
@@ -79,14 +79,14 @@ export const FormExample: Story = {
       </Field.Root>
     </html.div>
   ),
-  play: async ({ canvas }) => {
+  play: async ({canvas}) => {
     // All labels rendered
-    await expect(canvas.getByText("Username")).toBeInTheDocument()
-    await expect(canvas.getByText("Password")).toBeInTheDocument()
-    await expect(canvas.getByText("Confirm Password")).toBeInTheDocument()
+    await expect(canvas.getByText('Username')).toBeInTheDocument()
+    await expect(canvas.getByText('Password')).toBeInTheDocument()
+    await expect(canvas.getByText('Confirm Password')).toBeInTheDocument()
 
     // Error field has alert
-    const alert = canvas.getByRole("alert")
-    await expect(alert).toHaveTextContent("Passwords do not match.")
+    const alert = canvas.getByRole('alert')
+    await expect(alert).toHaveTextContent('Passwords do not match.')
   },
 }

@@ -1,22 +1,22 @@
-import type { Meta, StoryObj } from "@storybook/react"
-import { expect } from "storybook/test"
-import { css, html } from "react-strict-dom"
-import { Card } from "./Card"
-import { colors } from "../../tokens/colors.css"
+import type {Meta, StoryObj} from '@storybook/react'
+import {expect} from 'storybook/test'
+import {css, html} from 'react-strict-dom'
+import {Card} from './Card'
+import {colors} from '../../tokens/colors.css'
 
 const meta: Meta<typeof Card> = {
-  title: "Components/Card",
+  title: 'Components/Card',
   component: Card,
   argTypes: {
     variant: {
-      control: "select",
-      options: ["elevated", "outlined", "filled", "interactive"],
+      control: 'select',
+      options: ['elevated', 'outlined', 'filled', 'interactive'],
     },
     size: {
-      control: "select",
-      options: ["default", "compact", "full"],
+      control: 'select',
+      options: ['default', 'compact', 'full'],
     },
-    header: { control: "text" },
+    header: {control: 'text'},
   },
 }
 
@@ -25,70 +25,70 @@ type Story = StoryObj<typeof Card>
 
 export const Elevated: Story = {
   args: {
-    variant: "elevated",
-    header: "Elevated Card",
-    children: "This card has a shadow and larger radius, like a page-level container.",
+    variant: 'elevated',
+    header: 'Elevated Card',
+    children: 'This card has a shadow and larger radius, like a page-level container.',
   },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Elevated Card")).toBeInTheDocument()
+  play: async ({canvas}) => {
+    await expect(canvas.getByText('Elevated Card')).toBeInTheDocument()
     await expect(canvas.getByText(/shadow and larger radius/)).toBeInTheDocument()
   },
 }
 
 export const Outlined: Story = {
   args: {
-    variant: "outlined",
-    header: "Outlined Card",
-    children: "A bordered card section with a title.",
+    variant: 'outlined',
+    header: 'Outlined Card',
+    children: 'A bordered card section with a title.',
   },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Outlined Card")).toBeInTheDocument()
+  play: async ({canvas}) => {
+    await expect(canvas.getByText('Outlined Card')).toBeInTheDocument()
   },
 }
 
 export const Filled: Story = {
   args: {
-    variant: "filled",
-    children: "A subtle filled card without border or shadow.",
+    variant: 'filled',
+    children: 'A subtle filled card without border or shadow.',
   },
 }
 
 export const Interactive: Story = {
   args: {
-    variant: "interactive",
-    children: "Hover me! I translate up and show an accent border.",
+    variant: 'interactive',
+    children: 'Hover me! I translate up and show an accent border.',
   },
-  play: async ({ canvas }) => {
+  play: async ({canvas}) => {
     await expect(canvas.getByText(/Hover me/)).toBeInTheDocument()
   },
 }
 
 export const Compact: Story = {
   args: {
-    variant: "outlined",
-    size: "compact",
-    header: "Compact",
-    children: "Less padding for tighter layouts.",
+    variant: 'outlined',
+    size: 'compact',
+    header: 'Compact',
+    children: 'Less padding for tighter layouts.',
   },
 }
 
 export const Full: Story = {
   args: {
-    variant: "elevated",
-    size: "full",
-    header: "Full Padding",
-    children: "Extra padding for page-level card containers.",
+    variant: 'elevated',
+    size: 'full',
+    header: 'Full Padding',
+    children: 'Extra padding for page-level card containers.',
   },
 }
 
 const gridStyles = css.create({
   grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
     gap: 16,
   },
-  stack: { display: "flex", flexDirection: "column", gap: 16 },
-  muted: { color: colors.textMuted, fontSize: "0.875rem" },
+  stack: {display: 'flex', flexDirection: 'column', gap: 16},
+  muted: {color: colors.textMuted, fontSize: '0.875rem'},
 })
 
 export const AllVariants: Story = {
@@ -110,10 +110,10 @@ export const AllVariants: Story = {
       </html.div>
     </html.div>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Elevated")).toBeInTheDocument()
-    await expect(canvas.getByText("Outlined")).toBeInTheDocument()
-    await expect(canvas.getByText("Background only")).toBeInTheDocument()
-    await expect(canvas.getByText("Hover to interact")).toBeInTheDocument()
+  play: async ({canvas}) => {
+    await expect(canvas.getByText('Elevated')).toBeInTheDocument()
+    await expect(canvas.getByText('Outlined')).toBeInTheDocument()
+    await expect(canvas.getByText('Background only')).toBeInTheDocument()
+    await expect(canvas.getByText('Hover to interact')).toBeInTheDocument()
   },
 }

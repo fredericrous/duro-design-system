@@ -1,16 +1,16 @@
-import { type ReactNode, useRef, useId, useEffect } from "react"
-import { html } from "react-strict-dom"
-import { styles } from "./styles.css"
-import { MenuContext, useMenu } from "./MenuContext"
-import { useMenuRoot } from "./useMenuRoot"
+import {type ReactNode, useRef, useId, useEffect} from 'react'
+import {html} from 'react-strict-dom'
+import {styles} from './styles.css'
+import {MenuContext, useMenu} from './MenuContext'
+import {useMenuRoot} from './useMenuRoot'
 
 // --- Root ---
 interface RootProps {
   children: ReactNode
 }
 
-function Root({ children }: RootProps) {
-  const { ctx, rootRef } = useMenuRoot()
+function Root({children}: RootProps) {
+  const {ctx, rootRef} = useMenuRoot()
 
   return (
     <MenuContext.Provider value={ctx}>
@@ -22,8 +22,8 @@ function Root({ children }: RootProps) {
 }
 
 // --- Trigger ---
-function Trigger({ children }: { children: ReactNode }) {
-  const { open, toggle, menuId, triggerRef } = useMenu()
+function Trigger({children}: {children: ReactNode}) {
+  const {open, toggle, menuId, triggerRef} = useMenu()
   const localRef = useRef<HTMLButtonElement>(null)
 
   // Sync local ref to context triggerRef
@@ -49,11 +49,11 @@ function Trigger({ children }: { children: ReactNode }) {
 // --- Popup ---
 interface PopupProps {
   children: ReactNode
-  align?: "start" | "end"
+  align?: 'start' | 'end'
 }
 
-function Popup({ children, align = "start" }: PopupProps) {
-  const { open, close, menuId, highlightedId } = useMenu()
+function Popup({children, align = 'start'}: PopupProps) {
+  const {open, close, menuId, highlightedId} = useMenu()
 
   if (!open) return null
 
@@ -64,7 +64,7 @@ function Popup({ children, align = "start" }: PopupProps) {
         id={menuId}
         role="menu"
         aria-activedescendant={highlightedId ?? undefined}
-        style={[styles.popup, align === "end" && styles.popupEnd]}
+        style={[styles.popup, align === 'end' && styles.popupEnd]}
       >
         {children}
       </html.div>
@@ -78,8 +78,8 @@ interface ItemProps {
   children: ReactNode
 }
 
-function Item({ onClick, children }: ItemProps) {
-  const { close, highlightedId, setHighlightedId, registerItem } = useMenu()
+function Item({onClick, children}: ItemProps) {
+  const {close, highlightedId, setHighlightedId, registerItem} = useMenu()
   const id = useId()
   const ref = useRef<HTMLDivElement>(null)
   const isHighlighted = highlightedId === id
@@ -115,8 +115,8 @@ interface LinkItemProps {
   children: ReactNode
 }
 
-function LinkItem({ href, children }: LinkItemProps) {
-  const { close, highlightedId, setHighlightedId, registerItem } = useMenu()
+function LinkItem({href, children}: LinkItemProps) {
+  const {close, highlightedId, setHighlightedId, registerItem} = useMenu()
   const id = useId()
   const ref = useRef<HTMLAnchorElement>(null)
   const isHighlighted = highlightedId === id

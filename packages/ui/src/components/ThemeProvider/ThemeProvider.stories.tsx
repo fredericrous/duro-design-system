@@ -1,15 +1,15 @@
-import type React from "react"
-import type { Meta, StoryObj } from "@storybook/react"
-import { expect } from "storybook/test"
-import { css, html } from "react-strict-dom"
-import { ThemeProvider, type ThemeName } from "./ThemeProvider"
-import { colors } from "../../tokens/colors.css"
-import { radii } from "../../tokens/spacing.css"
-import { shadows } from "../../tokens/shadows.css"
-import { typography } from "../../tokens/typography.css"
+import type React from 'react'
+import type {Meta, StoryObj} from '@storybook/react'
+import {expect} from 'storybook/test'
+import {css, html} from 'react-strict-dom'
+import {ThemeProvider, type ThemeName} from './ThemeProvider'
+import {colors} from '../../tokens/colors.css'
+import {radii} from '../../tokens/spacing.css'
+import {shadows} from '../../tokens/shadows.css'
+import {typography} from '../../tokens/typography.css'
 
 const meta: Meta<typeof ThemeProvider> = {
-  title: "Theme/ThemeProvider",
+  title: 'Theme/ThemeProvider',
   component: ThemeProvider,
 }
 
@@ -28,7 +28,7 @@ const sampleStyles = css.create({
     padding: 16,
     backgroundColor: colors.bgCard,
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.md,
     boxShadow: shadows.md,
@@ -48,22 +48,22 @@ const sampleStyles = css.create({
     fontWeight: typography.fontWeightMedium,
   },
   row: {
-    display: "flex",
+    display: 'flex',
     gap: 16,
-    flexWrap: "wrap",
+    flexWrap: 'wrap',
   },
   swatch: {
     width: 48,
     height: 48,
     borderRadius: radii.sm,
     borderWidth: 1,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderColor: colors.border,
   },
-  errorSwatch: { backgroundColor: colors.error },
-  successSwatch: { backgroundColor: colors.success },
-  warningSwatch: { backgroundColor: colors.warning },
-  accentSwatch: { backgroundColor: colors.accent },
+  errorSwatch: {backgroundColor: colors.error},
+  successSwatch: {backgroundColor: colors.success},
+  warningSwatch: {backgroundColor: colors.warning},
+  accentSwatch: {backgroundColor: colors.accent},
 })
 
 function SampleContent() {
@@ -87,47 +87,47 @@ function SampleContent() {
 }
 
 export const Dark: Story = {
-  args: { theme: "dark" },
-  render: (args: { theme?: ThemeName; children?: React.ReactNode }) => (
+  args: {theme: 'dark'},
+  render: (args: {theme?: ThemeName; children?: React.ReactNode}) => (
     <ThemeProvider {...args}>
       <SampleContent />
     </ThemeProvider>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Sample Card")).toBeInTheDocument()
-    await expect(canvas.getByText("Accent colored text")).toBeInTheDocument()
+  play: async ({canvas}) => {
+    await expect(canvas.getByText('Sample Card')).toBeInTheDocument()
+    await expect(canvas.getByText('Accent colored text')).toBeInTheDocument()
   },
 }
 
 export const Light: Story = {
-  args: { theme: "light" },
-  render: (args: { theme?: ThemeName; children?: React.ReactNode }) => (
+  args: {theme: 'light'},
+  render: (args: {theme?: ThemeName; children?: React.ReactNode}) => (
     <ThemeProvider {...args}>
       <SampleContent />
     </ThemeProvider>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Sample Card")).toBeInTheDocument()
+  play: async ({canvas}) => {
+    await expect(canvas.getByText('Sample Card')).toBeInTheDocument()
   },
 }
 
 export const HighContrast: Story = {
-  args: { theme: "high-contrast" },
-  render: (args: { theme?: ThemeName; children?: React.ReactNode }) => (
+  args: {theme: 'high-contrast'},
+  render: (args: {theme?: ThemeName; children?: React.ReactNode}) => (
     <ThemeProvider {...args}>
       <SampleContent />
     </ThemeProvider>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Sample Card")).toBeInTheDocument()
+  play: async ({canvas}) => {
+    await expect(canvas.getByText('Sample Card')).toBeInTheDocument()
   },
 }
 
 const sideBySideStyles = css.create({
   wrapper: {
-    display: "flex",
+    display: 'flex',
     gap: 24,
-    flexWrap: "wrap",
+    flexWrap: 'wrap',
   },
   column: {
     flex: 1,
@@ -137,14 +137,14 @@ const sideBySideStyles = css.create({
     fontSize: typography.fontSizeSm,
     fontWeight: typography.fontWeightSemibold,
     marginBottom: 8,
-    color: "#888",
+    color: '#888',
   },
 })
 
 export const AllThemes: Story = {
   render: () => (
     <html.div style={sideBySideStyles.wrapper}>
-      {(["dark", "light", "high-contrast"] as const).map((theme) => (
+      {(['dark', 'light', 'high-contrast'] as const).map((theme) => (
         <html.div key={theme} style={sideBySideStyles.column}>
           <html.div style={sideBySideStyles.label}>{theme}</html.div>
           <ThemeProvider theme={theme}>
@@ -154,10 +154,10 @@ export const AllThemes: Story = {
       ))}
     </html.div>
   ),
-  play: async ({ canvas }) => {
+  play: async ({canvas}) => {
     // All three theme labels rendered
-    await expect(canvas.getByText("dark")).toBeInTheDocument()
-    await expect(canvas.getByText("light")).toBeInTheDocument()
-    await expect(canvas.getByText("high-contrast")).toBeInTheDocument()
+    await expect(canvas.getByText('dark')).toBeInTheDocument()
+    await expect(canvas.getByText('light')).toBeInTheDocument()
+    await expect(canvas.getByText('high-contrast')).toBeInTheDocument()
   },
 }

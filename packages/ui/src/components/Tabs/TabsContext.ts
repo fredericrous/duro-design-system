@@ -1,6 +1,6 @@
-import { createContext, useContext } from "react"
+import {createContext, useContext} from 'react'
 
-export type Orientation = "horizontal" | "vertical"
+export type Orientation = 'horizontal' | 'vertical'
 
 export interface TabsContextValue {
   activeValue: string | null
@@ -15,6 +15,6 @@ export const TabsContext = createContext<TabsContextValue | null>(null)
 
 export function useTabs() {
   const ctx = useContext(TabsContext)
-  if (!ctx) throw new Error("Tabs compound components must be used within Tabs.Root")
+  if (!ctx) throw new Error('Tabs compound components must be used within Tabs.Root')
   return ctx
 }
