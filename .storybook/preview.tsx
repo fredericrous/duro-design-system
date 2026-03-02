@@ -1,11 +1,8 @@
 import type {Preview} from '@storybook/react-vite'
 import {ThemeProvider} from '../packages/ui/src/components/ThemeProvider/ThemeProvider'
 
-import '@duro/lexical-multi/strict.css'
 import '@duro/ui/strict.css'
 import '@duro/ui/reset.css'
-import '../packages/lexical-multi/src/themes/DuroEditorTheme.css'
-import '../packages/lexical-multi/src/css/lexical-compat.css'
 
 const bgToTheme: Record<string, 'dark' | 'light' | 'high-contrast'> = {
   dark: 'dark',
