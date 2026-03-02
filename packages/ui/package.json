@@ -1,5 +1,5 @@
 {
-  "name": "@duro/ui",
+  "name": "@duro-app/ui",
   "version": "0.1.0",
   "type": "module",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "react-strict-dom": "^0.0.55"
   },
   "dependencies": {
-    "@duro/tokens": "workspace:^"
+    "@duro-app/tokens": "workspace:^"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.28.0",

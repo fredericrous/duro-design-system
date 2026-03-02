@@ -2,7 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Card} from './Card'
-import {colors} from '@duro/tokens'
+import {colors} from '@duro-app/tokens'
 
 const meta: Meta<typeof Card> = {
   title: 'Components/Card',

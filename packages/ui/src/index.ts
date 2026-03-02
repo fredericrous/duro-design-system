@@ -17,5 +17,5 @@ export {ThemeProvider, type ThemeName} from './components/ThemeProvider/ThemePro
 export {Tooltip} from './components/Tooltip/Tooltip'
 
 // Tokens (re-exported from @duro/tokens for backward compatibility)
-export {colors, spacing, radii, typography, shadows} from '@duro/tokens'
-export {lightTheme, lightShadows, highContrastTheme, highContrastShadows} from '@duro/tokens'
+export {colors, spacing, radii, typography, shadows} from '@duro-app/tokens'
+export {lightTheme, lightShadows, highContrastTheme, highContrastShadows} from '@duro-app/tokens'

@@ -3,7 +3,7 @@ import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Table} from './Table'
 import {Badge} from '../Badge/Badge'
-import {colors} from '@duro/tokens'
+import {colors} from '@duro-app/tokens'
 
 const meta: Meta = {
   title: 'Components/Table',

@@ -1,5 +1,5 @@
 import {css} from 'react-strict-dom'
-import {colors, radii} from '@duro/tokens'
+import {colors, radii} from '@duro-app/tokens'
 
 export const styles = css.create({
   root: {

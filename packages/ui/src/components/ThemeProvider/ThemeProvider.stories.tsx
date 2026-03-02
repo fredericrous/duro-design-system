@@ -3,7 +3,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ThemeProvider, type ThemeName} from './ThemeProvider'
-import {colors, radii, shadows, typography} from '@duro/tokens'
+import {colors, radii, shadows, typography} from '@duro-app/tokens'
 
 const meta: Meta<typeof ThemeProvider> = {
   title: 'Theme/ThemeProvider',

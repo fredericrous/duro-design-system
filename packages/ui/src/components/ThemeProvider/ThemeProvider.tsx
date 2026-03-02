@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react'
 import {css, html} from 'react-strict-dom'
-import {lightTheme, lightShadows, highContrastTheme, highContrastShadows} from '@duro/tokens'
+import {lightTheme, lightShadows, highContrastTheme, highContrastShadows} from '@duro-app/tokens'
 
 export type ThemeName = 'dark' | 'light' | 'high-contrast'
 

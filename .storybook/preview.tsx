@@ -1,8 +1,8 @@
 import type {Preview} from '@storybook/react-vite'
 import {ThemeProvider} from '../packages/ui/src/components/ThemeProvider/ThemeProvider'
 
-import '@duro/ui/strict.css'
-import '@duro/ui/reset.css'
+import '@duro-app/ui/strict.css'
+import '@duro-app/ui/reset.css'
 
 const bgToTheme: Record<string, 'dark' | 'light' | 'high-contrast'> = {
   dark: 'dark',

@@ -12,7 +12,7 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime', 'react-dom', 'react-strict-dom', '@duro/tokens'],
+      external: ['react', 'react/jsx-runtime', 'react-dom', 'react-strict-dom', '@duro-app/tokens'],
     },
     sourcemap: true,
     target: 'es2020',

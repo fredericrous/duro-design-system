@@ -1,5 +1,5 @@
 {
-  "name": "@duro/design-system",
+  "name": "@duro-app/design-system",
   "private": true,
   "scripts": {
     "build": "pnpm -r run build",

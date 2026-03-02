@@ -4,7 +4,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "paths": {
-      "@duro/tokens": ["../tokens/dist/index.d.ts"]
+      "@duro-app/tokens": ["../tokens/dist/index.d.ts"]
     }
   },
   "include": ["src"],
