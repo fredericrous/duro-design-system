@@ -11,17 +11,12 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: [
-        'react-strict-dom',
-      ],
+      external: ['react-strict-dom'],
     },
     sourcemap: true,
     target: 'es2020',
     cssCodeSplit: false,
   },
-  plugins: [
-    babel(),
-    dts({insertTypesEntry: true}),
-  ],
+  plugins: [babel(), dts({insertTypesEntry: true})],
   publicDir: false,
 })
