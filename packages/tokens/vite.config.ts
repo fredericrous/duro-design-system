@@ -17,6 +17,9 @@ export default defineConfig({
     target: 'es2020',
     cssCodeSplit: false,
   },
-  plugins: [babel(), dts({insertTypesEntry: true})],
+  plugins: [
+    babel({filter: /\.(tsx?|jsx?)$/, babelConfig: {rootMode: 'upward'}}),
+    dts({insertTypesEntry: true}),
+  ],
   publicDir: false,
 })

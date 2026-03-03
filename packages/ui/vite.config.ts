@@ -12,7 +12,7 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime', 'react-dom', 'react-strict-dom', '@duro-app/tokens'],
+      external: ['react', 'react/jsx-runtime', 'react-dom'],
     },
     sourcemap: true,
     target: 'es2020',
@@ -21,6 +21,10 @@ export default defineConfig({
   resolve: {
     extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js'],
   },
-  plugins: [react({babel: {configFile: true}}), babel(), dts({insertTypesEntry: true})],
+  plugins: [
+    react({babel: {configFile: true}}),
+    babel(),
+    dts({insertTypesEntry: true}),
+  ],
   publicDir: false,
 })
