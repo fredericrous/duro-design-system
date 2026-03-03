@@ -21,10 +21,6 @@ export default defineConfig({
   resolve: {
     extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js'],
   },
-  plugins: [
-    react({babel: {configFile: true}}),
-    babel(),
-    dts({insertTypesEntry: true}),
-  ],
+  plugins: [react({babel: {configFile: true}}), babel(), dts({insertTypesEntry: true})],
   publicDir: false,
 })
