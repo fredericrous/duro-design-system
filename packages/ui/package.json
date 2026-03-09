@@ -1,6 +1,6 @@
 {
   "name": "@duro-app/ui",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -28,6 +28,7 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./dist/index.css": "./dist/index.css",
     "./strict.css": "./src/strict.css",
     "./reset.css": "./src/global-reset.css"
   },
