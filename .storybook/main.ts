@@ -36,6 +36,12 @@ const config: StorybookConfig = {
       extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js'],
     }
 
+    // Exclude react-native from dep optimization — we only use .web.* exports
+    // and Vite chokes on the native-only Flow/TypeScript syntax in the package.
+    config.optimizeDeps = config.optimizeDeps || {}
+    config.optimizeDeps.exclude = config.optimizeDeps.exclude || []
+    config.optimizeDeps.exclude.push('react-native')
+
     // Storybook sets server.fs.strict but doesn't initialize the allow list,
     // so its own allow-storybook-dir plugin silently no-ops.
     const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
