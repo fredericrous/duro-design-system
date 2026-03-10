@@ -51,7 +51,13 @@ export function Checkbox({
         style={[styles.box, isChecked ? styles.boxChecked : styles.boxUnchecked]}
         aria-hidden
       >
-        <svg width={12} height={12} viewBox="0 0 12 12" fill="none" style={{opacity: isChecked ? 1 : 0}}>
+        <svg
+          width={12}
+          height={12}
+          viewBox="0 0 12 12"
+          fill="none"
+          style={{opacity: isChecked ? 1 : 0}}
+        >
           <polyline
             points="2.5 6 5 8.5 9.5 3.5"
             stroke="currentColor"
