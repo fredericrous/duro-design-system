@@ -9,7 +9,7 @@ export const NativeModules = {}
 export const processColor = (c: any) => c
 export const findNodeHandle = () => null
 export const Touchable = {Mixin: {}}
-export const PanResponder = {create: () => ({})}
+export const PanResponder = {create: () => ({panHandlers: {}})}
 export const View = 'div'
 export const TurboModuleRegistry = {get: () => null, getEnforcing: () => null}
 export {createElement as unstable_createElement}
