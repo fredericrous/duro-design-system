@@ -1,10 +1,30 @@
 import {dirname, resolve} from 'node:path'
 import {fileURLToPath} from 'node:url'
 import type {StorybookConfig} from '@storybook/react-vite'
-import type {UserConfig} from 'vite'
+import type {Plugin, UserConfig} from 'vite'
 import {withoutVitePlugins} from '@storybook/builder-vite'
 import react from '@vitejs/plugin-react'
 import babel from 'vite-plugin-babel'
+
+// Stub react-native and its subpath imports (e.g. react-native/Libraries/...).
+// react-strict-dom's .web.js code paths don't need react-native, but
+// react-native-svg's fabric modules import deep RN paths that contain
+// Flow/JSX syntax Vite can't parse.
+function stubReactNative(): Plugin {
+  const STUB = 'export default {};\n'
+  const RN_RE = /^react-native(\/|$)/
+
+  return {
+    name: 'stub-react-native',
+    enforce: 'pre',
+    resolveId(source) {
+      if (RN_RE.test(source)) return `\0rn-stub:${source}`
+    },
+    load(id) {
+      if (id.startsWith('\0rn-stub:')) return STUB
+    },
+  }
+}
 
 const config: StorybookConfig = {
   stories: ['../packages/*/src/**/*.stories.@(ts|tsx)'],
@@ -27,6 +47,7 @@ const config: StorybookConfig = {
     ])
 
     config.plugins.push(
+      stubReactNative(),
       react({babel: {configFile: true}}),
       babel(),
     )
@@ -36,8 +57,8 @@ const config: StorybookConfig = {
       extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js'],
     }
 
-    // Exclude react-native from dep optimization — we only use .web.* exports
-    // and Vite chokes on the native-only Flow/TypeScript syntax in the package.
+    // Exclude react-native from dep optimization — the stub plugin handles
+    // runtime resolution, but esbuild optimizer runs separately.
     config.optimizeDeps = config.optimizeDeps || {}
     config.optimizeDeps.exclude = config.optimizeDeps.exclude || []
     config.optimizeDeps.exclude.push('react-native')
