@@ -4,14 +4,5 @@ export default {
   parserOpts: {
     plugins: ['typescript', 'jsx'],
   },
-  presets: [
-    [
-      'react-strict-dom/babel-preset',
-      {
-        dev,
-        rootDir: process.cwd(),
-        platform: 'web',
-      },
-    ],
-  ],
+  presets: [['react-strict-dom/babel-preset', {dev, rootDir: process.cwd(), platform: 'web'}]],
 }

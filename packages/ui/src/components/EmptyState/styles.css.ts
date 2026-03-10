@@ -1,5 +1,7 @@
 import {css} from 'react-strict-dom'
-import {colors, spacing, typography} from '@duro-app/tokens'
+import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 export const styles = css.create({
   root: {

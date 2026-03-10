@@ -1,5 +1,5 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens'
+import {colors} from '@duro-app/tokens/tokens/colors.css'
 
 const spin = css.keyframes({
   '0%': {transform: 'rotate(0deg)'},

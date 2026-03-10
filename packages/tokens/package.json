@@ -26,7 +26,13 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./tokens/colors.css": "./src/tokens/colors.css.ts",
+    "./tokens/spacing.css": "./src/tokens/spacing.css.ts",
+    "./tokens/typography.css": "./src/tokens/typography.css.ts",
+    "./tokens/shadows.css": "./src/tokens/shadows.css.ts",
+    "./themes/light.css": "./src/themes/light.css.ts",
+    "./themes/high-contrast.css": "./src/themes/high-contrast.css.ts"
   },
   "scripts": {
     "dev": "vite build --watch",
