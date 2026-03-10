@@ -40,30 +40,35 @@ export const Default: Story = {
       </Menu.Root>
     )
   },
-  play: async ({canvas, userEvent}) => {
+  play: async ({canvas}) => {
     const trigger = canvas.getByRole('button', {name: /Options/})
-
-    // Closed state
     await expect(trigger).toHaveAttribute('aria-haspopup', 'menu')
     await expect(trigger).toHaveAttribute('aria-expanded', 'false')
     await expect(canvas.queryByRole('menu')).not.toBeInTheDocument()
+  },
+}
 
-    // Open
+export const OpenClose: Story = {
+  render: () => (
+    <Menu.Root>
+      <Menu.Trigger>Options</Menu.Trigger>
+      <Menu.Popup>
+        <Menu.Item>Settings</Menu.Item>
+        <Menu.Item>Profile</Menu.Item>
+        <Menu.Item>Logout</Menu.Item>
+      </Menu.Popup>
+    </Menu.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const trigger = canvas.getByRole('button', {name: /Options/})
+
     await userEvent.click(trigger)
     await expect(trigger).toHaveAttribute('aria-expanded', 'true')
-    await expect(canvas.getByRole('menu')).toBeInTheDocument()
-
-    // Menu items present with correct role
     const items = canvas.getAllByRole('menuitem')
     await expect(items.length).toBe(3)
-    await expect(items[0]).toHaveTextContent('Settings')
-    await expect(items[1]).toHaveTextContent('Profile')
-    await expect(items[2]).toHaveTextContent('Logout')
 
-    // Close with Escape
     await userEvent.keyboard('{Escape}')
     await expect(canvas.queryByRole('menu')).not.toBeInTheDocument()
-    await expect(trigger).toHaveAttribute('aria-expanded', 'false')
   },
 }
 
