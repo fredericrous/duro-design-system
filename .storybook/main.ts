@@ -68,6 +68,10 @@ const config: StorybookConfig = {
     // can be pre-bundled (CJS→ESM) without pulling in RN's Flow source.
     const rnShimPath = resolve(dirname(fileURLToPath(import.meta.url)), '../packages/ui/src/stubs/react-native.ts')
     config.optimizeDeps = config.optimizeDeps || {}
+    // Force react-native-svg into dep optimization so esbuild converts its
+    // CJS modules (e.g. transform.js with module.exports) to ESM.
+    config.optimizeDeps.include = config.optimizeDeps.include || []
+    config.optimizeDeps.include.push('react-native-svg')
     config.optimizeDeps.esbuildOptions = config.optimizeDeps.esbuildOptions || {}
     config.optimizeDeps.esbuildOptions.plugins = config.optimizeDeps.esbuildOptions.plugins || []
     config.optimizeDeps.esbuildOptions.plugins.push({
