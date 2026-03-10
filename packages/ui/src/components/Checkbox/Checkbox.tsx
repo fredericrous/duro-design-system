@@ -1,6 +1,5 @@
 import {type ReactNode, useState, useCallback} from 'react'
 import {html} from 'react-strict-dom'
-import Svg, {Polyline} from 'react-native-svg'
 import {styles} from './styles.css'
 
 interface CheckboxProps {
@@ -53,15 +52,15 @@ export function Checkbox({
         aria-hidden
       >
         {isChecked && (
-          <Svg width={12} height={12} viewBox="0 0 12 12" fill="none">
-            <Polyline
+          <svg width={12} height={12} viewBox="0 0 12 12" fill="none">
+            <polyline
               points="2.5 6 5 8.5 9.5 3.5"
               stroke="currentColor"
               strokeWidth={1.5}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-          </Svg>
+          </svg>
         )}
       </html.span>
       {children && <html.span>{children}</html.span>}

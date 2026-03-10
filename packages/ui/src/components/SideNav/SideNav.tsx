@@ -1,6 +1,5 @@
 import {type ReactNode, useState, useCallback, useRef, useEffect} from 'react'
 import {html} from 'react-strict-dom'
-import Svg, {Path} from 'react-native-svg'
 import {styles} from './styles.css'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {SideNavContext, useSideNav} from './SideNavContext'
@@ -118,7 +117,7 @@ function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
         aria-expanded={isExpanded}
       >
         <html.span style={[styles.chevron, isExpanded && styles.chevronOpen]}>
-          <Svg
+          <svg
             width={10}
             height={10}
             viewBox="0 0 24 24"
@@ -128,8 +127,8 @@ function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <Path d="M9 18l6-6-6-6" />
-          </Svg>
+            <path d="M9 18l6-6-6-6" />
+          </svg>
         </html.span>
         {label}
       </html.button>
