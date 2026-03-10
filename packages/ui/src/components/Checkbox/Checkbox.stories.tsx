@@ -76,7 +76,9 @@ export const AllVariants: Story = {
       <Checkbox>Unchecked</Checkbox>
       <Checkbox defaultChecked>Checked</Checkbox>
       <Checkbox disabled>Disabled</Checkbox>
-      <Checkbox disabled defaultChecked>Disabled checked</Checkbox>
+      <Checkbox disabled defaultChecked>
+        Disabled checked
+      </Checkbox>
     </html.div>
   ),
   play: async ({canvas}) => {

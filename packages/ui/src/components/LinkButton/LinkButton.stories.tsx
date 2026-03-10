@@ -47,7 +47,12 @@ export const FullWidth: Story = {
 }
 
 export const ExternalLink: Story = {
-  args: {href: 'https://example.com', target: '_blank', rel: 'noopener noreferrer', children: 'External'},
+  args: {
+    href: 'https://example.com',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    children: 'External',
+  },
   play: async ({canvas}) => {
     const link = canvas.getByRole('link', {name: 'External'})
     await expect(link).toHaveAttribute('target', '_blank')
@@ -65,11 +70,17 @@ export const AllVariants: Story = {
     <html.div style={rowStyles.stack}>
       <html.div style={rowStyles.row}>
         <LinkButton href="#">Primary</LinkButton>
-        <LinkButton href="#" variant="secondary">Secondary</LinkButton>
+        <LinkButton href="#" variant="secondary">
+          Secondary
+        </LinkButton>
       </html.div>
       <html.div style={rowStyles.row}>
-        <LinkButton href="#" size="small">Small Primary</LinkButton>
-        <LinkButton href="#" variant="secondary" size="small">Small Secondary</LinkButton>
+        <LinkButton href="#" size="small">
+          Small Primary
+        </LinkButton>
+        <LinkButton href="#" variant="secondary" size="small">
+          Small Secondary
+        </LinkButton>
       </html.div>
     </html.div>
   ),
