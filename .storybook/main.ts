@@ -64,11 +64,26 @@ const config: StorybookConfig = {
       extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js'],
     }
 
-    // Exclude react-native from dep optimization — the stub plugin handles
-    // runtime resolution, but esbuild optimizer runs separately.
+    // Stub react-native during esbuild dep optimization so react-native-svg
+    // can be pre-bundled (CJS→ESM) without pulling in RN's Flow source.
+    const rnShimPath = resolve(dirname(fileURLToPath(import.meta.url)), '../packages/ui/src/stubs/react-native.ts')
     config.optimizeDeps = config.optimizeDeps || {}
-    config.optimizeDeps.exclude = config.optimizeDeps.exclude || []
-    config.optimizeDeps.exclude.push('react-native', 'react-native-svg')
+    config.optimizeDeps.esbuildOptions = config.optimizeDeps.esbuildOptions || {}
+    config.optimizeDeps.esbuildOptions.plugins = config.optimizeDeps.esbuildOptions.plugins || []
+    config.optimizeDeps.esbuildOptions.plugins.push({
+      name: 'stub-react-native',
+      setup(build) {
+        build.onResolve({filter: /^react-native$/}, () => ({path: rnShimPath}))
+        build.onResolve({filter: /^react-native\//}, () => ({
+          path: 'rn-stub',
+          namespace: 'rn-stub',
+        }))
+        build.onLoad({filter: /.*/, namespace: 'rn-stub'}, () => ({
+          contents: 'export default {};',
+          loader: 'js',
+        }))
+      },
+    })
 
     // Storybook sets server.fs.strict but doesn't initialize the allow list,
     // so its own allow-storybook-dir plugin silently no-ops.
