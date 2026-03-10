@@ -13,11 +13,18 @@ import babel from 'vite-plugin-babel'
 function stubReactNative(): Plugin {
   const STUB = 'export default {};\n'
   const RN_RE = /^react-native(\/|$)/
+  const shimPath = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    '../packages/ui/src/stubs/react-native.ts',
+  )
 
   return {
     name: 'stub-react-native',
     enforce: 'pre',
     resolveId(source) {
+      // Bare 'react-native' → use the project's shim with real exports
+      if (source === 'react-native') return shimPath
+      // Subpath imports (e.g. react-native/Libraries/...) → empty stub
       if (RN_RE.test(source)) return `\0rn-stub:${source}`
     },
     load(id) {
@@ -61,7 +68,7 @@ const config: StorybookConfig = {
     // runtime resolution, but esbuild optimizer runs separately.
     config.optimizeDeps = config.optimizeDeps || {}
     config.optimizeDeps.exclude = config.optimizeDeps.exclude || []
-    config.optimizeDeps.exclude.push('react-native')
+    config.optimizeDeps.exclude.push('react-native', 'react-native-svg')
 
     // Storybook sets server.fs.strict but doesn't initialize the allow list,
     // so its own allow-storybook-dir plugin silently no-ops.
