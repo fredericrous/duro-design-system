@@ -9,6 +9,7 @@ export {Checkbox} from './components/Checkbox/Checkbox'
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Field} from './components/Field/Field'
 export {Input, type InputVariant} from './components/Input/Input'
+export {InputGroup} from './components/InputGroup/InputGroup'
 export {
   LinkButton,
   type LinkButtonVariant,

@@ -51,4 +51,9 @@ export const styles = css.create({
       ':focus': colors.error,
     },
   },
+  inGroup: {
+    borderWidth: 0,
+    borderRadius: 0,
+    outlineWidth: 0,
+  },
 })

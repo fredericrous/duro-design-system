@@ -1,5 +1,6 @@
 import {html} from 'react-strict-dom'
 import {useFieldContext} from '../Field/FieldContext'
+import {useInputGroupContext} from '../InputGroup/InputGroupContext'
 import {styles} from './styles.css'
 
 type StrictInputProps = React.ComponentProps<typeof html.input>
@@ -46,6 +47,7 @@ export function Input({
   onChange,
 }: InputProps) {
   const ctx = useFieldContext()
+  const groupCtx = useInputGroupContext()
 
   // react-strict-dom omits web-only `pattern` from its types, but the
   // underlying DOM element supports it. Type-assert to pass it through.
@@ -68,7 +70,7 @@ export function Input({
       }
       aria-invalid={ctx?.invalid || variant === 'error' || undefined}
       onChange={onChange}
-      style={[styles.base, styles[variant]]}
+      style={[styles.base, styles[variant], groupCtx?.inGroup && styles.inGroup]}
       {...(extraProps as Record<string, unknown>)}
     />
   )
