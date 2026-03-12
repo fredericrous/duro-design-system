@@ -83,7 +83,9 @@ export function TypeScaleTable({rows, label}: TypeScaleTableProps) {
                 <html.span style={styles.mono}>{row.token}</html.span>
               </Table.Cell>
               <Table.Cell>
-                <html.span style={styles.muted}>{row.size} / {row.lineHeight}</html.span>
+                <html.span style={styles.muted}>
+                  {row.size} / {row.lineHeight}
+                </html.span>
               </Table.Cell>
               <Table.Cell>
                 <html.span style={dynamicStyles.typeSample(row.size, row.lineHeight)}>

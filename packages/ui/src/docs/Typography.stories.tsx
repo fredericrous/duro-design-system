@@ -130,18 +130,36 @@ export const TextVariants: StoryObj = {
   render: () => (
     <html.div style={localStyles.wrapper}>
       <Stack gap="lg">
-        <Text variant="bodyMd" as="p">Body medium — the default paragraph text.</Text>
-        <Text variant="bodySm" as="p">Body small — compact UI text for secondary content.</Text>
-        <Text variant="bodyLg" as="p">Body large — emphasized text for intros or callouts.</Text>
-        <Text variant="caption" color="muted">Caption — timestamps, footnotes, metadata</Text>
+        <Text variant="bodyMd" as="p">
+          Body medium — the default paragraph text.
+        </Text>
+        <Text variant="bodySm" as="p">
+          Body small — compact UI text for secondary content.
+        </Text>
+        <Text variant="bodyLg" as="p">
+          Body large — emphasized text for intros or callouts.
+        </Text>
+        <Text variant="caption" color="muted">
+          Caption — timestamps, footnotes, metadata
+        </Text>
         <Text variant="label">Label — form labels and input descriptions</Text>
         <Text variant="code">const greeting = &quot;Hello, world!&quot;</Text>
-        <Text variant="overline" color="muted">Overline — section dividers</Text>
+        <Text variant="overline" color="muted">
+          Overline — section dividers
+        </Text>
         <Stack gap="sm">
-          <Text variant="bodyMd" color="accent">Accent colored text</Text>
-          <Text variant="bodyMd" color="error">Error colored text</Text>
-          <Text variant="bodyMd" color="success">Success colored text</Text>
-          <Text variant="bodyMd" color="warning">Warning colored text</Text>
+          <Text variant="bodyMd" color="accent">
+            Accent colored text
+          </Text>
+          <Text variant="bodyMd" color="error">
+            Error colored text
+          </Text>
+          <Text variant="bodyMd" color="success">
+            Success colored text
+          </Text>
+          <Text variant="bodyMd" color="warning">
+            Warning colored text
+          </Text>
         </Stack>
       </Stack>
     </html.div>

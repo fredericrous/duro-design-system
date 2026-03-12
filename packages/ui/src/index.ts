@@ -43,5 +43,14 @@ export {Grid} from './components/Grid/Grid'
 export {useContainerQuery, type ContainerSize} from './hooks/useContainerQuery'
 
 // Tokens (re-exported from @duro/tokens for backward compatibility)
-export {colors, spacing, radii, typography, typeScale, typePresets, shadows, layoutSpacing} from '@duro-app/tokens'
+export {
+  colors,
+  spacing,
+  radii,
+  typography,
+  typeScale,
+  typePresets,
+  shadows,
+  layoutSpacing,
+} from '@duro-app/tokens'
 export {lightTheme, lightShadows, highContrastTheme, highContrastShadows} from '@duro-app/tokens'

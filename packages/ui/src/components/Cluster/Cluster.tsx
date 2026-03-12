@@ -34,12 +34,7 @@ const justifyMap = {
   between: styles.justifyBetween,
 } as const
 
-export function Cluster({
-  gap = 'sm',
-  align = 'start',
-  justify = 'start',
-  children,
-}: ClusterProps) {
+export function Cluster({gap = 'sm', align = 'start', justify = 'start', children}: ClusterProps) {
   return (
     <html.div style={[styles.base, gapMap[gap], alignMap[align], justifyMap[justify]]}>
       {children}

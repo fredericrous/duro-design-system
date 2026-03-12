@@ -36,12 +36,7 @@ const justifyMap = {
   between: styles.justifyBetween,
 } as const
 
-export function Inline({
-  gap = 'sm',
-  align = 'center',
-  justify = 'start',
-  children,
-}: InlineProps) {
+export function Inline({gap = 'sm', align = 'center', justify = 'start', children}: InlineProps) {
   return (
     <html.div style={[styles.base, gapMap[gap], alignMap[align], justifyMap[justify]]}>
       {children}

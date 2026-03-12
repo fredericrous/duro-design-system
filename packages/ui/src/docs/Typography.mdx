@@ -18,17 +18,17 @@ The typography system uses **three layers** — a primitive type scale, semantic
 
 The base 9-step scale, defined in `typeScale`:
 
-| Step | Token       | Size     | Line-height | Use case              |
-|------|-------------|----------|-------------|-----------------------|
-| 1    | `fontSize1` | 12px     | 16px        | Captions, badges      |
-| 2    | `fontSize2` | 13px     | 20px        | Small UI              |
-| 3    | `fontSize3` | 14px     | 20px        | Default UI (buttons)  |
-| 4    | `fontSize4` | 16px     | 24px        | Body text             |
-| 5    | `fontSize5` | 18px     | 24px        | Body large            |
-| 6    | `fontSize6` | 20px     | 28px        | Subheading            |
-| 7    | `fontSize7` | 24px     | 32px        | Heading small         |
-| 8    | `fontSize8` | 30px     | 36px        | Heading medium        |
-| 9    | `fontSize9` | 36px     | 44px        | Heading large         |
+| Step | Token       | Size | Line-height | Use case             |
+| ---- | ----------- | ---- | ----------- | -------------------- |
+| 1    | `fontSize1` | 12px | 16px        | Captions, badges     |
+| 2    | `fontSize2` | 13px | 20px        | Small UI             |
+| 3    | `fontSize3` | 14px | 20px        | Default UI (buttons) |
+| 4    | `fontSize4` | 16px | 24px        | Body text            |
+| 5    | `fontSize5` | 18px | 24px        | Body large           |
+| 6    | `fontSize6` | 20px | 28px        | Subheading           |
+| 7    | `fontSize7` | 24px | 32px        | Heading small        |
+| 8    | `fontSize8` | 30px | 36px        | Heading medium       |
+| 9    | `fontSize9` | 36px | 44px        | Heading large        |
 
 See the **Primitive Scale** story for live samples at each size.
 
@@ -38,25 +38,25 @@ Presets compose scale tokens + weight + tracking into named styles via `typePres
 
 ### Body
 
-| Preset   | Size  | Weight  | Use case                        |
-|----------|-------|---------|---------------------------------|
-| `bodySm` | 14/20 | Normal  | Compact UI text                 |
-| `bodyMd` | 16/24 | Normal  | Standard paragraphs             |
-| `bodyLg` | 18/24 | Normal  | Emphasized intros, callouts     |
+| Preset   | Size  | Weight | Use case                    |
+| -------- | ----- | ------ | --------------------------- |
+| `bodySm` | 14/20 | Normal | Compact UI text             |
+| `bodyMd` | 16/24 | Normal | Standard paragraphs         |
+| `bodyLg` | 18/24 | Normal | Emphasized intros, callouts |
 
 ### UI
 
-| Preset    | Size  | Weight   | Notes                          |
-|-----------|-------|----------|--------------------------------|
-| `caption` | 12/16 | Normal   | Wide tracking                  |
-| `label`   | 14/20 | Medium   | Form labels                    |
-| `code`    | 14/20 | Normal   | Monospace font                 |
-| `overline`| 12/16 | Semibold | Uppercase, wide tracking       |
+| Preset     | Size  | Weight   | Notes                    |
+| ---------- | ----- | -------- | ------------------------ |
+| `caption`  | 12/16 | Normal   | Wide tracking            |
+| `label`    | 14/20 | Medium   | Form labels              |
+| `code`     | 14/20 | Normal   | Monospace font           |
+| `overline` | 12/16 | Semibold | Uppercase, wide tracking |
 
 ### Heading
 
 | Preset      | Size  | Weight   | Tracking |
-|-------------|-------|----------|----------|
+| ----------- | ----- | -------- | -------- |
 | `headingSm` | 20/28 | Semibold | Tight    |
 | `headingMd` | 24/32 | Semibold | Tight    |
 | `headingLg` | 30/36 | Bold     | Tight    |
@@ -64,30 +64,30 @@ Presets compose scale tokens + weight + tracking into named styles via `typePres
 
 ### Display (fluid)
 
-| Preset      | Range     | Weight | Notes                     |
-|-------------|-----------|--------|---------------------------|
-| `displaySm` | 36–48px   | Bold   | Fluid via `clamp()`       |
-| `displayMd` | 44–60px   | Bold   | Fluid via `clamp()`       |
-| `displayLg` | 56–72px   | Bold   | Fluid via `clamp()`       |
+| Preset      | Range   | Weight | Notes               |
+| ----------- | ------- | ------ | ------------------- |
+| `displaySm` | 36–48px | Bold   | Fluid via `clamp()` |
+| `displayMd` | 44–60px | Bold   | Fluid via `clamp()` |
+| `displayLg` | 56–72px | Bold   | Fluid via `clamp()` |
 
 See the **Fluid Display** story for a resizable demo.
 
 ## Letter Spacing
 
-| Token                | Value    | Use case                 |
-|----------------------|----------|--------------------------|
-| `letterSpacingTight` | -0.02em  | Headings, display text   |
-| `letterSpacingNormal`| 0        | Body text                |
-| `letterSpacingWide`  | 0.04em   | Captions, overlines      |
+| Token                 | Value   | Use case               |
+| --------------------- | ------- | ---------------------- |
+| `letterSpacingTight`  | -0.02em | Headings, display text |
+| `letterSpacingNormal` | 0       | Body text              |
+| `letterSpacingWide`   | 0.04em  | Captions, overlines    |
 
 ## When to use which layer
 
-| Scenario                                        | Use                                    |
-|-------------------------------------------------|----------------------------------------|
-| Body text in a page or card                     | `<Text variant="bodyMd">`              |
-| Section heading                                 | `<Heading level={2}>`                  |
-| Hero or landing page title                      | `<Heading level={1} variant="displayLg">` |
-| Form label                                      | `<Text variant="label">`              |
-| Inline code                                     | `<Text variant="code">`               |
-| Custom component needing raw font size          | `typeScale.fontSize4` token           |
-| Composing a one-off style with preset defaults  | `typePresets.bodyMd` in `css.create()` |
+| Scenario                                       | Use                                       |
+| ---------------------------------------------- | ----------------------------------------- |
+| Body text in a page or card                    | `<Text variant="bodyMd">`                 |
+| Section heading                                | `<Heading level={2}>`                     |
+| Hero or landing page title                     | `<Heading level={1} variant="displayLg">` |
+| Form label                                     | `<Text variant="label">`                  |
+| Inline code                                    | `<Text variant="code">`                   |
+| Custom component needing raw font size         | `typeScale.fontSize4` token               |
+| Composing a one-off style with preset defaults | `typePresets.bodyMd` in `css.create()`    |

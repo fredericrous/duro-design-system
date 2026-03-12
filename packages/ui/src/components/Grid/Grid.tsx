@@ -37,9 +37,5 @@ export function Grid({gap = 'md', columns, minColumnWidth, children}: GridProps)
       ? columnsMap[columns]
       : undefined
 
-  return (
-    <html.div style={[styles.base, gapMap[gap], columnStyle]}>
-      {children}
-    </html.div>
-  )
+  return <html.div style={[styles.base, gapMap[gap], columnStyle]}>{children}</html.div>
 }

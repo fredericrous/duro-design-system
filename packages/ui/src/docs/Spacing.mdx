@@ -19,16 +19,16 @@ The spacing system uses **three layers** — primitive tokens, semantic tokens, 
 
 These are the base spacing values imported from `@duro-app/tokens`:
 
-| Token   | Value |
-|---------|-------|
-| `xs`    | 4px   |
-| `sm`    | 8px   |
-| `ms`    | 12px  |
-| `md`    | 16px  |
-| `lg`    | 24px  |
-| `xl`    | 32px  |
-| `xxl`   | 48px  |
-| `xxxl`  | 64px  |
+| Token  | Value |
+| ------ | ----- |
+| `xs`   | 4px   |
+| `sm`   | 8px   |
+| `ms`   | 12px  |
+| `md`   | 16px  |
+| `lg`   | 24px  |
+| `xl`   | 32px  |
+| `xxl`  | 48px  |
+| `xxxl` | 64px  |
 
 See the **Primitive Scale** story for a visual representation.
 
@@ -39,7 +39,7 @@ Semantic tokens map primitives to usage contexts:
 ### Stack (vertical gaps)
 
 | Token     | Value |
-|-----------|-------|
+| --------- | ----- |
 | `stackXs` | 4px   |
 | `stackSm` | 8px   |
 | `stackMd` | 16px  |
@@ -49,7 +49,7 @@ Semantic tokens map primitives to usage contexts:
 ### Inline (horizontal gaps)
 
 | Token      | Value |
-|------------|-------|
+| ---------- | ----- |
 | `inlineXs` | 4px   |
 | `inlineSm` | 8px   |
 | `inlineMd` | 16px  |
@@ -58,20 +58,20 @@ Semantic tokens map primitives to usage contexts:
 ### Container (insets/padding)
 
 | Token         | Value |
-|---------------|-------|
+| ------------- | ----- |
 | `containerSm` | 16px  |
 | `containerMd` | 24px  |
 | `containerLg` | 32px  |
 
 ## When to use which layer
 
-| Scenario | Use |
-|----------|-----|
-| Building a layout with vertical flow | `<Stack gap="md">` |
-| Horizontal row of items | `<Inline gap="sm">` |
-| Card or section padding | `containerMd` / `containerLg` token |
-| One-off custom spacing in a component | Primitive token (`spacing.lg`) |
-| Responsive spacing based on container width | `useContainerQuery` hook |
+| Scenario                                    | Use                                 |
+| ------------------------------------------- | ----------------------------------- |
+| Building a layout with vertical flow        | `<Stack gap="md">`                  |
+| Horizontal row of items                     | `<Inline gap="sm">`                 |
+| Card or section padding                     | `containerMd` / `containerLg` token |
+| One-off custom spacing in a component       | Primitive token (`spacing.lg`)      |
+| Responsive spacing based on container width | `useContainerQuery` hook            |
 
 ## Responsive Spacing
 

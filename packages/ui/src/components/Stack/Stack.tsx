@@ -29,9 +29,5 @@ const alignMap = {
 } as const
 
 export function Stack({gap = 'md', align = 'stretch', children}: StackProps) {
-  return (
-    <html.div style={[styles.base, gapMap[gap], alignMap[align]]}>
-      {children}
-    </html.div>
-  )
+  return <html.div style={[styles.base, gapMap[gap], alignMap[align]]}>{children}</html.div>
 }
