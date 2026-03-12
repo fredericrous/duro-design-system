@@ -23,16 +23,22 @@ function Root({children}: RootProps) {
 interface AddonProps {
   position?: 'start' | 'end'
   onClick?: () => void
+  disabled?: boolean
   children: ReactNode
 }
 
-function Addon({position = 'end', onClick, children}: AddonProps) {
+function Addon({position = 'end', onClick, disabled, children}: AddonProps) {
   const positionStyle = position === 'start' ? styles.addonStart : styles.addonEnd
-  const style = [styles.addon, positionStyle, onClick && styles.addonClickable]
+  const style = [
+    styles.addon,
+    positionStyle,
+    onClick && !disabled && styles.addonClickable,
+    disabled && styles.addonDisabled,
+  ]
 
   if (onClick) {
     return (
-      <html.button type="button" onClick={onClick} style={style}>
+      <html.button type="button" onClick={onClick} disabled={disabled} style={style}>
         {children}
       </html.button>
     )

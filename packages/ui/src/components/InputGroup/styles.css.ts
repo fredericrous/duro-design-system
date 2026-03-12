@@ -54,4 +54,8 @@ export const styles = css.create({
     transitionDuration: '150ms',
     transitionTimingFunction: 'ease',
   },
+  addonDisabled: {
+    opacity: 0.4,
+    cursor: 'not-allowed',
+  },
 })
