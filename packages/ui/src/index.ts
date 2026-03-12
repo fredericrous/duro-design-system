@@ -7,6 +7,7 @@ export {Button, type ButtonVariant, type ButtonSize} from './components/Button/B
 export {Card, type CardVariant, type CardSize} from './components/Card/Card'
 export {Checkbox} from './components/Checkbox/Checkbox'
 export {EmptyState} from './components/EmptyState/EmptyState'
+export {Heading, type HeadingVariant} from './components/Heading/Heading'
 export {Field} from './components/Field/Field'
 export {Input, type InputVariant} from './components/Input/Input'
 export {InputGroup} from './components/InputGroup/InputGroup'
@@ -29,8 +30,18 @@ export {Table, type TableVariant, type TableSize} from './components/Table/Table
 export {Tabs} from './components/Tabs/Tabs'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {ThemeProvider, type ThemeName} from './components/ThemeProvider/ThemeProvider'
+export {Text, type TextVariant, type TextColor} from './components/Text/Text'
 export {Tooltip} from './components/Tooltip/Tooltip'
 
+// Layout primitives
+export {Stack, type SpacingKey} from './components/Stack/Stack'
+export {Inline} from './components/Inline/Inline'
+export {Cluster} from './components/Cluster/Cluster'
+export {Grid} from './components/Grid/Grid'
+
+// Hooks
+export {useContainerQuery, type ContainerSize} from './hooks/useContainerQuery'
+
 // Tokens (re-exported from @duro/tokens for backward compatibility)
-export {colors, spacing, radii, typography, shadows} from '@duro-app/tokens'
+export {colors, spacing, radii, typography, typeScale, typePresets, shadows, layoutSpacing} from '@duro-app/tokens'
 export {lightTheme, lightShadows, highContrastTheme, highContrastShadows} from '@duro-app/tokens'

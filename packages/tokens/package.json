@@ -1,6 +1,6 @@
 {
   "name": "@duro-app/tokens",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -30,7 +30,9 @@
     "./tokens/colors.css": "./src/tokens/colors.css.ts",
     "./tokens/spacing.css": "./src/tokens/spacing.css.ts",
     "./tokens/typography.css": "./src/tokens/typography.css.ts",
+    "./tokens/layout-spacing.css": "./src/tokens/layout-spacing.css.ts",
     "./tokens/shadows.css": "./src/tokens/shadows.css.ts",
+    "./tokens/type-presets.css": "./src/tokens/type-presets.css.ts",
     "./themes/light.css": "./src/themes/light.css.ts",
     "./themes/high-contrast.css": "./src/themes/high-contrast.css.ts"
   },

@@ -1,0 +1,80 @@
+{/* packages/ui/src/docs/Spacing.mdx */}
+import { Meta } from '@storybook/addon-docs/blocks'
+import { TokenTable } from './helpers'
+
+<Meta title="Foundations/Spacing/Overview" />
+
+# Spacing System
+
+The spacing system uses **three layers** — primitive tokens, semantic tokens, and layout components — to create consistent, maintainable spacing throughout the UI.
+
+## Philosophy
+
+- **24px baseline grid** — all spacing values are multiples or fractions of 24px, ensuring vertical rhythm.
+- **Primitive tokens** define the raw scale (`xs` through `xxxl`).
+- **Semantic tokens** give meaning to the scale: `stackMd`, `inlineSm`, `containerLg` tell you _where_ a value is used, not just _how big_ it is.
+- **Layout components** (`Stack`, `Inline`, `Cluster`, `Grid`) apply these tokens so you rarely write raw gap/padding values.
+
+## Primitive Scale
+
+These are the base spacing values imported from `@duro-app/tokens`:
+
+| Token   | Value |
+|---------|-------|
+| `xs`    | 4px   |
+| `sm`    | 8px   |
+| `ms`    | 12px  |
+| `md`    | 16px  |
+| `lg`    | 24px  |
+| `xl`    | 32px  |
+| `xxl`   | 48px  |
+| `xxxl`  | 64px  |
+
+See the **Primitive Scale** story for a visual representation.
+
+## Semantic Tokens
+
+Semantic tokens map primitives to usage contexts:
+
+### Stack (vertical gaps)
+
+| Token     | Value |
+|-----------|-------|
+| `stackXs` | 4px   |
+| `stackSm` | 8px   |
+| `stackMd` | 16px  |
+| `stackLg` | 24px  |
+| `stackXl` | 48px  |
+
+### Inline (horizontal gaps)
+
+| Token      | Value |
+|------------|-------|
+| `inlineXs` | 4px   |
+| `inlineSm` | 8px   |
+| `inlineMd` | 16px  |
+| `inlineLg` | 24px  |
+
+### Container (insets/padding)
+
+| Token         | Value |
+|---------------|-------|
+| `containerSm` | 16px  |
+| `containerMd` | 24px  |
+| `containerLg` | 32px  |
+
+## When to use which layer
+
+| Scenario | Use |
+|----------|-----|
+| Building a layout with vertical flow | `<Stack gap="md">` |
+| Horizontal row of items | `<Inline gap="sm">` |
+| Card or section padding | `containerMd` / `containerLg` token |
+| One-off custom spacing in a component | Primitive token (`spacing.lg`) |
+| Responsive spacing based on container width | `useContainerQuery` hook |
+
+## Responsive Spacing
+
+The `useContainerQuery` hook returns `compact`, `default`, or `spacious` based on the container width. Components can use this to adjust spacing at the component level rather than relying on viewport media queries.
+
+See the **Responsive Spacing** story for an interactive demo.

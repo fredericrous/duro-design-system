@@ -1,7 +1,9 @@
 // Tokens
 export {colors} from './tokens/colors.css'
 export {spacing, radii} from './tokens/spacing.css'
-export {typography} from './tokens/typography.css'
+export {layoutSpacing} from './tokens/layout-spacing.css'
+export {typography, typeScale} from './tokens/typography.css'
+export {typePresets} from './tokens/type-presets.css'
 export {shadows} from './tokens/shadows.css'
 
 // Themes
