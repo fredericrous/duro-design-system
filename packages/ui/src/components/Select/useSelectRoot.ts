@@ -6,12 +6,14 @@ interface UseSelectRootOptions {
   defaultValue?: string
   value?: string
   onValueChange?: (value: string | null) => void
+  initialLabels?: Record<string, string>
 }
 
 export function useSelectRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  initialLabels,
 }: UseSelectRootOptions) {
   const [value, setValue] = useControllableValue<string | null>(
     controlledValue,
@@ -19,7 +21,7 @@ export function useSelectRoot({
     onValueChange,
   )
   const [open, setOpen] = useState(false)
-  const [labels, setLabels] = useState<Record<string, string>>({})
+  const [labels, setLabels] = useState<Record<string, string>>(initialLabels ?? {})
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
   const listboxId = useId()
   const rootRef = useRef<HTMLDivElement>(null)

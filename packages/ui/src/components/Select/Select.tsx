@@ -10,11 +10,12 @@ interface RootProps {
   defaultValue?: string
   value?: string
   onValueChange?: (value: string | null) => void
+  initialLabels?: Record<string, string>
   children: ReactNode
 }
 
-function Root({name, defaultValue, value, onValueChange, children}: RootProps) {
-  const {ctx, rootRef} = useSelectRoot({defaultValue, value, onValueChange})
+function Root({name, defaultValue, value, onValueChange, initialLabels, children}: RootProps) {
+  const {ctx, rootRef} = useSelectRoot({defaultValue, value, onValueChange, initialLabels})
 
   return (
     <SelectContext.Provider value={ctx}>
