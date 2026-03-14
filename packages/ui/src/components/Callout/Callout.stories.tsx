@@ -20,7 +20,8 @@ type Story = StoryObj<typeof Callout>
 export const Info: Story = {
   args: {
     variant: 'info',
-    children: 'A new version of the application is available. Please save your work and refresh the page to get the latest features and security updates.',
+    children:
+      'A new version of the application is available. Please save your work and refresh the page to get the latest features and security updates.',
   },
 }
 
@@ -72,16 +73,20 @@ export const AllVariants: Story = {
   render: () => (
     <html.div style={stackStyles.stack}>
       <Callout variant="error">
-        We could not verify your identity. This may happen if your invite link has expired or was already used. Please contact your administrator.
+        We could not verify your identity. This may happen if your invite link has expired or was
+        already used. Please contact your administrator.
       </Callout>
       <Callout variant="success">
-        Your account has been created and your certificate is installed. You can now access all resources assigned to your groups.
+        Your account has been created and your certificate is installed. You can now access all
+        resources assigned to your groups.
       </Callout>
       <Callout variant="warning">
-        It looks like your certificate is not installed yet. Install the .p12 file from your email, then click the button below.
+        It looks like your certificate is not installed yet. Install the .p12 file from your email,
+        then click the button below.
       </Callout>
       <Callout variant="info">
-        A new version of the application is available. Please save your work and refresh the page to get the latest features.
+        A new version of the application is available. Please save your work and refresh the page to
+        get the latest features.
       </Callout>
     </html.div>
   ),
