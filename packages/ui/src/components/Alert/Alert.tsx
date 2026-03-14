@@ -7,10 +7,10 @@ import {styles} from './styles.css'
 export type AlertVariant = 'error' | 'success' | 'warning' | 'info'
 
 const defaultIcons: Record<AlertVariant, IconName> = {
-  info: 'info-circle',
-  warning: 'alert-triangle',
-  success: 'check-circle',
-  error: 'x-circle',
+  info: 'info-circle-filled',
+  warning: 'alert-triangle-filled',
+  success: 'check-circle-filled',
+  error: 'x-circle-filled',
 }
 
 interface AlertProps {
