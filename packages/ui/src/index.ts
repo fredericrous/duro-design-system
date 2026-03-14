@@ -2,6 +2,7 @@ import './strict.css'
 
 // Components
 export {Alert, type AlertVariant} from './components/Alert/Alert'
+export {Icon, type IconName} from './components/Icon'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
 export {Button, type ButtonVariant, type ButtonSize} from './components/Button/Button'
 export {Card, type CardVariant, type CardSize} from './components/Card/Card'

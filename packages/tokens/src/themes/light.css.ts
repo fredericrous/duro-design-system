@@ -26,6 +26,7 @@ export const lightTheme = css.createTheme(colors, {
   warningBg: 'rgba(146, 64, 14, 0.08)',
   warningBorder: 'rgba(146, 64, 14, 0.3)',
   warningText: '#78350f',
+  info: '#1e40af',
   infoBg: 'rgba(30, 64, 175, 0.08)',
   infoBorder: 'rgba(30, 64, 175, 0.3)',
   infoText: '#1e40af',

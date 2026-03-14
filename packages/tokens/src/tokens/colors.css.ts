@@ -39,6 +39,7 @@ export const colors = css.defineVars({
   warningText: '#fde68a',
 
   // Semantic — Info (uses accent)
+  info: '#6aaffc',
   infoBg: 'rgba(106, 175, 252, 0.1)',
   infoBorder: 'rgba(106, 175, 252, 0.3)',
   infoText: '#93c5fd',

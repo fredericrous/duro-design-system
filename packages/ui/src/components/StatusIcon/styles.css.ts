@@ -18,6 +18,9 @@ export const styles = css.create({
   warning: {
     color: colors.warning,
   },
+  info: {
+    color: colors.info,
+  },
   muted: {
     color: colors.textMuted,
   },

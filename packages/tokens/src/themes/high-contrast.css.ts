@@ -26,6 +26,7 @@ export const highContrastTheme = css.createTheme(colors, {
   warningBg: 'rgba(252, 211, 77, 0.15)',
   warningBorder: 'rgba(252, 211, 77, 0.5)',
   warningText: '#fef08a',
+  info: '#60a5fa',
   infoBg: 'rgba(96, 165, 250, 0.15)',
   infoBorder: 'rgba(96, 165, 250, 0.5)',
   infoText: '#bfdbfe',
