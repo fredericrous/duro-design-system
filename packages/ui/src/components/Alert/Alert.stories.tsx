@@ -48,6 +48,14 @@ export const Info: Story = {
   },
 }
 
+export const NoIcon: Story = {
+  args: {
+    variant: 'info',
+    icon: false,
+    children: 'This alert has no icon.',
+  },
+}
+
 const stackStyles = css.create({
   stack: {display: 'flex', flexDirection: 'column', gap: 12},
 })

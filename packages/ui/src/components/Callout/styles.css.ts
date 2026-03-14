@@ -5,27 +5,22 @@ import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 export const styles = css.create({
   base: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
     padding: spacing.md,
     borderRadius: radii.sm,
     borderWidth: 1,
     borderStyle: 'solid',
     fontSize: typography.fontSizeSm,
     lineHeight: typography.lineHeight,
+    overflow: 'hidden', // contain the float
   },
-  iconWrap: {
-    flexShrink: 0,
-    display: 'flex',
+  icon: {
+    float: 'left',
+    marginRight: spacing.sm,
+    marginBottom: spacing.xs,
+    marginTop: 2,
+    display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 1,
-  },
-  content: {
-    flex: 1,
-    minWidth: 0,
   },
   error: {
     backgroundColor: colors.errorBg,
