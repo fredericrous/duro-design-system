@@ -5,10 +5,6 @@ import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 export const styles = css.create({
   base: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
     padding: spacing.md,
     borderRadius: radii.sm,
     borderWidth: 1,
@@ -16,16 +12,13 @@ export const styles = css.create({
     fontSize: typography.fontSizeSm,
     lineHeight: typography.lineHeight,
   },
-  iconWrap: {
-    flexShrink: 0,
-    display: 'flex',
+  icon: {
+    float: 'left',
+    marginRight: spacing.sm,
+    marginTop: 2,
+    display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 1,
-  },
-  content: {
-    flex: 1,
-    minWidth: 0,
   },
   error: {
     backgroundColor: colors.errorBg,

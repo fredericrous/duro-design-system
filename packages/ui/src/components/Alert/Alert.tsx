@@ -32,14 +32,8 @@ export function Alert({variant = 'info', icon, children}: AlertProps) {
 
   return (
     <html.div role="alert" style={[styles.base, styles[variant]]}>
-      {resolvedIcon ? (
-        <>
-          <html.div style={styles.iconWrap}>{resolvedIcon}</html.div>
-          <html.div style={styles.content}>{children}</html.div>
-        </>
-      ) : (
-        children
-      )}
+      {resolvedIcon && <html.span style={styles.icon}>{resolvedIcon}</html.span>}
+      {children}
     </html.div>
   )
 }
