@@ -52,6 +52,13 @@ export const styles = css.create({
     borderColor: colors.accent,
     color: colors.accentContrast,
   },
+  grouped: {
+    borderWidth: 0,
+    borderRadius: 0,
+    borderRightWidth: 1,
+    borderRightStyle: 'solid',
+    borderRightColor: colors.border,
+  },
   disabled: {
     opacity: 0.5,
     cursor: 'not-allowed',

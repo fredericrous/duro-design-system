@@ -34,6 +34,7 @@ export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {ThemeProvider, type ThemeName} from './components/ThemeProvider/ThemeProvider'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
+export {ToggleGroup} from './components/ToggleGroup/ToggleGroup'
 export {Tooltip} from './components/Tooltip/Tooltip'
 export {Switch} from './components/Switch/Switch'
 

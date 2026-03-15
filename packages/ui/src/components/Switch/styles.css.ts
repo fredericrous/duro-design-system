@@ -42,8 +42,8 @@ export const styles = css.create({
   },
   trackChecked: {
     backgroundColor: {
-      default: colors.success,
-      ':hover': colors.successText,
+      default: colors.accent,
+      ':hover': colors.accentHover,
     },
   },
   thumb: {
