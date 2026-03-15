@@ -11,6 +11,7 @@ export {Checkbox} from './components/Checkbox/Checkbox'
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Heading, type HeadingVariant} from './components/Heading/Heading'
 export {Field} from './components/Field/Field'
+export {Fieldset, type FieldsetGap} from './components/Fieldset/Fieldset'
 export {Input, type InputVariant} from './components/Input/Input'
 export {InputGroup} from './components/InputGroup/InputGroup'
 export {
