@@ -9,6 +9,7 @@ export default {
     plugins: ['typescript', 'jsx'],
   },
   plugins: [
+    ['babel-plugin-react-compiler', {}],
     [rsdPlugin, {debug: false}],
     [
       '@stylexjs/babel-plugin',
