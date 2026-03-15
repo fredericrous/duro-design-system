@@ -41,8 +41,7 @@ export function Toggle({
   const group = useToggleGroup()
 
   // When inside a ToggleGroup, derive pressed state from group context
-  const groupPressed =
-    group && value !== undefined ? group.value.includes(value) : undefined
+  const groupPressed = group && value !== undefined ? group.value.includes(value) : undefined
   const isGrouped = group !== null
   const disabled = disabledProp || (group?.disabled ?? false)
   const size = group?.size ?? sizeProp

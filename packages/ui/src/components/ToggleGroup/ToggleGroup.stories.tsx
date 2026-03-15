@@ -25,9 +25,15 @@ export const Single: Story = {
   args: {defaultValue: ['center']},
   render: (args) => (
     <ToggleGroup {...args}>
-      <Toggle value="left" aria-label="Align left">Left</Toggle>
-      <Toggle value="center" aria-label="Align center">Center</Toggle>
-      <Toggle value="right" aria-label="Align right">Right</Toggle>
+      <Toggle value="left" aria-label="Align left">
+        Left
+      </Toggle>
+      <Toggle value="center" aria-label="Align center">
+        Center
+      </Toggle>
+      <Toggle value="right" aria-label="Align right">
+        Right
+      </Toggle>
     </ToggleGroup>
   ),
   play: async ({canvas, userEvent}) => {
@@ -48,9 +54,15 @@ export const Multiple: Story = {
   args: {multiple: true, defaultValue: ['bold']},
   render: (args) => (
     <ToggleGroup {...args}>
-      <Toggle value="bold" aria-label="Bold">B</Toggle>
-      <Toggle value="italic" aria-label="Italic">I</Toggle>
-      <Toggle value="underline" aria-label="Underline">U</Toggle>
+      <Toggle value="bold" aria-label="Bold">
+        B
+      </Toggle>
+      <Toggle value="italic" aria-label="Italic">
+        I
+      </Toggle>
+      <Toggle value="underline" aria-label="Underline">
+        U
+      </Toggle>
     </ToggleGroup>
   ),
   play: async ({canvas, userEvent}) => {
