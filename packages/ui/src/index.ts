@@ -44,19 +44,13 @@ export {Stack, type SpacingKey} from './components/Stack/Stack'
 export {Inline} from './components/Inline/Inline'
 export {Cluster} from './components/Cluster/Cluster'
 export {Grid} from './components/Grid/Grid'
+export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'
 
 // Hooks
 export {useContainerQuery, type ContainerSize} from './hooks/useContainerQuery'
 
-// Tokens (re-exported from @duro/tokens for backward compatibility)
-export {
-  colors,
-  spacing,
-  radii,
-  typography,
-  typeScale,
-  typePresets,
-  shadows,
-  layoutSpacing,
-} from '@duro-app/tokens'
-export {lightTheme, lightShadows, highContrastTheme, highContrastShadows} from '@duro-app/tokens'
+// Tokens — import directly from @duro-app/tokens with deep imports:
+//   import { colors } from '@duro-app/tokens/tokens/colors.css'
+//   import { spacing, radii } from '@duro-app/tokens/tokens/spacing.css'
+// Barrel re-exports removed: StyleX's babel plugin cannot resolve
+// css.defineVars through barrel re-exports.

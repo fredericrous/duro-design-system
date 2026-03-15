@@ -10,17 +10,18 @@ export default {
   },
   plugins: [
     ['babel-plugin-react-compiler', {}],
-    [rsdPlugin, {debug: false}],
+    [rsdPlugin, {debug: true}],
     [
       '@stylexjs/babel-plugin',
       {
+        debug: true,
         dev,
         importSources: [{from: 'react-strict-dom', as: 'css'}],
         runtimeInjection: false,
         styleResolution: 'property-specificity',
         unstable_moduleResolution: {
           rootDir: process.cwd(),
-          themeFileExtension: '',
+          themeFileExtension: '.css',
           type: 'commonJS',
         },
       },
