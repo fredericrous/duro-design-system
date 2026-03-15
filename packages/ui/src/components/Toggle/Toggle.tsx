@@ -34,7 +34,11 @@ export function Toggle({
   'aria-label': ariaLabel,
   children,
 }: ToggleProps) {
-  const [pressed, setPressed] = useControllableValue(controlledPressed, defaultPressed, onPressedChange)
+  const [pressed, setPressed] = useControllableValue(
+    controlledPressed,
+    defaultPressed,
+    onPressedChange,
+  )
 
   const handleClick = useCallback(() => {
     if (!disabled) {
@@ -51,7 +55,12 @@ export function Toggle({
       disabled={disabled}
       onClick={handleClick}
       data-pressed={pressed ? '' : undefined}
-      style={[styles.base, sizeMap[size], pressed ? styles.pressed : styles.unpressed, disabled && styles.disabled]}
+      style={[
+        styles.base,
+        sizeMap[size],
+        pressed ? styles.pressed : styles.unpressed,
+        disabled && styles.disabled,
+      ]}
     >
       {children}
     </html.button>

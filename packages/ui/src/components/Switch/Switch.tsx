@@ -29,7 +29,11 @@ export function Switch({
   value,
   children,
 }: SwitchProps) {
-  const [checked, setChecked] = useControllableValue(controlledChecked, defaultChecked, onCheckedChange)
+  const [checked, setChecked] = useControllableValue(
+    controlledChecked,
+    defaultChecked,
+    onCheckedChange,
+  )
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleClick = useCallback(() => {
