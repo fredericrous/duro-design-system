@@ -33,7 +33,9 @@ export {Tabs} from './components/Tabs/Tabs'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {ThemeProvider, type ThemeName} from './components/ThemeProvider/ThemeProvider'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
+export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
 export {Tooltip} from './components/Tooltip/Tooltip'
+export {Switch} from './components/Switch/Switch'
 
 // Layout primitives
 export {Stack, type SpacingKey} from './components/Stack/Stack'
