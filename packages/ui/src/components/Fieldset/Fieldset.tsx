@@ -24,12 +24,13 @@ interface RootProps {
 
 function Root({disabled = false, gap = 'md', children}: RootProps) {
   return (
-    <html.fieldset
-      disabled={disabled}
+    <html.div
+      role="group"
+      aria-disabled={disabled || undefined}
       style={[styles.root, gapMap[gap], disabled && styles.disabled]}
     >
       {children}
-    </html.fieldset>
+    </html.div>
   )
 }
 
@@ -39,7 +40,7 @@ interface LegendProps {
 }
 
 function Legend({children}: LegendProps) {
-  return <html.legend style={styles.legend}>{children}</html.legend>
+  return <html.span style={styles.legend}>{children}</html.span>
 }
 
 export const Fieldset = {
