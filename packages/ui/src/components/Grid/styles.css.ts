@@ -12,7 +12,7 @@ export const styles = css.create({
   col5: {gridTemplateColumns: 'repeat(5, 1fr)'},
   col6: {gridTemplateColumns: 'repeat(6, 1fr)'},
   autoFit: (minWidth: string) => ({
-    gridTemplateColumns: `repeat(auto-fit, minmax(${minWidth}, 1fr))`,
+    gridTemplateColumns: `repeat(auto-fill, minmax(${minWidth}, 1fr))`,
   }),
   gapXs: {gap: spacing.xs},
   gapSm: {gap: spacing.sm},
