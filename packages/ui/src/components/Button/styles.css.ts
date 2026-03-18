@@ -21,6 +21,7 @@ export const styles = css.create({
     transitionDuration: '150ms',
     transitionTimingFunction: 'ease',
     textDecoration: 'none',
+    whiteSpace: 'nowrap',
     outlineWidth: {
       default: 0,
       ':focus-visible': 2,
