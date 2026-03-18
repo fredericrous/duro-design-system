@@ -125,7 +125,13 @@ const CellIndexContext = createContext<{index: number; total: number}>({
 
 // --- HeaderCell ---
 
-function HeaderCell({children, 'aria-label': ariaLabel}: {children?: ReactNode; 'aria-label'?: string}) {
+function HeaderCell({
+  children,
+  'aria-label': ariaLabel,
+}: {
+  children?: ReactNode
+  'aria-label'?: string
+}) {
   const {size, variant} = useTable()
   const {index, total} = useContext(CellIndexContext)
   const isLast = variant === 'bordered' && index === total - 1

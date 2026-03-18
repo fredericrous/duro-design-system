@@ -113,10 +113,7 @@ function SelectableTable({
           ))}
         </Table.Body>
       </Table.Root>
-      <ActionBar
-        selectedItemCount={selected.size}
-        onClearSelection={clearSelection}
-      >
+      <ActionBar selectedItemCount={selected.size} onClearSelection={clearSelection}>
         <Button variant="secondary" size="small">
           Export
         </Button>
@@ -148,9 +145,7 @@ export const Default: Story = {
 }
 
 export const MultipleSelected: Story = {
-  render: () => (
-    <SelectableTable initialSelected={new Set(['1', '3', '4'])} />
-  ),
+  render: () => <SelectableTable initialSelected={new Set(['1', '3', '4'])} />,
 }
 
 export const Emphasized: Story = {
@@ -253,18 +248,14 @@ export const CustomLabel: Story = {
 }
 
 export const Hidden: Story = {
-  render: () => (
-    <SelectableTable initialSelected={new Set()} />
-  ),
+  render: () => <SelectableTable initialSelected={new Set()} />,
 }
 
 export const AllVariants: Story = {
   render: () => (
     <html.div style={storyStyles.wrapper}>
       <html.div>
-        <html.span style={storyStyles.label}>
-          Default — check boxes to see the ActionBar
-        </html.span>
+        <html.span style={storyStyles.label}>Default — check boxes to see the ActionBar</html.span>
         <SelectableTable initialSelected={new Set(['1'])} />
       </html.div>
     </html.div>

@@ -28,7 +28,13 @@ function Root({name, defaultValue, value, onValueChange, initialLabels, children
 }
 
 // --- Trigger ---
-function Trigger({children, 'aria-label': ariaLabel}: {children: ReactNode; 'aria-label'?: string}) {
+function Trigger({
+  children,
+  'aria-label': ariaLabel,
+}: {
+  children: ReactNode
+  'aria-label'?: string
+}) {
   const {open, toggle, listboxId, highlightedId, triggerRef} = useSelect()
   const localRef = useRef<HTMLButtonElement>(null)
 

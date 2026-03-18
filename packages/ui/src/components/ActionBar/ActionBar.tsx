@@ -29,9 +29,7 @@ function ActionBarInner({
   if (selectedItemCount === 0) return null
 
   const countStr = selectedItemCount === 'all' ? 'All' : `${selectedItemCount}`
-  const label = selectedLabel
-    ? selectedLabel(countStr)
-    : `${countStr} selected`
+  const label = selectedLabel ? selectedLabel(countStr) : `${countStr} selected`
 
   const bar = (
     <html.div
@@ -39,32 +37,24 @@ function ActionBarInner({
       aria-label={label}
       style={[styles.overlay, isEmphasized && styles.overlayEmphasized]}
     >
-      <html.span
-        style={[
-          styles.selectedCount,
-          isEmphasized && styles.selectedCountEmphasized,
-        ]}
-      >
+      <html.span style={[styles.selectedCount, isEmphasized && styles.selectedCountEmphasized]}>
         {label}
       </html.span>
-      <html.div
-        style={[
-          styles.separator,
-          isEmphasized && styles.separatorEmphasized,
-        ]}
-      />
+      <html.div style={[styles.separator, isEmphasized && styles.separatorEmphasized]} />
       <html.div style={styles.actions}>{children}</html.div>
       <html.button
         type="button"
         aria-label="Clear selection"
         onClick={onClearSelection}
-        style={[
-          styles.closeButton,
-          isEmphasized && styles.closeButtonEmphasized,
-        ]}
+        style={[styles.closeButton, isEmphasized && styles.closeButtonEmphasized]}
       >
         <svg width={10} height={10} viewBox="0 0 10 10" fill="none" aria-hidden="true">
-          <path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" />
+          <path
+            d="M1 1l8 8M9 1l-8 8"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+          />
         </svg>
       </html.button>
     </html.div>
