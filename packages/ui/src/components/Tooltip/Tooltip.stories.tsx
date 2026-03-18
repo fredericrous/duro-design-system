@@ -26,7 +26,7 @@ export const Default: Story = {
     <html.div style={centerStyles.center}>
       <Tooltip.Root content="This is a tooltip" delay={0}>
         <Tooltip.Trigger>
-          <html.span>Hover me</html.span>
+          <Badge>Hover me</Badge>
         </Tooltip.Trigger>
       </Tooltip.Root>
     </html.div>

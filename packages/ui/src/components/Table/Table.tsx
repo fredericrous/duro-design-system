@@ -125,7 +125,7 @@ const CellIndexContext = createContext<{index: number; total: number}>({
 
 // --- HeaderCell ---
 
-function HeaderCell({children}: {children: ReactNode}) {
+function HeaderCell({children, 'aria-label': ariaLabel}: {children?: ReactNode; 'aria-label'?: string}) {
   const {size, variant} = useTable()
   const {index, total} = useContext(CellIndexContext)
   const isLast = variant === 'bordered' && index === total - 1
@@ -133,6 +133,7 @@ function HeaderCell({children}: {children: ReactNode}) {
   return (
     <html.div
       role="columnheader"
+      aria-label={ariaLabel}
       style={[
         styles.headerCell,
         size === 'sm' ? styles.cellSm : styles.cellMd,

@@ -2,7 +2,7 @@ import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'link' | 'danger'
+export type ButtonVariant = 'primary' | 'secondary' | 'inverseSecondary' | 'link' | 'danger'
 export type ButtonSize = 'default' | 'small'
 
 interface ButtonProps {

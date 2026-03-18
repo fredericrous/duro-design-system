@@ -52,7 +52,7 @@ export function ToggleGroup({
   return (
     <ToggleGroupContext.Provider value={{value, toggle, disabled, orientation, size}}>
       <html.div
-        role="group"
+        role="toolbar"
         aria-orientation={orientation}
         style={[styles.root, orientation === 'vertical' && styles.vertical]}
       >

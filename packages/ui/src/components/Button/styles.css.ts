@@ -85,6 +85,17 @@ export const styles = css.create({
     paddingLeft: 0,
     paddingRight: 0,
   },
+  inverseSecondary: {
+    backgroundColor: {
+      default: 'rgba(0, 0, 0, 0.10)',
+      ':hover': 'rgba(0, 0, 0, 0.18)',
+    },
+    borderColor: {
+      default: 'rgba(0, 0, 0, 0.55)',
+      ':hover': 'rgba(0, 0, 0, 0.70)',
+    },
+    color: colors.accentContrast,
+  },
   danger: {
     backgroundColor: {
       default: colors.error,

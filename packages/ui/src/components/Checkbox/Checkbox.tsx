@@ -8,6 +8,8 @@ interface CheckboxProps {
   checked?: boolean
   defaultChecked?: boolean
   disabled?: boolean
+  /** Accessible label when no visible label (children) is provided. */
+  'aria-label'?: string
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   children?: ReactNode
 }
@@ -18,6 +20,7 @@ export function Checkbox({
   checked: controlledChecked,
   defaultChecked = false,
   disabled = false,
+  'aria-label': ariaLabel,
   onChange,
   children,
 }: CheckboxProps) {
@@ -44,6 +47,7 @@ export function Checkbox({
         checked={isControlled ? controlledChecked : undefined}
         defaultChecked={!isControlled ? defaultChecked : undefined}
         disabled={disabled}
+        aria-label={!children ? ariaLabel : undefined}
         onChange={handleChange}
         style={styles.input}
       />

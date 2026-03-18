@@ -22,6 +22,10 @@ const preview: Preview = {
     a11y: {
       options: {
         runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag2aaa', 'best-practice'],
+        rules: {
+          // Storybook renders stories outside landmarks — this is expected
+          region: {enabled: false},
+        },
       },
     },
     controls: {

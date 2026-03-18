@@ -12,7 +12,7 @@ type Story = StoryObj
 export const Default: Story = {
   render: () => (
     <Select.Root defaultValue="en">
-      <Select.Trigger>
+      <Select.Trigger aria-label="Language">
         <Select.Value />
         <Select.Icon />
       </Select.Trigger>
@@ -40,7 +40,7 @@ export const Default: Story = {
 export const OpenAndSelect: Story = {
   render: () => (
     <Select.Root defaultValue="en">
-      <Select.Trigger>
+      <Select.Trigger aria-label="Language">
         <Select.Value />
         <Select.Icon />
       </Select.Trigger>
@@ -75,7 +75,7 @@ export const OpenAndSelect: Story = {
 export const WithPlaceholder: Story = {
   render: () => (
     <Select.Root>
-      <Select.Trigger>
+      <Select.Trigger aria-label="Language">
         <Select.Value placeholder="Choose a language..." />
         <Select.Icon />
       </Select.Trigger>
@@ -119,7 +119,7 @@ export const WithPlaceholder: Story = {
 export const KeyboardNavigation: Story = {
   render: () => (
     <Select.Root>
-      <Select.Trigger>
+      <Select.Trigger aria-label="Language">
         <Select.Value placeholder="Select..." />
         <Select.Icon />
       </Select.Trigger>

@@ -28,7 +28,7 @@ function Root({name, defaultValue, value, onValueChange, initialLabels, children
 }
 
 // --- Trigger ---
-function Trigger({children}: {children: ReactNode}) {
+function Trigger({children, 'aria-label': ariaLabel}: {children: ReactNode; 'aria-label'?: string}) {
   const {open, toggle, listboxId, highlightedId, triggerRef} = useSelect()
   const localRef = useRef<HTMLButtonElement>(null)
 
@@ -43,6 +43,7 @@ function Trigger({children}: {children: ReactNode}) {
       type="button"
       role={'combobox' as 'listbox'}
       onClick={toggle}
+      aria-label={ariaLabel}
       aria-expanded={open}
       aria-haspopup="listbox"
       aria-controls={open ? listboxId : undefined}
