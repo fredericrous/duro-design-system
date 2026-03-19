@@ -46,9 +46,15 @@
     "effect": "^3.0.0"
   },
   "peerDependenciesMeta": {
-    "react-hook-form": {"optional": true},
-    "@hookform/resolvers": {"optional": true},
-    "effect": {"optional": true}
+    "react-hook-form": {
+      "optional": true
+    },
+    "@hookform/resolvers": {
+      "optional": true
+    },
+    "effect": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@duro-app/tokens": "workspace:^"

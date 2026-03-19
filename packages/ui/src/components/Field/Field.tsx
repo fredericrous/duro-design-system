@@ -50,7 +50,16 @@ function ControlledRoot({
       },
       errorMessage: fieldState.error?.message,
     }),
-    [id, invalid, field.value, field.onChange, field.onBlur, field.ref, field.name, fieldState.error],
+    [
+      id,
+      invalid,
+      field.value,
+      field.onChange,
+      field.onBlur,
+      field.ref,
+      field.name,
+      fieldState.error,
+    ],
   )
 
   return (

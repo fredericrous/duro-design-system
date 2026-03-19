@@ -93,11 +93,7 @@ export const ValidationOnBlur: Story = {
   name: 'Validation — on blur',
   render: () => (
     <html.div style={wrapStyles.wrap}>
-      <Form
-        schema={LoginSchema}
-        defaultValues={{username: '', password: ''}}
-        onSubmit={fn()}
-      >
+      <Form schema={LoginSchema} defaultValues={{username: '', password: ''}} onSubmit={fn()}>
         <Fieldset.Root gap="md">
           <Field.Root name="username">
             <Field.Label>Username</Field.Label>
@@ -131,10 +127,13 @@ export const ValidationOnBlur: Story = {
       await expect(alert).toHaveTextContent('Username must be at least 3 characters')
     })
 
-    await step('Fix username by typing more — error clears (reValidateMode: onChange)', async () => {
-      await userEvent.type(usernameInput, 'c') // now "abc"
-      expect(canvas.queryByText('Username must be at least 3 characters')).not.toBeInTheDocument()
-    })
+    await step(
+      'Fix username by typing more — error clears (reValidateMode: onChange)',
+      async () => {
+        await userEvent.type(usernameInput, 'c') // now "abc"
+        expect(canvas.queryByText('Username must be at least 3 characters')).not.toBeInTheDocument()
+      },
+    )
 
     await step('Blur empty password — error appears', async () => {
       await userEvent.click(passwordInput)
@@ -150,11 +149,7 @@ export const WithTextarea: Story = {
   name: 'With Textarea',
   render: () => (
     <html.div style={wrapStyles.wrap}>
-      <Form
-        schema={FeedbackSchema}
-        defaultValues={{email: '', message: ''}}
-        onSubmit={fn()}
-      >
+      <Form schema={FeedbackSchema} defaultValues={{email: '', message: ''}} onSubmit={fn()}>
         {({formState}) => (
           <Fieldset.Root gap="md">
             <Field.Root name="email">
@@ -193,11 +188,7 @@ export const SuccessfulSubmit: Story = {
     const onSubmit = fn()
     return (
       <html.div style={wrapStyles.wrap}>
-        <Form
-          schema={LoginSchema}
-          defaultValues={{username: '', password: ''}}
-          onSubmit={onSubmit}
-        >
+        <Form schema={LoginSchema} defaultValues={{username: '', password: ''}} onSubmit={onSubmit}>
           <Fieldset.Root gap="md">
             <Field.Root name="username">
               <Field.Label>Username</Field.Label>
