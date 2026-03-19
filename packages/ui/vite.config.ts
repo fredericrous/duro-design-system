@@ -13,7 +13,15 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime', 'react-dom'],
+      external: [
+        'react',
+        'react/jsx-runtime',
+        'react-dom',
+        'react-hook-form',
+        '@hookform/resolvers/effect-ts',
+        'effect',
+        'effect/Schema',
+      ],
     },
     sourcemap: true,
     target: 'es2020',

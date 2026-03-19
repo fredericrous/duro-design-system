@@ -5,7 +5,17 @@ interface FieldContextValue {
   descriptionId: string
   errorId: string
   invalid: boolean
+  field?: {
+    value: unknown
+    onChange: (...event: unknown[]) => void
+    onBlur: () => void
+    ref: React.RefCallback<unknown>
+    name: string
+  }
+  errorMessage?: string
 }
+
+export type {FieldContextValue}
 
 export const FieldContext = createContext<FieldContextValue | null>(null)
 

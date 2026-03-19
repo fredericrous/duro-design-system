@@ -30,6 +30,8 @@ interface InputProps {
   defaultValue?: string
   disabled?: boolean
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onBlur?: () => void
+  ref?: React.Ref<HTMLInputElement>
 }
 
 export function Input({
@@ -45,9 +47,19 @@ export function Input({
   defaultValue,
   disabled,
   onChange,
+  onBlur,
+  ref,
 }: InputProps) {
   const ctx = useFieldContext()
   const groupCtx = useInputGroupContext()
+
+  const fieldCtx = ctx?.field
+  const effectiveName = name ?? fieldCtx?.name
+  const effectiveValue = value ?? (fieldCtx ? String(fieldCtx.value ?? '') : undefined)
+  const effectiveOnChange = onChange ?? fieldCtx?.onChange
+  const effectiveOnBlur = onBlur ?? fieldCtx?.onBlur
+  const effectiveRef = ref ?? fieldCtx?.ref
+  const effectiveVariant = ctx?.invalid ? 'error' : variant
 
   // react-strict-dom omits web-only `pattern` from its types, but the
   // underlying DOM element supports it. Type-assert to pass it through.
@@ -57,20 +69,22 @@ export function Input({
     <html.input
       id={ctx?.controlId}
       type={type}
-      name={name}
+      name={effectiveName}
       placeholder={placeholder}
       required={required}
       minLength={minLength}
       autoComplete={autoComplete}
-      value={value}
+      value={effectiveValue}
       defaultValue={defaultValue}
       disabled={disabled}
       aria-describedby={
         ctx ? `${ctx.descriptionId} ${ctx.invalid ? ctx.errorId : ''}`.trim() : undefined
       }
       aria-invalid={ctx?.invalid || variant === 'error' || undefined}
-      onChange={onChange}
-      style={[styles.base, styles[variant], groupCtx?.inGroup && styles.inGroup]}
+      onChange={effectiveOnChange as StrictInputProps['onChange']}
+      onBlur={effectiveOnBlur as StrictInputProps['onBlur']}
+      ref={effectiveRef as React.Ref<HTMLInputElement>}
+      style={[styles.base, styles[effectiveVariant], groupCtx?.inGroup && styles.inGroup]}
       {...(extraProps as Record<string, unknown>)}
     />
   )

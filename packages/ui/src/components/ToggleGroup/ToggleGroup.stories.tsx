@@ -119,7 +119,7 @@ export const Vertical: Story = {
     </ToggleGroup>
   ),
   play: async ({canvas}) => {
-    const group = canvas.getByRole('group')
+    const group = canvas.getByRole('toolbar')
     await expect(group).toHaveAttribute('aria-orientation', 'vertical')
   },
 }
@@ -153,7 +153,7 @@ export const AllVariants: Story = {
     </html.div>
   ),
   play: async ({canvas}) => {
-    const groups = canvas.getAllByRole('group')
+    const groups = canvas.getAllByRole('toolbar')
     await expect(groups.length).toBe(4)
   },
 }

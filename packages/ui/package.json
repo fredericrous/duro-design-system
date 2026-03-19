@@ -40,12 +40,23 @@
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-strict-dom": "^0.0.55"
+    "react-strict-dom": "^0.0.55",
+    "react-hook-form": "^7.55.0",
+    "@hookform/resolvers": "^5.0.0",
+    "effect": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-hook-form": {"optional": true},
+    "@hookform/resolvers": {"optional": true},
+    "effect": {"optional": true}
   },
   "dependencies": {
     "@duro-app/tokens": "workspace:^"
   },
   "devDependencies": {
+    "react-hook-form": "^7.55.0",
+    "@hookform/resolvers": "^5.0.0",
+    "effect": "^3.0.0",
     "@babel/preset-typescript": "^7.28.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
