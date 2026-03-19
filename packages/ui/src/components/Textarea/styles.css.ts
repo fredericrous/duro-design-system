@@ -5,7 +5,6 @@ import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 export const styles = css.create({
   base: {
-    boxSizing: 'border-box',
     width: '100%',
     paddingTop: spacing.sm,
     paddingBottom: spacing.sm,

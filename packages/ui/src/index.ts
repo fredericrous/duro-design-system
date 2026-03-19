@@ -1,3 +1,4 @@
+import './global-reset.css'
 import './strict.css'
 
 // Components

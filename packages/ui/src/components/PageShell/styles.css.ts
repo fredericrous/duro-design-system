@@ -10,7 +10,6 @@ export const styles = css.create({
     width: '100%',
     marginLeft: 'auto',
     marginRight: 'auto',
-    boxSizing: 'border-box',
   },
   // Max-width presets
   maxSm: {maxWidth: 600},
