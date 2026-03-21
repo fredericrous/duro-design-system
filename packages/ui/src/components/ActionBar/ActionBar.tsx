@@ -1,7 +1,6 @@
-import type {ReactNode} from 'react'
-import {createPortal} from 'react-dom'
+import {useEffect, useCallback, type ReactNode} from 'react'
 import {html} from 'react-strict-dom'
-import {useOverlayContainer} from '../ThemeProvider/ThemeProvider'
+import {useActionBarStack} from './ActionBarProvider'
 import {styles} from './styles.css'
 
 export interface ActionBarProps {
@@ -19,7 +18,7 @@ export interface ActionBarProps {
   children: ReactNode
 }
 
-function ActionBarInner({
+function ActionBarContent({
   selectedItemCount,
   selectedLabel,
   isEmphasized = false,
@@ -27,14 +26,10 @@ function ActionBarInner({
   dismissible = true,
   children,
 }: ActionBarProps) {
-  const container = useOverlayContainer()
-
-  if (selectedItemCount === 0) return null
-
   const countStr = selectedItemCount === 'all' ? 'All' : `${selectedItemCount}`
   const label = selectedLabel ? selectedLabel(countStr) : `${countStr} selected`
 
-  const bar = (
+  return (
     <html.div
       role="toolbar"
       aria-label={label}
@@ -64,12 +59,33 @@ function ActionBarInner({
       )}
     </html.div>
   )
+}
 
-  if (container) {
-    return createPortal(bar, container)
+function ActionBarInner(props: ActionBarProps) {
+  const {selectedItemCount} = props
+  const stack = useActionBarStack()
+  const isActive = selectedItemCount !== 0
+
+  const renderBar = useCallback(() => <ActionBarContent {...props} />, [props])
+
+  useEffect(() => {
+    if (!stack.managed) return
+    if (isActive) {
+      stack.register(renderBar)
+    } else {
+      stack.unregister()
+    }
+    return () => stack.unregister()
+  }, [stack, isActive, renderBar])
+
+  // If no provider, fall back to standalone rendering
+  if (!stack.managed) {
+    if (!isActive) return null
+    return <ActionBarContent {...props} />
   }
 
-  return bar
+  // Managed by provider — rendering happens there
+  return null
 }
 
 export const ActionBar = ActionBarInner
