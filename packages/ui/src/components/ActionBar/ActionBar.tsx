@@ -13,6 +13,8 @@ export interface ActionBarProps {
   isEmphasized?: boolean
   /** Called when the clear/close button is pressed. */
   onClearSelection: () => void
+  /** Whether the bar can be dismissed. When false, the close button is hidden. @default true */
+  dismissible?: boolean
   /** Action buttons to display. */
   children: ReactNode
 }
@@ -22,6 +24,7 @@ function ActionBarInner({
   selectedLabel,
   isEmphasized = false,
   onClearSelection,
+  dismissible = true,
   children,
 }: ActionBarProps) {
   const container = useOverlayContainer()
@@ -42,21 +45,23 @@ function ActionBarInner({
       </html.span>
       <html.div style={[styles.separator, isEmphasized && styles.separatorEmphasized]} />
       <html.div style={styles.actions}>{children}</html.div>
-      <html.button
-        type="button"
-        aria-label="Clear selection"
-        onClick={onClearSelection}
-        style={[styles.closeButton, isEmphasized && styles.closeButtonEmphasized]}
-      >
-        <svg width={10} height={10} viewBox="0 0 10 10" fill="none" aria-hidden="true">
-          <path
-            d="M1 1l8 8M9 1l-8 8"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-          />
-        </svg>
-      </html.button>
+      {dismissible && (
+        <html.button
+          type="button"
+          aria-label="Clear selection"
+          onClick={onClearSelection}
+          style={[styles.closeButton, isEmphasized && styles.closeButtonEmphasized]}
+        >
+          <svg width={10} height={10} viewBox="0 0 10 10" fill="none" aria-hidden="true">
+            <path
+              d="M1 1l8 8M9 1l-8 8"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+            />
+          </svg>
+        </html.button>
+      )}
     </html.div>
   )
 

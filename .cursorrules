@@ -1,0 +1,96 @@
+# Duro Design System — Cursor Rules
+
+## Critical: react-strict-dom
+
+All elements MUST use `html.*` from react-strict-dom. Never use raw HTML tags.
+
+```tsx
+import {css, html} from 'react-strict-dom'
+<html.div style={styles.container}>...</html.div>  // ✅
+<div className="container">...</div>               // ❌
+```
+
+## Critical: Token imports
+
+Use deep imports. Barrel imports break StyleX babel plugin.
+
+```tsx
+import {colors} from '@duro-app/tokens/tokens/colors.css'     // ✅
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'   // ✅
+import {colors} from '@duro-app/tokens'                        // ❌
+```
+
+## Layout Components
+
+| Need | Component |
+|---|---|
+| Vertical stack | `Stack` |
+| Horizontal, no wrap | `Inline` |
+| Horizontal, wraps | `Cluster` |
+| Multi-column grid | `Grid` |
+| Full page | `PageShell` |
+
+## Compound Components (Root required, throws without)
+
+- `Select`: Root > Trigger + Popup > Item
+- `Menu`: Root > Trigger + Popup > Item | LinkItem
+- `Tabs`: Root > List > Tab + Panel
+- `Table`: Root > Header + Body > Row > HeaderCell | Cell
+- `Tooltip`: Root > Trigger
+- `SideNav`: Root > Group > Item
+- `ScrollArea`: Root > Viewport > Content + Scrollbar > Thumb
+
+## Form Pattern
+
+```tsx
+import {Schema} from 'effect'
+import {Form, Field, Input, Fieldset, Button} from '@duro-app/ui'
+
+const MySchema = Schema.Struct({
+  email: Schema.String.pipe(Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {message: () => 'Invalid'})),
+})
+
+<Form schema={MySchema} defaultValues={{email: ''}} onSubmit={handleSubmit}>
+  {({formState}) => (
+    <Fieldset.Root gap="md">
+      <Field.Root name="email">
+        <Field.Label>Email</Field.Label>
+        <Input type="email" />
+        <Field.Error />
+      </Field.Root>
+      <Button type="submit" disabled={!formState.isValid}>Submit</Button>
+    </Fieldset.Root>
+  )}
+</Form>
+```
+
+Field.Root also works standalone (without Form) — pass `invalid` prop manually.
+
+## Styling
+
+```tsx
+const styles = css.create({
+  container: {
+    padding: spacing.md,
+    backgroundColor: colors.bgCard,
+  },
+})
+<html.div style={[styles.container, isActive && styles.active]}>
+```
+
+## Spacing Scale
+
+xs=4px, sm=8px, ms=12px, md=16px, lg=24px, xl=32px, xxl=48px, xxxl=64px
+
+## Button Variants
+
+`primary` (default), `secondary`, `inverseSecondary`, `link`, `danger`
+
+Use `LinkButton` (not Button) for navigation — it renders an `<a>` tag.
+
+## Typography
+
+Use `Heading` (level 1-6) for headings, `Text` for body/labels.
+Text variants: `bodySm`, `bodyMd`, `bodyLg`, `caption`, `label`, `code`, `overline`
+
+For the full reference, see CLAUDE.md in the project root.
