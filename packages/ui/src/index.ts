@@ -3,6 +3,7 @@ import './strict.css'
 
 // Components
 export {ActionBar, type ActionBarProps} from './components/ActionBar/ActionBar'
+export {ActionBarProvider} from './components/ActionBar/ActionBarProvider'
 export {Alert, type AlertVariant} from './components/Alert/Alert'
 export {Icon, type IconName} from './components/Icon'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
@@ -35,11 +36,7 @@ export {
 export {Table, type TableVariant, type TableSize} from './components/Table/Table'
 export {Tabs} from './components/Tabs/Tabs'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
-export {
-  ThemeProvider,
-  useOverlayContainer,
-  type ThemeName,
-} from './components/ThemeProvider/ThemeProvider'
+export {ThemeProvider, type ThemeName} from './components/ThemeProvider/ThemeProvider'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
 export {ToggleGroup} from './components/ToggleGroup/ToggleGroup'
