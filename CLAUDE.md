@@ -105,6 +105,8 @@ These components **must** be wrapped in their `.Root`:
 | `Select` | `Root`, `Trigger`, `Value`, `Icon`, `Popup`, `Item`, `ItemText` |
 | `Menu` | `Root`, `Trigger`, `Popup`, `Item`, `LinkItem` |
 | `Tabs` | `Root`, `List`, `Tab`, `Panel` |
+| `Dialog` | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
+| `Drawer` | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
 | `Table` | `Root`, `Header`, `Body`, `Row`, `HeaderCell`, `Cell` |
 | `Tooltip` | `Root`, `Trigger` |
 | `SideNav` | `Root`, `Group`, `Item` |
@@ -130,6 +132,8 @@ These components **must** be wrapped in their `.Root`:
 | **Callout** | Block-level informational message | `variant: 'error'\|'success'\|'warning'\|'info'` | Alert (use Callout for larger, prominent messages) |
 | **Card** | Container with visual styling | `variant: 'elevated'\|'outlined'\|'filled'\|'interactive'`, `size`, `header` | Custom container div |
 | **Checkbox** | Checkbox input with label | `checked`, `defaultChecked`, `onChange` | `<input type="checkbox">` |
+| **Dialog** | Modal dialog with backdrop | `open`, `onOpenChange`, `dismissable`, sizes: `'sm'\|'md'\|'lg'` | Custom modal |
+| **Drawer** | Sliding panel from edge | `open`, `onOpenChange`, `anchor: 'right'\|'left'\|'bottom'`, sizes: `'sm'\|'md'\|'lg'` | Custom side panel |
 | **Cluster** | Horizontal flex, **wraps** | `gap`, `align`, `justify` | `<div style="flex-wrap:wrap">` |
 | **EmptyState** | Placeholder for empty content | `message`, `icon`, `action` | Custom empty view |
 | **Field** | Form field with label/error | `name` (for Form binding), `invalid` | Custom label + input wiring |

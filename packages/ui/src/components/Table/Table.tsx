@@ -94,7 +94,6 @@ function Row({children}: {children: ReactNode}) {
   const rowIndex = useContext(RowIndexContext)
   const isEvenRow = rowIndex >= 0 && rowIndex % 2 === 1
   const childArray = Children.toArray(children)
-  const isLastRow = false // handled by CSS or parent
 
   return (
     <html.div

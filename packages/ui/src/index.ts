@@ -11,6 +11,8 @@ export {Button, type ButtonVariant, type ButtonSize} from './components/Button/B
 export {Callout, type CalloutVariant} from './components/Callout/Callout'
 export {Card, type CardVariant, type CardSize} from './components/Card/Card'
 export {Checkbox} from './components/Checkbox/Checkbox'
+export {Dialog, type DialogSize} from './components/Dialog/Dialog'
+export {Drawer, type DrawerAnchor, type DrawerSize} from './components/Drawer/Drawer'
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Heading, type HeadingVariant} from './components/Heading/Heading'
 export {Field} from './components/Field/Field'

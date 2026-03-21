@@ -1,8 +1,12 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
+import {useState} from 'react'
 import {Table} from './Table'
 import {Badge} from '../Badge/Badge'
+import {Checkbox} from '../Checkbox/Checkbox'
+import {Button} from '../Button/Button'
+import {ActionBar} from '../ActionBar/ActionBar'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 
 const meta: Meta = {
@@ -183,6 +187,109 @@ export const Compact: Story = {
   play: async ({canvas}) => {
     await expect(canvas.getByRole('table')).toBeInTheDocument()
     await expect(canvas.getByText('Traefik')).toBeInTheDocument()
+  },
+}
+
+// --- WithCheckboxes: demonstrates parent/child cascading selection ---
+
+interface ServiceData {
+  id: string
+  name: string
+  status: string
+  port: string
+  uptime: string
+}
+
+function CheckboxTableDemo() {
+  const items: ServiceData[] = [
+    {id: 's1', name: 'Traefik', status: 'Running', port: '443', uptime: '14d 3h'},
+    {id: 's2', name: 'Pi-hole', status: 'Running', port: '80', uptime: '14d 3h'},
+    {id: 's3', name: 'Portainer', status: 'Stopped', port: '9000', uptime: '\u2014'},
+    {id: 's4', name: 'Grafana', status: 'Running', port: '3000', uptime: '7d 12h'},
+  ]
+
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+
+  const allSelected = items.length > 0 && items.every((i) => selected.has(i.id))
+  const someSelected = items.some((i) => selected.has(i.id))
+
+  const toggleAll = () => {
+    if (allSelected) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(items.map((i) => i.id)))
+    }
+  }
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  return (
+    <>
+      <Table.Root columns={5}>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell aria-label="Select all">
+              <Checkbox
+                checked={allSelected}
+                onChange={toggleAll}
+                aria-label="Select all services"
+              />
+            </Table.HeaderCell>
+            <Table.HeaderCell>Service</Table.HeaderCell>
+            <Table.HeaderCell>Status</Table.HeaderCell>
+            <Table.HeaderCell>Port</Table.HeaderCell>
+            <Table.HeaderCell>Uptime</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {items.map((s) => (
+            <Table.Row key={s.id}>
+              <Table.Cell>
+                <Checkbox
+                  checked={selected.has(s.id)}
+                  onChange={() => toggleOne(s.id)}
+                  aria-label={s.name}
+                />
+              </Table.Cell>
+              <Table.Cell>{s.name}</Table.Cell>
+              <Table.Cell>
+                <Badge variant={statusVariant(s.status)} size="sm">
+                  {s.status}
+                </Badge>
+              </Table.Cell>
+              <Table.Cell>{s.port}</Table.Cell>
+              <Table.Cell>{s.uptime}</Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
+
+      <ActionBar
+        selectedItemCount={selected.size}
+        onClearSelection={() => setSelected(new Set())}
+      >
+        <Button variant="danger" size="small">
+          Delete
+        </Button>
+      </ActionBar>
+    </>
+  )
+}
+
+export const WithCheckboxes: Story = {
+  render: () => <CheckboxTableDemo />,
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('table')).toBeInTheDocument()
+    const checkboxes = canvas.getAllByRole('checkbox')
+    await expect(checkboxes.length).toBe(5) // 1 select-all + 4 rows
+    await expect(canvas.getByLabelText('Select all services')).toBeInTheDocument()
   },
 }
 
