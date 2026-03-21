@@ -3,10 +3,7 @@ import type {ComponentMeta} from '../component-meta'
 export const meta: ComponentMeta = {
   description:
     'Form wrapper with Effect Schema validation and react-hook-form integration. Provides FormContext to child Field components.',
-  whenToUse: [
-    'Any form that needs validation',
-    'Multi-field forms with submit handling',
-  ],
+  whenToUse: ['Any form that needs validation', 'Multi-field forms with submit handling'],
   whenNotToUse: [
     'Single standalone field without validation — use Field.Root directly',
     'Non-form interactive UIs — use individual components',

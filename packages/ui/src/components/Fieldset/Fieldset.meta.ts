@@ -7,9 +7,7 @@ export const meta: ComponentMeta = {
     'Grouping related fields within a form (e.g., "Personal Info", "Address")',
     'Applying consistent vertical gap between form fields',
   ],
-  whenNotToUse: [
-    'Non-form content grouping — use Stack or Card',
-  ],
+  whenNotToUse: ['Non-form content grouping — use Stack or Card'],
   anatomy: {
     required: ['Root'],
     optional: ['Legend'],

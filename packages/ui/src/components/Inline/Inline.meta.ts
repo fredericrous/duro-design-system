@@ -1,8 +1,7 @@
 import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
-  description:
-    'Horizontal flex layout with NO wrapping. Items stay on one line and may overflow.',
+  description: 'Horizontal flex layout with NO wrapping. Items stay on one line and may overflow.',
   whenToUse: [
     'Toolbar or button group that must stay on one row',
     'Horizontal alignment of a known, small number of items',

@@ -1,8 +1,7 @@
 import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
-  description:
-    'Vertical flex layout. Stacks children top-to-bottom with consistent gap.',
+  description: 'Vertical flex layout. Stacks children top-to-bottom with consistent gap.',
   whenToUse: [
     'Vertically stacking form fields, cards, or sections',
     'Any column-direction layout with uniform spacing',

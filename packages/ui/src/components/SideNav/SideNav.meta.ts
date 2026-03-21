@@ -3,10 +3,7 @@ import type {ComponentMeta} from '../component-meta'
 export const meta: ComponentMeta = {
   description:
     'Vertical side navigation with collapsible groups. Supports controlled and uncontrolled active item. Compound component — Root is required.',
-  whenToUse: [
-    'App-level sidebar navigation',
-    'Settings navigation with grouped sections',
-  ],
+  whenToUse: ['App-level sidebar navigation', 'Settings navigation with grouped sections'],
   whenNotToUse: [
     'In-page content switching — use Tabs',
     'Top-level horizontal nav — use Inline with LinkButton',

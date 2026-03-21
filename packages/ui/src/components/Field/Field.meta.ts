@@ -7,9 +7,7 @@ export const meta: ComponentMeta = {
     'Any form input that needs a label and/or error message',
     'Standalone labeled input (without Form) with manual error display',
   ],
-  whenNotToUse: [
-    'Bare input without label — use Input directly (rare)',
-  ],
+  whenNotToUse: ['Bare input without label — use Input directly (rare)'],
   anatomy: {
     required: ['Root'],
     optional: ['Label', 'Description', 'Error'],

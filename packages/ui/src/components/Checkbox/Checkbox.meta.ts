@@ -12,7 +12,10 @@ export const meta: ComponentMeta = {
     'Selecting one of several options — use Select or ToggleGroup',
   ],
   relatedTo: [
-    {component: 'Switch', relationship: 'Switch for on/off settings; Checkbox for opt-in/selection'},
+    {
+      component: 'Switch',
+      relationship: 'Switch for on/off settings; Checkbox for opt-in/selection',
+    },
     {component: 'Toggle', relationship: 'Toggle for toolbar actions; Checkbox for form input'},
   ],
   example: `<Checkbox name="terms" onChange={(e) => console.log(e.target.checked)}>
