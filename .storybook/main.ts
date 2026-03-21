@@ -10,6 +10,7 @@ const config: StorybookConfig = {
   stories: [
     '../packages/*/src/**/*.stories.@(ts|tsx)',
     '../packages/*/src/**/*.mdx',
+    '../docs/ai/recipes/*.stories.@(ts|tsx)',
   ],
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y', '@storybook/addon-vitest'],
   framework: {
