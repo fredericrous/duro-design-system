@@ -252,10 +252,7 @@ function Portal({children, size = 'md'}: PortalProps) {
       />
 
       {/* Viewport */}
-      <html.div
-        style={[styles.viewport, viewportAnchorMap[anchor]]}
-        data-drawer-viewport=""
-      >
+      <html.div style={[styles.viewport, viewportAnchorMap[anchor]]} data-drawer-viewport="">
         <html.div
           ref={panelRef}
           role="dialog"
@@ -338,11 +335,7 @@ function Close({children, 'aria-label': ariaLabel = 'Close'}: CloseProps) {
   }
 
   return (
-    <html.button
-      onClick={requestClose}
-      aria-label={ariaLabel}
-      style={styles.closeButton}
-    >
+    <html.button onClick={requestClose} aria-label={ariaLabel} style={styles.closeButton}>
       <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
         <path
           d="M4 4l8 8M12 4l-8 8"

@@ -97,9 +97,7 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
 
         panelEl.style.transform = ''
         panelEl.style.boxShadow =
-          shadowSpread > 0
-            ? `0 0 ${shadowSpread * 2}px ${shadowSpread}px rgba(0, 0, 0, 0.15)`
-            : ''
+          shadowSpread > 0 ? `0 0 ${shadowSpread * 2}px ${shadowSpread}px rgba(0, 0, 0, 0.15)` : ''
       }
     },
     [anchor, isHorizontal],
@@ -255,8 +253,7 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
       }
 
       const fraction = movement / state.panelSize
-      const shouldDismiss =
-        fraction > DISMISS_THRESHOLD || velocity > VELOCITY_THRESHOLD
+      const shouldDismiss = fraction > DISMISS_THRESHOLD || velocity > VELOCITY_THRESHOLD
 
       if (shouldDismiss) {
         animateDismiss(panel!)
@@ -291,5 +288,15 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
       panel.removeEventListener('pointercancel', handlePointerCancel)
       panel.removeEventListener('touchmove', handleTouchMove)
     }
-  }, [enabled, panelRef, anchor, isHorizontal, getMovement, applyTransform, resetStyles, animateSnapBack, animateDismiss])
+  }, [
+    enabled,
+    panelRef,
+    anchor,
+    isHorizontal,
+    getMovement,
+    applyTransform,
+    resetStyles,
+    animateSnapBack,
+    animateDismiss,
+  ])
 }

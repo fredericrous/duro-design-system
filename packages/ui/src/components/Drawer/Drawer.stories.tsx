@@ -31,8 +31,8 @@ export const Default: Story = {
         </Drawer.Header>
         <Drawer.Body>
           <Text>
-            This drawer slides in from the right edge. It's useful for showing details,
-            settings panels, or supplementary content without leaving the current page.
+            This drawer slides in from the right edge. It's useful for showing details, settings
+            panels, or supplementary content without leaving the current page.
           </Text>
         </Drawer.Body>
         <Drawer.Footer>
@@ -93,9 +93,15 @@ export const BottomAnchor: Story = {
         </Drawer.Header>
         <Drawer.Body>
           <Stack gap="sm">
-            <Button variant="secondary" fullWidth>Share</Button>
-            <Button variant="secondary" fullWidth>Duplicate</Button>
-            <Button variant="danger" fullWidth>Delete</Button>
+            <Button variant="secondary" fullWidth>
+              Share
+            </Button>
+            <Button variant="secondary" fullWidth>
+              Duplicate
+            </Button>
+            <Button variant="danger" fullWidth>
+              Delete
+            </Button>
           </Stack>
         </Drawer.Body>
       </Drawer.Portal>
@@ -125,7 +131,10 @@ function SizesDemo() {
               <Drawer.Close />
             </Drawer.Header>
             <Drawer.Body>
-              <Text>This drawer uses the {s} size preset ({s === 'sm' ? '360' : s === 'md' ? '480' : '640'}px max-width).</Text>
+              <Text>
+                This drawer uses the {s} size preset (
+                {s === 'sm' ? '360' : s === 'md' ? '480' : '640'}px max-width).
+              </Text>
             </Drawer.Body>
             <Drawer.Footer>
               <Drawer.Close>
@@ -164,9 +173,7 @@ function FormDrawerDemo() {
           <Drawer.Title>Edit profile</Drawer.Title>
           <Drawer.Close />
         </Drawer.Header>
-        <Drawer.Description>
-          Update your account information below.
-        </Drawer.Description>
+        <Drawer.Description>Update your account information below.</Drawer.Description>
         <Drawer.Body>
           <Stack gap="md">
             <Field.Root>
@@ -269,8 +276,8 @@ export const NonDismissable: Story = {
         <Drawer.Body>
           <Stack gap="md">
             <Text>
-              This drawer cannot be dismissed by clicking the backdrop or pressing Escape.
-              You must use the explicit close action below.
+              This drawer cannot be dismissed by clicking the backdrop or pressing Escape. You must
+              use the explicit close action below.
             </Text>
             <Text variant="bodySm" color="muted">
               Try clicking outside or pressing Escape — nothing happens.
@@ -302,8 +309,8 @@ export const NoSwipeDismiss: Story = {
         </Drawer.Header>
         <Drawer.Body>
           <Text>
-            This bottom drawer has swipe-to-dismiss disabled. On mobile, you cannot
-            swipe down to close it — use the close button or tap the backdrop instead.
+            This bottom drawer has swipe-to-dismiss disabled. On mobile, you cannot swipe down to
+            close it — use the close button or tap the backdrop instead.
           </Text>
         </Drawer.Body>
       </Drawer.Portal>
@@ -326,12 +333,10 @@ export const SwipeDismiss: Story = {
         </Drawer.Header>
         <Drawer.Body>
           <Stack gap="md">
-            <Text>
-              Drag this drawer downward to dismiss it. The backdrop fades as you drag.
-            </Text>
+            <Text>Drag this drawer downward to dismiss it. The backdrop fades as you drag.</Text>
             <Text variant="bodySm" color="muted">
-              Swipe past 30% of the panel height or flick quickly to dismiss.
-              Otherwise it snaps back.
+              Swipe past 30% of the panel height or flick quickly to dismiss. Otherwise it snaps
+              back.
             </Text>
           </Stack>
         </Drawer.Body>
@@ -354,9 +359,7 @@ export const SwipeDismissRight: Story = {
           <Drawer.Close />
         </Drawer.Header>
         <Drawer.Body>
-          <Text>
-            Drag this panel to the right to dismiss it. Works with touch and mouse.
-          </Text>
+          <Text>Drag this panel to the right to dismiss it. Works with touch and mouse.</Text>
         </Drawer.Body>
       </Drawer.Portal>
     </Drawer.Root>

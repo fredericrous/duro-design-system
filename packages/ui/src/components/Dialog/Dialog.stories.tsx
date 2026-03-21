@@ -177,9 +177,7 @@ function FormDialogDemo() {
           <Dialog.Title>Edit profile</Dialog.Title>
           <Dialog.Close />
         </Dialog.Header>
-        <Dialog.Description>
-          Update your display name and email address.
-        </Dialog.Description>
+        <Dialog.Description>Update your display name and email address.</Dialog.Description>
         <Dialog.Body>
           <Stack gap="md">
             <Field.Root>
@@ -270,8 +268,8 @@ export const NonDismissable: Story = {
         <Dialog.Body>
           <Stack gap="md">
             <Text>
-              You must accept the terms of service to continue. This dialog cannot be
-              dismissed by clicking outside or pressing Escape.
+              You must accept the terms of service to continue. This dialog cannot be dismissed by
+              clicking outside or pressing Escape.
             </Text>
             <Text variant="bodySm" color="muted">
               Try clicking the backdrop or pressing Escape — the dialog stays open.
@@ -309,8 +307,8 @@ function BackdropDismissDemo() {
           </Dialog.Header>
           <Dialog.Body>
             <Text>
-              Click the dark backdrop behind this dialog to dismiss it.
-              You can also press Escape or use the close button.
+              Click the dark backdrop behind this dialog to dismiss it. You can also press Escape or
+              use the close button.
             </Text>
           </Dialog.Body>
         </Dialog.Portal>

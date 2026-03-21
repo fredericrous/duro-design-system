@@ -271,10 +271,7 @@ function CheckboxTableDemo() {
         </Table.Body>
       </Table.Root>
 
-      <ActionBar
-        selectedItemCount={selected.size}
-        onClearSelection={() => setSelected(new Set())}
-      >
+      <ActionBar selectedItemCount={selected.size} onClearSelection={() => setSelected(new Set())}>
         <Button variant="danger" size="small">
           Delete
         </Button>
