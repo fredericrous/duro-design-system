@@ -56,9 +56,8 @@ function DefaultDemo() {
           </DetailPanel.Header>
           <DetailPanel.Body>
             <Text>
-              This is a non-modal detail panel. The content behind it
-              remains interactive — you can still click, scroll, and
-              interact with the main area.
+              This is a non-modal detail panel. The content behind it remains interactive — you can
+              still click, scroll, and interact with the main area.
             </Text>
           </DetailPanel.Body>
           <DetailPanel.Footer>
@@ -137,9 +136,15 @@ function TableSelectionDemo() {
           <Heading level={3}>Users</Heading>
           <html.div>
             <html.div style={tableStyles.headerRow}>
-              <html.span style={tableStyles.cellText}><Text variant="label">Name</Text></html.span>
-              <html.span style={tableStyles.cellText}><Text variant="label">Role</Text></html.span>
-              <html.span style={tableStyles.cellText}><Text variant="label">Status</Text></html.span>
+              <html.span style={tableStyles.cellText}>
+                <Text variant="label">Name</Text>
+              </html.span>
+              <html.span style={tableStyles.cellText}>
+                <Text variant="label">Role</Text>
+              </html.span>
+              <html.span style={tableStyles.cellText}>
+                <Text variant="label">Status</Text>
+              </html.span>
             </html.div>
             {users.map((user) => (
               <html.div
@@ -147,9 +152,15 @@ function TableSelectionDemo() {
                 style={[tableStyles.row, selectedId === user.id && tableStyles.rowSelected]}
                 onClick={() => setSelectedId(selectedId === user.id ? null : user.id)}
               >
-                <html.span style={tableStyles.cellText}><Text>{user.name}</Text></html.span>
-                <html.span style={tableStyles.cellText}><Text>{user.role}</Text></html.span>
-                <html.span style={tableStyles.cellText}><Text>{user.status}</Text></html.span>
+                <html.span style={tableStyles.cellText}>
+                  <Text>{user.name}</Text>
+                </html.span>
+                <html.span style={tableStyles.cellText}>
+                  <Text>{user.role}</Text>
+                </html.span>
+                <html.span style={tableStyles.cellText}>
+                  <Text>{user.status}</Text>
+                </html.span>
               </html.div>
             ))}
           </html.div>
@@ -225,8 +236,8 @@ function MediumSizeDemo() {
           </DetailPanel.Header>
           <DetailPanel.Body>
             <Text>
-              This panel is 480px wide, providing more room for complex
-              content like forms or detailed information.
+              This panel is 480px wide, providing more room for complex content like forms or
+              detailed information.
             </Text>
           </DetailPanel.Body>
         </DetailPanel.Content>

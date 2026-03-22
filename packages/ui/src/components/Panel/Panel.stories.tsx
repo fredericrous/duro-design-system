@@ -25,9 +25,8 @@ export const Default: Story = {
       </Panel.Header>
       <Panel.Body>
         <Text>
-          Panel is a structural primitive for grouping content with
-          header, body, and footer slots. It fills the gap between Card
-          and page-level layout.
+          Panel is a structural primitive for grouping content with header, body, and footer slots.
+          It fills the gap between Card and page-level layout.
         </Text>
       </Panel.Body>
       <Panel.Footer>
@@ -45,12 +44,14 @@ export const Bordered: Story = {
     <Panel.Root bordered>
       <Panel.Header>
         <Heading level={3}>Bordered Panel</Heading>
-        <Button variant="secondary" size="small">Action</Button>
+        <Button variant="secondary" size="small">
+          Action
+        </Button>
       </Panel.Header>
       <Panel.Body>
         <Text>
-          The bordered variant adds an outer border, useful when the panel
-          needs visual separation from its surroundings.
+          The bordered variant adds an outer border, useful when the panel needs visual separation
+          from its surroundings.
         </Text>
       </Panel.Body>
       <Panel.Footer>
@@ -67,8 +68,8 @@ export const BodyOnly: Story = {
     <Panel.Root bordered>
       <Panel.Body>
         <Text>
-          Panel sub-components can be used independently. This panel only
-          has a Body — no Header or Footer.
+          Panel sub-components can be used independently. This panel only has a Body — no Header or
+          Footer.
         </Text>
       </Panel.Body>
     </Panel.Root>
@@ -85,8 +86,8 @@ export const UnpaddedBody: Story = {
       </Panel.Header>
       <Panel.Body padded={false}>
         <Text>
-          Setting padded=false removes body padding, useful for content
-          that needs to extend edge-to-edge (tables, images, etc).
+          Setting padded=false removes body padding, useful for content that needs to extend
+          edge-to-edge (tables, images, etc).
         </Text>
       </Panel.Body>
     </Panel.Root>

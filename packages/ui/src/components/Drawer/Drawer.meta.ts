@@ -21,7 +21,10 @@ export const meta: ComponentMeta = {
   },
   relatedTo: [
     {component: 'Dialog', relationship: 'Dialog is centered modal; Drawer slides from an edge'},
-    {component: 'DetailPanel', relationship: 'DetailPanel is non-modal and in-flow; Drawer is modal with backdrop'},
+    {
+      component: 'DetailPanel',
+      relationship: 'DetailPanel is non-modal and in-flow; Drawer is modal with backdrop',
+    },
   ],
   example: `<Drawer.Root anchor="right" open={open} onOpenChange={setOpen}>
   <Drawer.Trigger>

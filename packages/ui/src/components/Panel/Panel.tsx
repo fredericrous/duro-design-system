@@ -11,11 +11,7 @@ interface RootProps {
 }
 
 function Root({children, bordered = false}: RootProps) {
-  return (
-    <html.div style={[styles.root, bordered && styles.bordered]}>
-      {children}
-    </html.div>
-  )
+  return <html.div style={[styles.root, bordered && styles.bordered]}>{children}</html.div>
 }
 
 // --- Header ---
@@ -33,11 +29,7 @@ interface BodyProps {
 }
 
 function Body({children, padded = true}: BodyProps) {
-  return (
-    <html.div style={[styles.body, padded && styles.bodyPadded]}>
-      {children}
-    </html.div>
-  )
+  return <html.div style={[styles.body, padded && styles.bodyPadded]}>{children}</html.div>
 }
 
 // --- Footer ---

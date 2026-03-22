@@ -194,12 +194,7 @@ function Content({children, size = 'sm', label}: ContentProps) {
   if (!present) return null
 
   return (
-    <html.div
-      style={[
-        styles.wrapper,
-        closing ? wrapperCloseMap[size] : wrapperOpenMap[size],
-      ]}
-    >
+    <html.div style={[styles.wrapper, closing ? wrapperCloseMap[size] : wrapperOpenMap[size]]}>
       <html.div
         ref={panelRef}
         role="complementary"
@@ -250,11 +245,7 @@ interface BodyProps {
 }
 
 function Body({children, padded = true}: BodyProps) {
-  return (
-    <html.div style={[styles.body, padded && styles.bodyPadded]}>
-      {children}
-    </html.div>
-  )
+  return <html.div style={[styles.body, padded && styles.bodyPadded]}>{children}</html.div>
 }
 
 // --- Footer ---
@@ -282,11 +273,7 @@ function Close({children, 'aria-label': ariaLabel = 'Close'}: CloseProps) {
   }
 
   return (
-    <html.button
-      onClick={requestClose}
-      aria-label={ariaLabel}
-      style={styles.closeButton}
-    >
+    <html.button onClick={requestClose} aria-label={ariaLabel} style={styles.closeButton}>
       <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
         <path
           d="M4 4l8 8M12 4l-8 8"

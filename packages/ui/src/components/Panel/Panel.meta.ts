@@ -18,9 +18,18 @@ export const meta: ComponentMeta = {
     optional: ['Root', 'Header', 'Body', 'Footer'],
   },
   relatedTo: [
-    {component: 'Card', relationship: 'Card is for shallow, repeated items; Panel is for deep, organized content'},
-    {component: 'DetailPanel', relationship: 'DetailPanel uses Panel internally for its structural layout'},
-    {component: 'PageShell', relationship: 'PageShell is for page-level layout; Panel is for section-level'},
+    {
+      component: 'Card',
+      relationship: 'Card is for shallow, repeated items; Panel is for deep, organized content',
+    },
+    {
+      component: 'DetailPanel',
+      relationship: 'DetailPanel uses Panel internally for its structural layout',
+    },
+    {
+      component: 'PageShell',
+      relationship: 'PageShell is for page-level layout; Panel is for section-level',
+    },
   ],
   example: `<Panel.Root bordered>
   <Panel.Header>

@@ -18,7 +18,10 @@ export const meta: ComponentMeta = {
     optional: ['Title', 'Footer', 'Close'],
   },
   relatedTo: [
-    {component: 'Drawer', relationship: 'Drawer is modal with backdrop; DetailPanel is non-modal and in-flow'},
+    {
+      component: 'Drawer',
+      relationship: 'Drawer is modal with backdrop; DetailPanel is non-modal and in-flow',
+    },
     {component: 'Panel', relationship: 'DetailPanel uses Panel structure internally'},
     {component: 'Table', relationship: 'Common pattern: Table + DetailPanel for master-detail'},
   ],

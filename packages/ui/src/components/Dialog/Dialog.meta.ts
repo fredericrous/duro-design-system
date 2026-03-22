@@ -20,8 +20,14 @@ export const meta: ComponentMeta = {
     optional: ['Trigger', 'Header', 'Title', 'Description', 'Body', 'Footer', 'Close'],
   },
   relatedTo: [
-    {component: 'Drawer', relationship: 'Drawer slides from an edge; Dialog is centered with scale animation'},
-    {component: 'DetailPanel', relationship: 'DetailPanel is non-modal and in-flow; Dialog is modal with backdrop'},
+    {
+      component: 'Drawer',
+      relationship: 'Drawer slides from an edge; Dialog is centered with scale animation',
+    },
+    {
+      component: 'DetailPanel',
+      relationship: 'DetailPanel is non-modal and in-flow; Dialog is modal with backdrop',
+    },
   ],
   example: `<Dialog.Root open={open} onOpenChange={setOpen}>
   <Dialog.Trigger>
