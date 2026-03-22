@@ -14,7 +14,10 @@ export const meta: ComponentMeta = {
     'Form field errors — use Field.Error',
   ],
   relatedTo: [
-    {component: 'Callout', relationship: 'Callout for larger block-level messages; Alert for compact inline'},
+    {
+      component: 'Callout',
+      relationship: 'Callout for larger block-level messages; Alert for compact inline',
+    },
   ],
   example: `<Stack gap="sm">
   <Alert variant="success">Settings saved successfully.</Alert>

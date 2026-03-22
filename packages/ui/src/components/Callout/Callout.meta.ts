@@ -14,7 +14,10 @@ export const meta: ComponentMeta = {
     'Toast notifications — use a toast system',
   ],
   relatedTo: [
-    {component: 'Alert', relationship: 'Alert for compact inline; Callout for block-level prominent'},
+    {
+      component: 'Alert',
+      relationship: 'Alert for compact inline; Callout for block-level prominent',
+    },
   ],
   example: `<Callout variant="warning">
   Your subscription expires in 3 days. Renew now to avoid service interruption.

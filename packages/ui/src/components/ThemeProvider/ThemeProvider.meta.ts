@@ -7,9 +7,7 @@ export const meta: ComponentMeta = {
     'App root — required for all Duro components to render correctly',
     'Theme switching (dark/light mode toggle)',
   ],
-  whenNotToUse: [
-    'Never omit — all Duro components require ThemeProvider',
-  ],
+  whenNotToUse: ['Never omit — all Duro components require ThemeProvider'],
   example: `<ThemeProvider theme="dark">
   <App />
 </ThemeProvider>`,

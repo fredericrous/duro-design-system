@@ -14,7 +14,10 @@ export const meta: ComponentMeta = {
     'Simple spacing — use Stack or Inline',
   ],
   relatedTo: [
-    {component: 'Panel', relationship: 'Panel for structural Header/Body/Footer; Card for visual container'},
+    {
+      component: 'Panel',
+      relationship: 'Panel for structural Header/Body/Footer; Card for visual container',
+    },
   ],
   example: `<Card variant="elevated" size="md">
   <Stack gap="md">

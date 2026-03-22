@@ -8,12 +8,12 @@ export const meta: ComponentMeta = {
     'Status indicators alongside text',
     'Navigation or action indicators',
   ],
-  whenNotToUse: [
-    'Decorative images — use img elements',
-    'Complex illustrations — use custom SVGs',
-  ],
+  whenNotToUse: ['Decorative images — use img elements', 'Complex illustrations — use custom SVGs'],
   relatedTo: [
-    {component: 'StatusIcon', relationship: 'StatusIcon wraps Icon with a colored background circle'},
+    {
+      component: 'StatusIcon',
+      relationship: 'StatusIcon wraps Icon with a colored background circle',
+    },
   ],
   example: `<Inline gap="sm" align="center">
   <Icon name="check-circle" size={20} />

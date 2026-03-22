@@ -18,7 +18,10 @@ export const meta: ComponentMeta = {
   },
   relatedTo: [
     {component: 'Input', relationship: 'InputGroup enhances Input with addons'},
-    {component: 'Field', relationship: 'Field provides label/error; InputGroup provides visual addons'},
+    {
+      component: 'Field',
+      relationship: 'Field provides label/error; InputGroup provides visual addons',
+    },
   ],
   example: `<InputGroup.Root>
   <InputGroup.Addon>$</InputGroup.Addon>

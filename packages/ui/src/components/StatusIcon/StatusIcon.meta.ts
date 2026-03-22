@@ -8,10 +8,7 @@ export const meta: ComponentMeta = {
     'List item status icons with colored backgrounds',
     'Feature or capability indicators',
   ],
-  whenNotToUse: [
-    'Inline icons without background — use Icon',
-    'Status text labels — use Badge',
-  ],
+  whenNotToUse: ['Inline icons without background — use Icon', 'Status text labels — use Badge'],
   relatedTo: [
     {component: 'Icon', relationship: 'StatusIcon wraps Icon with background; Icon is bare SVG'},
     {component: 'Badge', relationship: 'Badge for text status; StatusIcon for icon status'},

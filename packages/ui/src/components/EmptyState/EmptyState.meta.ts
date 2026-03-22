@@ -8,10 +8,7 @@ export const meta: ComponentMeta = {
     'Search results with no matches',
     'First-time use before any data exists',
   ],
-  whenNotToUse: [
-    'Loading states — use Spinner',
-    'Error states — use Alert or Callout',
-  ],
+  whenNotToUse: ['Loading states — use Spinner', 'Error states — use Alert or Callout'],
   example: `<Card>
   <EmptyState
     icon={<Icon name="info-circle" size={48} />}
