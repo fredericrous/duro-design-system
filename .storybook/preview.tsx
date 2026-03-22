@@ -1,5 +1,6 @@
 import type {Preview} from '@storybook/react-vite'
 import {ThemeProvider} from '../packages/ui/src/components/ThemeProvider/ThemeProvider'
+import {withAiMeta} from './addons/ai-meta/withAiMeta'
 
 import '@duro-app/ui/strict.css'
 import '@duro-app/ui/reset.css'
@@ -43,6 +44,7 @@ const preview: Preview = {
   },
 
   decorators: [
+    withAiMeta,
     (Story, context) => {
       const bgKey = context.globals?.backgrounds?.value || 'dark'
       const theme = bgToTheme[bgKey] || 'dark'

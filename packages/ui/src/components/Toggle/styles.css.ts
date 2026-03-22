@@ -57,7 +57,8 @@ export const styles = css.create({
     borderRadius: 0,
     borderRightWidth: 1,
     borderRightStyle: 'solid',
-    borderRightColor: colors.border,
+    // Override any borderColor set by pressed state — dividers always use border token
+    borderColor: colors.border,
   },
   disabled: {
     opacity: 0.5,
