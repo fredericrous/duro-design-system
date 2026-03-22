@@ -111,6 +111,7 @@ These components **must** be wrapped in their `.Root`:
 | `Tooltip` | `Root`, `Trigger` |
 | `SideNav` | `Root`, `Group`, `Item` |
 | `ScrollArea` | `Root`, `Viewport`, `Content`, `Scrollbar`, `Thumb` |
+| `DetailPanel` | `Root`, `Content`, `Header`, `Title`, `Body`, `Footer`, `Close` |
 
 ### Optional Root context (works standalone, gains features in context)
 
@@ -120,6 +121,7 @@ These components **must** be wrapped in their `.Root`:
 | `Fieldset` | `Root`, `Legend` | Groups form controls with gap |
 | `ToggleGroup` | (wraps `Toggle` children) | Toggle works alone; group adds multi/single select |
 | `InputGroup` | `Root`, `Addon` | Input works alone; group adds prefix/suffix addons |
+| `Panel` | `Root`, `Header`, `Body`, `Footer` | Sub-components render correct styles alone; Root provides flex column container |
 
 ## Component Quick Reference
 
@@ -132,6 +134,7 @@ These components **must** be wrapped in their `.Root`:
 | **Callout** | Block-level informational message | `variant: 'error'\|'success'\|'warning'\|'info'` | Alert (use Callout for larger, prominent messages) |
 | **Card** | Container with visual styling | `variant: 'elevated'\|'outlined'\|'filled'\|'interactive'`, `size`, `header` | Custom container div |
 | **Checkbox** | Checkbox input with label | `checked`, `defaultChecked`, `onChange` | `<input type="checkbox">` |
+| **DetailPanel** | Non-modal right-side inspection panel | `open`, `onOpenChange`, `size: 'sm'\|'md'`, `label` | Custom side panel |
 | **Dialog** | Modal dialog with backdrop | `open`, `onOpenChange`, `dismissable`, sizes: `'sm'\|'md'\|'lg'` | Custom modal |
 | **Drawer** | Sliding panel from edge | `open`, `onOpenChange`, `anchor: 'right'\|'left'\|'bottom'`, sizes: `'sm'\|'md'\|'lg'` | Custom side panel |
 | **Cluster** | Horizontal flex, **wraps** | `gap`, `align`, `justify` | `<div style="flex-wrap:wrap">` |
@@ -148,6 +151,7 @@ These components **must** be wrapped in their `.Root`:
 | **LinkButton** | Button-styled link | `href`, `variant: 'primary'\|'secondary'`, `target` | `<a>` styled as button |
 | **Menu** | Dropdown action menu | Compound: `Root > Trigger + Popup > Item\|LinkItem` | Custom dropdown |
 | **PageShell** | Page-level layout | `maxWidth: 'sm'\|'md'\|'lg'\|'full'`, `padding`, `header` | Custom page wrapper |
+| **Panel** | Structural content container with slots | `bordered`, sub-components: `Header`, `Body` (`padded`), `Footer` | Custom section wrapper |
 | **ScrollArea** | Custom scrollbar region | Compound: `Root > Viewport > Content`, `Scrollbar > Thumb` | `overflow: auto` |
 | **Select** | Dropdown select | Compound: `Root > Trigger + Popup > Item` | `<select>` |
 | **SideNav** | Side navigation | Compound: `Root > Group > Item` | Custom nav sidebar |
