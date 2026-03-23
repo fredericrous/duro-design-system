@@ -60,11 +60,7 @@ function Item({children, selected, disabled, onClick}: ItemProps) {
       aria-selected={isSelectable ? selected : undefined}
       aria-disabled={disabled || undefined}
       onClick={disabled ? undefined : onClick}
-      style={[
-        styles.item,
-        selected && styles.itemSelected,
-        disabled && styles.itemDisabled,
-      ]}
+      style={[styles.item, selected && styles.itemSelected, disabled && styles.itemDisabled]}
     >
       {children}
     </html.div>

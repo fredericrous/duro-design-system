@@ -18,9 +18,15 @@ export const meta: ComponentMeta = {
     optional: ['Description', 'Actions', 'Empty'],
   },
   relatedTo: [
-    {component: 'Table', relationship: 'Table for wide multi-column data; List for narrow compact items'},
+    {
+      component: 'Table',
+      relationship: 'Table for wide multi-column data; List for narrow compact items',
+    },
     {component: 'DetailPanel', relationship: 'List fits naturally inside DetailPanel.Body'},
-    {component: 'Menu', relationship: 'Menu for action menus; List for data display with selection'},
+    {
+      component: 'Menu',
+      relationship: 'Menu for action menus; List for data display with selection',
+    },
   ],
   example: `<List.Root selectionMode="multiple" aria-label="Certificates">
   <List.Item selected onClick={toggle}>

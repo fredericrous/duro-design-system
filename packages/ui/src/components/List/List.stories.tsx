@@ -32,7 +32,9 @@ export const Default: Story = {
           <List.Description>Reverse proxy · Port 443</List.Description>
         </List.Content>
         <List.Actions>
-          <Badge variant="success" size="sm">Running</Badge>
+          <Badge variant="success" size="sm">
+            Running
+          </Badge>
         </List.Actions>
       </List.Item>
       <List.Item>
@@ -41,7 +43,9 @@ export const Default: Story = {
           <List.Description>Web server · Port 80</List.Description>
         </List.Content>
         <List.Actions>
-          <Badge variant="success" size="sm">Running</Badge>
+          <Badge variant="success" size="sm">
+            Running
+          </Badge>
         </List.Actions>
       </List.Item>
       <List.Item>
@@ -50,7 +54,9 @@ export const Default: Story = {
           <List.Description>DNS filter · Port 53</List.Description>
         </List.Content>
         <List.Actions>
-          <Badge variant="default" size="sm">Stopped</Badge>
+          <Badge variant="default" size="sm">
+            Stopped
+          </Badge>
         </List.Actions>
       </List.Item>
     </List.Root>
@@ -77,9 +83,27 @@ const narrowContainer = css.create({
 
 function SelectionDemo() {
   const certs = [
-    {id: 'c1', serial: 'aa:bb:cc:dd:01', issued: 'Mar 21, 2026', expires: 'Jun 19, 2026', status: 'active' as const},
-    {id: 'c2', serial: 'aa:bb:cc:dd:02', issued: 'Mar 21, 2026', expires: 'Jun 19, 2026', status: 'active' as const},
-    {id: 'c3', serial: 'ee:ff:00:11:03', issued: 'Jan 10, 2025', expires: 'Jan 10, 2026', status: 'expired' as const},
+    {
+      id: 'c1',
+      serial: 'aa:bb:cc:dd:01',
+      issued: 'Mar 21, 2026',
+      expires: 'Jun 19, 2026',
+      status: 'active' as const,
+    },
+    {
+      id: 'c2',
+      serial: 'aa:bb:cc:dd:02',
+      issued: 'Mar 21, 2026',
+      expires: 'Jun 19, 2026',
+      status: 'active' as const,
+    },
+    {
+      id: 'c3',
+      serial: 'ee:ff:00:11:03',
+      issued: 'Jan 10, 2025',
+      expires: 'Jan 10, 2026',
+      status: 'expired' as const,
+    },
   ]
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -117,10 +141,7 @@ function SelectionDemo() {
               </List.Description>
             </List.Content>
             <List.Actions>
-              <Badge
-                variant={cert.status === 'active' ? 'success' : 'default'}
-                size="sm"
-              >
+              <Badge variant={cert.status === 'active' ? 'success' : 'default'} size="sm">
                 {cert.status}
               </Badge>
               {cert.status === 'active' && (
@@ -178,13 +199,12 @@ function DetailPanelDemo() {
           >
             <List.Content>
               <List.Text>{user.name}</List.Text>
-              <List.Description>{user.email} · {user.role}</List.Description>
+              <List.Description>
+                {user.email} · {user.role}
+              </List.Description>
             </List.Content>
             <List.Actions>
-              <Badge
-                variant={user.status === 'Active' ? 'success' : 'default'}
-                size="sm"
-              >
+              <Badge variant={user.status === 'Active' ? 'success' : 'default'} size="sm">
                 {user.status}
               </Badge>
             </List.Actions>
