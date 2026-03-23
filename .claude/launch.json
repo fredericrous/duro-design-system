@@ -4,7 +4,7 @@
     {
       "name": "storybook",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["storybook"],
+      "runtimeArgs": ["storybook", "dev"],
       "port": 6006
     }
   ]

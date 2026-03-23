@@ -63,6 +63,7 @@ export const WithError: Story = {
 
 const stackStyles = css.create({
   stack: {display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 400},
+  stackWide: {display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 600},
 })
 
 export const FormExample: Story = {
@@ -94,5 +95,64 @@ export const FormExample: Story = {
     // Error field has alert
     const alert = canvas.getByRole('alert')
     await expect(alert).toHaveTextContent('Passwords do not match.')
+  },
+}
+
+export const WithNecessityIcon: Story = {
+  name: 'With necessity indicator (standalone)',
+  render: () => (
+    <html.div style={stackStyles.stack}>
+      <Field.Root required>
+        <Field.Label>Email</Field.Label>
+        <Input placeholder="you@example.com" />
+        <Field.Description>Required field with no Form context — indicator needs Form.</Field.Description>
+      </Field.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    // Without Form context, no indicator shows (necessityIndicator comes from Form)
+    const label = canvas.getByText('Email')
+    await expect(label).toBeInTheDocument()
+  },
+}
+
+export const LabelSide: Story = {
+  name: 'Label position — side (standalone)',
+  render: () => (
+    <html.div style={stackStyles.stackWide}>
+      <Field.Root labelPosition="side">
+        <Field.Label>Username</Field.Label>
+        <Input placeholder="Enter username" />
+        <Field.Description>3-32 characters, letters and numbers only.</Field.Description>
+      </Field.Root>
+
+      <Field.Root labelPosition="side" invalid>
+        <Field.Label>Email</Field.Label>
+        <Input variant="error" placeholder="Enter email" />
+        <Field.Error>Please enter a valid email address.</Field.Error>
+      </Field.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    await expect(canvas.getByPlaceholderText('Enter username')).toBeInTheDocument()
+    await expect(canvas.getByPlaceholderText('Enter email')).toBeInTheDocument()
+    await expect(canvas.getByRole('alert')).toHaveTextContent('Please enter a valid email address.')
+  },
+}
+
+export const Disabled: Story = {
+  name: 'Disabled field (standalone)',
+  render: () => (
+    <html.div style={stackStyles.stack}>
+      <Field.Root disabled>
+        <Field.Label>Username</Field.Label>
+        <Input placeholder="Enter username" />
+        <Field.Description>This field is disabled.</Field.Description>
+      </Field.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const input = canvas.getByPlaceholderText('Enter username')
+    await expect(input).toBeDisabled()
   },
 }

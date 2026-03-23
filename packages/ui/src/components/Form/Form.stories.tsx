@@ -1,3 +1,4 @@
+import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, userEvent, within} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
@@ -36,8 +37,19 @@ const FeedbackSchema = Schema.Struct({
   ),
 })
 
+const ProfileSchema = Schema.Struct({
+  name: Schema.String.pipe(
+    Schema.minLength(2, {message: () => 'Name must be at least 2 characters'}),
+  ),
+  email: Schema.String.pipe(
+    Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {message: () => 'Enter a valid email'}),
+  ),
+  bio: Schema.String,
+})
+
 const wrapStyles = css.create({
   wrap: {maxWidth: 400},
+  wrapWide: {maxWidth: 600},
 })
 
 // --- Stories ---
@@ -239,5 +251,268 @@ export const StandaloneFieldStillWorks: Story = {
 
     const alert = canvas.getByRole('alert')
     await expect(alert).toHaveTextContent('Manual error — no Form wrapper needed.')
+  },
+}
+
+// --- New feature stories ---
+
+export const NecessityIndicatorIcon: Story = {
+  name: 'Necessity indicator — icon',
+  render: () => (
+    <html.div style={wrapStyles.wrap}>
+      <Form
+        schema={ProfileSchema}
+        defaultValues={{name: '', email: '', bio: ''}}
+        onSubmit={fn()}
+        necessityIndicator="icon"
+      >
+        <Fieldset.Root gap="md">
+          <Field.Root name="name" required>
+            <Field.Label>Full name</Field.Label>
+            <Input placeholder="Jane Doe" />
+            <Field.Error />
+          </Field.Root>
+
+          <Field.Root name="email" required>
+            <Field.Label>Email</Field.Label>
+            <Input type="email" placeholder="you@example.com" />
+            <Field.Error />
+          </Field.Root>
+
+          <Field.Root name="bio">
+            <Field.Label>Bio</Field.Label>
+            <Textarea placeholder="Tell us about yourself..." rows={3} />
+          </Field.Root>
+
+          <Button type="submit">Save</Button>
+        </Fieldset.Root>
+      </Form>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    // Required fields show asterisk
+    const nameLabel = canvas.getByText('Full name')
+    await expect(nameLabel.closest('label')?.textContent).toContain('*')
+
+    const emailLabel = canvas.getByText('Email')
+    await expect(emailLabel.closest('label')?.textContent).toContain('*')
+
+    // Optional field has no asterisk
+    const bioLabel = canvas.getByText('Bio')
+    await expect(bioLabel.closest('label')?.textContent).not.toContain('*')
+  },
+}
+
+export const NecessityIndicatorLabel: Story = {
+  name: 'Necessity indicator — label',
+  render: () => (
+    <html.div style={wrapStyles.wrap}>
+      <Form
+        schema={ProfileSchema}
+        defaultValues={{name: '', email: '', bio: ''}}
+        onSubmit={fn()}
+        necessityIndicator="label"
+      >
+        <Fieldset.Root gap="md">
+          <Field.Root name="name" required>
+            <Field.Label>Full name</Field.Label>
+            <Input placeholder="Jane Doe" />
+            <Field.Error />
+          </Field.Root>
+
+          <Field.Root name="email" required>
+            <Field.Label>Email</Field.Label>
+            <Input type="email" placeholder="you@example.com" />
+            <Field.Error />
+          </Field.Root>
+
+          <Field.Root name="bio">
+            <Field.Label>Bio</Field.Label>
+            <Textarea placeholder="Tell us about yourself..." rows={3} />
+          </Field.Root>
+
+          <Button type="submit">Save</Button>
+        </Fieldset.Root>
+      </Form>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    // Required fields show "(required)" — there are two
+    const requiredIndicators = canvas.getAllByText('(required)')
+    await expect(requiredIndicators).toHaveLength(2)
+
+    // Optional field shows "(optional)"
+    await expect(canvas.getByText('(optional)')).toBeInTheDocument()
+  },
+}
+
+export const FocusFirstInvalid: Story = {
+  name: 'Focus first invalid on submit',
+  render: () => (
+    <html.div style={wrapStyles.wrap}>
+      <Form schema={LoginSchema} defaultValues={{username: '', password: ''}} onSubmit={fn()}>
+        <Fieldset.Root gap="md">
+          <Field.Root name="username">
+            <Field.Label>Username</Field.Label>
+            <Input placeholder="Enter username" />
+            <Field.Error />
+          </Field.Root>
+
+          <Field.Root name="password">
+            <Field.Label>Password</Field.Label>
+            <Input type="password" placeholder="Enter password" />
+            <Field.Error />
+          </Field.Root>
+
+          <Button type="submit">Log in</Button>
+        </Fieldset.Root>
+      </Form>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    // Submit the form with empty fields
+    const button = canvas.getByRole('button', {name: 'Log in'})
+    await userEvent.click(button)
+
+    // First invalid field (username) should be focused
+    const usernameInput = canvas.getByPlaceholderText('Enter username')
+    await expect(usernameInput).toHaveFocus()
+  },
+}
+
+export const FormDisabled: Story = {
+  name: 'Form disabled',
+  render: () => (
+    <html.div style={wrapStyles.wrap}>
+      <Form
+        schema={LoginSchema}
+        defaultValues={{username: 'johndoe', password: 'supersecret1'}}
+        onSubmit={fn()}
+        disabled
+      >
+        <Fieldset.Root gap="md">
+          <Field.Root name="username">
+            <Field.Label>Username</Field.Label>
+            <Input placeholder="Enter username" />
+          </Field.Root>
+
+          <Field.Root name="password">
+            <Field.Label>Password</Field.Label>
+            <Input type="password" placeholder="Enter password" />
+          </Field.Root>
+
+          <Button type="submit">Log in</Button>
+        </Fieldset.Root>
+      </Form>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const usernameInput = canvas.getByPlaceholderText('Enter username')
+    const passwordInput = canvas.getByPlaceholderText('Enter password')
+    await expect(usernameInput).toBeDisabled()
+    await expect(passwordInput).toBeDisabled()
+  },
+}
+
+export const LabelPositionSide: Story = {
+  name: 'Label position — side',
+  render: () => (
+    <html.div style={wrapStyles.wrapWide}>
+      <Form
+        schema={ProfileSchema}
+        defaultValues={{name: '', email: '', bio: ''}}
+        onSubmit={fn()}
+        labelPosition="side"
+        necessityIndicator="icon"
+      >
+        {({formState}) => (
+          <Fieldset.Root gap="md">
+            <Field.Root name="name" required>
+              <Field.Label>Full name</Field.Label>
+              <Input placeholder="Jane Doe" />
+              <Field.Error />
+            </Field.Root>
+
+            <Field.Root name="email" required>
+              <Field.Label>Email</Field.Label>
+              <Input type="email" placeholder="you@example.com" />
+              <Field.Description>We will never share your email.</Field.Description>
+              <Field.Error />
+            </Field.Root>
+
+            <Field.Root name="bio">
+              <Field.Label>Bio</Field.Label>
+              <Textarea placeholder="Tell us about yourself..." rows={3} />
+            </Field.Root>
+
+            <Button type="submit" disabled={!formState.isValid}>
+              Save profile
+            </Button>
+          </Fieldset.Root>
+        )}
+      </Form>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    await expect(canvas.getByPlaceholderText('Jane Doe')).toBeInTheDocument()
+    await expect(canvas.getByPlaceholderText('you@example.com')).toBeInTheDocument()
+  },
+}
+
+export const ServerValidationErrors: Story = {
+  name: 'Server validation errors',
+  render: () => {
+    function ServerErrorDemo() {
+      const [serverErrors, setServerErrors] = useState<
+        Partial<Record<'username' | 'password', string>>
+      >({})
+
+      return (
+        <html.div style={wrapStyles.wrap}>
+          <Form
+            schema={LoginSchema}
+            defaultValues={{username: '', password: ''}}
+            onSubmit={() => {
+              // Simulate server response with errors
+              setServerErrors({username: 'This username is already taken'})
+            }}
+            validationErrors={serverErrors}
+          >
+            <Fieldset.Root gap="md">
+              <Field.Root name="username">
+                <Field.Label>Username</Field.Label>
+                <Input placeholder="Enter username" />
+                <Field.Error />
+              </Field.Root>
+
+              <Field.Root name="password">
+                <Field.Label>Password</Field.Label>
+                <Input type="password" placeholder="Enter password" />
+                <Field.Error />
+              </Field.Root>
+
+              <Button type="submit">Register</Button>
+            </Fieldset.Root>
+          </Form>
+        </html.div>
+      )
+    }
+
+    return <ServerErrorDemo />
+  },
+  play: async ({canvas}) => {
+    const usernameInput = canvas.getByPlaceholderText('Enter username')
+    const passwordInput = canvas.getByPlaceholderText('Enter password')
+
+    // Fill valid values and submit
+    await userEvent.type(usernameInput, 'johndoe')
+    await userEvent.type(passwordInput, 'supersecret1')
+
+    const button = canvas.getByRole('button', {name: 'Register'})
+    await userEvent.click(button)
+
+    // Server error appears
+    const alert = await canvas.findByRole('alert')
+    await expect(alert).toHaveTextContent('This username is already taken')
   },
 }

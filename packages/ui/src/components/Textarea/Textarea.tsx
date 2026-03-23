@@ -41,6 +41,7 @@ export function Textarea({
   const effectiveOnChange = onChange ?? fieldCtx?.onChange
   const effectiveOnBlur = onBlur ?? fieldCtx?.onBlur
   const effectiveRef = ref ?? fieldCtx?.ref
+  const effectiveDisabled = disabled ?? ctx?.disabled
   const effectiveVariant = ctx?.invalid ? 'error' : variant
 
   return (
@@ -52,7 +53,7 @@ export function Textarea({
       rows={rows}
       value={effectiveValue}
       defaultValue={defaultValue}
-      disabled={disabled}
+      disabled={effectiveDisabled}
       aria-describedby={
         ctx ? `${ctx.descriptionId} ${ctx.invalid ? ctx.errorId : ''}`.trim() : undefined
       }

@@ -9,17 +9,10 @@ import {Button} from '../Button/Button'
 import {ActionBar} from '../ActionBar/ActionBar'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 
-import {
-  flexRender,
-  createColumnHelper,
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  type SortingState,
-  type ColumnFiltersState,
-} from '@tanstack/react-table'
+import {flexRender, createColumnHelper, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, type SortingState, type ColumnFiltersState, type PaginationState} from '@tanstack/react-table'
+import {useDataTable} from './useDataTable'
+import {Combobox} from '../Combobox/Combobox'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta = {
   title: 'Components/Table',
@@ -441,30 +434,29 @@ export const AllVariants: Story = {
 
 // --- Sorting: demonstrates click-to-sort with hover indicators ---
 
+type Service = {name: string; role: string; port: number; uptime: string}
+
+const sortingData: Service[] = [
+  {name: 'Traefik', role: 'Reverse Proxy', port: 443, uptime: '14d 3h'},
+  {name: 'Pi-hole', role: 'DNS Filter', port: 80, uptime: '14d 3h'},
+  {name: 'Grafana', role: 'Monitoring', port: 3000, uptime: '7d 12h'},
+  {name: 'Portainer', role: 'Container Mgmt', port: 9000, uptime: '2d 5h'},
+  {name: 'Nginx', role: 'Web Server', port: 8080, uptime: '30d 1h'},
+]
+
+const sortingCols = [
+  createColumnHelper<Service>().accessor('name', {header: 'Name', enableSorting: true}),
+  createColumnHelper<Service>().accessor('role', {header: 'Role', enableSorting: true}),
+  createColumnHelper<Service>().accessor('port', {header: 'Port', enableSorting: true}),
+  createColumnHelper<Service>().accessor('uptime', {header: 'Uptime', enableSorting: true}),
+]
+
 function SortingDemo() {
-  const data = [
-    {name: 'Traefik', role: 'Reverse Proxy', port: 443, uptime: '14d 3h'},
-    {name: 'Pi-hole', role: 'DNS Filter', port: 80, uptime: '14d 3h'},
-    {name: 'Grafana', role: 'Monitoring', port: 3000, uptime: '7d 12h'},
-    {name: 'Portainer', role: 'Container Mgmt', port: 9000, uptime: '2d 5h'},
-    {name: 'Nginx', role: 'Web Server', port: 8080, uptime: '30d 1h'},
-  ]
-
-  const cols = [
-    createColumnHelper<(typeof data)[0]>().accessor('name', {header: 'Name', enableSorting: true}),
-    createColumnHelper<(typeof data)[0]>().accessor('role', {header: 'Role', enableSorting: true}),
-    createColumnHelper<(typeof data)[0]>().accessor('port', {header: 'Port', enableSorting: true}),
-    createColumnHelper<(typeof data)[0]>().accessor('uptime', {
-      header: 'Uptime',
-      enableSorting: true,
-    }),
-  ]
-
   const [sorting, setSorting] = useState<SortingState>([])
 
   const table = useReactTable({
-    data,
-    columns: cols,
+    data: sortingData,
+    columns: sortingCols,
     state: {sorting},
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -513,22 +505,59 @@ export const Sorting: Story = {
   },
 }
 
+// --- Shared data helpers for interactive demos ---
+
+interface User {
+  name: string
+  role: string
+  status: string
+  email: string
+}
+
+const firstNames = [
+  'Alice', 'Bob', 'Carol', 'Dave', 'Eve', 'Frank', 'Grace', 'Hank',
+  'Iris', 'Jack', 'Karen', 'Leo', 'Mona', 'Nick', 'Olivia', 'Paul',
+  'Quinn', 'Rita', 'Sam', 'Tina', 'Uma', 'Vince', 'Wendy', 'Xander',
+  'Yara', 'Zach',
+]
+const lastNames = [
+  'Adams', 'Brown', 'Clark', 'Davis', 'Evans', 'Foster', 'Garcia',
+  'Hill', 'Ito', 'Jones', 'Kim', 'Lee', 'Moore', 'Nash', 'Owen',
+  'Patel', 'Quinn', 'Reed', 'Smith', 'Tran', 'Ueda', 'Voss', 'Wang',
+  'Xu', 'Yang', 'Zhang',
+]
+const roles = ['Admin', 'Editor', 'Viewer', 'Moderator', 'Analyst']
+const statuses = ['Active', 'Inactive', 'Pending', 'Suspended']
+
+function generateUsers(count: number): User[] {
+  return Array.from({length: count}, (_, i) => {
+    const first = firstNames[i % firstNames.length]
+    const last = lastNames[(i * 7) % lastNames.length]
+    return {
+      name: `${first} ${last}`,
+      role: roles[i % roles.length],
+      status: statuses[i % statuses.length],
+      email: `${first.toLowerCase()}.${last.toLowerCase()}@example.com`,
+    }
+  })
+}
+
 // --- Pagination: demonstrates page navigation ---
 
+const paginationData = generateUsers(35)
+
+const paginationCols = [
+  createColumnHelper<User>().accessor('name', {header: 'Name'}),
+  createColumnHelper<User>().accessor('role', {header: 'Role'}),
+  createColumnHelper<User>().accessor('email', {header: 'Email'}),
+]
+
 function PaginationDemo() {
-  const data = generateUsers(35)
-
-  const cols = [
-    createColumnHelper<User>().accessor('name', {header: 'Name'}),
-    createColumnHelper<User>().accessor('role', {header: 'Role'}),
-    createColumnHelper<User>().accessor('email', {header: 'Email'}),
-  ]
-
   const [pagination, setPagination] = useState({pageIndex: 0, pageSize: 10})
 
   const table = useReactTable({
-    data,
-    columns: cols,
+    data: paginationData,
+    columns: paginationCols,
     state: {pagination},
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
@@ -576,21 +605,21 @@ export const WithPagination: Story = {
 
 // --- Filtering: demonstrates column filter inputs ---
 
+const filteringData = generateUsers(20)
+
+const filteringCols = [
+  createColumnHelper<User>().accessor('name', {header: 'Name', enableColumnFilter: true}),
+  createColumnHelper<User>().accessor('role', {header: 'Role', enableColumnFilter: false}),
+  createColumnHelper<User>().accessor('status', {header: 'Status', enableColumnFilter: false}),
+  createColumnHelper<User>().accessor('email', {header: 'Email', enableColumnFilter: true}),
+]
+
 function FilteringDemo() {
-  const data = generateUsers(20)
-
-  const cols = [
-    createColumnHelper<User>().accessor('name', {header: 'Name', enableColumnFilter: true}),
-    createColumnHelper<User>().accessor('role', {header: 'Role', enableColumnFilter: false}),
-    createColumnHelper<User>().accessor('status', {header: 'Status', enableColumnFilter: false}),
-    createColumnHelper<User>().accessor('email', {header: 'Email', enableColumnFilter: true}),
-  ]
-
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const table = useReactTable({
-    data,
-    columns: cols,
+    data: filteringData,
+    columns: filteringCols,
     state: {columnFilters},
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -642,85 +671,6 @@ export const WithFiltering: Story = {
 
 // --- FullFeatured: useDataTable with pagination, sorting, and filtering ---
 
-interface User {
-  name: string
-  role: string
-  status: string
-  email: string
-}
-
-const firstNames = [
-  'Alice',
-  'Bob',
-  'Carol',
-  'Dave',
-  'Eve',
-  'Frank',
-  'Grace',
-  'Hank',
-  'Iris',
-  'Jack',
-  'Karen',
-  'Leo',
-  'Mona',
-  'Nick',
-  'Olivia',
-  'Paul',
-  'Quinn',
-  'Rita',
-  'Sam',
-  'Tina',
-  'Uma',
-  'Vince',
-  'Wendy',
-  'Xander',
-  'Yara',
-  'Zach',
-]
-const lastNames = [
-  'Adams',
-  'Brown',
-  'Clark',
-  'Davis',
-  'Evans',
-  'Foster',
-  'Garcia',
-  'Hill',
-  'Ito',
-  'Jones',
-  'Kim',
-  'Lee',
-  'Moore',
-  'Nash',
-  'Owen',
-  'Patel',
-  'Quinn',
-  'Reed',
-  'Smith',
-  'Tran',
-  'Ueda',
-  'Voss',
-  'Wang',
-  'Xu',
-  'Yang',
-  'Zhang',
-]
-const roles = ['Admin', 'Editor', 'Viewer', 'Moderator', 'Analyst']
-const statuses = ['Active', 'Inactive', 'Pending', 'Suspended']
-
-function generateUsers(count: number): User[] {
-  return Array.from({length: count}, (_, i) => {
-    const first = firstNames[i % firstNames.length]
-    const last = lastNames[(i * 7) % lastNames.length]
-    return {
-      name: `${first} ${last}`,
-      role: roles[i % roles.length],
-      status: statuses[i % statuses.length],
-      email: `${first.toLowerCase()}.${last.toLowerCase()}@example.com`,
-    }
-  })
-}
-
 const fakeUsers = generateUsers(50)
 
 const columnHelper = createColumnHelper<User>()
@@ -729,34 +679,44 @@ const fullFeaturedColumns = [
   columnHelper.accessor('name', {
     header: 'Name',
     enableSorting: true,
-    enableColumnFilter: true,
+    enableColumnFilter: false,
   }),
   columnHelper.accessor('role', {
     header: 'Role',
     enableSorting: true,
-    enableColumnFilter: false,
+    enableColumnFilter: true,
   }),
   columnHelper.accessor('status', {
     header: 'Status',
     enableSorting: true,
-    enableColumnFilter: false,
+    enableColumnFilter: true,
   }),
   columnHelper.accessor('email', {
     header: 'Email',
     enableSorting: true,
-    enableColumnFilter: true,
+    enableColumnFilter: false,
   }),
 ]
 
 const fullFeaturedStyles = css.create({
   wrapper: {display: 'flex', flexDirection: 'column', gap: 0},
+  filterBar: {
+    display: 'flex',
+    gap: spacing.md,
+    paddingBottom: spacing.md,
+  },
   headerContent: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     cursor: 'pointer',
     userSelect: 'none',
   },
 })
+
+const uniqueRoles = [...new Set(fakeUsers.map((u) => u.role))].sort()
+const uniqueStatuses = [...new Set(fakeUsers.map((u) => u.status))].sort()
 
 function FullFeaturedDemo() {
   const table = useDataTable(fakeUsers, fullFeaturedColumns, {
@@ -767,6 +727,48 @@ function FullFeaturedDemo() {
 
   return (
     <html.div style={fullFeaturedStyles.wrapper}>
+      <html.div style={fullFeaturedStyles.filterBar}>
+        <Combobox.Root
+          value={table.getColumn('role')?.getFilterValue() as string ?? ''}
+          onValueChange={(v) => table.getColumn('role')?.setFilterValue(v || undefined)}
+          onInputChange={(v) => table.getColumn('role')?.setFilterValue(v || undefined)}
+        >
+          <Combobox.Input placeholder="Filter role...">
+            <Combobox.Trigger />
+          </Combobox.Input>
+          <Combobox.Popup>
+            <Combobox.Item value="">
+              <Combobox.ItemText>All Roles</Combobox.ItemText>
+            </Combobox.Item>
+            {uniqueRoles.map((role) => (
+              <Combobox.Item key={role} value={role}>
+                <Combobox.ItemText>{role}</Combobox.ItemText>
+              </Combobox.Item>
+            ))}
+            <Combobox.Empty>No roles found</Combobox.Empty>
+          </Combobox.Popup>
+        </Combobox.Root>
+        <Combobox.Root
+          value={table.getColumn('status')?.getFilterValue() as string ?? ''}
+          onValueChange={(v) => table.getColumn('status')?.setFilterValue(v || undefined)}
+          onInputChange={(v) => table.getColumn('status')?.setFilterValue(v || undefined)}
+        >
+          <Combobox.Input placeholder="Filter status...">
+            <Combobox.Trigger />
+          </Combobox.Input>
+          <Combobox.Popup>
+            <Combobox.Item value="">
+              <Combobox.ItemText>All Statuses</Combobox.ItemText>
+            </Combobox.Item>
+            {uniqueStatuses.map((status) => (
+              <Combobox.Item key={status} value={status}>
+                <Combobox.ItemText>{status}</Combobox.ItemText>
+              </Combobox.Item>
+            ))}
+            <Combobox.Empty>No statuses found</Combobox.Empty>
+          </Combobox.Popup>
+        </Combobox.Root>
+      </html.div>
       <Table.Root>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -780,12 +782,6 @@ function FullFeaturedDemo() {
                     {flexRender(header.column.columnDef.header, header.getContext())}
                     <Table.SortIndicator column={header.column} />
                   </html.div>
-                  {(header.column.id === 'name' || header.column.id === 'email') && (
-                    <Table.ColumnFilter
-                      column={header.column}
-                      placeholder={`Filter ${header.column.id}...`}
-                    />
-                  )}
                 </Table.HeaderCell>
               ))}
             </Table.Row>

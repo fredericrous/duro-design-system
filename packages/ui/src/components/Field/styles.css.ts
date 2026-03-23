@@ -9,10 +9,21 @@ export const styles = css.create({
     flexDirection: 'column',
     gap: spacing.xs,
   },
+  rootSide: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.md,
+  },
   label: {
     fontSize: typography.fontSizeSm,
     fontWeight: typography.fontWeightMedium,
     color: colors.text,
+  },
+  labelSide: {
+    minWidth: 120,
+    paddingTop: spacing.sm,
+    flexShrink: 0,
   },
   description: {
     fontSize: typography.fontSizeXs,
@@ -21,5 +32,20 @@ export const styles = css.create({
   error: {
     fontSize: typography.fontSizeXs,
     color: colors.error,
+  },
+  fieldContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing.xs,
+    flex: 1,
+    minWidth: 0,
+  },
+  necessityIcon: {
+    color: colors.error,
+  },
+  necessityLabel: {
+    color: colors.textMuted,
+    fontWeight: typography.fontWeightNormal,
+    fontSize: typography.fontSizeXs,
   },
 })

@@ -1,21 +1,25 @@
-import {type ReactNode, useId, useMemo} from 'react'
+import {type ReactNode, Children, isValidElement, useId, useMemo} from 'react'
 import {html} from 'react-strict-dom'
 import {useFormContext as useRHFFormContext, useController} from 'react-hook-form'
 import {FieldContext, useFieldContext} from './FieldContext'
 import {useFormContext} from '../Form/FormContext'
+import type {LabelPosition, NecessityIndicator} from '../Form/FormContext'
 import {styles} from './styles.css'
 
 // --- Root ---
 interface RootProps {
   name?: string
   invalid?: boolean
+  required?: boolean
+  disabled?: boolean
+  labelPosition?: LabelPosition
   children: ReactNode
 }
 
 function Root({name, ...props}: RootProps) {
-  const insideForm = useFormContext()
-  if (name && insideForm) {
-    return <ControlledRoot name={name} {...props} />
+  const formCtx = useFormContext()
+  if (name && formCtx) {
+    return <ControlledRoot name={name} formCtx={formCtx} {...props} />
   }
   return <StaticRoot {...props} />
 }
@@ -23,11 +27,19 @@ function Root({name, ...props}: RootProps) {
 // Always calls useController — no conditional hooks
 function ControlledRoot({
   name,
+  formCtx,
   invalid: invalidProp = false,
+  required,
+  disabled,
+  labelPosition,
   children,
 }: {
   name: string
+  formCtx: NonNullable<ReturnType<typeof useFormContext>>
   invalid?: boolean
+  required?: boolean
+  disabled?: boolean
+  labelPosition?: LabelPosition
   children: ReactNode
 }) {
   const id = useId()
@@ -35,12 +47,20 @@ function ControlledRoot({
   const {field, fieldState} = useController({control, name})
   const invalid = invalidProp || !!fieldState.error
 
+  const effectiveDisabled = disabled ?? formCtx.disabled
+  const effectiveLabelPosition = labelPosition ?? formCtx.labelPosition
+  const effectiveNecessityIndicator = formCtx.necessityIndicator
+
   const ctx = useMemo(
     () => ({
       controlId: `${id}-control`,
       descriptionId: `${id}-description`,
       errorId: `${id}-error`,
       invalid,
+      required,
+      disabled: effectiveDisabled,
+      labelPosition: effectiveLabelPosition,
+      necessityIndicator: effectiveNecessityIndicator,
       field: {
         value: field.value,
         onChange: field.onChange,
@@ -53,6 +73,10 @@ function ControlledRoot({
     [
       id,
       invalid,
+      required,
+      effectiveDisabled,
+      effectiveLabelPosition,
+      effectiveNecessityIndicator,
       field.value,
       field.onChange,
       field.onBlur,
@@ -64,13 +88,25 @@ function ControlledRoot({
 
   return (
     <FieldContext.Provider value={ctx}>
-      <html.div style={styles.root}>{children}</html.div>
+      <FieldLayout labelPosition={effectiveLabelPosition}>{children}</FieldLayout>
     </FieldContext.Provider>
   )
 }
 
 // Current behavior, no RHF dependency
-function StaticRoot({invalid = false, children}: {invalid?: boolean; children: ReactNode}) {
+function StaticRoot({
+  invalid = false,
+  required,
+  disabled,
+  labelPosition = 'top',
+  children,
+}: {
+  invalid?: boolean
+  required?: boolean
+  disabled?: boolean
+  labelPosition?: LabelPosition
+  children: ReactNode
+}) {
   const id = useId()
   const ctx = useMemo(
     () => ({
@@ -78,14 +114,50 @@ function StaticRoot({invalid = false, children}: {invalid?: boolean; children: R
       descriptionId: `${id}-description`,
       errorId: `${id}-error`,
       invalid,
+      required,
+      disabled,
+      labelPosition,
     }),
-    [id, invalid],
+    [id, invalid, required, disabled, labelPosition],
   )
 
   return (
     <FieldContext.Provider value={ctx}>
-      <html.div style={styles.root}>{children}</html.div>
+      <FieldLayout labelPosition={labelPosition}>{children}</FieldLayout>
     </FieldContext.Provider>
+  )
+}
+
+// --- FieldLayout ---
+// When labelPosition is 'side', separates Label from other children
+// and wraps the non-label children in a content column.
+function FieldLayout({
+  labelPosition,
+  children,
+}: {
+  labelPosition: LabelPosition
+  children: ReactNode
+}) {
+  if (labelPosition !== 'side') {
+    return <html.div style={styles.root}>{children}</html.div>
+  }
+
+  let labelNode: ReactNode = null
+  const rest: ReactNode[] = []
+
+  Children.forEach(children, (child) => {
+    if (isValidElement(child) && child.type === Label && !labelNode) {
+      labelNode = child
+    } else {
+      rest.push(child)
+    }
+  })
+
+  return (
+    <html.div style={styles.rootSide}>
+      {labelNode}
+      <html.div style={styles.fieldContent}>{rest}</html.div>
+    </html.div>
   )
 }
 
@@ -96,9 +168,25 @@ interface LabelProps {
 
 function Label({children}: LabelProps) {
   const ctx = useFieldContext()
+  const isSide = ctx?.labelPosition === 'side'
+  const indicator = ctx?.necessityIndicator
+
   return (
-    <html.label for={ctx?.controlId} style={styles.label}>
+    <html.label
+      for={ctx?.controlId}
+      style={[styles.label, isSide && styles.labelSide]}
+    >
       {children}
+      {indicator === 'icon' && ctx?.required && (
+        <html.span style={styles.necessityIcon} aria-hidden={true}>
+          {' *'}
+        </html.span>
+      )}
+      {indicator === 'label' && (
+        <html.span style={styles.necessityLabel}>
+          {ctx?.required ? ' (required)' : ' (optional)'}
+        </html.span>
+      )}
     </html.label>
   )
 }

@@ -59,6 +59,7 @@ export function Input({
   const effectiveOnChange = onChange ?? fieldCtx?.onChange
   const effectiveOnBlur = onBlur ?? fieldCtx?.onBlur
   const effectiveRef = ref ?? fieldCtx?.ref
+  const effectiveDisabled = disabled ?? ctx?.disabled
   const effectiveVariant = ctx?.invalid ? 'error' : variant
 
   // react-strict-dom omits web-only `pattern` from its types, but the
@@ -76,7 +77,7 @@ export function Input({
       autoComplete={autoComplete}
       value={effectiveValue}
       defaultValue={defaultValue}
-      disabled={disabled}
+      disabled={effectiveDisabled}
       aria-describedby={
         ctx ? `${ctx.descriptionId} ${ctx.invalid ? ctx.errorId : ''}`.trim() : undefined
       }

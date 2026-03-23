@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useCallback, useState} from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,7 +10,6 @@ import {
   type ColumnFiltersState,
   type PaginationState,
   type RowSelectionState,
-  type TableOptions,
   type Table,
 } from '@tanstack/react-table'
 
@@ -47,67 +46,54 @@ export function useDataTable<TData>(
   options: UseDataTableOptions<TData> = {},
 ): Table<TData> {
   const {
-    pagination: paginationInit,
     enableSorting = false,
     enableFiltering = false,
     enableRowSelection = false,
     onRowSelectionChange: onSelectionChangeProp,
   } = options
 
+  const enablePagination = options.pagination != null
+
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: paginationInit?.pageIndex ?? 0,
-    pageSize: paginationInit?.pageSize ?? 10,
+    pageIndex: options.pagination?.pageIndex ?? 0,
+    pageSize: options.pagination?.pageSize ?? 10,
   })
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
-  const handleRowSelectionChange = (updater: any) => {
-    setRowSelection(updater)
-    if (onSelectionChangeProp) {
-      const next = typeof updater === 'function' ? updater(rowSelection) : updater
-      onSelectionChangeProp(next)
-    }
-  }
+  const handleRowSelectionChange = useCallback(
+    (updater: any) => {
+      setRowSelection((prev: RowSelectionState) => {
+        const next = typeof updater === 'function' ? updater(prev) : updater
+        onSelectionChangeProp?.(next)
+        return next
+      })
+    },
+    [onSelectionChangeProp],
+  )
 
-  const tableOptions: TableOptions<TData> = {
+  // Follow TanStack's recommended pattern: always pass all row models
+  // unconditionally and let the library handle unused ones. Conditional
+  // spreads create unstable option shapes that can trigger infinite loops.
+  return useReactTable({
     data,
     columns,
+    state: {sorting, columnFilters, pagination, rowSelection},
     getCoreRowModel: getCoreRowModel(),
-
-    // Sorting
-    ...(enableSorting && {
-      getSortedRowModel: getSortedRowModel(),
-      onSortingChange: setSorting,
-      state: {sorting},
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onPaginationChange: setPagination,
+    enableSorting,
+    enableRowSelection:
+      typeof enableRowSelection === 'function' ? enableRowSelection : !!enableRowSelection,
+    onRowSelectionChange: handleRowSelectionChange,
+    // When pagination is disabled, set a very large page size to show all rows
+    ...(!enablePagination && {
+      autoResetPageIndex: false,
     }),
-
-    // Filtering
-    ...(enableFiltering && {
-      getFilteredRowModel: getFilteredRowModel(),
-      onColumnFiltersChange: setColumnFilters,
-    }),
-
-    // Pagination
-    ...(paginationInit && {
-      getPaginationRowModel: getPaginationRowModel(),
-      onPaginationChange: setPagination,
-    }),
-
-    // Row selection
-    ...(enableRowSelection && {
-      enableRowSelection: typeof enableRowSelection === 'function' ? enableRowSelection : true,
-      onRowSelectionChange: handleRowSelectionChange,
-    }),
-
-    // Merge all state
-    state: {
-      ...(enableSorting && {sorting}),
-      ...(enableFiltering && {columnFilters}),
-      ...(paginationInit && {pagination}),
-      ...(enableRowSelection && {rowSelection}),
-    },
-  }
-
-  return useReactTable(tableOptions)
+  })
 }
