@@ -9,7 +9,18 @@ import {Button} from '../Button/Button'
 import {ActionBar} from '../ActionBar/ActionBar'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 
-import {flexRender, createColumnHelper, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, type SortingState, type ColumnFiltersState, type PaginationState} from '@tanstack/react-table'
+import {
+  flexRender,
+  createColumnHelper,
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  type SortingState,
+  type ColumnFiltersState,
+  type PaginationState,
+} from '@tanstack/react-table'
 import {useDataTable} from './useDataTable'
 import {Combobox} from '../Combobox/Combobox'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
@@ -515,16 +526,60 @@ interface User {
 }
 
 const firstNames = [
-  'Alice', 'Bob', 'Carol', 'Dave', 'Eve', 'Frank', 'Grace', 'Hank',
-  'Iris', 'Jack', 'Karen', 'Leo', 'Mona', 'Nick', 'Olivia', 'Paul',
-  'Quinn', 'Rita', 'Sam', 'Tina', 'Uma', 'Vince', 'Wendy', 'Xander',
-  'Yara', 'Zach',
+  'Alice',
+  'Bob',
+  'Carol',
+  'Dave',
+  'Eve',
+  'Frank',
+  'Grace',
+  'Hank',
+  'Iris',
+  'Jack',
+  'Karen',
+  'Leo',
+  'Mona',
+  'Nick',
+  'Olivia',
+  'Paul',
+  'Quinn',
+  'Rita',
+  'Sam',
+  'Tina',
+  'Uma',
+  'Vince',
+  'Wendy',
+  'Xander',
+  'Yara',
+  'Zach',
 ]
 const lastNames = [
-  'Adams', 'Brown', 'Clark', 'Davis', 'Evans', 'Foster', 'Garcia',
-  'Hill', 'Ito', 'Jones', 'Kim', 'Lee', 'Moore', 'Nash', 'Owen',
-  'Patel', 'Quinn', 'Reed', 'Smith', 'Tran', 'Ueda', 'Voss', 'Wang',
-  'Xu', 'Yang', 'Zhang',
+  'Adams',
+  'Brown',
+  'Clark',
+  'Davis',
+  'Evans',
+  'Foster',
+  'Garcia',
+  'Hill',
+  'Ito',
+  'Jones',
+  'Kim',
+  'Lee',
+  'Moore',
+  'Nash',
+  'Owen',
+  'Patel',
+  'Quinn',
+  'Reed',
+  'Smith',
+  'Tran',
+  'Ueda',
+  'Voss',
+  'Wang',
+  'Xu',
+  'Yang',
+  'Zhang',
 ]
 const roles = ['Admin', 'Editor', 'Viewer', 'Moderator', 'Analyst']
 const statuses = ['Active', 'Inactive', 'Pending', 'Suspended']
@@ -729,7 +784,7 @@ function FullFeaturedDemo() {
     <html.div style={fullFeaturedStyles.wrapper}>
       <html.div style={fullFeaturedStyles.filterBar}>
         <Combobox.Root
-          value={table.getColumn('role')?.getFilterValue() as string ?? ''}
+          value={(table.getColumn('role')?.getFilterValue() as string) ?? ''}
           onValueChange={(v) => table.getColumn('role')?.setFilterValue(v || undefined)}
           onInputChange={(v) => table.getColumn('role')?.setFilterValue(v || undefined)}
         >
@@ -749,7 +804,7 @@ function FullFeaturedDemo() {
           </Combobox.Popup>
         </Combobox.Root>
         <Combobox.Root
-          value={table.getColumn('status')?.getFilterValue() as string ?? ''}
+          value={(table.getColumn('status')?.getFilterValue() as string) ?? ''}
           onValueChange={(v) => table.getColumn('status')?.setFilterValue(v || undefined)}
           onInputChange={(v) => table.getColumn('status')?.setFilterValue(v || undefined)}
         >

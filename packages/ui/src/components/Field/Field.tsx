@@ -172,10 +172,7 @@ function Label({children}: LabelProps) {
   const indicator = ctx?.necessityIndicator
 
   return (
-    <html.label
-      for={ctx?.controlId}
-      style={[styles.label, isSide && styles.labelSide]}
-    >
+    <html.label for={ctx?.controlId} style={[styles.label, isSide && styles.labelSide]}>
       {children}
       {indicator === 'icon' && ctx?.required && (
         <html.span style={styles.necessityIcon} aria-hidden={true}>

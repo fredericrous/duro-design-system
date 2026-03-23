@@ -47,16 +47,8 @@ function Root({
 
 // --- Input ---
 function Input({placeholder, children}: {placeholder?: string; children?: ReactNode}) {
-  const {
-    open,
-    openPopup,
-    close,
-    inputValue,
-    setInputValue,
-    listboxId,
-    highlightedId,
-    inputRef,
-  } = useCombobox()
+  const {open, openPopup, close, inputValue, setInputValue, listboxId, highlightedId, inputRef} =
+    useCombobox()
   const localRef = useRef<HTMLInputElement>(null)
   const [focused, setFocused] = useState(false)
 
@@ -143,11 +135,7 @@ function Popup({children}: {children: ReactNode}) {
   if (!open) return null
 
   return (
-    <html.div
-      id={listboxId}
-      role="listbox"
-      style={styles.popup}
-    >
+    <html.div id={listboxId} role="listbox" style={styles.popup}>
       {children}
     </html.div>
   )

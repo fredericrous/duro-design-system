@@ -67,17 +67,25 @@ function ControlledDemo() {
           <Combobox.Trigger />
         </Combobox.Input>
         <Combobox.Popup>
-          <Combobox.Item value="admin"><Combobox.ItemText>Admin</Combobox.ItemText></Combobox.Item>
-          <Combobox.Item value="editor"><Combobox.ItemText>Editor</Combobox.ItemText></Combobox.Item>
-          <Combobox.Item value="viewer"><Combobox.ItemText>Viewer</Combobox.ItemText></Combobox.Item>
-          <Combobox.Item value="moderator"><Combobox.ItemText>Moderator</Combobox.ItemText></Combobox.Item>
-          <Combobox.Item value="analyst"><Combobox.ItemText>Analyst</Combobox.ItemText></Combobox.Item>
+          <Combobox.Item value="admin">
+            <Combobox.ItemText>Admin</Combobox.ItemText>
+          </Combobox.Item>
+          <Combobox.Item value="editor">
+            <Combobox.ItemText>Editor</Combobox.ItemText>
+          </Combobox.Item>
+          <Combobox.Item value="viewer">
+            <Combobox.ItemText>Viewer</Combobox.ItemText>
+          </Combobox.Item>
+          <Combobox.Item value="moderator">
+            <Combobox.ItemText>Moderator</Combobox.ItemText>
+          </Combobox.Item>
+          <Combobox.Item value="analyst">
+            <Combobox.ItemText>Analyst</Combobox.ItemText>
+          </Combobox.Item>
           <Combobox.Empty>No roles found</Combobox.Empty>
         </Combobox.Popup>
       </Combobox.Root>
-      <span style={{fontSize: 14, color: '#888'}}>
-        Selected: {value ?? 'none'}
-      </span>
+      <span style={{fontSize: 14, color: '#888'}}>Selected: {value ?? 'none'}</span>
     </div>
   )
 }
@@ -92,12 +100,42 @@ export const Controlled: Story = {
 export const ManyItems: Story = {
   render: () => {
     const countries = [
-      'Argentina', 'Australia', 'Austria', 'Belgium', 'Brazil', 'Canada',
-      'Chile', 'China', 'Colombia', 'Denmark', 'Egypt', 'Finland',
-      'France', 'Germany', 'Greece', 'India', 'Indonesia', 'Ireland',
-      'Italy', 'Japan', 'Kenya', 'Mexico', 'Netherlands', 'New Zealand',
-      'Norway', 'Peru', 'Poland', 'Portugal', 'South Korea', 'Spain',
-      'Sweden', 'Switzerland', 'Thailand', 'Turkey', 'United Kingdom', 'United States',
+      'Argentina',
+      'Australia',
+      'Austria',
+      'Belgium',
+      'Brazil',
+      'Canada',
+      'Chile',
+      'China',
+      'Colombia',
+      'Denmark',
+      'Egypt',
+      'Finland',
+      'France',
+      'Germany',
+      'Greece',
+      'India',
+      'Indonesia',
+      'Ireland',
+      'Italy',
+      'Japan',
+      'Kenya',
+      'Mexico',
+      'Netherlands',
+      'New Zealand',
+      'Norway',
+      'Peru',
+      'Poland',
+      'Portugal',
+      'South Korea',
+      'Spain',
+      'Sweden',
+      'Switzerland',
+      'Thailand',
+      'Turkey',
+      'United Kingdom',
+      'United States',
     ]
 
     return (

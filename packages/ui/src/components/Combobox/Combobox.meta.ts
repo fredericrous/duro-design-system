@@ -18,8 +18,14 @@ export const meta: ComponentMeta = {
     optional: ['Empty'],
   },
   relatedTo: [
-    {component: 'Select', relationship: 'Select for short lists without search; Combobox for long filterable lists'},
-    {component: 'Input', relationship: 'Input for free-form text; Combobox for constrained selection'},
+    {
+      component: 'Select',
+      relationship: 'Select for short lists without search; Combobox for long filterable lists',
+    },
+    {
+      component: 'Input',
+      relationship: 'Input for free-form text; Combobox for constrained selection',
+    },
     {component: 'Menu', relationship: 'Menu triggers actions; Combobox picks a value'},
   ],
   example: `<Combobox.Root name="country" defaultValue="us" initialLabels={{us: 'United States'}}>

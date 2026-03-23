@@ -105,7 +105,9 @@ export const WithNecessityIcon: Story = {
       <Field.Root required>
         <Field.Label>Email</Field.Label>
         <Input placeholder="you@example.com" />
-        <Field.Description>Required field with no Form context — indicator needs Form.</Field.Description>
+        <Field.Description>
+          Required field with no Form context — indicator needs Form.
+        </Field.Description>
       </Field.Root>
     </html.div>
   ),

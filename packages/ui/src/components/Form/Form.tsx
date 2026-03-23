@@ -11,11 +11,7 @@ import {
 } from 'react-hook-form'
 import {effectTsResolver} from '@hookform/resolvers/effect-ts'
 import type {Schema} from 'effect'
-import {
-  FormContext,
-  type LabelPosition,
-  type NecessityIndicator,
-} from './FormContext'
+import {FormContext, type LabelPosition, type NecessityIndicator} from './FormContext'
 
 export interface FormProps<T extends FieldValues> {
   schema: Schema.Schema<T>
