@@ -137,6 +137,11 @@ export const styles = css.create({
   body: {
     flex: 1,
     overflowY: 'auto',
+    // Minimal inset prevents child borders from touching panel structural borders
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
   },
   bodyPadded: {
     paddingTop: spacing.lg,

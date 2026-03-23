@@ -6,6 +6,21 @@ import {Badge} from '../Badge/Badge'
 
 const meta: Meta = {
   title: 'Components/Tooltip',
+  argTypes: {
+    content: {
+      control: 'text',
+      description: 'Text content displayed inside the tooltip',
+    },
+    placement: {
+      control: 'select',
+      options: ['top', 'bottom', 'left', 'right'],
+      description: 'Preferred placement of the tooltip relative to the trigger',
+    },
+    delay: {
+      control: 'number',
+      description: 'Delay in milliseconds before the tooltip appears on hover',
+    },
+  },
 }
 
 export default meta
