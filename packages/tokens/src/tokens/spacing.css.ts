@@ -12,6 +12,7 @@ export const spacing = css.defineVars({
 })
 
 export const radii = css.defineVars({
+  xs: '4px',
   sm: '8px',
   md: '12px',
   lg: '16px',

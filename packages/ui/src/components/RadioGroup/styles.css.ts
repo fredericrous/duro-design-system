@@ -5,6 +5,14 @@ import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 export const styles = css.create({
   root: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing.sm,
+  },
+  rootHorizontal: {
+    flexDirection: 'row',
+  },
+  item: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: spacing.sm,
@@ -13,16 +21,16 @@ export const styles = css.create({
     color: colors.text,
     lineHeight: typography.lineHeight,
   },
-  rootDisabled: {
+  itemDisabled: {
     opacity: 0.5,
     cursor: 'not-allowed',
   },
-  box: {
+  circle: {
     width: 18,
     height: 18,
     borderWidth: 1,
     borderStyle: 'solid',
-    borderRadius: radii.xs,
+    borderRadius: radii.full,
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -31,21 +39,22 @@ export const styles = css.create({
     transitionDuration: '150ms',
     transitionTimingFunction: 'ease',
   },
-  boxUnchecked: {
+  circleUnchecked: {
     backgroundColor: colors.bg,
     borderColor: {
       default: colors.border,
       ':hover': colors.textMuted,
     },
   },
-  boxChecked: {
-    backgroundColor: colors.accent,
+  circleChecked: {
+    backgroundColor: colors.bg,
     borderColor: colors.accent,
   },
-  check: {
-    width: 12,
-    height: 12,
-    color: colors.accentContrast,
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: radii.full,
+    backgroundColor: colors.accent,
   },
   input: {
     position: 'absolute',

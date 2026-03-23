@@ -91,7 +91,7 @@ export const styles = css.create({
   },
 
   // Dynamic styles — simple identifier params only (StyleX constraint)
-  gridColumns: (columns: number) => ({
-    gridTemplateColumns: `repeat(${columns}, 1fr)`,
+  gridColumns: (template: string) => ({
+    gridTemplateColumns: template,
   }),
 })
