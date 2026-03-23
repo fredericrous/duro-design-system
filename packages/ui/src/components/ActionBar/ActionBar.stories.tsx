@@ -85,7 +85,7 @@ function SelectableTable({
 
   return (
     <>
-      <Table.Root columns={5}>
+      <Table.Root>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell aria-label="Select">
@@ -172,7 +172,7 @@ export const Emphasized: Story = {
       }
       return (
         <>
-          <Table.Root columns={3}>
+          <Table.Root>
             <Table.Header>
               <Table.Row>
                 <Table.HeaderCell aria-label="Select">
@@ -230,7 +230,7 @@ export const Emphasized: Story = {
 export const CustomLabel: Story = {
   render: () => (
     <>
-      <Table.Root columns={2}>
+      <Table.Root>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>Name</Table.HeaderCell>

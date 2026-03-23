@@ -8,6 +8,7 @@ export {Alert, type AlertVariant} from './components/Alert/Alert'
 export {Icon, type IconName} from './components/Icon'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
 export {Button, type ButtonVariant, type ButtonSize} from './components/Button/Button'
+export {ButtonGroup} from './components/ButtonGroup/ButtonGroup'
 export {Callout, type CalloutVariant} from './components/Callout/Callout'
 export {Card, type CardVariant, type CardSize} from './components/Card/Card'
 export {Checkbox} from './components/Checkbox/Checkbox'
@@ -41,6 +42,8 @@ export {
   type StatusIconVariant,
 } from './components/StatusIcon/StatusIcon'
 export {Table, type TableVariant, type TableSize} from './components/Table/Table'
+// TanStack Table: consumers install @tanstack/react-table directly and use
+// Table.Pagination, Table.SortIndicator, Table.ColumnFilter for styled integration
 export {Tabs} from './components/Tabs/Tabs'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {ThemeProvider, type ThemeName} from './components/ThemeProvider/ThemeProvider'

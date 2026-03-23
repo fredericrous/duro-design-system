@@ -21,6 +21,7 @@ export default defineConfig({
         '@hookform/resolvers/effect-ts',
         'effect',
         'effect/Schema',
+        '@tanstack/react-table',
       ],
     },
     sourcemap: true,

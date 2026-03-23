@@ -64,7 +64,7 @@ export function TypeScaleTable({rows, label}: TypeScaleTableProps) {
   return (
     <html.div>
       {label && <html.h3 style={styles.label}>{label}</html.h3>}
-      <Table.Root columns={4} variant="striped" size="sm">
+      <Table.Root variant="striped" size="sm">
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>Step</Table.HeaderCell>
@@ -106,7 +106,7 @@ export function TokenTable({tokens, label}: TokenTableProps) {
   return (
     <html.div>
       {label && <html.h3 style={styles.label}>{label}</html.h3>}
-      <Table.Root columns={3} variant="striped" size="sm">
+      <Table.Root variant="striped" size="sm">
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>Token</Table.HeaderCell>
