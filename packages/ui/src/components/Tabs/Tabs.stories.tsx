@@ -4,6 +4,13 @@ import {Tabs} from './Tabs'
 
 const meta: Meta = {
   title: 'Components/Tabs',
+  argTypes: {
+    orientation: {
+      control: 'select',
+      options: ['horizontal', 'vertical'],
+      description: 'Layout orientation of the tab list',
+    },
+  },
 }
 
 export default meta

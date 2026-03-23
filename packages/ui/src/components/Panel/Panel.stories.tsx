@@ -10,6 +10,12 @@ import {Input} from '../Input/Input'
 
 const meta: Meta = {
   title: 'Components/Panel',
+  argTypes: {
+    bordered: {
+      control: 'boolean',
+      description: 'Whether the panel has an outer border for visual separation',
+    },
+  },
 }
 
 export default meta

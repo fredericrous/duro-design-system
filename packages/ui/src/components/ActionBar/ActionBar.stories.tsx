@@ -13,6 +13,16 @@ interface ActionBarStoryArgs {
 
 const meta: Meta<ActionBarStoryArgs> = {
   title: 'Components/ActionBar',
+  argTypes: {
+    selectedItemCount: {
+      control: 'number',
+      description: 'Number of selected items displayed in the action bar',
+    },
+    isEmphasized: {
+      control: 'boolean',
+      description: 'Whether the action bar uses the emphasized (inverse) style',
+    },
+  },
 }
 
 export default meta

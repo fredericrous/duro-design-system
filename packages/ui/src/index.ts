@@ -16,6 +16,7 @@ export {DetailPanel, type DetailPanelSize} from './components/DetailPanel/Detail
 export {Drawer, type DrawerAnchor, type DrawerSize} from './components/Drawer/Drawer'
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Heading, type HeadingVariant} from './components/Heading/Heading'
+export {List, type ListSelectionMode} from './components/List/List'
 export {Field} from './components/Field/Field'
 export {Form, type FormProps} from './components/Form/Form'
 export {Fieldset, type FieldsetGap} from './components/Fieldset/Fieldset'

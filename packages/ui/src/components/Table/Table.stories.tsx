@@ -11,6 +11,22 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 
 const meta: Meta = {
   title: 'Components/Table',
+  argTypes: {
+    columns: {
+      control: 'number',
+      description: 'Number of columns in the table grid',
+    },
+    variant: {
+      control: 'select',
+      options: ['default', 'striped', 'bordered'],
+      description: 'Visual style variant of the table',
+    },
+    size: {
+      control: 'select',
+      options: ['sm', 'md', 'lg'],
+      description: 'Density/size of table rows',
+    },
+  },
 }
 
 export default meta

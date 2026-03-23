@@ -6,6 +6,12 @@ import {Input} from '../Input/Input'
 
 const meta: Meta = {
   title: 'Components/Field',
+  argTypes: {
+    invalid: {
+      control: 'boolean',
+      description: 'Whether the field is in an invalid/error state',
+    },
+  },
 }
 
 export default meta

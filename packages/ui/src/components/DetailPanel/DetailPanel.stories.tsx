@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {useState} from 'react'
 import {css, html} from 'react-strict-dom'
 import {DetailPanel} from './DetailPanel'
+import {Panel} from '../Panel/Panel'
 import {Button} from '../Button/Button'
 import {Text} from '../Text/Text'
 import {Heading} from '../Heading/Heading'
@@ -181,22 +182,37 @@ function TableSelectionDemo() {
           <DetailPanel.Body>
             {selectedUser && (
               <Stack gap="md">
-                <Stack gap="xs">
-                  <Text variant="label">Email</Text>
-                  <Text variant="bodySm">{selectedUser.email}</Text>
-                </Stack>
-                <Stack gap="xs">
-                  <Text variant="label">Role</Text>
-                  <Text variant="bodySm">{selectedUser.role}</Text>
-                </Stack>
-                <Stack gap="xs">
-                  <Text variant="label">Status</Text>
-                  <Inline gap="sm">
-                    <Badge variant={selectedUser.status === 'Active' ? 'success' : 'default'}>
-                      {selectedUser.status}
-                    </Badge>
-                  </Inline>
-                </Stack>
+                <Panel.Root>
+                  <Panel.Header>
+                    <Text variant="label">Contact</Text>
+                  </Panel.Header>
+                  <Panel.Body>
+                    <Stack gap="xs">
+                      <Text variant="caption">Email</Text>
+                      <Text variant="bodySm">{selectedUser.email}</Text>
+                    </Stack>
+                  </Panel.Body>
+                </Panel.Root>
+
+                <Panel.Root>
+                  <Panel.Header>
+                    <Text variant="label">Role &amp; Status</Text>
+                  </Panel.Header>
+                  <Panel.Body>
+                    <Stack gap="sm">
+                      <Inline gap="sm" align="center">
+                        <Text variant="caption">Role</Text>
+                        <Text variant="bodySm">{selectedUser.role}</Text>
+                      </Inline>
+                      <Inline gap="sm" align="center">
+                        <Text variant="caption">Status</Text>
+                        <Badge variant={selectedUser.status === 'Active' ? 'success' : 'default'}>
+                          {selectedUser.status}
+                        </Badge>
+                      </Inline>
+                    </Stack>
+                  </Panel.Body>
+                </Panel.Root>
               </Stack>
             )}
           </DetailPanel.Body>
