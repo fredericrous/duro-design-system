@@ -1,6 +1,9 @@
 import {type ReactNode, type MutableRefObject, createContext, useContext, useRef, Children, isValidElement} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
+import {Pagination} from './Pagination'
+import {SortIndicator} from './SortIndicator'
+import {ColumnFilter} from './ColumnFilter'
 
 // --- Types ---
 
@@ -12,7 +15,7 @@ export type TableSize = 'sm' | 'md'
 interface TableContextValue {
   variant: TableVariant
   size: TableSize
-  /** Mutable ref: header Row writes inferred template, body Rows read it */
+  /** Mutable ref: header Row writes inferred template, Root reads it */
   inferredTemplateRef: MutableRefObject<string | null>
 }
 
@@ -28,6 +31,10 @@ function useTable() {
 
 const HeaderContext = createContext(false)
 
+// --- Template context: set after first render pass ---
+
+const TemplateContext = createContext<string | null>(null)
+
 // --- Root ---
 
 interface RootProps {
@@ -36,12 +43,49 @@ interface RootProps {
   size?: TableSize
 }
 
+/**
+ * Scans the React tree for HeaderCell elements to extract width props.
+ * Returns a grid-template-columns string.
+ */
+function extractTemplate(children: ReactNode): string {
+  const widths: string[] = []
+
+  function walk(node: ReactNode) {
+    Children.forEach(node, (child) => {
+      if (!isValidElement(child)) return
+      const props = child.props as Record<string, any>
+      // Check if this looks like a HeaderCell (has width prop or is inside Header)
+      const displayName = (child.type as any)?.name || (child.type as any)?.displayName || ''
+      if (displayName === 'HeaderCell' || child.type === HeaderCell) {
+        widths.push(props.width || '1fr')
+      } else if (props.children) {
+        walk(props.children)
+      }
+    })
+  }
+
+  walk(children)
+  return widths.length > 0 ? widths.join(' ') : ''
+}
+
 function Root({children, variant = 'default', size = 'md'}: RootProps) {
   const inferredTemplateRef = useRef<string | null>(null)
 
+  // Extract template from HeaderCell children synchronously
+  const template = extractTemplate(children)
+  if (template) {
+    inferredTemplateRef.current = template
+  }
+
   return (
     <TableContext.Provider value={{variant, size, inferredTemplateRef}}>
-      <html.div role="table" style={styles.root}>
+      <html.div
+        role="table"
+        style={[
+          styles.root,
+          template ? styles.gridColumns(template) : undefined,
+        ]}
+      >
         {children}
       </html.div>
     </TableContext.Provider>
@@ -68,7 +112,7 @@ function Body({children}: {children: ReactNode}) {
 
   return (
     <HeaderContext.Provider value={false}>
-      <html.div role="rowgroup">
+      <html.div role="rowgroup" style={styles.body}>
         {childArray.map((child, index) => {
           if (variant === 'striped') {
             return (
@@ -89,35 +133,17 @@ const RowIndexContext = createContext<number>(-1)
 // --- Row ---
 
 function Row({children}: {children: ReactNode}) {
-  const {variant, inferredTemplateRef} = useTable()
+  const {variant} = useTable()
   const isHeader = useContext(HeaderContext)
   const rowIndex = useContext(RowIndexContext)
   const isEvenRow = rowIndex >= 0 && rowIndex % 2 === 1
   const childArray = Children.toArray(children)
-
-  let template: string
-
-  if (isHeader) {
-    // Build template from HeaderCell width props
-    const widths: string[] = []
-    Children.forEach(children, (child) => {
-      if (isValidElement(child)) {
-        const props = child.props as {width?: string}
-        widths.push(props.width || '1fr')
-      }
-    })
-    template = widths.join(' ')
-    inferredTemplateRef.current = template
-  } else {
-    template = inferredTemplateRef.current ?? `repeat(${childArray.length}, 1fr)`
-  }
 
   return (
     <html.div
       role="row"
       style={[
         styles.row,
-        styles.gridColumns(template),
         !isHeader && styles.bodyRow,
         !isHeader && variant === 'striped' && isEvenRow && styles.stripedEven,
       ]}
@@ -143,7 +169,7 @@ function HeaderCell({
   'aria-label': ariaLabel,
 }: {
   children?: ReactNode
-  /** Column width: CSS value like '40px', '2fr', 'auto'. Defaults to '1fr'. */
+  /** Column width: CSS value like '40px', '2fr', 'max-content'. Defaults to '1fr'. */
   width?: string
   'aria-label'?: string
 }) {
@@ -198,4 +224,7 @@ export const Table = {
   Row,
   HeaderCell,
   Cell,
+  Pagination,
+  SortIndicator,
+  ColumnFilter,
 }

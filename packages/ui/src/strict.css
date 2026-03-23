@@ -1,2 +1,7 @@
 @layer reset;
 @react-strict-dom;
+
+/* Table: reveal sort indicator on header cell hover */
+[role="columnheader"]:hover [data-sort-indicator] {
+  opacity: 1 !important;
+}

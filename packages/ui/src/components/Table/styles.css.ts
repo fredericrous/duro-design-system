@@ -4,8 +4,9 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 export const styles = css.create({
-  // Root
+  // Root — the single grid container for the entire table
   root: {
+    display: 'grid',
     borderWidth: 1,
     borderStyle: 'solid',
     borderColor: colors.border,
@@ -18,18 +19,27 @@ export const styles = css.create({
 
   // Header group
   header: {
+    display: 'grid',
+    gridColumn: '1 / -1',
+    gridTemplateColumns: 'subgrid',
     backgroundColor: colors.bgCard,
   },
 
-  // Row
+  // Body group
+  body: {
+    display: 'grid',
+    gridColumn: '1 / -1',
+    gridTemplateColumns: 'subgrid',
+  },
+
+  // Row — spans all columns, uses subgrid to share parent tracks
   row: {
     display: 'grid',
+    gridColumn: '1 / -1',
+    gridTemplateColumns: 'subgrid',
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
-  },
-  rowLastChild: {
-    borderBottomWidth: 0,
   },
   bodyRow: {
     backgroundColor: {
@@ -90,7 +100,7 @@ export const styles = css.create({
     borderRightWidth: 0,
   },
 
-  // Dynamic styles — simple identifier params only (StyleX constraint)
+  // Dynamic: grid columns applied on Root
   gridColumns: (template: string) => ({
     gridTemplateColumns: template,
   }),
