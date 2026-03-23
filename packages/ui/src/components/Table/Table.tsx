@@ -1,4 +1,4 @@
-import {type ReactNode, createContext, useContext, Children} from 'react'
+import {type ReactNode, type MutableRefObject, createContext, useContext, useRef, Children, isValidElement} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 
@@ -12,8 +12,8 @@ export type TableSize = 'sm' | 'md'
 interface TableContextValue {
   variant: TableVariant
   size: TableSize
-  columns: number
-  isHeader: boolean
+  /** Mutable ref: header Row writes inferred template, body Rows read it */
+  inferredTemplateRef: MutableRefObject<string | null>
 }
 
 const TableContext = createContext<TableContextValue | null>(null)
@@ -24,7 +24,7 @@ function useTable() {
   return ctx
 }
 
-// --- HeaderContext (to distinguish header vs body rowgroup) ---
+// --- HeaderContext ---
 
 const HeaderContext = createContext(false)
 
@@ -34,12 +34,13 @@ interface RootProps {
   children: ReactNode
   variant?: TableVariant
   size?: TableSize
-  columns: number
 }
 
-function Root({children, variant = 'default', size = 'md', columns}: RootProps) {
+function Root({children, variant = 'default', size = 'md'}: RootProps) {
+  const inferredTemplateRef = useRef<string | null>(null)
+
   return (
-    <TableContext.Provider value={{variant, size, columns, isHeader: false}}>
+    <TableContext.Provider value={{variant, size, inferredTemplateRef}}>
       <html.div role="table" style={styles.root}>
         {children}
       </html.div>
@@ -83,24 +84,40 @@ function Body({children}: {children: ReactNode}) {
   )
 }
 
-// Row index context for striped variant
 const RowIndexContext = createContext<number>(-1)
 
 // --- Row ---
 
 function Row({children}: {children: ReactNode}) {
-  const {variant, columns} = useTable()
+  const {variant, inferredTemplateRef} = useTable()
   const isHeader = useContext(HeaderContext)
   const rowIndex = useContext(RowIndexContext)
   const isEvenRow = rowIndex >= 0 && rowIndex % 2 === 1
   const childArray = Children.toArray(children)
+
+  let template: string
+
+  if (isHeader) {
+    // Build template from HeaderCell width props
+    const widths: string[] = []
+    Children.forEach(children, (child) => {
+      if (isValidElement(child)) {
+        const props = child.props as {width?: string}
+        widths.push(props.width || '1fr')
+      }
+    })
+    template = widths.join(' ')
+    inferredTemplateRef.current = template
+  } else {
+    template = inferredTemplateRef.current ?? `repeat(${childArray.length}, 1fr)`
+  }
 
   return (
     <html.div
       role="row"
       style={[
         styles.row,
-        styles.gridColumns(columns),
+        styles.gridColumns(template),
         !isHeader && styles.bodyRow,
         !isHeader && variant === 'striped' && isEvenRow && styles.stripedEven,
       ]}
@@ -116,19 +133,18 @@ function Row({children}: {children: ReactNode}) {
   )
 }
 
-// Cell index context for bordered variant
-const CellIndexContext = createContext<{index: number; total: number}>({
-  index: 0,
-  total: 0,
-})
+const CellIndexContext = createContext<{index: number; total: number}>({index: 0, total: 0})
 
 // --- HeaderCell ---
 
 function HeaderCell({
   children,
+  width: _width,
   'aria-label': ariaLabel,
 }: {
   children?: ReactNode
+  /** Column width: CSS value like '40px', '2fr', 'auto'. Defaults to '1fr'. */
+  width?: string
   'aria-label'?: string
 }) {
   const {size, variant} = useTable()

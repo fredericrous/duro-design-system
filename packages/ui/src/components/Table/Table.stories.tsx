@@ -55,7 +55,7 @@ function statusVariant(status: string) {
 
 export const Default: Story = {
   render: () => (
-    <Table.Root columns={4}>
+    <Table.Root>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>Service</Table.HeaderCell>
@@ -108,7 +108,7 @@ export const Default: Story = {
 
 export const Striped: Story = {
   render: () => (
-    <Table.Root variant="striped" columns={4}>
+    <Table.Root variant="striped">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>Service</Table.HeaderCell>
@@ -141,7 +141,7 @@ export const Striped: Story = {
 
 export const Bordered: Story = {
   render: () => (
-    <Table.Root variant="bordered" columns={4}>
+    <Table.Root variant="bordered">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>Service</Table.HeaderCell>
@@ -175,7 +175,7 @@ export const Bordered: Story = {
 
 export const Compact: Story = {
   render: () => (
-    <Table.Root size="sm" columns={4}>
+    <Table.Root size="sm">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>Service</Table.HeaderCell>
@@ -248,7 +248,7 @@ function CheckboxTableDemo() {
 
   return (
     <>
-      <Table.Root columns={5}>
+      <Table.Root>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell aria-label="Select all">
@@ -316,7 +316,7 @@ export const AllVariants: Story = {
     <html.div style={storyStyles.stack}>
       <html.div>
         <html.span style={storyStyles.label}>Default</html.span>
-        <Table.Root columns={3}>
+        <Table.Root>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Name</Table.HeaderCell>
@@ -341,7 +341,7 @@ export const AllVariants: Story = {
 
       <html.div>
         <html.span style={storyStyles.label}>Striped</html.span>
-        <Table.Root variant="striped" columns={3}>
+        <Table.Root variant="striped">
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Name</Table.HeaderCell>
@@ -371,7 +371,7 @@ export const AllVariants: Story = {
 
       <html.div>
         <html.span style={storyStyles.label}>Bordered</html.span>
-        <Table.Root variant="bordered" columns={3}>
+        <Table.Root variant="bordered">
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Name</Table.HeaderCell>
@@ -396,7 +396,7 @@ export const AllVariants: Story = {
 
       <html.div>
         <html.span style={storyStyles.label}>Compact (sm)</html.span>
-        <Table.Root size="sm" columns={3}>
+        <Table.Root size="sm">
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Name</Table.HeaderCell>
