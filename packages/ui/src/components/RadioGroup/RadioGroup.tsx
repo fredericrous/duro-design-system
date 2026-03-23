@@ -84,10 +84,7 @@ function Item({value, disabled: itemDisabled = false, children}: ItemProps) {
   }
 
   return (
-    <html.label
-      style={[styles.item, isDisabled && styles.itemDisabled]}
-      onClick={handleClick}
-    >
+    <html.label style={[styles.item, isDisabled && styles.itemDisabled]} onClick={handleClick}>
       <html.input
         type="radio"
         value={value}

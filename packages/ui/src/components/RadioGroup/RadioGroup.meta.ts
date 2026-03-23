@@ -13,7 +13,10 @@ export const meta: ComponentMeta = {
     'Binary on/off — use Switch',
   ],
   relatedTo: [
-    {component: 'CheckboxGroup', relationship: 'CheckboxGroup for multi-select; RadioGroup for single-select'},
+    {
+      component: 'CheckboxGroup',
+      relationship: 'CheckboxGroup for multi-select; RadioGroup for single-select',
+    },
     {component: 'Select', relationship: 'Select for larger option sets or when space is limited'},
     {component: 'ToggleGroup', relationship: 'ToggleGroup for toolbar-style selection'},
   ],

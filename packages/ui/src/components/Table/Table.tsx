@@ -1,4 +1,12 @@
-import {type ReactNode, type MutableRefObject, createContext, useContext, useRef, Children, isValidElement} from 'react'
+import {
+  type ReactNode,
+  type MutableRefObject,
+  createContext,
+  useContext,
+  useRef,
+  Children,
+  isValidElement,
+} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 

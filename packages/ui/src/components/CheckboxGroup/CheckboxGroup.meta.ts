@@ -13,7 +13,10 @@ export const meta: ComponentMeta = {
     'Many options (10+) — consider a filterable list or Select with multi-select',
   ],
   relatedTo: [
-    {component: 'RadioGroup', relationship: 'RadioGroup for single-select; CheckboxGroup for multi-select'},
+    {
+      component: 'RadioGroup',
+      relationship: 'RadioGroup for single-select; CheckboxGroup for multi-select',
+    },
     {component: 'Checkbox', relationship: 'CheckboxGroup.Item wraps Checkbox internally'},
     {component: 'ToggleGroup', relationship: 'ToggleGroup for toolbar-style multi-select'},
   ],

@@ -46,9 +46,7 @@ function Root({
   const onToggle = useCallback(
     (itemValue: string, checked: boolean) => {
       if (disabled) return
-      const next = checked
-        ? [...value, itemValue]
-        : value.filter((v) => v !== itemValue)
+      const next = checked ? [...value, itemValue] : value.filter((v) => v !== itemValue)
       setValue(next)
     },
     [disabled, value, setValue],
@@ -88,12 +86,7 @@ function Item({value, disabled: itemDisabled = false, children}: ItemProps) {
   )
 
   return (
-    <Checkbox
-      value={value}
-      checked={isChecked}
-      disabled={isDisabled}
-      onChange={handleChange}
-    >
+    <Checkbox value={value} checked={isChecked} disabled={isDisabled} onChange={handleChange}>
       {children}
     </Checkbox>
   )
