@@ -14,8 +14,16 @@ export const meta: ComponentMeta = {
     'Navigation items — use Inline or SideNav',
   ],
   relatedTo: [
-    {component: 'Inline', relationship: 'Inline is a general-purpose horizontal layout; ButtonGroup adds role="group" and disabled support'},
-    {component: 'ActionBar', relationship: 'ActionBar is a floating bulk-selection toolbar; ButtonGroup is a static grouping'},
+    {
+      component: 'Inline',
+      relationship:
+        'Inline is a general-purpose horizontal layout; ButtonGroup adds role="group" and disabled support',
+    },
+    {
+      component: 'ActionBar',
+      relationship:
+        'ActionBar is a floating bulk-selection toolbar; ButtonGroup is a static grouping',
+    },
   ],
   example: `<ButtonGroup align="end" gap="sm">
   <Button variant="secondary">Cancel</Button>

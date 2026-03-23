@@ -44,10 +44,7 @@ export function SortIndicator<TData>({column}: SortIndicatorProps<TData>) {
 
   return (
     <html.span
-      style={[
-        styles.root,
-        sorted ? styles.active : styles.inactive,
-      ]}
+      style={[styles.root, sorted ? styles.active : styles.inactive]}
       data-sort-indicator=""
     >
       {sorted === 'asc' ? '\u25B2' : sorted === 'desc' ? '\u25BC' : '\u21C5'}

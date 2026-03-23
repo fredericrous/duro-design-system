@@ -89,10 +89,7 @@ function Root({children, variant = 'default', size = 'md'}: RootProps) {
     <TableContext.Provider value={{variant, size, inferredTemplateRef}}>
       <html.div
         role="table"
-        style={[
-          styles.root,
-          template ? styles.gridColumns(template) : undefined,
-        ]}
+        style={[styles.root, template ? styles.gridColumns(template) : undefined]}
       >
         {children}
       </html.div>

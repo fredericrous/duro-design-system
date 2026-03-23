@@ -9,7 +9,17 @@ import {Button} from '../Button/Button'
 import {ActionBar} from '../ActionBar/ActionBar'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 
-import {flexRender, createColumnHelper, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, type SortingState, type ColumnFiltersState} from '@tanstack/react-table'
+import {
+  flexRender,
+  createColumnHelper,
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  type SortingState,
+  type ColumnFiltersState,
+} from '@tanstack/react-table'
 
 const meta: Meta = {
   title: 'Components/Table',
@@ -429,7 +439,6 @@ export const AllVariants: Story = {
   },
 }
 
-
 // --- Sorting: demonstrates click-to-sort with hover indicators ---
 
 function SortingDemo() {
@@ -442,10 +451,13 @@ function SortingDemo() {
   ]
 
   const cols = [
-    createColumnHelper<typeof data[0]>().accessor('name', {header: 'Name', enableSorting: true}),
-    createColumnHelper<typeof data[0]>().accessor('role', {header: 'Role', enableSorting: true}),
-    createColumnHelper<typeof data[0]>().accessor('port', {header: 'Port', enableSorting: true}),
-    createColumnHelper<typeof data[0]>().accessor('uptime', {header: 'Uptime', enableSorting: true}),
+    createColumnHelper<(typeof data)[0]>().accessor('name', {header: 'Name', enableSorting: true}),
+    createColumnHelper<(typeof data)[0]>().accessor('role', {header: 'Role', enableSorting: true}),
+    createColumnHelper<(typeof data)[0]>().accessor('port', {header: 'Port', enableSorting: true}),
+    createColumnHelper<(typeof data)[0]>().accessor('uptime', {
+      header: 'Uptime',
+      enableSorting: true,
+    }),
   ]
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -628,7 +640,6 @@ export const WithFiltering: Story = {
   },
 }
 
-
 // --- FullFeatured: useDataTable with pagination, sorting, and filtering ---
 
 interface User {
@@ -639,16 +650,60 @@ interface User {
 }
 
 const firstNames = [
-  'Alice', 'Bob', 'Carol', 'Dave', 'Eve', 'Frank', 'Grace', 'Hank',
-  'Iris', 'Jack', 'Karen', 'Leo', 'Mona', 'Nick', 'Olivia', 'Paul',
-  'Quinn', 'Rita', 'Sam', 'Tina', 'Uma', 'Vince', 'Wendy', 'Xander',
-  'Yara', 'Zach',
+  'Alice',
+  'Bob',
+  'Carol',
+  'Dave',
+  'Eve',
+  'Frank',
+  'Grace',
+  'Hank',
+  'Iris',
+  'Jack',
+  'Karen',
+  'Leo',
+  'Mona',
+  'Nick',
+  'Olivia',
+  'Paul',
+  'Quinn',
+  'Rita',
+  'Sam',
+  'Tina',
+  'Uma',
+  'Vince',
+  'Wendy',
+  'Xander',
+  'Yara',
+  'Zach',
 ]
 const lastNames = [
-  'Adams', 'Brown', 'Clark', 'Davis', 'Evans', 'Foster', 'Garcia',
-  'Hill', 'Ito', 'Jones', 'Kim', 'Lee', 'Moore', 'Nash', 'Owen',
-  'Patel', 'Quinn', 'Reed', 'Smith', 'Tran', 'Ueda', 'Voss', 'Wang',
-  'Xu', 'Yang', 'Zhang',
+  'Adams',
+  'Brown',
+  'Clark',
+  'Davis',
+  'Evans',
+  'Foster',
+  'Garcia',
+  'Hill',
+  'Ito',
+  'Jones',
+  'Kim',
+  'Lee',
+  'Moore',
+  'Nash',
+  'Owen',
+  'Patel',
+  'Quinn',
+  'Reed',
+  'Smith',
+  'Tran',
+  'Ueda',
+  'Voss',
+  'Wang',
+  'Xu',
+  'Yang',
+  'Zhang',
 ]
 const roles = ['Admin', 'Editor', 'Viewer', 'Moderator', 'Analyst']
 const statuses = ['Active', 'Inactive', 'Pending', 'Suspended']
