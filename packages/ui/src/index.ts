@@ -43,6 +43,8 @@ export {
   type StatusIconName,
   type StatusIconVariant,
 } from './components/StatusIcon/StatusIcon'
+export {Tag, type TagVariant, type TagSize} from './components/Tag/Tag'
+export {TagGroup} from './components/TagGroup/TagGroup'
 export {Table, type TableVariant, type TableSize} from './components/Table/Table'
 // TanStack Table: consumers install @tanstack/react-table directly and use
 // Table.Pagination, Table.SortIndicator, Table.ColumnFilter for styled integration
