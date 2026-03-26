@@ -1,7 +1,8 @@
-import {useState, useCallback, useRef, useEffect} from 'react'
+import {useState, useCallback, useRef, useEffect, useId} from 'react'
 import type {ScrollAreaContextValue} from './ScrollAreaContext'
 
 export function useScrollAreaRoot(): ScrollAreaContextValue {
+  const viewportId = useId()
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
   const [scrollTop, setScrollTop] = useState(0)
@@ -61,6 +62,7 @@ export function useScrollAreaRoot(): ScrollAreaContextValue {
   return {
     viewportRef,
     contentRef,
+    viewportId,
     scrollTop,
     scrollLeft,
     scrollHeight,

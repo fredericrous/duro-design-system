@@ -7,13 +7,15 @@ export const styles = css.create({
   base: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: spacing.sm,
     fontFamily: typography.fontFamily,
-    fontWeight: typography.fontWeightMedium,
+    fontWeight: typography.fontWeightNormal,
     lineHeight: 1,
-    borderRadius: radii.full,
+    borderRadius: 4,
     whiteSpace: 'nowrap',
-    borderWidth: 0,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: colors.border,
     outlineWidth: {
       default: 0,
       ':focus-visible': 2,
@@ -32,29 +34,32 @@ export const styles = css.create({
     },
   },
   sizeMd: {
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
+    paddingLeft: spacing.ms,
+    paddingRight: spacing.ms,
+    fontSize: typography.fontSizeSm,
+  },
+  sizeSm: {
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
     fontSize: typography.fontSizeXs,
   },
-  sizeSm: {
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingLeft: spacing.xs,
-    paddingRight: spacing.xs,
-    fontSize: '0.625rem',
-  },
   // Reduce right padding when removable to keep visual balance with the button
   removableMd: {
-    paddingRight: spacing.xs,
+    paddingRight: spacing.sm,
   },
   removableSm: {
-    paddingRight: 2,
+    paddingRight: spacing.xs,
   },
   default: {
-    backgroundColor: colors.bgCardHover,
-    color: colors.textMuted,
+    backgroundColor: {
+      default: colors.bg,
+      ':hover': colors.bgCardHover,
+    },
+    color: colors.text,
   },
   success: {
     backgroundColor: colors.successBg,

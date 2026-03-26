@@ -56,7 +56,6 @@ function Root({
     <CheckboxGroupContext.Provider value={{value, onToggle, disabled}}>
       <html.div
         role="group"
-        aria-orientation={orientation}
         style={[styles.root, orientation === 'horizontal' && styles.rootHorizontal]}
       >
         {children}

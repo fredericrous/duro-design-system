@@ -284,7 +284,7 @@ function Input({placeholder}: InputProps) {
       type="text"
       value={inputValue}
       onChange={(e: any) => setInputValue(e.target.value)}
-      placeholder={!ctx?.values.length ? placeholder : undefined}
+      placeholder={placeholder}
       disabled={ctx?.disabled}
       style={styles.input}
     />

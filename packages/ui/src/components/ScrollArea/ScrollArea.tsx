@@ -28,11 +28,15 @@ interface ViewportProps {
 }
 
 function Viewport({children, maxHeight}: ViewportProps) {
-  const {viewportRef} = useScrollArea()
+  const {viewportRef, viewportId} = useScrollArea()
 
   return (
     <html.div
       ref={viewportRef}
+      id={viewportId}
+      tabIndex={0}
+      role="region"
+      aria-label="Scrollable content"
       style={[styles.viewport, maxHeight != null && styles.viewportMaxHeight(maxHeight)]}
     >
       {children}
@@ -65,7 +69,16 @@ interface ScrollbarProps {
 }
 
 function Scrollbar({orientation = 'vertical', children}: ScrollbarProps) {
-  const {scrolling, scrollHeight, scrollWidth, clientHeight, clientWidth} = useScrollArea()
+  const {
+    viewportId,
+    scrolling,
+    scrollTop,
+    scrollLeft,
+    scrollHeight,
+    scrollWidth,
+    clientHeight,
+    clientWidth,
+  } = useScrollArea()
 
   // Hide scrollbar when content fits
   const hasOverflow =
@@ -73,11 +86,22 @@ function Scrollbar({orientation = 'vertical', children}: ScrollbarProps) {
 
   if (!hasOverflow) return null
 
+  const isVertical = orientation === 'vertical'
+  const maxScroll = isVertical ? scrollHeight - clientHeight : scrollWidth - clientWidth
+  const scrollOffset = isVertical ? scrollTop : scrollLeft
+  const valueNow = maxScroll > 0 ? Math.round((scrollOffset / maxScroll) * 100) : 0
+
   return (
     <html.div
+      role="scrollbar"
+      aria-controls={viewportId}
+      aria-orientation={orientation}
+      aria-valuenow={valueNow}
+      aria-valuemin={0}
+      aria-valuemax={100}
       style={[
         styles.scrollbar,
-        orientation === 'vertical' ? styles.scrollbarVertical : styles.scrollbarHorizontal,
+        isVertical ? styles.scrollbarVertical : styles.scrollbarHorizontal,
         scrolling ? styles.scrollbarVisible : styles.scrollbarHidden,
       ]}
     >

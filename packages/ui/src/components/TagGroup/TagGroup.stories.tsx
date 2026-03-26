@@ -44,6 +44,7 @@ function EditableExample() {
 
   return (
     <TagGroup.Root value={tags} onValueChange={setTags}>
+      <TagGroup.Input placeholder="Add tag..." />
       <TagGroup.List aria-label="Tags">
         {tags.map((t) => (
           <Tag key={t} value={t}>
@@ -51,7 +52,6 @@ function EditableExample() {
           </Tag>
         ))}
       </TagGroup.List>
-      <TagGroup.Input placeholder="Add tag..." />
     </TagGroup.Root>
   )
 }
@@ -76,6 +76,7 @@ export const WithDefaultValue: Story = {
       const [tags, setTags] = useState(['one', 'two'])
       return (
         <TagGroup.Root defaultValue={['one', 'two']} onValueChange={setTags}>
+          <TagGroup.Input placeholder="Add..." />
           <TagGroup.List aria-label="Items">
             {tags.map((t) => (
               <Tag key={t} value={t}>
@@ -83,7 +84,6 @@ export const WithDefaultValue: Story = {
               </Tag>
             ))}
           </TagGroup.List>
-          <TagGroup.Input placeholder="Add..." />
         </TagGroup.Root>
       )
     }
@@ -102,12 +102,14 @@ function EmailExample() {
     <Stack gap="md">
       <Field.Root required>
         <Field.Label>Invite emails</Field.Label>
+        <Field.Description>Press Enter or comma to add each email</Field.Description>
         <TagGroup.Root
           name="emails"
           value={emails}
           onValueChange={setEmails}
           onValidate={(v) => (v.includes('@') ? true : 'Invalid email')}
         >
+          <TagGroup.Input placeholder="Add email..." />
           <TagGroup.List aria-label="Emails">
             {emails.map((e) => (
               <Tag key={e} value={e}>
@@ -115,9 +117,7 @@ function EmailExample() {
               </Tag>
             ))}
           </TagGroup.List>
-          <TagGroup.Input placeholder="Add email..." />
         </TagGroup.Root>
-        <Field.Description>Press Enter or comma to add each email</Field.Description>
       </Field.Root>
     </Stack>
   )
@@ -148,6 +148,7 @@ function DisabledExample() {
   const tags = ['react', 'vue', 'svelte']
   return (
     <TagGroup.Root value={tags} disabled>
+      <TagGroup.Input placeholder="Disabled..." />
       <TagGroup.List aria-label="Frameworks">
         {tags.map((t) => (
           <Tag key={t} value={t}>
@@ -155,7 +156,6 @@ function DisabledExample() {
           </Tag>
         ))}
       </TagGroup.List>
-      <TagGroup.Input placeholder="Disabled..." />
     </TagGroup.Root>
   )
 }

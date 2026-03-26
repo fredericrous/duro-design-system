@@ -15,7 +15,7 @@ function statusVariant(status: string) {
 
 export function DataTableRecipe() {
   return (
-    <Table.Root variant="striped" size="md" columns={4}>
+    <Table.Root variant="striped" size="md">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>Name</Table.HeaderCell>

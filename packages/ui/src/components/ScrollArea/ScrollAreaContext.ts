@@ -3,6 +3,7 @@ import {createContext, useContext} from 'react'
 export interface ScrollAreaContextValue {
   viewportRef: React.RefObject<HTMLDivElement | null>
   contentRef: React.RefObject<HTMLDivElement | null>
+  viewportId: string
   scrollTop: number
   scrollLeft: number
   scrollHeight: number

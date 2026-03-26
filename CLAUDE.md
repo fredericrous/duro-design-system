@@ -59,13 +59,13 @@ const styles = css.create({
 
 Pick the right layout component:
 
-| Need | Component | Key difference |
-|---|---|---|
-| Vertical stack of elements | `Stack` | flex-direction: column |
-| Horizontal row, **no wrapping** | `Inline` | flex-direction: row, nowrap |
-| Horizontal row, **wraps** to next line | `Cluster` | flex-direction: row, wrap |
-| Multi-column grid | `Grid` | CSS grid, fixed or auto-fit columns |
-| Full page layout with header | `PageShell` | max-width + padding + optional header |
+| Need                                   | Component   | Key difference                        |
+| -------------------------------------- | ----------- | ------------------------------------- |
+| Vertical stack of elements             | `Stack`     | flex-direction: column                |
+| Horizontal row, **no wrapping**        | `Inline`    | flex-direction: row, nowrap           |
+| Horizontal row, **wraps** to next line | `Cluster`   | flex-direction: row, wrap             |
+| Multi-column grid                      | `Grid`      | CSS grid, fixed or auto-fit columns   |
+| Full page layout with header           | `PageShell` | max-width + padding + optional header |
 
 ```tsx
 // Vertical list of form fields
@@ -100,73 +100,73 @@ Pick the right layout component:
 
 These components **must** be wrapped in their `.Root`:
 
-| Component | Sub-components |
-|---|---|
-| `Select` | `Root`, `Trigger`, `Value`, `Icon`, `Popup`, `Item`, `ItemText` |
-| `Menu` | `Root`, `Trigger`, `Popup`, `Item`, `LinkItem` |
-| `Tabs` | `Root`, `List`, `Tab`, `Panel` |
-| `Dialog` | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
-| `Drawer` | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
-| `Table` | `Root`, `Header`, `Body`, `Row`, `HeaderCell`, `Cell` |
-| `Tooltip` | `Root`, `Trigger` |
-| `SideNav` | `Root`, `Group`, `Item` |
-| `ScrollArea` | `Root`, `Viewport`, `Content`, `Scrollbar`, `Thumb` |
-| `DetailPanel` | `Root`, `Content`, `Header`, `Title`, `Body`, `Footer`, `Close` |
+| Component     | Sub-components                                                                           |
+| ------------- | ---------------------------------------------------------------------------------------- |
+| `Select`      | `Root`, `Trigger`, `Value`, `Icon`, `Popup`, `Item`, `ItemText`                          |
+| `Menu`        | `Root`, `Trigger`, `Popup`, `Item`, `LinkItem`                                           |
+| `Tabs`        | `Root`, `List`, `Tab`, `Panel`                                                           |
+| `Dialog`      | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
+| `Drawer`      | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
+| `Table`       | `Root`, `Header`, `Body`, `Row`, `HeaderCell`, `Cell`                                    |
+| `Tooltip`     | `Root`, `Trigger`                                                                        |
+| `SideNav`     | `Root`, `Group`, `Item`                                                                  |
+| `ScrollArea`  | `Root`, `Viewport`, `Content`, `Scrollbar`, `Thumb`                                      |
+| `DetailPanel` | `Root`, `Content`, `Header`, `Title`, `Body`, `Footer`, `Close`                          |
 
 ### Optional Root context (works standalone, gains features in context)
 
-| Component | Sub-components | Standalone behavior |
-|---|---|---|
-| `Field` | `Root`, `Label`, `Description`, `Error` | Static labels/errors; inside `Form` auto-binds to react-hook-form |
-| `Fieldset` | `Root`, `Legend` | Groups form controls with gap |
-| `ToggleGroup` | (wraps `Toggle` children) | Toggle works alone; group adds multi/single select |
-| `InputGroup` | `Root`, `Addon` | Input works alone; group adds prefix/suffix addons |
-| `Panel` | `Root`, `Header`, `Body`, `Footer` | Sub-components render correct styles alone; Root provides flex column container |
+| Component     | Sub-components                          | Standalone behavior                                                             |
+| ------------- | --------------------------------------- | ------------------------------------------------------------------------------- |
+| `Field`       | `Root`, `Label`, `Description`, `Error` | Static labels/errors; inside `Form` auto-binds to react-hook-form               |
+| `Fieldset`    | `Root`, `Legend`                        | Groups form controls with gap                                                   |
+| `ToggleGroup` | (wraps `Toggle` children)               | Toggle works alone; group adds multi/single select                              |
+| `InputGroup`  | `Root`, `Addon`                         | Input works alone; group adds prefix/suffix addons                              |
+| `Panel`       | `Root`, `Header`, `Body`, `Footer`      | Sub-components render correct styles alone; Root provides flex column container |
 
 ## Component Quick Reference
 
-| Component | Description | Key props | Use instead of |
-|---|---|---|---|
-| **ActionBar** | Floating bulk-selection toolbar | `selectedItemCount`, `isEmphasized` | Custom fixed toolbar |
-| **Alert** | Inline status message with icon | `variant: 'error'\|'success'\|'warning'\|'info'` | Custom banner |
-| **Badge** | Small label/tag | `variant`, `size: 'sm'\|'md'` | Custom pill/chip |
-| **Button** | Interactive button | `variant: 'primary'\|'secondary'\|'inverseSecondary'\|'link'\|'danger'`, `size`, `fullWidth` | `<button>` |
-| **Callout** | Block-level informational message | `variant: 'error'\|'success'\|'warning'\|'info'` | Alert (use Callout for larger, prominent messages) |
-| **Card** | Container with visual styling | `variant: 'elevated'\|'outlined'\|'filled'\|'interactive'`, `size`, `header` | Custom container div |
-| **Checkbox** | Checkbox input with label | `checked`, `defaultChecked`, `onChange` | `<input type="checkbox">` |
-| **DetailPanel** | Non-modal right-side inspection panel | `open`, `onOpenChange`, `size: 'sm'\|'md'`, `label` | Custom side panel |
-| **Dialog** | Modal dialog with backdrop | `open`, `onOpenChange`, `dismissable`, sizes: `'sm'\|'md'\|'lg'` | Custom modal |
-| **Drawer** | Sliding panel from edge | `open`, `onOpenChange`, `anchor: 'right'\|'left'\|'bottom'`, sizes: `'sm'\|'md'\|'lg'` | Custom side panel |
-| **Cluster** | Horizontal flex, **wraps** | `gap`, `align`, `justify` | `<div style="flex-wrap:wrap">` |
-| **EmptyState** | Placeholder for empty content | `message`, `icon`, `action` | Custom empty view |
-| **Field** | Form field with label/error | `name` (for Form binding), `invalid` | Custom label + input wiring |
-| **Fieldset** | Groups related form controls | `gap`, `disabled` | `<fieldset>` |
-| **Form** | Form with Effect Schema validation | `schema`, `defaultValues`, `onSubmit` | `<form>` + manual RHF setup |
-| **Grid** | CSS grid layout | `columns: 1-6`, `minColumnWidth`, `gap` | Custom CSS grid |
-| **Heading** | Semantic heading (h1-h6) | `level: 1-6`, `variant`, `color` | `<h1>`-`<h6>` |
-| **Icon** | SVG icon | `name: IconName`, `size` | Inline SVGs |
-| **Inline** | Horizontal flex, **no wrap** | `gap`, `align`, `justify` | `<div style="display:flex">` |
-| **Input** | Text input | `type`, `variant: 'default'\|'error'` | `<input>` |
-| **InputGroup** | Input with prefix/suffix addons | Wraps `Input` + `Addon` children | Custom input wrapper |
-| **LinkButton** | Button-styled link | `href`, `variant: 'primary'\|'secondary'`, `target` | `<a>` styled as button |
-| **Menu** | Dropdown action menu | Compound: `Root > Trigger + Popup > Item\|LinkItem` | Custom dropdown |
-| **PageShell** | Page-level layout | `maxWidth: 'sm'\|'md'\|'lg'\|'full'`, `padding`, `header` | Custom page wrapper |
-| **Panel** | Structural content container with slots | `bordered`, sub-components: `Header`, `Body` (`padded`), `Footer` | Custom section wrapper |
-| **ScrollArea** | Custom scrollbar region | Compound: `Root > Viewport > Content`, `Scrollbar > Thumb` | `overflow: auto` |
-| **Select** | Dropdown select | Compound: `Root > Trigger + Popup > Item` | `<select>` |
-| **SideNav** | Side navigation | Compound: `Root > Group > Item` | Custom nav sidebar |
-| **Spinner** | Loading indicator | `size: 'sm'\|'md'\|'lg'`, `label` | Custom loader |
-| **Stack** | Vertical flex layout | `gap`, `align` | `<div style="flex-direction:column">` |
-| **StatusIcon** | Icon with colored background | `name`, `variant`, `size` | Icon + custom wrapper |
-| **Switch** | Toggle switch | `checked`, `onCheckedChange`, `disabled` | `<input type="checkbox">` styled as switch |
-| **Table** | Data table | `variant: 'default'\|'striped'\|'bordered'`, `size`, `columns` | `<table>` |
-| **Tabs** | Tabbed interface | `orientation: 'horizontal'\|'vertical'`, `value`, `onValueChange` | Custom tab implementation |
-| **Text** | Body/label typography | `variant: 'bodySm'\|'bodyMd'\|'bodyLg'\|'caption'\|'label'\|'code'\|'overline'`, `color`, `truncate` | `<p>`, `<span>` |
-| **Textarea** | Multi-line text input | `variant`, `rows` | `<textarea>` |
-| **ThemeProvider** | Theme context root | `theme: 'dark'\|'light'\|'high-contrast'` | — (required at app root) |
-| **Toggle** | Toggle button | `pressed`, `onPressedChange`, `value` (for ToggleGroup) | Custom toggle button |
-| **ToggleGroup** | Multi/single toggle set | `multiple`, `value`, `orientation`, `size` | Custom radio/checkbox group |
-| **Tooltip** | Hover/focus tooltip | `content`, `placement: 'top'\|'bottom'\|'left'\|'right'`, `delay` | `title` attribute |
+| Component         | Description                             | Key props                                                                                            | Use instead of                                     |
+| ----------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **ActionBar**     | Floating bulk-selection toolbar         | `selectedItemCount`, `isEmphasized`                                                                  | Custom fixed toolbar                               |
+| **Alert**         | Inline status message with icon         | `variant: 'error'\|'success'\|'warning'\|'info'`                                                     | Custom banner                                      |
+| **Badge**         | Small label/tag                         | `variant`, `size: 'sm'\|'md'`                                                                        | Custom pill/chip                                   |
+| **Button**        | Interactive button                      | `variant: 'primary'\|'secondary'\|'inverseSecondary'\|'link'\|'danger'`, `size`, `fullWidth`         | `<button>`                                         |
+| **Callout**       | Block-level informational message       | `variant: 'error'\|'success'\|'warning'\|'info'`                                                     | Alert (use Callout for larger, prominent messages) |
+| **Card**          | Container with visual styling           | `variant: 'elevated'\|'outlined'\|'filled'\|'interactive'`, `size`, `header`                         | Custom container div                               |
+| **Checkbox**      | Checkbox input with label               | `checked`, `defaultChecked`, `onChange`                                                              | `<input type="checkbox">`                          |
+| **DetailPanel**   | Non-modal right-side inspection panel   | `open`, `onOpenChange`, `size: 'sm'\|'md'`, `label`                                                  | Custom side panel                                  |
+| **Dialog**        | Modal dialog with backdrop              | `open`, `onOpenChange`, `dismissable`, sizes: `'sm'\|'md'\|'lg'`                                     | Custom modal                                       |
+| **Drawer**        | Sliding panel from edge                 | `open`, `onOpenChange`, `anchor: 'right'\|'left'\|'bottom'`, sizes: `'sm'\|'md'\|'lg'`               | Custom side panel                                  |
+| **Cluster**       | Horizontal flex, **wraps**              | `gap`, `align`, `justify`                                                                            | `<div style="flex-wrap:wrap">`                     |
+| **EmptyState**    | Placeholder for empty content           | `message`, `icon`, `action`                                                                          | Custom empty view                                  |
+| **Field**         | Form field with label/error             | `name` (for Form binding), `invalid`                                                                 | Custom label + input wiring                        |
+| **Fieldset**      | Groups related form controls            | `gap`, `disabled`                                                                                    | `<fieldset>`                                       |
+| **Form**          | Form with Effect Schema validation      | `schema`, `defaultValues`, `onSubmit`                                                                | `<form>` + manual RHF setup                        |
+| **Grid**          | CSS grid layout                         | `columns: 1-6`, `minColumnWidth`, `gap`                                                              | Custom CSS grid                                    |
+| **Heading**       | Semantic heading (h1-h6)                | `level: 1-6`, `variant`, `color`                                                                     | `<h1>`-`<h6>`                                      |
+| **Icon**          | SVG icon                                | `name: IconName`, `size`                                                                             | Inline SVGs                                        |
+| **Inline**        | Horizontal flex, **no wrap**            | `gap`, `align`, `justify`                                                                            | `<div style="display:flex">`                       |
+| **Input**         | Text input                              | `type`, `variant: 'default'\|'error'`                                                                | `<input>`                                          |
+| **InputGroup**    | Input with prefix/suffix addons         | Wraps `Input` + `Addon` children                                                                     | Custom input wrapper                               |
+| **LinkButton**    | Button-styled link                      | `href`, `variant: 'primary'\|'secondary'`, `target`                                                  | `<a>` styled as button                             |
+| **Menu**          | Dropdown action menu                    | Compound: `Root > Trigger + Popup > Item\|LinkItem`                                                  | Custom dropdown                                    |
+| **PageShell**     | Page-level layout                       | `maxWidth: 'sm'\|'md'\|'lg'\|'full'`, `padding`, `header`                                            | Custom page wrapper                                |
+| **Panel**         | Structural content container with slots | `bordered`, sub-components: `Header`, `Body` (`padded`), `Footer`                                    | Custom section wrapper                             |
+| **ScrollArea**    | Custom scrollbar region                 | Compound: `Root > Viewport > Content`, `Scrollbar > Thumb`                                           | `overflow: auto`                                   |
+| **Select**        | Dropdown select                         | Compound: `Root > Trigger + Popup > Item`                                                            | `<select>`                                         |
+| **SideNav**       | Side navigation                         | Compound: `Root > Group > Item`                                                                      | Custom nav sidebar                                 |
+| **Spinner**       | Loading indicator                       | `size: 'sm'\|'md'\|'lg'`, `label`                                                                    | Custom loader                                      |
+| **Stack**         | Vertical flex layout                    | `gap`, `align`                                                                                       | `<div style="flex-direction:column">`              |
+| **StatusIcon**    | Icon with colored background            | `name`, `variant`, `size`                                                                            | Icon + custom wrapper                              |
+| **Switch**        | Toggle switch                           | `checked`, `onCheckedChange`, `disabled`                                                             | `<input type="checkbox">` styled as switch         |
+| **Table**         | Data table                              | `variant: 'default'\|'striped'\|'bordered'`, `size`, `columns`                                       | `<table>`                                          |
+| **Tabs**          | Tabbed interface                        | `orientation: 'horizontal'\|'vertical'`, `value`, `onValueChange`                                    | Custom tab implementation                          |
+| **Text**          | Body/label typography                   | `variant: 'bodySm'\|'bodyMd'\|'bodyLg'\|'caption'\|'label'\|'code'\|'overline'`, `color`, `truncate` | `<p>`, `<span>`                                    |
+| **Textarea**      | Multi-line text input                   | `variant`, `rows`                                                                                    | `<textarea>`                                       |
+| **ThemeProvider** | Theme context root                      | `theme: 'dark'\|'light'\|'high-contrast'`                                                            | — (required at app root)                           |
+| **Toggle**        | Toggle button                           | `pressed`, `onPressedChange`, `value` (for ToggleGroup)                                              | Custom toggle button                               |
+| **ToggleGroup**   | Multi/single toggle set                 | `multiple`, `value`, `orientation`, `size`                                                           | Custom radio/checkbox group                        |
+| **Tooltip**       | Hover/focus tooltip                     | `content`, `placement: 'top'\|'bottom'\|'left'\|'right'`, `delay`                                    | `title` attribute                                  |
 
 ## Form Composition Pattern
 
@@ -216,6 +216,7 @@ const MySchema = Schema.Struct({
 ```
 
 **Key points:**
+
 - `Form` wraps everything and provides react-hook-form context
 - `Field.Root name="..."` auto-binds to the form field matching that schema key
 - `Field.Error` auto-displays validation errors (no manual wiring)
@@ -237,78 +238,78 @@ const MySchema = Schema.Struct({
 
 ### Spacing Scale
 
-| Token | Value |
-|---|---|
-| `xs` | 4px |
-| `sm` | 8px |
-| `ms` | 12px |
-| `md` | 16px |
-| `lg` | 24px |
-| `xl` | 32px |
-| `xxl` | 48px |
-| `xxxl` | 64px |
+| Token  | Value |
+| ------ | ----- |
+| `xs`   | 4px   |
+| `sm`   | 8px   |
+| `ms`   | 12px  |
+| `md`   | 16px  |
+| `lg`   | 24px  |
+| `xl`   | 32px  |
+| `xxl`  | 48px  |
+| `xxxl` | 64px  |
 
 ### Border Radius
 
-| Token | Value |
-|---|---|
-| `sm` | 8px |
-| `md` | 12px |
-| `lg` | 16px |
+| Token  | Value  |
+| ------ | ------ |
+| `sm`   | 8px    |
+| `md`   | 12px   |
+| `lg`   | 16px   |
 | `full` | 9999px |
 
 ### Typography Presets
 
-| Preset | Size | Weight | Use for |
-|---|---|---|---|
-| `bodySm` | 14px | normal | Secondary text, metadata |
-| `bodyMd` | 16px | normal | Default body text |
-| `bodyLg` | 18px | normal | Lead paragraphs |
-| `caption` | 12px | normal | Fine print, timestamps |
-| `label` | 14px | medium | Form labels, UI labels |
-| `code` | 14px | normal | Code snippets (monospace) |
-| `overline` | 12px | semibold | Section headers, categories (uppercase) |
-| `headingSm` | 20px | semibold | h4-h6, section headers |
-| `headingMd` | 24px | semibold | h3, card titles |
-| `headingLg` | 30px | bold | h2, page sections |
-| `headingXl` | 36px | bold | h1, page titles |
-| `displaySm` | 36-48px | bold | Hero text (fluid) |
-| `displayMd` | 44-60px | bold | Hero text (fluid) |
-| `displayLg` | 56-72px | bold | Hero text (fluid) |
+| Preset      | Size    | Weight   | Use for                                 |
+| ----------- | ------- | -------- | --------------------------------------- |
+| `bodySm`    | 14px    | normal   | Secondary text, metadata                |
+| `bodyMd`    | 16px    | normal   | Default body text                       |
+| `bodyLg`    | 18px    | normal   | Lead paragraphs                         |
+| `caption`   | 12px    | normal   | Fine print, timestamps                  |
+| `label`     | 14px    | medium   | Form labels, UI labels                  |
+| `code`      | 14px    | normal   | Code snippets (monospace)               |
+| `overline`  | 12px    | semibold | Section headers, categories (uppercase) |
+| `headingSm` | 20px    | semibold | h4-h6, section headers                  |
+| `headingMd` | 24px    | semibold | h3, card titles                         |
+| `headingLg` | 30px    | bold     | h2, page sections                       |
+| `headingXl` | 36px    | bold     | h1, page titles                         |
+| `displaySm` | 36-48px | bold     | Hero text (fluid)                       |
+| `displayMd` | 44-60px | bold     | Hero text (fluid)                       |
+| `displayLg` | 56-72px | bold     | Hero text (fluid)                       |
 
 ### Color Semantics
 
-| Token | Purpose |
-|---|---|
-| `bg` | Page background |
-| `bgCard` | Card/surface background |
-| `bgCardHover` | Card hover state |
-| `text` | Primary text |
-| `textMuted` | Secondary/muted text |
-| `accent` | Primary brand color (links, buttons) |
-| `accentHover` | Accent hover state |
-| `accentContrast` | Text on accent backgrounds |
-| `border` | Default border color |
-| `error` / `errorBg` / `errorText` | Error states |
-| `success` / `successBg` / `successText` | Success states |
-| `warning` / `warningBg` / `warningText` | Warning states |
-| `info` / `infoBg` / `infoText` | Informational states |
+| Token                                   | Purpose                              |
+| --------------------------------------- | ------------------------------------ |
+| `bg`                                    | Page background                      |
+| `bgCard`                                | Card/surface background              |
+| `bgCardHover`                           | Card hover state                     |
+| `text`                                  | Primary text                         |
+| `textMuted`                             | Secondary/muted text                 |
+| `accent`                                | Primary brand color (links, buttons) |
+| `accentHover`                           | Accent hover state                   |
+| `accentContrast`                        | Text on accent backgrounds           |
+| `border`                                | Default border color                 |
+| `error` / `errorBg` / `errorText`       | Error states                         |
+| `success` / `successBg` / `successText` | Success states                       |
+| `warning` / `warningBg` / `warningText` | Warning states                       |
+| `info` / `infoBg` / `infoText`          | Informational states                 |
 
 ### Shadows
 
-| Token | Value |
-|---|---|
-| `sm` | Subtle — cards, dropdowns |
-| `md` | Medium — popovers, floating elements |
-| `lg` | Strong — modals, dialogs |
+| Token | Value                                |
+| ----- | ------------------------------------ |
+| `sm`  | Subtle — cards, dropdowns            |
+| `md`  | Medium — popovers, floating elements |
+| `lg`  | Strong — modals, dialogs             |
 
 ### Layout Spacing (semantic)
 
-| Token | Value | Use for |
-|---|---|---|
-| `stackXs`-`stackXl` | 4-48px | Vertical rhythm (Stack gaps) |
-| `inlineXs`-`inlineLg` | 4-24px | Horizontal rhythm (Inline gaps) |
-| `containerSm`-`containerLg` | 16-32px | Page/section padding |
+| Token                       | Value   | Use for                         |
+| --------------------------- | ------- | ------------------------------- |
+| `stackXs`-`stackXl`         | 4-48px  | Vertical rhythm (Stack gaps)    |
+| `inlineXs`-`inlineLg`       | 4-24px  | Horizontal rhythm (Inline gaps) |
+| `containerSm`-`containerLg` | 16-32px | Page/section padding            |
 
 ## Icon Names
 
@@ -381,7 +382,7 @@ function UsersTable() {
   ]
 
   return (
-    <Table.Root variant="striped" size="md" columns={4}>
+    <Table.Root variant="striped" size="md">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>Name</Table.HeaderCell>
@@ -410,8 +411,18 @@ function UsersTable() {
 ```tsx
 import {Schema} from 'effect'
 import {
-  PageShell, Tabs, Form, Field, Input, Fieldset, Button,
-  Stack, Inline, Heading, Text, Card,
+  PageShell,
+  Tabs,
+  Form,
+  Field,
+  Input,
+  Fieldset,
+  Button,
+  Stack,
+  Inline,
+  Heading,
+  Text,
+  Card,
 } from '@duro-app/ui'
 
 const ProfileSchema = Schema.Struct({
@@ -456,7 +467,9 @@ function SettingsPage() {
 
                     <Inline gap="sm" justify="end">
                       <Button variant="secondary">Cancel</Button>
-                      <Button type="submit" disabled={!formState.isValid}>Save changes</Button>
+                      <Button type="submit" disabled={!formState.isValid}>
+                        Save changes
+                      </Button>
                     </Inline>
                   </Fieldset.Root>
                 )}

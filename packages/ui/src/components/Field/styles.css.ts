@@ -31,7 +31,7 @@ export const styles = css.create({
   },
   error: {
     fontSize: typography.fontSizeXs,
-    color: colors.error,
+    color: colors.errorText,
   },
   fieldContent: {
     display: 'flex',

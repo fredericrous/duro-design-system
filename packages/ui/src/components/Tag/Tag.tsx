@@ -91,31 +91,33 @@ export function Tag({
         {children}
       </html.span>
       {removable && (
-        <html.button
-          type="button"
-          aria-label={removeLabel}
-          disabled={disabled}
-          onClick={(e) => {
-            ;(e as any).stopPropagation?.()
-            onRemove()
-          }}
-          tabIndex={-1}
-          style={[styles.removeButton, disabled && styles.removeButtonDisabled]}
-        >
-          <svg
-            width={size === 'sm' ? 10 : 12}
-            height={size === 'sm' ? 10 : 12}
-            viewBox="0 0 12 12"
-            fill="none"
+        <html.span {...(isGrouped ? {role: 'gridcell' as any} : {})}>
+          <html.button
+            type="button"
+            aria-label={removeLabel}
+            disabled={disabled}
+            onClick={(e) => {
+              ;(e as any).stopPropagation?.()
+              onRemove()
+            }}
+            tabIndex={-1}
+            style={[styles.removeButton, disabled && styles.removeButtonDisabled]}
           >
-            <path
-              d="M3 3l6 6M9 3l-6 6"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              strokeLinecap="round"
-            />
-          </svg>
-        </html.button>
+            <svg
+              width={size === 'sm' ? 10 : 12}
+              height={size === 'sm' ? 10 : 12}
+              viewBox="0 0 12 12"
+              fill="none"
+            >
+              <path
+                d="M3 3l6 6M9 3l-6 6"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+              />
+            </svg>
+          </html.button>
+        </html.span>
       )}
     </>
   )
