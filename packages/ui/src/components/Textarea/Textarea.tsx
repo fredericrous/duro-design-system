@@ -15,6 +15,7 @@ interface TextareaProps {
   value?: string
   defaultValue?: string
   disabled?: boolean
+  autoFocus?: boolean
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   onBlur?: () => void
   ref?: React.Ref<HTMLTextAreaElement>
@@ -29,6 +30,7 @@ export function Textarea({
   value,
   defaultValue,
   disabled,
+  autoFocus,
   onChange,
   onBlur,
   ref,
@@ -43,6 +45,9 @@ export function Textarea({
   const effectiveRef = ref ?? fieldCtx?.ref
   const effectiveDisabled = disabled ?? ctx?.disabled
   const effectiveVariant = ctx?.invalid ? 'error' : variant
+
+  const extraProps: Record<string, unknown> = {}
+  if (autoFocus) extraProps.autoFocus = true
 
   return (
     <html.textarea
@@ -62,6 +67,7 @@ export function Textarea({
       onBlur={effectiveOnBlur as StrictTextareaProps['onBlur']}
       ref={effectiveRef as React.Ref<HTMLTextAreaElement>}
       style={[styles.base, styles[effectiveVariant]]}
+      {...extraProps}
     />
   )
 }

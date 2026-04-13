@@ -29,6 +29,7 @@ interface InputProps {
   value?: string
   defaultValue?: string
   disabled?: boolean
+  autoFocus?: boolean
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   onBlur?: () => void
   ref?: React.Ref<HTMLInputElement>
@@ -46,6 +47,7 @@ export function Input({
   value,
   defaultValue,
   disabled,
+  autoFocus,
   onChange,
   onBlur,
   ref,
@@ -62,9 +64,11 @@ export function Input({
   const effectiveDisabled = disabled ?? ctx?.disabled
   const effectiveVariant = ctx?.invalid ? 'error' : variant
 
-  // react-strict-dom omits web-only `pattern` from its types, but the
-  // underlying DOM element supports it. Type-assert to pass it through.
-  const extraProps = pattern !== undefined ? {pattern} : undefined
+  // react-strict-dom omits some web-only props from its types, but the
+  // underlying DOM element supports them. Type-assert to pass them through.
+  const extraProps: Record<string, unknown> = {}
+  if (pattern !== undefined) extraProps.pattern = pattern
+  if (autoFocus) extraProps.autoFocus = true
 
   return (
     <html.input
@@ -86,7 +90,7 @@ export function Input({
       onBlur={effectiveOnBlur as StrictInputProps['onBlur']}
       ref={effectiveRef as React.Ref<HTMLInputElement>}
       style={[styles.base, styles[effectiveVariant], groupCtx?.inGroup && styles.inGroup]}
-      {...(extraProps as Record<string, unknown>)}
+      {...extraProps}
     />
   )
 }
