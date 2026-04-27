@@ -6,9 +6,12 @@ export default defineConfig({
   build: {
     lib: {
       name: 'DuroTokens',
-      entry: './src/index.ts',
+      entry: {
+        index: './src/index.ts',
+        raw: './src/raw.ts',
+      },
       formats: ['es'],
-      fileName: 'index',
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       external: ['react-strict-dom'],
