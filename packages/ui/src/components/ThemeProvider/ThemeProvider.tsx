@@ -31,5 +31,9 @@ export function ThemeProvider({theme = 'dark', children}: ThemeProviderProps) {
   const overrides = themeMap[theme]
   const themeStyles = [overrides?.[0], overrides?.[1], styles.root] as DivStyle
 
-  return <html.div style={themeStyles}>{children}</html.div>
+  return (
+    <html.div data-theme={theme} style={themeStyles}>
+      {children}
+    </html.div>
+  )
 }
