@@ -138,6 +138,8 @@ for (const c of cases) {
 }
 
 if (failures > 0) {
-  console.error(`\n${failures} token drift failure(s). Update src/raw.ts to match the css.ts files (or vice versa).`)
+  console.error(
+    `\n${failures} token drift failure(s). Update src/raw.ts to match the css.ts files (or vice versa).`,
+  )
   process.exit(1)
 }
