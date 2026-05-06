@@ -58,11 +58,11 @@ export const WithDefaultValue: Story = {
 }
 
 function ControlledDemo() {
-  const [value, setValue] = useState<string | null>(null)
+  const [value, setValue] = useState<string | undefined>(undefined)
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', gap: 16}}>
-      <Combobox.Root value={value} onValueChange={setValue}>
+      <Combobox.Root value={value} onValueChange={(v) => setValue(v ?? undefined)}>
         <Combobox.Input placeholder="Pick a role...">
           <Combobox.Trigger />
         </Combobox.Input>

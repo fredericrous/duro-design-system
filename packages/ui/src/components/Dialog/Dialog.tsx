@@ -202,7 +202,7 @@ function Portal({children, size = 'md'}: PortalProps) {
         <html.div
           ref={popupRef}
           role="dialog"
-          aria-modal="true"
+          aria-modal={true}
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
           style={[

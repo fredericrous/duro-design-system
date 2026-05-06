@@ -9,6 +9,8 @@ import {Table} from '../Table/Table'
 
 interface ActionBarStoryArgs {
   onClearSelection: () => void
+  selectedItemCount?: number
+  isEmphasized?: boolean
 }
 
 const meta: Meta<ActionBarStoryArgs> = {

@@ -13,9 +13,7 @@ export const styles = css.create({
     zIndex: 1000,
   },
   backdropOpen: {
-    opacity: {
-      default: 1,
-    },
+    opacity: 1,
     animationName: css.keyframes({
       from: {opacity: 0},
       to: {opacity: 1},
@@ -25,9 +23,7 @@ export const styles = css.create({
     animationFillMode: 'both',
   },
   backdropClosing: {
-    opacity: {
-      default: 0,
-    },
+    opacity: 0,
     animationName: css.keyframes({
       from: {opacity: 1},
       to: {opacity: 0},
@@ -67,9 +63,7 @@ export const styles = css.create({
     borderColor: colors.border,
   },
   popupOpen: {
-    opacity: {
-      default: 1,
-    },
+    opacity: 1,
     animationName: css.keyframes({
       from: {
         opacity: 0,
@@ -85,9 +79,7 @@ export const styles = css.create({
     animationFillMode: 'both',
   },
   popupClosing: {
-    opacity: {
-      default: 0,
-    },
+    opacity: 0,
     animationName: css.keyframes({
       from: {
         opacity: 1,

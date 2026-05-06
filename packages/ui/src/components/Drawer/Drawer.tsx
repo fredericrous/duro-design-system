@@ -256,7 +256,7 @@ function Portal({children, size = 'md'}: PortalProps) {
         <html.div
           ref={panelRef}
           role="dialog"
-          aria-modal="true"
+          aria-modal={true}
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
           style={[
