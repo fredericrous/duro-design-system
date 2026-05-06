@@ -91,8 +91,8 @@ export const VaultPkiFlow: Story = {
           subtitle="Read KV at secret/pki/<cn>"
         />
 
-        <Arrow from={[340, 192]} to={[140, 240]} bend="L" />
-        <Arrow from={[340, 192]} to={[520, 240]} bend="L" />
+        <Arrow from={[340, 192]} to={[140, 240]} bend="Z" />
+        <Arrow from={[340, 192]} to={[520, 240]} bend="Z" />
 
         <Node
           x={40}
@@ -114,13 +114,14 @@ export const VaultPkiFlow: Story = {
           subtitle="POST pki/issue/<role>"
         />
 
-        <Arrow from={[140, 312]} to={[340, 360]} bend="L" axis="v" />
-        <Arrow from={[530, 312]} to={[340, 360]} bend="L" axis="v" />
+        <Arrow from={[140, 312]} to={[340, 360]} bend="Z" />
+        <Arrow from={[530, 312]} to={[340, 360]} bend="Z" />
 
         <Node x={240} y={360} w={200} h={56} ramp="gray" title="End" />
 
-        <Leader from={[640, 276]} to={[660, 220]} />
-        <Text x={580} y={210} variant="ts" anchor="middle">
+        {/* Edge label on the right branch arrow's horizontal leg (y=216, x=340..520).
+            Centered on the midpoint, offset 8px above so it doesn't sit on the line. */}
+        <Text x={430} y={208} variant="ts" anchor="middle">
           Coral encodes a write
         </Text>
       </>

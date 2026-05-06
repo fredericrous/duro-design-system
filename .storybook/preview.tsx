@@ -4,6 +4,7 @@ import {withAiMeta} from './addons/ai-meta/withAiMeta'
 
 import '@duro-app/ui/strict.css'
 import '@duro-app/ui/reset.css'
+import '../packages/diagrams/src/styles.css'
 
 const bgToTheme: Record<string, 'dark' | 'light' | 'high-contrast'> = {
   dark: 'dark',
