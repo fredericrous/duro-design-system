@@ -1,1 +1,1 @@
-pnpm lint-staged
+pnpm exec prettier --check packages/
