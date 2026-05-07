@@ -15,6 +15,7 @@ export interface ComboboxContextValue {
   setHighlightedId: (id: string | null) => void
   registerItem: (id: string, value: string, element: HTMLElement) => () => void
   inputRef: React.RefObject<HTMLInputElement | null>
+  rootRef: React.RefObject<HTMLDivElement | null>
 }
 
 export const ComboboxContext = createContext<ComboboxContextValue | null>(null)

@@ -1,8 +1,10 @@
-import {type ReactNode, useRef, useId, useEffect, useState} from 'react'
+import {type ReactNode, useRef, useId, useEffect, useLayoutEffect, useState} from 'react'
+import {createPortal} from 'react-dom'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {ComboboxContext, useCombobox} from './ComboboxContext'
 import {useComboboxRoot} from './useComboboxRoot'
+import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 
 // --- Root ---
 interface RootProps {
@@ -129,16 +131,54 @@ function Trigger({children}: {children?: ReactNode}) {
 }
 
 // --- Popup ---
+// Rendered into the ThemeProvider portal mount and positioned with viewport
+// coordinates so it escapes ancestor `overflow: hidden` / `transform`
+// containing blocks (notably Dialog and Drawer).
 function Popup({children}: {children: ReactNode}) {
-  const {open, listboxId} = useCombobox()
+  const {open, listboxId, rootRef} = useCombobox()
+  const mount = usePortalMount()
+  const [coords, setCoords] = useState<{top: number; left: number; width: number} | null>(null)
 
-  if (!open) return null
+  // Measure the root each time the popup opens, and re-measure on scroll/resize
+  // so the dropdown follows the input. Capture-phase scroll listener catches
+  // scroll on any ancestor (e.g. Dialog body).
+  useLayoutEffect(() => {
+    if (!open) {
+      setCoords(null)
+      return
+    }
+    const update = () => {
+      const el = rootRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      // Position immediately below the input with a small gap. `xs` token = 4px.
+      setCoords({top: rect.bottom + 4, left: rect.left, width: rect.width})
+    }
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [open, rootRef])
 
-  return (
-    <html.div id={listboxId} role="listbox" style={styles.popup}>
+  if (!open || !coords) return null
+
+  const node = (
+    <html.div
+      id={listboxId}
+      role="listbox"
+      style={[styles.popup, styles.popupPosition(coords.top, coords.left, coords.width)]}
+    >
       {children}
     </html.div>
   )
+
+  // SSR / pre-mount fallback: render inline (will be invisible under
+  // overflow:hidden parents but won't crash). Once the mount is available,
+  // portal into it.
+  return mount ? createPortal(node, mount) : node
 }
 
 // --- Item ---

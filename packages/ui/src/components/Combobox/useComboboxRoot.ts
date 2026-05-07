@@ -213,6 +213,7 @@ export function useComboboxRoot({
       setHighlightedId,
       registerItem,
       inputRef,
+      rootRef,
     }),
     [
       open,

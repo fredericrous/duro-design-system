@@ -50,7 +50,11 @@ export {Table, type TableVariant, type TableSize} from './components/Table/Table
 // Table.Pagination, Table.SortIndicator, Table.ColumnFilter for styled integration
 export {Tabs} from './components/Tabs/Tabs'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
-export {ThemeProvider, type ThemeName} from './components/ThemeProvider/ThemeProvider'
+export {
+  ThemeProvider,
+  usePortalMount,
+  type ThemeName,
+} from './components/ThemeProvider/ThemeProvider'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
 export {ToggleGroup} from './components/ToggleGroup/ToggleGroup'

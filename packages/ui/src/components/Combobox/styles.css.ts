@@ -63,11 +63,10 @@ export const styles = css.create({
     zIndex: 49,
   },
   popup: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
-    marginTop: spacing.xs,
+    // Position is `fixed` and the top/left/width are applied inline by Popup
+    // (computed from the root's bounding rect) so the dropdown can escape any
+    // ancestor with `overflow: hidden` or `transform` (e.g. inside a Dialog).
+    position: 'fixed',
     backgroundColor: colors.bgCard,
     borderWidth: 1,
     borderStyle: 'solid',
@@ -78,7 +77,9 @@ export const styles = css.create({
     paddingBottom: spacing.xs,
     maxHeight: 200,
     overflowY: 'auto',
-    zIndex: 50,
+    // Re-enable pointer events: the portal mount is pointer-events: none so
+    // clicks fall through except on the popup itself.
+    pointerEvents: 'auto',
   },
   item: {
     display: 'flex',
@@ -116,4 +117,10 @@ export const styles = css.create({
   hidden: {
     display: 'none',
   },
+  // Dynamic position — applied at runtime from the input's bounding rect.
+  popupPosition: (top: number, left: number, width: number) => ({
+    top,
+    left,
+    width,
+  }),
 })
