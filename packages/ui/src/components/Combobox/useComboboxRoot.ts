@@ -190,12 +190,26 @@ export function useComboboxRoot({
     item?.element.scrollIntoView({block: 'nearest'})
   }, [highlightedId])
 
-  // Sync input value with selected label when value changes externally
+  // Reconcile input text with the committed value once the popup closes.
+  // Three cases when transitioning from open → closed:
+  //   - inputValue is empty: user cleared the field, treat that as
+  //     "remove the selection" so the consumer's onValueChange fires
+  //     with null and downstream UI (e.g. dependent fields) can reset.
+  //   - inputValue doesn't match the selected label: user typed something
+  //     but didn't pick anything; restore the label so the visible text
+  //     and the committed value stay consistent.
+  //   - inputValue equals the selected label: nothing to do.
   useEffect(() => {
-    if (value && labels[value] && !open) {
+    if (open) return
+    if (value === null) return
+    if (inputValue === '') {
+      setValue(null)
+      return
+    }
+    if (labels[value] && inputValue !== labels[value]) {
       setInputValue(labels[value])
     }
-  }, [value, labels, open, setInputValue])
+  }, [open, value, labels, inputValue, setInputValue, setValue])
 
   const ctx: ComboboxContextValue = useMemo(
     () => ({
