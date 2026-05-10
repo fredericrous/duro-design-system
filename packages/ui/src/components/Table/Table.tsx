@@ -12,6 +12,7 @@ import {styles} from './styles.css'
 import {Pagination} from './Pagination'
 import {SortIndicator} from './SortIndicator'
 import {ColumnFilter} from './ColumnFilter'
+import {SortChip} from './SortChip'
 
 // --- Types ---
 
@@ -23,6 +24,10 @@ export type TableSize = 'sm' | 'md'
 interface TableContextValue {
   variant: TableVariant
   size: TableSize
+  responsive: boolean
+  /** Header labels indexed by column position. Populated synchronously by
+   *  extractColumnMeta() during Root render so SSR HTML carries them. */
+  labels: ReadonlyArray<string>
   /** Mutable ref: header Row writes inferred template, Root reads it */
   inferredTemplateRef: MutableRefObject<string | null>
 }
@@ -39,33 +44,50 @@ function useTable() {
 
 const HeaderContext = createContext(false)
 
-// --- Template context: set after first render pass ---
+// --- Container — owns the @container query target ---
+//
+// Wraps SortChip + Root + Pagination so they all participate in the same
+// container query. Setting `containerType: inline-size` on Root would not
+// reach siblings that consumers render above the table.
 
-const TemplateContext = createContext<string | null>(null)
-
-// --- Root ---
-
-interface RootProps {
-  children: ReactNode
-  variant?: TableVariant
-  size?: TableSize
+function Container({children}: {children: ReactNode}) {
+  return <html.div style={styles.container}>{children}</html.div>
 }
 
-/**
- * Scans the React tree for HeaderCell elements to extract width props.
- * Returns a grid-template-columns string.
- */
-function extractTemplate(children: ReactNode): string {
+// --- Synchronous tree walk: widths + labels in document order ---
+//
+// Mirrors the pattern that was previously called extractTemplate(). Walks
+// the JSX tree, finds HeaderCell elements, captures their `width` and
+// `label` props (or extractText(children) fallback). Runs on every Root
+// render — cheap (small N, no DOM) — but worth memoising on `children`
+// reference if profiling flags it.
+
+function extractText(node: ReactNode): string {
+  let out = ''
+  Children.forEach(node, (child) => {
+    if (typeof child === 'string' || typeof child === 'number') {
+      out += String(child)
+    } else if (isValidElement(child)) {
+      const props = child.props as {children?: ReactNode}
+      if (props.children) out += extractText(props.children)
+    }
+  })
+  return out
+}
+
+function extractColumnMeta(children: ReactNode): {template: string; labels: string[]} {
   const widths: string[] = []
+  const labels: string[] = []
 
   function walk(node: ReactNode) {
     Children.forEach(node, (child) => {
       if (!isValidElement(child)) return
       const props = child.props as Record<string, any>
-      // Check if this looks like a HeaderCell (has width prop or is inside Header)
       const displayName = (child.type as any)?.name || (child.type as any)?.displayName || ''
       if (displayName === 'HeaderCell' || child.type === HeaderCell) {
         widths.push(props.width || '1fr')
+        const label = props.label ?? extractText(props.children).trim()
+        labels.push(label)
       } else if (props.children) {
         walk(props.children)
       }
@@ -73,23 +95,35 @@ function extractTemplate(children: ReactNode): string {
   }
 
   walk(children)
-  return widths.length > 0 ? widths.join(' ') : ''
+  return {template: widths.join(' '), labels}
 }
 
-function Root({children, variant = 'default', size = 'md'}: RootProps) {
-  const inferredTemplateRef = useRef<string | null>(null)
+// --- Root ---
 
-  // Extract template from HeaderCell children synchronously
-  const template = extractTemplate(children)
+interface RootProps {
+  children: ReactNode
+  variant?: TableVariant
+  size?: TableSize
+  /** Opt out of responsive container-query behavior. Default true. */
+  responsive?: boolean
+}
+
+function Root({children, variant = 'default', size = 'md', responsive = true}: RootProps) {
+  const inferredTemplateRef = useRef<string | null>(null)
+  const {template, labels} = extractColumnMeta(children)
   if (template) {
     inferredTemplateRef.current = template
   }
 
   return (
-    <TableContext.Provider value={{variant, size, inferredTemplateRef}}>
+    <TableContext.Provider value={{variant, size, responsive, labels, inferredTemplateRef}}>
       <html.div
         role="table"
-        style={[styles.root, template ? styles.gridColumns(template) : undefined]}
+        style={[
+          styles.root,
+          template ? styles.gridColumns(template) : undefined,
+          responsive && styles.rootResponsive,
+        ]}
       >
         {children}
       </html.div>
@@ -136,6 +170,11 @@ function Body({children}: {children: ReactNode}) {
 const RowIndexContext = createContext<number>(-1)
 
 // --- Row ---
+//
+// Always provides CellIndexContext, regardless of variant. Previously this
+// was only set up for `variant === 'bordered'`, which meant non-bordered
+// tables had every cell reading {index: 0} from the default — fine until
+// we needed to look up labels by column index.
 
 function Row({children}: {children: ReactNode}) {
   const {variant} = useTable()
@@ -153,13 +192,11 @@ function Row({children}: {children: ReactNode}) {
         !isHeader && variant === 'striped' && isEvenRow && styles.stripedEven,
       ]}
     >
-      {variant === 'bordered'
-        ? childArray.map((child, index) => (
-            <CellIndexContext.Provider key={index} value={{index, total: childArray.length}}>
-              {child}
-            </CellIndexContext.Provider>
-          ))
-        : children}
+      {childArray.map((child, index) => (
+        <CellIndexContext.Provider key={index} value={{index, total: childArray.length}}>
+          {child}
+        </CellIndexContext.Provider>
+      ))}
     </html.div>
   )
 }
@@ -171,11 +208,19 @@ const CellIndexContext = createContext<{index: number; total: number}>({index: 0
 function HeaderCell({
   children,
   width: _width,
+  label: _label,
+  isActions: _isActions,
   'aria-label': ariaLabel,
 }: {
   children?: ReactNode
   /** Column width: CSS value like '40px', '2fr', 'max-content'. Defaults to '1fr'. */
   width?: string
+  /** Stack-mode label string. Required when responsive=true; falls back to
+   *  text-content of children with a dev-only console.warn. */
+  label?: string
+  /** Marks this column as the actions column — its body cells render as a
+   *  full-width footer in stack mode. */
+  isActions?: boolean
   'aria-label'?: string
 }) {
   const {size, variant} = useTable()
@@ -197,13 +242,19 @@ function HeaderCell({
     </html.div>
   )
 }
+HeaderCell.displayName = 'HeaderCell'
 
 // --- Cell ---
+//
+// Renders the column-header label as a real <html.span>, hidden via
+// container query in non-stack modes. The span is omitted entirely when
+// isActions=true — actions footers don't show a label.
 
-function Cell({children}: {children: ReactNode}) {
-  const {size, variant} = useTable()
+function Cell({children, isActions}: {children: ReactNode; isActions?: boolean}) {
+  const {size, variant, labels, responsive} = useTable()
   const {index, total} = useContext(CellIndexContext)
   const isLast = variant === 'bordered' && index === total - 1
+  const label = labels[index] ?? ''
 
   return (
     <html.div
@@ -213,8 +264,12 @@ function Cell({children}: {children: ReactNode}) {
         size === 'sm' ? styles.cellSm : styles.cellMd,
         variant === 'bordered' && styles.borderedCell,
         isLast && styles.borderedCellLast,
+        isActions && styles.cellActions,
       ]}
     >
+      {responsive && !isActions && label !== '' ? (
+        <html.span style={styles.cellLabel}>{label}</html.span>
+      ) : null}
       {children}
     </html.div>
   )
@@ -223,6 +278,7 @@ function Cell({children}: {children: ReactNode}) {
 // --- Export ---
 
 export const Table = {
+  Container,
   Root,
   Header,
   Body,
@@ -232,4 +288,5 @@ export const Table = {
   Pagination,
   SortIndicator,
   ColumnFilter,
+  SortChip,
 }

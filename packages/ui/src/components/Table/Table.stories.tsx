@@ -878,3 +878,93 @@ export const FullFeatured: Story = {
     await expect(canvas.getByText('Previous')).toBeInTheDocument()
   },
 }
+
+// Demonstrates the three responsive modes. Resize the canvas (or wrap in
+// a narrower container) to see Compact (~720px) and Stack (~440px).
+const responsiveStyles = css.create({
+  resizable: {
+    resize: 'horizontal',
+    overflow: 'auto',
+    minWidth: '320px',
+    maxWidth: '100%',
+    width: '900px',
+    padding: spacing.sm,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.border,
+  },
+})
+
+export const Responsive: Story = {
+  name: 'Responsive (Container Queries)',
+  render: () => {
+    const grants = [
+      {principal: 'daddy', role: 'Admin', resource: 'all', expires: 'Never', granted_by: 'system'},
+      {
+        principal: 'alice',
+        role: 'Editor',
+        resource: 'documents/foo.md',
+        expires: '2026-12-31',
+        granted_by: 'daddy',
+      },
+      {principal: 'bob', role: 'Viewer', resource: 'all', expires: 'Never', granted_by: 'daddy'},
+    ]
+    const [sort, setSort] = useState<{id: string; desc: boolean} | null>(null)
+    const sortable = [
+      {id: 'principal', label: 'Principal'},
+      {id: 'role', label: 'Role'},
+      {id: 'expires', label: 'Expires'},
+    ]
+    return (
+      <html.div style={responsiveStyles.resizable}>
+        <Table.Container>
+          <Table.SortChip options={sortable} value={sort} onChange={setSort} />
+          <Table.Root>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell label="Principal">Principal</Table.HeaderCell>
+                <Table.HeaderCell label="Role">Role</Table.HeaderCell>
+                <Table.HeaderCell label="Resource">Resource</Table.HeaderCell>
+                <Table.HeaderCell label="Expires">Expires</Table.HeaderCell>
+                <Table.HeaderCell label="Granted by">Granted by</Table.HeaderCell>
+                <Table.HeaderCell label="Actions" isActions>
+                  Actions
+                </Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {grants.map((g) => (
+                <Table.Row key={g.principal}>
+                  <Table.Cell>{g.principal}</Table.Cell>
+                  <Table.Cell>{g.role}</Table.Cell>
+                  <Table.Cell>{g.resource}</Table.Cell>
+                  <Table.Cell>{g.expires}</Table.Cell>
+                  <Table.Cell>{g.granted_by}</Table.Cell>
+                  <Table.Cell isActions>
+                    <Button size="small" variant="secondary">
+                      Revoke
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </Table.Container>
+      </html.div>
+    )
+  },
+  play: async ({canvas}) => {
+    // At default canvas width (900px) we're in compact, headers nowrap,
+    // sort chip hidden. Just sanity-check the table renders the expected
+    // shape — visual regression is covered by Storybook + Chromatic.
+    const headers = canvas.getAllByRole('columnheader')
+    await expect(headers.length).toBe(6)
+    const cells = canvas.getAllByRole('cell')
+    // 3 rows × 6 columns = 18 cells
+    await expect(cells.length).toBe(18)
+    // Each non-actions body cell carries its label as a hidden span — we
+    // can't visually assert display:none in jsdom, but the text node
+    // exists in the DOM tree.
+    await expect(canvas.getAllByText('Principal').length).toBeGreaterThanOrEqual(2)
+  },
+}
