@@ -39,7 +39,7 @@ export const styles = css.create({
   // dynamic gridColumns(template) so this rule wins inside the @container.
   rootResponsive: {
     gridTemplateColumns: {
-      default: undefined,
+      default: null,
       [`@container (max-width: ${STACK_BP})`]: '1fr',
     },
     // The card-list look needs the outer border to disappear in stack
@@ -161,7 +161,7 @@ export const styles = css.create({
       [`@container (max-width: ${STACK_BP})`]: 'normal',
     },
     gridTemplateColumns: {
-      default: undefined,
+      default: null,
       [`@container (max-width: ${STACK_BP})`]: '1fr 2fr',
     },
     gap: {
@@ -189,11 +189,11 @@ export const styles = css.create({
   // when isActions=true).
   cellActions: {
     gridTemplateColumns: {
-      default: undefined,
+      default: null,
       [`@container (max-width: ${STACK_BP})`]: '1fr',
     },
     justifyContent: {
-      default: undefined,
+      default: null,
       [`@container (max-width: ${STACK_BP})`]: 'flex-end',
     },
     marginTop: {
@@ -201,7 +201,7 @@ export const styles = css.create({
       [`@container (max-width: ${STACK_BP})`]: spacing.sm,
     },
     paddingTop: {
-      default: undefined,
+      default: null,
       [`@container (max-width: ${STACK_BP})`]: spacing.sm,
     },
     borderTopWidth: {
