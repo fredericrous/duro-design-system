@@ -1,4 +1,5 @@
 import {
+  type ReactElement,
   type ReactNode,
   type MutableRefObject,
   createContext,
@@ -44,13 +45,26 @@ function useTable() {
 
 const HeaderContext = createContext(false)
 
+// --- Dev-only warn registry ---
+//
+// One-shot per warning code per process: long-running dev sessions
+// shouldn't drown the console on every re-render of a misconfigured table.
+const _IS_PROD = typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
+const _devWarned = new Set<string>()
+function devWarnOnce(code: string, message: string) {
+  if (_IS_PROD || _devWarned.has(code)) return
+  _devWarned.add(code)
+  // eslint-disable-next-line no-console
+  console.warn(`[duro-app/ui Table] ${message}`)
+}
+
 // --- Container — owns the @container query target ---
 //
-// Wraps SortChip + Root + Pagination so they all participate in the same
-// container query. Setting `containerType: inline-size` on Root would not
-// reach siblings that consumers render above the table.
+// @deprecated Root sets up its own container query and accepts `sortChip`
+// / `pagination` as slot props. Container is kept exported as a passthrough
+// so existing call sites continue to work; new code should use Root alone.
 
-function Container({children}: {children: ReactNode}) {
+export function Container({children}: {children: ReactNode}) {
   return <html.div style={styles.container}>{children}</html.div>
 }
 
@@ -62,17 +76,35 @@ function Container({children}: {children: ReactNode}) {
 // render — cheap (small N, no DOM) — but worth memoising on `children`
 // reference if profiling flags it.
 
+// Shallow string-children extraction. We deliberately do NOT recurse into
+// child elements: an icon, tooltip trigger, or sort indicator nested inside
+// a HeaderCell would otherwise pollute the stack-mode label with its own
+// text content. JSX-only headers must set `label` explicitly.
 function extractText(node: ReactNode): string {
   let out = ''
   Children.forEach(node, (child) => {
     if (typeof child === 'string' || typeof child === 'number') {
       out += String(child)
-    } else if (isValidElement(child)) {
-      const props = child.props as {children?: ReactNode}
-      if (props.children) out += extractText(props.children)
     }
   })
   return out
+}
+
+// Unwrap memo(...) / forwardRef(...) wrappers so JSX like
+// `<MemoizedHeaderCell ...>` still identifies as HeaderCell. Both wrappers
+// expose the inner component via a `.type` (memo) or `.render` (forwardRef)
+// property on the element-type descriptor. We walk both fields until we
+// reach a leaf, which is the underlying function/class component.
+function unwrapElementType(t: unknown): unknown {
+  let current = t
+  // Bounded loop — defensive cap against pathological infinite-nesting.
+  for (let i = 0; i < 8 && current && typeof current === 'object'; i++) {
+    const next =
+      (current as {type?: unknown; render?: unknown}).type ?? (current as {render?: unknown}).render
+    if (next == null) break
+    current = next
+  }
+  return current
 }
 
 function extractColumnMeta(children: ReactNode): {template: string; labels: string[]} {
@@ -83,10 +115,24 @@ function extractColumnMeta(children: ReactNode): {template: string; labels: stri
     Children.forEach(node, (child) => {
       if (!isValidElement(child)) return
       const props = child.props as Record<string, any>
-      const displayName = (child.type as any)?.name || (child.type as any)?.displayName || ''
-      if (displayName === 'HeaderCell' || child.type === HeaderCell) {
+      const unwrappedType = unwrapElementType(child.type)
+      const displayName =
+        (unwrappedType as {name?: string; displayName?: string} | null)?.displayName ||
+        (unwrappedType as {name?: string} | null)?.name ||
+        ''
+      if (unwrappedType === HeaderCell || displayName === 'HeaderCell') {
         widths.push(props.width || '1fr')
-        const label = props.label ?? extractText(props.children).trim()
+        const explicit = typeof props.label === 'string' ? props.label : undefined
+        const fallback = extractText(props.children).trim()
+        const label = explicit ?? fallback
+        if (!explicit && fallback === '' && props.children != null) {
+          // Children are JSX with no string content — stack mode will render
+          // an unlabeled cell. Tell the developer once.
+          devWarnOnce(
+            'headerCell-missing-label',
+            'Table.HeaderCell with JSX children must set `label` for stack-mode rendering.',
+          )
+        }
         labels.push(label)
       } else if (props.children) {
         walk(props.children)
@@ -106,34 +152,67 @@ interface RootProps {
   size?: TableSize
   /** Opt out of responsive container-query behavior. Default true. */
   responsive?: boolean
+  /**
+   * Optional sort UI rendered above the grid. Visible only in stack mode
+   * (SortChip carries its own `display: none → inline-flex` rule). Typical
+   * value: `<Table.SortChip options={...} value={...} onChange={...} />`.
+   */
+  sortChip?: ReactNode
+  /**
+   * Optional pagination UI rendered below the grid. Typical value:
+   * `<Table.Pagination table={tanstackTable} />`.
+   */
+  pagination?: ReactNode
 }
 
-function Root({children, variant = 'default', size = 'md', responsive = true}: RootProps) {
+export function Root({
+  children,
+  variant = 'default',
+  size = 'md',
+  responsive = true,
+  sortChip,
+  pagination,
+}: RootProps) {
   const inferredTemplateRef = useRef<string | null>(null)
   const {template, labels} = extractColumnMeta(children)
   if (template) {
     inferredTemplateRef.current = template
   }
 
+  const grid = (
+    <html.div
+      role="table"
+      style={[
+        styles.root,
+        template ? styles.gridColumns(template) : undefined,
+        responsive && styles.rootResponsive,
+      ]}
+    >
+      {children}
+    </html.div>
+  )
+
+  // Slots render unconditionally — `responsive=false` still wants its sort/
+  // pagination chrome. Only the containerType:inline-size wrapper is
+  // conditional, since it only matters when @container queries fire.
+  const body = (
+    <>
+      {sortChip}
+      {grid}
+      {pagination}
+    </>
+  )
+
   return (
     <TableContext.Provider value={{variant, size, responsive, labels, inferredTemplateRef}}>
-      <html.div
-        role="table"
-        style={[
-          styles.root,
-          template ? styles.gridColumns(template) : undefined,
-          responsive && styles.rootResponsive,
-        ]}
-      >
-        {children}
-      </html.div>
+      {responsive ? <html.div style={styles.rootContainer}>{body}</html.div> : body}
     </TableContext.Provider>
   )
 }
 
 // --- Header ---
 
-function Header({children}: {children: ReactNode}) {
+export function Header({children}: {children: ReactNode}) {
   return (
     <HeaderContext.Provider value={true}>
       <html.div role="rowgroup" style={styles.header}>
@@ -145,22 +224,24 @@ function Header({children}: {children: ReactNode}) {
 
 // --- Body ---
 
-function Body({children}: {children: ReactNode}) {
+export function Body({children}: {children: ReactNode}) {
   const {variant} = useTable()
-  const childArray = Children.toArray(children)
+  const childArray = Children.toArray(children) as ReactElement[]
 
   return (
     <HeaderContext.Provider value={false}>
       <html.div role="rowgroup" style={styles.body}>
         {childArray.map((child, index) => {
-          if (variant === 'striped') {
-            return (
-              <RowIndexContext.Provider key={index} value={index}>
-                {child}
-              </RowIndexContext.Provider>
-            )
-          }
-          return child
+          if (variant !== 'striped') return child
+          // Key the provider by the child's React key (Children.toArray
+          // guarantees one) so reordered rows carry their providers along
+          // with them. Position is passed as the value because striping is
+          // a positional concern even when row identity is stable.
+          return (
+            <RowIndexContext.Provider key={child.key ?? index} value={index}>
+              {child}
+            </RowIndexContext.Provider>
+          )
         })}
       </html.div>
     </HeaderContext.Provider>
@@ -175,25 +256,81 @@ const RowIndexContext = createContext<number>(-1)
 // was only set up for `variant === 'bordered'`, which meant non-bordered
 // tables had every cell reading {index: 0} from the default — fine until
 // we needed to look up labels by column index.
+//
+// Interactive rows: pass `onClick` to make the row a navigation target.
+// The role stays `row` (per ARIA grid pattern) — we don't wrap in an outer
+// element with role=button, which would break the rowgroup → row hierarchy.
+// A click that originates inside an interactive descendant (button, link,
+// input, etc.) is treated as that descendant's click and does not fire
+// onClick — prevents double-fire when a row contains action buttons.
 
-function Row({children}: {children: ReactNode}) {
+interface RowProps {
+  children: ReactNode
+  /** When set, the row becomes focusable + clickable. */
+  onClick?: () => void
+  /** Per-row accessible name — required when onClick is set, recommended otherwise. */
+  'aria-label'?: string
+}
+
+// Heuristic for "clicking a descendant means the descendant, not the row".
+// Matches the elements the WAI-ARIA grid pattern lists as "widgets" plus the
+// usual native focus-stealers.
+const INTERACTIVE_SELECTOR =
+  'button, a, input, select, textarea, [role="button"], [role="link"], [role="checkbox"], [role="menuitem"], [role="switch"], [role="tab"], [contenteditable="true"]'
+
+export function Row({children, onClick, 'aria-label': ariaLabel}: RowProps) {
   const {variant} = useTable()
   const isHeader = useContext(HeaderContext)
   const rowIndex = useContext(RowIndexContext)
   const isEvenRow = rowIndex >= 0 && rowIndex % 2 === 1
-  const childArray = Children.toArray(children)
+  const childArray = Children.toArray(children) as ReactElement[]
+  const isClickable = onClick !== undefined && !isHeader
 
   return (
     <html.div
       role="row"
+      tabIndex={isClickable ? 0 : undefined}
+      aria-label={isClickable ? ariaLabel : undefined}
+      onClick={
+        isClickable
+          ? (e) => {
+              // react-strict-dom's typed click event omits `target`, but the
+              // underlying SyntheticEvent still carries it. Cast through so
+              // we can detect clicks that originate inside an interactive
+              // descendant (action button, link, input) and let them be
+              // attributed to that widget instead of the row.
+              const target = (e as unknown as {target?: EventTarget | null}).target
+              if (target instanceof Element && target.closest(INTERACTIVE_SELECTOR)) {
+                return
+              }
+              onClick()
+            }
+          : undefined
+      }
+      onKeyDown={
+        isClickable
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                onClick()
+              }
+            }
+          : undefined
+      }
       style={[
         styles.row,
         !isHeader && styles.bodyRow,
         !isHeader && variant === 'striped' && isEvenRow && styles.stripedEven,
+        isClickable && styles.clickableRow,
       ]}
     >
       {childArray.map((child, index) => (
-        <CellIndexContext.Provider key={index} value={{index, total: childArray.length}}>
+        // Key by the child's React key (Children.toArray assigns one) so a
+        // reordered column carries its CellIndexContext provider along.
+        // The positional `index` lives in the provider's value, not its key.
+        <CellIndexContext.Provider
+          key={child.key ?? index}
+          value={{index, total: childArray.length}}
+        >
           {child}
         </CellIndexContext.Provider>
       ))}
@@ -205,24 +342,34 @@ const CellIndexContext = createContext<{index: number; total: number}>({index: 0
 
 // --- HeaderCell ---
 
-function HeaderCell({
+export function HeaderCell({
   children,
   width: _width,
   label: _label,
-  isActions: _isActions,
+  isActions,
   'aria-label': ariaLabel,
 }: {
   children?: ReactNode
   /** Column width: CSS value like '40px', '2fr', 'max-content'. Defaults to '1fr'. */
   width?: string
-  /** Stack-mode label string. Required when responsive=true; falls back to
-   *  text-content of children with a dev-only console.warn. */
+  /** Stack-mode label string. Optional when children is a plain string — the
+   *  text content is used as the label automatically. Required when children
+   *  contain JSX (icon + text, sort indicator, etc.). */
   label?: string
-  /** Marks this column as the actions column — its body cells render as a
-   *  full-width footer in stack mode. */
+  /**
+   * @deprecated Has no effect on HeaderCell. Pass `isActions` on the
+   * matching `Table.Cell` instead — that's where the stack-mode footer
+   * layout actually applies.
+   */
   isActions?: boolean
   'aria-label'?: string
 }) {
+  if (isActions === true) {
+    devWarnOnce(
+      'headerCell-isActions',
+      'HeaderCell `isActions` prop has no effect and is deprecated. Pass `isActions` on the matching Table.Cell instead.',
+    )
+  }
   const {size, variant} = useTable()
   const {index, total} = useContext(CellIndexContext)
   const isLast = variant === 'bordered' && index === total - 1
@@ -250,7 +397,7 @@ HeaderCell.displayName = 'HeaderCell'
 // container query in non-stack modes. The span is omitted entirely when
 // isActions=true — actions footers don't show a label.
 
-function Cell({children, isActions}: {children: ReactNode; isActions?: boolean}) {
+export function Cell({children, isActions}: {children: ReactNode; isActions?: boolean}) {
   const {size, variant, labels, responsive} = useTable()
   const {index, total} = useContext(CellIndexContext)
   const isLast = variant === 'bordered' && index === total - 1
@@ -277,7 +424,10 @@ function Cell({children, isActions}: {children: ReactNode; isActions?: boolean})
 
 // --- Export ---
 
+import {FromTanstack} from './FromTanstack'
+
 export const Table = {
+  /** @deprecated Wrap behaviour is built into Table.Root. Drop this wrapper from new code. */
   Container,
   Root,
   Header,
@@ -289,4 +439,6 @@ export const Table = {
   SortIndicator,
   ColumnFilter,
   SortChip,
+  /** Renders a styled Table directly from a TanStack table instance. */
+  FromTanstack,
 }

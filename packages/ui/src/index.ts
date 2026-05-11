@@ -46,6 +46,11 @@ export {
 export {Tag, type TagVariant, type TagSize} from './components/Tag/Tag'
 export {TagGroup} from './components/TagGroup/TagGroup'
 export {Table, type TableVariant, type TableSize} from './components/Table/Table'
+// Side-effect import registers our augmentation of TanStack's ColumnMeta
+// (stackLabel / isActions). Standalone module so the augmentation lands
+// whenever this package is in a consumer's TS program, even if FromTanstack
+// itself isn't imported.
+import './components/Table/tanstack-augmentation'
 // TanStack Table: consumers install @tanstack/react-table directly and use
 // Table.Pagination, Table.SortIndicator, Table.ColumnFilter for styled integration
 export {Tabs} from './components/Tabs/Tabs'

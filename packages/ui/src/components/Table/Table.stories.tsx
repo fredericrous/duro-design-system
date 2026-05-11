@@ -968,3 +968,167 @@ export const Responsive: Story = {
     await expect(canvas.getAllByText('Principal').length).toBeGreaterThanOrEqual(2)
   },
 }
+
+// --- Auto from TanStack: the one-liner replacement for ~25 lines of header/body ceremony ---
+
+const autoColHelper = createColumnHelper<User>()
+const autoCols = [
+  autoColHelper.accessor('name', {header: 'Name', enableSorting: true}),
+  autoColHelper.accessor('role', {header: 'Role', enableSorting: true}),
+  autoColHelper.accessor('email', {header: 'Email'}),
+  autoColHelper.accessor('status', {
+    header: 'Status',
+    cell: ({getValue}) => <Badge variant="info">{getValue()}</Badge>,
+  }),
+  autoColHelper.display({
+    id: 'actions',
+    header: 'Actions',
+    meta: {isActions: true, stackLabel: 'Actions'},
+    cell: ({row}) => (
+      <Button
+        size="small"
+        variant="secondary"
+        // Marker so the play assertion can verify the row's onClick
+        // doesn't fire when the inner button is the click target.
+        aria-label={`Edit ${row.original.name}`}
+      >
+        Edit
+      </Button>
+    ),
+  }),
+]
+
+// Module-level capture array so the play assertion can read what
+// onRowClick recorded without juggling render-scoped refs.
+const _rowClickLog: string[] = []
+
+function FromTanstackDemo() {
+  const table = useDataTable<User>(generateUsers(12), autoCols, {
+    pagination: {pageSize: 5},
+    enableSorting: true,
+  })
+
+  return (
+    <Table.FromTanstack
+      table={table}
+      variant="striped"
+      sortChip
+      pagination
+      onRowClick={(row) => _rowClickLog.push(row.original.email)}
+      rowAriaLabel={(row) => `Open ${row.original.name}`}
+    />
+  )
+}
+
+export const AutoFromTanstack: Story = {
+  render: () => <FromTanstackDemo />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Renders a styled Table directly from a TanStack table instance. ' +
+          'Mark the actions column with `meta: { isActions: true }`; pass ' +
+          '`sortChip` and `pagination` as booleans. `onRowClick` makes the ' +
+          'row focusable with Enter/Space activation; clicks on interactive ' +
+          'cell content (buttons, links) are attributed to the inner widget, ' +
+          'not the row.',
+      },
+    },
+  },
+  play: async ({canvas, userEvent}) => {
+    // 1. Shape: 5 columns including actions, 5 rows of data.
+    await expect(canvas.getByRole('table')).toBeInTheDocument()
+    await expect(canvas.getAllByRole('columnheader').length).toBe(5)
+    await expect(canvas.getAllByRole('row').length).toBe(6) // 1 header + 5 body
+    await expect(canvas.getAllByRole('cell').length).toBe(25)
+
+    // 2. Clickable rows: each body row is focusable + has the aria-label
+    // from `rowAriaLabel`. The header row stays non-interactive.
+    const bodyRows = canvas.getAllByRole('row').slice(1)
+    await expect(bodyRows[0]).toHaveAttribute('tabindex', '0')
+    await expect(bodyRows[0].getAttribute('aria-label')).toMatch(/^Open /)
+
+    // 3. Click bubbling: clicking a row fires onRowClick; clicking the
+    // action button inside a row does NOT fire onRowClick.
+    _rowClickLog.length = 0
+    await userEvent.click(bodyRows[0])
+    await expect(_rowClickLog.length).toBe(1)
+
+    _rowClickLog.length = 0
+    const editButtons = canvas.getAllByRole('button', {name: /^Edit /})
+    await userEvent.click(editButtons[0])
+    await expect(_rowClickLog.length).toBe(0)
+
+    // 4. Keyboard activation: Enter fires onRowClick.
+    _rowClickLog.length = 0
+    bodyRows[0].focus()
+    await userEvent.keyboard('{Enter}')
+    await expect(_rowClickLog.length).toBe(1)
+  },
+}
+
+// --- Slot props on Root: manual JSX, no Container wrap needed ---
+
+export const SlotPropsOnRoot: Story = {
+  render: () => {
+    const data = generateUsers(8)
+    const [sort, setSort] = useState<{id: string; desc: boolean} | null>(null)
+
+    return (
+      <html.div style={storyStyles.stack}>
+        <html.div>
+          <html.span style={storyStyles.label}>
+            <html.code>Table.Root</html.code> with <html.code>sortChip</html.code> +{' '}
+            <html.code>pagination</html.code> slots — no <html.code>Container</html.code> wrap
+          </html.span>
+        </html.div>
+        <Table.Root
+          variant="striped"
+          sortChip={
+            <Table.SortChip
+              options={[
+                {id: 'name', label: 'Name'},
+                {id: 'role', label: 'Role'},
+              ]}
+              value={sort}
+              onChange={setSort}
+            />
+          }
+        >
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Role</Table.HeaderCell>
+              <Table.HeaderCell>Email</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {data.slice(0, 5).map((u) => (
+              <Table.Row key={u.email}>
+                <Table.Cell>{u.name}</Table.Cell>
+                <Table.Cell>{u.role}</Table.Cell>
+                <Table.Cell>{u.email}</Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
+      </html.div>
+    )
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`Table.Root` accepts `sortChip` and `pagination` as slot props. ' +
+          'No outer wrapper is needed — Root sets up the container query ' +
+          'itself. Narrow the canvas to see the responsive stack mode.',
+      },
+    },
+  },
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('table')).toBeInTheDocument()
+    // Note no Table.HeaderCell label — children are plain strings, so the
+    // label fallback uses extractText. Verify the rendered text appears.
+    await expect(canvas.getByText('Name')).toBeInTheDocument()
+  },
+}

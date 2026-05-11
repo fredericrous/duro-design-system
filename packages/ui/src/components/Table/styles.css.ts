@@ -14,11 +14,36 @@ export const styles = css.create({
   // Outer wrapper that hosts the @container query. Wraps SortChip + Root
   // + Pagination so all three react to the same width. Root itself does
   // NOT carry containerType — keeping a single query target per Table.
+  //
+  // @deprecated Use Table.Root's sortChip/pagination slot props instead.
+  // This style backs the deprecated <Table.Container> wrapper.
   container: {
     containerType: 'inline-size',
     display: 'flex',
     flexDirection: 'column',
     gap: spacing.sm,
+  },
+
+  // The same containment chrome, but applied by Root when responsive=true.
+  // Mirrors `container` so consumers don't need to wrap manually.
+  rootContainer: {
+    containerType: 'inline-size',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing.sm,
+  },
+
+  // Applied when Row receives an `onClick` handler. Cursor signals clickability;
+  // the :focus-visible outline meets WCAG 2.4.7 for keyboard navigation.
+  clickableRow: {
+    cursor: 'pointer',
+    outlineWidth: {
+      default: 0,
+      ':focus-visible': 2,
+    },
+    outlineStyle: 'solid',
+    outlineColor: colors.accent,
+    outlineOffset: -2,
   },
 
   // Root — the single grid container for the table itself

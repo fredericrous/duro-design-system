@@ -371,40 +371,78 @@ function LoginForm() {
 
 ### Data Table
 
+**Prefer `Table.FromTanstack` when your data has a TanStack table instance** —
+collapses 25 lines of `flexRender`/header/body ceremony into one component
+and wires SortChip, Pagination, and clickable-row keyboard activation for you.
+
 ```tsx
-import {Table} from '@duro-app/ui'
+import {Table, useDataTable} from '@duro-app/ui'
+import {createColumnHelper} from '@tanstack/react-table'
 
-function UsersTable() {
-  const users = [
-    {id: 1, name: 'Alice', role: 'Admin', status: 'Active'},
-    {id: 2, name: 'Bob', role: 'Editor', status: 'Inactive'},
-    {id: 3, name: 'Carol', role: 'Viewer', status: 'Active'},
-  ]
+const col = createColumnHelper<User>()
+const columns = [
+  col.accessor('name', {header: 'Name', enableSorting: true}),
+  col.accessor('role', {header: 'Role', enableSorting: true}),
+  col.accessor('email', {header: 'Email'}),
+  // Mark the actions column via `meta.actions` — applies the stack-mode
+  // footer layout. Set `meta.label` when the header is JSX (icon + text);
+  // string headers are auto-used as the stack-mode label.
+  col.display({
+    id: 'actions',
+    header: 'Actions',
+    meta: {actions: true, label: 'Actions'},
+    cell: () => <Button size="small">Edit</Button>,
+  }),
+]
 
+function UsersTable({users}: {users: User[]}) {
+  const {table} = useDataTable({data: users, columns, pagination: {pageSize: 20}, enableSorting: true})
   return (
-    <Table.Root variant="striped" size="md">
-      <Table.Header>
-        <Table.Row>
-          <Table.HeaderCell>Name</Table.HeaderCell>
-          <Table.HeaderCell>Role</Table.HeaderCell>
-          <Table.HeaderCell>Status</Table.HeaderCell>
-          <Table.HeaderCell aria-label="Actions" />
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {users.map((user) => (
-          <Table.Row key={user.id}>
-            <Table.Cell>{user.name}</Table.Cell>
-            <Table.Cell>{user.role}</Table.Cell>
-            <Table.Cell>{user.status}</Table.Cell>
-            <Table.Cell>Edit</Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table.Root>
+    <Table.FromTanstack
+      table={table}
+      variant="striped"
+      sortChip
+      pagination
+      onRowClick={(row) => navigate(`/users/${row.original.id}`)}
+      rowAriaLabel={(row) => `Open ${row.original.name}`}
+    />
   )
 }
 ```
+
+**Manual JSX is fine for small static tables** — `Table.Root` now sets up
+its own container query, and SortChip / Pagination plug in as slot props:
+
+```tsx
+<Table.Root
+  variant="striped"
+  sortChip={<Table.SortChip options={opts} value={sort} onChange={setSort} />}
+  pagination={<Table.Pagination table={tanstack} />}
+>
+  <Table.Header>
+    <Table.Row>
+      <Table.HeaderCell>Name</Table.HeaderCell>
+      <Table.HeaderCell>Role</Table.HeaderCell>
+      <Table.HeaderCell label="Status">
+        <Inline gap="xs"><Icon name="info-circle" />Status</Inline>
+      </Table.HeaderCell>
+      <Table.HeaderCell aria-label="Actions" />
+    </Table.Row>
+  </Table.Header>
+  <Table.Body>{/* rows */}</Table.Body>
+</Table.Root>
+```
+
+#### Don't
+
+- ❌ **Don't wrap in `Table.Container`** for new code — Root handles the
+  container query itself. `Container` is kept as a deprecated passthrough
+  for backwards compatibility.
+- ❌ **Don't pass `label` on `Table.HeaderCell` when `children` is a plain
+  string** — the text is auto-used as the stack-mode label. Only set
+  `label` when the header is JSX with no plain-text fallback (icon, etc).
+- ❌ **Don't pass `isActions` on `Table.HeaderCell`** — it does nothing.
+  The cell-level `isActions` is what drives stack-mode footer layout.
 
 ### Settings Page
 
