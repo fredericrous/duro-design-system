@@ -107,8 +107,13 @@ function unwrapElementType(t: unknown): unknown {
   return current
 }
 
-function extractColumnMeta(children: ReactNode): {template: string; labels: string[]} {
+function extractColumnMeta(children: ReactNode): {
+  template: string
+  compactTemplate: string
+  labels: string[]
+} {
   const widths: string[] = []
+  const compactWidths: string[] = []
   const labels: string[] = []
 
   function walk(node: ReactNode) {
@@ -128,7 +133,13 @@ function extractColumnMeta(children: ReactNode): {template: string; labels: stri
         // cell's text is wider than 1/N of the container. With minmax(0,
         // 1fr), the cell's compact-mode `min-width: 0` + `overflow:
         // hidden` + `text-overflow: ellipsis` can actually truncate.
-        widths.push(props.width || 'minmax(0, 1fr)')
+        const width = props.width || 'minmax(0, 1fr)'
+        widths.push(width)
+        // `compactWidth` lets the consumer switch to a content-aware
+        // layout in the compact band while staying evenly distributed
+        // at desktop. Falls back to `width` so columns that don't opt
+        // in keep one template across both breakpoints.
+        compactWidths.push(props.compactWidth || width)
         const explicit = typeof props.label === 'string' ? props.label : undefined
         const fallback = extractText(props.children).trim()
         const label = explicit ?? fallback
@@ -148,7 +159,11 @@ function extractColumnMeta(children: ReactNode): {template: string; labels: stri
   }
 
   walk(children)
-  return {template: widths.join(' '), labels}
+  return {
+    template: widths.join(' '),
+    compactTemplate: compactWidths.join(' '),
+    labels,
+  }
 }
 
 // --- Root ---
@@ -181,7 +196,7 @@ export function Root({
   pagination,
 }: RootProps) {
   const inferredTemplateRef = useRef<string | null>(null)
-  const {template, labels} = extractColumnMeta(children)
+  const {template, compactTemplate, labels} = extractColumnMeta(children)
   if (template) {
     inferredTemplateRef.current = template
   }
@@ -199,7 +214,7 @@ export function Root({
         // always wins as the later entry in the array.
         template
           ? responsive
-            ? styles.gridColumnsResponsive(template)
+            ? styles.gridColumnsResponsive(template, compactTemplate)
             : styles.gridColumns(template)
           : undefined,
         responsive && styles.rootResponsive,
@@ -362,13 +377,24 @@ const CellIndexContext = createContext<{index: number; total: number}>({index: 0
 export function HeaderCell({
   children,
   width: _width,
+  compactWidth: _compactWidth,
   label: _label,
   isActions,
   'aria-label': ariaLabel,
 }: {
   children?: ReactNode
-  /** Column width: CSS value like '40px', '2fr', 'max-content'. Defaults to '1fr'. */
+  /** Column width at default (wide) viewport. CSS grid-template-columns
+   *  track value — e.g. '40px', '2fr', 'max-content'. Defaults to
+   *  'minmax(0, 1fr)' so each column shares the row evenly and is free
+   *  to shrink below its content's intrinsic size. */
   width?: string
+  /** Column width when the table's container drops into compact mode
+   *  (≤720px container). Use this to switch to a content-aware layout
+   *  at narrow widths — e.g. give a status badge `max-content` and the
+   *  action column `minmax(0, 2fr)` so it absorbs the slack — while
+   *  keeping evenly-distributed columns on wide screens. Defaults to the
+   *  same value as `width`. */
+  compactWidth?: string
   /** Stack-mode label string. Optional when children is a plain string — the
    *  text content is used as the label automatically. Required when children
    *  contain JSX (icon + text, sort indicator, etc.). */

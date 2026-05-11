@@ -308,15 +308,22 @@ export const styles = css.create({
     gridTemplateColumns: template,
   }),
 
-  // Dynamic: grid columns + stack-mode collapse in one style.
-  // Used instead of gridColumns() when responsive=true so that both the
-  // explicit column template and the @container override live in the same
-  // StyleX style object. If they were in separate styles (gridColumns +
-  // rootResponsive), StyleX conflict resolution would keep only the LAST
-  // style's gridTemplateColumns class and silently discard the earlier one.
-  gridColumnsResponsive: (template: string) => ({
+  // Dynamic: grid columns at three tiers (default / compact / stack) in
+  // one style. Used instead of gridColumns() when responsive=true so that
+  // every gridTemplateColumns rule lives in the same StyleX style object —
+  // splitting them would let StyleX's conflict resolution drop the
+  // earlier classes (the LAST style wins per property key).
+  //
+  // - default: balanced multi-column layout for desktop widths
+  // - @container (max-width: COMPACT_BP): consumer-supplied "compact"
+  //   template, e.g. give a badge column max-content and let the action
+  //   column absorb the slack so its hint text fits on one line
+  // - @container (max-width: STACK_BP): collapse to a single column so
+  //   each row becomes a card
+  gridColumnsResponsive: (template: string, compactTemplate: string) => ({
     gridTemplateColumns: {
       default: template,
+      [`@container (max-width: ${COMPACT_BP})`]: compactTemplate,
       [`@container (max-width: ${STACK_BP})`]: '1fr',
     },
   }),
