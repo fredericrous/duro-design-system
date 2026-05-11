@@ -48,10 +48,14 @@ export const styles = css.create({
     textAlign: 'end',
   },
 
-  // Truncate
+  // Truncate. minWidth: 0 lets a truncating Text actually shrink inside a
+  // flex/grid container — without it, the default `min-width: auto` would
+  // keep the element at its content width, so text-overflow: ellipsis would
+  // never trigger and the text would just overflow the parent instead.
   truncate: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    minWidth: 0,
   },
 })
