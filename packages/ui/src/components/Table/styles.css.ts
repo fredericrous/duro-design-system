@@ -159,8 +159,15 @@ export const styles = css.create({
     },
   },
 
-  // Body cell. In compact mode: nowrap + truncate. In stack mode:
-  // becomes a 2-column grid for label / value.
+  // Body cell. Text wraps by default — preferring "wrap to a 2nd line" over
+  // "truncate with ellipsis" matches BI/data-reporting conventions where
+  // hiding content (even with a visual hint) is treated as data loss.
+  // Consumers that explicitly want single-line truncation use Text's
+  // `truncate` prop, which sets its own nowrap + overflow + ellipsis chain
+  // on the Text element itself. Buttons and badges already enforce
+  // `white-space: nowrap` internally, so they're unaffected by this
+  // default. In stack mode the cell becomes a 2-column grid for
+  // label / value.
   cell: {
     color: colors.text,
     display: {
@@ -169,22 +176,20 @@ export const styles = css.create({
     },
     alignItems: 'center',
     minWidth: {
+      // Allow the cell to shrink inside its grid track. In default (wide)
+      // mode there's enough room so `auto` is fine; in compact and stack
+      // we explicitly drop to 0 so wrappable content can size to the
+      // track instead of forcing the track to grow.
       default: 'auto',
       [`@container (max-width: ${COMPACT_BP})`]: 0,
     },
     overflow: {
+      // Safety against pathological unbreakable content (long URLs,
+      // dataless ids) at narrow widths.
       default: 'visible',
       [`@container (max-width: ${COMPACT_BP})`]: 'hidden',
     },
-    textOverflow: {
-      default: 'clip',
-      [`@container (max-width: ${COMPACT_BP})`]: 'ellipsis',
-    },
-    whiteSpace: {
-      default: 'normal',
-      [`@container (max-width: ${COMPACT_BP})`]: 'nowrap',
-      [`@container (max-width: ${STACK_BP})`]: 'normal',
-    },
+    whiteSpace: 'normal',
     gridTemplateColumns: {
       default: null,
       [`@container (max-width: ${STACK_BP})`]: '1fr 2fr',
