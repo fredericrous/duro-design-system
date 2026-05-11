@@ -184,7 +184,17 @@ export function Root({
       role="table"
       style={[
         styles.root,
-        template ? styles.gridColumns(template) : undefined,
+        // When responsive, use gridColumnsResponsive so the explicit column
+        // template and the stack-mode @container override live in one StyleX
+        // style object. Splitting them across two styles (gridColumns +
+        // rootResponsive) causes StyleX conflict resolution to drop the
+        // column template because rootResponsive's gridTemplateColumns key
+        // always wins as the later entry in the array.
+        template
+          ? responsive
+            ? styles.gridColumnsResponsive(template)
+            : styles.gridColumns(template)
+          : undefined,
         responsive && styles.rootResponsive,
       ]}
     >

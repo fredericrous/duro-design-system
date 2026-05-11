@@ -60,13 +60,13 @@ export const styles = css.create({
   },
 
   // Stack-mode override: the Root's grid collapses to a single column so
-  // each Row spans full width and stacks vertically. Applied AFTER the
-  // dynamic gridColumns(template) so this rule wins inside the @container.
+  // each Row spans full width and stacks vertically.
+  // NOTE: gridTemplateColumns is intentionally absent here. It is handled by
+  // gridColumnsResponsive() so that StyleX conflict resolution does not remove
+  // the explicit column template (a later style with the same property key
+  // always wins, so combining gridColumns + rootResponsive in one array would
+  // silently drop the column template).
   rootResponsive: {
-    gridTemplateColumns: {
-      default: null,
-      [`@container (max-width: ${STACK_BP})`]: '1fr',
-    },
     // The card-list look needs the outer border to disappear in stack
     // mode — each row paints its own border.
     borderWidth: {
@@ -298,8 +298,21 @@ export const styles = css.create({
     alignSelf: 'flex-start',
   },
 
-  // Dynamic: grid columns applied on Root
+  // Dynamic: grid columns applied on Root (non-responsive path only).
   gridColumns: (template: string) => ({
     gridTemplateColumns: template,
+  }),
+
+  // Dynamic: grid columns + stack-mode collapse in one style.
+  // Used instead of gridColumns() when responsive=true so that both the
+  // explicit column template and the @container override live in the same
+  // StyleX style object. If they were in separate styles (gridColumns +
+  // rootResponsive), StyleX conflict resolution would keep only the LAST
+  // style's gridTemplateColumns class and silently discard the earlier one.
+  gridColumnsResponsive: (template: string) => ({
+    gridTemplateColumns: {
+      default: template,
+      [`@container (max-width: ${STACK_BP})`]: '1fr',
+    },
   }),
 })
