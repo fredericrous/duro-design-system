@@ -121,7 +121,14 @@ function extractColumnMeta(children: ReactNode): {template: string; labels: stri
         (unwrappedType as {name?: string} | null)?.name ||
         ''
       if (unwrappedType === HeaderCell || displayName === 'HeaderCell') {
-        widths.push(props.width || '1fr')
+        // Default to minmax(0, 1fr) instead of plain '1fr' so each column
+        // can shrink below its content's min-content size. A plain '1fr'
+        // track has an implicit min of `auto` (= min-content), which makes
+        // the column refuse to shrink and the whole table overflow when a
+        // cell's text is wider than 1/N of the container. With minmax(0,
+        // 1fr), the cell's compact-mode `min-width: 0` + `overflow:
+        // hidden` + `text-overflow: ellipsis` can actually truncate.
+        widths.push(props.width || 'minmax(0, 1fr)')
         const explicit = typeof props.label === 'string' ? props.label : undefined
         const fallback = extractText(props.children).trim()
         const label = explicit ?? fallback
