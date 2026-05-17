@@ -16,7 +16,7 @@ concurrency:
 jobs:
   build:
     name: Build Storybook
-    runs-on: ubuntu-latest
+    runs-on: duro-design-system
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -32,7 +32,7 @@ jobs:
 
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest
+    runs-on: duro-design-system
     needs: build
     environment:
       name: github-pages

@@ -12,7 +12,7 @@ permissions:
 jobs:
   format:
     name: Format Check
-    runs-on: ubuntu-latest
+    runs-on: duro-design-system
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -25,7 +25,7 @@ jobs:
 
   validate:
     name: Validate
-    runs-on: ubuntu-latest
+    runs-on: duro-design-system
     needs: format
     steps:
       - uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
 
   test:
     name: Storybook Tests
-    runs-on: ubuntu-latest
+    runs-on: duro-design-system
     needs: validate
     steps:
       - uses: actions/checkout@v4

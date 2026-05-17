@@ -12,7 +12,7 @@ permissions:
 jobs:
   publish:
     name: Publish to npm
-    runs-on: ubuntu-latest
+    runs-on: duro-design-system
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
