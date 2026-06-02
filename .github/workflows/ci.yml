@@ -81,21 +81,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-
 
-      # The browser download has stalled indefinitely on this runner (the binary
-      # reaches 100% then a follow-up asset hangs with no timeout). Cap each
-      # attempt and retry, so a stall fails fast and retries instead of hanging
-      # for hours. A cache hit makes this a fast no-op.
-      - name: Install Playwright browser (chromium)
+      # Install only the chromium-headless-shell build (a single, smaller asset)
+      # — the tests run headless, so the full Chrome for Testing isn't needed,
+      # and this downloads far less from cdn.playwright.dev. The download has
+      # stalled on this runner (binary reaches 100% then a follow-up asset hangs
+      # with no timeout), so cap each attempt and retry: a stall fails fast and
+      # retries instead of hanging for hours. A cache hit makes this a no-op.
+      - name: Install Playwright browser (chromium-headless-shell)
         timeout-minutes: 14
         run: |
           for attempt in 1 2 3; do
-            if timeout 240 pnpm exec playwright install chromium; then
+            if timeout 240 pnpm exec playwright install chromium-headless-shell; then
               exit 0
             fi
-            echo "::warning::playwright chromium install attempt ${attempt} stalled or failed; retrying"
+            echo "::warning::playwright chromium-headless-shell install attempt ${attempt} stalled or failed; retrying"
             sleep 5
           done
-          echo "::error::playwright chromium install failed after 3 attempts"
+          echo "::error::playwright chromium-headless-shell install failed after 3 attempts"
           exit 1
 
       - name: Run visual & a11y tests
