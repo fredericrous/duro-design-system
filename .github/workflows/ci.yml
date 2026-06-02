@@ -9,10 +9,17 @@ on:
 permissions:
   contents: read
 
+# A newer run for the same ref cancels the older one, so a stalled job never
+# lingers on (and hogs) the self-hosted runner once it's been superseded.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   format:
     name: Format Check
     runs-on: duro-design-system
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -27,6 +34,7 @@ jobs:
     name: Validate
     runs-on: duro-design-system
     needs: format
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -46,6 +54,7 @@ jobs:
     name: Storybook Tests
     runs-on: duro-design-system
     needs: validate
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -54,7 +63,41 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+
+      # apt-deps for Chromium — this part has always succeeded; keep it separate
+      # from the browser download so the two failure modes don't entangle.
+      - name: Install Playwright system deps
+        timeout-minutes: 5
+        run: pnpm exec playwright install-deps chromium
+
+      # Cache the browser binaries so they're downloaded rarely (not every run).
+      # restore-keys lets a near-match (same Playwright version) restore even
+      # when the lockfile hash changes.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      # The browser download has stalled indefinitely on this runner (the binary
+      # reaches 100% then a follow-up asset hangs with no timeout). Cap each
+      # attempt and retry, so a stall fails fast and retries instead of hanging
+      # for hours. A cache hit makes this a fast no-op.
+      - name: Install Playwright browser (chromium)
+        timeout-minutes: 14
+        run: |
+          for attempt in 1 2 3; do
+            if timeout 240 pnpm exec playwright install chromium; then
+              exit 0
+            fi
+            echo "::warning::playwright chromium install attempt ${attempt} stalled or failed; retrying"
+            sleep 5
+          done
+          echo "::error::playwright chromium install failed after 3 attempts"
+          exit 1
+
       - name: Run visual & a11y tests
+        timeout-minutes: 15
         run: pnpm test -- --run
