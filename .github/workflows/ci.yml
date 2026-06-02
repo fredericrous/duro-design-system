@@ -81,33 +81,36 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-
 
-      # Install only the chromium-headless-shell build (a single, smaller asset)
-      # — the tests run headless, so the full Chrome for Testing isn't needed,
-      # and this downloads far less from cdn.playwright.dev. The download has
-      # stalled on this runner (binary reaches 100% then a follow-up asset hangs
-      # with no timeout), so cap each attempt and retry: a stall fails fast and
-      # retries instead of hanging for hours. A cache hit makes this a no-op.
-      - name: Install Playwright browser (chromium-headless-shell)
-        timeout-minutes: 14
+      # Node's Playwright downloader stalls at 0% pulling chrome-headless-shell
+      # from storage.googleapis.com on this self-hosted runner — over BOTH IPv4
+      # and IPv6, even though `curl` downloads the very same file fine in the
+      # same pod (verified by exec). So fetch the binaries with curl and drop
+      # them into Playwright's cache; the install step below then finds them and
+      # is a no-op. `chromium-headless-shell` pulls ffmpeg too, hence the loop
+      # over every (Install location, Download url) pair from --dry-run. Linux
+      # zips contain a top-level dir matching Playwright's expected layout.
+      - name: Prefetch Playwright browsers via curl
+        timeout-minutes: 6
         run: |
-          # storage.googleapis.com (the CDN's 307 target) blackholes large IPv6
-          # transfers from this self-hosted runner. Pin the CDN + GCS to IPv4 in
-          # /etc/hosts so Node's downloader can't pick the v6 path at all
-          # (NODE_OPTIONS=--dns-result-order=ipv4first did NOT override Node's
-          # Happy-Eyeballs here). IPv4 to GCS has been reliable throughout.
-          for h in cdn.playwright.dev storage.googleapis.com; do
-            ip="$(getent ahostsv4 "$h" | awk 'NR==1{print $1}')"
-            [ -n "$ip" ] && echo "$ip $h" | sudo tee -a /etc/hosts >/dev/null && echo "pinned $h -> $ip"
-          done
-          for attempt in 1 2 3; do
-            if timeout 240 pnpm exec playwright install chromium-headless-shell; then
-              exit 0
-            fi
-            echo "::warning::playwright chromium-headless-shell install attempt ${attempt} stalled or failed; retrying"
-            sleep 5
-          done
-          echo "::error::playwright chromium-headless-shell install failed after 3 attempts"
-          exit 1
+          set -euo pipefail
+          info="$(pnpm exec playwright install --dry-run chromium-headless-shell 2>/dev/null)"
+          printf '%s\n' "$info"
+          paste -d'\t' \
+            <(printf '%s\n' "$info" | sed -nE 's/^[[:space:]]*Install location:[[:space:]]*//p') \
+            <(printf '%s\n' "$info" | sed -nE 's/^[[:space:]]*Download url:[[:space:]]*//p') \
+          | while IFS="$(printf '\t')" read -r dir url; do
+              [ -z "$dir" ] && continue
+              if [ -f "$dir/INSTALLATION_COMPLETE" ]; then echo "cached: $dir"; continue; fi
+              echo "curl -> $dir"
+              mkdir -p "$dir"
+              curl -4 -fSL --retry 5 --retry-all-errors --connect-timeout 20 -o /tmp/pw.zip "$url"
+              unzip -qo /tmp/pw.zip -d "$dir"
+              touch "$dir/INSTALLATION_COMPLETE" "$dir/DEPENDENCIES_VALIDATED"
+            done
+
+      - name: Install Playwright browser (verify; no-op after prefetch)
+        timeout-minutes: 5
+        run: pnpm exec playwright install chromium-headless-shell
 
       - name: Run visual & a11y tests
         timeout-minutes: 15
