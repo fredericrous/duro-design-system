@@ -68,4 +68,9 @@ export const styles = css.create({
     opacity: 0,
     overflow: 'hidden',
   },
+  // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
+  // native via `isNative` so the flex container applies; web keeps inline-flex.
+  nativeFlex: {
+    display: 'flex',
+  },
 })

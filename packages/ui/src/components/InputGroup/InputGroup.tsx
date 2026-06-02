@@ -1,6 +1,7 @@
 import type {ReactNode} from 'react'
 import {useMemo} from 'react'
 import {css, html} from 'react-strict-dom'
+import {isNative} from '../../platform'
 import {InputGroupContext} from './InputGroupContext'
 import {styles} from './styles.css'
 
@@ -37,6 +38,7 @@ function Addon({position = 'end', onClick, disabled, minWidth, children}: AddonP
   const positionStyle = position === 'start' ? styles.addonStart : styles.addonEnd
   const style = [
     styles.addon,
+    isNative && styles.nativeFlex,
     positionStyle,
     onClick && !disabled && styles.addonClickable,
     disabled && styles.addonDisabled,

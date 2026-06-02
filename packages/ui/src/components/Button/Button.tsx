@@ -1,5 +1,6 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
+import {isNative} from '../../platform'
 import {styles} from './styles.css'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'inverseSecondary' | 'link' | 'danger'
@@ -36,6 +37,7 @@ export function Button({
       onClick={onClick}
       style={[
         styles.base,
+        isNative && styles.nativeFlex,
         sizeMap[size],
         styles[variant],
         fullWidth && styles.fullWidth,

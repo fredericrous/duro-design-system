@@ -1,5 +1,6 @@
 import {type ReactNode, useCallback, useRef} from 'react'
 import {html} from 'react-strict-dom'
+import {isNative} from '../../platform'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {styles} from './styles.css'
 
@@ -46,7 +47,9 @@ export function Switch({
   }, [disabled, checked, setChecked])
 
   return (
-    <html.label style={[styles.root, disabled && styles.rootDisabled]}>
+    <html.label
+      style={[styles.root, isNative && styles.nativeFlex, disabled && styles.rootDisabled]}
+    >
       <html.input
         ref={inputRef}
         type="checkbox"

@@ -1,5 +1,6 @@
 import {type ReactNode, useState, useCallback} from 'react'
 import {html} from 'react-strict-dom'
+import {isNative} from '../../platform'
 import {styles} from './styles.css'
 
 interface CheckboxProps {
@@ -39,7 +40,9 @@ export function Checkbox({
   )
 
   return (
-    <html.label style={[styles.root, disabled && styles.rootDisabled]}>
+    <html.label
+      style={[styles.root, isNative && styles.nativeFlex, disabled && styles.rootDisabled]}
+    >
       <html.input
         type="checkbox"
         name={name}
@@ -52,7 +55,11 @@ export function Checkbox({
         style={styles.input}
       />
       <html.span
-        style={[styles.box, isChecked ? styles.boxChecked : styles.boxUnchecked]}
+        style={[
+          styles.box,
+          isNative && styles.nativeFlex,
+          isChecked ? styles.boxChecked : styles.boxUnchecked,
+        ]}
         aria-hidden
       >
         <svg
