@@ -50,25 +50,32 @@ export function Switch({
     <html.label
       style={[styles.root, isNative && styles.nativeFlex, disabled && styles.rootDisabled]}
     >
-      <html.input
-        ref={inputRef}
-        type="checkbox"
-        role="switch"
-        name={name}
-        value={value}
-        checked={controlledChecked !== undefined ? controlledChecked : undefined}
-        defaultChecked={controlledChecked === undefined ? defaultChecked : undefined}
-        disabled={disabled}
-        aria-checked={checked}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          onCheckedChange?.(e.target.checked)
-        }}
-        style={styles.input}
-      />
+      {!isNative && (
+        // Web: hidden real checkbox carries a11y + form submission. RSD has no
+        // <input type=checkbox> on native, so it's omitted there and the
+        // button below carries the switch role instead.
+        <html.input
+          ref={inputRef}
+          type="checkbox"
+          role="switch"
+          name={name}
+          value={value}
+          checked={controlledChecked !== undefined ? controlledChecked : undefined}
+          defaultChecked={controlledChecked === undefined ? defaultChecked : undefined}
+          disabled={disabled}
+          aria-checked={checked}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            onCheckedChange?.(e.target.checked)
+          }}
+          style={styles.input}
+        />
+      )}
       <html.button
         type="button"
         tabIndex={-1}
-        aria-hidden
+        aria-hidden={isNative ? undefined : true}
+        role={isNative ? 'switch' : undefined}
+        aria-checked={isNative ? checked : undefined}
         disabled={disabled}
         onClick={handleClick}
         style={[styles.track, checked ? styles.trackChecked : styles.trackUnchecked]}
