@@ -13,6 +13,8 @@ interface ButtonProps {
   disabled?: boolean
   type?: 'button' | 'submit'
   onClick?: () => void
+  /** Accessible name override — e.g. for buttons whose visible text isn't unique. */
+  'aria-label'?: string
   children: ReactNode
 }
 
@@ -28,6 +30,7 @@ export function Button({
   disabled = false,
   type = 'button',
   onClick,
+  'aria-label': ariaLabel,
   children,
 }: ButtonProps) {
   return (
@@ -35,6 +38,7 @@ export function Button({
       type={type}
       disabled={disabled}
       onClick={onClick}
+      aria-label={ariaLabel}
       style={[
         styles.base,
         isNative && styles.nativeFlex,

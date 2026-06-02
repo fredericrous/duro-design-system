@@ -24,7 +24,13 @@ export function useComboboxRoot({
     defaultValue ?? null,
     onValueChange,
   )
-  const [internalInputValue, setInternalInputValue] = useState('')
+  // Seed the visible text from the initially-selected value's label, so a
+  // defaultValue/value shows its label on mount — and so the reconcile effect
+  // below doesn't see "value set but input empty" and wipe the selection.
+  const [internalInputValue, setInternalInputValue] = useState<string>(() => {
+    const initial = controlledValue ?? defaultValue
+    return initial ? (initialLabels?.[initial] ?? '') : ''
+  })
   const inputValue = controlledInputValue !== undefined ? controlledInputValue : internalInputValue
   const setInputValue = useCallback(
     (v: string) => {
@@ -201,7 +207,11 @@ export function useComboboxRoot({
   //   - inputValue equals the selected label: nothing to do.
   useEffect(() => {
     if (open) return
-    if (value === null) return
+    // Treat an empty value (null OR '') as "no selection" — nothing to
+    // reconcile. Without this, a controlled value="" (e.g. a table column
+    // filter) fires setValue(null) every render → inline onValueChange →
+    // parent state change → re-render → infinite "Maximum update depth" loop.
+    if (!value) return
     if (inputValue === '') {
       setValue(null)
       return
