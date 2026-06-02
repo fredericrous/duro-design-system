@@ -1128,7 +1128,9 @@ export const SlotPropsOnRoot: Story = {
   play: async ({canvas}) => {
     await expect(canvas.getByRole('table')).toBeInTheDocument()
     // Note no Table.HeaderCell label — children are plain strings, so the
-    // label fallback uses extractText. Verify the rendered text appears.
-    await expect(canvas.getByText('Name')).toBeInTheDocument()
+    // label fallback uses extractText. "Name" appears both in the header and
+    // the SortChip option list, so assert at least one rendered (not getByText,
+    // which throws on multiple matches).
+    await expect(canvas.getAllByText('Name').length).toBeGreaterThan(0)
   },
 }

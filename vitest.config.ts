@@ -28,7 +28,10 @@ export default defineConfig({
           browser: {
             enabled: true,
             headless: true,
-            provider: playwright({}),
+            // Use the chromium-headless-shell build (a single, smaller asset)
+            // instead of full Chrome for Testing — fewer/smaller downloads from
+            // cdn.playwright.dev, which the runner's egress chokes on.
+            provider: playwright({launchOptions: {channel: 'chromium-headless-shell'}}),
             instances: [{browser: 'chromium'}],
           },
           setupFiles: ['.storybook/vitest.setup.ts'],
