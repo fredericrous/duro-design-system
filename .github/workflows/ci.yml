@@ -89,13 +89,16 @@ jobs:
       # retries instead of hanging for hours. A cache hit makes this a no-op.
       - name: Install Playwright browser (chromium-headless-shell)
         timeout-minutes: 14
-        env:
-          # Force IPv4. The CDN 307-redirects to storage.googleapis.com, whose
-          # IPv6 path stalls large transfers from this self-hosted runner (an
-          # IPv6 PMTU issue fixed separately at the CNI, but CI shouldn't depend
-          # on flawless v6 egress). IPv4 has been reliable throughout.
-          NODE_OPTIONS: --dns-result-order=ipv4first
         run: |
+          # storage.googleapis.com (the CDN's 307 target) blackholes large IPv6
+          # transfers from this self-hosted runner. Pin the CDN + GCS to IPv4 in
+          # /etc/hosts so Node's downloader can't pick the v6 path at all
+          # (NODE_OPTIONS=--dns-result-order=ipv4first did NOT override Node's
+          # Happy-Eyeballs here). IPv4 to GCS has been reliable throughout.
+          for h in cdn.playwright.dev storage.googleapis.com; do
+            ip="$(getent ahostsv4 "$h" | awk 'NR==1{print $1}')"
+            [ -n "$ip" ] && echo "$ip $h" | sudo tee -a /etc/hosts >/dev/null && echo "pinned $h -> $ip"
+          done
           for attempt in 1 2 3; do
             if timeout 240 pnpm exec playwright install chromium-headless-shell; then
               exit 0
