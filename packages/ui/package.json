@@ -24,6 +24,7 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "react-native": "./src/index.native.ts",
       "source": "./src/index.ts",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
