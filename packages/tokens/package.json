@@ -42,7 +42,6 @@
     "./tokens/shadows.css": "./src/tokens/shadows.css.ts",
     "./tokens/type-presets.css": "./src/tokens/type-presets.css.ts",
     "./themes/light.css": "./src/themes/light.css.ts",
-    "./themes/landscape.css": "./src/themes/landscape.css.ts",
     "./themes/high-contrast.css": "./src/themes/high-contrast.css.ts"
   },
   "scripts": {
