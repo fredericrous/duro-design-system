@@ -3,27 +3,17 @@ import {css, html} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {lightTheme, lightShadows} from '@duro-app/tokens/themes/light.css'
 import {highContrastTheme, highContrastShadows} from '@duro-app/tokens/themes/high-contrast.css'
-import {
-  landscapeTheme,
-  landscapeShadows,
-  landscapeTypography,
-} from '@duro-app/tokens/themes/landscape.css'
 
-export type ThemeName = 'dark' | 'light' | 'high-contrast' | 'landscape'
+export type ThemeName = 'dark' | 'light' | 'high-contrast'
 
 interface ThemeProviderProps {
   theme?: ThemeName
   children: ReactNode
 }
 
-// A theme is a list of createTheme() overrides (colors + shadows, and
-// optionally typography — e.g. landscape carries its editorial font stack).
-// Loosely typed: each entry themes a DIFFERENT VarGroup (colors / shadows /
-// typography), and the array is cast to the style prop's type at the use site.
-const themeMap: Partial<Record<ThemeName, readonly unknown[]>> = {
+const themeMap: Partial<Record<ThemeName, readonly [typeof lightTheme, typeof lightShadows]>> = {
   light: [lightTheme, lightShadows],
   'high-contrast': [highContrastTheme, highContrastShadows],
-  landscape: [landscapeTheme, landscapeShadows, landscapeTypography],
 }
 
 const styles = css.create({
@@ -59,7 +49,7 @@ export function usePortalMount(): HTMLElement | null {
 
 export function ThemeProvider({theme = 'dark', children}: ThemeProviderProps) {
   const overrides = themeMap[theme]
-  const themeStyles = [...(overrides ?? []), styles.root] as DivStyle
+  const themeStyles = [overrides?.[0], overrides?.[1], styles.root] as DivStyle
   const [mount, setMount] = useState<HTMLElement | null>(null)
 
   return (
