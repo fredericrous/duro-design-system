@@ -51,12 +51,15 @@ export const styles = css.create({
     right: 0,
     bottom: 0,
     zIndex: 49,
+    // The portal mount is pointer-events: none, so re-enable here to catch
+    // outside clicks that close the popup.
+    pointerEvents: 'auto',
   },
   popup: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    marginTop: spacing.xs,
+    // Position is `fixed` and top/left/minWidth are applied inline by Popup
+    // (computed from the trigger's bounding rect) so the dropdown escapes any
+    // ancestor with `overflow: hidden` / `transform` (notably inside a Dialog).
+    position: 'fixed',
     backgroundColor: colors.bgCard,
     borderWidth: 1,
     borderStyle: 'solid',
@@ -66,8 +69,17 @@ export const styles = css.create({
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
     minWidth: 120,
+    maxHeight: 280,
+    overflowY: 'auto',
     zIndex: 50,
+    // Re-enable pointer events: the portal mount is pointer-events: none.
+    pointerEvents: 'auto',
   },
+  popupPosition: (top: number, left: number, minWidth: number) => ({
+    top,
+    left,
+    minWidth,
+  }),
   item: {
     display: 'flex',
     alignItems: 'center',

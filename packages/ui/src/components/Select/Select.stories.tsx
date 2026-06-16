@@ -1,5 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn} from 'storybook/test'
+import {expect, fn, screen} from 'storybook/test'
+import {Dialog} from '../Dialog/Dialog'
 import {Select} from './Select'
 
 const meta: Meta = {
@@ -62,13 +63,16 @@ export const OpenAndSelect: Story = {
 
     await userEvent.click(trigger)
     await expect(trigger).toHaveAttribute('aria-expanded', 'true')
-    const options = canvas.getAllByRole('option')
+    // The popup portals to the ThemeProvider mount (outside the story canvas),
+    // so query the whole document via `screen`.
+    const options = screen.getAllByRole('option')
     await expect(options.length).toBe(3)
     await expect(options[0]).toHaveAttribute('aria-selected', 'true')
 
     await userEvent.click(options[1])
     await expect(trigger).toHaveTextContent(/Francais/)
-    await expect(canvas.queryByRole('listbox')).not.toBeInTheDocument()
+    // Closed listbox is aria-hidden, so it's no longer exposed by role.
+    await expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   },
 }
 
@@ -101,9 +105,9 @@ export const WithPlaceholder: Story = {
     // Shows placeholder when nothing selected
     await expect(trigger).toHaveTextContent(/Choose a language\.\.\./)
 
-    // Open and select
+    // Open and select (options portal to the ThemeProvider mount → use screen)
     await userEvent.click(trigger)
-    const options = canvas.getAllByRole('option')
+    const options = screen.getAllByRole('option')
     await expect(options.length).toBe(4)
 
     // None selected initially
@@ -111,7 +115,7 @@ export const WithPlaceholder: Story = {
       await expect(opt).toHaveAttribute('aria-selected', 'false')
     }
 
-    await userEvent.click(canvas.getByText('Vue'))
+    await userEvent.click(screen.getByText('Vue'))
     await expect(trigger).toHaveTextContent(/Vue/)
   },
 }
@@ -139,6 +143,54 @@ export const KeyboardNavigation: Story = {
   play: async ({canvas, userEvent}) => {
     const trigger = canvas.getByRole('combobox')
     await userEvent.click(trigger)
-    await expect(canvas.getByRole('listbox')).toBeInTheDocument()
+    await expect(screen.getByRole('listbox')).toBeInTheDocument()
+  },
+}
+
+// Regression: a Select inside a Dialog. The Dialog clips its content
+// (overflow: hidden + body overflowY: auto), so an in-tree absolutely
+// positioned popup would be cropped. The popup must portal to the
+// ThemeProvider mount (z-index above the Dialog) and render in full.
+export const InsideDialog: Story = {
+  render: () => (
+    <Dialog.Root open onOpenChange={() => {}}>
+      <Dialog.Portal>
+        <Dialog.Header>
+          <Dialog.Title>Add a zone</Dialog.Title>
+        </Dialog.Header>
+        <Dialog.Body>
+          <Select.Root defaultValue="">
+            <Select.Trigger aria-label="Macro-zone">
+              <Select.Value placeholder="— No macro-zone —" />
+              <Select.Icon />
+            </Select.Trigger>
+            <Select.Popup>
+              <Select.Item value="">
+                <Select.ItemText>— No macro-zone —</Select.ItemText>
+              </Select.Item>
+              <Select.Item value="north">
+                <Select.ItemText>North</Select.ItemText>
+              </Select.Item>
+              <Select.Item value="south">
+                <Select.ItemText>South</Select.ItemText>
+              </Select.Item>
+            </Select.Popup>
+          </Select.Root>
+        </Dialog.Body>
+      </Dialog.Portal>
+    </Dialog.Root>
+  ),
+  play: async ({userEvent}) => {
+    // Both the trigger and the (portaled) popup live outside the story canvas:
+    // the Dialog itself portals. Query the whole document.
+    const trigger = screen.getByRole('combobox', {name: 'Macro-zone'})
+    await userEvent.click(trigger)
+    const options = screen.getAllByRole('option')
+    await expect(options.length).toBe(3)
+    // The popup escapes the Dialog: it renders into the portal mount, which is
+    // a sibling of (and stacks above) the Dialog — not clipped by it.
+    const listbox = screen.getByRole('listbox')
+    await expect(listbox).toBeInTheDocument()
+    await expect(listbox.closest('[role="dialog"]')).toBeNull()
   },
 }

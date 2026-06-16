@@ -1,9 +1,11 @@
-import {type ReactNode, useRef, useId, useEffect} from 'react'
+import {type ReactNode, useRef, useId, useEffect, useLayoutEffect, useState} from 'react'
+import {createPortal} from 'react-dom'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {SelectContext, useSelect} from './SelectContext'
 import {useSelectRoot} from './useSelectRoot'
 import {useFieldContext} from '../Field/FieldContext'
+import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 
 // --- Root ---
 interface RootProps {
@@ -108,22 +110,58 @@ function Icon({children}: {children?: ReactNode}) {
 }
 
 // --- Popup ---
+// Rendered into the ThemeProvider portal mount and positioned with viewport
+// coordinates (measured off the trigger) so it escapes ancestor
+// `overflow: hidden` / `transform` containing blocks (notably Dialog/Drawer).
+// The listbox stays mounted while closed (display: none) so Items can register
+// their labels from DOM text before the popup is ever opened.
 function Popup({children}: {children: ReactNode}) {
-  const {open, close, listboxId} = useSelect()
+  const {open, close, listboxId, triggerRef} = useSelect()
+  const mount = usePortalMount()
+  const [coords, setCoords] = useState<{top: number; left: number; width: number} | null>(null)
 
-  return (
+  // Measure the trigger when the popup opens, and re-measure on scroll/resize so
+  // the dropdown follows it. Capture-phase scroll catches scroll on any ancestor
+  // (e.g. a Dialog body).
+  useLayoutEffect(() => {
+    if (!open) return
+    const update = () => {
+      const el = triggerRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      // `xs` token = 4px gap below the trigger.
+      setCoords({top: rect.bottom + 4, left: rect.left, width: rect.width})
+    }
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [open, triggerRef])
+
+  const node = (
     <>
       {open && <html.div style={styles.backdrop} onClick={close} />}
       <html.div
         id={listboxId}
         role="listbox"
         aria-hidden={!open}
-        style={[styles.popup, !open && styles.hidden]}
+        style={[
+          styles.popup,
+          (!open || !coords) && styles.hidden,
+          coords && styles.popupPosition(coords.top, coords.left, coords.width),
+        ]}
       >
         {children}
       </html.div>
     </>
   )
+
+  // SSR / pre-mount fallback: render inline (hidden under overflow parents but
+  // won't crash). Once the mount exists, portal into it.
+  return mount ? createPortal(node, mount) : node
 }
 
 // --- Item ---
