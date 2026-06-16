@@ -56,4 +56,9 @@ export const styles = css.create({
     borderRadius: 0,
     outlineWidth: 0,
   },
+  // orthogonal to variant (default/error) — composes on top so a mono field
+  // still shows its error border. For slugs, identifiers, hashes.
+  mono: {
+    fontFamily: typography.fontFamilyMono,
+  },
 })

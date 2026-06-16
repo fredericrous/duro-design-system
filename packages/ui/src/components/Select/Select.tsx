@@ -3,6 +3,7 @@ import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {SelectContext, useSelect} from './SelectContext'
 import {useSelectRoot} from './useSelectRoot'
+import {useFieldContext} from '../Field/FieldContext'
 
 // --- Root ---
 interface RootProps {
@@ -37,6 +38,13 @@ function Trigger({
 }) {
   const {open, toggle, listboxId, highlightedId, triggerRef} = useSelect()
   const localRef = useRef<HTMLButtonElement>(null)
+  // Inside a <Field.Root>, adopt its controlId so <Field.Label for={controlId}>
+  // labels the trigger (a labelable <button>) — no manual aria-label needed; and
+  // surface the field's description/error + invalid state, mirroring <Input>.
+  const fieldCtx = useFieldContext()
+  const describedBy = fieldCtx
+    ? `${fieldCtx.descriptionId} ${fieldCtx.invalid ? fieldCtx.errorId : ''}`.trim()
+    : undefined
 
   // Sync local ref to context triggerRef
   useEffect(() => {
@@ -46,6 +54,7 @@ function Trigger({
   return (
     <html.button
       ref={localRef}
+      id={fieldCtx?.controlId}
       type="button"
       role={'combobox' as 'listbox'}
       onClick={toggle}
@@ -54,6 +63,8 @@ function Trigger({
       aria-haspopup="listbox"
       aria-controls={open ? listboxId : undefined}
       aria-activedescendant={highlightedId ?? undefined}
+      aria-describedby={describedBy || undefined}
+      aria-invalid={fieldCtx?.invalid || undefined}
       style={styles.trigger}
     >
       {children}
