@@ -65,12 +65,6 @@ export function useColorMode(): ColorModeContextValue {
 const canUseDom =
   !isNative && typeof window !== 'undefined' && typeof window.matchMedia === 'function'
 
-function getSystemTheme(): Extract<ThemeName, 'light' | 'dark'> {
-  // No DOM (SSR / native): default to dark, matching ThemeProvider's default.
-  if (!canUseDom) return 'dark'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
 function isPreference(value: unknown): value is ColorModePreference {
   return typeof value === 'string' && (PREFERENCES as readonly string[]).includes(value)
 }
@@ -148,8 +142,12 @@ export function ColorModeProvider({
     [controlled, storageKey, onPreferenceChange],
   )
 
-  // Track the OS scheme so `'system'` stays live.
-  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(getSystemTheme)
+  // Track the OS scheme so `'system'` stays live. The initial value MUST be the
+  // SSR-stable default ('dark', what the server renders without a DOM) so the
+  // first client render matches the server — reading matchMedia in the
+  // initializer would diverge (server 'dark' vs client's real scheme) and trip
+  // a hydration mismatch. The effect reconciles to the real scheme after mount.
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('dark')
   useEffect(() => {
     if (!canUseDom) return
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
