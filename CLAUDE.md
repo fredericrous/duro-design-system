@@ -315,6 +315,10 @@ const MySchema = Schema.Struct({
 
 **Stroke icons:** `x-circle`, `check-circle`, `check-done`, `clock`, `forbidden`, `info-circle`, `alert-triangle`, `shield`, `lock`, `key`
 
+**Navigation glyphs:** `map`, `layers`, `repeat`, `database`, `shield-check`, `route`, `git-branch`, `menu`, `pin`
+
+**Color-mode glyphs:** `sun`, `moon`, `monitor`, `contrast`
+
 **Filled icons:** `info-circle-filled`, `alert-triangle-filled`, `check-circle-filled`, `x-circle-filled`, `shield-filled`, `lock-filled`
 
 ## Canonical Recipes
@@ -396,7 +400,12 @@ const columns = [
 ]
 
 function UsersTable({users}: {users: User[]}) {
-  const {table} = useDataTable({data: users, columns, pagination: {pageSize: 20}, enableSorting: true})
+  const {table} = useDataTable({
+    data: users,
+    columns,
+    pagination: {pageSize: 20},
+    enableSorting: true,
+  })
   return (
     <Table.FromTanstack
       table={table}
@@ -424,7 +433,10 @@ its own container query, and SortChip / Pagination plug in as slot props:
       <Table.HeaderCell>Name</Table.HeaderCell>
       <Table.HeaderCell>Role</Table.HeaderCell>
       <Table.HeaderCell label="Status">
-        <Inline gap="xs"><Icon name="info-circle" />Status</Inline>
+        <Inline gap="xs">
+          <Icon name="info-circle" />
+          Status
+        </Inline>
       </Table.HeaderCell>
       <Table.HeaderCell aria-label="Actions" />
     </Table.Row>

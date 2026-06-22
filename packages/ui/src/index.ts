@@ -62,6 +62,12 @@ export {
   usePortalMount,
   type ThemeName,
 } from './components/ThemeProvider/ThemeProvider'
+export {
+  ColorModeProvider,
+  ColorModeToggle,
+  useColorMode,
+  type ColorModePreference,
+} from './components/ColorMode'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
 export {ToggleGroup} from './components/ToggleGroup/ToggleGroup'
