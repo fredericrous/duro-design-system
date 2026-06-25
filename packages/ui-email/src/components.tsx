@@ -144,7 +144,9 @@ export function Link({
   style,
 }: {
   href: string
-  children: React.ReactNode
+  // Optional: react-i18next <Trans> injects the link text via cloneElement,
+  // so the element is declared without children (components={{ a: <Link href /> }}).
+  children?: React.ReactNode
   style?: React.CSSProperties
 }) {
   return (
