@@ -32,7 +32,7 @@
     "./raw": {
       "source": "./src/raw.ts",
       "import": "./dist/raw.js",
-      "types": "./dist/raw.d.ts",
+      "types": "./src/raw.ts",
       "default": "./dist/raw.js"
     },
     "./tokens/colors.css": "./src/tokens/colors.css.ts",
