@@ -38,6 +38,19 @@ function Root({children, value: controlledValue, defaultValue, onValueChange}: R
     })
   }, [])
 
+  // Idempotent expand — never closes an already-open group. The mount effects
+  // in Group (defaultExpanded + auto-expand-active) use this instead of
+  // toggleGroup so a group that qualifies on both counts stays open rather than
+  // being toggled open-then-closed.
+  const expandGroup = useCallback((group: string) => {
+    setExpandedGroups((prev) => {
+      if (prev.has(group)) return prev
+      const next = new Set(prev)
+      next.add(group)
+      return next
+    })
+  }, [])
+
   const registerItem = useCallback((value: string) => {
     if (!orderRef.current.includes(value)) {
       orderRef.current.push(value)
@@ -47,19 +60,17 @@ function Root({children, value: controlledValue, defaultValue, onValueChange}: R
     }
   }, [])
 
-  // Auto-expand group containing active value
-  useEffect(() => {
-    if (activeValue) {
-      setExpandedGroups((prev) => {
-        // We don't know which group it belongs to here — Group handles this
-        return prev
-      })
-    }
-  }, [activeValue])
-
   return (
     <SideNavContext.Provider
-      value={{activeValue, onSelect, expandedGroups, toggleGroup, registerItem, orderRef}}
+      value={{
+        activeValue,
+        onSelect,
+        expandedGroups,
+        toggleGroup,
+        expandGroup,
+        registerItem,
+        orderRef,
+      }}
     >
       <html.nav role="navigation" style={styles.root}>
         {children}
@@ -79,25 +90,27 @@ interface GroupProps {
 
 function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
   const key = groupKey ?? label
-  const {expandedGroups, toggleGroup, activeValue} = useSideNav()
+  const {expandedGroups, toggleGroup, expandGroup, activeValue} = useSideNav()
   const isExpanded = expandedGroups.has(key)
   const groupRef = useRef<HTMLDivElement>(null)
 
-  // Auto-expand if this group contains the active item
+  // Auto-expand if this group contains the active item. Uses expandGroup (not
+  // toggleGroup) so it never races the defaultExpanded effect into a closed
+  // state when the active item lives in a defaultExpanded group.
   useEffect(() => {
     if (!activeValue || expandedGroups.has(key)) return
     const el = groupRef.current
     if (!el) return
     const activeBtn = el.querySelector(`[data-nav-value="${activeValue}"]`)
     if (activeBtn) {
-      toggleGroup(key)
+      expandGroup(key)
     }
-  }, [activeValue, key, expandedGroups, toggleGroup])
+  }, [activeValue, key, expandedGroups, expandGroup])
 
-  // Expand on first render if defaultExpanded
+  // Expand on first render if defaultExpanded (idempotent add, not a toggle).
   useEffect(() => {
-    if (defaultExpanded && !expandedGroups.has(key)) {
-      toggleGroup(key)
+    if (defaultExpanded) {
+      expandGroup(key)
     }
     // Only run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
