@@ -58,6 +58,28 @@ export const Collapsed: Story = {
   },
 }
 
+// Regression: a `defaultExpanded` group that ALSO contains the active item used
+// to be toggled twice on mount (once by defaultExpanded, once by auto-expand of
+// the active group) and end up collapsed, hiding the active item. It must stay
+// open.
+export const DefaultExpandedWithActiveItem: Story = {
+  render: (args) => (
+    <SideNav.Root {...args} defaultValue="security">
+      <SideNav.Group label="Settings" defaultExpanded>
+        <SideNav.Item value="profile">Profile</SideNav.Item>
+        <SideNav.Item value="security">Security</SideNav.Item>
+      </SideNav.Group>
+    </SideNav.Root>
+  ),
+  play: async ({canvas}) => {
+    const trigger = canvas.getByText('Settings')
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    const active = canvas.getByText('Security')
+    await expect(active).toBeInTheDocument()
+    await expect(active).toHaveAttribute('aria-current', 'page')
+  },
+}
+
 export const Interactive: Story = {
   render: (args) => (
     <SideNav.Root {...args}>
