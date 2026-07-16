@@ -2,6 +2,7 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 // Container-query thresholds. Picked for typical 5-7 column admin tables —
 // see Table.stories.tsx "Responsive" for the visual reasoning. Defined
@@ -129,8 +130,8 @@ export const styles = css.create({
       ':hover': colors.bgCardHover,
     },
     transitionProperty: 'background-color',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'ease',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
     // Stack-mode card chrome
     padding: {
       default: 0,

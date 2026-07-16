@@ -1,6 +1,7 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {radii} from '@duro-app/tokens/tokens/spacing.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 export const styles = css.create({
   root: {
@@ -26,8 +27,8 @@ export const styles = css.create({
     touchAction: 'none',
     userSelect: 'none',
     transitionProperty: 'opacity',
-    transitionDuration: '200ms',
-    transitionTimingFunction: 'ease',
+    transitionDuration: duration.base,
+    transitionTimingFunction: easing.standard,
   },
   scrollbarVertical: {
     top: 0,
@@ -64,7 +65,7 @@ export const styles = css.create({
     },
     borderRadius: radii.full,
     transitionProperty: 'background-color',
-    transitionDuration: '150ms',
+    transitionDuration: duration.fast,
   },
   // Dynamic styles — simple identifier params only (StyleX constraint)
   viewportMaxHeight: (maxHeight: number | string) => ({

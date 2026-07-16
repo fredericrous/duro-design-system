@@ -2,6 +2,7 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 export const styles = css.create({
   root: {
@@ -34,8 +35,8 @@ export const styles = css.create({
     borderWidth: 0,
     cursor: 'pointer',
     transitionProperty: 'color',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'ease',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
   },
   groupTriggerActive: {
     color: colors.text,
@@ -44,8 +45,8 @@ export const styles = css.create({
     display: 'inline-flex',
     alignItems: 'center',
     transitionProperty: 'transform',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'ease',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
   },
   chevronOpen: {
     transform: 'rotate(90deg)',
@@ -72,8 +73,8 @@ export const styles = css.create({
     borderRadius: radii.sm,
     cursor: 'pointer',
     transitionProperty: 'color, background-color',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'ease',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
     textAlign: 'left' as const,
     outlineWidth: {
       default: 0,

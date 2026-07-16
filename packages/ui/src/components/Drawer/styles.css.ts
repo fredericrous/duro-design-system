@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 export const styles = css.create({
   // --- Backdrop ---
@@ -17,8 +18,8 @@ export const styles = css.create({
       from: {opacity: 0},
       to: {opacity: 1},
     }),
-    animationDuration: '200ms',
-    animationTimingFunction: 'ease-out',
+    animationDuration: duration.base,
+    animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
   backdropClosing: {
@@ -27,7 +28,7 @@ export const styles = css.create({
       to: {opacity: 0},
     }),
     animationDuration: '160ms',
-    animationTimingFunction: 'ease-in',
+    animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
 
@@ -104,8 +105,8 @@ export const styles = css.create({
       from: {transform: 'translateX(100%)'},
       to: {transform: 'translateX(0)'},
     }),
-    animationDuration: '200ms',
-    animationTimingFunction: 'ease-out',
+    animationDuration: duration.base,
+    animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
   slideOutRight: {
@@ -114,7 +115,7 @@ export const styles = css.create({
       to: {transform: 'translateX(100%)'},
     }),
     animationDuration: '160ms',
-    animationTimingFunction: 'ease-in',
+    animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
 
@@ -124,8 +125,8 @@ export const styles = css.create({
       from: {transform: 'translateX(-100%)'},
       to: {transform: 'translateX(0)'},
     }),
-    animationDuration: '200ms',
-    animationTimingFunction: 'ease-out',
+    animationDuration: duration.base,
+    animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
   slideOutLeft: {
@@ -134,7 +135,7 @@ export const styles = css.create({
       to: {transform: 'translateX(-100%)'},
     }),
     animationDuration: '160ms',
-    animationTimingFunction: 'ease-in',
+    animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
 
@@ -144,8 +145,8 @@ export const styles = css.create({
       from: {transform: 'translateY(100%)'},
       to: {transform: 'translateY(0)'},
     }),
-    animationDuration: '200ms',
-    animationTimingFunction: 'ease-out',
+    animationDuration: duration.base,
+    animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
   slideOutBottom: {
@@ -154,7 +155,7 @@ export const styles = css.create({
       to: {transform: 'translateY(100%)'},
     }),
     animationDuration: '160ms',
-    animationTimingFunction: 'ease-in',
+    animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
 
@@ -232,7 +233,7 @@ export const styles = css.create({
     padding: 0,
     flexShrink: 0,
     transitionProperty: 'background-color',
-    transitionDuration: '150ms',
+    transitionDuration: duration.fast,
   },
 
   // --- Inline wrapper ---

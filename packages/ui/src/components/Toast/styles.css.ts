@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
+import {easing} from '@duro-app/tokens/tokens/motion.css'
 
 const enter = css.keyframes({
   from: {opacity: 0, transform: 'translateY(10px)'},
@@ -51,7 +52,7 @@ export const styles = css.create({
       '@media (prefers-reduced-motion: reduce)': 'none',
     },
     animationDuration: '160ms',
-    animationTimingFunction: 'ease-out',
+    animationTimingFunction: easing.easeOut,
   },
   success: {borderLeftColor: colors.successBorder},
   error: {borderLeftColor: colors.errorBorder},

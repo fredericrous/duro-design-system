@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
+import {duration} from '@duro-app/tokens/tokens/motion.css'
 
 export const styles = css.create({
   root: {
@@ -24,7 +25,7 @@ export const styles = css.create({
     },
     borderRadius: radii.sm,
     transitionProperty: 'border-color',
-    transitionDuration: '150ms',
+    transitionDuration: duration.fast,
   },
   inputWrapperFocused: {
     borderColor: colors.accent,
@@ -94,7 +95,7 @@ export const styles = css.create({
     cursor: 'pointer',
     backgroundColor: 'transparent',
     transitionProperty: 'background-color',
-    transitionDuration: '150ms',
+    transitionDuration: duration.fast,
   },
   itemSelected: {
     color: colors.accent,

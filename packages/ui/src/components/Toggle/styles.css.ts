@@ -2,6 +2,7 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 export const styles = css.create({
   base: {
@@ -14,8 +15,8 @@ export const styles = css.create({
     fontFamily: typography.fontFamily,
     fontWeight: typography.fontWeightMedium,
     transitionProperty: 'background-color, border-color, color, opacity',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'ease',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
     outlineWidth: {default: 0, ':focus-visible': 2},
     outlineStyle: 'solid',
     outlineColor: colors.accent,
