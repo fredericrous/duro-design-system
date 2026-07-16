@@ -9,6 +9,12 @@ export interface TabsContextValue {
   registerTab: (value: string, disabled: boolean) => () => void
   tabsRef: React.RefObject<Map<string, boolean>>
   orderRef: React.RefObject<string[]>
+  // True once the List has measured the active tab and is driving a sliding
+  // indicator. Tabs suppress their own accent border while it's true so the
+  // single sliding bar is the only underline; it stays false without JS
+  // (SSR / no-hydration), where the per-tab border is the graceful fallback.
+  indicatorActive: boolean
+  setIndicatorActive: (active: boolean) => void
 }
 
 export const TabsContext = createContext<TabsContextValue | null>(null)

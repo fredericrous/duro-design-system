@@ -1,4 +1,4 @@
-import {useCallback, useRef} from 'react'
+import {useCallback, useRef, useState} from 'react'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import type {Orientation, TabsContextValue} from './TabsContext'
 
@@ -26,6 +26,7 @@ export function useTabsRoot({
   )
   const tabsRef = useRef(new Map<string, boolean>())
   const orderRef = useRef<string[]>([])
+  const [indicatorActive, setIndicatorActive] = useState(false)
 
   const registerTab = useCallback((value: string, disabled: boolean) => {
     tabsRef.current.set(value, disabled)
@@ -38,5 +39,14 @@ export function useTabsRoot({
     }
   }, [])
 
-  return {activeValue, onSelect, orientation, registerTab, tabsRef, orderRef}
+  return {
+    activeValue,
+    onSelect,
+    orientation,
+    registerTab,
+    tabsRef,
+    orderRef,
+    indicatorActive,
+    setIndicatorActive,
+  }
 }

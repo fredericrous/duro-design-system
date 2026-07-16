@@ -1,4 +1,4 @@
-import {type ReactNode, useRef, useId, useEffect} from 'react'
+import {type ReactNode, useRef, useId, useEffect, useLayoutEffect, useState} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {TabsContext, useTabs} from './TabsContext'
@@ -39,8 +39,44 @@ interface ListProps {
 }
 
 function List({children}: ListProps) {
-  const {orientation, activeValue, onSelect, tabsRef, orderRef} = useTabs()
+  const {orientation, activeValue, onSelect, tabsRef, orderRef, setIndicatorActive} = useTabs()
   const listRef = useRef<HTMLDivElement>(null)
+  const [indicator, setIndicator] = useState<{offset: number; size: number} | null>(null)
+
+  // Measure the active tab and drive the sliding indicator. useLayoutEffect so
+  // the first position is set before paint (the indicator element mounts already
+  // in place — no slide-in from zero; only later tab changes animate). Observes
+  // the active tab (its own size, e.g. a changing "(3)" count) and the list
+  // (container resize / reflow). A non-active sibling resizing while you're on
+  // another tab is the one case not caught; it self-corrects on the next
+  // selection or resize.
+  useLayoutEffect(() => {
+    const list = listRef.current
+    if (!list || !activeValue) {
+      setIndicator(null)
+      setIndicatorActive(false)
+      return
+    }
+    const el = list.querySelector<HTMLElement>(`[data-tab-value="${CSS.escape(activeValue)}"]`)
+    if (!el) {
+      setIndicator(null)
+      setIndicatorActive(false)
+      return
+    }
+    const measure = () => {
+      setIndicator(
+        orientation === 'horizontal'
+          ? {offset: el.offsetLeft, size: el.offsetWidth}
+          : {offset: el.offsetTop, size: el.offsetHeight},
+      )
+      setIndicatorActive(true)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    ro.observe(list)
+    return () => ro.disconnect()
+  }, [activeValue, orientation, setIndicatorActive])
 
   useEffect(() => {
     const el = listRef.current
@@ -128,6 +164,18 @@ function List({children}: ListProps) {
       style={[styles.list, orientation === 'vertical' && styles.listVertical]}
     >
       {children}
+      {indicator && (
+        <html.div
+          aria-hidden
+          style={[
+            styles.indicator,
+            orientation === 'horizontal' ? styles.indicatorHorizontal : styles.indicatorVertical,
+            orientation === 'horizontal'
+              ? styles.indicatorOffsetH(indicator.offset, indicator.size)
+              : styles.indicatorOffsetV(indicator.offset, indicator.size),
+          ]}
+        />
+      )}
     </html.div>
   )
 }
@@ -141,7 +189,7 @@ interface TabProps {
 }
 
 function Tab({value, disabled = false, children}: TabProps) {
-  const {activeValue, onSelect, orientation, registerTab} = useTabs()
+  const {activeValue, onSelect, orientation, registerTab, indicatorActive} = useTabs()
   const isActive = activeValue === value
   const tabId = useId()
   const panelId = `${tabId}-panel`
@@ -172,6 +220,7 @@ function Tab({value, disabled = false, children}: TabProps) {
         orientation === 'vertical' && styles.tabVertical,
         isActive &&
           (orientation === 'vertical' ? styles.tabActiveVertical : styles.tabActiveHorizontal),
+        isActive && indicatorActive && styles.tabIndicatorActive,
         disabled && styles.tabDisabled,
       ]}
     >
