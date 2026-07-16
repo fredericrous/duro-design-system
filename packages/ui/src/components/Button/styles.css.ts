@@ -2,6 +2,7 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 export const styles = css.create({
   base: {
@@ -17,11 +18,20 @@ export const styles = css.create({
     borderWidth: 1,
     borderStyle: 'solid',
     cursor: 'pointer',
-    transitionProperty: 'background-color, border-color, color, opacity',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'ease',
+    transitionProperty: 'background-color, border-color, color, opacity, transform',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
     textDecoration: 'none',
     whiteSpace: 'nowrap',
+    // Tactile press feedback. The scale is suppressed under reduced motion (and
+    // duration.fast collapses to 0ms there too), so it's inert for those users.
+    transform: {
+      default: 'scale(1)',
+      ':active': {
+        default: 'scale(0.97)',
+        '@media (prefers-reduced-motion: reduce)': 'scale(1)',
+      },
+    },
     outlineWidth: {
       default: 0,
       ':focus-visible': 2,
