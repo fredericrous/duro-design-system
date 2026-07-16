@@ -1,6 +1,7 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 export const styles = css.create({
   button: {
@@ -22,8 +23,8 @@ export const styles = css.create({
     color: colors.text,
     cursor: 'pointer',
     transitionProperty: 'background-color, border-color, color',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'ease',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
     outlineWidth: {default: 0, ':focus-visible': 2},
     outlineStyle: 'solid',
     outlineColor: colors.accent,

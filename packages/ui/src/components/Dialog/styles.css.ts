@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 export const styles = css.create({
   // --- Backdrop ---
@@ -19,7 +20,7 @@ export const styles = css.create({
       to: {opacity: 1},
     }),
     animationDuration: '180ms',
-    animationTimingFunction: 'ease-out',
+    animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
   backdropClosing: {
@@ -29,7 +30,7 @@ export const styles = css.create({
       to: {opacity: 0},
     }),
     animationDuration: '140ms',
-    animationTimingFunction: 'ease-in',
+    animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
 
@@ -75,7 +76,7 @@ export const styles = css.create({
       },
     }),
     animationDuration: '180ms',
-    animationTimingFunction: 'ease-out',
+    animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
   popupClosing: {
@@ -91,7 +92,7 @@ export const styles = css.create({
       },
     }),
     animationDuration: '140ms',
-    animationTimingFunction: 'ease-in',
+    animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
 
@@ -174,7 +175,7 @@ export const styles = css.create({
     padding: 0,
     flexShrink: 0,
     transitionProperty: 'background-color',
-    transitionDuration: '150ms',
+    transitionDuration: duration.fast,
   },
 
   // --- Inline wrapper (for Trigger / Close children) ---
