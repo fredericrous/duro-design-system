@@ -3,33 +3,26 @@ import {css} from 'react-strict-dom'
 /**
  * Motion timing tokens.
  *
- * Durations are **reduced-motion-aware at the token level**: under
- * `prefers-reduced-motion: reduce` they collapse to `0ms`, so any component that
- * references them for a `transitionDuration` / `animationDuration` honors the
- * user's setting automatically — no per-component media guard required.
+ * Values are harvested from what the system already uses — nothing invented:
+ * - durations: 150ms is the de-facto transition (Button, Card, and ~30 other
+ *   spots), 200ms the common overlay enter (Drawer), 280ms the larger panel
+ *   enter (DetailPanel). `instant` is for explicit no-motion.
+ * - easings: `standard` is the default `ease` used throughout; `easeOut` /
+ *   `easeIn` are the "Apple ease" curves already defined for DetailPanel.
+ *
+ * Reduced motion is handled globally (the `@media (prefers-reduced-motion)`
+ * rule in the reset neutralizes timing) plus per-component transform guards, so
+ * these stay as plain timing values.
  */
 export const duration = css.defineVars({
   instant: '0ms',
-  fast: {
-    default: '120ms',
-    '@media (prefers-reduced-motion: reduce)': '0ms',
-  },
-  base: {
-    default: '200ms',
-    '@media (prefers-reduced-motion: reduce)': '0ms',
-  },
-  slow: {
-    default: '320ms',
-    '@media (prefers-reduced-motion: reduce)': '0ms',
-  },
+  fast: '150ms',
+  base: '200ms',
+  slow: '280ms',
 })
 
-/**
- * Easing curves. `standard` for most enter/exit and state changes, `emphasized`
- * for larger or more expressive movement, `exit` for elements leaving.
- */
 export const easing = css.defineVars({
-  standard: 'cubic-bezier(0.2, 0, 0, 1)',
-  emphasized: 'cubic-bezier(0.3, 0, 0, 1)',
-  exit: 'cubic-bezier(0.4, 0, 1, 1)',
+  standard: 'ease',
+  easeOut: 'cubic-bezier(0.32, 0.72, 0, 1)',
+  easeIn: 'cubic-bezier(0.72, 0, 0.68, 0.28)',
 })
