@@ -2,12 +2,11 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
-/** Apple-standard ease: aggressive deceleration, feels like "arriving" */
-const APPLE_EASE_OUT = 'cubic-bezier(0.32, 0.72, 0, 1)'
-const APPLE_EASE_IN = 'cubic-bezier(0.72, 0, 0.68, 0.28)'
-
-const OPEN_DURATION = '280ms'
+// The "Apple ease" curves and the 280ms open now live in the shared motion
+// tokens (easing.easeOut/easeIn, duration.slow). The 220ms close is specific to
+// this panel's exit, so it stays local.
 const CLOSE_DURATION = '220ms'
 
 export const styles = css.create({
@@ -24,8 +23,8 @@ export const styles = css.create({
       from: {width: 0},
       to: {width: 360},
     }),
-    animationDuration: OPEN_DURATION,
-    animationTimingFunction: APPLE_EASE_OUT,
+    animationDuration: duration.slow,
+    animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
   wrapperCloseSm: {
@@ -34,7 +33,7 @@ export const styles = css.create({
       to: {width: 0},
     }),
     animationDuration: CLOSE_DURATION,
-    animationTimingFunction: APPLE_EASE_IN,
+    animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
 
@@ -44,8 +43,8 @@ export const styles = css.create({
       from: {width: 0},
       to: {width: 480},
     }),
-    animationDuration: OPEN_DURATION,
-    animationTimingFunction: APPLE_EASE_OUT,
+    animationDuration: duration.slow,
+    animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
   wrapperCloseMd: {
@@ -54,7 +53,7 @@ export const styles = css.create({
       to: {width: 0},
     }),
     animationDuration: CLOSE_DURATION,
-    animationTimingFunction: APPLE_EASE_IN,
+    animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
 
@@ -87,8 +86,8 @@ export const styles = css.create({
         opacity: 1,
       },
     }),
-    animationDuration: OPEN_DURATION,
-    animationTimingFunction: APPLE_EASE_OUT,
+    animationDuration: duration.slow,
+    animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
   slideOut: {
@@ -103,7 +102,7 @@ export const styles = css.create({
       },
     }),
     animationDuration: CLOSE_DURATION,
-    animationTimingFunction: APPLE_EASE_IN,
+    animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
 
@@ -183,7 +182,8 @@ export const styles = css.create({
     padding: 0,
     flexShrink: 0,
     transitionProperty: 'background-color',
-    transitionDuration: '150ms',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
   },
 
   inlineWrapper: {
