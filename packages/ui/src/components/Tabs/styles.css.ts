@@ -19,6 +19,8 @@ export const styles = css.create({
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
     gap: spacing.xs,
+    // Positioning context for the sliding indicator.
+    position: 'relative',
   },
   listVertical: {
     flexDirection: 'column',
@@ -84,6 +86,42 @@ export const styles = css.create({
     color: colors.text,
     borderRightColor: colors.accent,
   },
+  // Applied to the active tab once JS drives the sliding indicator: drop the
+  // per-tab accent border so the single sliding bar is the only underline
+  // (avoids a double line and an instant-pop that would undercut the slide).
+  tabIndicatorActive: {
+    borderBottomColor: 'transparent',
+    borderRightColor: 'transparent',
+  },
+  // --- Sliding active indicator (positioned by measuring the active tab) ---
+  indicator: {
+    position: 'absolute',
+    backgroundColor: colors.accent,
+    pointerEvents: 'none',
+    transitionProperty: 'transform, width, height',
+    transitionDuration: duration.base,
+    transitionTimingFunction: easing.easeOut,
+  },
+  indicatorHorizontal: {
+    bottom: -1,
+    left: 0,
+    height: 2,
+  },
+  indicatorVertical: {
+    right: -1,
+    top: 0,
+    width: 2,
+  },
+  // Dynamic transform/size from the measured active tab (StyleX dynamic style:
+  // simple identifier params only).
+  indicatorOffsetH: (offset: number, size: number) => ({
+    transform: `translateX(${offset}px)`,
+    width: size,
+  }),
+  indicatorOffsetV: (offset: number, size: number) => ({
+    transform: `translateY(${offset}px)`,
+    height: size,
+  }),
   tabDisabled: {
     opacity: 0.5,
     cursor: 'not-allowed',
