@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 export const styles = css.create({
   base: {
@@ -41,11 +42,16 @@ export const styles = css.create({
     },
     cursor: 'pointer',
     transitionProperty: 'background-color, border-color, transform',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'ease',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
+    // Lift on hover; suppressed under reduced motion so there's no positional
+    // shift (the token duration also collapses to 0ms there).
     transform: {
       default: 'translateY(0)',
-      ':hover': 'translateY(-2px)',
+      ':hover': {
+        default: 'translateY(-2px)',
+        '@media (prefers-reduced-motion: reduce)': 'translateY(0)',
+      },
     },
   },
   // Sizes (padding)

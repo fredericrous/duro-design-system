@@ -5,6 +5,7 @@ export {layoutSpacing} from './tokens/layout-spacing.css'
 export {typography, typeScale} from './tokens/typography.css'
 export {typePresets} from './tokens/type-presets.css'
 export {shadows} from './tokens/shadows.css'
+export {duration, easing} from './tokens/motion.css'
 
 // Themes
 export {lightTheme, lightShadows} from './themes/light.css'

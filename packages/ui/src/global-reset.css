@@ -33,3 +33,22 @@
     text-decoration: none;
   }
 }
+
+/*
+ * Reduced-motion safety net. Neutralizes animation/transition timing globally
+ * for users who prefer reduced motion, covering every component (dialogs,
+ * drawers, detail panels, spinners, …) without touching their per-component
+ * tuned animations. Uses 0.01ms (not 0) so animationend/transitionend still
+ * fire and any state-driven mount/unmount logic completes. Kept outside
+ * `@layer reset` so its `!important` wins regardless of cascade layers.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
