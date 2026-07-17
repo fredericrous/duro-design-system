@@ -51,12 +51,31 @@ export const styles = css.create({
   chevronOpen: {
     transform: 'rotate(90deg)',
   },
+  // Static (non-collapsible) section — see SideNav.Section.
+  section: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  sectionLabel: {
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.md,
+    fontFamily: typography.fontFamily,
+    fontSize: typography.fontSizeXs,
+    fontWeight: typography.fontWeightSemibold,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.06em',
+    color: colors.textMuted,
+  },
   item: {
+    position: 'relative',
     display: 'flex',
     alignItems: 'center',
+    gap: spacing.sm,
     paddingTop: '6px',
     paddingBottom: '6px',
-    paddingLeft: spacing.lg,
+    paddingLeft: spacing.md,
     paddingRight: spacing.md,
     fontFamily: typography.fontFamily,
     fontSize: typography.fontSizeSm,
@@ -92,5 +111,36 @@ export const styles = css.create({
   itemActive: {
     color: colors.accent,
     fontWeight: typography.fontWeightMedium,
+    backgroundColor: colors.bgCardHover,
+  },
+  // Active indicator — a bar at the rail's left edge that grows in on select.
+  marker: {
+    position: 'absolute',
+    left: 0,
+    top: '50%',
+    width: '3px',
+    height: 0,
+    transform: 'translateY(-50%)',
+    borderTopRightRadius: radii.full,
+    borderBottomRightRadius: radii.full,
+    backgroundColor: colors.accent,
+    transitionProperty: 'height',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
+  },
+  markerActive: {
+    height: '18px',
+  },
+  itemIcon: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    width: '18px',
+    height: '18px',
+  },
+  itemLabel: {
+    flexGrow: 1,
+    minWidth: 0,
   },
 })
