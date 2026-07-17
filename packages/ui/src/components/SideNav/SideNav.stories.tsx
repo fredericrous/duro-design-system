@@ -1,6 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {SideNav} from './SideNav'
+import {Icon} from '../Icon/Icon'
 
 const meta: Meta<typeof SideNav.Root> = {
   title: 'Components/SideNav',
@@ -31,7 +32,7 @@ export const Default: Story = {
     const nav = canvas.getByRole('navigation')
     await expect(nav).toBeInTheDocument()
 
-    const activeItem = canvas.getByText('Dashboard')
+    const activeItem = canvas.getByRole('button', {name: 'Dashboard'})
     await expect(activeItem).toHaveAttribute('aria-current', 'page')
   },
 }
@@ -74,7 +75,7 @@ export const DefaultExpandedWithActiveItem: Story = {
   play: async ({canvas}) => {
     const trigger = canvas.getByText('Settings')
     await expect(trigger).toHaveAttribute('aria-expanded', 'true')
-    const active = canvas.getByText('Security')
+    const active = canvas.getByRole('button', {name: 'Security'})
     await expect(active).toBeInTheDocument()
     await expect(active).toHaveAttribute('aria-current', 'page')
   },
@@ -91,9 +92,52 @@ export const Interactive: Story = {
     </SideNav.Root>
   ),
   play: async ({canvas, userEvent, args}) => {
-    const aboutItem = canvas.getByText('About')
+    const aboutItem = canvas.getByRole('button', {name: 'About'})
     await userEvent.click(aboutItem)
     await expect(args.onValueChange).toHaveBeenCalledWith('about')
     await expect(aboutItem).toHaveAttribute('aria-current', 'page')
+  },
+}
+
+// Flat menu: static (non-collapsible) Section headers + per-item icons + the
+// active left-marker. This is the AppChrome-style layout — no chevrons, every
+// section always open.
+export const FlatWithIcons: Story = {
+  render: (args) => (
+    <SideNav.Root {...args} defaultValue="grants">
+      <SideNav.Section label="People & access">
+        <SideNav.Item value="identities" icon={<Icon name="users" size={18} />}>
+          Identities
+        </SideNav.Item>
+        <SideNav.Item value="grants" icon={<Icon name="key" size={18} />}>
+          Grants
+        </SideNav.Item>
+      </SideNav.Section>
+      <SideNav.Section label="Requests & invites">
+        <SideNav.Item value="invitations" icon={<Icon name="mail" size={18} />}>
+          Invitations
+        </SideNav.Item>
+        <SideNav.Item value="invites" icon={<Icon name="user-plus" size={18} />}>
+          User Invites
+        </SideNav.Item>
+      </SideNav.Section>
+    </SideNav.Root>
+  ),
+  play: async ({canvas, userEvent, args}) => {
+    // Static section headers render as plain text (no toggle button).
+    await expect(canvas.getByText('People & access')).toBeInTheDocument()
+    await expect(canvas.queryByRole('button', {name: 'People & access'})).toBeNull()
+
+    // All items are visible immediately (nothing is collapsed).
+    const grants = canvas.getByRole('button', {name: 'Grants'})
+    await expect(grants).toHaveAttribute('aria-current', 'page')
+    await expect(canvas.getByRole('button', {name: 'Identities'})).toBeInTheDocument()
+    await expect(canvas.getByRole('button', {name: 'User Invites'})).toBeInTheDocument()
+
+    // Selecting another item moves the active state.
+    const identities = canvas.getByRole('button', {name: 'Identities'})
+    await userEvent.click(identities)
+    await expect(args.onValueChange).toHaveBeenCalledWith('identities')
+    await expect(identities).toHaveAttribute('aria-current', 'page')
   },
 }

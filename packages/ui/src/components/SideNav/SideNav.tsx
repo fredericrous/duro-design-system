@@ -150,14 +150,39 @@ function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
   )
 }
 
+// --- Section ---
+
+interface SectionProps {
+  children: ReactNode
+  label: string
+}
+
+/**
+ * A static, non-collapsible grouping: an always-visible uppercase header with
+ * its items below. Unlike `Group` there is no chevron, toggle, or hidden state
+ * — use it when every section should stay open at a glance (a flat menu with
+ * labelled regions rather than an accordion).
+ */
+function Section({children, label}: SectionProps) {
+  return (
+    <html.div style={styles.section}>
+      <html.div style={styles.sectionLabel}>{label}</html.div>
+      {children}
+    </html.div>
+  )
+}
+
 // --- Item ---
 
 interface ItemProps {
   value: string
   children: ReactNode
+  /** Optional leading glyph (e.g. a design-system `<Icon />`). Inherits the
+   *  item's text color, so it turns accent when the item is active. */
+  icon?: ReactNode
 }
 
-function Item({value, children}: ItemProps) {
+function Item({value, children, icon}: ItemProps) {
   const {activeValue, onSelect, registerItem} = useSideNav()
   const isActive = activeValue === value
 
@@ -173,7 +198,13 @@ function Item({value, children}: ItemProps) {
       style={[styles.item, isActive && styles.itemActive]}
       aria-current={isActive ? 'page' : undefined}
     >
-      {children}
+      <html.span aria-hidden style={[styles.marker, isActive && styles.markerActive]} />
+      {icon ? (
+        <html.span aria-hidden style={styles.itemIcon}>
+          {icon}
+        </html.span>
+      ) : null}
+      <html.span style={styles.itemLabel}>{children}</html.span>
     </html.button>
   )
 }
@@ -181,5 +212,6 @@ function Item({value, children}: ItemProps) {
 export const SideNav = {
   Root,
   Group,
+  Section,
   Item,
 }
