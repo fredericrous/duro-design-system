@@ -154,6 +154,10 @@ export const styles = css.create({
     fontWeight: typography.fontWeightSemibold,
     color: colors.textMuted,
     textAlign: 'start',
+    // Match the body cell: shrink inside the track + wrap, so header labels
+    // don't overlap when many columns are cramped.
+    minWidth: 0,
+    overflowWrap: 'break-word',
     whiteSpace: {
       default: 'normal',
       [`@container (max-width: ${COMPACT_BP})`]: 'nowrap',
@@ -176,14 +180,13 @@ export const styles = css.create({
       [`@container (max-width: ${STACK_BP})`]: 'grid',
     },
     alignItems: 'center',
-    minWidth: {
-      // Allow the cell to shrink inside its grid track. In default (wide)
-      // mode there's enough room so `auto` is fine; in compact and stack
-      // we explicitly drop to 0 so wrappable content can size to the
-      // track instead of forcing the track to grow.
-      default: 'auto',
-      [`@container (max-width: ${COMPACT_BP})`]: 0,
-    },
+    // Always let the cell shrink inside its `minmax(0, 1fr)` track. Previously
+    // this was `auto` in the default (wide) band on the assumption there's
+    // "enough room" — but a table with many columns (or wide content) whose
+    // combined intrinsic width exceeds the container then can't shrink, so
+    // content spills its track and overlaps the next column. `0` + the
+    // wrapping below keeps every cell inside its column at any width.
+    minWidth: 0,
     overflow: {
       // Safety against pathological unbreakable content (long URLs,
       // dataless ids) at narrow widths.
@@ -191,6 +194,9 @@ export const styles = css.create({
       [`@container (max-width: ${COMPACT_BP})`]: 'hidden',
     },
     whiteSpace: 'normal',
+    // Break long unbreakable tokens (emails, UUIDs) so they wrap within the
+    // column instead of forcing it wider / overflowing.
+    overflowWrap: 'break-word',
     gridTemplateColumns: {
       default: null,
       [`@container (max-width: ${STACK_BP})`]: '1fr 2fr',
@@ -199,6 +205,16 @@ export const styles = css.create({
       default: 0,
       [`@container (max-width: ${STACK_BP})`]: spacing.sm,
     },
+  },
+
+  // Wrapper around a (non-actions) cell's value. A raw text node is an
+  // anonymous flex item with `min-width: auto`, so it refuses to shrink and
+  // overflows its column even when the cell itself can shrink. Giving the value
+  // its own `min-width: 0` flex item lets the text wrap inside the column.
+  cellValue: {
+    minWidth: 0,
+    flexGrow: 1,
+    overflowWrap: 'break-word',
   },
 
   // Label rendered as a real <span> inside each cell. Display:none in
