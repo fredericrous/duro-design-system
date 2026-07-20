@@ -16,6 +16,14 @@ interface TagProps {
   /** Called when remove button is clicked. Auto-wired to TagGroup when inside one. */
   onRemove?: () => void
   disabled?: boolean
+  /**
+   * Allow the label to wrap / break instead of staying on one line. Tags are
+   * `white-space: nowrap` by default (they read as pills); set this for long
+   * identifier-style values (e.g. `lldap.group.member.remove`) sitting in a
+   * constrained column, so they break within their cell instead of leaking
+   * into the next one.
+   */
+  wrap?: boolean
   children: ReactNode
 }
 
@@ -36,6 +44,7 @@ export function Tag({
   removable: removableProp,
   onRemove: onRemoveProp,
   disabled: disabledProp = false,
+  wrap = false,
   children,
 }: TagProps) {
   const group = useTagGroup()
@@ -133,6 +142,7 @@ export function Tag({
         removable && removableSizeMap[size],
         styles[variant],
         disabled && styles.disabled,
+        wrap && styles.wrap,
       ]}
     >
       {tagContent}

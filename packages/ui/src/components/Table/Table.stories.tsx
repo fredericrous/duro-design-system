@@ -1142,10 +1142,14 @@ export const SlotPropsOnRoot: Story = {
 // grid track into the next column. Cells now shrink to their track and wrap.
 const overlapWrapStyles = css.create({
   wide: {width: 760},
-  // 6 columns in 560px → each column would get < 128px (the min comfortable
-  // width), well above the 440px mobile breakpoint, so only the JS
-  // ResizeObserver — not the @container query — can catch the cramping.
+  // 6 columns in 560px, above the 440px mobile breakpoint, so the @container
+  // query never fires — only the JS overflow check catches that the action
+  // buttons no longer fit their squeezed track.
   cramped: {width: 560},
+  // 8 short-text columns with room to breathe: nothing overflows, so a
+  // wide "grants-style" table must stay tabular even though it has many
+  // columns (regression guard against the old column-count heuristic).
+  roomy: {width: 1120},
 })
 
 const LONG_EMAIL = 'a-really-long-service-account.address@subdomain.example-company.com'
@@ -1212,7 +1216,9 @@ export const AutoStacksWhenCramped: Story = {
             <Table.HeaderCell>Email</Table.HeaderCell>
             <Table.HeaderCell>Status</Table.HeaderCell>
             <Table.HeaderCell>Owner</Table.HeaderCell>
-            <Table.HeaderCell width="max-content">Actions</Table.HeaderCell>
+            {/* Normal 1fr track (no max-content) so the buttons get squeezed
+                and overflow — the exact condition the auto-stack detects. */}
+            <Table.HeaderCell>Actions</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -1256,5 +1262,56 @@ export const AutoStacksWhenCramped: Story = {
       .find((el) => el.tagName.toLowerCase() === 'span') as HTMLElement
     await expect(ownerLabel).toBeTruthy()
     await expect(getComputedStyle(ownerLabel).display).toBe('block')
+  },
+}
+
+// Regression guard for the grants over-stacking bug: a table with MANY
+// columns (8) that all fit comfortably must stay tabular. The old heuristic
+// stacked purely on column count (8 × 128px = 1024px threshold), carding up a
+// table that visually fits on a laptop. Overflow-based detection keeps it
+// tabular because nothing actually overflows.
+export const ManyColumnsStayTabularWhenFitting: Story = {
+  name: 'Many columns stay tabular when they fit',
+  render: () => (
+    <html.div style={overlapWrapStyles.roomy}>
+      <Table.Root>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell>Principal</Table.HeaderCell>
+            <Table.HeaderCell>Application</Table.HeaderCell>
+            <Table.HeaderCell>Role</Table.HeaderCell>
+            <Table.HeaderCell>Entitlement</Table.HeaderCell>
+            <Table.HeaderCell>Resource</Table.HeaderCell>
+            <Table.HeaderCell>Granted by</Table.HeaderCell>
+            <Table.HeaderCell>Expires</Table.HeaderCell>
+            <Table.HeaderCell>Status</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>alice</Table.Cell>
+            <Table.Cell>Immich</Table.Cell>
+            <Table.Cell>Editor</Table.Cell>
+            <Table.Cell>library</Table.Cell>
+            <Table.Cell>all</Table.Cell>
+            <Table.Cell>daddy</Table.Cell>
+            <Table.Cell>Never</Table.Cell>
+            <Table.Cell>
+              <Badge variant="success">Active</Badge>
+            </Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const grid = canvas.getByRole('table')
+    // Give the ResizeObserver a chance to (not) fire, then assert it stayed
+    // tabular: 8 header cells still in the a11y tree, grid keeps 8 tracks.
+    await waitFor(async () => {
+      await expect(canvas.queryAllByRole('columnheader')).toHaveLength(8)
+    })
+    const tracks = getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/)
+    await expect(tracks.length).toBe(8)
   },
 }

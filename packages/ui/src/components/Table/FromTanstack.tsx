@@ -22,9 +22,6 @@ interface FromTanstackBaseProps<TData> {
   readonly variant?: TableVariant
   readonly size?: TableSize
   readonly responsive?: boolean
-  /** Min comfortable column width (px) before the table cards up. Forwarded
-   *  to Table.Root — see its `minColumnWidth`. Default 128. */
-  readonly minColumnWidth?: number
   /** Render a SortChip above the grid (stack-mode only). Options derive from
    *  columns where `column.getCanSort()` returns true. Wires value/onChange
    *  through the TanStack sorting state automatically. */
@@ -71,7 +68,6 @@ export function FromTanstack<TData>({
   variant = 'default',
   size = 'md',
   responsive = true,
-  minColumnWidth,
   sortChip,
   pagination,
   rowKey,
@@ -86,7 +82,6 @@ export function FromTanstack<TData>({
       variant={variant}
       size={size}
       responsive={responsive}
-      minColumnWidth={minColumnWidth}
       sortChip={sortChipNode}
       pagination={paginationNode}
     >

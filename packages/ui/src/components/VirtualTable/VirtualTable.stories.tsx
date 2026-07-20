@@ -1,7 +1,13 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, waitFor} from 'storybook/test'
 import {createColumnHelper} from '@tanstack/react-table'
+import {css, html} from 'react-strict-dom'
 import {VirtualTable} from './VirtualTable'
+
+const storyStyles = css.create({
+  // Phone-width wrapper: below VirtualTable's 640px stackBelow default.
+  narrow: {width: 400},
+})
 
 interface Item {
   id: string
@@ -85,5 +91,28 @@ export const ScrollReportsPage: Story = {
     const calls = (args.onVisiblePageChange as ReturnType<typeof fn>).mock.calls
     const maxPage = Math.max(...calls.map((c) => (c[0] as {page: number}).page))
     await expect(maxPage).toBeGreaterThan(1)
+  },
+}
+
+// In a narrow (phone-width) container the table cards up: header hides and
+// each row becomes a label/value card, like Table's stack mode.
+export const StacksOnNarrow: Story = {
+  args: {data: makeData(6), onRowClick: fn(), rowLabel: (r: Item) => r.name},
+  decorators: [
+    (Story) => (
+      <html.div style={storyStyles.narrow}>
+        <Story />
+      </html.div>
+    ),
+  ],
+  play: async ({canvas}) => {
+    // Header group not rendered → no column headers in the a11y tree.
+    await waitFor(async () => {
+      await expect(canvas.queryAllByRole('columnheader')).toHaveLength(0)
+    })
+    // Each card surfaces the column labels ('Name'/'Value') next to values.
+    await expect(canvas.getAllByText('Name').length).toBe(6)
+    await expect(canvas.getByText('Row 0')).toBeInTheDocument()
+    await expect(canvas.getByText('Row 5')).toBeInTheDocument()
   },
 }

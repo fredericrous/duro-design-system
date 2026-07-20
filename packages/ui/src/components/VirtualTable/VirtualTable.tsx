@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState, type ReactNode} from 'react'
+import {useEffect, useLayoutEffect, useRef, useState, type ReactNode} from 'react'
 import {html} from 'react-strict-dom'
 import {
   useReactTable,
@@ -12,6 +12,9 @@ import {
 } from '@tanstack/react-table'
 import {useVirtualizer} from '@tanstack/react-virtual'
 import {styles} from './styles.css'
+
+// Measure + commit before paint on the client; no-op-safe on the server.
+const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 export interface VirtualTableRange {
   /** 1-based index of the first visible row (0 when empty). */
@@ -56,6 +59,17 @@ interface VirtualTableProps<TData> {
   maxHeight?: number | string
   /** Render every row (no windowing) at or below this count. Default 150. */
   virtualizeThreshold?: number
+  /**
+   * Below this container width (px) the table cards up: the header hides and
+   * each row becomes a label/value card (like Table's stack mode). Since the
+   * flex columns truncate rather than overflow, this is a deliberate
+   * phone-width breakpoint, not an auto content measurement. Cards disable
+   * windowing (variable heights), so keep phone lists reasonably short.
+   * Default 640. Set `responsive={false}` to disable entirely.
+   */
+  stackBelow?: number
+  /** Opt out of the card-up-on-narrow behavior. Default true. */
+  responsive?: boolean
   emptyLabel?: ReactNode
 }
 
@@ -84,6 +98,8 @@ export function VirtualTable<TData>({
   estimateRowHeight = 44,
   maxHeight = '70vh',
   virtualizeThreshold = 150,
+  stackBelow = 640,
+  responsive = true,
   emptyLabel,
 }: VirtualTableProps<TData>) {
   // Support both controlled sorting (SortChip in the caller) and standalone use.
@@ -102,7 +118,35 @@ export function VirtualTable<TData>({
   })
 
   const rows = table.getRowModel().rows
-  const virtualize = rows.length > virtualizeThreshold
+
+  // Card-up on narrow containers. Flex cells truncate rather than overflow, so
+  // there's no content-overflow signal to measure (as in Table) — we use a
+  // deliberate phone-width breakpoint. Cards render every row (no windowing),
+  // so `virtualize` is forced off while stacked.
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [stacked, setStacked] = useState(false)
+  useIsoLayoutEffect(() => {
+    if (!responsive) {
+      setStacked(false)
+      return
+    }
+    const el = wrapRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const apply = (width: number) => {
+      if (width > 0) setStacked(width < stackBelow)
+    }
+    apply(el.getBoundingClientRect().width)
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (!entry) return
+      const box = entry.contentBoxSize?.[0]
+      apply(box ? box.inlineSize : entry.contentRect.width)
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [responsive, stackBelow])
+
+  const virtualize = rows.length > virtualizeThreshold && !stacked
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const rv = useVirtualizer({
@@ -174,82 +218,132 @@ export function VirtualTable<TData>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curPage, virtualize])
 
+  // Stack-mode label for a column: explicit meta override, else the string
+  // header, else nothing (value renders label-less, e.g. an actions column).
+  const columnStackLabel = (columnDef: {
+    header?: unknown
+    meta?: {stackLabel?: string; label?: string}
+  }): string => {
+    const meta = columnDef.meta
+    if (typeof meta?.stackLabel === 'string') return meta.stackLabel
+    if (typeof meta?.label === 'string') return meta.label
+    return typeof columnDef.header === 'string' ? columnDef.header : ''
+  }
+
   const renderRow = (
     row: Row<TData>,
     index: number,
     positioned?: ReturnType<typeof styles.rowAbsolute>,
     measureRef?: (node: Element | null) => void,
-  ) => (
-    <html.div
-      key={row.id}
-      ref={measureRef}
-      data-index={index}
-      role="row"
-      aria-label={rowLabel?.(row.original)}
-      onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-      style={[styles.row, Boolean(onRowClick) && styles.rowClickable, positioned]}
-    >
-      {row.getVisibleCells().map((cell) => (
-        <html.div
-          key={cell.id}
-          role="cell"
-          style={[styles.cell, styles.cellFlex(cell.column.getSize())]}
-        >
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </html.div>
-      ))}
-    </html.div>
-  )
+  ) =>
+    stacked ? (
+      <html.div
+        key={row.id}
+        role="row"
+        aria-label={rowLabel?.(row.original)}
+        onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+        style={[styles.stackRow, Boolean(onRowClick) && styles.rowClickable]}
+      >
+        {row.getVisibleCells().map((cell) => {
+          const lbl = columnStackLabel(cell.column.columnDef)
+          return (
+            <html.div key={cell.id} role="cell" style={styles.stackCell}>
+              {lbl ? <html.span style={styles.stackCellLabel}>{lbl}</html.span> : null}
+              <html.div style={styles.stackCellValue}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </html.div>
+            </html.div>
+          )
+        })}
+      </html.div>
+    ) : (
+      <html.div
+        key={row.id}
+        ref={measureRef}
+        data-index={index}
+        role="row"
+        aria-label={rowLabel?.(row.original)}
+        onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+        style={[styles.row, Boolean(onRowClick) && styles.rowClickable, positioned]}
+      >
+        {row.getVisibleCells().map((cell) => (
+          <html.div
+            key={cell.id}
+            role="cell"
+            style={[styles.cell, styles.cellFlex(cell.column.getSize())]}
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </html.div>
+        ))}
+      </html.div>
+    )
 
   const label =
     rangeLabel?.(range) ?? (rows.length ? `${range.from}–${range.to} / ${range.total}` : '')
 
   return (
-    <html.div style={styles.wrap}>
+    <html.div ref={wrapRef} style={styles.wrap}>
       <html.div
         ref={scrollRef}
         role="table"
-        style={[styles.scroll, virtualize && styles.scrollMax(maxHeight)]}
+        style={[
+          stacked ? styles.stackScroll : styles.scroll,
+          virtualize && styles.scrollMax(maxHeight),
+        ]}
       >
-        <html.div role="rowgroup" style={styles.head}>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <html.div key={headerGroup.id} role="row" style={styles.headRow}>
-              {headerGroup.headers.map((header) => {
-                const col = header.column
-                const sorted = col.getIsSorted()
-                return (
-                  <html.div
-                    key={header.id}
-                    role="columnheader"
-                    aria-sort={
-                      sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined
-                    }
-                    onClick={col.getCanSort() ? col.getToggleSortingHandler() : undefined}
-                    style={[
-                      styles.headCell,
-                      col.getCanSort() && styles.headCellSortable,
-                      styles.cellFlex(header.getSize()),
-                    ]}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(col.columnDef.header, header.getContext())}
-                    {sorted ? (
-                      <html.span style={styles.sortMark}>{sorted === 'asc' ? '↑' : '↓'}</html.span>
-                    ) : null}
-                  </html.div>
-                )
-              })}
-            </html.div>
-          ))}
-        </html.div>
+        {stacked ? null : (
+          <html.div role="rowgroup" style={styles.head}>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <html.div key={headerGroup.id} role="row" style={styles.headRow}>
+                {headerGroup.headers.map((header) => {
+                  const col = header.column
+                  const sorted = col.getIsSorted()
+                  return (
+                    <html.div
+                      key={header.id}
+                      role="columnheader"
+                      aria-sort={
+                        sorted === 'asc'
+                          ? 'ascending'
+                          : sorted === 'desc'
+                            ? 'descending'
+                            : undefined
+                      }
+                      onClick={col.getCanSort() ? col.getToggleSortingHandler() : undefined}
+                      style={[
+                        styles.headCell,
+                        col.getCanSort() && styles.headCellSortable,
+                        styles.cellFlex(header.getSize()),
+                      ]}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(col.columnDef.header, header.getContext())}
+                      {sorted ? (
+                        <html.span style={styles.sortMark}>
+                          {sorted === 'asc' ? '↑' : '↓'}
+                        </html.span>
+                      ) : null}
+                    </html.div>
+                  )
+                })}
+              </html.div>
+            ))}
+          </html.div>
+        )}
 
         {rows.length === 0 ? (
           <html.div style={styles.empty}>{emptyLabel}</html.div>
         ) : (
           <html.div
             role="rowgroup"
-            style={virtualize ? styles.bodyTotal(rv.getTotalSize()) : undefined}
+            style={
+              stacked
+                ? styles.stackBody
+                : virtualize
+                  ? styles.bodyTotal(rv.getTotalSize())
+                  : undefined
+            }
           >
             {virtualize
               ? vItems.map((vi) =>
