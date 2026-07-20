@@ -320,6 +320,63 @@ export const styles = css.create({
     alignSelf: 'flex-start',
   },
 
+  // --- JS-measured force-stack variants ---
+  //
+  // A container query can only test the container's WIDTH — it can't know
+  // "6 columns won't fit here". So a dense table can be wider than STACK_BP
+  // yet still crush every cell to a few characters. Table.Root measures the
+  // container with a ResizeObserver and, when `width < columnCount ×
+  // minColumnWidth`, sets `stacked` in context; each component then also
+  // applies its `*Stacked` variant here. These mirror the values in the
+  // `@container (max-width: ${STACK_BP})` branches above, so JS-forced and
+  // CSS-driven stacking render identically. The @container base is kept as
+  // the SSR-safe path for genuinely narrow (mobile) widths — no JS, no
+  // hydration flash — while these handle the cramped medium-width case.
+  rootStacked: {
+    gridTemplateColumns: '1fr',
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    overflow: 'visible',
+    rowGap: spacing.sm,
+  },
+  headerStacked: {
+    display: 'none',
+  },
+  rowStacked: {
+    gridTemplateColumns: '1fr',
+    borderBottomWidth: 0,
+  },
+  bodyRowStacked: {
+    backgroundColor: {
+      default: colors.bgCard,
+      ':hover': colors.bgCardHover,
+    },
+    padding: spacing.sm,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+  },
+  cellStacked: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 2fr',
+    gap: spacing.sm,
+  },
+  cellLabelStacked: {
+    display: 'block',
+  },
+  cellActionsStacked: {
+    gridTemplateColumns: '1fr',
+    justifyContent: 'flex-end',
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+  },
+  borderedCellStacked: {
+    borderRightWidth: 0,
+  },
+  sortChipStacked: {
+    display: 'inline-flex',
+  },
+
   // Dynamic: grid columns applied on Root (non-responsive path only).
   gridColumns: (template: string) => ({
     gridTemplateColumns: template,

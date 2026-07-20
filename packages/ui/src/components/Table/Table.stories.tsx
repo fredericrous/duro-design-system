@@ -1,5 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect} from 'storybook/test'
+import {expect, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {useState} from 'react'
 import {Table} from './Table'
@@ -1142,6 +1142,10 @@ export const SlotPropsOnRoot: Story = {
 // grid track into the next column. Cells now shrink to their track and wrap.
 const overlapWrapStyles = css.create({
   wide: {width: 760},
+  // 6 columns in 560px → each column would get < 128px (the min comfortable
+  // width), well above the 440px mobile breakpoint, so only the JS
+  // ResizeObserver — not the @container query — can catch the cramping.
+  cramped: {width: 560},
 })
 
 const LONG_EMAIL = 'a-really-long-service-account.address@subdomain.example-company.com'
@@ -1189,5 +1193,68 @@ export const ManyColumnsWrapNoOverlap: Story = {
     // The long email wraps inside its column instead of overflowing into the
     // next one: the cell's content is no wider than the cell box.
     await expect(emailCell.scrollWidth).toBeLessThanOrEqual(emailCell.clientWidth + 2)
+  },
+}
+
+// A dense table wider than the 440px mobile breakpoint but too narrow to give
+// each column a comfortable width. The @container query never fires (560 >
+// 440), so this asserts the JS ResizeObserver force-stacks it into cards:
+// 6 columns × 128px default = 768px threshold > 560px container.
+export const AutoStacksWhenCramped: Story = {
+  name: 'Auto-stacks when columns get cramped',
+  render: () => (
+    <html.div style={overlapWrapStyles.cramped}>
+      <Table.Root>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell>Display Name</Table.HeaderCell>
+            <Table.HeaderCell>Type</Table.HeaderCell>
+            <Table.HeaderCell>Email</Table.HeaderCell>
+            <Table.HeaderCell>Status</Table.HeaderCell>
+            <Table.HeaderCell>Owner</Table.HeaderCell>
+            <Table.HeaderCell width="max-content">Actions</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>SMTP submission service account</Table.Cell>
+            <Table.Cell>
+              <Badge>User</Badge>
+            </Table.Cell>
+            <Table.Cell>{LONG_EMAIL}</Table.Cell>
+            <Table.Cell>
+              <Badge variant="warning">No certs</Badge>
+            </Table.Cell>
+            <Table.Cell>daddy</Table.Cell>
+            <Table.Cell isActions>
+              <Button size="small">Send Cert</Button>
+              <Button size="small" variant="secondary">
+                Revoke
+              </Button>
+            </Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const grid = canvas.getByRole('table')
+    // ResizeObserver fires post-layout; wait for the stack decision to commit.
+    await waitFor(async () => {
+      // The grid collapses to a single column — one resolved track, no spaces.
+      const tracks = getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/)
+      await expect(tracks.length).toBe(1)
+    })
+    // Header group is display:none, so it drops out of the accessibility tree:
+    // no column headers remain queryable, leaving only the body rowgroup.
+    await expect(canvas.queryAllByRole('columnheader')).toHaveLength(0)
+    await expect(canvas.getAllByRole('rowgroup')).toHaveLength(1)
+    // Each body cell now surfaces its label span (label|value card rows). The
+    // hidden header 'Owner' stays in the DOM, so pick the visible <span>.
+    const ownerLabel = canvas
+      .getAllByText('Owner')
+      .find((el) => el.tagName.toLowerCase() === 'span') as HTMLElement
+    await expect(ownerLabel).toBeTruthy()
+    await expect(getComputedStyle(ownerLabel).display).toBe('block')
   },
 }
