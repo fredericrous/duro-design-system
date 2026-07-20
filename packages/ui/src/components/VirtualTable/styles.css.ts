@@ -105,6 +105,49 @@ export const styles = css.create({
     flexBasis: 0,
     minWidth: 0,
   }),
+  // --- Stack (card) mode: narrow containers ---
+  // The scroll frame drops its border/background so each row card stands on
+  // its own; windowing is off in this mode so no capped viewport.
+  stackScroll: {
+    position: 'relative',
+    width: '100%',
+    backgroundColor: 'transparent',
+  },
+  stackBody: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing.sm,
+  },
+  stackRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing.xs,
+    width: '100%',
+    padding: spacing.sm,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: colors.border,
+    borderRadius: radii.sm,
+    backgroundColor: colors.bgCard,
+  },
+  stackCell: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 2fr',
+    gap: spacing.sm,
+    alignItems: 'center',
+    fontFamily: typography.fontFamily,
+    fontSize: typography.fontSizeSm,
+    color: colors.text,
+  },
+  stackCellLabel: {
+    color: colors.textMuted,
+    fontWeight: typography.fontWeightMedium,
+    fontSize: typography.fontSizeXs,
+  },
+  stackCellValue: {
+    minWidth: 0,
+    overflowWrap: 'break-word',
+  },
   empty: {
     paddingTop: spacing.xl,
     paddingBottom: spacing.xl,
