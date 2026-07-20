@@ -56,6 +56,9 @@ export {
 export {Tag, type TagVariant, type TagSize} from './components/Tag/Tag'
 export {TagGroup} from './components/TagGroup/TagGroup'
 export {Table, type TableVariant, type TableSize} from './components/Table/Table'
+// Web-only (DOM scroll measurement + @tanstack/react-virtual); intentionally
+// absent from index.native.ts.
+export {VirtualTable, type VirtualTableRange} from './components/VirtualTable/VirtualTable'
 // Side-effect import registers our augmentation of TanStack's ColumnMeta
 // (stackLabel / isActions). Standalone module so the augmentation lands
 // whenever this package is in a consumer's TS program, even if FromTanstack
