@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Block-level informational message with icon and colored background. More prominent than Alert. Use for important notices, onboarding tips, or contextual guidance that should stand out.',
+    'Block-level informational message with icon and colored background. More prominent than Alert. Use for important notices, onboarding tips, or contextual guidance that should stand out. `align` controls icon↔message vertical alignment: `center` (default) for short messages, `start` for long multi-paragraph content.',
   whenToUse: [
     'Important notices that need visual prominence',
     'Onboarding tips or contextual guidance',

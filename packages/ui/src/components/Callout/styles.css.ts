@@ -5,22 +5,34 @@ import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 export const styles = css.create({
   base: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: spacing.sm,
     padding: spacing.md,
     borderRadius: radii.sm,
     borderWidth: 1,
     borderStyle: 'solid',
     fontSize: typography.fontSizeSm,
     lineHeight: typography.lineHeight,
-    overflow: 'hidden', // contain the float
+  },
+  // Vertically centres the icon with the message — the right default for the
+  // short, single/two-line messages callouts usually carry.
+  alignCenter: {
+    alignItems: 'center',
+  },
+  // Aligns the icon to the first line — for long, multi-paragraph messages.
+  alignStart: {
+    alignItems: 'flex-start',
   },
   icon: {
-    float: 'left',
-    marginRight: spacing.sm,
-    marginBottom: spacing.xs,
-    marginTop: 2,
+    flexShrink: 0,
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  content: {
+    flexGrow: 1,
+    minWidth: 0,
   },
   error: {
     backgroundColor: colors.errorBg,
