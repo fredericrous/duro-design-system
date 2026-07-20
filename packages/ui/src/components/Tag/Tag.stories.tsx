@@ -49,7 +49,29 @@ export const Small: Story = {
 const layoutStyles = css.create({
   row: {display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap'},
   stack: {display: 'flex', flexDirection: 'column', gap: 16},
+  // Narrow column that a long identifier tag would overflow without `wrap`.
+  narrowCol: {width: 120, borderWidth: 1, borderStyle: 'solid', borderColor: '#333', padding: 8},
 })
+
+const LONG_CAP = 'lldap.group.member.remove'
+
+// A long identifier-style tag in a narrow column: with `wrap` it breaks
+// within the column instead of overflowing (its scrollWidth stays within the
+// box), fixing the "capability leaks into the next column" bug.
+export const WrapLongLabel: Story = {
+  render: () => (
+    <html.div style={layoutStyles.narrowCol}>
+      <Tag size="sm" wrap>
+        {LONG_CAP}
+      </Tag>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const tag = canvas.getByText(LONG_CAP)
+    // Content wraps inside the tag; the tag doesn't spill past its column.
+    await expect(tag.scrollWidth).toBeLessThanOrEqual(tag.clientWidth + 2)
+  },
+}
 
 export const AllVariants: Story = {
   render: () => (

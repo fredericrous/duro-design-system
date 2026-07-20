@@ -13,6 +13,7 @@ export const styles = css.create({
     lineHeight: 1,
     borderRadius: 4,
     whiteSpace: 'nowrap',
+    minWidth: 0,
     borderWidth: 1,
     borderStyle: 'solid',
     borderColor: colors.border,
@@ -46,6 +47,17 @@ export const styles = css.create({
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
     fontSize: typography.fontSizeXs,
+  },
+  // Opt-in wrapping for long identifier-style labels. Overrides the base
+  // nowrap so the text breaks within its container (e.g. a table cell)
+  // instead of overflowing into the next column. `anywhere` also lets the
+  // tag shrink below its content's intrinsic width so a flex/grid parent can
+  // actually give it a narrow track.
+  wrap: {
+    whiteSpace: 'normal',
+    overflowWrap: 'anywhere',
+    lineHeight: 1.35,
+    textAlign: 'start',
   },
   // Reduce right padding when removable to keep visual balance with the button
   removableMd: {
