@@ -17,6 +17,12 @@ interface CalloutProps {
   variant?: CalloutVariant
   /** Built-in icon name, custom ReactNode, or false to hide. Defaults to variant icon. */
   icon?: IconName | ReactNode | false
+  /**
+   * Vertical alignment of the icon against the message. `center` (default)
+   * suits short single/two-line messages; `start` aligns the icon to the first
+   * line for long multi-paragraph content.
+   */
+  align?: 'center' | 'start'
   children: ReactNode
 }
 
@@ -27,13 +33,20 @@ function resolveIcon(icon: CalloutProps['icon'], variant: CalloutVariant): React
   return icon
 }
 
-export function Callout({variant = 'info', icon, children}: CalloutProps) {
+export function Callout({variant = 'info', icon, align = 'center', children}: CalloutProps) {
   const resolvedIcon = resolveIcon(icon, variant)
 
   return (
-    <html.div role="note" style={[styles.base, styles[variant]]}>
+    <html.div
+      role="note"
+      style={[
+        styles.base,
+        styles[variant],
+        align === 'center' ? styles.alignCenter : styles.alignStart,
+      ]}
+    >
       {resolvedIcon && <html.span style={styles.icon}>{resolvedIcon}</html.span>}
-      {children}
+      <html.div style={styles.content}>{children}</html.div>
     </html.div>
   )
 }
