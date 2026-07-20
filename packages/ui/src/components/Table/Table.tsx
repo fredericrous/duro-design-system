@@ -3,8 +3,12 @@ import {
   type ReactNode,
   type MutableRefObject,
   createContext,
+  cloneElement,
   useContext,
+  useEffect,
+  useLayoutEffect,
   useRef,
+  useState,
   Children,
   isValidElement,
 } from 'react'
@@ -31,7 +35,19 @@ interface TableContextValue {
   labels: ReadonlyArray<string>
   /** Mutable ref: header Row writes inferred template, Root reads it */
   inferredTemplateRef: MutableRefObject<string | null>
+  /** JS-measured force-stack flag. True when Root's ResizeObserver finds the
+   *  container too narrow for its column count (cells would be crushed), so
+   *  every cell/row/header also applies its `*Stacked` variant. Independent
+   *  of the @container base, which still handles genuinely narrow widths. */
+  stacked: boolean
 }
+
+// useLayoutEffect measures + commits the stack decision before the browser
+// paints, so a client-rendered narrow table shows cards on first frame
+// rather than flashing tabular. On the server it would warn (no layout), so
+// fall back to useEffect there — SSR always emits the non-stacked markup and
+// the @container CSS covers true mobile without JS.
+const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 const TableContext = createContext<TableContextValue | null>(null)
 
@@ -175,6 +191,14 @@ interface RootProps {
   /** Opt out of responsive container-query behavior. Default true. */
   responsive?: boolean
   /**
+   * Minimum comfortable width (px) for a single column. When responsive,
+   * Root measures its container and switches to the stacked card layout as
+   * soon as `containerWidth < columnCount × minColumnWidth` — i.e. before
+   * cells get crushed, not only at the fixed mobile breakpoint. Raise it to
+   * card up sooner, lower it to keep the grid at tighter widths. Default 128.
+   */
+  minColumnWidth?: number
+  /**
    * Optional sort UI rendered above the grid. Visible only in stack mode
    * (SortChip carries its own `display: none → inline-flex` rule). Typical
    * value: `<Table.SortChip options={...} value={...} onChange={...} />`.
@@ -192,6 +216,7 @@ export function Root({
   variant = 'default',
   size = 'md',
   responsive = true,
+  minColumnWidth = 128,
   sortChip,
   pagination,
 }: RootProps) {
@@ -200,6 +225,35 @@ export function Root({
   if (template) {
     inferredTemplateRef.current = template
   }
+
+  // Content-aware stacking. A container query can't see the column count, so
+  // measure the container and card up as soon as each column would fall
+  // below `minColumnWidth`. Keyed on labels.length so it tracks the actual
+  // number of columns. The @container base (styles.*: STACK_BP) still fires
+  // independently for genuinely narrow widths without needing JS.
+  const columnCount = labels.length
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [stacked, setStacked] = useState(false)
+
+  useIsoLayoutEffect(() => {
+    if (!responsive || columnCount === 0) {
+      setStacked(false)
+      return
+    }
+    const el = containerRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const threshold = columnCount * minColumnWidth
+    const apply = (width: number) => setStacked(width > 0 && width < threshold)
+    apply(el.getBoundingClientRect().width)
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (!entry) return
+      const box = entry.contentBoxSize?.[0]
+      apply(box ? box.inlineSize : entry.contentRect.width)
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [responsive, columnCount, minColumnWidth])
 
   const grid = (
     <html.div
@@ -218,26 +272,45 @@ export function Root({
             : styles.gridColumns(template)
           : undefined,
         responsive && styles.rootResponsive,
+        // Force-stack override — collapses the grid to one column. Applied
+        // last so its gridTemplateColumns wins over gridColumnsResponsive.
+        responsive && stacked && styles.rootStacked,
       ]}
     >
       {children}
     </html.div>
   )
 
+  // The sort chip is normally revealed only by the @container query. When
+  // JS force-stacks (headers hidden, but container wider than STACK_BP) the
+  // chip's own query hasn't fired, so inject forceShow to reveal it.
+  const sortChipEl =
+    stacked && isValidElement(sortChip)
+      ? cloneElement(sortChip as ReactElement<{forceShow?: boolean}>, {forceShow: true})
+      : sortChip
+
   // Slots render unconditionally — `responsive=false` still wants its sort/
   // pagination chrome. Only the containerType:inline-size wrapper is
   // conditional, since it only matters when @container queries fire.
   const body = (
     <>
-      {sortChip}
+      {sortChipEl}
       {grid}
       {pagination}
     </>
   )
 
   return (
-    <TableContext.Provider value={{variant, size, responsive, labels, inferredTemplateRef}}>
-      {responsive ? <html.div style={styles.rootContainer}>{body}</html.div> : body}
+    <TableContext.Provider
+      value={{variant, size, responsive, labels, inferredTemplateRef, stacked}}
+    >
+      {responsive ? (
+        <html.div ref={containerRef} style={styles.rootContainer}>
+          {body}
+        </html.div>
+      ) : (
+        body
+      )}
     </TableContext.Provider>
   )
 }
@@ -245,9 +318,10 @@ export function Root({
 // --- Header ---
 
 export function Header({children}: {children: ReactNode}) {
+  const {stacked} = useTable()
   return (
     <HeaderContext.Provider value={true}>
-      <html.div role="rowgroup" style={styles.header}>
+      <html.div role="rowgroup" style={[styles.header, stacked && styles.headerStacked]}>
         {children}
       </html.div>
     </HeaderContext.Provider>
@@ -311,7 +385,7 @@ const INTERACTIVE_SELECTOR =
   'button, a, input, select, textarea, [role="button"], [role="link"], [role="checkbox"], [role="menuitem"], [role="switch"], [role="tab"], [contenteditable="true"]'
 
 export function Row({children, onClick, 'aria-label': ariaLabel}: RowProps) {
-  const {variant} = useTable()
+  const {variant, stacked} = useTable()
   const isHeader = useContext(HeaderContext)
   const rowIndex = useContext(RowIndexContext)
   const isEvenRow = rowIndex >= 0 && rowIndex % 2 === 1
@@ -353,6 +427,9 @@ export function Row({children, onClick, 'aria-label': ariaLabel}: RowProps) {
         !isHeader && styles.bodyRow,
         !isHeader && variant === 'striped' && isEvenRow && styles.stripedEven,
         isClickable && styles.clickableRow,
+        stacked && styles.rowStacked,
+        // bodyRowStacked last so its card background wins over stripedEven.
+        !isHeader && stacked && styles.bodyRowStacked,
       ]}
     >
       {childArray.map((child, index) => (
@@ -441,7 +518,7 @@ HeaderCell.displayName = 'HeaderCell'
 // isActions=true — actions footers don't show a label.
 
 export function Cell({children, isActions}: {children: ReactNode; isActions?: boolean}) {
-  const {size, variant, labels, responsive} = useTable()
+  const {size, variant, labels, responsive, stacked} = useTable()
   const {index, total} = useContext(CellIndexContext)
   const isLast = variant === 'bordered' && index === total - 1
   const label = labels[index] ?? ''
@@ -455,10 +532,20 @@ export function Cell({children, isActions}: {children: ReactNode; isActions?: bo
         variant === 'bordered' && styles.borderedCell,
         isLast && styles.borderedCellLast,
         isActions && styles.cellActions,
+        // Force-stack: cells become a label|value grid; the actions cell then
+        // overrides its template to a single track and turns into the card's
+        // right-aligned footer. Mirrors the @container (STACK_BP) branch, so
+        // cellStacked applies for every cell and cellActionsStacked layers on
+        // top for actions (its gridTemplateColumns wins as the later entry).
+        stacked && styles.cellStacked,
+        isActions && stacked && styles.cellActionsStacked,
+        variant === 'bordered' && stacked && styles.borderedCellStacked,
       ]}
     >
       {responsive && !isActions && label !== '' ? (
-        <html.span style={styles.cellLabel}>{label}</html.span>
+        <html.span style={[styles.cellLabel, stacked && styles.cellLabelStacked]}>
+          {label}
+        </html.span>
       ) : null}
       {isActions ? children : <html.div style={styles.cellValue}>{children}</html.div>}
     </html.div>
