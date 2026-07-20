@@ -460,7 +460,7 @@ export function Cell({children, isActions}: {children: ReactNode; isActions?: bo
       {responsive && !isActions && label !== '' ? (
         <html.span style={styles.cellLabel}>{label}</html.span>
       ) : null}
-      {children}
+      {isActions ? children : <html.div style={styles.cellValue}>{children}</html.div>}
     </html.div>
   )
 }

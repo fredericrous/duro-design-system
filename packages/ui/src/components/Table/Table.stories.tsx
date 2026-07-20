@@ -1134,3 +1134,60 @@ export const SlotPropsOnRoot: Story = {
     await expect(canvas.getAllByText('Name').length).toBeGreaterThan(0)
   },
 }
+
+// --- Regression: many columns + long content must wrap, not overlap ---
+//
+// In a wide-but-tight container, columns whose combined content exceeds the
+// width used to keep their intrinsic size (minWidth: auto) and spill over their
+// grid track into the next column. Cells now shrink to their track and wrap.
+const overlapWrapStyles = css.create({
+  wide: {width: 760},
+})
+
+const LONG_EMAIL = 'a-really-long-service-account.address@subdomain.example-company.com'
+
+export const ManyColumnsWrapNoOverlap: Story = {
+  render: () => (
+    <html.div style={overlapWrapStyles.wide}>
+      <Table.Root>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell>Display Name</Table.HeaderCell>
+            <Table.HeaderCell>Type</Table.HeaderCell>
+            <Table.HeaderCell>Email</Table.HeaderCell>
+            <Table.HeaderCell>Status</Table.HeaderCell>
+            <Table.HeaderCell width="max-content">Actions</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>SMTP submission service account</Table.Cell>
+            <Table.Cell>
+              <Badge>User</Badge>
+            </Table.Cell>
+            <Table.Cell>{LONG_EMAIL}</Table.Cell>
+            <Table.Cell>
+              <Badge variant="warning">No certs</Badge>
+            </Table.Cell>
+            <Table.Cell isActions>
+              <Button size="small">Send Cert</Button>
+              <Button size="small" variant="secondary">
+                Certificates
+              </Button>
+              <Button size="small" variant="danger">
+                Revoke All
+              </Button>
+            </Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const emailCell = canvas.getByText(LONG_EMAIL).closest('[role="cell"]') as HTMLElement
+    await expect(emailCell).toBeTruthy()
+    // The long email wraps inside its column instead of overflowing into the
+    // next one: the cell's content is no wider than the cell box.
+    await expect(emailCell.scrollWidth).toBeLessThanOrEqual(emailCell.clientWidth + 2)
+  },
+}
