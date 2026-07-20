@@ -1137,106 +1137,123 @@ export const SlotPropsOnRoot: Story = {
 
 // --- Regression: many columns + long content must wrap, not overlap ---
 //
-// In a wide-but-tight container, columns whose combined content exceeds the
-// width used to keep their intrinsic size (minWidth: auto) and spill over their
-// grid track into the next column. Cells now shrink to their track and wrap.
-const overlapWrapStyles = css.create({
-  wide: {width: 760},
-  // 6 columns in 560px, above the 440px mobile breakpoint, so the @container
-  // query never fires — only the JS overflow check catches that the action
-  // buttons no longer fit their squeezed track.
-  cramped: {width: 560},
-  // 8 short-text columns with room to breathe: nothing overflows, so a
-  // wide "grants-style" table must stay tabular even though it has many
-  // columns (regression guard against the old column-count heuristic).
+// The responsive model: above the `sm` (640px) breakpoint a table stays
+// tabular and, if its columns don't fit, scrolls horizontally (each column
+// keeps a `minColumnWidth` floor); below `sm` it cards up. One uniform
+// breakpoint for every table — no per-table content measurement.
+const respStyles = css.create({
+  // 8 columns × 120px floor = 960px min. At 800px the grid overflows → the
+  // wrapper scrolls sideways, but it's still tabular (above 640).
+  scrollDense: {width: 800},
+  // Same table at 1120px: 960 < 1120, so it fits with no scrollbar.
   roomy: {width: 1120},
+  // Below the 640px card breakpoint → cards.
+  phone: {width: 560},
 })
 
 const LONG_EMAIL = 'a-really-long-service-account.address@subdomain.example-company.com'
 
-export const ManyColumnsWrapNoOverlap: Story = {
+const grantsColumns = (
+  <Table.Header>
+    <Table.Row>
+      <Table.HeaderCell>Principal</Table.HeaderCell>
+      <Table.HeaderCell>Application</Table.HeaderCell>
+      <Table.HeaderCell>Role</Table.HeaderCell>
+      <Table.HeaderCell>Entitlement</Table.HeaderCell>
+      <Table.HeaderCell>Resource</Table.HeaderCell>
+      <Table.HeaderCell>Granted by</Table.HeaderCell>
+      <Table.HeaderCell>Expires</Table.HeaderCell>
+      <Table.HeaderCell>Status</Table.HeaderCell>
+    </Table.Row>
+  </Table.Header>
+)
+const grantsRow = (
+  <Table.Row>
+    <Table.Cell>alice</Table.Cell>
+    <Table.Cell>Immich</Table.Cell>
+    <Table.Cell>Editor</Table.Cell>
+    <Table.Cell>library</Table.Cell>
+    <Table.Cell>all</Table.Cell>
+    <Table.Cell>daddy</Table.Cell>
+    <Table.Cell>Never</Table.Cell>
+    <Table.Cell>
+      <Badge variant="success">Active</Badge>
+    </Table.Cell>
+  </Table.Row>
+)
+
+// A dense table too narrow to fit but WIDER than the card breakpoint stays
+// tabular and scrolls sideways — the standard data-table behavior, and the
+// fix for grants carding up on a laptop.
+export const ScrollsHorizontallyWhenDense: Story = {
+  name: 'Scrolls horizontally when dense (not cards)',
   render: () => (
-    <html.div style={overlapWrapStyles.wide}>
+    <html.div style={respStyles.scrollDense}>
+      <Table.Root>
+        {grantsColumns}
+        <Table.Body>{grantsRow}</Table.Body>
+      </Table.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const grid = canvas.getByRole('table')
+    const scroller = grid.parentElement as HTMLElement
+    await waitFor(async () => {
+      // Still tabular: all 8 headers present (NOT carded up).
+      await expect(canvas.queryAllByRole('columnheader')).toHaveLength(8)
+    })
+    // The wrapper scrolls: content (8 × 120px ≈ 960) exceeds its 800px box.
+    await expect(scroller.scrollWidth).toBeGreaterThan(scroller.clientWidth + 2)
+  },
+}
+
+// Same table with room: fits, no horizontal scrollbar, stays tabular. Guards
+// against the old column-count heuristic that carded this up on a laptop.
+export const ManyColumnsFitNoScroll: Story = {
+  name: 'Many columns fit — no scroll, no cards',
+  render: () => (
+    <html.div style={respStyles.roomy}>
+      <Table.Root>
+        {grantsColumns}
+        <Table.Body>{grantsRow}</Table.Body>
+      </Table.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const grid = canvas.getByRole('table')
+    const scroller = grid.parentElement as HTMLElement
+    await waitFor(async () => {
+      await expect(canvas.queryAllByRole('columnheader')).toHaveLength(8)
+    })
+    const tracks = getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/)
+    await expect(tracks.length).toBe(8)
+    // No horizontal overflow: the grid fits its container.
+    await expect(scroller.scrollWidth).toBeLessThanOrEqual(scroller.clientWidth + 2)
+  },
+}
+
+// Below the single 640px card breakpoint every table cards up: header hides,
+// each row becomes a label/value card.
+export const CardsBelowMobileBreakpoint: Story = {
+  name: 'Cards below the mobile breakpoint',
+  render: () => (
+    <html.div style={respStyles.phone}>
       <Table.Root>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>Display Name</Table.HeaderCell>
-            <Table.HeaderCell>Type</Table.HeaderCell>
             <Table.HeaderCell>Email</Table.HeaderCell>
-            <Table.HeaderCell>Status</Table.HeaderCell>
+            <Table.HeaderCell>Owner</Table.HeaderCell>
             <Table.HeaderCell width="max-content">Actions</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
           <Table.Row>
             <Table.Cell>SMTP submission service account</Table.Cell>
-            <Table.Cell>
-              <Badge>User</Badge>
-            </Table.Cell>
             <Table.Cell>{LONG_EMAIL}</Table.Cell>
-            <Table.Cell>
-              <Badge variant="warning">No certs</Badge>
-            </Table.Cell>
-            <Table.Cell isActions>
-              <Button size="small">Send Cert</Button>
-              <Button size="small" variant="secondary">
-                Certificates
-              </Button>
-              <Button size="small" variant="danger">
-                Revoke All
-              </Button>
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table.Root>
-    </html.div>
-  ),
-  play: async ({canvas}) => {
-    const emailCell = canvas.getByText(LONG_EMAIL).closest('[role="cell"]') as HTMLElement
-    await expect(emailCell).toBeTruthy()
-    // The long email wraps inside its column instead of overflowing into the
-    // next one: the cell's content is no wider than the cell box.
-    await expect(emailCell.scrollWidth).toBeLessThanOrEqual(emailCell.clientWidth + 2)
-  },
-}
-
-// A dense table wider than the 440px mobile breakpoint but too narrow to give
-// each column a comfortable width. The @container query never fires (560 >
-// 440), so this asserts the JS ResizeObserver force-stacks it into cards:
-// 6 columns × 128px default = 768px threshold > 560px container.
-export const AutoStacksWhenCramped: Story = {
-  name: 'Auto-stacks when columns get cramped',
-  render: () => (
-    <html.div style={overlapWrapStyles.cramped}>
-      <Table.Root>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>Display Name</Table.HeaderCell>
-            <Table.HeaderCell>Type</Table.HeaderCell>
-            <Table.HeaderCell>Email</Table.HeaderCell>
-            <Table.HeaderCell>Status</Table.HeaderCell>
-            <Table.HeaderCell>Owner</Table.HeaderCell>
-            {/* Normal 1fr track (no max-content) so the buttons get squeezed
-                and overflow — the exact condition the auto-stack detects. */}
-            <Table.HeaderCell>Actions</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>SMTP submission service account</Table.Cell>
-            <Table.Cell>
-              <Badge>User</Badge>
-            </Table.Cell>
-            <Table.Cell>{LONG_EMAIL}</Table.Cell>
-            <Table.Cell>
-              <Badge variant="warning">No certs</Badge>
-            </Table.Cell>
             <Table.Cell>daddy</Table.Cell>
             <Table.Cell isActions>
               <Button size="small">Send Cert</Button>
-              <Button size="small" variant="secondary">
-                Revoke
-              </Button>
             </Table.Cell>
           </Table.Row>
         </Table.Body>
@@ -1245,73 +1262,15 @@ export const AutoStacksWhenCramped: Story = {
   ),
   play: async ({canvas}) => {
     const grid = canvas.getByRole('table')
-    // ResizeObserver fires post-layout; wait for the stack decision to commit.
-    await waitFor(async () => {
-      // The grid collapses to a single column — one resolved track, no spaces.
-      const tracks = getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/)
-      await expect(tracks.length).toBe(1)
-    })
-    // Header group is display:none, so it drops out of the accessibility tree:
-    // no column headers remain queryable, leaving only the body rowgroup.
+    // Single-track grid = card layout (the @container rule fires below 640).
+    const tracks = getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/)
+    await expect(tracks.length).toBe(1)
+    // Header hidden → out of the a11y tree; each cell surfaces its label span.
     await expect(canvas.queryAllByRole('columnheader')).toHaveLength(0)
-    await expect(canvas.getAllByRole('rowgroup')).toHaveLength(1)
-    // Each body cell now surfaces its label span (label|value card rows). The
-    // hidden header 'Owner' stays in the DOM, so pick the visible <span>.
     const ownerLabel = canvas
       .getAllByText('Owner')
       .find((el) => el.tagName.toLowerCase() === 'span') as HTMLElement
     await expect(ownerLabel).toBeTruthy()
     await expect(getComputedStyle(ownerLabel).display).toBe('block')
-  },
-}
-
-// Regression guard for the grants over-stacking bug: a table with MANY
-// columns (8) that all fit comfortably must stay tabular. The old heuristic
-// stacked purely on column count (8 × 128px = 1024px threshold), carding up a
-// table that visually fits on a laptop. Overflow-based detection keeps it
-// tabular because nothing actually overflows.
-export const ManyColumnsStayTabularWhenFitting: Story = {
-  name: 'Many columns stay tabular when they fit',
-  render: () => (
-    <html.div style={overlapWrapStyles.roomy}>
-      <Table.Root>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>Principal</Table.HeaderCell>
-            <Table.HeaderCell>Application</Table.HeaderCell>
-            <Table.HeaderCell>Role</Table.HeaderCell>
-            <Table.HeaderCell>Entitlement</Table.HeaderCell>
-            <Table.HeaderCell>Resource</Table.HeaderCell>
-            <Table.HeaderCell>Granted by</Table.HeaderCell>
-            <Table.HeaderCell>Expires</Table.HeaderCell>
-            <Table.HeaderCell>Status</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>alice</Table.Cell>
-            <Table.Cell>Immich</Table.Cell>
-            <Table.Cell>Editor</Table.Cell>
-            <Table.Cell>library</Table.Cell>
-            <Table.Cell>all</Table.Cell>
-            <Table.Cell>daddy</Table.Cell>
-            <Table.Cell>Never</Table.Cell>
-            <Table.Cell>
-              <Badge variant="success">Active</Badge>
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table.Root>
-    </html.div>
-  ),
-  play: async ({canvas}) => {
-    const grid = canvas.getByRole('table')
-    // Give the ResizeObserver a chance to (not) fire, then assert it stayed
-    // tabular: 8 header cells still in the a11y tree, grid keeps 8 tracks.
-    await waitFor(async () => {
-      await expect(canvas.queryAllByRole('columnheader')).toHaveLength(8)
-    })
-    const tracks = getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/)
-    await expect(tracks.length).toBe(8)
   },
 }

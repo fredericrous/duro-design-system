@@ -35,6 +35,7 @@
       "types": "./src/raw.ts",
       "default": "./dist/raw.js"
     },
+    "./tokens/breakpoints.css": "./src/tokens/breakpoints.css.ts",
     "./tokens/colors.css": "./src/tokens/colors.css.ts",
     "./tokens/spacing.css": "./src/tokens/spacing.css.ts",
     "./tokens/typography.css": "./src/tokens/typography.css.ts",

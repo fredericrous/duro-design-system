@@ -3,12 +3,8 @@ import {
   type ReactNode,
   type MutableRefObject,
   createContext,
-  cloneElement,
   useContext,
-  useEffect,
-  useLayoutEffect,
   useRef,
-  useState,
   Children,
   isValidElement,
 } from 'react'
@@ -35,43 +31,6 @@ interface TableContextValue {
   labels: ReadonlyArray<string>
   /** Mutable ref: header Row writes inferred template, Root reads it */
   inferredTemplateRef: MutableRefObject<string | null>
-  /** JS-measured force-stack flag. True when Root's ResizeObserver finds the
-   *  container too narrow for its column count (cells would be crushed), so
-   *  every cell/row/header also applies its `*Stacked` variant. Independent
-   *  of the @container base, which still handles genuinely narrow widths. */
-  stacked: boolean
-}
-
-// useLayoutEffect measures + commits the stack decision before the browser
-// paints, so a client-rendered narrow table shows cards on first frame
-// rather than flashing tabular. On the server it would warn (no layout), so
-// fall back to useEffect there — SSR always emits the non-stacked markup and
-// the @container CSS covers true mobile without JS.
-const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
-
-// Does any column's content no longer fit its box? We sample the header row
-// plus the first body row (bounded cost). Free text wraps rather than
-// overflowing (min-width:0 + overflow-wrap), so this only trips on content
-// that genuinely can't shrink — action buttons, badges, or nowrap header
-// labels — i.e. the real "columns won't fit" signal, independent of how many
-// columns there are. Structural overflow is consistent down a column, so the
-// first body row is a faithful sample.
-function gridOverflows(grid: HTMLDivElement | null): boolean {
-  if (!grid) return false
-  const TOL = 2 // sub-pixel layout rounding slack
-  const over = (el: Element) => el.scrollWidth - el.clientWidth > TOL
-  for (const h of grid.querySelectorAll('[role="columnheader"]')) {
-    if (over(h)) return true
-  }
-  const rowgroups = grid.querySelectorAll('[role="rowgroup"]')
-  const body = rowgroups[rowgroups.length - 1] // header is first, body last
-  const firstRow = body?.querySelector('[role="row"]')
-  if (firstRow) {
-    for (const c of firstRow.querySelectorAll('[role="cell"]')) {
-      if (over(c)) return true
-    }
-  }
-  return false
 }
 
 const TableContext = createContext<TableContextValue | null>(null)
@@ -148,7 +107,10 @@ function unwrapElementType(t: unknown): unknown {
   return current
 }
 
-function extractColumnMeta(children: ReactNode): {
+function extractColumnMeta(
+  children: ReactNode,
+  minColumnWidth: number,
+): {
   template: string
   compactTemplate: string
   labels: string[]
@@ -167,14 +129,14 @@ function extractColumnMeta(children: ReactNode): {
         (unwrappedType as {name?: string} | null)?.name ||
         ''
       if (unwrappedType === HeaderCell || displayName === 'HeaderCell') {
-        // Default to minmax(0, 1fr) instead of plain '1fr' so each column
-        // can shrink below its content's min-content size. A plain '1fr'
-        // track has an implicit min of `auto` (= min-content), which makes
-        // the column refuse to shrink and the whole table overflow when a
-        // cell's text is wider than 1/N of the container. With minmax(0,
-        // 1fr), the cell's compact-mode `min-width: 0` + `overflow:
-        // hidden` + `text-overflow: ellipsis` can actually truncate.
-        const width = props.width || 'minmax(0, 1fr)'
+        // Default each column to `minmax(<minColumnWidth>px, 1fr)`: columns
+        // share the row evenly (1fr) but never shrink below a readable floor.
+        // That floor is what makes a dense table overflow its container
+        // instead of crushing — Root's scroll wrapper then scrolls sideways.
+        // Narrow columns (a checkbox) or naturally-wide ones (an actions
+        // cell) override this with an explicit `width` (e.g. '40px',
+        // 'max-content').
+        const width = props.width || `minmax(${minColumnWidth}px, 1fr)`
         widths.push(width)
         // `compactWidth` lets the consumer switch to a content-aware
         // layout in the compact band while staying evenly distributed
@@ -213,8 +175,16 @@ interface RootProps {
   children: ReactNode
   variant?: TableVariant
   size?: TableSize
-  /** Opt out of responsive behavior (auto-stacking + container query). Default true. */
+  /** Opt out of responsive behavior (horizontal scroll + card breakpoint). Default true. */
   responsive?: boolean
+  /**
+   * Minimum width (px) each flexible column keeps before the table scrolls
+   * horizontally rather than crushing its cells. Columns still share the row
+   * evenly (`minmax(<minColumnWidth>px, 1fr)`); this is only the floor. Raise
+   * it for roomier columns (more scrolling), lower it to fit more before
+   * scrolling. Columns with an explicit `width` are unaffected. Default 120.
+   */
+  minColumnWidth?: number
   /**
    * Optional sort UI rendered above the grid. Visible only in stack mode
    * (SortChip carries its own `display: none → inline-flex` rule). Typical
@@ -233,76 +203,19 @@ export function Root({
   variant = 'default',
   size = 'md',
   responsive = true,
+  minColumnWidth = 120,
   sortChip,
   pagination,
 }: RootProps) {
   const inferredTemplateRef = useRef<string | null>(null)
-  const {template, compactTemplate, labels} = extractColumnMeta(children)
+  const {template, compactTemplate, labels} = extractColumnMeta(children, minColumnWidth)
   if (template) {
     inferredTemplateRef.current = template
   }
 
-  // Content-aware stacking driven by ACTUAL overflow, not a width heuristic.
-  // Column count alone is a poor proxy — a table with 8 short-text columns
-  // fits fine on a laptop, while 4 columns of buttons + long emails can be
-  // crushed. So instead of guessing, we render tabular and check whether any
-  // cell's content actually overflows its box (scrollWidth > clientWidth);
-  // when it does, the columns can't fit and we card up. The @container base
-  // (styles.*: STACK_BP) still stacks true-mobile widths without JS.
-  //
-  // Oscillation guard: stacking changes the layout (cards never overflow), so
-  // we can't re-measure overflow while stacked. We latch the container width
-  // at the moment we stacked and only return to tabular once the container
-  // has grown comfortably past it (hysteresis), then re-check overflow fresh.
-  const containerRef = useRef<HTMLDivElement>(null)
-  const gridRef = useRef<HTMLDivElement>(null)
-  const [stacked, setStacked] = useState(false)
-  const stackedAtWidthRef = useRef(0)
-
-  // Re-runs whenever `stacked` flips: after we drop back to tabular the
-  // container width is unchanged, so the ResizeObserver won't fire — the
-  // effect re-running is what re-checks overflow in the fresh tabular layout.
-  useIsoLayoutEffect(() => {
-    if (!responsive) {
-      setStacked(false)
-      return
-    }
-    const el = containerRef.current
-    if (!el || typeof ResizeObserver === 'undefined') return
-
-    // Grows-back margin: only leave stack mode once we're well clear of the
-    // width that triggered it, so a 1px jiggle at the boundary can't flip-flop.
-    const HYSTERESIS = 48
-
-    const measure = (width: number) => {
-      if (width <= 0) return
-      if (!stacked) {
-        if (gridOverflows(gridRef.current)) {
-          stackedAtWidthRef.current = width
-          setStacked(true)
-        }
-      } else if (width > stackedAtWidthRef.current + HYSTERESIS) {
-        // Drop back to tabular; this effect re-runs and re-checks overflow.
-        setStacked(false)
-      }
-    }
-
-    measure(el.getBoundingClientRect().width)
-    const ro = new ResizeObserver((entries) => {
-      const entry = entries[0]
-      if (!entry) return
-      const box = entry.contentBoxSize?.[0]
-      measure(box ? box.inlineSize : entry.contentRect.width)
-    })
-    ro.observe(el)
-    return () => ro.disconnect()
-    // labels.length re-runs detection when the column set changes.
-  }, [responsive, labels.length, stacked])
-
   const grid = (
     <html.div
       role="table"
-      ref={gridRef}
       style={[
         styles.root,
         // When responsive, use gridColumnsResponsive so the explicit column
@@ -317,45 +230,33 @@ export function Root({
             : styles.gridColumns(template)
           : undefined,
         responsive && styles.rootResponsive,
-        // Force-stack override — collapses the grid to one column. Applied
-        // last so its gridTemplateColumns wins over gridColumnsResponsive.
-        responsive && stacked && styles.rootStacked,
       ]}
     >
       {children}
     </html.div>
   )
 
-  // The sort chip is normally revealed only by the @container query. When
-  // JS force-stacks (headers hidden, but container wider than STACK_BP) the
-  // chip's own query hasn't fired, so inject forceShow to reveal it.
-  const sortChipEl =
-    stacked && isValidElement(sortChip)
-      ? cloneElement(sortChip as ReactElement<{forceShow?: boolean}>, {forceShow: true})
-      : sortChip
+  // Above the stack breakpoint the grid keeps each column ≥ minColumnWidth, so
+  // a dense table overflows this wrapper and scrolls sideways instead of
+  // crushing. Below it (@container ≤ sm) the grid is one column and there's
+  // nothing to scroll. Non-responsive tables opt out of the frame entirely.
+  const framedGrid = responsive ? <html.div style={styles.scrollX}>{grid}</html.div> : grid
 
   // Slots render unconditionally — `responsive=false` still wants its sort/
   // pagination chrome. Only the containerType:inline-size wrapper is
-  // conditional, since it only matters when @container queries fire.
+  // conditional, since it only matters when @container queries fire. SortChip
+  // reveals itself in card mode via its own @container rule — no JS needed.
   const body = (
     <>
-      {sortChipEl}
-      {grid}
+      {sortChip}
+      {framedGrid}
       {pagination}
     </>
   )
 
   return (
-    <TableContext.Provider
-      value={{variant, size, responsive, labels, inferredTemplateRef, stacked}}
-    >
-      {responsive ? (
-        <html.div ref={containerRef} style={styles.rootContainer}>
-          {body}
-        </html.div>
-      ) : (
-        body
-      )}
+    <TableContext.Provider value={{variant, size, responsive, labels, inferredTemplateRef}}>
+      {responsive ? <html.div style={styles.rootContainer}>{body}</html.div> : body}
     </TableContext.Provider>
   )
 }
@@ -363,10 +264,9 @@ export function Root({
 // --- Header ---
 
 export function Header({children}: {children: ReactNode}) {
-  const {stacked} = useTable()
   return (
     <HeaderContext.Provider value={true}>
-      <html.div role="rowgroup" style={[styles.header, stacked && styles.headerStacked]}>
+      <html.div role="rowgroup" style={styles.header}>
         {children}
       </html.div>
     </HeaderContext.Provider>
@@ -430,7 +330,7 @@ const INTERACTIVE_SELECTOR =
   'button, a, input, select, textarea, [role="button"], [role="link"], [role="checkbox"], [role="menuitem"], [role="switch"], [role="tab"], [contenteditable="true"]'
 
 export function Row({children, onClick, 'aria-label': ariaLabel}: RowProps) {
-  const {variant, stacked} = useTable()
+  const {variant} = useTable()
   const isHeader = useContext(HeaderContext)
   const rowIndex = useContext(RowIndexContext)
   const isEvenRow = rowIndex >= 0 && rowIndex % 2 === 1
@@ -472,9 +372,6 @@ export function Row({children, onClick, 'aria-label': ariaLabel}: RowProps) {
         !isHeader && styles.bodyRow,
         !isHeader && variant === 'striped' && isEvenRow && styles.stripedEven,
         isClickable && styles.clickableRow,
-        stacked && styles.rowStacked,
-        // bodyRowStacked last so its card background wins over stripedEven.
-        !isHeader && stacked && styles.bodyRowStacked,
       ]}
     >
       {childArray.map((child, index) => (
@@ -563,7 +460,7 @@ HeaderCell.displayName = 'HeaderCell'
 // isActions=true — actions footers don't show a label.
 
 export function Cell({children, isActions}: {children: ReactNode; isActions?: boolean}) {
-  const {size, variant, labels, responsive, stacked} = useTable()
+  const {size, variant, labels, responsive} = useTable()
   const {index, total} = useContext(CellIndexContext)
   const isLast = variant === 'bordered' && index === total - 1
   const label = labels[index] ?? ''
@@ -577,20 +474,10 @@ export function Cell({children, isActions}: {children: ReactNode; isActions?: bo
         variant === 'bordered' && styles.borderedCell,
         isLast && styles.borderedCellLast,
         isActions && styles.cellActions,
-        // Force-stack: cells become a label|value grid; the actions cell then
-        // overrides its template to a single track and turns into the card's
-        // right-aligned footer. Mirrors the @container (STACK_BP) branch, so
-        // cellStacked applies for every cell and cellActionsStacked layers on
-        // top for actions (its gridTemplateColumns wins as the later entry).
-        stacked && styles.cellStacked,
-        isActions && stacked && styles.cellActionsStacked,
-        variant === 'bordered' && stacked && styles.borderedCellStacked,
       ]}
     >
       {responsive && !isActions && label !== '' ? (
-        <html.span style={[styles.cellLabel, stacked && styles.cellLabelStacked]}>
-          {label}
-        </html.span>
+        <html.span style={styles.cellLabel}>{label}</html.span>
       ) : null}
       {isActions ? children : <html.div style={styles.cellValue}>{children}</html.div>}
     </html.div>
