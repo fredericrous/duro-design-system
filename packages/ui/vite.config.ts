@@ -22,6 +22,7 @@ export default defineConfig({
         'effect',
         'effect/Schema',
         '@tanstack/react-table',
+        '@tanstack/react-virtual',
       ],
     },
     sourcemap: true,
