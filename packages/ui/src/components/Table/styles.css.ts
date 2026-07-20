@@ -3,13 +3,15 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
 
-// Container-query thresholds. Picked for typical 5-7 column admin tables —
-// see Table.stories.tsx "Responsive" for the visual reasoning. Defined
-// once here so it's clear they're a design-system constant, not a magic
-// number sprinkled across files.
-const COMPACT_BP = '720px'
-const STACK_BP = '440px'
+// Container-query thresholds, from the shared breakpoint scale. `sm` (640px)
+// is the single "card up" line used across every table (Table + VirtualTable);
+// below it dense tables become cards, above it they stay tabular and scroll
+// horizontally. `md` (768px) is the compact band (tighter padding, nowrap
+// headers). These are inlined into the @container query text at build time.
+const COMPACT_BP = breakpoints.md
+const STACK_BP = breakpoints.sm
 
 export const styles = css.create({
   // Outer wrapper that hosts the @container query. Wraps SortChip + Root
@@ -68,6 +70,16 @@ export const styles = css.create({
   // always wins, so combining gridColumns + rootResponsive in one array would
   // silently drop the column template).
   rootResponsive: {
+    // Size the grid to its content so it can OVERFLOW the scroll wrapper
+    // rather than shrink: `min-content` here is the sum of each column's
+    // minimum track (the minmax() floor / its content), so a dense table
+    // grows past the container and Root's `scrollX` wrapper scrolls sideways.
+    // In stack mode the grid is a single column, so drop the floor to let the
+    // card fill the width instead of forcing a horizontal scrollbar.
+    minWidth: {
+      default: 'min-content',
+      [`@container (max-width: ${STACK_BP})`]: 0,
+    },
     // The card-list look needs the outer border to disappear in stack
     // mode — each row paints its own border.
     borderWidth: {
@@ -320,61 +332,19 @@ export const styles = css.create({
     alignSelf: 'flex-start',
   },
 
-  // --- JS-measured force-stack variants ---
-  //
-  // A container query can only test the container's WIDTH — it can't know
-  // "6 columns won't fit here". So a dense table can be wider than STACK_BP
-  // yet still crush every cell to a few characters. Table.Root measures the
-  // container with a ResizeObserver and, when `width < columnCount ×
-  // minColumnWidth`, sets `stacked` in context; each component then also
-  // applies its `*Stacked` variant here. These mirror the values in the
-  // `@container (max-width: ${STACK_BP})` branches above, so JS-forced and
-  // CSS-driven stacking render identically. The @container base is kept as
-  // the SSR-safe path for genuinely narrow (mobile) widths — no JS, no
-  // hydration flash — while these handle the cramped medium-width case.
-  rootStacked: {
-    gridTemplateColumns: '1fr',
-    borderWidth: 0,
-    backgroundColor: 'transparent',
-    overflow: 'visible',
-    rowGap: spacing.sm,
-  },
-  headerStacked: {
-    display: 'none',
-  },
-  rowStacked: {
-    gridTemplateColumns: '1fr',
-    borderBottomWidth: 0,
-  },
-  bodyRowStacked: {
-    backgroundColor: {
-      default: colors.bgCard,
-      ':hover': colors.bgCardHover,
-    },
-    padding: spacing.sm,
-    borderRadius: radii.sm,
-    borderWidth: 1,
-  },
-  cellStacked: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 2fr',
-    gap: spacing.sm,
-  },
-  cellLabelStacked: {
-    display: 'block',
-  },
-  cellActionsStacked: {
-    gridTemplateColumns: '1fr',
-    justifyContent: 'flex-end',
-    marginTop: spacing.sm,
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-  },
-  borderedCellStacked: {
-    borderRightWidth: 0,
-  },
-  sortChipStacked: {
-    display: 'inline-flex',
+  // Horizontal-scroll frame around the grid (responsive path). Above the
+  // stack breakpoint the grid keeps each column at least `minColumnWidth`
+  // wide (see the minmax() template), so a dense table overflows and this
+  // wrapper scrolls sideways instead of crushing its cells — the standard
+  // data-table behavior. In stack mode the grid collapses to one column, so
+  // nothing overflows and no scrollbar appears.
+  scrollX: {
+    overflowX: 'auto',
+    // Contain the scroll to this axis; vertical growth (rows) is natural.
+    overflowY: 'visible',
+    // Momentum scroll on touch + a stable gutter so the layout doesn't jump
+    // when the scrollbar shows.
+    WebkitOverflowScrolling: 'touch',
   },
 
   // Dynamic: grid columns applied on Root (non-responsive path only).
@@ -389,15 +359,18 @@ export const styles = css.create({
   // earlier classes (the LAST style wins per property key).
   //
   // - default: balanced multi-column layout for desktop widths
-  // - @container (max-width: COMPACT_BP): consumer-supplied "compact"
-  //   template, e.g. give a badge column max-content and let the action
-  //   column absorb the slack so its hint text fits on one line
+  // - compact band (STACK_BP < width ≤ COMPACT_BP): consumer-supplied
+  //   "compact" template. This is written as an explicit RANGE, not just
+  //   `max-width: COMPACT_BP`, so it does NOT also match below STACK_BP —
+  //   otherwise both the compact and the stack rule would set
+  //   gridTemplateColumns at card widths and StyleX's ordering could let the
+  //   (wider, 4-column) compact template shadow the single-column stack one.
   // - @container (max-width: STACK_BP): collapse to a single column so
   //   each row becomes a card
   gridColumnsResponsive: (template: string, compactTemplate: string) => ({
     gridTemplateColumns: {
       default: template,
-      [`@container (max-width: ${COMPACT_BP})`]: compactTemplate,
+      [`@container (${STACK_BP} < width <= ${COMPACT_BP})`]: compactTemplate,
       [`@container (max-width: ${STACK_BP})`]: '1fr',
     },
   }),

@@ -11,6 +11,7 @@ import {
   type Row,
 } from '@tanstack/react-table'
 import {useVirtualizer} from '@tanstack/react-virtual'
+import {breakpointsPx} from '@duro-app/tokens/tokens/breakpoints.css'
 import {styles} from './styles.css'
 
 // Measure + commit before paint on the client; no-op-safe on the server.
@@ -61,11 +62,10 @@ interface VirtualTableProps<TData> {
   virtualizeThreshold?: number
   /**
    * Below this container width (px) the table cards up: the header hides and
-   * each row becomes a label/value card (like Table's stack mode). Since the
-   * flex columns truncate rather than overflow, this is a deliberate
-   * phone-width breakpoint, not an auto content measurement. Cards disable
-   * windowing (variable heights), so keep phone lists reasonably short.
-   * Default 640. Set `responsive={false}` to disable entirely.
+   * each row becomes a label/value card (like Table's stack mode). Defaults to
+   * the shared `sm` breakpoint (640px) so every table cards up at the same
+   * line. Cards disable windowing (variable heights), so keep phone lists
+   * reasonably short. Set `responsive={false}` to disable entirely.
    */
   stackBelow?: number
   /** Opt out of the card-up-on-narrow behavior. Default true. */
@@ -98,7 +98,7 @@ export function VirtualTable<TData>({
   estimateRowHeight = 44,
   maxHeight = '70vh',
   virtualizeThreshold = 150,
-  stackBelow = 640,
+  stackBelow = breakpointsPx.sm,
   responsive = true,
   emptyLabel,
 }: VirtualTableProps<TData>) {
