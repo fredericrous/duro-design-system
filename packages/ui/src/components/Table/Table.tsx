@@ -4,7 +4,9 @@ import {
   type MutableRefObject,
   createContext,
   useContext,
+  useEffect,
   useRef,
+  useState,
   Children,
   isValidElement,
 } from 'react'
@@ -169,6 +171,55 @@ function extractColumnMeta(
   }
 }
 
+// --- ScrollFrame ---
+//
+// Wraps the grid in the horizontal-scroll port and paints a soft fade at
+// whichever edge still has hidden columns, so a scrollable table advertises
+// that there's more to see (and stops advertising once you reach the end).
+// This is the ONLY JS the responsive Table uses, and it's purely cosmetic —
+// it reads scroll position and toggles fade opacity; it never changes layout,
+// so none of the flicker/oscillation risk of the old auto-stacking applies.
+function ScrollFrame({children}: {children: ReactNode}) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [edges, setEdges] = useState({start: false, end: false})
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const update = () => {
+      const overflowing = el.scrollWidth - el.clientWidth > 1
+      setEdges({
+        start: overflowing && el.scrollLeft > 1,
+        end: overflowing && el.scrollLeft + el.clientWidth < el.scrollWidth - 1,
+      })
+    }
+    update()
+    el.addEventListener('scroll', update, {passive: true})
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
+    ro?.observe(el)
+    return () => {
+      el.removeEventListener('scroll', update)
+      ro?.disconnect()
+    }
+  }, [])
+
+  return (
+    <html.div style={styles.scrollFrame}>
+      <html.div ref={scrollRef} style={styles.scrollX}>
+        {children}
+      </html.div>
+      <html.div
+        aria-hidden
+        style={[styles.edgeFade, styles.edgeFadeLeft, edges.start && styles.edgeFadeVisible]}
+      />
+      <html.div
+        aria-hidden
+        style={[styles.edgeFade, styles.edgeFadeRight, edges.end && styles.edgeFadeVisible]}
+      />
+    </html.div>
+  )
+}
+
 // --- Root ---
 
 interface RootProps {
@@ -240,7 +291,7 @@ export function Root({
   // a dense table overflows this wrapper and scrolls sideways instead of
   // crushing. Below it (@container ≤ sm) the grid is one column and there's
   // nothing to scroll. Non-responsive tables opt out of the frame entirely.
-  const framedGrid = responsive ? <html.div style={styles.scrollX}>{grid}</html.div> : grid
+  const framedGrid = responsive ? <ScrollFrame>{grid}</ScrollFrame> : grid
 
   // Slots render unconditionally — `responsive=false` still wants its sort/
   // pagination chrome. Only the containerType:inline-size wrapper is

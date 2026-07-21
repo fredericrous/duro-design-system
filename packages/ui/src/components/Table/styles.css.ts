@@ -347,6 +347,42 @@ export const styles = css.create({
     WebkitOverflowScrolling: 'touch',
   },
 
+  // Positioning context for the scroll-affordance edge fades, which sit on
+  // top of the scroll port (not inside it, so they don't scroll away).
+  scrollFrame: {
+    position: 'relative',
+  },
+  // A soft fade pinned to a scroll edge that hints "there's more this way".
+  // It fades the content into the surface colour, so it reads in any theme.
+  // Toggled by opacity from JS scroll position; pointer-events off so it
+  // never eats clicks. Sits just inside the rounded frame border.
+  edgeFade: {
+    position: 'absolute',
+    top: 1,
+    bottom: 1,
+    width: spacing.xl,
+    pointerEvents: 'none',
+    opacity: 0,
+    transitionProperty: 'opacity',
+    transitionDuration: duration.fast,
+    transitionTimingFunction: easing.standard,
+  },
+  edgeFadeLeft: {
+    left: 1,
+    borderTopLeftRadius: radii.md,
+    borderBottomLeftRadius: radii.md,
+    backgroundImage: `linear-gradient(to left, transparent, ${colors.bgCard})`,
+  },
+  edgeFadeRight: {
+    right: 1,
+    borderTopRightRadius: radii.md,
+    borderBottomRightRadius: radii.md,
+    backgroundImage: `linear-gradient(to right, transparent, ${colors.bgCard})`,
+  },
+  edgeFadeVisible: {
+    opacity: 1,
+  },
+
   // Dynamic: grid columns applied on Root (non-responsive path only).
   gridColumns: (template: string) => ({
     gridTemplateColumns: template,

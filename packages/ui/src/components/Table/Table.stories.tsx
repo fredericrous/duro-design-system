@@ -1198,12 +1198,26 @@ export const ScrollsHorizontallyWhenDense: Story = {
   play: async ({canvas}) => {
     const grid = canvas.getByRole('table')
     const scroller = grid.parentElement as HTMLElement
+    const frame = scroller.parentElement as HTMLElement
+    const rightFade = frame.lastElementChild as HTMLElement
+    const leftFade = rightFade.previousElementSibling as HTMLElement
     await waitFor(async () => {
       // Still tabular: all 8 headers present (NOT carded up).
       await expect(canvas.queryAllByRole('columnheader')).toHaveLength(8)
+      // The wrapper scrolls: content (8 × 120px ≈ 960) exceeds its 800px box.
+      await expect(scroller.scrollWidth).toBeGreaterThan(scroller.clientWidth + 2)
+      // Scroll affordance: at the start the RIGHT edge fades (more →), the
+      // left edge doesn't.
+      await expect(getComputedStyle(rightFade).opacity).toBe('1')
+      await expect(getComputedStyle(leftFade).opacity).toBe('0')
     })
-    // The wrapper scrolls: content (8 × 120px ≈ 960) exceeds its 800px box.
-    await expect(scroller.scrollWidth).toBeGreaterThan(scroller.clientWidth + 2)
+    // Scroll to the end → the cue flips: the left edge fades, the right clears.
+    scroller.scrollLeft = scroller.scrollWidth
+    scroller.dispatchEvent(new Event('scroll'))
+    await waitFor(async () => {
+      await expect(getComputedStyle(leftFade).opacity).toBe('1')
+      await expect(getComputedStyle(rightFade).opacity).toBe('0')
+    })
   },
 }
 
