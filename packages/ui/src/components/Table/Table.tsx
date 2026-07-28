@@ -12,10 +12,6 @@ import {
 } from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
-import {Pagination} from './Pagination'
-import {SortIndicator} from './SortIndicator'
-import {ColumnFilter} from './ColumnFilter'
-import {SortChip} from './SortChip'
 
 // --- Types ---
 
@@ -537,9 +533,20 @@ export function Cell({children, isActions}: {children: ReactNode; isActions?: bo
 
 // --- Export ---
 
-import {FromTanstack} from './FromTanstack'
-
-export const Table = {
+/**
+ * The presentational table. Deliberately free of any TanStack import: this is
+ * reachable from the package root, and a static import here would put
+ * `@tanstack/react-table` in the module graph of every consumer, including the
+ * ones that never render a data table. A bundler has to RESOLVE an import
+ * before it can tree-shake the code behind it, so that made an optional
+ * feature's peer dependency mandatory for everyone.
+ *
+ * The TanStack-aware parts — Pagination, SortIndicator, ColumnFilter,
+ * SortChip, FromTanstack, useDataTable, VirtualTable — live behind
+ * `@duro-app/ui/table`, which re-exports this object with them attached. So
+ * `Table.Root` is identical either way; only the import specifier differs.
+ */
+export const TableCore = {
   /** @deprecated Wrap behaviour is built into Table.Root. Drop this wrapper from new code. */
   Container,
   Root,
@@ -548,10 +555,6 @@ export const Table = {
   Row,
   HeaderCell,
   Cell,
-  Pagination,
-  SortIndicator,
-  ColumnFilter,
-  SortChip,
-  /** Renders a styled Table directly from a TanStack table instance. */
-  FromTanstack,
 }
+
+export const Table = TableCore
