@@ -2,6 +2,9 @@ import {css} from 'react-strict-dom'
 import {colors} from '../tokens/colors.css'
 import {shadows} from '../tokens/shadows.css'
 
+// NOTE: `bg` and `text` are mirrored in packages/ui/src/global-reset.css so the
+// page canvas (body) follows this theme — body is an ANCESTOR of the element
+// these tokens land on, so it cannot read them. Change one, change both.
 export const highContrastTheme = css.createTheme(colors, {
   bg: '#000000',
   bgCard: '#111111',
