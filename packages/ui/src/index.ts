@@ -1,3 +1,8 @@
+// Stable public aliases for the design tokens (--duro-color-bg and friends),
+// generated from the built tokens. Imported here so a consumer that already
+// pulls in the stylesheet can write plain CSS against the theme without
+// reaching for the hashed StyleX names, which are not a stable API.
+import '@duro-app/tokens/vars.css'
 import './global-reset.css'
 import './strict.css'
 

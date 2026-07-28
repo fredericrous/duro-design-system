@@ -277,6 +277,37 @@ const MySchema = Schema.Struct({
 | `displayMd` | 44-60px | bold     | Hero text (fluid)                       |
 | `displayLg` | 56-72px | bold     | Hero text (fluid)                       |
 
+### Using tokens from plain CSS
+
+Inside components, always go through `css.create()` with the token imports
+above. When an app genuinely needs a token in its own stylesheet (a CSS
+module, a global rule), use the published `--duro-*` custom properties:
+
+```css
+.card {
+  background: var(--duro-color-bg-card);
+  border: 1px solid var(--duro-color-border);
+  padding: var(--duro-spacing-md);
+  border-radius: var(--duro-radius-md);
+}
+```
+
+Naming is `--duro-<group>-<token>` in kebab-case: `colors.bgCard` →
+`--duro-color-bg-card`, `spacing.md` → `--duro-spacing-md`, `radii.md` →
+`--duro-radius-md`. They come with `@duro-app/ui`'s stylesheet, and they
+follow the active theme — including inside a `ThemeProvider` subtree.
+
+**Don't** reference the StyleX variables directly (`var(--bg-xqkwqtp)`). The
+hash is a build artefact and changes when StyleX or the defining file does.
+**Don't** invent a name and rely on a fallback (`var(--color-bg, #fff)`) —
+nothing defines it, so the fallback wins forever and silently ignores the
+theme.
+
+`dist/vars.css` is generated from the built tokens by
+`packages/tokens/scripts/generate-vars-css.mjs`; it cannot drift from what
+StyleX actually emitted, and there is nothing to hand-maintain when a token
+is added.
+
 ### Color Semantics
 
 | Token                                   | Purpose                              |
