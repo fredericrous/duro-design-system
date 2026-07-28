@@ -2,7 +2,10 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {useState} from 'react'
-import {Table} from './Table'
+// The full object, from the subpath entry: these stories exercise
+// Pagination/SortChip/FromTanstack, which './Table' deliberately no longer
+// carries. Also the closest thing to a consumer-shaped import in the repo.
+import {Table} from '../../table'
 import {Badge} from '../Badge/Badge'
 import {Checkbox} from '../Checkbox/Checkbox'
 import {Button} from '../Button/Button'

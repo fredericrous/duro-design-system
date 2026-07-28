@@ -406,12 +406,27 @@ function LoginForm() {
 
 ### Data Table
 
+**Import from `@duro-app/ui/table`, not the package root.** Everything that
+touches TanStack — `FromTanstack`, `Pagination`, `SortChip`, `SortIndicator`,
+`ColumnFilter`, `useDataTable`, `VirtualTable` — lives behind that subpath, so
+`@tanstack/react-table` stays an optional peer for apps that never render a
+data table:
+
+```tsx
+import {Table, useDataTable} from '@duro-app/ui/table'
+```
+
+The object it exports is the root's `Table` with those pieces attached, so
+`Table.Root`, `Table.Header` and friends behave identically — only the import
+specifier differs. Plain presentational tables can keep importing `Table` from
+the root and need no TanStack install at all.
+
 **Prefer `Table.FromTanstack` when your data has a TanStack table instance** —
 collapses 25 lines of `flexRender`/header/body ceremony into one component
 and wires SortChip, Pagination, and clickable-row keyboard activation for you.
 
 ```tsx
-import {Table, useDataTable} from '@duro-app/ui'
+import {Table, useDataTable} from '@duro-app/ui/table'
 import {createColumnHelper} from '@tanstack/react-table'
 
 const col = createColumnHelper<User>()

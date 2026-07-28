@@ -31,7 +31,12 @@
     },
     "./dist/index.css": "./dist/index.css",
     "./strict.css": "./src/strict.css",
-    "./reset.css": "./src/global-reset.css"
+    "./reset.css": "./src/global-reset.css",
+    "./table": {
+      "source": "./src/table.ts",
+      "import": "./dist/table.js",
+      "types": "./dist/table.d.ts"
+    }
   },
   "scripts": {
     "dev": "vite build --watch",
@@ -55,6 +60,9 @@
       "optional": true
     },
     "effect": {
+      "optional": true
+    },
+    "@tanstack/react-table": {
       "optional": true
     }
   },

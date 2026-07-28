@@ -8,9 +8,14 @@ export default defineConfig({
   build: {
     lib: {
       name: 'DuroUI',
-      entry: './src/index.ts',
+      // Two entries, so the TanStack-aware code is a separate chunk the root
+      // never pulls in. One entry would put `@tanstack/react-table` back in
+      // the root's graph and undo the point of the `./table` subpath.
+      entry: {
+        index: './src/index.ts',
+        table: './src/table.ts',
+      },
       formats: ['es'],
-      fileName: 'index',
     },
     rollupOptions: {
       external: [
@@ -24,6 +29,18 @@ export default defineConfig({
         '@tanstack/react-table',
         '@tanstack/react-virtual',
       ],
+      output: {
+        // With one entry Rollup named the CSS bundle after it ("index.css").
+        // With several it falls back to the package name ("ui.css"), which
+        // silently breaks every consumer importing
+        // "@duro-app/ui/dist/index.css" — a resolve error in their build, not
+        // ours. Pin the name so splitting the JS entries stays invisible to
+        // the stylesheet's path.
+        assetFileNames: (info) => {
+          const name = info.names?.[0] ?? info.name ?? ''
+          return name.endsWith('.css') ? 'index.css' : '[name][extname]'
+        },
+      },
     },
     sourcemap: true,
     target: 'es2020',

@@ -60,17 +60,12 @@ export {
 } from './components/StatusIcon/StatusIcon'
 export {Tag, type TagVariant, type TagSize} from './components/Tag/Tag'
 export {TagGroup} from './components/TagGroup/TagGroup'
+// The presentational table only. Pagination, SortIndicator, ColumnFilter,
+// SortChip, FromTanstack, useDataTable and VirtualTable all reach
+// @tanstack/react-table and live behind `@duro-app/ui/table`, so that peer
+// stays optional for apps that never render a data table. Importing Table
+// from there gives the same object with those attached.
 export {Table, type TableVariant, type TableSize} from './components/Table/Table'
-// Web-only (DOM scroll measurement + @tanstack/react-virtual); intentionally
-// absent from index.native.ts.
-export {VirtualTable, type VirtualTableRange} from './components/VirtualTable/VirtualTable'
-// Side-effect import registers our augmentation of TanStack's ColumnMeta
-// (stackLabel / isActions). Standalone module so the augmentation lands
-// whenever this package is in a consumer's TS program, even if FromTanstack
-// itself isn't imported.
-import './components/Table/tanstack-augmentation'
-// TanStack Table: consumers install @tanstack/react-table directly and use
-// Table.Pagination, Table.SortIndicator, Table.ColumnFilter for styled integration
 export {Tabs} from './components/Tabs/Tabs'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {
