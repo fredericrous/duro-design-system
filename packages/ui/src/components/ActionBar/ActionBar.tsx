@@ -14,6 +14,12 @@ export interface ActionBarProps {
   onClearSelection: () => void
   /** Whether the bar can be dismissed. When false, the close button is hidden. @default true */
   dismissible?: boolean
+  /**
+   * Distance in px between the bar and the bottom of the viewport, for hosts
+   * with their own bottom chrome (zoom controls, players) the bar must clear.
+   * Defaults to the spacing.lg token.
+   */
+  bottomOffset?: number
   /** Action buttons to display. */
   children: ReactNode
 }
@@ -24,6 +30,7 @@ function ActionBarContent({
   isEmphasized = false,
   onClearSelection,
   dismissible = true,
+  bottomOffset,
   children,
 }: ActionBarProps) {
   const countStr = selectedItemCount === 'all' ? 'All' : `${selectedItemCount}`
@@ -33,7 +40,11 @@ function ActionBarContent({
     <html.div
       role="toolbar"
       aria-label={label}
-      style={[styles.overlay, isEmphasized && styles.overlayEmphasized]}
+      style={[
+        styles.overlay,
+        bottomOffset != null && styles.overlayOffset(bottomOffset),
+        isEmphasized && styles.overlayEmphasized,
+      ]}
     >
       <html.span style={[styles.selectedCount, isEmphasized && styles.selectedCountEmphasized]}>
         {label}

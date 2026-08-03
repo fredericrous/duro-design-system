@@ -127,7 +127,7 @@ These components **must** be wrapped in their `.Root`:
 
 | Component         | Description                             | Key props                                                                                            | Use instead of                                     |
 | ----------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| **ActionBar**     | Floating bulk-selection toolbar         | `selectedItemCount`, `isEmphasized`                                                                  | Custom fixed toolbar                               |
+| **ActionBar**     | Floating bulk-selection toolbar         | `selectedItemCount`, `isEmphasized`, `bottomOffset`                                                  | Custom fixed toolbar                               |
 | **Alert**         | Inline status message with icon         | `variant: 'error'\|'success'\|'warning'\|'info'`                                                     | Custom banner                                      |
 | **Badge**         | Small label/tag                         | `variant`, `size: 'sm'\|'md'`                                                                        | Custom pill/chip                                   |
 | **Button**        | Interactive button                      | `variant: 'primary'\|'secondary'\|'inverseSecondary'\|'link'\|'danger'`, `size`, `fullWidth`         | `<button>`                                         |

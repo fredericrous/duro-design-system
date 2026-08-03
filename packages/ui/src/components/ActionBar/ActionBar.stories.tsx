@@ -11,6 +11,7 @@ interface ActionBarStoryArgs {
   onClearSelection: () => void
   selectedItemCount?: number
   isEmphasized?: boolean
+  bottomOffset?: number
 }
 
 const meta: Meta<ActionBarStoryArgs> = {
@@ -23,6 +24,11 @@ const meta: Meta<ActionBarStoryArgs> = {
     isEmphasized: {
       control: 'boolean',
       description: 'Whether the action bar uses the emphasized (inverse) style',
+    },
+    bottomOffset: {
+      control: 'number',
+      description:
+        'Distance in px from the bottom of the viewport, for hosts whose bottom edge already carries chrome the bar must clear',
     },
   },
 }
@@ -261,6 +267,35 @@ export const CustomLabel: Story = {
 
 export const Hidden: Story = {
   render: () => <SelectableTable initialSelected={new Set()} />,
+}
+
+export const BottomOffset: Story = {
+  render: () => (
+    <>
+      <Table.Root>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell>Name</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>Hero section</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table.Root>
+      <ActionBar selectedItemCount={1} bottomOffset={72} onClearSelection={() => {}}>
+        <Button variant="secondary" size="small">
+          Resize
+        </Button>
+      </ActionBar>
+    </>
+  ),
+  play: async () => {
+    const toolbar = document.querySelector('[role="toolbar"]')
+    await expect(toolbar).toBeInTheDocument()
+    await expect(getComputedStyle(toolbar as Element).bottom).toBe('72px')
+  },
 }
 
 export const AllVariants: Story = {

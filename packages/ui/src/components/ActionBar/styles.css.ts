@@ -28,6 +28,9 @@ export const styles = css.create({
     zIndex: 50,
     maxWidth: 'calc(100vw - 48px)',
   },
+  overlayOffset: (bottom: number) => ({
+    bottom,
+  }),
   overlayEmphasized: {
     backgroundColor: colors.accent,
     borderColor: colors.accent,

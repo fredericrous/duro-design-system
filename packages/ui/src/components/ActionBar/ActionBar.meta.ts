@@ -6,9 +6,10 @@ export const meta: ComponentMeta = {
   whenToUse: [
     'Bulk actions on table selections (delete, revoke, export)',
     'Multi-select workflows where actions apply to all selected items',
+    'Selection-scoped verbs on a canvas/editor surface (set `bottomOffset` to clear any bottom chrome such as zoom controls)',
   ],
   whenNotToUse: [
-    'Single-item actions — use inline buttons or a Menu',
+    'Single-item actions that have an inline home — use inline buttons or a Menu',
     'Persistent toolbars — use Inline with buttons',
   ],
   relatedTo: [
