@@ -109,7 +109,7 @@ These components **must** be wrapped in their `.Root`:
 | `Drawer`      | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
 | `Table`       | `Root`, `Header`, `Body`, `Row`, `HeaderCell`, `Cell`                                    |
 | `Tooltip`     | `Root`, `Trigger`                                                                        |
-| `SideNav`     | `Root`, `Group`, `Item`                                                                  |
+| `SideNav`     | `Root`, `Section`, `Group`, `Item`                                                       |
 | `ScrollArea`  | `Root`, `Viewport`, `Content`, `Scrollbar`, `Thumb`                                      |
 | `DetailPanel` | `Root`, `Content`, `Header`, `Title`, `Body`, `Footer`, `Close`                          |
 
@@ -154,7 +154,7 @@ These components **must** be wrapped in their `.Root`:
 | **Panel**         | Structural content container with slots | `bordered`, sub-components: `Header`, `Body` (`padded`), `Footer`                                    | Custom section wrapper                             |
 | **ScrollArea**    | Custom scrollbar region                 | Compound: `Root > Viewport > Content`, `Scrollbar > Thumb`                                           | `overflow: auto`                                   |
 | **Select**        | Dropdown select                         | Compound: `Root > Trigger + Popup > Item`                                                            | `<select>`                                         |
-| **SideNav**       | Side navigation                         | Compound: `Root > Group > Item`                                                                      | Custom nav sidebar                                 |
+| **SideNav**       | Side navigation                         | Compound: `Root > Section > Item` (`Group` = collapsible variant of `Section`)                       | Custom nav sidebar                                 |
 | **Spinner**       | Loading indicator                       | `size: 'sm'\|'md'\|'lg'`, `label`                                                                    | Custom loader                                      |
 | **Stack**         | Vertical flex layout                    | `gap`, `align`                                                                                       | `<div style="flex-direction:column">`              |
 | **StatusIcon**    | Icon with colored background            | `name`, `variant`, `size`                                                                            | Icon + custom wrapper                              |
@@ -347,6 +347,10 @@ is added.
 **Stroke icons:** `x-circle`, `check-circle`, `check-done`, `clock`, `forbidden`, `info-circle`, `alert-triangle`, `shield`, `lock`, `key`
 
 **Navigation glyphs:** `map`, `layers`, `repeat`, `database`, `shield-check`, `route`, `git-branch`, `menu`, `pin`
+
+**Infrastructure/inventory glyphs:** `server`, `hard-drive`, `box`, `image`, `tag`, `pie-chart`
+
+**People/access glyphs:** `users`, `user-plus`, `mail`, `file-text`, `plug`
 
 **Color-mode glyphs:** `sun`, `moon`, `monitor`, `contrast`
 
@@ -590,6 +594,53 @@ function SettingsPage() {
   )
 }
 ```
+
+### Side Navigation
+
+**Default to `SideNav.Section` — always-open, labelled blocks.** A rail's job
+is to advertise where you can go. An always-open list keeps the whole
+information architecture scannable and puts every destination one click away;
+the uppercase label already does the chunking work, so you get the grouping
+benefit without hiding anything. `SideNav.Group` renders the same block behind
+a chevron, which costs every destination inside it an extra click and removes
+it from scanning.
+
+```tsx
+import {SideNav, Icon} from '@duro-app/ui'
+;<SideNav.Root value={pathname} onValueChange={(v) => navigate(v)}>
+  <SideNav.Section label="Infrastructure">
+    <SideNav.Item value="/nodes" icon={<Icon name="server" size={18} />}>
+      Nodes
+    </SideNav.Item>
+    <SideNav.Item value="/storage" icon={<Icon name="hard-drive" size={18} />}>
+      Storage
+    </SideNav.Item>
+  </SideNav.Section>
+  {/* Disclosure, earned: rarely visited, so it starts collapsed. */}
+  <SideNav.Group label="Advanced">
+    <SideNav.Item value="/plugins" icon={<Icon name="plug" size={18} />}>
+      Plugins
+    </SideNav.Item>
+  </SideNav.Group>
+</SideNav.Root>
+```
+
+**`Group` has to buy back the click it costs.** It does when the region is:
+
+- **rare or advanced** — "Advanced", "Danger zone", "Legacy". Disclose the
+  seldom-used, never the everyday.
+- **unbounded / data-driven** — one entry per namespace, project or team. You
+  cannot author-flatten a list whose length you don't control.
+- **one of many in a long rail** (beyond ~30 leaves) where a flat list stops
+  reading as an overview and becomes a wall.
+
+The healthy shape is a **mix**: flat `Section`s for the journey, one collapsed
+`Group` at the bottom. A rail where _every_ block is a `Group` is the smell —
+it hides the entire IA behind chevrons and makes the user hunt.
+
+**Neither is a tree.** Arbitrary-depth _data_ browsing (a file tree, a
+namespace → resource drill-down) needs `role="tree"` with roving tabindex,
+typeahead and `aria-level`. Don't nest `SideNav` to fake it.
 
 ### Empty State
 

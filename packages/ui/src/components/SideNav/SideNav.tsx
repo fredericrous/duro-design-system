@@ -1,8 +1,34 @@
-import {type ReactNode, useState, useCallback, useRef, useEffect} from 'react'
+import {type ReactNode, useState, useCallback, useRef, useEffect, useId} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {SideNavContext, useSideNav} from './SideNavContext'
+
+/**
+ * SideNav has two ways to chunk a rail, and they are NOT interchangeable.
+ *
+ * `Section` — a labelled block that is always open. This is the DEFAULT for
+ * primary navigation. A nav's job is to advertise where you can go; an
+ * always-open list keeps the whole information architecture scannable and puts
+ * every destination one click away. The uppercase label does the chunking work
+ * on its own — you get the grouping benefit without hiding anything.
+ *
+ * `Group` — the same block behind a chevron (a disclosure). Collapsing costs
+ * every destination inside it an extra click and hides it from scanning, so it
+ * has to buy something back. It does when the region is:
+ *   • rare or advanced ("Advanced", "Danger zone", "Legacy") — disclose the
+ *     seldom-used, never the everyday;
+ *   • unbounded / data-driven (one entry per namespace, project, team) — you
+ *     cannot author-flatten a list whose length you don't control;
+ *   • one of many in a rail long enough (>~30 leaves) that a flat list stops
+ *     reading as an overview.
+ * The healthy shape is a mix: flat Sections for the journey, one collapsed
+ * Group at the bottom.
+ *
+ * Neither is a tree. Arbitrary-depth *data* browsing (a file tree, a
+ * namespace → resource drill-down) needs `role="tree"` with roving tabindex,
+ * typeahead and aria-level — a different component, not a deeper SideNav.
+ */
 
 // --- Root ---
 
@@ -93,6 +119,8 @@ function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
   const {expandedGroups, toggleGroup, expandGroup, activeValue} = useSideNav()
   const isExpanded = expandedGroups.has(key)
   const groupRef = useRef<HTMLDivElement>(null)
+  const triggerId = useId()
+  const panelId = useId()
 
   // Auto-expand if this group contains the active item. Uses expandGroup (not
   // toggleGroup) so it never races the defaultExpanded effect into a closed
@@ -125,9 +153,11 @@ function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
     <html.div ref={groupRef} style={styles.group}>
       <html.button
         type="button"
+        id={triggerId}
         onClick={() => toggleGroup(key)}
         style={[styles.groupTrigger, hasActiveChild && styles.groupTriggerActive]}
         aria-expanded={isExpanded}
+        aria-controls={isExpanded ? panelId : undefined}
       >
         <html.span style={[styles.chevron, isExpanded && styles.chevronOpen]}>
           <svg
@@ -145,7 +175,11 @@ function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
         </html.span>
         {label}
       </html.button>
-      {isExpanded && children}
+      {isExpanded ? (
+        <html.div id={panelId} role="group" aria-labelledby={triggerId} style={styles.items}>
+          {children}
+        </html.div>
+      ) : null}
     </html.div>
   )
 }
@@ -159,15 +193,24 @@ interface SectionProps {
 
 /**
  * A static, non-collapsible grouping: an always-visible uppercase header with
- * its items below. Unlike `Group` there is no chevron, toggle, or hidden state
- * — use it when every section should stay open at a glance (a flat menu with
- * labelled regions rather than an accordion).
+ * its items below. Unlike `Group` there is no chevron, toggle, or hidden state.
+ *
+ * Reach for this first — see the note at the top of this file for when a
+ * collapsible `Group` is the better call. The label is exposed as the group's
+ * accessible name, so a screen reader announces "Networking, group" on the way
+ * into its items instead of dropping the user into an undifferentiated run of
+ * thirty buttons.
  */
 function Section({children, label}: SectionProps) {
+  const labelId = useId()
   return (
     <html.div style={styles.section}>
-      <html.div style={styles.sectionLabel}>{label}</html.div>
-      {children}
+      <html.div id={labelId} style={styles.sectionLabel}>
+        {label}
+      </html.div>
+      <html.div role="group" aria-labelledby={labelId} style={styles.items}>
+        {children}
+      </html.div>
     </html.div>
   )
 }

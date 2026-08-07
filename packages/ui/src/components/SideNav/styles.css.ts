@@ -51,6 +51,13 @@ export const styles = css.create({
   chevronOpen: {
     transform: 'rotate(90deg)',
   },
+  // The `role="group"` wrapper around a Section's / an expanded Group's items.
+  // Purely structural: it exists to carry the accessible name, so it must not
+  // change how the items stack.
+  items: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
   // Static (non-collapsible) section — see SideNav.Section.
   section: {
     display: 'flex',

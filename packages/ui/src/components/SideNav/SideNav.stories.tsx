@@ -14,18 +14,21 @@ const meta: Meta<typeof SideNav.Root> = {
 export default meta
 type Story = StoryObj<typeof SideNav.Root>
 
+// The default shape for primary navigation: labelled `Section`s, all open, no
+// chevrons. Every destination is visible and one click away — a nav's job is to
+// advertise where you can go, and a collapsed group does the opposite.
 export const Default: Story = {
   render: (args) => (
     <SideNav.Root {...args} defaultValue="dashboard">
-      <SideNav.Group label="Overview" defaultExpanded>
+      <SideNav.Section label="Overview">
         <SideNav.Item value="dashboard">Dashboard</SideNav.Item>
         <SideNav.Item value="analytics">Analytics</SideNav.Item>
-      </SideNav.Group>
-      <SideNav.Group label="Settings">
+      </SideNav.Section>
+      <SideNav.Section label="Settings">
         <SideNav.Item value="profile">Profile</SideNav.Item>
         <SideNav.Item value="security">Security</SideNav.Item>
         <SideNav.Item value="notifications">Notifications</SideNav.Item>
-      </SideNav.Group>
+      </SideNav.Section>
     </SideNav.Root>
   ),
   play: async ({canvas}) => {
@@ -34,6 +37,62 @@ export const Default: Story = {
 
     const activeItem = canvas.getByRole('button', {name: 'Dashboard'})
     await expect(activeItem).toHaveAttribute('aria-current', 'page')
+
+    // Nothing is hidden: no section is a disclosure, every item is reachable.
+    await expect(canvas.queryByRole('button', {name: 'Settings'})).toBeNull()
+    await expect(canvas.getByRole('button', {name: 'Notifications'})).toBeInTheDocument()
+
+    // Each section names its own group so a screen reader hears "Settings,
+    // group" rather than one undifferentiated run of buttons.
+    const groups = canvas.getAllByRole('group')
+    await expect(groups).toHaveLength(2)
+    await expect(groups[0]).toHaveAccessibleName('Overview')
+    await expect(groups[1]).toHaveAccessibleName('Settings')
+  },
+}
+
+// The healthy mix: flat sections carry the journey, and ONE collapsed Group
+// holds the region you visit rarely. Disclosure is for the seldom-used — never
+// for the everyday.
+export const SectionsWithOneDisclosedGroup: Story = {
+  render: (args) => (
+    <SideNav.Root {...args} defaultValue="identities">
+      <SideNav.Section label="People & access">
+        <SideNav.Item value="identities" icon={<Icon name="users" size={18} />}>
+          Identities
+        </SideNav.Item>
+        <SideNav.Item value="grants" icon={<Icon name="key" size={18} />}>
+          Grants
+        </SideNav.Item>
+      </SideNav.Section>
+      <SideNav.Section label="Audit">
+        <SideNav.Item value="audit" icon={<Icon name="file-text" size={18} />}>
+          Audit log
+        </SideNav.Item>
+      </SideNav.Section>
+      <SideNav.Group label="Advanced">
+        <SideNav.Item value="plugins" icon={<Icon name="plug" size={18} />}>
+          Plugins
+        </SideNav.Item>
+      </SideNav.Group>
+    </SideNav.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    // Everyday destinations: visible without interaction.
+    await expect(canvas.getByRole('button', {name: 'Identities'})).toBeInTheDocument()
+    await expect(canvas.getByRole('button', {name: 'Audit log'})).toBeInTheDocument()
+
+    // The rare one is disclosed, and says so.
+    const advanced = canvas.getByRole('button', {name: 'Advanced'})
+    await expect(advanced).toHaveAttribute('aria-expanded', 'false')
+    await expect(advanced).not.toHaveAttribute('aria-controls')
+    await expect(canvas.queryByRole('button', {name: 'Plugins'})).toBeNull()
+
+    await userEvent.click(advanced)
+    await expect(advanced).toHaveAttribute('aria-expanded', 'true')
+    const panelId = advanced.getAttribute('aria-controls')
+    await expect(panelId).toBeTruthy()
+    await expect(canvas.getByRole('button', {name: 'Plugins'})).toBeInTheDocument()
   },
 }
 
