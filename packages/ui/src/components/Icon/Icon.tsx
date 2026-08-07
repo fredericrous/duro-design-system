@@ -21,6 +21,13 @@ export type IconName =
   | 'git-branch'
   | 'menu'
   | 'pin'
+  // Infrastructure / inventory glyphs
+  | 'server'
+  | 'hard-drive'
+  | 'box'
+  | 'image'
+  | 'tag'
+  | 'pie-chart'
   // People / access / admin glyphs
   | 'users'
   | 'user-plus'
@@ -157,6 +164,55 @@ const strokeIcons: Partial<Record<IconName, ReactNode>> = {
       <line x1="3" y1="6" x2="21" y2="6" />
       <line x1="3" y1="12" x2="21" y2="12" />
       <line x1="3" y1="18" x2="21" y2="18" />
+    </>
+  ),
+  // ---- infrastructure / inventory ----
+  // Two stacked rack units — hosts, nodes, machines.
+  server: (
+    <>
+      <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+      <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+      <line x1="6" y1="6" x2="6.01" y2="6" />
+      <line x1="6" y1="18" x2="6.01" y2="18" />
+    </>
+  ),
+  // Disk enclosure — volumes, persistent storage.
+  'hard-drive': (
+    <>
+      <line x1="22" y1="12" x2="2" y2="12" />
+      <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+      <line x1="6" y1="16" x2="6.01" y2="16" />
+      <line x1="10" y1="16" x2="10.01" y2="16" />
+    </>
+  ),
+  // Isometric crate — a deployable unit of work.
+  box: (
+    <>
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+      <line x1="12" y1="22.08" x2="12" y2="12" />
+    </>
+  ),
+  // Picture frame — container images, artefacts.
+  image: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <polyline points="21 15 16 10 5 21" />
+    </>
+  ),
+  // Luggage tag — labels, annotations, metadata.
+  tag: (
+    <>
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+      <line x1="7" y1="7" x2="7.01" y2="7" />
+    </>
+  ),
+  // Share of a whole — quotas, budgets, utilisation.
+  'pie-chart': (
+    <>
+      <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+      <path d="M22 12A10 10 0 0 0 12 2v10z" />
     </>
   ),
   // ---- people / access / admin ----
