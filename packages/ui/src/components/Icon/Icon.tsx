@@ -1,4 +1,7 @@
 import type {ReactNode} from 'react'
+import {ICON_SIZES, type IconSize} from '@duro-app/tokens/keys'
+
+export type {IconSize}
 
 export type IconName =
   | 'x-circle'
@@ -350,10 +353,12 @@ const filledIcons: Partial<Record<IconName, ReactNode>> = {
 
 interface IconProps {
   name: IconName
-  size?: number
+  /** Token from the icon size scale: sm 16, md 18, lg 24, xl 36, xxl 48. */
+  size?: IconSize
 }
 
-export function Icon({name, size = 24}: IconProps) {
+export function Icon({name, size: sizeToken = 'lg'}: IconProps) {
+  const size = ICON_SIZES[sizeToken]
   const filled = filledIcons[name]
   if (filled) {
     return (

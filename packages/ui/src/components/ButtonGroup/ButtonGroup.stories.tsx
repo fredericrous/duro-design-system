@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {ButtonGroup} from './ButtonGroup'
 import {Button} from '../Button/Button'
+import {Stack} from '../Stack/Stack'
 
 const meta: Meta<typeof ButtonGroup> = {
   title: 'Components/ButtonGroup',
@@ -81,7 +82,7 @@ export const Disabled: Story = {
 
 export const WithGaps: Story = {
   render: () => (
-    <div style={{display: 'flex', flexDirection: 'column', gap: 24}}>
+    <Stack gap="lg">
       <ButtonGroup gap="xs">
         <Button variant="primary">XS Gap</Button>
         <Button variant="secondary">XS Gap</Button>
@@ -94,7 +95,7 @@ export const WithGaps: Story = {
         <Button variant="primary">MD Gap</Button>
         <Button variant="secondary">MD Gap</Button>
       </ButtonGroup>
-    </div>
+    </Stack>
   ),
   play: async ({canvas}) => {
     const groups = canvas.getAllByRole('group')

@@ -1,10 +1,10 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
-import type {SpacingKey} from '../Stack/Stack'
+import type {SpacingToken} from '@duro-app/tokens/keys'
 
 interface ClusterProps {
-  gap?: SpacingKey
+  gap?: SpacingToken
   align?: 'start' | 'center' | 'end'
   justify?: 'start' | 'center' | 'end' | 'between'
   children: ReactNode
@@ -19,7 +19,7 @@ const gapMap = {
   xl: styles.gapXl,
   xxl: styles.gapXxl,
   xxxl: styles.gapXxxl,
-} as const
+} as const satisfies Record<SpacingToken, unknown>
 
 const alignMap = {
   start: styles.alignStart,

@@ -16,8 +16,8 @@ export const meta: ComponentMeta = {
     },
   ],
   example: `<Inline gap="sm" align="center">
-  <Icon name="check-circle" size={20} />
-  <Icon name="alert-triangle" size={20} />
-  <Icon name="shield-filled" size={20} />
+  <Icon name="check-circle" size="md" />
+  <Icon name="alert-triangle" size="md" />
+  <Icon name="shield-filled" size="md" />
 </Inline>`,
 }

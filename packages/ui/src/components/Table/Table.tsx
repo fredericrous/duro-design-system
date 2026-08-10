@@ -445,7 +445,6 @@ export function HeaderCell({
   width: _width,
   compactWidth: _compactWidth,
   label: _label,
-  isActions,
   'aria-label': ariaLabel,
 }: {
   children?: ReactNode
@@ -465,20 +464,8 @@ export function HeaderCell({
    *  text content is used as the label automatically. Required when children
    *  contain JSX (icon + text, sort indicator, etc.). */
   label?: string
-  /**
-   * @deprecated Has no effect on HeaderCell. Pass `isActions` on the
-   * matching `Table.Cell` instead — that's where the stack-mode footer
-   * layout actually applies.
-   */
-  isActions?: boolean
   'aria-label'?: string
 }) {
-  if (isActions === true) {
-    devWarnOnce(
-      'headerCell-isActions',
-      'HeaderCell `isActions` prop has no effect and is deprecated. Pass `isActions` on the matching Table.Cell instead.',
-    )
-  }
   const {size, variant} = useTable()
   const {index, total} = useContext(CellIndexContext)
   const isLast = variant === 'bordered' && index === total - 1

@@ -5,7 +5,7 @@
 ## Architecture
 
 - **Monorepo** managed by pnpm workspaces
-- **Packages:** `@duro-app/ui` (components), `@duro-app/tokens` (design tokens)
+- **Packages:** `@duro-app/ui` (components), `@duro-app/tokens` (design tokens), `@duro-app/eslint-plugin` (lint rules enforcing the Critical Rules below — `duro.configs.recommended`)
 - **Rendering:** [react-strict-dom](https://github.com/nicklockwood/react-strict-dom) — all elements use `html.*` (e.g. `html.div`, `html.button`), **never** raw `<div>` or `<span>`
 - **Styling:** `css.create()` from `react-strict-dom` with token references
 - **Form validation:** Effect Schema + react-hook-form via `@hookform/resolvers`
@@ -144,7 +144,7 @@ These components **must** be wrapped in their `.Root`:
 | **Form**          | Form with Effect Schema validation      | `schema`, `defaultValues`, `onSubmit`                                                                | `<form>` + manual RHF setup                        |
 | **Grid**          | CSS grid layout                         | `columns: 1-6`, `minColumnWidth`, `gap`                                                              | Custom CSS grid                                    |
 | **Heading**       | Semantic heading (h1-h6)                | `level: 1-6`, `variant`, `color`                                                                     | `<h1>`-`<h6>`                                      |
-| **Icon**          | SVG icon                                | `name: IconName`, `size`                                                                             | Inline SVGs                                        |
+| **Icon**          | SVG icon                                | `name: IconName`, `size: 'sm'\|'md'\|'lg'\|'xl'\|'xxl'` (16/18/24/36/48px)                           | Inline SVGs                                        |
 | **Inline**        | Horizontal flex, **no wrap**            | `gap`, `align`, `justify`                                                                            | `<div style="display:flex">`                       |
 | **Input**         | Text input                              | `type`, `variant: 'default'\|'error'`                                                                | `<input>`                                          |
 | **InputGroup**    | Input with prefix/suffix addons         | Wraps `Input` + `Addon` children                                                                     | Custom input wrapper                               |
@@ -609,16 +609,16 @@ it from scanning.
 import {SideNav, Icon} from '@duro-app/ui'
 ;<SideNav.Root value={pathname} onValueChange={(v) => navigate(v)}>
   <SideNav.Section label="Infrastructure">
-    <SideNav.Item value="/nodes" icon={<Icon name="server" size={18} />}>
+    <SideNav.Item value="/nodes" icon={<Icon name="server" size="md" />}>
       Nodes
     </SideNav.Item>
-    <SideNav.Item value="/storage" icon={<Icon name="hard-drive" size={18} />}>
+    <SideNav.Item value="/storage" icon={<Icon name="hard-drive" size="md" />}>
       Storage
     </SideNav.Item>
   </SideNav.Section>
   {/* Disclosure, earned: rarely visited, so it starts collapsed. */}
   <SideNav.Group label="Advanced">
-    <SideNav.Item value="/plugins" icon={<Icon name="plug" size={18} />}>
+    <SideNav.Item value="/plugins" icon={<Icon name="plug" size="md" />}>
       Plugins
     </SideNav.Item>
   </SideNav.Group>
@@ -651,7 +651,7 @@ function NoResultsView() {
   return (
     <Card>
       <EmptyState
-        icon={<Icon name="info-circle" size={48} />}
+        icon={<Icon name="info-circle" size="xxl" />}
         message="No results found"
         action={<Button variant="secondary">Clear filters</Button>}
       />

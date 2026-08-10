@@ -3,6 +3,7 @@ import {css, html} from 'react-strict-dom'
 import {Cluster} from './Cluster'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {SPACING_KEYS} from '@duro-app/tokens/keys'
 
 const meta: Meta<typeof Cluster> = {
   title: 'Layout/Cluster',
@@ -10,7 +11,7 @@ const meta: Meta<typeof Cluster> = {
   argTypes: {
     gap: {
       control: 'select',
-      options: ['xs', 'sm', 'ms', 'md', 'lg', 'xl', 'xxl', 'xxxl'],
+      options: [...SPACING_KEYS],
     },
     align: {
       control: 'select',

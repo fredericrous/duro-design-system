@@ -10,6 +10,7 @@ import {
   useRef,
 } from 'react'
 import {html} from 'react-strict-dom'
+import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 import {useSwipeDismiss} from './useSwipeDismiss'
 
@@ -18,11 +19,19 @@ import {useSwipeDismiss} from './useSwipeDismiss'
 export type DrawerAnchor = 'right' | 'left' | 'bottom'
 export type DrawerSize = 'sm' | 'md' | 'lg'
 
+const closeDurationMap = {
+  instant: styles.closeDurationInstant,
+  fast: styles.closeDurationFast,
+  base: styles.closeDurationBase,
+  slow: styles.closeDurationSlow,
+} as const satisfies Record<DurationToken, unknown>
+
 // --- Context ---
 
 interface DrawerContextValue {
   open: boolean
   closing: boolean
+  closeDuration: DurationToken
   anchor: DrawerAnchor
   dismissable: boolean
   swipeDismiss: boolean
@@ -59,8 +68,8 @@ interface RootProps {
   dismissable?: boolean
   /** Whether swipe gesture dismisses the drawer. Default: true */
   swipeDismiss?: boolean
-  /** Duration of the close animation in ms. Default: 160 */
-  closeAnimationDuration?: number
+  /** Motion token for the close animation. Default: 'fast' (150ms) */
+  closeAnimationDuration?: DurationToken
 }
 
 function Root({
@@ -71,7 +80,7 @@ function Root({
   anchor = 'right',
   dismissable = true,
   swipeDismiss = true,
-  closeAnimationDuration = 160,
+  closeAnimationDuration = 'fast',
 }: RootProps) {
   const isControlled = controlledOpen !== undefined
   const [internalOpen, setInternalOpen] = useState(defaultOpen)
@@ -101,7 +110,7 @@ function Root({
       closingTimerRef.current = null
       if (!isControlled) setInternalOpen(false)
       onOpenChange?.(false)
-    }, closeAnimationDuration)
+    }, DURATION_MS[closeAnimationDuration])
   }, [isControlled, onOpenChange, closeAnimationDuration])
 
   const requestCloseImmediate = useCallback(() => {
@@ -152,6 +161,7 @@ function Root({
       value={{
         open: isOpen || closing,
         closing,
+        closeDuration: closeAnimationDuration,
         anchor,
         dismissable,
         swipeDismiss,
@@ -210,6 +220,7 @@ function Portal({children, size = 'md'}: PortalProps) {
   const {
     open,
     closing,
+    closeDuration,
     anchor,
     dismissable,
     swipeDismiss: swipeEnabled,
@@ -245,6 +256,7 @@ function Portal({children, size = 'md'}: PortalProps) {
         style={[
           styles.backdrop,
           closing && styles.backdropClosing,
+          closing && closeDurationMap[closeDuration],
           !closing && styles.backdropOpen,
         ]}
         aria-hidden
@@ -266,6 +278,7 @@ function Portal({children, size = 'md'}: PortalProps) {
             !isHorizontal && styles.panelVertical,
             anchor === 'left' && styles.panelLeftBorder,
             closing && slideOutMap[anchor],
+            closing && closeDurationMap[closeDuration],
             !closing && slideInMap[anchor],
           ]}
         >

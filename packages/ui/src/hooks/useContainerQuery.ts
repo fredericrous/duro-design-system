@@ -1,10 +1,15 @@
 import {useRef, useState, useEffect} from 'react'
+import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
 
 export type ContainerSize = 'compact' | 'default' | 'spacious'
 
 interface UseContainerQueryOptions {
-  compactBelow?: number
-  spaciousAbove?: number
+  compactBelow?: Breakpoint | number
+  spaciousAbove?: Breakpoint | number
+}
+
+function toPx(value: Breakpoint | number): number {
+  return typeof value === 'number' ? value : breakpointsPx[value]
 }
 
 export function useContainerQuery<T extends HTMLElement = HTMLElement>(
@@ -13,7 +18,9 @@ export function useContainerQuery<T extends HTMLElement = HTMLElement>(
   ref: React.RefObject<T | null>
   size: ContainerSize
 } {
-  const {compactBelow = 480, spaciousAbove = 768} = options
+  const {compactBelow: compactOpt = 'xs', spaciousAbove: spaciousOpt = 'md'} = options
+  const compactBelow = toPx(compactOpt)
+  const spaciousAbove = toPx(spaciousOpt)
   const ref = useRef<T | null>(null)
   const [size, setSize] = useState<ContainerSize>('default')
 

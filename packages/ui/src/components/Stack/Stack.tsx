@@ -1,8 +1,9 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
+import type {SpacingToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 
-export type SpacingKey = 'xs' | 'sm' | 'ms' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl'
+export type SpacingKey = SpacingToken
 
 interface StackProps {
   gap?: SpacingKey
@@ -19,7 +20,7 @@ const gapMap = {
   xl: styles.gapXl,
   xxl: styles.gapXxl,
   xxxl: styles.gapXxxl,
-} as const
+} as const satisfies Record<SpacingToken, unknown>
 
 const alignMap = {
   start: styles.alignStart,

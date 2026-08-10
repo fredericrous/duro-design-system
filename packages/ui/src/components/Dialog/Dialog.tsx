@@ -10,17 +10,26 @@ import {
   useRef,
 } from 'react'
 import {html} from 'react-strict-dom'
+import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 
 // --- Types ---
 
 export type DialogSize = 'sm' | 'md' | 'lg'
 
+const closeDurationMap = {
+  instant: styles.closeDurationInstant,
+  fast: styles.closeDurationFast,
+  base: styles.closeDurationBase,
+  slow: styles.closeDurationSlow,
+} as const satisfies Record<DurationToken, unknown>
+
 // --- Context ---
 
 interface DialogContextValue {
   open: boolean
   closing: boolean
+  closeDuration: DurationToken
   dismissable: boolean
   requestOpen: () => void
   requestClose: () => void
@@ -49,8 +58,8 @@ interface RootProps {
   onOpenChange?: (open: boolean) => void
   /** Whether clicking backdrop closes the dialog. Default: true */
   dismissable?: boolean
-  /** Duration of the close animation in ms. Default: 140 */
-  closeAnimationDuration?: number
+  /** Motion token for the close animation. Default: 'fast' (150ms) */
+  closeAnimationDuration?: DurationToken
 }
 
 function Root({
@@ -59,7 +68,7 @@ function Root({
   defaultOpen = false,
   onOpenChange,
   dismissable = true,
-  closeAnimationDuration = 140,
+  closeAnimationDuration = 'fast',
 }: RootProps) {
   const isControlled = controlledOpen !== undefined
   const [internalOpen, setInternalOpen] = useState(defaultOpen)
@@ -89,7 +98,7 @@ function Root({
       closingTimerRef.current = null
       if (!isControlled) setInternalOpen(false)
       onOpenChange?.(false)
-    }, closeAnimationDuration)
+    }, DURATION_MS[closeAnimationDuration])
   }, [isControlled, onOpenChange, closeAnimationDuration])
 
   // If controlled open goes false externally, trigger close animation
@@ -137,6 +146,7 @@ function Root({
       value={{
         open: isOpen || closing,
         closing,
+        closeDuration: closeAnimationDuration,
         dismissable,
         requestOpen,
         requestClose,
@@ -174,7 +184,16 @@ interface PortalProps {
 }
 
 function Portal({children, size = 'md'}: PortalProps) {
-  const {open, closing, dismissable, requestClose, titleId, descriptionId, popupRef} = useDialog()
+  const {
+    open,
+    closing,
+    closeDuration,
+    dismissable,
+    requestClose,
+    titleId,
+    descriptionId,
+    popupRef,
+  } = useDialog()
 
   const handleBackdropClick = useCallback(() => {
     if (dismissable) {
@@ -191,6 +210,7 @@ function Portal({children, size = 'md'}: PortalProps) {
         style={[
           styles.backdrop,
           closing && styles.backdropClosing,
+          closing && closeDurationMap[closeDuration],
           !closing && styles.backdropOpen,
         ]}
         aria-hidden
@@ -209,6 +229,7 @@ function Portal({children, size = 'md'}: PortalProps) {
             styles.popup,
             styles[size],
             closing && styles.popupClosing,
+            closing && closeDurationMap[closeDuration],
             !closing && styles.popupOpen,
           ]}
         >

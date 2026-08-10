@@ -4,6 +4,7 @@ import {Grid} from './Grid'
 import {Stack} from '../Stack/Stack'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {SPACING_KEYS} from '@duro-app/tokens/keys'
 import {useContainerQuery} from '../../hooks/useContainerQuery'
 
 const meta: Meta<typeof Grid> = {
@@ -12,7 +13,7 @@ const meta: Meta<typeof Grid> = {
   argTypes: {
     gap: {
       control: 'select',
-      options: ['xs', 'sm', 'ms', 'md', 'lg', 'xl', 'xxl', 'xxxl'],
+      options: [...SPACING_KEYS],
     },
     columns: {
       control: 'select',

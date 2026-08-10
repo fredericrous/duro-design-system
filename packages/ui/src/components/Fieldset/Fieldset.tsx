@@ -1,8 +1,9 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
+import type {SpacingToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 
-export type FieldsetGap = 'xs' | 'sm' | 'ms' | 'md' | 'lg' | 'xl'
+export type FieldsetGap = Exclude<SpacingToken, 'xxl' | 'xxxl'>
 
 const gapMap = {
   xs: styles.gapXs,
@@ -11,7 +12,7 @@ const gapMap = {
   md: styles.gapMd,
   lg: styles.gapLg,
   xl: styles.gapXl,
-} as const
+} as const satisfies Record<FieldsetGap, unknown>
 
 // --- Root ---
 interface RootProps {

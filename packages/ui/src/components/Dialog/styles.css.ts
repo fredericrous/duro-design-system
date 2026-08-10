@@ -19,7 +19,7 @@ export const styles = css.create({
       from: {opacity: 0},
       to: {opacity: 1},
     }),
-    animationDuration: '180ms',
+    animationDuration: duration.base,
     animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
@@ -29,7 +29,7 @@ export const styles = css.create({
       from: {opacity: 1},
       to: {opacity: 0},
     }),
-    animationDuration: '140ms',
+    animationDuration: duration.fast,
     animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
@@ -75,7 +75,7 @@ export const styles = css.create({
         transform: 'scale(1) translateY(0)',
       },
     }),
-    animationDuration: '180ms',
+    animationDuration: duration.base,
     animationTimingFunction: easing.easeOut,
     animationFillMode: 'both',
   },
@@ -91,10 +91,18 @@ export const styles = css.create({
         transform: 'scale(0.97) translateY(8px)',
       },
     }),
-    animationDuration: '140ms',
+    animationDuration: duration.fast,
     animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
+
+  // --- Close-duration overrides ---
+  // The closeAnimationDuration prop token drives both these and the unmount
+  // timeout, so the exit animation can never race the unmount.
+  closeDurationInstant: {animationDuration: duration.instant},
+  closeDurationFast: {animationDuration: duration.fast},
+  closeDurationBase: {animationDuration: duration.base},
+  closeDurationSlow: {animationDuration: duration.slow},
 
   // --- Sizes ---
   sm: {maxWidth: 400},
