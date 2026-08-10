@@ -1,0 +1,58 @@
+{
+  "name": "@duro-app/eslint-plugin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "ESLint rules enforcing the Duro design system conventions: react-strict-dom html.* elements, deep token imports, token values over raw px/hex, and no deprecated Table parts.",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "react-strict-dom",
+    "design-system",
+    "design-tokens"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fredericrous/duro-design-system",
+    "directory": "packages/eslint-plugin"
+  },
+  "homepage": "https://github.com/fredericrous/duro-design-system",
+  "bugs": {
+    "url": "https://github.com/fredericrous/duro-design-system/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "engines": {
+    "node": "^18.18.0 || ^20.9.0 || >=21.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  },
+  "devDependencies": {
+    "@duro-app/tokens": "workspace:^",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@typescript-eslint/rule-tester": "^8.0.0",
+    "@typescript-eslint/utils": "^8.0.0",
+    "eslint": "^9.20.0",
+    "typescript": "^5.7.0"
+  }
+}

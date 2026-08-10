@@ -9,20 +9,13 @@ const dirname =
 
 export default defineConfig({
   optimizeDeps: {
-    include: [
-      'react-strict-dom/runtime',
-      'react',
-      'react-dom',
-      'react/jsx-runtime',
-    ],
+    include: ['react-strict-dom/runtime', 'react', 'react-dom', 'react/jsx-runtime'],
   },
   test: {
     projects: [
       {
         extends: true,
-        plugins: [
-          storybookTest({configDir: path.join(dirname, '.storybook')}),
-        ],
+        plugins: [storybookTest({configDir: path.join(dirname, '.storybook')})],
         test: {
           name: 'storybook',
           browser: {
@@ -35,6 +28,16 @@ export default defineConfig({
             instances: [{browser: 'chromium'}],
           },
           setupFiles: ['.storybook/vitest.setup.ts'],
+        },
+      },
+      {
+        // No `extends: true`: the root config's optimizeDeps is browser-project
+        // plumbing and doesn't apply to Node-side rule tests.
+        test: {
+          name: 'unit',
+          environment: 'node',
+          include: ['packages/eslint-plugin/test/**/*.test.ts'],
+          setupFiles: ['packages/eslint-plugin/test/setup.ts'],
         },
       },
     ],

@@ -30,10 +30,32 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm prettier --check packages/
 
+  lint:
+    name: Lint
+    runs-on: duro-design-system
+    needs: format
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Builds @duro-app/eslint-plugin, then lints this repo with it — the
+      # plugin's own rules are exercised against real story/recipe source.
+      - name: Lint
+        run: pnpm lint
+      # Node-only RuleTester suite; runs here rather than behind the 30-minute
+      # Playwright job so a broken rule fails in about a minute.
+      - name: Rule unit tests
+        run: pnpm test:unit -- --run
+
   validate:
     name: Validate
     runs-on: duro-design-system
-    needs: format
+    needs: lint
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
