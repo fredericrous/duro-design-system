@@ -35,6 +35,12 @@
       "types": "./src/raw.ts",
       "default": "./dist/raw.js"
     },
+    "./keys": {
+      "source": "./src/keys.ts",
+      "import": "./dist/keys.js",
+      "types": "./src/keys.ts",
+      "default": "./dist/keys.js"
+    },
     "./tokens/breakpoints.css": "./src/tokens/breakpoints.css.ts",
     "./tokens/colors.css": "./src/tokens/colors.css.ts",
     "./tokens/spacing.css": "./src/tokens/spacing.css.ts",
