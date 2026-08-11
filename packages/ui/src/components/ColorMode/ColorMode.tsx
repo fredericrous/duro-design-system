@@ -9,7 +9,7 @@ import {
 } from 'react'
 import {html} from 'react-strict-dom'
 import {isNative} from '../../platform'
-import {Icon, type IconName} from '../Icon/Icon'
+import {Icon, type IconName, type IconSize} from '../Icon/Icon'
 import {ThemeProvider, type ThemeName} from '../ThemeProvider/ThemeProvider'
 import {styles} from './styles.css'
 
@@ -178,8 +178,8 @@ export function ColorModeProvider({
 }
 
 interface ColorModeToggleProps {
-  /** Icon size in px. Default `20`. */
-  size?: number
+  /** Icon size token. Default `'md'` (18px). */
+  size?: IconSize
   /** Override the announced label (otherwise auto-generated from current/next). */
   'aria-label'?: string
 }
@@ -189,7 +189,7 @@ interface ColorModeToggleProps {
  * provider's `modes`. The glyph reflects the current preference
  * (sun/moon/monitor/contrast). Must be inside a {@link ColorModeProvider}.
  */
-export function ColorModeToggle({size = 20, 'aria-label': ariaLabel}: ColorModeToggleProps) {
+export function ColorModeToggle({size = 'md', 'aria-label': ariaLabel}: ColorModeToggleProps) {
   const {preference, cycle, modes} = useColorMode()
   const i = modes.indexOf(preference)
   const next = modes[(i + 1) % modes.length] ?? modes[0] ?? preference

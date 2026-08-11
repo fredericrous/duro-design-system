@@ -19,7 +19,7 @@ export const meta: ComponentMeta = {
   ],
   example: `// Standalone
 <Toggle pressed={isBold} onPressedChange={setIsBold} aria-label="Bold">
-  <Icon name="key" size={16} />
+  <Icon name="key" size="sm" />
 </Toggle>
 
 // In a group

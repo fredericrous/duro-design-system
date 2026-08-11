@@ -8,7 +8,7 @@ export function EmptyStateRecipe() {
   return (
     <Card>
       <EmptyState
-        icon={<Icon name="info-circle" size={48} />}
+        icon={<Icon name="info-circle" size="xxl" />}
         message="No results found"
         action={
           <Button variant="secondary" onClick={() => console.log('clear filters')}>

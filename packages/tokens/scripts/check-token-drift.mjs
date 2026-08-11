@@ -30,6 +30,10 @@ function evalNode(node) {
         throw new Error('Template literals with expressions are not supported in tokens')
       }
       return node.quasis.map((q) => q.value.cooked).join('')
+    case 'TSAsExpression': // `{...} as const` in keys.ts
+      return evalNode(node.expression)
+    case 'ArrayExpression':
+      return node.elements.map((el) => evalNode(el))
     case 'ObjectExpression': {
       const out = {}
       for (const prop of node.properties) {
@@ -52,7 +56,7 @@ function evalNode(node) {
   }
 }
 
-async function extractCallArg(file, callee, argIndex) {
+async function extractCallArg(file, callee, argIndex, exportName) {
   const source = await readFile(file, 'utf8')
   const ast = parse(source, {sourceType: 'module', plugins: ['typescript']})
 
@@ -61,6 +65,8 @@ async function extractCallArg(file, callee, argIndex) {
     const decl = stmt.declaration
     if (decl?.type !== 'VariableDeclaration') continue
     for (const declarator of decl.declarations) {
+      if (exportName && !(declarator.id.type === 'Identifier' && declarator.id.name === exportName))
+        continue
       const init = declarator.init
       if (init?.type !== 'CallExpression') continue
       const c = init.callee
@@ -72,6 +78,24 @@ async function extractCallArg(file, callee, argIndex) {
     }
   }
   throw new Error(`Could not find css.${callee}(...) export in ${file}`)
+}
+
+// Parse a plain-TS module's exported consts into {name: value} without needing
+// a TS loader — same approach as the raw.ts fallback below.
+async function parseModuleExports(file) {
+  const text = await readFile(file, 'utf8')
+  const ast = parse(text, {sourceType: 'module', plugins: ['typescript']})
+  const out = {}
+  for (const stmt of ast.program.body) {
+    if (stmt.type !== 'ExportNamedDeclaration') continue
+    const decl = stmt.declaration
+    if (decl?.type !== 'VariableDeclaration') continue
+    for (const declarator of decl.declarations) {
+      if (declarator.id.type !== 'Identifier') continue
+      out[declarator.id.name] = evalNode(declarator.init)
+    }
+  }
+  return out
 }
 
 const cases = [
@@ -137,9 +161,74 @@ for (const c of cases) {
   }
 }
 
+// --- keys.ts scales vs css.ts literals -------------------------------------
+// keys.ts duplicates the defineVars scales as plain TS (unions + numeric
+// values); these checks keep that copy honest too.
+
+const keys = await parseModuleExports(join(srcDir, 'keys.ts'))
+
+// Compare a keys.ts numeric map against a css.ts defineVars literal whose
+// values are `${n}${unit}` strings, checking key sets (and order) plus values.
+function checkScale(label, cssObj, pxObj, keyList, unit) {
+  const cssKeys = JSON.stringify(Object.keys(cssObj))
+  const listKeys = JSON.stringify(keyList ?? Object.keys(pxObj))
+  const mapKeys = JSON.stringify(Object.keys(pxObj))
+  const cssValues = JSON.stringify(Object.values(cssObj))
+  const keysValues = JSON.stringify(Object.values(pxObj).map((n) => `${n}${unit}`))
+  if (cssKeys !== listKeys || cssKeys !== mapKeys || cssValues !== keysValues) {
+    console.error(`✗ drift: ${label} in keys.ts differs from its css.ts literal`)
+    console.error(`  css.ts:  keys ${cssKeys} values ${cssValues}`)
+    console.error(`  keys.ts: keys ${mapKeys} (list ${listKeys}) values ${keysValues}`)
+    failures++
+  } else {
+    console.log(`✓ ${label} matches`)
+  }
+}
+
+const spacingCss = await extractCallArg(
+  join(srcDir, 'tokens', 'spacing.css.ts'),
+  'defineVars',
+  0,
+  'spacing',
+)
+checkScale('SPACING_PX', spacingCss, keys.SPACING_PX, keys.SPACING_KEYS, 'px')
+
+const radiiCss = await extractCallArg(
+  join(srcDir, 'tokens', 'spacing.css.ts'),
+  'defineVars',
+  0,
+  'radii',
+)
+checkScale('RADII_PX', radiiCss, keys.RADII_PX, keys.RADIUS_KEYS, 'px')
+
+const durationCss = await extractCallArg(
+  join(srcDir, 'tokens', 'motion.css.ts'),
+  'defineVars',
+  0,
+  'duration',
+)
+checkScale('DURATION_MS', durationCss, keys.DURATION_MS, null, 'ms')
+
+const shadowsCss = await extractCallArg(
+  join(srcDir, 'tokens', 'shadows.css.ts'),
+  'defineVars',
+  0,
+  'shadows',
+)
+{
+  const cssKeys = JSON.stringify(Object.keys(shadowsCss))
+  const listKeys = JSON.stringify(keys.SHADOW_KEYS)
+  if (cssKeys !== listKeys) {
+    console.error(`✗ drift: SHADOW_KEYS in keys.ts differs from shadows.css.ts (${cssKeys})`)
+    failures++
+  } else {
+    console.log(`✓ SHADOW_KEYS matches`)
+  }
+}
+
 if (failures > 0) {
   console.error(
-    `\n${failures} token drift failure(s). Update src/raw.ts to match the css.ts files (or vice versa).`,
+    `\n${failures} token drift failure(s). Update src/raw.ts / src/keys.ts to match the css.ts files (or vice versa).`,
   )
   process.exit(1)
 }

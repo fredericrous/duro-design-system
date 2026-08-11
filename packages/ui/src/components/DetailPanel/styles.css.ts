@@ -4,10 +4,9 @@ import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
-// The "Apple ease" curves and the 280ms open now live in the shared motion
-// tokens (easing.easeOut/easeIn, duration.slow). The 220ms close is specific to
-// this panel's exit, so it stays local.
-const CLOSE_DURATION = '220ms'
+// The "Apple ease" curves and the 280ms open live in the shared motion tokens
+// (easing.easeOut/easeIn, duration.slow). The close is duration.base, and the
+// closeAnimationDuration prop can override it via the closeDuration* styles.
 
 export const styles = css.create({
   // --- Outer wrapper: animates width from 0 → target ---
@@ -32,7 +31,7 @@ export const styles = css.create({
       from: {width: 360},
       to: {width: 0},
     }),
-    animationDuration: CLOSE_DURATION,
+    animationDuration: duration.base,
     animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
@@ -52,7 +51,7 @@ export const styles = css.create({
       from: {width: 480},
       to: {width: 0},
     }),
-    animationDuration: CLOSE_DURATION,
+    animationDuration: duration.base,
     animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
@@ -101,10 +100,18 @@ export const styles = css.create({
         opacity: 0,
       },
     }),
-    animationDuration: CLOSE_DURATION,
+    animationDuration: duration.base,
     animationTimingFunction: easing.easeIn,
     animationFillMode: 'both',
   },
+
+  // --- Close-duration overrides ---
+  // The closeAnimationDuration prop token drives both these and the unmount
+  // timeout, so the exit animation can never race the unmount.
+  closeDurationInstant: {animationDuration: duration.instant},
+  closeDurationFast: {animationDuration: duration.fast},
+  closeDurationBase: {animationDuration: duration.base},
+  closeDurationSlow: {animationDuration: duration.slow},
 
   // --- Header ---
   header: {

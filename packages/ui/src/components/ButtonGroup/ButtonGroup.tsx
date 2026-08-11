@@ -1,6 +1,9 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
+import type {SpacingToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
+
+export type ButtonGroupGap = Extract<SpacingToken, 'xs' | 'sm' | 'md'>
 
 export interface ButtonGroupProps {
   children: ReactNode
@@ -11,14 +14,14 @@ export interface ButtonGroupProps {
   /** Disable all buttons in group */
   disabled?: boolean
   /** Gap between buttons. Default: 'sm' */
-  gap?: 'xs' | 'sm' | 'md'
+  gap?: ButtonGroupGap
 }
 
 const gapMap = {
   xs: styles.gapXs,
   sm: styles.gapSm,
   md: styles.gapMd,
-} as const
+} as const satisfies Record<ButtonGroupGap, unknown>
 
 const horizontalAlignMap = {
   start: styles.alignStart,

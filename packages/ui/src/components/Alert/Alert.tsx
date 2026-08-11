@@ -22,8 +22,8 @@ interface AlertProps {
 
 function resolveIcon(icon: AlertProps['icon'], variant: AlertVariant): ReactNode | null {
   if (icon === false) return null
-  if (icon === undefined) return <Icon name={defaultIcons[variant]} size={18} />
-  if (typeof icon === 'string') return <Icon name={icon as IconName} size={18} />
+  if (icon === undefined) return <Icon name={defaultIcons[variant]} size="md" />
+  if (typeof icon === 'string') return <Icon name={icon as IconName} size="md" />
   return icon
 }
 

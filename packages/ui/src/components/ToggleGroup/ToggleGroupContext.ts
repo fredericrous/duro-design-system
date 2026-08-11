@@ -1,7 +1,8 @@
 import {createContext, useContext} from 'react'
 import type {ToggleSize} from '../Toggle/Toggle'
+import type {Orientation} from '../../shared/types'
 
-export type Orientation = 'horizontal' | 'vertical'
+export type {Orientation}
 
 export interface ToggleGroupContextValue {
   value: string[]

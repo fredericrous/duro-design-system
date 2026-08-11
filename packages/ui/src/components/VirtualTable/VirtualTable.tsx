@@ -11,7 +11,7 @@ import {
   type Row,
 } from '@tanstack/react-table'
 import {useVirtualizer} from '@tanstack/react-virtual'
-import {breakpointsPx} from '@duro-app/tokens/tokens/breakpoints.css'
+import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
 import {styles} from './styles.css'
 
 // Measure + commit before paint on the client; no-op-safe on the server.
@@ -67,7 +67,7 @@ interface VirtualTableProps<TData> {
    * line. Cards disable windowing (variable heights), so keep phone lists
    * reasonably short. Set `responsive={false}` to disable entirely.
    */
-  stackBelow?: number
+  stackBelow?: Breakpoint | number
   /** Opt out of the card-up-on-narrow behavior. Default true. */
   responsive?: boolean
   emptyLabel?: ReactNode
@@ -98,7 +98,7 @@ export function VirtualTable<TData>({
   estimateRowHeight = 44,
   maxHeight = '70vh',
   virtualizeThreshold = 150,
-  stackBelow = breakpointsPx.sm,
+  stackBelow = 'sm',
   responsive = true,
   emptyLabel,
 }: VirtualTableProps<TData>) {
@@ -125,6 +125,7 @@ export function VirtualTable<TData>({
   // so `virtualize` is forced off while stacked.
   const wrapRef = useRef<HTMLDivElement>(null)
   const [stacked, setStacked] = useState(false)
+  const stackBelowPx = typeof stackBelow === 'number' ? stackBelow : breakpointsPx[stackBelow]
   useIsoLayoutEffect(() => {
     if (!responsive) {
       setStacked(false)
@@ -133,7 +134,7 @@ export function VirtualTable<TData>({
     const el = wrapRef.current
     if (!el || typeof ResizeObserver === 'undefined') return
     const apply = (width: number) => {
-      if (width > 0) setStacked(width < stackBelow)
+      if (width > 0) setStacked(width < stackBelowPx)
     }
     apply(el.getBoundingClientRect().width)
     const ro = new ResizeObserver((entries) => {
@@ -144,7 +145,7 @@ export function VirtualTable<TData>({
     })
     ro.observe(el)
     return () => ro.disconnect()
-  }, [responsive, stackBelow])
+  }, [responsive, stackBelowPx])
 
   const virtualize = rows.length > virtualizeThreshold && !stacked
 

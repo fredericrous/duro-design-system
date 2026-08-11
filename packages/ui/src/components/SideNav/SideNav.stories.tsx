@@ -58,20 +58,20 @@ export const SectionsWithOneDisclosedGroup: Story = {
   render: (args) => (
     <SideNav.Root {...args} defaultValue="identities">
       <SideNav.Section label="People & access">
-        <SideNav.Item value="identities" icon={<Icon name="users" size={18} />}>
+        <SideNav.Item value="identities" icon={<Icon name="users" size="md" />}>
           Identities
         </SideNav.Item>
-        <SideNav.Item value="grants" icon={<Icon name="key" size={18} />}>
+        <SideNav.Item value="grants" icon={<Icon name="key" size="md" />}>
           Grants
         </SideNav.Item>
       </SideNav.Section>
       <SideNav.Section label="Audit">
-        <SideNav.Item value="audit" icon={<Icon name="file-text" size={18} />}>
+        <SideNav.Item value="audit" icon={<Icon name="file-text" size="md" />}>
           Audit log
         </SideNav.Item>
       </SideNav.Section>
       <SideNav.Group label="Advanced">
-        <SideNav.Item value="plugins" icon={<Icon name="plug" size={18} />}>
+        <SideNav.Item value="plugins" icon={<Icon name="plug" size="md" />}>
           Plugins
         </SideNav.Item>
       </SideNav.Group>
@@ -165,18 +165,18 @@ export const FlatWithIcons: Story = {
   render: (args) => (
     <SideNav.Root {...args} defaultValue="grants">
       <SideNav.Section label="People & access">
-        <SideNav.Item value="identities" icon={<Icon name="users" size={18} />}>
+        <SideNav.Item value="identities" icon={<Icon name="users" size="md" />}>
           Identities
         </SideNav.Item>
-        <SideNav.Item value="grants" icon={<Icon name="key" size={18} />}>
+        <SideNav.Item value="grants" icon={<Icon name="key" size="md" />}>
           Grants
         </SideNav.Item>
       </SideNav.Section>
       <SideNav.Section label="Requests & invites">
-        <SideNav.Item value="invitations" icon={<Icon name="mail" size={18} />}>
+        <SideNav.Item value="invitations" icon={<Icon name="mail" size="md" />}>
           Invitations
         </SideNav.Item>
-        <SideNav.Item value="invites" icon={<Icon name="user-plus" size={18} />}>
+        <SideNav.Item value="invites" icon={<Icon name="user-plus" size="md" />}>
           User Invites
         </SideNav.Item>
       </SideNav.Section>

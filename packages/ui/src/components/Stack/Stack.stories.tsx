@@ -3,6 +3,7 @@ import {css, html} from 'react-strict-dom'
 import {Stack} from './Stack'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {SPACING_KEYS} from '@duro-app/tokens/keys'
 
 const meta: Meta<typeof Stack> = {
   title: 'Layout/Stack',
@@ -10,7 +11,7 @@ const meta: Meta<typeof Stack> = {
   argTypes: {
     gap: {
       control: 'select',
-      options: ['xs', 'sm', 'ms', 'md', 'lg', 'xl', 'xxl', 'xxxl'],
+      options: [...SPACING_KEYS],
     },
     align: {
       control: 'select',
@@ -87,7 +88,7 @@ export const CenterAligned: Story = {
 
 export const AllGaps: Story = {
   render: () => {
-    const gaps = ['xs', 'sm', 'ms', 'md', 'lg', 'xl', 'xxl', 'xxxl'] as const
+    const gaps = SPACING_KEYS
     return (
       <Stack gap="xl">
         {gaps.map((g) => (

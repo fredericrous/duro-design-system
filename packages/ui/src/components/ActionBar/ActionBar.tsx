@@ -1,5 +1,6 @@
 import {useEffect, useCallback, type ReactNode} from 'react'
 import {html} from 'react-strict-dom'
+import {SPACING_PX, type SpacingToken} from '@duro-app/tokens/keys'
 import {useActionBarStack} from './ActionBarProvider'
 import {styles} from './styles.css'
 
@@ -15,11 +16,12 @@ export interface ActionBarProps {
   /** Whether the bar can be dismissed. When false, the close button is hidden. @default true */
   dismissible?: boolean
   /**
-   * Distance in px between the bar and the bottom of the viewport, for hosts
-   * with their own bottom chrome (zoom controls, players) the bar must clear.
-   * Defaults to the spacing.lg token.
+   * Distance between the bar and the bottom of the viewport, for hosts with
+   * their own bottom chrome (zoom controls, players) the bar must clear.
+   * A spacing token, or a raw px number when clearing chrome of arbitrary
+   * height. Defaults to the spacing.lg token.
    */
-  bottomOffset?: number
+  bottomOffset?: SpacingToken | number
   /** Action buttons to display. */
   children: ReactNode
 }
@@ -42,7 +44,10 @@ function ActionBarContent({
       aria-label={label}
       style={[
         styles.overlay,
-        bottomOffset != null && styles.overlayOffset(bottomOffset),
+        bottomOffset != null &&
+          styles.overlayOffset(
+            typeof bottomOffset === 'number' ? bottomOffset : SPACING_PX[bottomOffset],
+          ),
         isEmphasized && styles.overlayEmphasized,
       ]}
     >

@@ -1,10 +1,10 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
-import type {SpacingKey} from '../Stack/Stack'
+import type {SpacingToken} from '@duro-app/tokens/keys'
 
 interface GridProps {
-  gap?: SpacingKey
+  gap?: SpacingToken
   columns?: 1 | 2 | 3 | 4 | 5 | 6
   minColumnWidth?: string
   children: ReactNode
@@ -19,7 +19,7 @@ const gapMap = {
   xl: styles.gapXl,
   xxl: styles.gapXxl,
   xxxl: styles.gapXxxl,
-} as const
+} as const satisfies Record<SpacingToken, unknown>
 
 const columnsMap = {
   1: styles.col1,

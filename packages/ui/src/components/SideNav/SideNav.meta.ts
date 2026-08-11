@@ -26,12 +26,12 @@ export const meta: ComponentMeta = {
   example: `<SideNav.Root defaultValue="identities">
   {/* Default: always-open sections. Nothing is a click away from being seen. */}
   <SideNav.Section label="People & access">
-    <SideNav.Item value="identities" icon={<Icon name="users" size={18} />}>Identities</SideNav.Item>
-    <SideNav.Item value="grants" icon={<Icon name="key" size={18} />}>Grants</SideNav.Item>
+    <SideNav.Item value="identities" icon={<Icon name="users" size="md" />}>Identities</SideNav.Item>
+    <SideNav.Item value="grants" icon={<Icon name="key" size="md" />}>Grants</SideNav.Item>
   </SideNav.Section>
   {/* Disclosure, earned: rarely visited, so it starts collapsed. */}
   <SideNav.Group label="Advanced" defaultExpanded={false}>
-    <SideNav.Item value="plugins" icon={<Icon name="plug" size={18} />}>Plugins</SideNav.Item>
+    <SideNav.Item value="plugins" icon={<Icon name="plug" size="md" />}>Plugins</SideNav.Item>
   </SideNav.Group>
 </SideNav.Root>`,
 }

@@ -920,39 +920,36 @@ export const Responsive: Story = {
     ]
     return (
       <html.div style={responsiveStyles.resizable}>
-        <Table.Container>
-          <Table.SortChip options={sortable} value={sort} onChange={setSort} />
-          <Table.Root>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell label="Principal">Principal</Table.HeaderCell>
-                <Table.HeaderCell label="Role">Role</Table.HeaderCell>
-                <Table.HeaderCell label="Resource">Resource</Table.HeaderCell>
-                <Table.HeaderCell label="Expires">Expires</Table.HeaderCell>
-                <Table.HeaderCell label="Granted by">Granted by</Table.HeaderCell>
-                <Table.HeaderCell label="Actions" isActions>
-                  Actions
-                </Table.HeaderCell>
+        <Table.Root
+          sortChip={<Table.SortChip options={sortable} value={sort} onChange={setSort} />}
+        >
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell label="Principal">Principal</Table.HeaderCell>
+              <Table.HeaderCell label="Role">Role</Table.HeaderCell>
+              <Table.HeaderCell label="Resource">Resource</Table.HeaderCell>
+              <Table.HeaderCell label="Expires">Expires</Table.HeaderCell>
+              <Table.HeaderCell label="Granted by">Granted by</Table.HeaderCell>
+              <Table.HeaderCell label="Actions">Actions</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {grants.map((g) => (
+              <Table.Row key={g.principal}>
+                <Table.Cell>{g.principal}</Table.Cell>
+                <Table.Cell>{g.role}</Table.Cell>
+                <Table.Cell>{g.resource}</Table.Cell>
+                <Table.Cell>{g.expires}</Table.Cell>
+                <Table.Cell>{g.granted_by}</Table.Cell>
+                <Table.Cell isActions>
+                  <Button size="small" variant="secondary">
+                    Revoke
+                  </Button>
+                </Table.Cell>
               </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {grants.map((g) => (
-                <Table.Row key={g.principal}>
-                  <Table.Cell>{g.principal}</Table.Cell>
-                  <Table.Cell>{g.role}</Table.Cell>
-                  <Table.Cell>{g.resource}</Table.Cell>
-                  <Table.Cell>{g.expires}</Table.Cell>
-                  <Table.Cell>{g.granted_by}</Table.Cell>
-                  <Table.Cell isActions>
-                    <Button size="small" variant="secondary">
-                      Revoke
-                    </Button>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table.Root>
-        </Table.Container>
+            ))}
+          </Table.Body>
+        </Table.Root>
       </html.div>
     )
   },

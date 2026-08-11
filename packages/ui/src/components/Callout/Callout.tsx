@@ -28,8 +28,8 @@ interface CalloutProps {
 
 function resolveIcon(icon: CalloutProps['icon'], variant: CalloutVariant): ReactNode | null {
   if (icon === false) return null
-  if (icon === undefined) return <Icon name={defaultIcons[variant]} size={36} />
-  if (typeof icon === 'string') return <Icon name={icon as IconName} size={36} />
+  if (icon === undefined) return <Icon name={defaultIcons[variant]} size="xl" />
+  if (typeof icon === 'string') return <Icon name={icon as IconName} size="xl" />
   return icon
 }
 

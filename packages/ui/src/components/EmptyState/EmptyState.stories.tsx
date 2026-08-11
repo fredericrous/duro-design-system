@@ -23,7 +23,7 @@ export const Default: Story = {
 export const WithIcon: Story = {
   args: {
     message: 'Nothing to show here',
-    icon: <StatusIcon name="forbidden" variant="muted" size={48} />,
+    icon: <StatusIcon name="forbidden" variant="muted" size="xxl" />,
   },
   play: async ({canvas}) => {
     await expect(canvas.getByText('Nothing to show here')).toBeInTheDocument()
@@ -44,7 +44,7 @@ export const WithAction: Story = {
 export const WithIconAndAction: Story = {
   args: {
     message: 'Your inbox is empty',
-    icon: <StatusIcon name="check-done" variant="success" size={48} />,
+    icon: <StatusIcon name="check-done" variant="success" size="xxl" />,
     action: <Button variant="primary">Refresh</Button>,
   },
   play: async ({canvas}) => {

@@ -1,10 +1,8 @@
 import {type ReactNode, useState} from 'react'
-import {Dialog} from '../Dialog/Dialog'
+import {Dialog, type DialogSize} from '../Dialog/Dialog'
 import {Button} from '../Button/Button'
 import {Input} from '../Input/Input'
 import {Field} from '../Field/Field'
-
-type DialogSize = 'sm' | 'md' | 'lg'
 
 interface ConfirmDialogProps {
   open: boolean

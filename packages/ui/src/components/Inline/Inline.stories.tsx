@@ -3,6 +3,7 @@ import {css, html} from 'react-strict-dom'
 import {Inline} from './Inline'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {SPACING_KEYS} from '@duro-app/tokens/keys'
 
 const meta: Meta<typeof Inline> = {
   title: 'Layout/Inline',
@@ -10,7 +11,7 @@ const meta: Meta<typeof Inline> = {
   argTypes: {
     gap: {
       control: 'select',
-      options: ['xs', 'sm', 'ms', 'md', 'lg', 'xl', 'xxl', 'xxxl'],
+      options: [...SPACING_KEYS],
     },
     align: {
       control: 'select',

@@ -11,7 +11,7 @@ export const meta: ComponentMeta = {
   whenNotToUse: ['Loading states — use Spinner', 'Error states — use Alert or Callout'],
   example: `<Card>
   <EmptyState
-    icon={<Icon name="info-circle" size={48} />}
+    icon={<Icon name="info-circle" size="xxl" />}
     message="No results found"
     action={<Button variant="secondary">Clear filters</Button>}
   />

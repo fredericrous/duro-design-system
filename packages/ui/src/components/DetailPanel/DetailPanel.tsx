@@ -10,9 +10,17 @@ import {
   useRef,
 } from 'react'
 import {html} from 'react-strict-dom'
+import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 
 // --- Types ---
+
+const closeDurationMap = {
+  instant: styles.closeDurationInstant,
+  fast: styles.closeDurationFast,
+  base: styles.closeDurationBase,
+  slow: styles.closeDurationSlow,
+} as const satisfies Record<DurationToken, unknown>
 
 export type DetailPanelSize = 'sm' | 'md'
 
@@ -21,6 +29,7 @@ export type DetailPanelSize = 'sm' | 'md'
 interface DetailPanelContextValue {
   present: boolean
   closing: boolean
+  closeDuration: DurationToken
   requestOpen: () => void
   requestClose: () => void
   titleId: string
@@ -48,8 +57,8 @@ interface RootProps {
   defaultOpen?: boolean
   /** Called when open state changes */
   onOpenChange?: (open: boolean) => void
-  /** Duration of the close animation in ms. Default: 220 */
-  closeAnimationDuration?: number
+  /** Motion token for the close animation. Default: 'base' (200ms) */
+  closeAnimationDuration?: DurationToken
 }
 
 function Root({
@@ -57,7 +66,7 @@ function Root({
   open: controlledOpen,
   defaultOpen = false,
   onOpenChange,
-  closeAnimationDuration = 220,
+  closeAnimationDuration = 'base',
 }: RootProps) {
   const isControlled = controlledOpen !== undefined
   const [internalOpen, setInternalOpen] = useState(defaultOpen)
@@ -83,7 +92,7 @@ function Root({
         setClosing(false)
         setPresent(false)
         closingTimerRef.current = null
-      }, closeAnimationDuration)
+      }, DURATION_MS[closeAnimationDuration])
     }
   }, [isOpen, present, closing, closeAnimationDuration])
 
@@ -154,6 +163,7 @@ function Root({
       value={{
         present,
         closing,
+        closeDuration: closeAnimationDuration,
         requestOpen,
         requestClose,
         titleId,
@@ -189,12 +199,18 @@ const wrapperCloseMap = {
 } as const
 
 function Content({children, size = 'sm', label}: ContentProps) {
-  const {present, closing, labelId, panelRef} = useDetailPanel()
+  const {present, closing, closeDuration, labelId, panelRef} = useDetailPanel()
 
   if (!present) return null
 
   return (
-    <html.div style={[styles.wrapper, closing ? wrapperCloseMap[size] : wrapperOpenMap[size]]}>
+    <html.div
+      style={[
+        styles.wrapper,
+        closing ? wrapperCloseMap[size] : wrapperOpenMap[size],
+        closing && closeDurationMap[closeDuration],
+      ]}
+    >
       <html.div
         ref={panelRef}
         role="complementary"
@@ -205,6 +221,7 @@ function Content({children, size = 'sm', label}: ContentProps) {
           styles.content,
           size === 'sm' ? styles.contentSm : styles.contentMd,
           closing ? styles.slideOut : styles.slideIn,
+          closing && closeDurationMap[closeDuration],
         ]}
       >
         {children}

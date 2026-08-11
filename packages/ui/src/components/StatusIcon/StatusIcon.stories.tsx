@@ -43,7 +43,7 @@ export const CheckDone: Story = {
 }
 
 export const CustomSize: Story = {
-  args: {name: 'check-circle', variant: 'success', size: 24},
+  args: {name: 'check-circle', variant: 'success', size: 'lg'},
 }
 
 const gridStyles = css.create({

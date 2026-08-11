@@ -1,6 +1,7 @@
 import {createContext, useContext} from 'react'
+import type {Orientation} from '../../shared/types'
 
-export type Orientation = 'horizontal' | 'vertical'
+export type {Orientation}
 
 export interface TabsContextValue {
   activeValue: string | null

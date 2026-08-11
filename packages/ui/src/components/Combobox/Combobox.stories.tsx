@@ -2,6 +2,8 @@ import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {Combobox} from './Combobox'
+import {Stack} from '../Stack/Stack'
+import {Text} from '../Text/Text'
 
 const meta: Meta = {
   title: 'Components/Combobox',
@@ -61,7 +63,7 @@ function ControlledDemo() {
   const [value, setValue] = useState<string | undefined>(undefined)
 
   return (
-    <div style={{display: 'flex', flexDirection: 'column', gap: 16}}>
+    <Stack gap="md">
       <Combobox.Root value={value} onValueChange={(v) => setValue(v ?? undefined)}>
         <Combobox.Input placeholder="Pick a role...">
           <Combobox.Trigger />
@@ -85,8 +87,10 @@ function ControlledDemo() {
           <Combobox.Empty>No roles found</Combobox.Empty>
         </Combobox.Popup>
       </Combobox.Root>
-      <span style={{fontSize: 14, color: '#888'}}>Selected: {value ?? 'none'}</span>
-    </div>
+      <Text variant="bodySm" color="muted">
+        Selected: {value ?? 'none'}
+      </Text>
+    </Stack>
   )
 }
 

@@ -1,6 +1,6 @@
 import {html} from 'react-strict-dom'
 import {Icon} from '../Icon'
-import type {IconName} from '../Icon'
+import type {IconName, IconSize} from '../Icon'
 import {styles} from './styles.css'
 
 export type StatusIconName = Extract<
@@ -11,11 +11,11 @@ export type StatusIconVariant = 'error' | 'success' | 'warning' | 'info' | 'mute
 
 interface StatusIconProps {
   name: StatusIconName
-  size?: number
+  size?: IconSize
   variant?: StatusIconVariant
 }
 
-export function StatusIcon({name, size = 48, variant = 'muted'}: StatusIconProps) {
+export function StatusIcon({name, size = 'xxl', variant = 'muted'}: StatusIconProps) {
   return (
     <html.div style={[styles.root, styles[variant]]}>
       <Icon name={name} size={size} />

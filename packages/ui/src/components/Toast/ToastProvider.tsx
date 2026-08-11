@@ -123,7 +123,7 @@ function ToastItem({entry, onDismiss}: {entry: ToastEntry; onDismiss: (id: strin
       style={[styles.toast, styles[variant]]}
     >
       <html.div style={[styles.iconWrap, variantIconStyle[variant]]}>
-        <Icon name={variantIcon[variant]} size={18} />
+        <Icon name={variantIcon[variant]} size="md" />
       </html.div>
       <html.div style={styles.content}>
         <html.div style={styles.message}>{message}</html.div>
@@ -146,7 +146,7 @@ function ToastItem({entry, onDismiss}: {entry: ToastEntry; onDismiss: (id: strin
         style={styles.closeBtn}
         onClick={() => onDismiss(id)}
       >
-        <Icon name="x-circle" size={16} />
+        <Icon name="x-circle" size="sm" />
       </html.button>
     </html.div>
   )
