@@ -47,6 +47,10 @@ jobs:
       # plugin's own rules are exercised against real story/recipe source.
       - name: Lint
         run: pnpm lint
+      # The CLI's bin end-to-end tests exec dist/bin.js, so build it first
+      # (its prebuild doubles as a registry freshness check).
+      - name: Build CLI
+        run: pnpm --filter @duro-app/cli run build
       # Node-only unit suites (lint rules + CLI/registry); runs here rather
       # than behind the 30-minute Playwright job so failures land in a minute.
       - name: Unit tests
