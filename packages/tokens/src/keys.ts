@@ -10,7 +10,11 @@
 // `scripts/check-token-drift.mjs` runs in `prebuild` and fails the build if any
 // value here diverges from the corresponding css.ts literal.
 
-import type {RawColors} from './raw'
+// Explicit .js extensions: this module is also typechecked under NodeNext
+// resolution (the ESLint plugin's tests import it via the `types` condition),
+// which rejects extensionless relative imports. Both are type-only, so they
+// are erased at build time.
+import type {RawColors} from './raw.js'
 
 export const SPACING_KEYS = ['xs', 'sm', 'ms', 'md', 'lg', 'xl', 'xxl', 'xxxl'] as const
 export type SpacingToken = (typeof SPACING_KEYS)[number]
@@ -64,4 +68,4 @@ export type IconSize = keyof typeof ICON_SIZES
 
 export type ColorToken = keyof RawColors
 
-export type {Breakpoint} from './tokens/breakpoints.css'
+export type {Breakpoint} from './tokens/breakpoints.css.js'
