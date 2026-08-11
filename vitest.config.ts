@@ -33,6 +33,15 @@ export default defineConfig({
       {
         // No `extends: true`: the root config's optimizeDeps is browser-project
         // plumbing and doesn't apply to Node-side rule tests.
+        // Alias the tokens subpaths to their src/*.ts files so the drift
+        // tests don't depend on the tokens package having been built first
+        // (CI's lint job never builds it — Node would demand dist/keys.js).
+        resolve: {
+          alias: {
+            '@duro-app/tokens/keys': path.join(dirname, 'packages/tokens/src/keys.ts'),
+            '@duro-app/tokens/raw': path.join(dirname, 'packages/tokens/src/raw.ts'),
+          },
+        },
         test: {
           name: 'unit',
           environment: 'node',
