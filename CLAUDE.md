@@ -1,6 +1,11 @@
 # Duro Design System
 
 > AI-facing guide for code generation. Read this before generating any UI code using Duro components.
+>
+> **Machine-queryable docs:** run `npx @duro-app/cli manifest --json` once — every component's props,
+> every recipe's source, tokens and rules follow from it (`npx @duro-app/cli Button`,
+> `npx @duro-app/cli login-form --source-only`, `npx @duro-app/cli "tags that wrap"`).
+> As an MCP server: `duro mcp` (tools `duro_lookup` / `duro_list` / `duro_manifest`).
 
 ## Architecture
 
@@ -10,6 +15,8 @@
 - **Styling:** `css.create()` from `react-strict-dom` with token references
 - **Form validation:** Effect Schema + react-hook-form via `@hookform/resolvers`
 - **React 19**, TypeScript strict mode
+
+<!-- duro:rules:start -->
 
 ## Critical Rules
 
@@ -54,6 +61,8 @@ const styles = css.create({
 // Apply styles via the style prop (array for composition)
 <html.div style={[styles.container, isActive && styles.active]}>
 ```
+
+<!-- duro:rules:end -->
 
 ## Layout Decision Tree
 
@@ -125,48 +134,70 @@ These components **must** be wrapped in their `.Root`:
 
 ## Component Quick Reference
 
-| Component         | Description                             | Key props                                                                                            | Use instead of                                     |
-| ----------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| **ActionBar**     | Floating bulk-selection toolbar         | `selectedItemCount`, `isEmphasized`, `bottomOffset`                                                  | Custom fixed toolbar                               |
-| **Alert**         | Inline status message with icon         | `variant: 'error'\|'success'\|'warning'\|'info'`                                                     | Custom banner                                      |
-| **Badge**         | Small label/tag                         | `variant`, `size: 'sm'\|'md'`                                                                        | Custom pill/chip                                   |
-| **Button**        | Interactive button                      | `variant: 'primary'\|'secondary'\|'inverseSecondary'\|'link'\|'danger'`, `size`, `fullWidth`         | `<button>`                                         |
-| **Callout**       | Block-level informational message       | `variant: 'error'\|'success'\|'warning'\|'info'`                                                     | Alert (use Callout for larger, prominent messages) |
-| **Card**          | Container with visual styling           | `variant: 'elevated'\|'outlined'\|'filled'\|'interactive'`, `size`, `header`                         | Custom container div                               |
-| **Checkbox**      | Checkbox input with label               | `checked`, `defaultChecked`, `onChange`                                                              | `<input type="checkbox">`                          |
-| **DetailPanel**   | Non-modal right-side inspection panel   | `open`, `onOpenChange`, `size: 'sm'\|'md'`, `label`                                                  | Custom side panel                                  |
-| **Dialog**        | Modal dialog with backdrop              | `open`, `onOpenChange`, `dismissable`, sizes: `'sm'\|'md'\|'lg'`                                     | Custom modal                                       |
-| **Drawer**        | Sliding panel from edge                 | `open`, `onOpenChange`, `anchor: 'right'\|'left'\|'bottom'`, sizes: `'sm'\|'md'\|'lg'`               | Custom side panel                                  |
-| **Cluster**       | Horizontal flex, **wraps**              | `gap`, `align`, `justify`                                                                            | `<div style="flex-wrap:wrap">`                     |
-| **EmptyState**    | Placeholder for empty content           | `message`, `icon`, `action`                                                                          | Custom empty view                                  |
-| **Field**         | Form field with label/error             | `name` (for Form binding), `invalid`                                                                 | Custom label + input wiring                        |
-| **Fieldset**      | Groups related form controls            | `gap`, `disabled`                                                                                    | `<fieldset>`                                       |
-| **Form**          | Form with Effect Schema validation      | `schema`, `defaultValues`, `onSubmit`                                                                | `<form>` + manual RHF setup                        |
-| **Grid**          | CSS grid layout                         | `columns: 1-6`, `minColumnWidth`, `gap`                                                              | Custom CSS grid                                    |
-| **Heading**       | Semantic heading (h1-h6)                | `level: 1-6`, `variant`, `color`                                                                     | `<h1>`-`<h6>`                                      |
-| **Icon**          | SVG icon                                | `name: IconName`, `size: 'sm'\|'md'\|'lg'\|'xl'\|'xxl'` (16/18/24/36/48px)                           | Inline SVGs                                        |
-| **Inline**        | Horizontal flex, **no wrap**            | `gap`, `align`, `justify`                                                                            | `<div style="display:flex">`                       |
-| **Input**         | Text input                              | `type`, `variant: 'default'\|'error'`                                                                | `<input>`                                          |
-| **InputGroup**    | Input with prefix/suffix addons         | Wraps `Input` + `Addon` children                                                                     | Custom input wrapper                               |
-| **LinkButton**    | Button-styled link                      | `href`, `variant: 'primary'\|'secondary'`, `target`                                                  | `<a>` styled as button                             |
-| **Menu**          | Dropdown action menu                    | Compound: `Root > Trigger + Popup > Item\|LinkItem`                                                  | Custom dropdown                                    |
-| **PageShell**     | Page-level layout                       | `maxWidth: 'sm'\|'md'\|'lg'\|'full'`, `padding`, `header`                                            | Custom page wrapper                                |
-| **Panel**         | Structural content container with slots | `bordered`, sub-components: `Header`, `Body` (`padded`), `Footer`                                    | Custom section wrapper                             |
-| **ScrollArea**    | Custom scrollbar region                 | Compound: `Root > Viewport > Content`, `Scrollbar > Thumb`                                           | `overflow: auto`                                   |
-| **Select**        | Dropdown select                         | Compound: `Root > Trigger + Popup > Item`                                                            | `<select>`                                         |
-| **SideNav**       | Side navigation                         | Compound: `Root > Section > Item` (`Group` = collapsible variant of `Section`)                       | Custom nav sidebar                                 |
-| **Spinner**       | Loading indicator                       | `size: 'sm'\|'md'\|'lg'`, `label`                                                                    | Custom loader                                      |
-| **Stack**         | Vertical flex layout                    | `gap`, `align`                                                                                       | `<div style="flex-direction:column">`              |
-| **StatusIcon**    | Icon with colored background            | `name`, `variant`, `size`                                                                            | Icon + custom wrapper                              |
-| **Switch**        | Toggle switch                           | `checked`, `onCheckedChange`, `disabled`                                                             | `<input type="checkbox">` styled as switch         |
-| **Table**         | Data table                              | `variant: 'default'\|'striped'\|'bordered'`, `size`, `columns`                                       | `<table>`                                          |
-| **Tabs**          | Tabbed interface                        | `orientation: 'horizontal'\|'vertical'`, `value`, `onValueChange`                                    | Custom tab implementation                          |
-| **Text**          | Body/label typography                   | `variant: 'bodySm'\|'bodyMd'\|'bodyLg'\|'caption'\|'label'\|'code'\|'overline'`, `color`, `truncate` | `<p>`, `<span>`                                    |
-| **Textarea**      | Multi-line text input                   | `variant`, `rows`                                                                                    | `<textarea>`                                       |
-| **ThemeProvider** | Theme context root                      | `theme: 'dark'\|'light'\|'high-contrast'`                                                            | — (required at app root)                           |
-| **Toggle**        | Toggle button                           | `pressed`, `onPressedChange`, `value` (for ToggleGroup)                                              | Custom toggle button                               |
-| **ToggleGroup**   | Multi/single toggle set                 | `multiple`, `value`, `orientation`, `size`                                                           | Custom radio/checkbox group                        |
-| **Tooltip**       | Hover/focus tooltip                     | `content`, `placement: 'top'\|'bottom'\|'left'\|'right'`, `delay`                                    | `title` attribute                                  |
+<!-- duro:generated:components START -->
+
+| Component | Description | Key props |
+| --- | --- | --- |
+| **ActionBar** | Floating toolbar that appears at the bottom of the viewport when items are selected | `selectedItemCount`, `selectedLabel`, `isEmphasized` |
+| **Alert** | Inline status message with icon | `variant`, `icon` |
+| **Arrow** | Connector line between two points, with an arrowhead at the end | `from`, `to`, `bend` |
+| **Badge** | Small label or tag for status indicators, counts, or categories | `variant`, `size` |
+| **Button** | Standard interactive button | `variant`, `size`, `fullWidth` |
+| **ButtonGroup** | Groups related buttons together with consistent spacing and layout | `orientation`, `align`, `disabled` |
+| **Callout** | Block-level informational message with icon and colored background | `variant`, `icon`, `align` |
+| **Card** | Container with visual styling (elevation, border, or fill) | `variant`, `size`, `header` |
+| **Checkbox** | Checkbox input with optional visible label | `name`, `value`, `checked` |
+| **CheckboxGroup** | Checkbox group for multi-select from a list of options | compound: Item, Root |
+| **Cluster** | Horizontal flex layout that WRAPS to the next line when items overflow | `gap`, `align`, `justify` |
+| **ColorInput** | A styled native color swatch (<input type="color">) for picking a hex color | `value`, `defaultValue`, `name` |
+| **ColorModeToggle** | Color-mode controller + toggle | `size`, `aria-label` |
+| **Combobox** | Searchable dropdown for selecting a value from a filterable list | compound: Empty, Input, Item, ItemText, Popup, … |
+| **ConfirmDialog** | Destructive-confirmation dialog with an optional type-a-phrase gate | `open`, `onOpenChange`, `title` |
+| **DetailPanel** | Non-modal side panel for right-side inspection | compound: Body, Close, Content, Footer, Header, … |
+| **Diagram** | Root SVG canvas for a static diagram | `width`, `height`, `title` |
+| **Dialog** | Modal dialog with backdrop overlay | compound: Body, Close, Description, Footer, Header, … |
+| **Drawer** | Modal sliding panel from a screen edge (right, left, or bottom) | compound: Body, Close, Description, Footer, Header, … |
+| **EmptyState** | Placeholder for empty content areas | `message`, `icon`, `action` |
+| **Field** | Compound form field with label, description, and error display | compound: Description, Error, Label, Root |
+| **Fieldset** | Groups related form controls with consistent gap spacing and an optional legend | compound: Legend, Root |
+| **Form** | Form wrapper with Effect Schema validation and react-hook-form integration | `schema`, `defaultValues`, `onSubmit` |
+| **Grid** | CSS grid layout | `gap`, `columns`, `minColumnWidth` |
+| **Heading** | Semantic heading element (h1-h6) with typography presets | `level`, `variant`, `color` |
+| **Icon** | SVG icon component | `name`, `size` |
+| **Inline** | Horizontal flex layout with NO wrapping | `gap`, `align`, `justify` |
+| **Input** | Text input with automatic Field/Form integration | `variant`, `font`, `type` |
+| **InputGroup** | Wraps an Input with prefix and/or suffix addons (icons, text, buttons) | compound: Addon, Root |
+| **Leader** | A dashed, thin line for callout/annotation leaders | `from`, `to` |
+| **LinkButton** | Button-styled hyperlink | `href`, `variant`, `size` |
+| **List** | Vertical list of interactive items | compound: Actions, Content, Description, Empty, Item, … |
+| **Menu** | Dropdown action menu | compound: Item, LinkItem, Popup, Root, Trigger |
+| **Node** | A rounded rectangle node with a title and optional subtitle | `x`, `y`, `w` |
+| **PageShell** | Page-level layout wrapper | `maxWidth`, `padding`, `header` |
+| **Panel** | Structural primitive for grouping content with header, body, and footer slots | compound: Body, Footer, Header, Root |
+| **RadioGroup** | Radio button group for single-select from a list of options | compound: Item, Root |
+| **ScrollArea** | Custom scrollbar region with draggable thumb | compound: Content, Root, Scrollbar, Thumb, Viewport |
+| **Select** | Dropdown select for choosing one value from a list | compound: Icon, Item, ItemText, Popup, Root, … |
+| **SideNav** | Vertical side navigation | compound: Group, Item, Root, Section |
+| **Spinner** | Animated loading indicator | `size`, `label` |
+| **Stack** | Vertical flex layout | `gap`, `align` |
+| **StatusIcon** | Icon with a colored background circle | `name`, `size`, `variant` |
+| **Switch** | Toggle switch for on/off settings | `checked`, `defaultChecked`, `onCheckedChange` |
+| **Table** | Data table with CSS grid layout | compound: Body, Cell, Container, Header, HeaderCell, … |
+| **Table (ui/table)** | Data table with CSS grid layout | compound: Body, Cell, ColumnFilter, Container, FromTanstack, … |
+| **Tabs** | Tabbed interface with keyboard navigation | compound: List, Panel, Root, Tab |
+| **Tag** | Interactive tag/chip with optional remove button | `value`, `variant`, `size` |
+| **TagGroup** | Compound component for managing a collection of tags | compound: Input, List, Root |
+| **Text** | Body and label typography component | `variant`, `color`, `weight` |
+| **Text (diagrams)** | Free-floating text inside a Diagram | `x`, `y`, `variant` |
+| **Textarea** | Multi-line text input with automatic Field/Form integration | `variant`, `name`, `placeholder` |
+| **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |
+| **ToggleGroup** | Container for Toggle buttons enabling single or multi selection | `value`, `defaultValue`, `onValueChange` |
+| **Tooltip** | Hover/focus tooltip that shows supplementary content | compound: Root, Trigger |
+| **VirtualTable** | Sortable data table that windows its rows above a threshold (default 150) with @tanstack/react-virtual, shows a floating position indicator, and reports the visible page so the caller can mirror it in the URL | `data`, `columns`, `sorting` |
+
+Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `duro_lookup` MCP tool).
+
+<!-- duro:generated:components END -->
 
 ## Form Composition Pattern
 
@@ -236,27 +267,32 @@ const MySchema = Schema.Struct({
 
 ## Token Reference
 
+<!-- duro:generated:tokens START -->
+
 ### Spacing Scale
 
-| Token  | Value |
-| ------ | ----- |
-| `xs`   | 4px   |
-| `sm`   | 8px   |
-| `ms`   | 12px  |
-| `md`   | 16px  |
-| `lg`   | 24px  |
-| `xl`   | 32px  |
-| `xxl`  | 48px  |
-| `xxxl` | 64px  |
+| Token | Value |
+| --- | --- |
+| `xs` | 4px |
+| `sm` | 8px |
+| `ms` | 12px |
+| `md` | 16px |
+| `lg` | 24px |
+| `xl` | 32px |
+| `xxl` | 48px |
+| `xxxl` | 64px |
 
 ### Border Radius
 
-| Token  | Value  |
-| ------ | ------ |
-| `sm`   | 8px    |
-| `md`   | 12px   |
-| `lg`   | 16px   |
+| Token | Value |
+| --- | --- |
+| `xs` | 4px |
+| `sm` | 8px |
+| `md` | 12px |
+| `lg` | 16px |
 | `full` | 9999px |
+
+<!-- duro:generated:tokens END -->
 
 ### Typography Presets
 
@@ -344,69 +380,29 @@ is added.
 
 ## Icon Names
 
+<!-- duro:generated:icons START -->
+
 **Stroke icons:** `x-circle`, `check-circle`, `check-done`, `clock`, `forbidden`, `info-circle`, `alert-triangle`, `shield`, `lock`, `key`
 
-**Navigation glyphs:** `map`, `layers`, `repeat`, `database`, `shield-check`, `route`, `git-branch`, `menu`, `pin`
+**Navigation / wayfinding glyphs:** `map`, `layers`, `repeat`, `database`, `shield-check`, `route`, `git-branch`, `menu`, `pin`
 
-**Infrastructure/inventory glyphs:** `server`, `hard-drive`, `box`, `image`, `tag`, `pie-chart`
+**Infrastructure / inventory glyphs:** `server`, `hard-drive`, `box`, `image`, `tag`, `pie-chart`
 
-**People/access glyphs:** `users`, `user-plus`, `mail`, `file-text`, `plug`
+**People / access / admin glyphs:** `users`, `user-plus`, `mail`, `file-text`, `plug`
 
 **Color-mode glyphs:** `sun`, `moon`, `monitor`, `contrast`
 
-**Filled icons:** `info-circle-filled`, `alert-triangle-filled`, `check-circle-filled`, `x-circle-filled`, `shield-filled`, `lock-filled`
+**Filled variants (solid shape with cutout symbol):** `info-circle-filled`, `alert-triangle-filled`, `check-circle-filled`, `x-circle-filled`, `shield-filled`, `lock-filled`
 
-## Canonical Recipes
 
-### Login Form
 
-```tsx
-import {Schema} from 'effect'
-import {css, html} from 'react-strict-dom'
-import {Form, Field, Input, Fieldset, Button, Stack, Heading} from '@duro-app/ui'
+Sizes: `lg` 24px · `md` 18px · `sm` 16px · `xl` 36px · `xxl` 48px — `<Icon name="server" size="md" />`
 
-const LoginSchema = Schema.Struct({
-  username: Schema.String.pipe(
-    Schema.minLength(3, {message: () => 'Username must be at least 3 characters'}),
-  ),
-  password: Schema.String.pipe(
-    Schema.minLength(8, {message: () => 'Password must be at least 8 characters'}),
-  ),
-})
+<!-- duro:generated:icons END -->
 
-function LoginForm() {
-  return (
-    <Stack gap="lg">
-      <Heading level={2}>Log in</Heading>
-      <Form
-        schema={LoginSchema}
-        defaultValues={{username: '', password: ''}}
-        onSubmit={(data) => console.log('login', data)}
-      >
-        {({formState}) => (
-          <Fieldset.Root gap="md">
-            <Field.Root name="username">
-              <Field.Label>Username</Field.Label>
-              <Input placeholder="Enter username" />
-              <Field.Error />
-            </Field.Root>
+## Component guidance
 
-            <Field.Root name="password">
-              <Field.Label>Password</Field.Label>
-              <Input type="password" placeholder="Enter password" />
-              <Field.Error />
-            </Field.Root>
-
-            <Button type="submit" disabled={!formState.isValid}>
-              Log in
-            </Button>
-          </Fieldset.Root>
-        )}
-      </Form>
-    </Stack>
-  )
-}
-```
+Hand-written judgment that props alone can't carry. (Per-component reference: `npx @duro-app/cli <Name>`.)
 
 ### Data Table
 
@@ -425,75 +421,9 @@ The object it exports is the root's `Table` with those pieces attached, so
 specifier differs. Plain presentational tables can keep importing `Table` from
 the root and need no TanStack install at all.
 
-**Prefer `Table.FromTanstack` when your data has a TanStack table instance** —
-collapses 25 lines of `flexRender`/header/body ceremony into one component
-and wires SortChip, Pagination, and clickable-row keyboard activation for you.
-
-```tsx
-import {Table, useDataTable} from '@duro-app/ui/table'
-import {createColumnHelper} from '@tanstack/react-table'
-
-const col = createColumnHelper<User>()
-const columns = [
-  col.accessor('name', {header: 'Name', enableSorting: true}),
-  col.accessor('role', {header: 'Role', enableSorting: true}),
-  col.accessor('email', {header: 'Email'}),
-  // Mark the actions column via `meta.actions` — applies the stack-mode
-  // footer layout. Set `meta.label` when the header is JSX (icon + text);
-  // string headers are auto-used as the stack-mode label.
-  col.display({
-    id: 'actions',
-    header: 'Actions',
-    meta: {actions: true, label: 'Actions'},
-    cell: () => <Button size="small">Edit</Button>,
-  }),
-]
-
-function UsersTable({users}: {users: User[]}) {
-  const {table} = useDataTable({
-    data: users,
-    columns,
-    pagination: {pageSize: 20},
-    enableSorting: true,
-  })
-  return (
-    <Table.FromTanstack
-      table={table}
-      variant="striped"
-      sortChip
-      pagination
-      onRowClick={(row) => navigate(`/users/${row.original.id}`)}
-      rowAriaLabel={(row) => `Open ${row.original.name}`}
-    />
-  )
-}
-```
-
-**Manual JSX is fine for small static tables** — `Table.Root` now sets up
-its own container query, and SortChip / Pagination plug in as slot props:
-
-```tsx
-<Table.Root
-  variant="striped"
-  sortChip={<Table.SortChip options={opts} value={sort} onChange={setSort} />}
-  pagination={<Table.Pagination table={tanstack} />}
->
-  <Table.Header>
-    <Table.Row>
-      <Table.HeaderCell>Name</Table.HeaderCell>
-      <Table.HeaderCell>Role</Table.HeaderCell>
-      <Table.HeaderCell label="Status">
-        <Inline gap="xs">
-          <Icon name="info-circle" />
-          Status
-        </Inline>
-      </Table.HeaderCell>
-      <Table.HeaderCell aria-label="Actions" />
-    </Table.Row>
-  </Table.Header>
-  <Table.Body>{/* rows */}</Table.Body>
-</Table.Root>
-```
+**Prefer `Table.FromTanstack` when your data has a TanStack table instance** — it collapses the
+`flexRender`/header/body ceremony into one component and wires SortChip, Pagination, and
+clickable-row keyboard activation. See `npx @duro-app/cli data-table --source-only`.
 
 #### Don't
 
@@ -505,95 +435,6 @@ its own container query, and SortChip / Pagination plug in as slot props:
   `label` when the header is JSX with no plain-text fallback (icon, etc).
 - ❌ **Don't pass `isActions` on `Table.HeaderCell`** — it does nothing.
   The cell-level `isActions` is what drives stack-mode footer layout.
-
-### Settings Page
-
-```tsx
-import {Schema} from 'effect'
-import {
-  PageShell,
-  Tabs,
-  Form,
-  Field,
-  Input,
-  Fieldset,
-  Button,
-  Stack,
-  Inline,
-  Heading,
-  Text,
-  Card,
-} from '@duro-app/ui'
-
-const ProfileSchema = Schema.Struct({
-  displayName: Schema.String.pipe(Schema.minLength(1, {message: () => 'Required'})),
-  email: Schema.String.pipe(
-    Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {message: () => 'Invalid email'}),
-  ),
-})
-
-function SettingsPage() {
-  return (
-    <PageShell maxWidth="md" padding="md" header={<Heading level={1}>Settings</Heading>}>
-      <Tabs.Root defaultValue="profile">
-        <Tabs.List>
-          <Tabs.Tab value="profile">Profile</Tabs.Tab>
-          <Tabs.Tab value="notifications">Notifications</Tabs.Tab>
-          <Tabs.Tab value="security">Security</Tabs.Tab>
-        </Tabs.List>
-
-        <Tabs.Panel value="profile">
-          <Card>
-            <Stack gap="lg">
-              <Heading level={3}>Profile Information</Heading>
-              <Form
-                schema={ProfileSchema}
-                defaultValues={{displayName: '', email: ''}}
-                onSubmit={(data) => console.log('save', data)}
-              >
-                {({formState}) => (
-                  <Fieldset.Root gap="md">
-                    <Field.Root name="displayName">
-                      <Field.Label>Display name</Field.Label>
-                      <Input placeholder="Your name" />
-                      <Field.Error />
-                    </Field.Root>
-
-                    <Field.Root name="email">
-                      <Field.Label>Email</Field.Label>
-                      <Input type="email" placeholder="you@example.com" />
-                      <Field.Error />
-                    </Field.Root>
-
-                    <Inline gap="sm" justify="end">
-                      <Button variant="secondary">Cancel</Button>
-                      <Button type="submit" disabled={!formState.isValid}>
-                        Save changes
-                      </Button>
-                    </Inline>
-                  </Fieldset.Root>
-                )}
-              </Form>
-            </Stack>
-          </Card>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="notifications">
-          <Card>
-            <Text>Notification preferences go here.</Text>
-          </Card>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="security">
-          <Card>
-            <Text>Security settings go here.</Text>
-          </Card>
-        </Tabs.Panel>
-      </Tabs.Root>
-    </PageShell>
-  )
-}
-```
 
 ### Side Navigation
 
@@ -642,20 +483,75 @@ it hides the entire IA behind chevrons and makes the user hunt.
 namespace → resource drill-down) needs `role="tree"` with roving tabindex,
 typeahead and `aria-level`. Don't nest `SideNav` to fake it.
 
-### Empty State
+## Canonical Recipes
+
+<!-- duro:generated:recipes START -->
+
+Complete, runnable compositions. Each emits consumer-ready source (imports already point at the published packages):
+
+- **action-menu** — Dropdown action menu with button trigger, action items, and a link item. `npx @duro-app/cli action-menu --source-only`
+- **data-table** — Striped data table with badge status column. `npx @duro-app/cli data-table --source-only`
+- **empty-state** — Empty state inside a card with icon and action button. `npx @duro-app/cli empty-state --source-only`
+- **filter-bar** — Filter bar with Select dropdowns, ToggleGroup for view switching, and reset button. `npx @duro-app/cli filter-bar --source-only`
+- **login-form** — Login form with username/password fields and Effect Schema validation. `npx @duro-app/cli login-form --source-only`
+- **settings-page** — Full settings page with tabbed navigation, profile form, notification switches, and page shell. `npx @duro-app/cli settings-page --source-only`
+
+One inline exemplar (the others follow the same shape — fetch them with the CLI):
+
+### Login Form
 
 ```tsx
-import {Card, EmptyState, Button, Icon} from '@duro-app/ui'
+import {Schema} from 'effect'
+import {css, html} from 'react-strict-dom'
+import {Form, Field, Input, Fieldset, Button, Stack, Heading} from '@duro-app/ui'
 
-function NoResultsView() {
+const LoginSchema = Schema.Struct({
+  username: Schema.String.pipe(
+    Schema.minLength(3, {message: () => 'Username must be at least 3 characters'}),
+  ),
+  password: Schema.String.pipe(
+    Schema.minLength(8, {message: () => 'Password must be at least 8 characters'}),
+  ),
+})
+
+const styles = css.create({
+  wrap: {maxWidth: 400},
+})
+
+export function LoginFormRecipe() {
   return (
-    <Card>
-      <EmptyState
-        icon={<Icon name="info-circle" size="xxl" />}
-        message="No results found"
-        action={<Button variant="secondary">Clear filters</Button>}
-      />
-    </Card>
+    <html.div style={styles.wrap}>
+      <Stack gap="lg">
+        <Heading level={2}>Log in</Heading>
+        <Form
+          schema={LoginSchema}
+          defaultValues={{username: '', password: ''}}
+          onSubmit={(data) => console.log('login', data)}
+        >
+          {({formState}) => (
+            <Fieldset.Root gap="md">
+              <Field.Root name="username">
+                <Field.Label>Username</Field.Label>
+                <Input placeholder="Enter username" />
+                <Field.Error />
+              </Field.Root>
+
+              <Field.Root name="password">
+                <Field.Label>Password</Field.Label>
+                <Input type="password" placeholder="Enter password" />
+                <Field.Error />
+              </Field.Root>
+
+              <Button type="submit" disabled={!formState.isValid}>
+                Log in
+              </Button>
+            </Fieldset.Root>
+          )}
+        </Form>
+      </Stack>
+    </html.div>
   )
 }
 ```
+
+<!-- duro:generated:recipes END -->

@@ -2,16 +2,19 @@ import React from 'react'
 
 // Colors matching a VS Code dark+ theme
 const C = {
-  tag: '#569cd6',      // blue — JSX tag names
-  attr: '#9cdcfe',     // light blue — prop names
-  string: '#ce9178',   // orange — string values
-  punct: '#808080',    // gray — < > / = { }
-  comment: '#6a9955',  // green — comments
-  keyword: '#c586c0',  // purple — keywords
-  text: '#d4d4d4',     // default text
+  tag: '#569cd6', // blue — JSX tag names
+  attr: '#9cdcfe', // light blue — prop names
+  string: '#ce9178', // orange — string values
+  punct: '#808080', // gray — < > / = { }
+  comment: '#6a9955', // green — comments
+  keyword: '#c586c0', // purple — keywords
+  text: '#d4d4d4', // default text
 } as const
 
-interface Token { text: string; color: string }
+interface Token {
+  text: string
+  color: string
+}
 
 /**
  * Minimal JSX tokenizer. Produces colored spans for:
@@ -28,7 +31,9 @@ export function HighlightedCode({code}: {code: string}) {
   return (
     <>
       {tokens.map((t, i) => (
-        <span key={i} style={{color: t.color}}>{t.text}</span>
+        <span key={i} style={{color: t.color}}>
+          {t.text}
+        </span>
       ))}
     </>
   )
@@ -141,7 +146,11 @@ function tokenize(code: string): Token[] {
       const afterWord = code.slice(j).match(/^\s*=/)
       if (afterWord && !code.slice(j).startsWith('=>')) {
         tokens.push({text: word, color: C.attr})
-      } else if (/^(const|let|var|function|return|import|from|export|default|if|else|new|typeof|true|false|null|undefined|async|await)$/.test(word)) {
+      } else if (
+        /^(const|let|var|function|return|import|from|export|default|if|else|new|typeof|true|false|null|undefined|async|await)$/.test(
+          word,
+        )
+      ) {
         tokens.push({text: word, color: C.keyword})
       } else {
         tokens.push({text: word, color: C.text})

@@ -30,10 +30,7 @@ const config: StorybookConfig = {
       'storybook:react-docgen-plugin',
     ])
 
-    config.plugins.push(
-      react({babel: {configFile: true}}),
-      babel(),
-    )
+    config.plugins.push(react({babel: {configFile: true}}), babel())
 
     config.resolve = {
       ...config.resolve,

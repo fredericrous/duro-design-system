@@ -10,3 +10,7 @@ pnpm-lock.yaml
 # Generated registry — a pure function of the source tree, byte-compared by
 # build-registry.mjs --check; prettier reflow would break that comparison.
 packages/cli/registry.json
+
+# CLAUDE.md contains byte-compared generated regions (build-registry.mjs
+# --check-docs); a prettier reflow of those tables would break the comparison.
+CLAUDE.md
