@@ -47,10 +47,18 @@ jobs:
       # plugin's own rules are exercised against real story/recipe source.
       - name: Lint
         run: pnpm lint
-      # Node-only RuleTester suite; runs here rather than behind the 30-minute
-      # Playwright job so a broken rule fails in about a minute.
-      - name: Rule unit tests
+      # The CLI's bin end-to-end tests exec dist/bin.js, so build it first
+      # (its prebuild doubles as a registry freshness check).
+      - name: Build CLI
+        run: pnpm --filter @duro-app/cli run build
+      # Node-only unit suites (lint rules + CLI/registry); runs here rather
+      # than behind the 30-minute Playwright job so failures land in a minute.
+      - name: Unit tests
         run: pnpm test:unit -- --run
+      # The committed registry and CLAUDE.md generated regions are pure
+      # functions of the source tree — regenerating must be a no-op.
+      - name: Registry & docs freshness
+        run: node packages/cli/scripts/build-registry.mjs --check --check-docs
 
   validate:
     name: Validate

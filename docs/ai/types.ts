@@ -1,1 +1,1 @@
-export type {ComponentMeta} from '../../packages/ui/src/components/component-meta'
+export type {ComponentMeta} from '@duro-app/ui/component-meta'

@@ -16,9 +16,7 @@ import {Switch} from '../../../packages/ui/src/components/Switch/Switch'
 import type {ComponentMeta} from '../types'
 
 const ProfileSchema = Schema.Struct({
-  displayName: Schema.String.pipe(
-    Schema.minLength(1, {message: () => 'Display name is required'}),
-  ),
+  displayName: Schema.String.pipe(Schema.minLength(1, {message: () => 'Display name is required'})),
   email: Schema.String.pipe(
     Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {message: () => 'Enter a valid email'}),
   ),

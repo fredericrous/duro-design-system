@@ -1,0 +1,74 @@
+{
+  "name": "@duro-app/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Machine-queryable docs for the Duro design system: components, props, recipes, tokens and rules as CLI output, JSON, or an MCP server.",
+  "keywords": [
+    "cli",
+    "design-system",
+    "documentation",
+    "mcp",
+    "react-strict-dom"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fredericrous/duro-design-system",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/fredericrous/duro-design-system",
+  "bugs": {
+    "url": "https://github.com/fredericrous/duro-design-system/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "duro": "./dist/bin.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./registry.json": "./registry.json"
+  },
+  "files": [
+    "dist",
+    "registry.json"
+  ],
+  "engines": {
+    "node": "^18.18.0 || ^20.9.0 || >=21.1.0"
+  },
+  "scripts": {
+    "registry": "node scripts/build-registry.mjs",
+    "prebuild": "node scripts/build-registry.mjs --check",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@duro-app/ui": "workspace:^",
+    "@modelcontextprotocol/sdk": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@duro-app/ui": {
+      "optional": true
+    },
+    "@modelcontextprotocol/sdk": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@duro-app/eslint-plugin": "workspace:^",
+    "@duro-app/tokens": "workspace:^",
+    "@duro-app/ui": "workspace:^",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "@types/node": "^24.0.0",
+    "ts-morph": "^26.0.0",
+    "typescript": "^5.7.0"
+  }
+}

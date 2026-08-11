@@ -9,11 +9,15 @@
     "typecheck": "pnpm -r run typecheck",
     "lint": "pnpm --filter @duro-app/eslint-plugin run build && eslint .",
     "lint:fix": "pnpm --filter @duro-app/eslint-plugin run build && eslint . --fix",
+    "duro": "duro",
+    "duro:registry": "pnpm --filter @duro-app/cli run registry",
+    "duro:docs": "node packages/cli/scripts/build-registry.mjs --write-docs",
     "test": "vitest --project=storybook",
     "test:unit": "vitest --project=unit",
     "prepare": "amont init"
   },
   "devDependencies": {
+    "@duro-app/cli": "workspace:*",
     "@duro-app/eslint-plugin": "workspace:*",
     "@storybook/addon-a11y": "^10.2.13",
     "@storybook/addon-docs": "^10.2.13",

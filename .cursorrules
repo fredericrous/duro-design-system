@@ -93,4 +93,5 @@ Use `LinkButton` (not Button) for navigation — it renders an `<a>` tag.
 Use `Heading` (level 1-6) for headings, `Text` for body/labels.
 Text variants: `bodySm`, `bodyMd`, `bodyLg`, `caption`, `label`, `code`, `overline`
 
-For the full reference, see CLAUDE.md in the project root.
+For the full reference, see CLAUDE.md in the project root — or query it directly:
+`npx @duro-app/cli <Name>` (props+usage) · `... <recipe> --source-only` · `... spacing` · `... manifest --json`

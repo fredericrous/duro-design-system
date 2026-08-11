@@ -45,7 +45,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           environment: 'node',
-          include: ['packages/eslint-plugin/test/**/*.test.ts'],
+          include: ['packages/*/test/**/*.test.ts'],
           setupFiles: ['packages/eslint-plugin/test/setup.ts'],
         },
       },
