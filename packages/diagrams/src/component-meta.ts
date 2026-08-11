@@ -1,8 +1,3 @@
-export interface ComponentMeta {
-  description: string
-  whenToUse: string[]
-  whenNotToUse: string[]
-  anatomy?: {required: string[]; optional?: string[]}
-  relatedTo?: Array<{component: string; relationship: string}>
-  example: string
-}
+// Single source of truth lives in @duro-app/ui; this re-export keeps the
+// diagram metas' existing relative imports working.
+export type {ComponentMeta} from '@duro-app/ui/component-meta'

@@ -6,3 +6,7 @@
 # `*.{ts,tsx,js,jsx,json,css,md}` — no yaml. amont's prettier check covers
 # .yaml/.yml too, which is how this surfaced.
 pnpm-lock.yaml
+
+# Generated registry — a pure function of the source tree, byte-compared by
+# build-registry.mjs --check; prettier reflow would break that comparison.
+packages/cli/registry.json
