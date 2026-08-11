@@ -9,7 +9,6 @@ export default defineConfig({
       entry: {
         index: './src/index.ts',
         raw: './src/raw.ts',
-        keys: './src/keys.ts',
       },
       formats: ['es'],
       fileName: (_format, entryName) => `${entryName}.js`,
