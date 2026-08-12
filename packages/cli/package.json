@@ -1,7 +1,6 @@
 {
   "name": "@duro-app/cli",
-  "version": "0.0.0",
-  "private": true,
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "description": "Machine-queryable docs for the Duro design system: components, props, recipes, tokens and rules as CLI output, JSON, or an MCP server.",
