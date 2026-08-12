@@ -1,7 +1,6 @@
 {
   "name": "@duro-app/eslint-plugin",
-  "version": "0.0.0",
-  "private": true,
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "description": "ESLint rules enforcing the Duro design system conventions: react-strict-dom html.* elements, deep token imports, token values over raw px/hex, and no deprecated Table parts.",
