@@ -69,6 +69,20 @@ describe('react', () => {
     expect(ids).toContain('duro/prefer-ds-form-components')
   })
 
+  it('carries classic hooks correctness, not the compiler-era rules', async () => {
+    const configured = new Set(react.flatMap((c) => Object.keys(c.rules ?? {})))
+    expect(configured).toContain('react-hooks/rules-of-hooks')
+    expect(configured).not.toContain('react-hooks/set-state-in-effect')
+    expect(configured).not.toContain('react-hooks/refs')
+
+    const flagged = await lint(
+      react,
+      'function notAComponent() { useState(0) }\ndeclare function useState(n: number): unknown\nnotAComponent()\n',
+      'src/x.ts',
+    )
+    expect(ruleIds(flagged)).toContain('react-hooks/rules-of-hooks')
+  })
+
   it('warns on flexGrow in css.create without gating', async () => {
     const result = await lint(
       react,
