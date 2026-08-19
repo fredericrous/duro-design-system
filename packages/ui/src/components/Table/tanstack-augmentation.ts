@@ -10,10 +10,9 @@
 // of co-located with `FromTanstack.tsx`) also keeps it from being
 // tree-shaken out of the published types.
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface ColumnMeta<TData extends unknown, TValue> {
+  interface ColumnMeta<TData, TValue> {
     /** Override the stack-mode label when columnDef.header is JSX (icon + text, etc). */
     stackLabel?: string
     /**

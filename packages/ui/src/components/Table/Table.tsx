@@ -52,7 +52,7 @@ const _devWarned = new Set<string>()
 function devWarnOnce(code: string, message: string) {
   if (_IS_PROD || _devWarned.has(code)) return
   _devWarned.add(code)
-  // eslint-disable-next-line no-console
+
   console.warn(`[duro-app/ui Table] ${message}`)
 }
 

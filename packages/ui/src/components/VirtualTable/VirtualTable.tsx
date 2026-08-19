@@ -28,10 +28,9 @@ export interface VirtualTableRange {
   pages: number
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface VirtualTableProps<TData> {
   data: TData[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   columns: ColumnDef<TData, any>[]
   /** Controlled sorting (pairs with a SortChip in the caller). */
   sorting?: SortingState
