@@ -1,0 +1,61 @@
+{
+  "name": "@duro-app/eslint-config",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Shareable ESLint flat config for the Duro stack: base TS conventions, the design-system rules and UI-library policy for React apps, Effect server conventions, and accessibility-first test selectors.",
+  "keywords": [
+    "eslint",
+    "eslintconfig",
+    "eslint-config",
+    "react-strict-dom",
+    "design-system",
+    "effect"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fredericrous/duro-design-system",
+    "directory": "packages/eslint-config"
+  },
+  "homepage": "https://github.com/fredericrous/duro-design-system",
+  "bugs": {
+    "url": "https://github.com/fredericrous/duro-design-system/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "index.d.ts"
+  ],
+  "main": "src/index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "engines": {
+    "node": "^18.18.0 || ^20.9.0 || >=21.1.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0 || ^10.0.0"
+  },
+  "dependencies": {
+    "@duro-app/eslint-plugin": "workspace:^",
+    "@effect/eslint-plugin": "^0.3.2",
+    "@eslint/js": "^9.20.0 || ^10.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "typescript-eslint": "^8.56.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.20.0",
+    "typescript": "^5.7.0"
+  }
+}

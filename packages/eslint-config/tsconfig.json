@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": false,
+    "types": []
+  },
+  "include": ["index.d.ts", "src"],
+  "exclude": ["node_modules"]
+}

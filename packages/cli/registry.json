@@ -6111,6 +6111,15 @@
         "severity": "error"
       },
       {
+        "description": "Disallow non-zero flexGrow in css.create styles (react-strict-dom forces flex-grow: 0 on web)",
+        "fixable": "none",
+        "id": "duro/no-flex-grow-web",
+        "messages": {
+          "flexGrowForced": "flexGrow has no effect under react-strict-dom on web — the runtime forces computed flex-grow: 0, so this layout silently collapses. Lay out with a plain DOM scaffold, or absolute-position against a measured container."
+        },
+        "severity": "warn"
+      },
+      {
         "description": "Prefer design tokens over raw hex colors and px values in css.create styles",
         "fixable": "suggestion",
         "id": "duro/no-raw-design-values",
@@ -6143,6 +6152,15 @@
           "barrelNamespace": "Namespace/default imports of {{package}} have no deep-path equivalent. Import each token module directly (e.g. {{package}}/tokens/colors.css).",
           "barrelSideEffect": "Side-effect imports of {{package}} do nothing. For the CSS custom properties, import {{package}}/vars.css.",
           "unknownSpecifiers": "Import from {{package}} deep paths instead of the barrel. No known deep path for: {{names}} — fix skipped."
+        },
+        "severity": "error"
+      },
+      {
+        "description": "Require @duro-app/ui form components (Field/Input/Select/Textarea) instead of bare html.input/select/textarea",
+        "fixable": "none",
+        "id": "duro/prefer-ds-form-components",
+        "messages": {
+          "useFormKit": "Use {{replacement}} from @duro-app/ui instead of html.{{tag}} — the form kit carries the theme and a11y wiring. If the field you need is missing, add it to duro-design-system (`npx duro list`)."
         },
         "severity": "error"
       }

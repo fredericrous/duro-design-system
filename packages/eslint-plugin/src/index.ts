@@ -18,6 +18,8 @@ Object.assign(plugin.configs, {
       'duro/no-tokens-barrel-import': 'error',
       'duro/no-deprecated-table-parts': 'error',
       'duro/no-raw-design-values': 'warn',
+      'duro/no-flex-grow-web': 'warn',
+      'duro/prefer-ds-form-components': 'error',
     },
   } satisfies TSESLint.FlatConfig.Config,
 })
