@@ -10,7 +10,7 @@
 ## Architecture
 
 - **Monorepo** managed by pnpm workspaces
-- **Packages:** `@duro-app/ui` (components), `@duro-app/tokens` (design tokens), `@duro-app/eslint-plugin` (lint rules enforcing the Critical Rules below — `duro.configs.recommended`)
+- **Packages:** `@duro-app/ui` (components), `@duro-app/tokens` (design tokens), `@duro-app/eslint-plugin` (lint rules enforcing the Critical Rules below — `duro.configs.recommended`), `@duro-app/eslint-config` (shareable flat config for consumer repos: `base`/`react`/`effect`/`tests` presets bundling the plugin plus stack policy — UI imports only from `@duro-app/ui`, `@effect/sql` not Kysely, a11y test selectors)
 - **Rendering:** [react-strict-dom](https://github.com/nicklockwood/react-strict-dom) — all elements use `html.*` (e.g. `html.div`, `html.button`), **never** raw `<div>` or `<span>`
 - **Styling:** `css.create()` from `react-strict-dom` with token references
 - **Form validation:** Effect Schema + react-hook-form via `@hookform/resolvers`

@@ -27,7 +27,7 @@ export function extractRules(project) {
 
   const lint = []
   const ruleFiles = readdirSync(join(repoRoot, PLUGIN_SRC, 'rules'))
-    .filter((file) => file.startsWith('no-') && file.endsWith('.ts'))
+    .filter((file) => file.endsWith('.ts') && file !== 'index.ts')
     .sort()
   for (const file of ruleFiles) {
     const sourceFile = project.getSourceFileOrThrow(join(repoRoot, PLUGIN_SRC, 'rules', file))
