@@ -51,7 +51,19 @@ const LEXICAL_MESSAGE =
 
 export const react = tseslint.config(
   ...base,
-  reactHooks.configs.flat.recommended,
+  // Classic hooks correctness only. react-hooks v7's flat.recommended also
+  // ships the React Compiler-era rules (refs, set-state-in-effect,
+  // immutability, …) at error — adopting those is a per-repo migration
+  // (duro-design-system deferred ~27 sites, website-builder ~53), not a
+  // default gate. A repo that adopts the compiler opts in on top.
+  {
+    name: 'duro-config/react-hooks-classic',
+    plugins: {'react-hooks': reactHooks},
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+    },
+  },
   duro.configs.recommended,
   {
     name: 'duro-config/react-policy',

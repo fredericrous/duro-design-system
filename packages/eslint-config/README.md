@@ -28,7 +28,7 @@ export default [
 | Preset   | Composes                                                           | For                       |
 | -------- | ------------------------------------------------------------------ | ------------------------- |
 | `base`   | `@eslint/js` + `typescript-eslint` recommended, prettier interop   | every TypeScript package  |
-| `react`  | base + react-hooks + `@duro-app/eslint-plugin` + UI-library policy | RSD / `@duro-app/ui` apps |
+| `react`  | base + classic react-hooks + `@duro-app/eslint-plugin` + UI policy | RSD / `@duro-app/ui` apps |
 | `effect` | base + `@effect` plugin + server-stack policy                      | Effect services           |
 | `tests`  | accessibility-first selectors (self-scoped to test/e2e files)      | any repo with tests       |
 
