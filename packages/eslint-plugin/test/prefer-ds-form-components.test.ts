@@ -19,6 +19,12 @@ tester.run('prefer-ds-form-components', preferDsFormComponents, {
     {code: '<input />', filename: 'x.tsx'},
     // Escape hatch for a component tree that IS the form kit
     {code: '<html.input />', filename: 'x.tsx', options: [{allow: ['input']}]},
+    // Hidden inputs carry router-form intent, not user input
+    {code: '<html.input type="hidden" name="intent" value="accept" />', filename: 'x.tsx'},
+    {code: '<html.input type="HIDDEN" name="id" />', filename: 'x.tsx'},
+    // readOnly fields are display affordances (e.g. select-all copy fallback)
+    {code: '<html.textarea readOnly value={secret} rows={3} />', filename: 'x.tsx'},
+    {code: '<html.input readOnly={maybe} value={v} />', filename: 'x.tsx'},
     // Only the configured html objects match
     {code: '<h.input />', filename: 'x.tsx'},
   ],
@@ -35,6 +41,18 @@ tester.run('prefer-ds-form-components', preferDsFormComponents, {
     },
     {
       code: '<html.textarea rows={4} />',
+      filename: 'x.tsx',
+      errors: [{messageId: 'useFormKit'}],
+    },
+    {
+      // A dynamic type could be anything visible — still reports
+      code: '<html.input type={fieldType} />',
+      filename: 'x.tsx',
+      errors: [{messageId: 'useFormKit'}],
+    },
+    {
+      // Explicit literal false readOnly is an editable field
+      code: '<html.input readOnly={false} value={v} onChange={f} />',
       filename: 'x.tsx',
       errors: [{messageId: 'useFormKit'}],
     },
