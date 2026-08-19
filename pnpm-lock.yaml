@@ -11,6 +11,9 @@ importers:
       '@duro-app/cli':
         specifier: workspace:*
         version: link:packages/cli
+      '@duro-app/eslint-config':
+        specifier: workspace:^
+        version: link:packages/eslint-config
       '@duro-app/eslint-plugin':
         specifier: workspace:*
         version: link:packages/eslint-plugin
@@ -47,6 +50,9 @@ importers:
       eslint:
         specifier: ^9.20.0
         version: 9.39.5
+      eslint-plugin-react-hooks:
+        specifier: ^7.1.1
+        version: 7.1.1(eslint@9.39.5)
       playwright:
         specifier: ^1.58.2
         version: 1.58.2

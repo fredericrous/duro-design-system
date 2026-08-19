@@ -81,12 +81,12 @@ function List({children}: ListProps) {
   useEffect(() => {
     const el = listRef.current
     if (!el) return
+    const listEl = el
 
-    function handleKeyDown(this: HTMLElement, e: KeyboardEvent) {
+    function handleKeyDown(e: KeyboardEvent) {
       const order = orderRef.current
       const tabs = tabsRef.current
       if (order.length === 0) return
-      const listEl = this
 
       const prevKey = orientation === 'horizontal' ? 'ArrowLeft' : 'ArrowUp'
       const nextKey = orientation === 'horizontal' ? 'ArrowRight' : 'ArrowDown'
