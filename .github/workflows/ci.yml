@@ -37,6 +37,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Attestation check
+        id: attest
+        uses: fredericrous/attest@v1
+        with:
+          platform: any
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -54,6 +59,7 @@ jobs:
       # Node-only unit suites (lint rules + CLI/registry); runs here rather
       # than behind the 30-minute Playwright job so failures land in a minute.
       - name: Unit tests
+        if: ${{ !contains(fromJSON(steps.attest.outputs.gates), 'pre-push-run-tests-js') }}
         run: pnpm test:unit -- --run
       # The committed registry and CLAUDE.md generated regions are pure
       # functions of the source tree — regenerating must be a no-op.
@@ -67,6 +73,11 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Attestation check
+        id: attest
+        uses: fredericrous/attest@v1
+        with:
+          platform: any
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -74,6 +85,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Typecheck
+        if: ${{ !contains(fromJSON(steps.attest.outputs.gates), 'pre-push-run-tests-js') }}
         run: pnpm typecheck
       - name: Build libraries
         run: pnpm build
@@ -87,6 +99,11 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Attestation check
+        id: attest
+        uses: fredericrous/attest@v1
+        with:
+          platform: any
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -143,5 +160,6 @@ jobs:
         run: pnpm exec playwright install chromium-headless-shell
 
       - name: Run visual & a11y tests
+        if: ${{ !contains(fromJSON(steps.attest.outputs.gates), 'pre-push-run-tests-js') }}
         timeout-minutes: 15
         run: pnpm test -- --run
