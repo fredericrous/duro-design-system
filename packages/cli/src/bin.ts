@@ -3,6 +3,7 @@ import {parseArgs} from 'node:util'
 import {loadRegistry} from './registry.js'
 import {runLookup, type CommandResult} from './commands/lookup.js'
 import {runList} from './commands/list.js'
+import {runHook} from './commands/hook.js'
 import {runManifest, cliVersion} from './commands/manifest.js'
 
 function emit(result: CommandResult, json: boolean): never {
@@ -16,7 +17,7 @@ function emit(result: CommandResult, json: boolean): never {
 
 function usageError(message: string): never {
   process.stderr.write(
-    `${message}\nUsage: duro <name|list|manifest|mcp> [flags] — duro manifest for details\n`,
+    `${message}\nUsage: duro <name|list|manifest|hook|mcp> [flags] — duro manifest for details\n`,
   )
   process.exit(2)
 }
@@ -77,6 +78,10 @@ async function main(): Promise<void> {
   if (first === 'list') {
     if (rest.length > 1) usageError('duro list takes at most one kind')
     emit(runList(registry, rest[0]), values.json)
+  }
+  if (first === 'hook') {
+    if (rest.length > 1) usageError('duro hook takes exactly one event')
+    emit(runHook(registry, rest[0]), values.json)
   }
   if (first === 'mcp') {
     const {runMcp} = await import('./commands/mcp.js')

@@ -73,6 +73,24 @@ export const COMMANDS: CommandSpec[] = [
     mcpTool: 'duro_manifest',
   },
   {
+    name: 'hook',
+    summary:
+      'Agent session bootstrap for a Claude Code SessionStart hook: consult-first preamble + the full catalog',
+    args: [
+      {
+        name: 'event',
+        required: true,
+        description: 'session-start (the only event)',
+      },
+    ],
+    flags: [],
+    returns: {
+      shape: '{preamble: string, entries: ListEntry[]}',
+      description: 'The preamble plus the same entries as duro list',
+    },
+    examples: ['duro hook session-start'],
+  },
+  {
     name: 'mcp',
     summary: 'Run a stdio MCP server exposing duro_lookup / duro_list / duro_manifest',
     args: [],
