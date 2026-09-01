@@ -5,6 +5,7 @@ import {loadRegistry, lookup} from '../src/registry.js'
 import {runLookup} from '../src/commands/lookup.js'
 import {runList} from '../src/commands/list.js'
 import {runManifest} from '../src/commands/manifest.js'
+import {runHook} from '../src/commands/hook.js'
 import {search} from '../src/search.js'
 import {COMMANDS} from '../src/manifest.js'
 
@@ -43,6 +44,14 @@ describe('lookup dispatch', () => {
 })
 
 describe('command results', () => {
+  it('hook session-start emits the preamble plus the list, other events are usage errors', () => {
+    const ok = runHook(registry, 'session-start')
+    expect(ok.exitCode).toBeUndefined()
+    expect(ok.text).toContain('hand-rolling')
+    expect(ok.text).toContain(runList(registry).text)
+    expect(runHook(registry, 'nope').exitCode).toBe(2)
+    expect(runHook(registry).exitCode).toBe(2)
+  })
   it('list returns entries for each kind', () => {
     const all = runList(registry).data as Array<{name: string; kind: string}>
     expect(all.some((entry) => entry.kind === 'compound')).toBe(true)
@@ -59,6 +68,7 @@ describe('command results', () => {
     expect(manifest.enums.names).toContain('login-form')
     expect(manifest.enums.names).toContain('rules')
     expect(COMMANDS.map((command) => command.name).sort()).toEqual([
+      'hook',
       'list',
       'lookup',
       'manifest',

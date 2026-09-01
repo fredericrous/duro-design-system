@@ -46,3 +46,33 @@ generated regions of the repo's CLAUDE.md (`--write-docs` / `--check-docs`).
 
 The CLI and `@duro-app/ui` are released in lockstep; a version mismatch with
 a locally installed ui prints a one-line stderr warning.
+
+## Claude Code session hook
+
+`duro hook session-start` prints a consult-first preamble followed by the
+full catalog — designed to be injected into agent context by a Claude Code
+`SessionStart` hook, so "check the design system before building UI" stops
+being a remembered step an agent can skip.
+
+`.claude/settings.json` in a consuming repo, with a cache so session start
+stays fast (npx resolution dominates; the catalog only changes on upgrade):
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'c=.claude/.duro-session.cache; if [ ! -s \"$c\" ] || [ -n \"$(find \"$c\" -mtime +7 2>/dev/null)\" ]; then npx -y @duro-app/cli hook session-start >\"$c\".tmp 2>/dev/null && mv \"$c\".tmp \"$c\"; fi; cat \"$c\" 2>/dev/null; :'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Add repo-specific caveats (styling conventions, what NOT to convert) after
+the `cat` — the preamble here stays generic on purpose.
