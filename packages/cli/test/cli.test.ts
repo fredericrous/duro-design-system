@@ -206,6 +206,15 @@ describe('hook install', () => {
     expect(ignore.split('\n').filter((line) => line.trim() === HOOK_CACHE_PATH)).toHaveLength(1)
   })
 
+  it('warns when .gitignore shadows the files it just wrote', () => {
+    const root = repo()
+    execFileSync('git', ['init', '-q'], {cwd: root})
+    writeFileSync(at(root, '.gitignore'), '.claude/*\n')
+    const result = install(root)
+    expect((result.data as {ignored: string[]}).ignored).toContain(HOOK_SCRIPT_PATH)
+    expect(result.text).toContain(`!${HOOK_SCRIPT_PATH}`)
+  })
+
   it('refuses to clobber unparseable settings.json', () => {
     const root = repo()
     mkdirSync(at(root, '.claude'), {recursive: true})

@@ -1,3 +1,4 @@
+import {execFileSync} from 'node:child_process'
 import {mkdirSync, readFileSync, writeFileSync} from 'node:fs'
 import {dirname, join} from 'node:path'
 import type {Registry} from '../registry-types.js'
@@ -113,6 +114,27 @@ function nextGitignore(current: string | null): string | null {
     : `${current}\n\n${GITIGNORE_BLOCK}`
 }
 
+/**
+ * Repos that allowlist .claude (".claude/*" plus "!" exceptions) silently
+ * ignore the files install just wrote — the hook then works locally and ships
+ * to nobody. Best-effort: no git, no warning.
+ */
+function ignoredTrackables(root: string): string[] {
+  const candidates = [HOOK_SCRIPT_PATH, HOOK_SETTINGS_PATH, HOOK_NOTES_PATH]
+  try {
+    const out = execFileSync('git', ['check-ignore', '--', ...candidates], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+    return out.split('\n').filter(Boolean)
+  } catch {
+    // Exit 1 means nothing matched, which is the happy path. Anything else
+    // (no git, not a repo yet) is not ours to report.
+    return []
+  }
+}
+
 function runHookInstall(options: HookOptions): CommandResult {
   const root = options.cwd ?? process.cwd()
   const at = (path: string) => join(root, path)
@@ -180,6 +202,7 @@ function runHookInstall(options: HookOptions): CommandResult {
         }
   }
 
+  const ignored = ignoredTrackables(root)
   return {
     text: [
       'Duro SessionStart hook installed.',
@@ -187,7 +210,15 @@ function runHookInstall(options: HookOptions): CommandResult {
       '',
       `Repo-specific caveats: put them in ${HOOK_NOTES_PATH} — the hook appends that file`,
       'after the catalog, and regeneration leaves it alone.',
+      ...(ignored.length === 0
+        ? []
+        : [
+            '',
+            'WARNING: .gitignore excludes these, so the hook would ship to nobody.',
+            'Add a negation for each:',
+            ...ignored.map((path) => `  !${path}`),
+          ]),
     ].join('\n'),
-    data: {ok: true, changes},
+    data: {ok: true, changes, ignored},
   }
 }
