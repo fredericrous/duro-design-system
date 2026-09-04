@@ -14,6 +14,7 @@ npx @duro-app/cli spacing            # token scale + the deep import to copy
 npx @duro-app/cli rules              # critical rules + what the lint plugin enforces
 npx @duro-app/cli "tags that wrap"   # free text falls back to a need-search
 npx @duro-app/cli list
+npx @duro-app/cli hook install       # wire the Claude Code SessionStart hook
 ```
 
 Install for the short bin: `pnpm add -D @duro-app/cli` → `duro Button`.
@@ -50,29 +51,39 @@ a locally installed ui prints a one-line stderr warning.
 ## Claude Code session hook
 
 `duro hook session-start` prints a consult-first preamble followed by the
-full catalog — designed to be injected into agent context by a Claude Code
-`SessionStart` hook, so "check the design system before building UI" stops
+full catalog, designed to be injected into agent context by a Claude Code
+`SessionStart` hook — so "check the design system before building UI" stops
 being a remembered step an agent can skip.
 
-`.claude/settings.json` in a consuming repo, with a cache so session start
-stays fast (npx resolution dominates; the catalog only changes on upgrade):
+Every consuming repo wires it the same way, and the CLI does the wiring:
 
-```json
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh -c 'c=.claude/.duro-session.cache; if [ ! -s \"$c\" ] || [ -n \"$(find \"$c\" -mtime +7 2>/dev/null)\" ]; then npx -y @duro-app/cli hook session-start >\"$c\".tmp 2>/dev/null && mv \"$c\".tmp \"$c\"; fi; cat \"$c\" 2>/dev/null; :'"
-          }
-        ]
-      }
-    ]
-  }
-}
+```
+npx -y @duro-app/cli hook install          # wire this repo
+npx -y @duro-app/cli hook install --check  # CI: exit 1 if it drifted
 ```
 
-Add repo-specific caveats (styling conventions, what NOT to convert) after
-the `cat` — the preamble here stays generic on purpose.
+`install` is idempotent, and touches exactly three files:
+
+| File                            | What install does                                                                                                                                                                                                     |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.claude/hooks/duro-catalog.sh` | Writes the generated hook: fetches the catalog, caches it for 7 days (npx resolution dominates session start; the catalog only changes on upgrade), stays silent when offline with no cache.                          |
+| `.claude/settings.json`         | Adds the `SessionStart` entry. Existing hooks, permissions and skill overrides are preserved; a hand-renamed duro command is migrated in place rather than duplicated. Unparseable JSON is reported, never clobbered. |
+| `.gitignore`                    | Ignores `.claude/.duro-session.cache*` — a glob, because a hook killed mid-`npx` leaves the staging `.tmp` behind.                                                                                                    |
+
+Do not hand-edit the generated script — `--check` is a byte comparison, so an
+edit shows up as drift and the next `install` overwrites it. **Repo-specific
+caveats go in `.claude/duro-hook.local.md`**: the hook appends that file after
+the catalog, and regeneration leaves it alone. Use it for the things the
+generic preamble can't know — local styling conventions, what NOT to convert,
+which packages are off-limits:
+
+```markdown
+This repo specifically (see CLAUDE.md): the raw-markup convention licenses
+raw div/span MARKUP around Duro components — it is NOT a license to
+hand-roll widgets the DS ships.
+```
+
+Wire `--check` into the repo's lint or CI job to catch a stale hook after a
+CLI upgrade. The generated script pins `@duro-app/cli@^1.2.0` (the floor where
+`hook session-start` landed; older versions treat `hook` as a lookup and cache
+junk) — a floating pin, so patch releases never read as drift.
