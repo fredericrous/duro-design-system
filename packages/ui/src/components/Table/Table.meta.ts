@@ -15,7 +15,11 @@ export const meta: ComponentMeta = {
     required: ['Root', 'Header', 'Body', 'Row', 'HeaderCell', 'Cell'],
   },
   relatedTo: [
-    {component: 'ScrollArea', relationship: 'Wrap Table in ScrollArea for horizontal overflow'},
+    {
+      component: 'ScrollArea',
+      kind: 'composition',
+      relationship: 'Wrap Table in ScrollArea for horizontal overflow',
+    },
   ],
   example: `<Table.Root variant="striped" size="md" columns={3}>
   <Table.Header>

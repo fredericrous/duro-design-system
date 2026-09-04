@@ -19,11 +19,13 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'ThemeProvider',
+      kind: 'contrast',
       relationship:
         'ColorModeProvider renders ThemeProvider with the resolved theme; use ThemeProvider alone for a fixed theme',
     },
     {
       component: 'Toggle',
+      kind: 'contrast',
       relationship: 'Toggle is a generic pressed button; ColorModeToggle cycles theme modes',
     },
   ],

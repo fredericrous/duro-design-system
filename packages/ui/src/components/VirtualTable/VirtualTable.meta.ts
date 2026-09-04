@@ -26,6 +26,7 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Table',
+      kind: 'contrast',
       relationship: 'Table is semantic + paginated; VirtualTable windows large lists',
     },
   ],

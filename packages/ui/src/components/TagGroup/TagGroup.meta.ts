@@ -14,9 +14,17 @@ export const meta: ComponentMeta = {
     'Toggle-based selection — use ToggleGroup',
   ],
   relatedTo: [
-    {component: 'Tag', relationship: 'Tag is the item inside TagGroup.List'},
-    {component: 'Badge', relationship: 'Static display alternative'},
-    {component: 'Field', relationship: 'Wrap in Field.Root for label + description + error'},
+    {component: 'Tag', kind: 'composition', relationship: 'Tag is the item inside TagGroup.List'},
+    {
+      component: 'Badge',
+      kind: 'contrast',
+      relationship: 'TagGroup manages an editable collection; Badge is a static label',
+    },
+    {
+      component: 'Field',
+      kind: 'composition',
+      relationship: 'Wrap in Field.Root for label + description + error',
+    },
   ],
   example: `<TagGroup.Root name="emails" value={emails} onValueChange={setEmails}>
   <TagGroup.List aria-label="Emails">

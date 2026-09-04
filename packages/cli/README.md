@@ -48,12 +48,44 @@ generated regions of the repo's CLAUDE.md (`--write-docs` / `--check-docs`).
 The CLI and `@duro-app/ui` are released in lockstep; a version mismatch with
 a locally installed ui prints a one-line stderr warning.
 
+### Authoring `relatedTo`
+
+Every `relatedTo` entry declares a `kind`, and the type makes it required:
+
+```ts
+relatedTo: [
+  {
+    component: 'Menu',
+    kind: 'contrast',
+    relationship: 'Menu triggers actions; Select picks a value',
+  },
+  {component: 'Field', kind: 'composition', relationship: 'Place Select inside Field.Root'},
+]
+```
+
+- **`contrast`** — the two are alternatives; you pick one _instead of_ the
+  other. These become the session-start neighbors table, so write the
+  relationship so it decides in **either** direction: `X for A; Y for B`, not
+  "Vertical equivalent" (which of the two is vertical?).
+- **`composition`** — one goes _inside_ the other. Real guidance, different
+  question; rendered as "Input vs Field" it would mislead, so it stays out of
+  the table.
+
+Filing an edge under the wrong kind quietly either drops it from the table or
+pollutes it, which is why the field is not optional and not inferred.
+
 ## Claude Code session hook
 
-`duro hook session-start` prints a consult-first preamble followed by the
-full catalog, designed to be injected into agent context by a Claude Code
-`SessionStart` hook — so "check the design system before building UI" stops
-being a remembered step an agent can skip.
+`duro hook session-start` prints a consult-first preamble, the full catalog,
+and a **PICKING BETWEEN NEIGHBORS** table, designed to be injected into agent
+context by a Claude Code `SessionStart` hook — so "check the design system
+before building UI" stops being a remembered step an agent can skip.
+
+The catalog answers "what exists"; the neighbors table answers "which one",
+which is where agents actually go wrong (a Menu built out of a Select, a Card
+where Panel was meant). Both ship in the same injection so neither waits on a
+`duro <Component>` call the agent may never make. The table is derived from
+the `contrast` edges in each component's `relatedTo` — see below.
 
 Every consuming repo wires it the same way, and the CLI does the wiring:
 

@@ -13,7 +13,11 @@ export const meta: ComponentMeta = {
     'Persistent toolbars — use Inline with buttons',
   ],
   relatedTo: [
-    {component: 'Table', relationship: 'Common pattern: Table checkboxes + ActionBar for bulk ops'},
+    {
+      component: 'Table',
+      kind: 'composition',
+      relationship: 'Common pattern: Table checkboxes + ActionBar for bulk ops',
+    },
   ],
   example: `<ActionBar selectedItemCount={selected.size} onClearSelection={() => setSelected(new Set())}>
   <Button variant="danger" size="small" onClick={handleDelete}>Delete</Button>

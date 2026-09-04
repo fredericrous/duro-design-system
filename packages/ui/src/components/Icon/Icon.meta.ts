@@ -12,7 +12,8 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'StatusIcon',
-      relationship: 'StatusIcon wraps Icon with a colored background circle',
+      kind: 'contrast',
+      relationship: 'Icon is a bare SVG; StatusIcon adds a colored background circle',
     },
   ],
   example: `<Inline gap="sm" align="center">

@@ -16,10 +16,12 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Alert',
+      kind: 'contrast',
       relationship: 'Alert for inline/in-form status; Toast for action results',
     },
     {
       component: 'ConfirmDialog',
+      kind: 'contrast',
       relationship: 'ConfirmDialog gates a destructive action; Toast reports the outcome',
     },
   ],

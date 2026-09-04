@@ -11,7 +11,13 @@ export const meta: ComponentMeta = {
     'Triggering in-page actions — use Button',
     'Plain text links — use a styled <a> tag',
   ],
-  relatedTo: [{component: 'Button', relationship: 'Button for actions; LinkButton for navigation'}],
+  relatedTo: [
+    {
+      component: 'Button',
+      kind: 'contrast',
+      relationship: 'Button for actions; LinkButton for navigation',
+    },
+  ],
   example: `<LinkButton href="/signup" variant="primary">
   Get started
 </LinkButton>

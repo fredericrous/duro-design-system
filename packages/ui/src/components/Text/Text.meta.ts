@@ -13,7 +13,11 @@ export const meta: ComponentMeta = {
     'Form field labels — use Field.Label (auto-binds to form)',
   ],
   relatedTo: [
-    {component: 'Heading', relationship: 'Heading for semantic h1-h6; Text for body/label'},
+    {
+      component: 'Heading',
+      kind: 'contrast',
+      relationship: 'Heading for semantic h1-h6; Text for body/label',
+    },
   ],
   example: `<Stack gap="xs">
   <Text variant="label">Email</Text>

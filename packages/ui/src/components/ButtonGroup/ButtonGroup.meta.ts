@@ -16,11 +16,13 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Inline',
+      kind: 'contrast',
       relationship:
         'Inline is a general-purpose horizontal layout; ButtonGroup adds role="group" and disabled support',
     },
     {
       component: 'ActionBar',
+      kind: 'contrast',
       relationship:
         'ActionBar is a floating bulk-selection toolbar; ButtonGroup is a static grouping',
     },

@@ -13,9 +13,17 @@ export const meta: ComponentMeta = {
     'Submitting actions — use Button',
   ],
   relatedTo: [
-    {component: 'ToggleGroup', relationship: 'Group of Toggles with single/multi select'},
-    {component: 'Switch', relationship: 'Switch for settings; Toggle for toolbar actions'},
-    {component: 'Button', relationship: 'Button for actions; Toggle for state'},
+    {
+      component: 'ToggleGroup',
+      kind: 'composition',
+      relationship: 'Group of Toggles with single/multi select',
+    },
+    {
+      component: 'Switch',
+      kind: 'contrast',
+      relationship: 'Switch for settings; Toggle for toolbar actions',
+    },
+    {component: 'Button', kind: 'contrast', relationship: 'Button for actions; Toggle for state'},
   ],
   example: `// Standalone
 <Toggle pressed={isBold} onPressedChange={setIsBold} aria-label="Bold">

@@ -20,8 +20,12 @@ export const meta: ComponentMeta = {
     optional: ['Section', 'Group'],
   },
   relatedTo: [
-    {component: 'Tabs', relationship: 'Tabs switch content in-place; SideNav navigates pages'},
-    {component: 'PageShell', relationship: 'Often placed alongside PageShell'},
+    {
+      component: 'Tabs',
+      kind: 'contrast',
+      relationship: 'Tabs switch content in-place; SideNav navigates pages',
+    },
+    {component: 'PageShell', kind: 'composition', relationship: 'Often placed alongside PageShell'},
   ],
   example: `<SideNav.Root defaultValue="identities">
   {/* Default: always-open sections. Nothing is a click away from being seen. */}

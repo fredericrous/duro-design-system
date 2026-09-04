@@ -12,8 +12,16 @@ export const meta: ComponentMeta = {
     'A full palette/gradient picker — out of scope; this is the native swatch',
   ],
   relatedTo: [
-    {component: 'Input', relationship: 'Sibling form control; same Field-context contract'},
-    {component: 'Field', relationship: 'Wrap in Field.Root for label + error wiring'},
+    {
+      component: 'Input',
+      kind: 'contrast',
+      relationship: 'ColorInput is the native color swatch; Input is text entry',
+    },
+    {
+      component: 'Field',
+      kind: 'composition',
+      relationship: 'Wrap in Field.Root for label + error wiring',
+    },
   ],
   example: `<Field.Root>
   <Field.Label>Accent</Field.Label>

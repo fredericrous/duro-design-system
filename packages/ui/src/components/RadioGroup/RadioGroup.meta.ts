@@ -15,10 +15,20 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'CheckboxGroup',
+      kind: 'contrast',
       relationship: 'CheckboxGroup for multi-select; RadioGroup for single-select',
     },
-    {component: 'Select', relationship: 'Select for larger option sets or when space is limited'},
-    {component: 'ToggleGroup', relationship: 'ToggleGroup for toolbar-style selection'},
+    {
+      component: 'Select',
+      kind: 'contrast',
+      relationship: 'RadioGroup keeps 2-5 options visible; Select for larger sets or tight space',
+    },
+    {
+      component: 'ToggleGroup',
+      kind: 'contrast',
+      relationship:
+        'RadioGroup for form single-select; ToggleGroup for segmented/toolbar single-select',
+    },
   ],
   example: `<RadioGroup.Root defaultValue="email" onValueChange={(v) => console.log(v)}>
   <RadioGroup.Item value="email">Email</RadioGroup.Item>

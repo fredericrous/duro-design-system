@@ -16,6 +16,7 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Panel',
+      kind: 'contrast',
       relationship: 'Panel for structural Header/Body/Footer; Card for visual container',
     },
   ],

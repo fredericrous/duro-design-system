@@ -22,10 +22,12 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Drawer',
+      kind: 'contrast',
       relationship: 'Drawer slides from an edge; Dialog is centered with scale animation',
     },
     {
       component: 'DetailPanel',
+      kind: 'contrast',
       relationship: 'DetailPanel is non-modal and in-flow; Dialog is modal with backdrop',
     },
   ],

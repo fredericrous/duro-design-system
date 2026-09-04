@@ -14,7 +14,11 @@ export const meta: ComponentMeta = {
     'Non-semantic bold text — use Text with weight',
   ],
   relatedTo: [
-    {component: 'Text', relationship: 'Text for body/label; Heading for semantic headings'},
+    {
+      component: 'Text',
+      kind: 'contrast',
+      relationship: 'Text for body/label; Heading for semantic headings',
+    },
   ],
   example: `<Stack gap="md">
   <Heading level={1}>Page Title</Heading>

@@ -13,8 +13,16 @@ export const meta: ComponentMeta = {
     'Toggleable selection — use Toggle or ToggleGroup',
   ],
   relatedTo: [
-    {component: 'Badge', relationship: 'Static display variant'},
-    {component: 'TagGroup', relationship: 'Wrap in TagGroup.Root for collection management'},
+    {
+      component: 'Badge',
+      kind: 'contrast',
+      relationship: 'Tag is interactive and removable; Badge is a static label',
+    },
+    {
+      component: 'TagGroup',
+      kind: 'composition',
+      relationship: 'Wrap in TagGroup.Root for collection management',
+    },
   ],
   example: `<Tag removable onRemove={() => console.log('removed')}>
   user@example.com

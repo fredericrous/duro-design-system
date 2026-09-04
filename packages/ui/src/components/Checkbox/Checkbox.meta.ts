@@ -14,9 +14,14 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Switch',
+      kind: 'contrast',
       relationship: 'Switch for on/off settings; Checkbox for opt-in/selection',
     },
-    {component: 'Toggle', relationship: 'Toggle for toolbar actions; Checkbox for form input'},
+    {
+      component: 'Toggle',
+      kind: 'contrast',
+      relationship: 'Toggle for toolbar actions; Checkbox for form input',
+    },
   ],
   example: `<Checkbox name="terms" onChange={(e) => console.log(e.target.checked)}>
   I agree to the terms and conditions

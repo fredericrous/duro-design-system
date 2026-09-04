@@ -20,11 +20,17 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Table',
+      kind: 'contrast',
       relationship: 'Table for wide multi-column data; List for narrow compact items',
     },
-    {component: 'DetailPanel', relationship: 'List fits naturally inside DetailPanel.Body'},
+    {
+      component: 'DetailPanel',
+      kind: 'composition',
+      relationship: 'List fits naturally inside DetailPanel.Body',
+    },
     {
       component: 'Menu',
+      kind: 'contrast',
       relationship: 'Menu for action menus; List for data display with selection',
     },
   ],

@@ -14,9 +14,14 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Checkbox',
+      kind: 'contrast',
       relationship: 'Checkbox for selection/opt-in; Switch for on/off settings',
     },
-    {component: 'Toggle', relationship: 'Toggle for toolbar pressed state; Switch for settings'},
+    {
+      component: 'Toggle',
+      kind: 'contrast',
+      relationship: 'Toggle for toolbar pressed state; Switch for settings',
+    },
   ],
   example: `<Switch
   name="notifications"

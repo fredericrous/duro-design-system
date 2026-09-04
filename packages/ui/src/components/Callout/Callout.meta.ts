@@ -16,6 +16,7 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Alert',
+      kind: 'contrast',
       relationship: 'Alert for compact inline; Callout for block-level prominent',
     },
   ],

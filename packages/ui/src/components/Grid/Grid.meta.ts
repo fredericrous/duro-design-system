@@ -11,7 +11,13 @@ export const meta: ComponentMeta = {
     'Single-column vertical layout — use Stack',
     'Simple horizontal row — use Inline or Cluster',
   ],
-  relatedTo: [{component: 'Stack', relationship: 'Single-column vertical layout'}],
+  relatedTo: [
+    {
+      component: 'Stack',
+      kind: 'contrast',
+      relationship: 'Grid for multi-column layouts; Stack for a single vertical column',
+    },
+  ],
   example: `// Responsive: columns auto-fit based on min width
 <Grid minColumnWidth="280px" gap="md">
   <Card>A</Card>

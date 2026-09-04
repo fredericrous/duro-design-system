@@ -9,6 +9,7 @@ import {runLookup} from '../src/commands/lookup.js'
 import {runList} from '../src/commands/list.js'
 import {runManifest} from '../src/commands/manifest.js'
 import {runHook} from '../src/commands/hook.js'
+import {contrastPairs} from '../src/disambiguation.js'
 import {search} from '../src/search.js'
 import {COMMANDS} from '../src/manifest.js'
 import {
@@ -54,6 +55,52 @@ describe('lookup dispatch', () => {
 })
 
 describe('command results', () => {
+  it('every relatedTo edge declares its kind', () => {
+    // The kind is what keeps composition ("Place Input inside Field.Root") out
+    // of a section that promises to decide between alternatives. A new edge
+    // without one is a type error at authoring time; this catches a registry
+    // built before that guard existed.
+    for (const [name, entry] of Object.entries(registry.components)) {
+      for (const related of entry.meta?.relatedTo ?? []) {
+        expect(['contrast', 'composition'], `${name} -> ${related.component}`).toContain(
+          related.kind,
+        )
+      }
+    }
+  })
+
+  it('contrast pairs exclude composition edges and hooks', () => {
+    const pairs = contrastPairs(registry)
+    const label = (pair: {a: string; b: string}) => `${pair.a} vs ${pair.b}`
+    const labels = pairs.map(label)
+    // Alternatives you pick between.
+    expect(labels).toContain('Menu vs Select')
+    expect(labels).toContain('Card vs Panel')
+    expect(labels).toContain('Dialog vs Drawer')
+    // Composition, not a choice — Input goes inside Field.Root.
+    expect(labels).not.toContain('Field vs Input')
+    expect(labels).not.toContain('Table vs ScrollArea')
+    // A hook is never the alternative to a component.
+    expect(pairs.some((pair) => pair.a.startsWith('use') || pair.b.startsWith('use'))).toBe(false)
+  })
+
+  it('contrast pairs are deduped and deterministic', () => {
+    const pairs = contrastPairs(registry)
+    const labels = pairs.map((pair) => `${pair.a} vs ${pair.b}`)
+    expect(new Set(labels).size).toBe(labels.length)
+    // Components sharing a meta file restate the same sentence; keep one.
+    expect(new Set(pairs.map((pair) => pair.distinction)).size).toBe(pairs.length)
+    expect(labels).toEqual([...labels].sort())
+    expect(contrastPairs(registry)).toEqual(pairs)
+  })
+
+  it('session-start carries the pairs, not just the index', () => {
+    const text = runHook(registry, 'session-start').text
+    expect(text).toContain('PICKING BETWEEN NEIGHBORS')
+    // The whole point: deciding between two components needs no second call.
+    expect(text).toContain('Menu vs Select')
+  })
+
   it('hook session-start emits the preamble plus the list, other events are usage errors', () => {
     const ok = runHook(registry, 'session-start')
     expect(ok.exitCode).toBeUndefined()

@@ -12,8 +12,12 @@ export const meta: ComponentMeta = {
     'Toggling state — use Toggle',
   ],
   relatedTo: [
-    {component: 'LinkButton', relationship: 'LinkButton for navigation; Button for actions'},
-    {component: 'Toggle', relationship: 'Toggle for pressed/unpressed state'},
+    {
+      component: 'LinkButton',
+      kind: 'contrast',
+      relationship: 'LinkButton for navigation; Button for actions',
+    },
+    {component: 'Toggle', kind: 'contrast', relationship: 'Toggle for pressed/unpressed state'},
   ],
   example: `<Inline gap="sm">
   <Button variant="primary" type="submit">Save</Button>

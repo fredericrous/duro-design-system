@@ -1,3 +1,4 @@
+import type {ContrastPair} from './disambiguation.js'
 import type {
   ComponentEntry,
   IconRegistry,
@@ -228,4 +229,19 @@ export function renderList(registry: Registry, kind?: string): string {
   }
   sections.push(dim(`duro <name> for details · duro rules · duro manifest`))
   return sections.join('\n\n')
+}
+
+/**
+ * The deciding sentence for each pair of alternatives. Its own section
+ * because the index answers "what exists", not "which one".
+ */
+export function renderContrastPairs(pairs: ContrastPair[]): string {
+  if (pairs.length === 0) return ''
+  const labels = pairs.map((pair) => `${pair.a} vs ${pair.b}`)
+  const width = Math.max(...labels.map((label) => label.length)) + 2
+  const rows = pairs.map((pair, index) => {
+    const body = wrap(pair.distinction, ' '.repeat(width + 2)).trimStart()
+    return `  ${labels[index].padEnd(width)}${body}`
+  })
+  return `${bold('PICKING BETWEEN NEIGHBORS')} (${pairs.length})\n${rows.join('\n')}`
 }

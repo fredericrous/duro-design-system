@@ -16,7 +16,11 @@ export const meta: ComponentMeta = {
     required: ['Root', 'List', 'Tab', 'Panel'],
   },
   relatedTo: [
-    {component: 'SideNav', relationship: 'For persistent navigation, not content switching'},
+    {
+      component: 'SideNav',
+      kind: 'contrast',
+      relationship: 'Tabs switch content in-place; SideNav navigates between pages',
+    },
   ],
   example: `<Tabs.Root defaultValue="general">
   <Tabs.List>
