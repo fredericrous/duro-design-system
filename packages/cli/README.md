@@ -67,25 +67,34 @@ relatedTo: [
   other. These become the session-start neighbors table, so write the
   relationship so it decides in **either** direction: `X for A; Y for B`, not
   "Vertical equivalent" (which of the two is vertical?).
-- **`composition`** — one goes _inside_ the other. Real guidance, different
-  question; rendered as "Input vs Field" it would mislead, so it stays out of
-  the table.
+- **`composition`** — one goes _inside_ the other, or is _built on_ it.
+  React composes, so this covers "wraps", "renders" and "built on" too, not
+  just literal nesting. These get their own table: rendered as "Input vs
+  Field" they would read as the opposite advice.
 
-Filing an edge under the wrong kind quietly either drops it from the table or
-pollutes it, which is why the field is not optional and not inferred.
+Filing an edge under the wrong kind puts it under a heading that contradicts
+it, which is why the field is not optional and not inferred. Write the
+relationship to match: a `contrast` edge decides ("X for A; Y for B"), a
+`composition` edge says what wraps what.
 
 ## Claude Code session hook
 
 `duro hook session-start` prints a consult-first preamble, the full catalog,
-and a **PICKING BETWEEN NEIGHBORS** table, designed to be injected into agent
-context by a Claude Code `SessionStart` hook — so "check the design system
-before building UI" stops being a remembered step an agent can skip.
+and two neighbour tables, designed to be injected into agent context by a
+Claude Code `SessionStart` hook — so "check the design system before building
+UI" stops being a remembered step an agent can skip.
 
-The catalog answers "what exists"; the neighbors table answers "which one",
-which is where agents actually go wrong (a Menu built out of a Select, a Card
-where Panel was meant). Both ship in the same injection so neither waits on a
-`duro <Component>` call the agent may never make. The table is derived from
-the `contrast` edges in each component's `relatedTo` — see below.
+The catalog answers "what exists". The tables answer the two questions it
+doesn't, which is where agents actually go wrong:
+
+- **PICKING BETWEEN NEIGHBORS** — a Menu built out of a Select, a Card where
+  Panel was meant
+- **COMPOSE — DO NOT HAND-ROLL THE WRAPPER** — a hand-rolled label beside an
+  Input that should have been wrapped in `Field.Root`
+
+All three ship in one injection, so none waits on a `duro <Component>` call
+the agent may never make. The tables are the `contrast` and `composition`
+edges of each component's `relatedTo` — see above.
 
 Every consuming repo wires it the same way, and the CLI does the wiring:
 

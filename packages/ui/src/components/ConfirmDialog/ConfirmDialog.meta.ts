@@ -18,11 +18,14 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Dialog',
-      kind: 'contrast',
-      relationship:
-        'ConfirmDialog for destructive confirmation with a phrase gate; Dialog for anything else modal',
+      kind: 'composition',
+      relationship: 'Built on Dialog — ConfirmDialog adds the phrase gate + footer',
     },
-    {component: 'Button', kind: 'composition', relationship: 'The confirm/cancel actions'},
+    {
+      component: 'Button',
+      kind: 'composition',
+      relationship: 'Button renders the confirm/cancel actions inside ConfirmDialog',
+    },
   ],
   example: `<ConfirmDialog
   open={open}

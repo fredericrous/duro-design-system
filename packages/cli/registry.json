@@ -880,7 +880,7 @@
         "relatedTo": [
           {
             "component": "ThemeProvider",
-            "kind": "contrast",
+            "kind": "composition",
             "relationship": "ColorModeProvider renders ThemeProvider with the resolved theme; use ThemeProvider alone for a fixed theme"
           },
           {
@@ -967,7 +967,7 @@
         "relatedTo": [
           {
             "component": "ThemeProvider",
-            "kind": "contrast",
+            "kind": "composition",
             "relationship": "ColorModeProvider renders ThemeProvider with the resolved theme; use ThemeProvider alone for a fixed theme"
           },
           {
@@ -1206,13 +1206,13 @@
         "relatedTo": [
           {
             "component": "Dialog",
-            "kind": "contrast",
-            "relationship": "ConfirmDialog for destructive confirmation with a phrase gate; Dialog for anything else modal"
+            "kind": "composition",
+            "relationship": "Built on Dialog — ConfirmDialog adds the phrase gate + footer"
           },
           {
             "component": "Button",
             "kind": "composition",
-            "relationship": "The confirm/cancel actions"
+            "relationship": "Button renders the confirm/cancel actions inside ConfirmDialog"
           }
         ],
         "whenNotToUse": [
@@ -2426,8 +2426,8 @@
         "relatedTo": [
           {
             "component": "StatusIcon",
-            "kind": "contrast",
-            "relationship": "Icon is a bare SVG; StatusIcon adds a colored background circle"
+            "kind": "composition",
+            "relationship": "StatusIcon wraps Icon with a colored background circle"
           }
         ],
         "whenNotToUse": [
@@ -4067,8 +4067,8 @@
         "relatedTo": [
           {
             "component": "Icon",
-            "kind": "contrast",
-            "relationship": "Icon is a bare SVG; StatusIcon adds a colored background circle"
+            "kind": "composition",
+            "relationship": "StatusIcon wraps Icon with a colored background circle"
           },
           {
             "component": "Badge",
@@ -5776,7 +5776,7 @@
         "relatedTo": [
           {
             "component": "ThemeProvider",
-            "kind": "contrast",
+            "kind": "composition",
             "relationship": "ColorModeProvider renders ThemeProvider with the resolved theme; use ThemeProvider alone for a fixed theme"
           },
           {

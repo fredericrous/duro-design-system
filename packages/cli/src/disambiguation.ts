@@ -1,63 +1,60 @@
 import type {Registry} from './registry-types.js'
 
-/** Two components you pick between, and the sentence that decides. */
-export interface ContrastPair {
+/** Two components and the sentence that relates them. */
+export interface RelatedPair {
   /** Alphabetically first of the two, so a pair has one stable identity. */
   a: string
   b: string
-  distinction: string
+  relationship: string
 }
 
 /**
- * Derive the wrong-pick guard from the components' `contrast` edges.
+ * Derive the neighbour pairs the session bootstrap ships alongside the index.
  *
- * The catalog in `duro list` says what EXISTS; it does not say which one, and
- * choosing is where agents go wrong — a Menu built out of a Select, a Card
- * where Panel was meant. That guidance is already authored per component in
- * `relatedTo`; it just needs to be reachable without a second lookup the
- * agent may never make.
+ * The catalog in `duro list` says what EXISTS. It does not say which one, and
+ * it does not say what goes inside what — and those are the two ways agents
+ * go wrong: a Menu built out of a Select, or a hand-rolled label next to an
+ * Input that should have been wrapped in Field.Root. Both answers are already
+ * authored per component in `relatedTo`; they just need to be reachable
+ * without a `duro <Component>` call the agent may never make.
  *
- * Only `contrast` edges qualify. `composition` edges ("Place Input inside
- * Field.Root") are real guidance but answer a different question, and reading
- * as "Input vs Field" they would actively mislead.
+ * The two kinds render as separate sections because they answer different
+ * questions. A `composition` edge shown as "Input vs Field" would read as a
+ * choice between them, which is the opposite of the guidance.
  */
-export function contrastPairs(registry: Registry): ContrastPair[] {
-  const byPair = new Map<string, ContrastPair>()
+export function relatedPairs(registry: Registry, kind: 'contrast' | 'composition'): RelatedPair[] {
+  const byPair = new Map<string, RelatedPair>()
   for (const [name, entry] of Object.entries(registry.components)) {
-    // You never pick a hook instead of a component, and a hook's meta is its
-    // component's meta, so hooks only ever restate an edge already listed.
-    if (entry.kind === 'hook') continue
     for (const related of entry.meta?.relatedTo ?? []) {
-      if (related.kind !== 'contrast') continue
+      if (related.kind !== kind) continue
       // A pair is only useful if both sides are documented.
       if (!(related.component in registry.components) || related.component === name) continue
-      if (registry.components[related.component].kind === 'hook') continue
       const [a, b] = [name, related.component].sort()
-      const candidate: ContrastPair = {a, b, distinction: related.relationship}
-      const existing = byPair.get(`${a}|${b}`)
-      if (existing === undefined || score(candidate) > score(existing)) {
-        byPair.set(`${a}|${b}`, candidate)
-      }
+      const candidate: RelatedPair = {a, b, relationship: related.relationship}
+      const held = byPair.get(`${a}|${b}`)
+      if (held === undefined || score(candidate) > score(held)) byPair.set(`${a}|${b}`, candidate)
     }
   }
-  // Components that share a meta file (ColorModeProvider / ColorModeToggle)
-  // emit the same sentence against the same neighbour. One is guidance; three
-  // is noise in a payload every session pays for. Keep the pair the sentence
-  // actually names, so the label and the text agree.
-  const best = new Map<string, ContrastPair>()
+  // Components sharing a meta file (ColorModeProvider / ColorModeToggle /
+  // useColorMode, Table / useDataTable) emit the same sentence against the
+  // same neighbour. One is guidance; three is noise in a payload every
+  // session pays for. Keep the pair the sentence actually names.
+  const best = new Map<string, RelatedPair>()
   for (const pair of byPair.values()) {
-    const held = best.get(pair.distinction)
-    if (held === undefined || score(pair) > score(held)) best.set(pair.distinction, pair)
+    const held = best.get(pair.relationship)
+    if (held === undefined || score(pair) > score(held)) best.set(pair.relationship, pair)
   }
-  return [...best.values()].sort((x, y) => `${x.a}|${x.b}`.localeCompare(`${y.a}|${y.b}`))
+  // Sort on the fields, not a joined key: locale collation treats a "|"
+  // separator as punctuation and reorders around it.
+  return [...best.values()].sort((x, y) => x.a.localeCompare(y.a) || x.b.localeCompare(y.b))
 }
 
 /**
  * Most pairs are declared from both sides with different wording. Prefer the
- * phrasing that names both components — it reads correctly in either
- * direction, which a one-sided "Vertical equivalent" does not. Ties keep the
- * first seen, and registry keys are sorted, so the choice is deterministic.
+ * phrasing that names both components — it reads correctly whichever side the
+ * agent arrives from, which a one-sided "Vertical equivalent" does not. Ties
+ * keep the first seen, and registry keys are sorted, so this is deterministic.
  */
-function score(pair: ContrastPair): number {
-  return pair.distinction.includes(pair.a) && pair.distinction.includes(pair.b) ? 1 : 0
+function score(pair: RelatedPair): number {
+  return pair.relationship.includes(pair.a) && pair.relationship.includes(pair.b) ? 1 : 0
 }

@@ -9,7 +9,7 @@ import {runLookup} from '../src/commands/lookup.js'
 import {runList} from '../src/commands/list.js'
 import {runManifest} from '../src/commands/manifest.js'
 import {runHook} from '../src/commands/hook.js'
-import {contrastPairs} from '../src/disambiguation.js'
+import {relatedPairs} from '../src/disambiguation.js'
 import {search} from '../src/search.js'
 import {COMMANDS} from '../src/manifest.js'
 import {
@@ -69,36 +69,46 @@ describe('command results', () => {
     }
   })
 
-  it('contrast pairs exclude composition edges and hooks', () => {
-    const pairs = contrastPairs(registry)
-    const label = (pair: {a: string; b: string}) => `${pair.a} vs ${pair.b}`
-    const labels = pairs.map(label)
+  it('contrast and composition are separate, non-overlapping tables', () => {
+    const label = (pair: {a: string; b: string}) => `${pair.a}|${pair.b}`
+    const contrast = relatedPairs(registry, 'contrast').map(label)
+    const composition = relatedPairs(registry, 'composition').map(label)
     // Alternatives you pick between.
-    expect(labels).toContain('Menu vs Select')
-    expect(labels).toContain('Card vs Panel')
-    expect(labels).toContain('Dialog vs Drawer')
-    // Composition, not a choice — Input goes inside Field.Root.
-    expect(labels).not.toContain('Field vs Input')
-    expect(labels).not.toContain('Table vs ScrollArea')
-    // A hook is never the alternative to a component.
-    expect(pairs.some((pair) => pair.a.startsWith('use') || pair.b.startsWith('use'))).toBe(false)
+    expect(contrast).toContain('Menu|Select')
+    expect(contrast).toContain('Card|Panel')
+    // Composition — Input goes inside Field.Root, it is not an alternative to
+    // it. Shown as "Input vs Field" this would read as the opposite advice.
+    expect(composition).toContain('Field|Input')
+    expect(composition).toContain('ScrollArea|Table')
+    // React composes: "built on" and "wraps" are composition, not a choice.
+    expect(composition).toContain('ConfirmDialog|Dialog')
+    expect(composition).toContain('Icon|StatusIcon')
+    expect(contrast.filter((pair) => composition.includes(pair))).toEqual([])
   })
 
-  it('contrast pairs are deduped and deterministic', () => {
-    const pairs = contrastPairs(registry)
-    const labels = pairs.map((pair) => `${pair.a} vs ${pair.b}`)
-    expect(new Set(labels).size).toBe(labels.length)
-    // Components sharing a meta file restate the same sentence; keep one.
-    expect(new Set(pairs.map((pair) => pair.distinction)).size).toBe(pairs.length)
-    expect(labels).toEqual([...labels].sort())
-    expect(contrastPairs(registry)).toEqual(pairs)
+  it('pairs are deduped, sorted and deterministic', () => {
+    for (const kind of ['contrast', 'composition'] as const) {
+      const pairs = relatedPairs(registry, kind)
+      const labels = pairs.map((pair) => `${pair.a}|${pair.b}`)
+      expect(new Set(labels).size, kind).toBe(labels.length)
+      // Components sharing a meta file restate the same sentence; keep one.
+      expect(new Set(pairs.map((pair) => pair.relationship)).size, kind).toBe(pairs.length)
+      expect(labels, kind).toEqual(
+        [...pairs]
+          .sort((x, y) => x.a.localeCompare(y.a) || x.b.localeCompare(y.b))
+          .map((pair) => `${pair.a}|${pair.b}`),
+      )
+      expect(relatedPairs(registry, kind), kind).toEqual(pairs)
+    }
   })
 
-  it('session-start carries the pairs, not just the index', () => {
+  it('session-start carries both tables, not just the index', () => {
     const text = runHook(registry, 'session-start').text
     expect(text).toContain('PICKING BETWEEN NEIGHBORS')
-    // The whole point: deciding between two components needs no second call.
+    expect(text).toContain('COMPOSE')
+    // The whole point: neither answer needs a second call.
     expect(text).toContain('Menu vs Select')
+    expect(text).toContain('Field + Input')
   })
 
   it('hook session-start emits the preamble plus the list, other events are usage errors', () => {

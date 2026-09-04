@@ -19,7 +19,7 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'ThemeProvider',
-      kind: 'contrast',
+      kind: 'composition',
       relationship:
         'ColorModeProvider renders ThemeProvider with the resolved theme; use ThemeProvider alone for a fixed theme',
     },
