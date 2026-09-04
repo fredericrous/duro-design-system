@@ -1323,11 +1323,6 @@
             "relationship": "Drawer is modal with backdrop; DetailPanel is non-modal and in-flow"
           },
           {
-            "component": "Panel",
-            "kind": "composition",
-            "relationship": "DetailPanel uses Panel structure internally"
-          },
-          {
             "component": "Table",
             "kind": "composition",
             "relationship": "Common pattern: Table + DetailPanel for master-detail"
@@ -3381,11 +3376,6 @@
             "component": "Card",
             "kind": "contrast",
             "relationship": "Card is for shallow, repeated items; Panel is for deep, organized content"
-          },
-          {
-            "component": "DetailPanel",
-            "kind": "composition",
-            "relationship": "DetailPanel uses Panel internally for its structural layout"
           },
           {
             "component": "PageShell",

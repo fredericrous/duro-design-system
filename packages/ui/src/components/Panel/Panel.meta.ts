@@ -24,11 +24,6 @@ export const meta: ComponentMeta = {
       relationship: 'Card is for shallow, repeated items; Panel is for deep, organized content',
     },
     {
-      component: 'DetailPanel',
-      kind: 'composition',
-      relationship: 'DetailPanel uses Panel internally for its structural layout',
-    },
-    {
       component: 'PageShell',
       kind: 'contrast',
       relationship: 'PageShell is for page-level layout; Panel is for section-level',

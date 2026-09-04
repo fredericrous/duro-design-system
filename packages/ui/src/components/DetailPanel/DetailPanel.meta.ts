@@ -24,11 +24,6 @@ export const meta: ComponentMeta = {
       relationship: 'Drawer is modal with backdrop; DetailPanel is non-modal and in-flow',
     },
     {
-      component: 'Panel',
-      kind: 'composition',
-      relationship: 'DetailPanel uses Panel structure internally',
-    },
-    {
       component: 'Table',
       kind: 'composition',
       relationship: 'Common pattern: Table + DetailPanel for master-detail',
