@@ -33,6 +33,7 @@ async function main(): Promise<void> {
         props: {type: 'boolean', default: false},
         'source-only': {type: 'boolean', default: false},
         'no-color': {type: 'boolean', default: false},
+        check: {type: 'boolean', default: false},
         help: {type: 'boolean', short: 'h', default: false},
         version: {type: 'boolean', short: 'v', default: false},
       },
@@ -81,7 +82,7 @@ async function main(): Promise<void> {
   }
   if (first === 'hook') {
     if (rest.length > 1) usageError('duro hook takes exactly one event')
-    emit(runHook(registry, rest[0]), values.json)
+    emit(runHook(registry, rest[0], {check: values.check}), values.json)
   }
   if (first === 'mcp') {
     const {runMcp} = await import('./commands/mcp.js')

@@ -75,20 +75,28 @@ export const COMMANDS: CommandSpec[] = [
   {
     name: 'hook',
     summary:
-      'Agent session bootstrap for a Claude Code SessionStart hook: consult-first preamble + the full catalog',
+      'Claude Code SessionStart hook: session-start prints the consult-first preamble + full catalog; install wires it into the current repo',
     args: [
       {
         name: 'event',
         required: true,
-        description: 'session-start (the only event)',
+        description: 'session-start (print the bootstrap) | install (wire it into this repo)',
+        valuesFrom: 'events',
       },
     ],
-    flags: [],
+    flags: [
+      {
+        name: 'check',
+        type: 'boolean',
+        description: 'install: report drift and exit 1 instead of writing (for CI)',
+      },
+    ],
     returns: {
-      shape: '{preamble: string, entries: ListEntry[]}',
-      description: 'The preamble plus the same entries as duro list',
+      shape: '{preamble: string, entries: ListEntry[]} | {ok: boolean, changes: FileChange[]}',
+      description:
+        'session-start: the preamble plus the same entries as duro list. install: what each wired file did',
     },
-    examples: ['duro hook session-start'],
+    examples: ['duro hook session-start', 'duro hook install', 'duro hook install --check'],
   },
   {
     name: 'mcp',
@@ -118,6 +126,7 @@ export function buildManifest(registry: Registry, version: string) {
     enums: {
       names: lookupNames(registry),
       kinds: ['components', 'recipes', 'tokens'],
+      events: ['session-start', 'install'],
     },
   }
 }

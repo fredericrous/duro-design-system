@@ -6,6 +6,10 @@
 > every recipe's source, tokens and rules follow from it (`npx @duro-app/cli Button`,
 > `npx @duro-app/cli login-form --source-only`, `npx @duro-app/cli "tags that wrap"`).
 > As an MCP server: `duro mcp` (tools `duro_lookup` / `duro_list` / `duro_manifest`).
+>
+> **Consuming apps:** run `npx -y @duro-app/cli hook install` once in the repo root. It wires a
+> Claude Code `SessionStart` hook that puts this catalog in every agent session automatically —
+> `--check` in CI keeps it from drifting. See `packages/cli/README.md`.
 
 ## Architecture
 

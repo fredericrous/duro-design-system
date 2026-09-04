@@ -1,4 +1,7 @@
 import {execFileSync} from 'node:child_process'
+import {mkdtempSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs'
+import {tmpdir} from 'node:os'
+import {join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {describe, expect, it} from 'vitest'
 import {loadRegistry, lookup} from '../src/registry.js'
@@ -8,6 +11,13 @@ import {runManifest} from '../src/commands/manifest.js'
 import {runHook} from '../src/commands/hook.js'
 import {search} from '../src/search.js'
 import {COMMANDS} from '../src/manifest.js'
+import {
+  HOOK_CACHE_PATH,
+  HOOK_COMMAND,
+  HOOK_SCRIPT,
+  HOOK_SCRIPT_PATH,
+  HOOK_SETTINGS_PATH,
+} from '../src/hook-script.js'
 
 const registry = loadRegistry()
 const bin = fileURLToPath(new URL('../dist/bin.js', import.meta.url))
@@ -102,5 +112,106 @@ describe('bin end-to-end', () => {
   it('unknown flags exit 2', () => {
     const {code} = duro('Button', '--frobnicate')
     expect(code).toBe(2)
+  })
+})
+
+describe('hook install', () => {
+  const repo = () => mkdtempSync(join(tmpdir(), 'duro-hook-'))
+  const at = (root: string, path: string) => join(root, path)
+  const install = (root: string, check = false) => runHook(registry, 'install', {cwd: root, check})
+
+  it('wires an empty repo: script, settings and gitignore', () => {
+    const root = repo()
+    const result = install(root)
+    expect(result.exitCode).toBeUndefined()
+    expect(readFileSync(at(root, HOOK_SCRIPT_PATH), 'utf8')).toBe(HOOK_SCRIPT)
+    const settings = JSON.parse(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8'))
+    expect(settings.hooks.SessionStart[0].hooks[0].command).toBe(HOOK_COMMAND)
+    expect(readFileSync(at(root, '.gitignore'), 'utf8')).toContain(HOOK_CACHE_PATH)
+  })
+
+  it('is idempotent and --check passes on a wired repo', () => {
+    const root = repo()
+    install(root)
+    const again = install(root)
+    expect(again.data).toMatchObject({ok: true})
+    expect(
+      (again.data as {changes: Array<{status: string}>}).changes.every(
+        (c) => c.status === 'unchanged',
+      ),
+    ).toBe(true)
+    expect(install(root, true).exitCode).toBeUndefined()
+  })
+
+  it('--check exits 1 on a repo that was never wired, and writes nothing', () => {
+    const root = repo()
+    const result = install(root, true)
+    expect(result.exitCode).toBe(1)
+    expect(result.text).toContain('hook install')
+    expect(() => readFileSync(at(root, HOOK_SCRIPT_PATH), 'utf8')).toThrow()
+  })
+
+  it('--check catches a hand-edited script', () => {
+    const root = repo()
+    install(root)
+    writeFileSync(at(root, HOOK_SCRIPT_PATH), '#!/bin/sh\necho tampered\n')
+    expect(install(root, true).exitCode).toBe(1)
+    expect(install(root).exitCode).toBeUndefined()
+    expect(readFileSync(at(root, HOOK_SCRIPT_PATH), 'utf8')).toBe(HOOK_SCRIPT)
+  })
+
+  it('keeps unrelated settings and existing SessionStart hooks', () => {
+    const root = repo()
+    mkdirSync(at(root, '.claude'), {recursive: true})
+    writeFileSync(
+      at(root, HOOK_SETTINGS_PATH),
+      JSON.stringify({
+        permissions: {allow: ['Bash(pnpm test)']},
+        hooks: {SessionStart: [{hooks: [{type: 'command', command: 'sh other.sh'}]}]},
+      }),
+    )
+    install(root)
+    const settings = JSON.parse(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8'))
+    expect(settings.permissions.allow).toEqual(['Bash(pnpm test)'])
+    const commands = settings.hooks.SessionStart.flatMap((g: {hooks: Array<{command: string}>}) =>
+      g.hooks.map((h) => h.command),
+    )
+    expect(commands).toEqual(['sh other.sh', HOOK_COMMAND])
+  })
+
+  it('migrates a legacy inline/renamed duro command in place', () => {
+    const root = repo()
+    mkdirSync(at(root, '.claude'), {recursive: true})
+    writeFileSync(
+      at(root, HOOK_SETTINGS_PATH),
+      JSON.stringify({
+        hooks: {
+          SessionStart: [
+            {hooks: [{type: 'command', command: 'sh ./.claude/hooks/duro-catalog.sh'}]},
+          ],
+        },
+      }),
+    )
+    install(root)
+    const settings = JSON.parse(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8'))
+    expect(settings.hooks.SessionStart[0].hooks[0].command).toBe(HOOK_COMMAND)
+    expect(settings.hooks.SessionStart).toHaveLength(1)
+  })
+
+  it('does not duplicate an existing gitignore rule', () => {
+    const root = repo()
+    writeFileSync(at(root, '.gitignore'), `node_modules\n${HOOK_CACHE_PATH}\n`)
+    install(root)
+    const ignore = readFileSync(at(root, '.gitignore'), 'utf8')
+    expect(ignore.split('\n').filter((line) => line.trim() === HOOK_CACHE_PATH)).toHaveLength(1)
+  })
+
+  it('refuses to clobber unparseable settings.json', () => {
+    const root = repo()
+    mkdirSync(at(root, '.claude'), {recursive: true})
+    writeFileSync(at(root, HOOK_SETTINGS_PATH), '{ not json')
+    const result = install(root)
+    expect(result.exitCode).toBe(2)
+    expect(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8')).toBe('{ not json')
   })
 })
