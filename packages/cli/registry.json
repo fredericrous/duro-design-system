@@ -9,6 +9,7 @@
         "relatedTo": [
           {
             "component": "Table",
+            "kind": "composition",
             "relationship": "Common pattern: Table checkboxes + ActionBar for bulk ops"
           }
         ],
@@ -78,6 +79,7 @@
         "relatedTo": [
           {
             "component": "Table",
+            "kind": "composition",
             "relationship": "Common pattern: Table checkboxes + ActionBar for bulk ops"
           }
         ],
@@ -110,6 +112,7 @@
         "relatedTo": [
           {
             "component": "Callout",
+            "kind": "contrast",
             "relationship": "Callout for larger block-level messages; Alert for compact inline"
           }
         ],
@@ -260,10 +263,12 @@
         "relatedTo": [
           {
             "component": "LinkButton",
+            "kind": "contrast",
             "relationship": "LinkButton for navigation; Button for actions"
           },
           {
             "component": "Toggle",
+            "kind": "contrast",
             "relationship": "Toggle for pressed/unpressed state"
           }
         ],
@@ -347,10 +352,12 @@
         "relatedTo": [
           {
             "component": "Inline",
+            "kind": "contrast",
             "relationship": "Inline is a general-purpose horizontal layout; ButtonGroup adds role=\"group\" and disabled support"
           },
           {
             "component": "ActionBar",
+            "kind": "contrast",
             "relationship": "ActionBar is a floating bulk-selection toolbar; ButtonGroup is a static grouping"
           }
         ],
@@ -412,6 +419,7 @@
         "relatedTo": [
           {
             "component": "Alert",
+            "kind": "contrast",
             "relationship": "Alert for compact inline; Callout for block-level prominent"
           }
         ],
@@ -470,6 +478,7 @@
         "relatedTo": [
           {
             "component": "Panel",
+            "kind": "contrast",
             "relationship": "Panel for structural Header/Body/Footer; Card for visual container"
           }
         ],
@@ -536,10 +545,12 @@
         "relatedTo": [
           {
             "component": "Switch",
+            "kind": "contrast",
             "relationship": "Switch for on/off settings; Checkbox for opt-in/selection"
           },
           {
             "component": "Toggle",
+            "kind": "contrast",
             "relationship": "Toggle for toolbar actions; Checkbox for form input"
           }
         ],
@@ -609,15 +620,18 @@
         "relatedTo": [
           {
             "component": "RadioGroup",
+            "kind": "contrast",
             "relationship": "RadioGroup for single-select; CheckboxGroup for multi-select"
           },
           {
             "component": "Checkbox",
+            "kind": "composition",
             "relationship": "CheckboxGroup.Item wraps Checkbox internally"
           },
           {
             "component": "ToggleGroup",
-            "relationship": "ToggleGroup for toolbar-style multi-select"
+            "kind": "contrast",
+            "relationship": "CheckboxGroup for form multi-select; ToggleGroup for segmented/toolbar multi-select"
           }
         ],
         "whenNotToUse": [
@@ -706,11 +720,13 @@
         "relatedTo": [
           {
             "component": "Inline",
-            "relationship": "Same but does NOT wrap (nowrap)"
+            "kind": "contrast",
+            "relationship": "Cluster wraps when items overflow; Inline stays on one row"
           },
           {
             "component": "Stack",
-            "relationship": "Vertical equivalent"
+            "kind": "contrast",
+            "relationship": "Stack stacks vertically; Cluster lays out horizontally and wraps"
           }
         ],
         "whenNotToUse": [
@@ -770,10 +786,12 @@
         "relatedTo": [
           {
             "component": "Input",
-            "relationship": "Sibling form control; same Field-context contract"
+            "kind": "contrast",
+            "relationship": "ColorInput is the native color swatch; Input is text entry"
           },
           {
             "component": "Field",
+            "kind": "composition",
             "relationship": "Wrap in Field.Root for label + error wiring"
           }
         ],
@@ -862,10 +880,12 @@
         "relatedTo": [
           {
             "component": "ThemeProvider",
+            "kind": "composition",
             "relationship": "ColorModeProvider renders ThemeProvider with the resolved theme; use ThemeProvider alone for a fixed theme"
           },
           {
             "component": "Toggle",
+            "kind": "contrast",
             "relationship": "Toggle is a generic pressed button; ColorModeToggle cycles theme modes"
           }
         ],
@@ -947,10 +967,12 @@
         "relatedTo": [
           {
             "component": "ThemeProvider",
+            "kind": "composition",
             "relationship": "ColorModeProvider renders ThemeProvider with the resolved theme; use ThemeProvider alone for a fixed theme"
           },
           {
             "component": "Toggle",
+            "kind": "contrast",
             "relationship": "Toggle is a generic pressed button; ColorModeToggle cycles theme modes"
           }
         ],
@@ -1009,14 +1031,17 @@
         "relatedTo": [
           {
             "component": "Select",
+            "kind": "contrast",
             "relationship": "Select for short lists without search; Combobox for long filterable lists"
           },
           {
             "component": "Input",
+            "kind": "contrast",
             "relationship": "Input for free-form text; Combobox for constrained selection"
           },
           {
             "component": "Menu",
+            "kind": "contrast",
             "relationship": "Menu triggers actions; Combobox picks a value"
           }
         ],
@@ -1181,11 +1206,13 @@
         "relatedTo": [
           {
             "component": "Dialog",
-            "relationship": "Built on Dialog; this adds the phrase gate + footer"
+            "kind": "composition",
+            "relationship": "Built on Dialog — ConfirmDialog adds the phrase gate + footer"
           },
           {
             "component": "Button",
-            "relationship": "The confirm/cancel actions"
+            "kind": "composition",
+            "relationship": "Button renders the confirm/cancel actions inside ConfirmDialog"
           }
         ],
         "whenNotToUse": [
@@ -1292,14 +1319,12 @@
         "relatedTo": [
           {
             "component": "Drawer",
+            "kind": "contrast",
             "relationship": "Drawer is modal with backdrop; DetailPanel is non-modal and in-flow"
           },
           {
-            "component": "Panel",
-            "relationship": "DetailPanel uses Panel structure internally"
-          },
-          {
             "component": "Table",
+            "kind": "composition",
             "relationship": "Common pattern: Table + DetailPanel for master-detail"
           }
         ],
@@ -1535,10 +1560,12 @@
         "relatedTo": [
           {
             "component": "Drawer",
+            "kind": "contrast",
             "relationship": "Drawer slides from an edge; Dialog is centered with scale animation"
           },
           {
             "component": "DetailPanel",
+            "kind": "contrast",
             "relationship": "DetailPanel is non-modal and in-flow; Dialog is modal with backdrop"
           }
         ],
@@ -1740,10 +1767,12 @@
         "relatedTo": [
           {
             "component": "Dialog",
+            "kind": "contrast",
             "relationship": "Dialog is centered modal; Drawer slides from an edge"
           },
           {
             "component": "DetailPanel",
+            "kind": "contrast",
             "relationship": "DetailPanel is non-modal and in-flow; Drawer is modal with backdrop"
           }
         ],
@@ -1995,18 +2024,22 @@
         "relatedTo": [
           {
             "component": "Form",
+            "kind": "composition",
             "relationship": "Field.Root auto-binds when name matches schema key"
           },
           {
             "component": "Input",
+            "kind": "composition",
             "relationship": "Place Input inside Field.Root"
           },
           {
             "component": "Textarea",
+            "kind": "composition",
             "relationship": "Place Textarea inside Field.Root"
           },
           {
             "component": "Select",
+            "kind": "composition",
             "relationship": "Place Select inside Field.Root"
           }
         ],
@@ -2114,14 +2147,17 @@
         "relatedTo": [
           {
             "component": "Form",
+            "kind": "composition",
             "relationship": "Fieldset.Root goes inside Form"
           },
           {
             "component": "Field",
+            "kind": "composition",
             "relationship": "Field.Root goes inside Fieldset.Root"
           },
           {
             "component": "Stack",
+            "kind": "contrast",
             "relationship": "Similar vertical spacing, but Fieldset has form semantics"
           }
         ],
@@ -2184,10 +2220,12 @@
         "relatedTo": [
           {
             "component": "Field",
+            "kind": "composition",
             "relationship": "Field.Root auto-binds to Form via name prop"
           },
           {
             "component": "Fieldset",
+            "kind": "composition",
             "relationship": "Groups fields visually within a Form"
           }
         ],
@@ -2261,7 +2299,8 @@
         "relatedTo": [
           {
             "component": "Stack",
-            "relationship": "Single-column vertical layout"
+            "kind": "contrast",
+            "relationship": "Grid for multi-column layouts; Stack for a single vertical column"
           }
         ],
         "whenNotToUse": [
@@ -2318,6 +2357,7 @@
         "relatedTo": [
           {
             "component": "Text",
+            "kind": "contrast",
             "relationship": "Text for body/label; Heading for semantic headings"
           }
         ],
@@ -2381,6 +2421,7 @@
         "relatedTo": [
           {
             "component": "StatusIcon",
+            "kind": "composition",
             "relationship": "StatusIcon wraps Icon with a colored background circle"
           }
         ],
@@ -2469,11 +2510,13 @@
         "relatedTo": [
           {
             "component": "Cluster",
-            "relationship": "Same but wraps to next line"
+            "kind": "contrast",
+            "relationship": "Cluster wraps when items overflow; Inline stays on one row"
           },
           {
             "component": "Stack",
-            "relationship": "Vertical equivalent"
+            "kind": "contrast",
+            "relationship": "Stack stacks vertically; Inline lays out horizontally on one row"
           }
         ],
         "whenNotToUse": [
@@ -2533,15 +2576,18 @@
         "relatedTo": [
           {
             "component": "Field",
+            "kind": "composition",
             "relationship": "Wrap in Field.Root for label + error"
           },
           {
             "component": "InputGroup",
+            "kind": "composition",
             "relationship": "Wrap in InputGroup.Root for prefix/suffix addons"
           },
           {
             "component": "Textarea",
-            "relationship": "Multi-line variant"
+            "kind": "contrast",
+            "relationship": "Input for single-line entry; Textarea for multi-line"
           }
         ],
         "whenNotToUse": [
@@ -2716,10 +2762,12 @@
         "relatedTo": [
           {
             "component": "Input",
+            "kind": "composition",
             "relationship": "InputGroup enhances Input with addons"
           },
           {
             "component": "Field",
+            "kind": "contrast",
             "relationship": "Field provides label/error; InputGroup provides visual addons"
           }
         ],
@@ -2821,6 +2869,7 @@
         "relatedTo": [
           {
             "component": "Button",
+            "kind": "contrast",
             "relationship": "Button for actions; LinkButton for navigation"
           }
         ],
@@ -2906,14 +2955,17 @@
         "relatedTo": [
           {
             "component": "Table",
+            "kind": "contrast",
             "relationship": "Table for wide multi-column data; List for narrow compact items"
           },
           {
             "component": "DetailPanel",
+            "kind": "composition",
             "relationship": "List fits naturally inside DetailPanel.Body"
           },
           {
             "component": "Menu",
+            "kind": "contrast",
             "relationship": "Menu for action menus; List for data display with selection"
           }
         ],
@@ -3067,10 +3119,12 @@
         "relatedTo": [
           {
             "component": "Select",
+            "kind": "contrast",
             "relationship": "Select picks values; Menu triggers actions"
           },
           {
             "component": "Button",
+            "kind": "composition",
             "relationship": "Often used as Menu.Trigger content"
           }
         ],
@@ -3243,10 +3297,12 @@
         "relatedTo": [
           {
             "component": "Stack",
+            "kind": "composition",
             "relationship": "Use Stack for content within PageShell"
           },
           {
             "component": "SideNav",
+            "kind": "composition",
             "relationship": "Often placed alongside PageShell"
           }
         ],
@@ -3318,14 +3374,12 @@
         "relatedTo": [
           {
             "component": "Card",
+            "kind": "contrast",
             "relationship": "Card is for shallow, repeated items; Panel is for deep, organized content"
           },
           {
-            "component": "DetailPanel",
-            "relationship": "DetailPanel uses Panel internally for its structural layout"
-          },
-          {
             "component": "PageShell",
+            "kind": "contrast",
             "relationship": "PageShell is for page-level layout; Panel is for section-level"
           }
         ],
@@ -3413,15 +3467,18 @@
         "relatedTo": [
           {
             "component": "CheckboxGroup",
+            "kind": "contrast",
             "relationship": "CheckboxGroup for multi-select; RadioGroup for single-select"
           },
           {
             "component": "Select",
-            "relationship": "Select for larger option sets or when space is limited"
+            "kind": "contrast",
+            "relationship": "RadioGroup keeps 2-5 options visible; Select for larger sets or tight space"
           },
           {
             "component": "ToggleGroup",
-            "relationship": "ToggleGroup for toolbar-style selection"
+            "kind": "contrast",
+            "relationship": "RadioGroup for form single-select; ToggleGroup for segmented/toolbar single-select"
           }
         ],
         "whenNotToUse": [
@@ -3620,11 +3677,13 @@
         "relatedTo": [
           {
             "component": "Menu",
+            "kind": "contrast",
             "relationship": "Menu triggers actions; Select picks a value"
           },
           {
             "component": "ToggleGroup",
-            "relationship": "For visible, small option sets"
+            "kind": "contrast",
+            "relationship": "Select hides options behind a dropdown; ToggleGroup keeps a small set visible"
           }
         ],
         "whenNotToUse": [
@@ -3774,10 +3833,12 @@
         "relatedTo": [
           {
             "component": "Tabs",
+            "kind": "contrast",
             "relationship": "Tabs switch content in-place; SideNav navigates pages"
           },
           {
             "component": "PageShell",
+            "kind": "composition",
             "relationship": "Often placed alongside PageShell"
           }
         ],
@@ -3937,11 +3998,13 @@
         "relatedTo": [
           {
             "component": "Inline",
-            "relationship": "Horizontal equivalent (no wrap)"
+            "kind": "contrast",
+            "relationship": "Stack stacks vertically; Inline lays out horizontally on one row"
           },
           {
             "component": "Cluster",
-            "relationship": "Horizontal equivalent (wraps)"
+            "kind": "contrast",
+            "relationship": "Stack stacks vertically; Cluster lays out horizontally and wraps"
           }
         ],
         "whenNotToUse": [
@@ -3994,10 +4057,12 @@
         "relatedTo": [
           {
             "component": "Icon",
-            "relationship": "StatusIcon wraps Icon with background; Icon is bare SVG"
+            "kind": "composition",
+            "relationship": "StatusIcon wraps Icon with a colored background circle"
           },
           {
             "component": "Badge",
+            "kind": "contrast",
             "relationship": "Badge for text status; StatusIcon for icon status"
           }
         ],
@@ -4056,10 +4121,12 @@
         "relatedTo": [
           {
             "component": "Checkbox",
+            "kind": "contrast",
             "relationship": "Checkbox for selection/opt-in; Switch for on/off settings"
           },
           {
             "component": "Toggle",
+            "kind": "contrast",
             "relationship": "Toggle for toolbar pressed state; Switch for settings"
           }
         ],
@@ -4140,6 +4207,7 @@
         "relatedTo": [
           {
             "component": "ScrollArea",
+            "kind": "composition",
             "relationship": "Wrap Table in ScrollArea for horizontal overflow"
           }
         ],
@@ -4342,6 +4410,7 @@
         "relatedTo": [
           {
             "component": "ScrollArea",
+            "kind": "composition",
             "relationship": "Wrap Table in ScrollArea for horizontal overflow"
           }
         ],
@@ -4670,7 +4739,8 @@
         "relatedTo": [
           {
             "component": "SideNav",
-            "relationship": "For persistent navigation, not content switching"
+            "kind": "contrast",
+            "relationship": "Tabs switch content in-place; SideNav navigates between pages"
           }
         ],
         "whenNotToUse": [
@@ -4779,10 +4849,12 @@
         "relatedTo": [
           {
             "component": "Badge",
-            "relationship": "Static display variant"
+            "kind": "contrast",
+            "relationship": "Tag is interactive and removable; Badge is a static label"
           },
           {
             "component": "TagGroup",
+            "kind": "composition",
             "relationship": "Wrap in TagGroup.Root for collection management"
           }
         ],
@@ -4869,14 +4941,17 @@
         "relatedTo": [
           {
             "component": "Tag",
+            "kind": "composition",
             "relationship": "Tag is the item inside TagGroup.List"
           },
           {
             "component": "Badge",
-            "relationship": "Static display alternative"
+            "kind": "contrast",
+            "relationship": "TagGroup manages an editable collection; Badge is a static label"
           },
           {
             "component": "Field",
+            "kind": "composition",
             "relationship": "Wrap in Field.Root for label + description + error"
           }
         ],
@@ -4983,6 +5058,7 @@
         "relatedTo": [
           {
             "component": "Heading",
+            "kind": "contrast",
             "relationship": "Heading for semantic h1-h6; Text for body/label"
           }
         ],
@@ -5122,10 +5198,12 @@
         "relatedTo": [
           {
             "component": "Input",
-            "relationship": "Single-line variant"
+            "kind": "contrast",
+            "relationship": "Input for single-line entry; Textarea for multi-line"
           },
           {
             "component": "Field",
+            "kind": "composition",
             "relationship": "Wrap in Field.Root for label + error"
           }
         ],
@@ -5251,10 +5329,12 @@
         "relatedTo": [
           {
             "component": "Alert",
+            "kind": "contrast",
             "relationship": "Alert for inline/in-form status; Toast for action results"
           },
           {
             "component": "ConfirmDialog",
+            "kind": "contrast",
             "relationship": "ConfirmDialog gates a destructive action; Toast reports the outcome"
           }
         ],
@@ -5288,14 +5368,17 @@
         "relatedTo": [
           {
             "component": "ToggleGroup",
+            "kind": "composition",
             "relationship": "Group of Toggles with single/multi select"
           },
           {
             "component": "Switch",
+            "kind": "contrast",
             "relationship": "Switch for settings; Toggle for toolbar actions"
           },
           {
             "component": "Button",
+            "kind": "contrast",
             "relationship": "Button for actions; Toggle for state"
           }
         ],
@@ -5376,11 +5459,13 @@
         "relatedTo": [
           {
             "component": "Toggle",
+            "kind": "composition",
             "relationship": "Toggle children get group context"
           },
           {
             "component": "Select",
-            "relationship": "Select for larger option sets"
+            "kind": "contrast",
+            "relationship": "Select hides options behind a dropdown; ToggleGroup keeps a small set visible"
           }
         ],
         "whenNotToUse": [
@@ -5543,6 +5628,7 @@
         "relatedTo": [
           {
             "component": "Table",
+            "kind": "contrast",
             "relationship": "Table is semantic + paginated; VirtualTable windows large lists"
           }
         ],
@@ -5680,10 +5766,12 @@
         "relatedTo": [
           {
             "component": "ThemeProvider",
+            "kind": "composition",
             "relationship": "ColorModeProvider renders ThemeProvider with the resolved theme; use ThemeProvider alone for a fixed theme"
           },
           {
             "component": "Toggle",
+            "kind": "contrast",
             "relationship": "Toggle is a generic pressed button; ColorModeToggle cycles theme modes"
           }
         ],
@@ -5739,6 +5827,7 @@
         "relatedTo": [
           {
             "component": "ScrollArea",
+            "kind": "composition",
             "relationship": "Wrap Table in ScrollArea for horizontal overflow"
           }
         ],
@@ -5782,10 +5871,12 @@
         "relatedTo": [
           {
             "component": "Alert",
+            "kind": "contrast",
             "relationship": "Alert for inline/in-form status; Toast for action results"
           },
           {
             "component": "ConfirmDialog",
+            "kind": "contrast",
             "relationship": "ConfirmDialog gates a destructive action; Toast reports the outcome"
           }
         ],

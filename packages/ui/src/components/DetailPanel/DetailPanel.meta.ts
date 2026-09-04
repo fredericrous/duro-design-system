@@ -20,10 +20,14 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Drawer',
+      kind: 'contrast',
       relationship: 'Drawer is modal with backdrop; DetailPanel is non-modal and in-flow',
     },
-    {component: 'Panel', relationship: 'DetailPanel uses Panel structure internally'},
-    {component: 'Table', relationship: 'Common pattern: Table + DetailPanel for master-detail'},
+    {
+      component: 'Table',
+      kind: 'composition',
+      relationship: 'Common pattern: Table + DetailPanel for master-detail',
+    },
   ],
   example: `<html.div style={layoutStyles.container}>
   <html.div style={layoutStyles.main}>

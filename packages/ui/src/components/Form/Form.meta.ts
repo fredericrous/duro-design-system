@@ -9,8 +9,16 @@ export const meta: ComponentMeta = {
     'Non-form interactive UIs — use individual components',
   ],
   relatedTo: [
-    {component: 'Field', relationship: 'Field.Root auto-binds to Form via name prop'},
-    {component: 'Fieldset', relationship: 'Groups fields visually within a Form'},
+    {
+      component: 'Field',
+      kind: 'composition',
+      relationship: 'Field.Root auto-binds to Form via name prop',
+    },
+    {
+      component: 'Fieldset',
+      kind: 'composition',
+      relationship: 'Groups fields visually within a Form',
+    },
   ],
   example: `import {Schema} from 'effect'
 

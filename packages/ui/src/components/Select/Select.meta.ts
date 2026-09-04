@@ -17,8 +17,16 @@ export const meta: ComponentMeta = {
     optional: ['Value', 'Icon', 'ItemText'],
   },
   relatedTo: [
-    {component: 'Menu', relationship: 'Menu triggers actions; Select picks a value'},
-    {component: 'ToggleGroup', relationship: 'For visible, small option sets'},
+    {
+      component: 'Menu',
+      kind: 'contrast',
+      relationship: 'Menu triggers actions; Select picks a value',
+    },
+    {
+      component: 'ToggleGroup',
+      kind: 'contrast',
+      relationship: 'Select hides options behind a dropdown; ToggleGroup keeps a small set visible',
+    },
   ],
   example: `<Select.Root name="role" defaultValue="viewer">
   <Select.Trigger>

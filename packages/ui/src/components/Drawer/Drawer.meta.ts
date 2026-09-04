@@ -20,9 +20,14 @@ export const meta: ComponentMeta = {
     optional: ['Trigger', 'Header', 'Title', 'Description', 'Body', 'Footer', 'Close'],
   },
   relatedTo: [
-    {component: 'Dialog', relationship: 'Dialog is centered modal; Drawer slides from an edge'},
+    {
+      component: 'Dialog',
+      kind: 'contrast',
+      relationship: 'Dialog is centered modal; Drawer slides from an edge',
+    },
     {
       component: 'DetailPanel',
+      kind: 'contrast',
       relationship: 'DetailPanel is non-modal and in-flow; Drawer is modal with backdrop',
     },
   ],

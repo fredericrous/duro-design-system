@@ -20,13 +20,19 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Select',
+      kind: 'contrast',
       relationship: 'Select for short lists without search; Combobox for long filterable lists',
     },
     {
       component: 'Input',
+      kind: 'contrast',
       relationship: 'Input for free-form text; Combobox for constrained selection',
     },
-    {component: 'Menu', relationship: 'Menu triggers actions; Combobox picks a value'},
+    {
+      component: 'Menu',
+      kind: 'contrast',
+      relationship: 'Menu triggers actions; Combobox picks a value',
+    },
   ],
   example: `<Combobox.Root name="country" defaultValue="us" initialLabels={{us: 'United States'}}>
   <Combobox.Input placeholder="Search countries…" />

@@ -17,9 +17,14 @@ export const meta: ComponentMeta = {
     optional: ['Addon'],
   },
   relatedTo: [
-    {component: 'Input', relationship: 'InputGroup enhances Input with addons'},
+    {
+      component: 'Input',
+      kind: 'composition',
+      relationship: 'InputGroup enhances Input with addons',
+    },
     {
       component: 'Field',
+      kind: 'contrast',
       relationship: 'Field provides label/error; InputGroup provides visual addons',
     },
   ],

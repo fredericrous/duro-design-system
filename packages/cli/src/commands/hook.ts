@@ -4,6 +4,8 @@ import {dirname, join} from 'node:path'
 import type {Registry} from '../registry-types.js'
 import type {CommandResult} from './lookup.js'
 import {runList} from './list.js'
+import {relatedPairs} from '../disambiguation.js'
+import {renderPairs} from '../format.js'
 import {
   GITIGNORE_BLOCK,
   HOOK_CACHE_IGNORE,
@@ -23,7 +25,9 @@ const PREAMBLE = [
   'Duro design-system session bootstrap (duro hook session-start).',
   'The catalog below is already in your context — before hand-rolling ANY',
   'interactive element (menu, badge, tag, dialog, select, tooltip, ...),',
-  'pick the design-system component or recipe from this list. Details:',
+  'pick the design-system component or recipe from this list. When two of',
+  'them could both fit, the neighbors section decides; the compose section',
+  'says what already wraps what, so you never rebuild it. Details:',
   'duro <Component> (props+usage) · duro <recipe> --source-only ·',
   'duro spacing|icons|rules.',
 ].join('\n')
@@ -51,9 +55,19 @@ export function runHook(
     }
   }
   const list = runList(registry)
+  // The index says what exists; the guard says which one is wrong. Both ship
+  // in the same injection so neither waits on a call the agent may skip.
+  const contrast = relatedPairs(registry, 'contrast')
+  const composition = relatedPairs(registry, 'composition')
+  const sections = [
+    PREAMBLE,
+    list.text,
+    renderPairs(contrast, 'PICKING BETWEEN NEIGHBORS', 'vs'),
+    renderPairs(composition, 'COMPOSE — DO NOT HAND-ROLL THE WRAPPER', '+'),
+  ].filter(Boolean)
   return {
-    text: `${PREAMBLE}\n\n${list.text}`,
-    data: {preamble: PREAMBLE, entries: list.data},
+    text: sections.join('\n\n'),
+    data: {preamble: PREAMBLE, entries: list.data, contrast, composition},
   }
 }
 

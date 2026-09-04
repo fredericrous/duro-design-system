@@ -16,6 +16,7 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Callout',
+      kind: 'contrast',
       relationship: 'Callout for larger block-level messages; Alert for compact inline',
     },
   ],

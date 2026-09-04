@@ -15,10 +15,20 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'RadioGroup',
+      kind: 'contrast',
       relationship: 'RadioGroup for single-select; CheckboxGroup for multi-select',
     },
-    {component: 'Checkbox', relationship: 'CheckboxGroup.Item wraps Checkbox internally'},
-    {component: 'ToggleGroup', relationship: 'ToggleGroup for toolbar-style multi-select'},
+    {
+      component: 'Checkbox',
+      kind: 'composition',
+      relationship: 'CheckboxGroup.Item wraps Checkbox internally',
+    },
+    {
+      component: 'ToggleGroup',
+      kind: 'contrast',
+      relationship:
+        'CheckboxGroup for form multi-select; ToggleGroup for segmented/toolbar multi-select',
+    },
   ],
   example: `<CheckboxGroup.Root defaultValue={['email']} onValueChange={(v) => console.log(v)}>
   <CheckboxGroup.Item value="email">Email</CheckboxGroup.Item>

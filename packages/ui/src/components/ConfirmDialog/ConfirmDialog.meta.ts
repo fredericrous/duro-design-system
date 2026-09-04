@@ -16,8 +16,16 @@ export const meta: ComponentMeta = {
     optional: ['confirmPhrase', 'promptLabel', 'confirmSlot', 'onConfirm', 'confirmLabel'],
   },
   relatedTo: [
-    {component: 'Dialog', relationship: 'Built on Dialog; this adds the phrase gate + footer'},
-    {component: 'Button', relationship: 'The confirm/cancel actions'},
+    {
+      component: 'Dialog',
+      kind: 'composition',
+      relationship: 'Built on Dialog — ConfirmDialog adds the phrase gate + footer',
+    },
+    {
+      component: 'Button',
+      kind: 'composition',
+      relationship: 'Button renders the confirm/cancel actions inside ConfirmDialog',
+    },
   ],
   example: `<ConfirmDialog
   open={open}

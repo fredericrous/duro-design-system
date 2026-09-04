@@ -10,8 +10,16 @@ export const meta: ComponentMeta = {
   ],
   whenNotToUse: ['Inline icons without background — use Icon', 'Status text labels — use Badge'],
   relatedTo: [
-    {component: 'Icon', relationship: 'StatusIcon wraps Icon with background; Icon is bare SVG'},
-    {component: 'Badge', relationship: 'Badge for text status; StatusIcon for icon status'},
+    {
+      component: 'Icon',
+      kind: 'composition',
+      relationship: 'StatusIcon wraps Icon with a colored background circle',
+    },
+    {
+      component: 'Badge',
+      kind: 'contrast',
+      relationship: 'Badge for text status; StatusIcon for icon status',
+    },
   ],
   example: `<Inline gap="md">
   <StatusIcon name="check-circle" variant="success" size="md" />

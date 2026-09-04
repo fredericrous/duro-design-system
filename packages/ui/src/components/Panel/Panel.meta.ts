@@ -20,14 +20,12 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'Card',
+      kind: 'contrast',
       relationship: 'Card is for shallow, repeated items; Panel is for deep, organized content',
     },
     {
-      component: 'DetailPanel',
-      relationship: 'DetailPanel uses Panel internally for its structural layout',
-    },
-    {
       component: 'PageShell',
+      kind: 'contrast',
       relationship: 'PageShell is for page-level layout; Panel is for section-level',
     },
   ],

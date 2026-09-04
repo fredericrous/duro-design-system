@@ -9,8 +9,16 @@ export const meta: ComponentMeta = {
   ],
   whenNotToUse: ['Items that must stay on one line — use Inline', 'Vertical stacking — use Stack'],
   relatedTo: [
-    {component: 'Inline', relationship: 'Same but does NOT wrap (nowrap)'},
-    {component: 'Stack', relationship: 'Vertical equivalent'},
+    {
+      component: 'Inline',
+      kind: 'contrast',
+      relationship: 'Cluster wraps when items overflow; Inline stays on one row',
+    },
+    {
+      component: 'Stack',
+      kind: 'contrast',
+      relationship: 'Stack stacks vertically; Cluster lays out horizontally and wraps',
+    },
   ],
   example: `<Cluster gap="xs">
   <Badge>React</Badge>

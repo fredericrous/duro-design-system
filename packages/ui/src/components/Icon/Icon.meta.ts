@@ -12,6 +12,7 @@ export const meta: ComponentMeta = {
   relatedTo: [
     {
       component: 'StatusIcon',
+      kind: 'composition',
       relationship: 'StatusIcon wraps Icon with a colored background circle',
     },
   ],

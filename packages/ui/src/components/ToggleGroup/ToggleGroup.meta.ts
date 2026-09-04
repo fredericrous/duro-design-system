@@ -13,8 +13,12 @@ export const meta: ComponentMeta = {
     'Form checkboxes — use Checkbox group in Fieldset',
   ],
   relatedTo: [
-    {component: 'Toggle', relationship: 'Toggle children get group context'},
-    {component: 'Select', relationship: 'Select for larger option sets'},
+    {component: 'Toggle', kind: 'composition', relationship: 'Toggle children get group context'},
+    {
+      component: 'Select',
+      kind: 'contrast',
+      relationship: 'Select hides options behind a dropdown; ToggleGroup keeps a small set visible',
+    },
   ],
   example: `<ToggleGroup
   value={selected}

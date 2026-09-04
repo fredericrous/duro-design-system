@@ -1,3 +1,4 @@
+import type {RelatedPair} from './disambiguation.js'
 import type {
   ComponentEntry,
   IconRegistry,
@@ -228,4 +229,19 @@ export function renderList(registry: Registry, kind?: string): string {
   }
   sections.push(dim(`duro <name> for details · duro rules · duro manifest`))
   return sections.join('\n\n')
+}
+
+/**
+ * A neighbour-pair table. Its own section per kind, because the index answers
+ * "what exists" and these answer "which one" and "what goes inside what".
+ */
+export function renderPairs(pairs: RelatedPair[], heading: string, joiner: string): string {
+  if (pairs.length === 0) return ''
+  const labels = pairs.map((pair) => `${pair.a} ${joiner} ${pair.b}`)
+  const width = Math.max(...labels.map((label) => label.length)) + 2
+  const rows = pairs.map((pair, index) => {
+    const body = wrap(pair.relationship, ' '.repeat(width + 2)).trimStart()
+    return `  ${labels[index].padEnd(width)}${body}`
+  })
+  return `${bold(heading)} (${pairs.length})\n${rows.join('\n')}`
 }

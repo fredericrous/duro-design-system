@@ -13,10 +13,14 @@ export const meta: ComponentMeta = {
     optional: ['Label', 'Description', 'Error'],
   },
   relatedTo: [
-    {component: 'Form', relationship: 'Field.Root auto-binds when name matches schema key'},
-    {component: 'Input', relationship: 'Place Input inside Field.Root'},
-    {component: 'Textarea', relationship: 'Place Textarea inside Field.Root'},
-    {component: 'Select', relationship: 'Place Select inside Field.Root'},
+    {
+      component: 'Form',
+      kind: 'composition',
+      relationship: 'Field.Root auto-binds when name matches schema key',
+    },
+    {component: 'Input', kind: 'composition', relationship: 'Place Input inside Field.Root'},
+    {component: 'Textarea', kind: 'composition', relationship: 'Place Textarea inside Field.Root'},
+    {component: 'Select', kind: 'composition', relationship: 'Place Select inside Field.Root'},
   ],
   example: `// Inside Form (auto-binds validation)
 <Field.Root name="email">

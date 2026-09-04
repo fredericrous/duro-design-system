@@ -6,8 +6,12 @@ export const meta: ComponentMeta = {
   whenToUse: ['Multi-line text entry (comments, messages, descriptions)'],
   whenNotToUse: ['Single-line input — use Input'],
   relatedTo: [
-    {component: 'Input', relationship: 'Single-line variant'},
-    {component: 'Field', relationship: 'Wrap in Field.Root for label + error'},
+    {
+      component: 'Input',
+      kind: 'contrast',
+      relationship: 'Input for single-line entry; Textarea for multi-line',
+    },
+    {component: 'Field', kind: 'composition', relationship: 'Wrap in Field.Root for label + error'},
   ],
   example: `<Field.Root name="message">
   <Field.Label>Message</Field.Label>

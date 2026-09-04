@@ -12,8 +12,16 @@ export const meta: ComponentMeta = {
     'Vertical stacking — use Stack',
   ],
   relatedTo: [
-    {component: 'Cluster', relationship: 'Same but wraps to next line'},
-    {component: 'Stack', relationship: 'Vertical equivalent'},
+    {
+      component: 'Cluster',
+      kind: 'contrast',
+      relationship: 'Cluster wraps when items overflow; Inline stays on one row',
+    },
+    {
+      component: 'Stack',
+      kind: 'contrast',
+      relationship: 'Stack stacks vertically; Inline lays out horizontally on one row',
+    },
   ],
   example: `<Inline gap="sm" align="center">
   <Button>Save</Button>

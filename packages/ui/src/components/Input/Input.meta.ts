@@ -6,9 +6,17 @@ export const meta: ComponentMeta = {
   whenToUse: ['Single-line text entry (text, email, password, url, tel, number, search)'],
   whenNotToUse: ['Multi-line text — use Textarea', 'Picking from predefined options — use Select'],
   relatedTo: [
-    {component: 'Field', relationship: 'Wrap in Field.Root for label + error'},
-    {component: 'InputGroup', relationship: 'Wrap in InputGroup.Root for prefix/suffix addons'},
-    {component: 'Textarea', relationship: 'Multi-line variant'},
+    {component: 'Field', kind: 'composition', relationship: 'Wrap in Field.Root for label + error'},
+    {
+      component: 'InputGroup',
+      kind: 'composition',
+      relationship: 'Wrap in InputGroup.Root for prefix/suffix addons',
+    },
+    {
+      component: 'Textarea',
+      kind: 'contrast',
+      relationship: 'Input for single-line entry; Textarea for multi-line',
+    },
   ],
   example: `<Field.Root name="email">
   <Field.Label>Email</Field.Label>

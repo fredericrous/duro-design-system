@@ -14,8 +14,12 @@ export const meta: ComponentMeta = {
     optional: ['LinkItem'],
   },
   relatedTo: [
-    {component: 'Select', relationship: 'Select picks values; Menu triggers actions'},
-    {component: 'Button', relationship: 'Often used as Menu.Trigger content'},
+    {
+      component: 'Select',
+      kind: 'contrast',
+      relationship: 'Select picks values; Menu triggers actions',
+    },
+    {component: 'Button', kind: 'composition', relationship: 'Often used as Menu.Trigger content'},
   ],
   example: `<Menu.Root>
   <Menu.Trigger>

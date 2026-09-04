@@ -13,9 +13,13 @@ export const meta: ComponentMeta = {
     optional: ['Legend'],
   },
   relatedTo: [
-    {component: 'Form', relationship: 'Fieldset.Root goes inside Form'},
-    {component: 'Field', relationship: 'Field.Root goes inside Fieldset.Root'},
-    {component: 'Stack', relationship: 'Similar vertical spacing, but Fieldset has form semantics'},
+    {component: 'Form', kind: 'composition', relationship: 'Fieldset.Root goes inside Form'},
+    {component: 'Field', kind: 'composition', relationship: 'Field.Root goes inside Fieldset.Root'},
+    {
+      component: 'Stack',
+      kind: 'contrast',
+      relationship: 'Similar vertical spacing, but Fieldset has form semantics',
+    },
   ],
   example: `<Form schema={schema} defaultValues={defaults} onSubmit={onSubmit}>
   <Fieldset.Root gap="md">

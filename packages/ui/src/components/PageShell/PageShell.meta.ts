@@ -12,8 +12,12 @@ export const meta: ComponentMeta = {
     'Sidebar layouts — combine with SideNav manually',
   ],
   relatedTo: [
-    {component: 'Stack', relationship: 'Use Stack for content within PageShell'},
-    {component: 'SideNav', relationship: 'Often placed alongside PageShell'},
+    {
+      component: 'Stack',
+      kind: 'composition',
+      relationship: 'Use Stack for content within PageShell',
+    },
+    {component: 'SideNav', kind: 'composition', relationship: 'Often placed alongside PageShell'},
   ],
   example: `<PageShell maxWidth="lg" padding="md" header={<Heading level={1}>Dashboard</Heading>}>
   <Stack gap="lg">
