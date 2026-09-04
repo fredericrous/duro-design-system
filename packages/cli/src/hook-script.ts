@@ -10,6 +10,11 @@
 export const HOOK_SCRIPT_PATH = '.claude/hooks/duro-catalog.sh'
 export const HOOK_SETTINGS_PATH = '.claude/settings.json'
 export const HOOK_CACHE_PATH = '.claude/.duro-session.cache'
+/**
+ * Glob, not the bare path: the script stages the fetch through
+ * "<cache>.tmp", and a session-start hook killed mid-npx leaves that behind.
+ */
+export const HOOK_CACHE_IGNORE = `${HOOK_CACHE_PATH}*`
 /** Repo-specific caveats, appended by the hook and never touched by install. */
 export const HOOK_NOTES_PATH = '.claude/duro-hook.local.md'
 
@@ -56,4 +61,4 @@ if [ -s "$notes" ]; then
 fi
 `
 
-export const GITIGNORE_BLOCK = `# Duro session-hook cache (duro hook install)\n${HOOK_CACHE_PATH}\n`
+export const GITIGNORE_BLOCK = `# Duro session-hook cache (duro hook install)\n${HOOK_CACHE_IGNORE}\n`

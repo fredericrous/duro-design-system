@@ -12,7 +12,7 @@ import {runHook} from '../src/commands/hook.js'
 import {search} from '../src/search.js'
 import {COMMANDS} from '../src/manifest.js'
 import {
-  HOOK_CACHE_PATH,
+  HOOK_CACHE_IGNORE,
   HOOK_COMMAND,
   HOOK_SCRIPT,
   HOOK_SCRIPT_PATH,
@@ -127,7 +127,7 @@ describe('hook install', () => {
     expect(readFileSync(at(root, HOOK_SCRIPT_PATH), 'utf8')).toBe(HOOK_SCRIPT)
     const settings = JSON.parse(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8'))
     expect(settings.hooks.SessionStart[0].hooks[0].command).toBe(HOOK_COMMAND)
-    expect(readFileSync(at(root, '.gitignore'), 'utf8')).toContain(HOOK_CACHE_PATH)
+    expect(readFileSync(at(root, '.gitignore'), 'utf8')).toContain(HOOK_CACHE_IGNORE)
   })
 
   it('is idempotent and --check passes on a wired repo', () => {
@@ -200,10 +200,10 @@ describe('hook install', () => {
 
   it('does not duplicate an existing gitignore rule', () => {
     const root = repo()
-    writeFileSync(at(root, '.gitignore'), `node_modules\n${HOOK_CACHE_PATH}\n`)
+    writeFileSync(at(root, '.gitignore'), `node_modules\n${HOOK_CACHE_IGNORE}\n`)
     install(root)
     const ignore = readFileSync(at(root, '.gitignore'), 'utf8')
-    expect(ignore.split('\n').filter((line) => line.trim() === HOOK_CACHE_PATH)).toHaveLength(1)
+    expect(ignore.split('\n').filter((line) => line.trim() === HOOK_CACHE_IGNORE)).toHaveLength(1)
   })
 
   it('warns when .gitignore shadows the files it just wrote', () => {

@@ -68,7 +68,7 @@ npx -y @duro-app/cli hook install --check  # CI: exit 1 if it drifted
 | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `.claude/hooks/duro-catalog.sh` | Writes the generated hook: fetches the catalog, caches it for 7 days (npx resolution dominates session start; the catalog only changes on upgrade), stays silent when offline with no cache.                          |
 | `.claude/settings.json`         | Adds the `SessionStart` entry. Existing hooks, permissions and skill overrides are preserved; a hand-renamed duro command is migrated in place rather than duplicated. Unparseable JSON is reported, never clobbered. |
-| `.gitignore`                    | Ignores `.claude/.duro-session.cache`.                                                                                                                                                                                |
+| `.gitignore`                    | Ignores `.claude/.duro-session.cache*` — a glob, because a hook killed mid-`npx` leaves the staging `.tmp` behind.                                                                                                    |
 
 Do not hand-edit the generated script — `--check` is a byte comparison, so an
 edit shows up as drift and the next `install` overwrites it. **Repo-specific

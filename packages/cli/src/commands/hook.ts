@@ -6,7 +6,7 @@ import type {CommandResult} from './lookup.js'
 import {runList} from './list.js'
 import {
   GITIGNORE_BLOCK,
-  HOOK_CACHE_PATH,
+  HOOK_CACHE_IGNORE,
   HOOK_COMMAND,
   HOOK_NOTES_PATH,
   HOOK_SCRIPT,
@@ -105,7 +105,7 @@ function nextSettings(current: string | null): string | null {
 
 /** Append the cache to .gitignore, unless some rule already covers the path. */
 function nextGitignore(current: string | null): string | null {
-  if (current !== null && current.split('\n').some((line) => line.trim() === HOOK_CACHE_PATH)) {
+  if (current !== null && current.split('\n').some((line) => line.trim() === HOOK_CACHE_IGNORE)) {
     return null
   }
   if (current === null || current === '') return GITIGNORE_BLOCK
@@ -180,7 +180,7 @@ function runHookInstall(options: HookOptions): CommandResult {
   )
 
   const gitignoreRaw = read(at('.gitignore'))
-  apply('.gitignore', nextGitignore(gitignoreRaw), `ignores ${HOOK_CACHE_PATH}`)
+  apply('.gitignore', nextGitignore(gitignoreRaw), `ignores ${HOOK_CACHE_IGNORE}`)
 
   const stale = changes.filter((change) => change.status === 'stale')
   const lines = changes.map(
