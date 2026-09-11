@@ -14,7 +14,7 @@ or run it without installing:
 export function toolDefinitions(registry: Registry) {
   return [
     {
-      name: 'duro_lookup',
+      name: 'duro_ds_lookup',
       description:
         'Docs for anything in the Duro design system by name: a component (props, usage, example), a recipe (runnable source), a token group, "icons", or "rules". Free text falls back to a ranked search over usage metadata — pass what you need, e.g. "tags that wrap".',
       inputSchema: {
@@ -35,7 +35,7 @@ export function toolDefinitions(registry: Registry) {
       },
     },
     {
-      name: 'duro_list',
+      name: 'duro_ds_list',
       description: `One-line index of everything documented (${Object.keys(registry.components).length} components, ${Object.keys(registry.recipes).length} recipes, token groups).`,
       inputSchema: {
         type: 'object',
@@ -45,27 +45,42 @@ export function toolDefinitions(registry: Registry) {
       },
     },
     {
-      name: 'duro_manifest',
+      name: 'duro_ds_manifest',
       description: 'The duro command spec plus all valid lookup names.',
       inputSchema: {type: 'object', properties: {}},
     },
   ]
 }
 
+/**
+ * The wire shape of a tools/call answer. `structuredContent` must be a JSON
+ * object — a bare array is rejected by the SDK's result schema, which is how
+ * duro_ds_list (a ListEntry[]) used to fail with -32602 — so arrays ride under
+ * `entries`.
+ */
+export function toolResponse(registry: Registry, name: string, args: Record<string, unknown>) {
+  const {text, data, isError} = callTool(registry, name, args)
+  return {
+    content: [{type: 'text' as const, text: text || JSON.stringify(data, null, 2)}],
+    structuredContent: (Array.isArray(data) ? {entries: data} : data) as Record<string, unknown>,
+    isError,
+  }
+}
+
 export function callTool(registry: Registry, name: string, args: Record<string, unknown>) {
   switch (name) {
-    case 'duro_lookup': {
+    case 'duro_ds_lookup': {
       const result = runLookup(registry, String(args.name ?? ''), {
         part: typeof args.part === 'string' ? args.part : undefined,
         sourceOnly: args.sourceOnly === true,
       })
       return {text: result.text, data: result.data, isError: result.exitCode === 1}
     }
-    case 'duro_list': {
+    case 'duro_ds_list': {
       const result = runList(registry, typeof args.kind === 'string' ? args.kind : undefined)
       return {text: result.text, data: result.data, isError: result.exitCode !== undefined}
     }
-    case 'duro_manifest':
+    case 'duro_ds_manifest':
       return {text: '', data: buildManifest(registry, cliVersion()), isError: false}
     default:
       throw new Error(`unknown tool ${name}`)
@@ -92,18 +107,13 @@ export async function runMcp(registry: Registry): Promise<void> {
     tools: toolDefinitions(registry),
   }))
 
-  server.setRequestHandler(sdkTypes.CallToolRequestSchema, (request) => {
-    const {text, data, isError} = callTool(
+  server.setRequestHandler(sdkTypes.CallToolRequestSchema, (request) =>
+    toolResponse(
       registry,
       request.params.name,
       (request.params.arguments ?? {}) as Record<string, unknown>,
-    )
-    return {
-      content: [{type: 'text', text: text || JSON.stringify(data, null, 2)}],
-      structuredContent: data,
-      isError,
-    }
-  })
+    ),
+  )
 
   server.setRequestHandler(sdkTypes.ListResourcesRequestSchema, () => ({
     resources: [
@@ -159,7 +169,7 @@ export async function runMcp(registry: Registry): Promise<void> {
           role: 'user',
           content: {
             type: 'text',
-            text: `You are building UI with the Duro design system. Follow these rules:\n\n${registry.rules.critical}\n\nAvailable components:\n${componentIndex}\n\nQuery details with the duro_lookup tool.`,
+            text: `You are building UI with the Duro design system. Follow these rules:\n\n${registry.rules.critical}\n\nAvailable components:\n${componentIndex}\n\nQuery details with the duro_ds_lookup tool.`,
           },
         },
       ],
