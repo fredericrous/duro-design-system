@@ -25,7 +25,7 @@ function componentsRegion(registry) {
     '| --- | --- | --- |',
     ...rows,
     '',
-    'Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `duro_lookup` MCP tool).',
+    'Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `duro_ds_lookup` MCP tool).',
   ].join('\n')
 }
 

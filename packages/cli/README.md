@@ -25,11 +25,11 @@ Exit codes: `0` ok · `1` not found (with "did you mean") · `2` usage error ·
 ## MCP server
 
 ```
-claude mcp add duro -- npx -y -p @duro-app/cli -p @modelcontextprotocol/sdk duro mcp
+claude mcp add duro-ds -- npx -y -p @duro-app/cli -p @modelcontextprotocol/sdk duro mcp
 ```
 
-Tools: `duro_lookup` (same fallback-to-search behavior as the CLI),
-`duro_list`, `duro_manifest`. Resources: `duro://component/<Name>`,
+Tools: `duro_ds_lookup` (same fallback-to-search behavior as the CLI),
+`duro_ds_list`, `duro_ds_manifest`. Resources: `duro://component/<Name>`,
 `duro://recipe/<name>`. Prompt: `duro/build-ui` primes a session with the
 critical rules and the component index. The SDK is an optional peer — plain
 CLI use never loads it.

@@ -5,7 +5,7 @@
 > **Machine-queryable docs:** run `npx @duro-app/cli manifest --json` once — every component's props,
 > every recipe's source, tokens and rules follow from it (`npx @duro-app/cli Button`,
 > `npx @duro-app/cli login-form --source-only`, `npx @duro-app/cli "tags that wrap"`).
-> As an MCP server: `duro mcp` (tools `duro_lookup` / `duro_list` / `duro_manifest`).
+> As an MCP server: `duro mcp` (tools `duro_ds_lookup` / `duro_ds_list` / `duro_ds_manifest`).
 >
 > **Consuming apps:** run `npx -y @duro-app/cli hook install` once in the repo root. It wires a
 > Claude Code `SessionStart` hook that puts this catalog in every agent session automatically —
@@ -199,7 +199,7 @@ These components **must** be wrapped in their `.Root`:
 | **Tooltip** | Hover/focus tooltip that shows supplementary content | compound: Root, Trigger |
 | **VirtualTable** | Sortable data table that windows its rows above a threshold (default 150) with @tanstack/react-virtual, shows a floating position indicator, and reports the visible page so the caller can mirror it in the URL | `data`, `columns`, `sorting` |
 
-Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `duro_lookup` MCP tool).
+Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `duro_ds_lookup` MCP tool).
 
 <!-- duro:generated:components END -->
 

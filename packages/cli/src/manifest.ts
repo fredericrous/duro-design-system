@@ -45,7 +45,7 @@ export const COMMANDS: CommandSpec[] = [
       'duro login-form --source-only',
       'duro "tags that wrap"',
     ],
-    mcpTool: 'duro_lookup',
+    mcpTool: 'duro_ds_lookup',
   },
   {
     name: 'list',
@@ -61,7 +61,7 @@ export const COMMANDS: CommandSpec[] = [
     flags: [],
     returns: {shape: 'ListEntry[]', description: '{name, kind, importPath?, description}'},
     examples: ['duro list', 'duro list recipes --json'],
-    mcpTool: 'duro_list',
+    mcpTool: 'duro_ds_list',
   },
   {
     name: 'manifest',
@@ -70,7 +70,7 @@ export const COMMANDS: CommandSpec[] = [
     flags: [],
     returns: {shape: 'Manifest', description: 'Commands, flags, shapes, and enums of valid names'},
     examples: ['duro manifest --json'],
-    mcpTool: 'duro_manifest',
+    mcpTool: 'duro_ds_manifest',
   },
   {
     name: 'hook',
@@ -100,7 +100,7 @@ export const COMMANDS: CommandSpec[] = [
   },
   {
     name: 'mcp',
-    summary: 'Run a stdio MCP server exposing duro_lookup / duro_list / duro_manifest',
+    summary: 'Run a stdio MCP server exposing duro_ds_lookup / duro_ds_list / duro_ds_manifest',
     args: [],
     flags: [],
     returns: {shape: 'never', description: 'Serves until stdin closes'},
