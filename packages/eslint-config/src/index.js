@@ -68,11 +68,19 @@ export const react = tseslint.config(
   {
     name: 'duro-config/react-policy',
     rules: {
-      'no-restricted-imports': [
+      // The typescript-eslint version, not the core rule, for `allowTypeImports`.
+      // Banning a module by name also catches `import type {X} from 'lexical'`,
+      // and a type import erases at compile time: it reaches no runtime module,
+      // so it bypasses nothing these bans protect. kb-vision hit exactly that —
+      // it uses the wrapper correctly and needed one type the wrapper does not
+      // re-export — and had to carry a local override to say so.
+      'no-restricted-imports': 'off',
+      '@typescript-eslint/no-restricted-imports': [
         'error',
         {
           patterns: [
             {
+              allowTypeImports: true,
               group: [
                 'react-aria',
                 'react-aria-components',
@@ -92,6 +100,7 @@ export const react = tseslint.config(
               message: FOREIGN_UI_MESSAGE,
             },
             {
+              allowTypeImports: true,
               group: ['lexical', '@lexical/*'],
               message: LEXICAL_MESSAGE,
             },
@@ -113,12 +122,23 @@ export const effect = tseslint.config(...base, {
   plugins: {'@effect': effectPlugin},
   rules: {
     '@effect/no-import-from-barrel-package': 'warn',
-    'no-restricted-imports': [
+    // See the react preset: type imports erase, so they bypass nothing here.
+    // The OTel barrel ban exists because WebSdk's transitive imports crash a
+    // Node service *at module load* — which a type import never triggers.
+    'no-restricted-imports': 'off',
+    '@typescript-eslint/no-restricted-imports': [
       'error',
       {
-        paths: [{name: '@effect/opentelemetry', message: OTEL_BARREL_MESSAGE}],
+        paths: [
+          {
+            allowTypeImports: true,
+            name: '@effect/opentelemetry',
+            message: OTEL_BARREL_MESSAGE,
+          },
+        ],
         patterns: [
           {
+            allowTypeImports: true,
             group: ['kysely', 'kysely-*', '@kysely/*'],
             message: KYSELY_MESSAGE,
           },
