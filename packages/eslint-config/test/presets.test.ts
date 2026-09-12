@@ -43,7 +43,9 @@ describe('react', () => {
       "import {Dialog} from '@radix-ui/react-dialog'\nexport {Dialog}\n",
       'src/App.tsx',
     )
-    const message = result.messages.find((m) => m.ruleId === 'no-restricted-imports')
+    const message = result.messages.find(
+      (m) => m.ruleId === '@typescript-eslint/no-restricted-imports',
+    )
     expect(message?.message).toContain('@duro-app/ui')
     expect(message?.message).toContain('duro-design-system')
   })
@@ -54,8 +56,34 @@ describe('react', () => {
       "import {createEditor} from 'lexical'\nexport {createEditor}\n",
       'src/App.tsx',
     )
-    const message = result.messages.find((m) => m.ruleId === 'no-restricted-imports')
+    const message = result.messages.find(
+      (m) => m.ruleId === '@typescript-eslint/no-restricted-imports',
+    )
     expect(message?.message).toContain('lexical-multi')
+  })
+
+  it('allows a TYPE import from a banned module', async () => {
+    // A type import erases at compile time: it reaches no runtime module, so
+    // it bypasses nothing the ban protects. Banning by module name caught it
+    // anyway, and a consumer needing one type the wrapper does not re-export
+    // had to carry a local override to say so.
+    const result = await lint(
+      react,
+      "import type {SerializedEditorState} from 'lexical'\nexport type {SerializedEditorState}\n",
+      'src/App.tsx',
+    )
+    expect(
+      result.messages.filter((m) => m.ruleId === '@typescript-eslint/no-restricted-imports'),
+    ).toEqual([])
+  })
+
+  it('still refuses a VALUE import from a foreign UI library', async () => {
+    const result = await lint(
+      react,
+      "import {Dialog} from '@radix-ui/react-dialog'\nexport {Dialog}\n",
+      'src/App.tsx',
+    )
+    expect(ruleIds(result)).toContain('@typescript-eslint/no-restricted-imports')
   })
 
   it('carries the duro plugin: raw intrinsics and form primitives report', async () => {
@@ -101,7 +129,9 @@ describe('effect', () => {
       "import {Kysely} from 'kysely'\nexport {Kysely}\n",
       'src/db.ts',
     )
-    const message = result.messages.find((m) => m.ruleId === 'no-restricted-imports')
+    const message = result.messages.find(
+      (m) => m.ruleId === '@typescript-eslint/no-restricted-imports',
+    )
     expect(message?.message).toContain('@effect/sql')
   })
 
@@ -111,14 +141,36 @@ describe('effect', () => {
       "import {NodeSdk} from '@effect/opentelemetry'\nexport {NodeSdk}\n",
       'src/otel.ts',
     )
-    expect(ruleIds(barrel)).toContain('no-restricted-imports')
+    expect(ruleIds(barrel)).toContain('@typescript-eslint/no-restricted-imports')
 
     const subpath = await lint(
       effect,
       "import * as NodeSdk from '@effect/opentelemetry/NodeSdk'\nexport {NodeSdk}\n",
       'src/otel.ts',
     )
-    expect(subpath.messages.filter((m) => m.ruleId === 'no-restricted-imports')).toEqual([])
+    expect(
+      subpath.messages.filter((m) => m.ruleId === '@typescript-eslint/no-restricted-imports'),
+    ).toEqual([])
+  })
+
+  it('allows a TYPE import of the barrel, which cannot crash at module load', async () => {
+    const result = await lint(
+      effect,
+      "import type {Resource} from '@effect/opentelemetry'\nexport type {Resource}\n",
+      'src/otel.ts',
+    )
+    expect(
+      result.messages.filter((m) => m.ruleId === '@typescript-eslint/no-restricted-imports'),
+    ).toEqual([])
+  })
+
+  it('still refuses a TYPE import is not a loophole for kysely VALUES', async () => {
+    const result = await lint(
+      effect,
+      "import {Kysely} from 'kysely'\nexport {Kysely}\n",
+      'src/db.ts',
+    )
+    expect(ruleIds(result)).toContain('@typescript-eslint/no-restricted-imports')
   })
 })
 
@@ -170,7 +222,7 @@ describe('composition', () => {
       'src/App.tsx',
     )
     const ids = ruleIds(result)
-    expect(ids).toContain('no-restricted-imports')
+    expect(ids).toContain('@typescript-eslint/no-restricted-imports')
     expect(ids).toContain('duro/no-raw-html-element')
   })
 })
