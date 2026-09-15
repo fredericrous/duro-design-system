@@ -2294,8 +2294,8 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "CSS grid layout. Fixed column count (1-6), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses below the md breakpoint.",
-        "example": "// Split: list ≥ 240px beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"280px\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>",
+        "description": "Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses below the md breakpoint. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native.",
+        "example": "// Split: list ≥ 240px beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"280px\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Weighted: a one-third / two-thirds split (works on native too)\n<Grid columns={[1, 2]} gap=\"md\">\n  <Card>Sidebar</Card>\n  <Card>Content</Card>\n</Grid>",
         "relatedTo": [
           {
             "component": "Stack",
@@ -2337,11 +2337,13 @@
           ]
         },
         {
+          "description": "A column count (equal columns) or weights: `[1, 2]` gives a one-third / two-thirds split. Weights are the portable form of a track list — a CSS template string would be silently ignored on native.",
           "name": "columns",
           "required": false,
-          "type": "1 | 2 | 3 | 4 | 5 | 6"
+          "type": "GridColumns"
         },
         {
+          "description": "Responsive auto-fit: as many columns of at least this width as fit. Wins over `columns` when both are set. On native this approximates to cells of that minimum width that grow and wrap.",
           "name": "minColumnWidth",
           "required": false,
           "type": "string"

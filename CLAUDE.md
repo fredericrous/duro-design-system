@@ -169,7 +169,7 @@ These components **must** be wrapped in their `.Root`:
 | **Field** | Compound form field with label, description, and error display | compound: Description, Error, Label, Root |
 | **Fieldset** | Groups related form controls with consistent gap spacing and an optional legend | compound: Legend, Root |
 | **Form** | Form wrapper with Effect Schema validation and react-hook-form integration | `schema`, `defaultValues`, `onSubmit` |
-| **Grid** | CSS grid layout | `gap`, `columns`, `minColumnWidth` |
+| **Grid** | Grid layout | `gap`, `columns`, `minColumnWidth` |
 | **Heading** | Semantic heading element (h1-h6) with typography presets | `level`, `variant`, `color` |
 | **Icon** | SVG icon component | `name`, `size` |
 | **Inline** | Horizontal flex layout with NO wrapping | `gap`, `align`, `justify` |
