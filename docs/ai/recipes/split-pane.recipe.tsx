@@ -13,7 +13,7 @@ import type {ComponentMeta} from '../types'
 
 export const recipeMeta: ComponentMeta = {
   description:
-    'List/detail split: a selectable List beside a Panel showing the selection, on Grid layout="split" (list ≥ 240px, one column below the md breakpoint).',
+    'List/detail split: a selectable List beside a Panel showing the selection, on Grid layout="split" (list ≥ 240px, one column when the board is narrower than sm).',
   whenToUse: [
     'A screen that browses a collection and inspects one item at a time (applications, identities, certificates)',
     'Anywhere a hand-rolled gridTemplateColumns with its own @media is about to be written',

@@ -43,6 +43,12 @@ const localStyles = css.create({
     fontSize: typography.fontSizeXs,
     color: colors.textMuted,
   },
+  frame: (width: number) => ({
+    width,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.border,
+  }),
 })
 
 const Cell = ({children}: {children: string}) => (
@@ -91,7 +97,8 @@ export const Split: Story = {
   render: () => (
     <Stack gap="sm">
       <html.span style={localStyles.label}>
-        layout=&quot;split&quot; — list ≥ 240px beside the detail, one column below md
+        layout=&quot;split&quot; — list ≥ 240px beside the detail, one column when the container is
+        narrower than sm; split-wide collapses below md
       </html.span>
       <Grid layout="split" gap="lg">
         <Cell>list</Cell>
@@ -103,6 +110,53 @@ export const Split: Story = {
       </Grid>
     </Stack>
   ),
+}
+
+/**
+ * A split inside a split: a list/detail board in the content column of a
+ * nav/content shell. Each collapses on its OWN container: at 1120 both split;
+ * at 900 the shell still splits (≥ md) while the board — left 588px, under
+ * sm — stacks; at 700 the shell stacks and the board, now given the whole
+ * width, splits again; at 600 both stack. Keyed on the viewport, both would
+ * open at 768 and leave the detail pane ~150px.
+ */
+export const NestedSplits: Story = {
+  render: () => (
+    <Stack gap="lg">
+      {[1120, 900, 700, 600].map((width) => (
+        <Stack key={width} gap="sm">
+          <html.span style={localStyles.label}>frame {width}px</html.span>
+          <html.div style={localStyles.frame(width)} data-testid={`frame-${width}`}>
+            <Grid layout="split-wide" gap="xl">
+              <Cell>nav</Cell>
+              <Grid layout="split" gap="md">
+                <Cell>list</Cell>
+                <Cell>detail</Cell>
+              </Grid>
+            </Grid>
+          </html.div>
+        </Stack>
+      ))}
+    </Stack>
+  ),
+  play: async ({canvas}) => {
+    const tracks = (frame: HTMLElement, text: string) => {
+      const grid = canvas.getAllByText(text).find((el) => frame.contains(el))
+        ?.parentElement as HTMLElement
+      return getComputedStyle(grid).gridTemplateColumns.split(' ').length
+    }
+    const expected: Record<number, [number, number]> = {
+      1120: [2, 2],
+      900: [2, 1],
+      700: [1, 2],
+      600: [1, 1],
+    }
+    for (const [width, [outer, inner]] of Object.entries(expected)) {
+      const frame = canvas.getByTestId(`frame-${width}`)
+      await expect(tracks(frame, 'nav'), `shell at ${width}`).toBe(outer)
+      await expect(tracks(frame, 'list'), `board at ${width}`).toBe(inner)
+    }
+  },
 }
 
 /**
