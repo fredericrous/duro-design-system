@@ -2294,13 +2294,18 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "CSS grid layout. Supports fixed column count (1-6) or responsive auto-fit via minColumnWidth.",
-        "example": "// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"280px\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>",
+        "description": "CSS grid layout. Fixed column count (1-6), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses below the md breakpoint.",
+        "example": "// Split: list ≥ 240px beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"280px\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>",
         "relatedTo": [
           {
             "component": "Stack",
             "kind": "contrast",
             "relationship": "Grid for multi-column layouts; Stack for a single vertical column"
+          },
+          {
+            "component": "split-pane",
+            "kind": "composition",
+            "relationship": "Grid layout=\"split\" with a List and a Panel is the split-pane recipe"
           }
         ],
         "whenNotToUse": [
@@ -2309,7 +2314,8 @@
         ],
         "whenToUse": [
           "Card grids, dashboard layouts, multi-column forms",
-          "Responsive layouts that should auto-adjust column count"
+          "Responsive layouts that should auto-adjust column count",
+          "A list/detail or nav/content screen — layout=\"split\" | \"split-wide\", never a hand-rolled gridTemplateColumns with its own @media"
         ]
       },
       "name": "Grid",
@@ -2339,6 +2345,12 @@
           "name": "minColumnWidth",
           "required": false,
           "type": "string"
+        },
+        {
+          "description": "A named responsive layout. `split` is list/detail (1:2, list ≥ 240px), `split-wide` is nav/content (1:3, nav ≥ 280px); both collapse to one column below the `md` breakpoint. Wins over `columns` / `minColumnWidth`.",
+          "name": "layout",
+          "required": false,
+          "type": "GridLayout"
         },
         {
           "name": "children",
@@ -3304,11 +3316,21 @@
             "component": "SideNav",
             "kind": "composition",
             "relationship": "Often placed alongside PageShell"
+          },
+          {
+            "component": "page-with-sidenav",
+            "kind": "composition",
+            "relationship": "PageShell with a SideNav rail is the page-with-sidenav recipe — copy it, do not lay it out by hand"
+          },
+          {
+            "component": "admin-detail-page",
+            "kind": "composition",
+            "relationship": "PageShell with a record heading and Tabs is the admin-detail-page recipe"
           }
         ],
         "whenNotToUse": [
           "Nested section layouts — use Stack or Card",
-          "Sidebar layouts — combine with SideNav manually"
+          "Sidebar layouts — start from the page-with-sidenav recipe (PageShell + Grid layout=\"split-wide\" + SideNav)"
         ],
         "whenToUse": [
           "Top-level page layout",
@@ -3840,6 +3862,11 @@
             "component": "PageShell",
             "kind": "composition",
             "relationship": "Often placed alongside PageShell"
+          },
+          {
+            "component": "page-with-sidenav",
+            "kind": "composition",
+            "relationship": "SideNav beside routed content is the page-with-sidenav recipe"
           }
         ],
         "whenNotToUse": [
@@ -4741,6 +4768,11 @@
             "component": "SideNav",
             "kind": "contrast",
             "relationship": "Tabs switch content in-place; SideNav navigates between pages"
+          },
+          {
+            "component": "admin-detail-page",
+            "kind": "composition",
+            "relationship": "Tabs as the facets of one record is the admin-detail-page recipe"
           }
         ],
         "whenNotToUse": [
@@ -6044,6 +6076,39 @@
         "Menu"
       ]
     },
+    "admin-detail-page": {
+      "export": "AdminDetailPageRecipe",
+      "meta": {
+        "description": "Admin detail page for one record: breadcrumb link, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape).",
+        "example": "<AdminDetailPageRecipe />",
+        "whenNotToUse": [
+          "One facet only — a PageShell with a Card is enough",
+          "A collection page — use the data-table or split-pane recipe"
+        ],
+        "whenToUse": [
+          "A record page with several facets — overview, members, approvals, audit",
+          "Any page that would otherwise stack every section into one long scroll"
+        ]
+      },
+      "name": "admin-detail-page",
+      "peerDeps": [],
+      "source": "import {PageShell, Tabs, Stack, Inline, Heading, Text, Badge, Button, LinkButton, Card, EmptyState} from '@duro-app/ui'\n\nfunction Header() {\n  return (\n    <Stack gap=\"sm\">\n      <LinkButton href=\"#applications\" variant=\"secondary\" size=\"small\">\n        ← Applications\n      </LinkButton>\n      <Inline gap=\"md\" align=\"center\" justify=\"between\">\n        <Inline gap=\"sm\" align=\"center\">\n          <Heading level={1}>Grafana</Heading>\n          <Badge variant=\"success\">active</Badge>\n        </Inline>\n        <Inline gap=\"sm\">\n          <Button variant=\"secondary\">Edit</Button>\n          <Button variant=\"danger\">Retire</Button>\n        </Inline>\n      </Inline>\n    </Stack>\n  )\n}\n\nexport function AdminDetailPageRecipe() {\n  return (\n    <PageShell maxWidth=\"lg\" padding=\"md\" header={<Header />}>\n      <Tabs.Root defaultValue=\"overview\">\n        <Tabs.List>\n          <Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n          <Tabs.Tab value=\"members\">Members</Tabs.Tab>\n          <Tabs.Tab value=\"approvals\">Approvals</Tabs.Tab>\n          <Tabs.Tab value=\"audit\">Audit</Tabs.Tab>\n        </Tabs.List>\n\n        <Tabs.Panel value=\"overview\">\n          <Stack gap=\"lg\">\n            <Card>\n              <Stack gap=\"sm\">\n                <Heading level={3}>About</Heading>\n                <Text color=\"muted\">\n                  Dashboards for the platform team. Owned by platform, reachable at grafana.example.\n                </Text>\n              </Stack>\n            </Card>\n            <Card>\n              <Stack gap=\"sm\">\n                <Heading level={3}>Access</Heading>\n                <Text>3 roles · 2 entitlements · 41 grants</Text>\n              </Stack>\n            </Card>\n          </Stack>\n        </Tabs.Panel>\n\n        <Tabs.Panel value=\"members\">\n          <EmptyState message=\"No members yet.\" action={<Button>Add member</Button>} />\n        </Tabs.Panel>\n        <Tabs.Panel value=\"approvals\">\n          <EmptyState message=\"Every grant is auto-approved. Add a gate to require a decision.\" />\n        </Tabs.Panel>\n        <Tabs.Panel value=\"audit\">\n          <EmptyState message=\"Nothing recorded for this application.\" />\n        </Tabs.Panel>\n      </Tabs.Root>\n    </PageShell>\n  )\n}\n",
+      "sourcePath": "docs/ai/recipes/admin-detail-page.recipe.tsx",
+      "title": "Admin Detail Page",
+      "usesComponents": [
+        "Badge",
+        "Button",
+        "Card",
+        "EmptyState",
+        "Heading",
+        "Inline",
+        "LinkButton",
+        "PageShell",
+        "Stack",
+        "Tabs",
+        "Text"
+      ]
+    },
     "data-table": {
       "export": "DataTableRecipe",
       "meta": {
@@ -6150,6 +6215,36 @@
         "Stack"
       ]
     },
+    "page-with-sidenav": {
+      "export": "PageWithSideNavRecipe",
+      "meta": {
+        "description": "Page with a side navigation rail: SideNav in the narrow column of Grid layout=\"split-wide\", the routed content in the wide one; the rail stacks above the content below the md breakpoint.",
+        "example": "<PageWithSideNavRecipe />",
+        "whenNotToUse": [
+          "Three or four destinations — Tabs inside a PageShell read better than a rail",
+          "The left column is data, not navigation — use the split-pane recipe"
+        ],
+        "whenToUse": [
+          "The admin or settings area of an app — several destinations, one shell",
+          "Anywhere PageShell + SideNav were about to be combined by hand"
+        ]
+      },
+      "name": "page-with-sidenav",
+      "peerDeps": [],
+      "source": "import {useState} from 'react'\nimport {Grid, PageShell, SideNav, Icon, Stack, Heading, Text, Card} from '@duro-app/ui'\n\nconst SECTIONS: Record<string, {title: string; body: string}> = {\n  identities: {title: 'Identities', body: 'People and service accounts known to the system.'},\n  grants: {title: 'Grants', body: 'Who holds what, and since when.'},\n  applications: {title: 'Applications', body: 'Everything access is granted to.'},\n  plugins: {title: 'Plugins', body: 'Push and pull connectors. Rarely visited, so it is a Group.'},\n}\n\nexport function PageWithSideNavRecipe() {\n  const [section, setSection] = useState('identities')\n  const current = SECTIONS[section] ?? SECTIONS.identities\n\n  return (\n    <PageShell maxWidth=\"lg\" padding=\"md\">\n      <Grid layout=\"split-wide\" gap=\"xl\">\n        <SideNav.Root value={section} onValueChange={setSection}>\n          <SideNav.Section label=\"People & access\">\n            <SideNav.Item value=\"identities\" icon={<Icon name=\"users\" size=\"md\" />}>\n              Identities\n            </SideNav.Item>\n            <SideNav.Item value=\"grants\" icon={<Icon name=\"key\" size=\"md\" />}>\n              Grants\n            </SideNav.Item>\n          </SideNav.Section>\n          <SideNav.Section label=\"Catalog\">\n            <SideNav.Item value=\"applications\" icon={<Icon name=\"box\" size=\"md\" />}>\n              Applications\n            </SideNav.Item>\n          </SideNav.Section>\n          <SideNav.Group label=\"Advanced\" defaultExpanded={false}>\n            <SideNav.Item value=\"plugins\" icon={<Icon name=\"plug\" size=\"md\" />}>\n              Plugins\n            </SideNav.Item>\n          </SideNav.Group>\n        </SideNav.Root>\n\n        <Stack gap=\"lg\">\n          <Heading level={1}>{current.title}</Heading>\n          <Card>\n            <Text color=\"muted\">{current.body}</Text>\n          </Card>\n        </Stack>\n      </Grid>\n    </PageShell>\n  )\n}\n",
+      "sourcePath": "docs/ai/recipes/page-with-sidenav.recipe.tsx",
+      "title": "Page With Sidenav",
+      "usesComponents": [
+        "Card",
+        "Grid",
+        "Heading",
+        "Icon",
+        "PageShell",
+        "SideNav",
+        "Stack",
+        "Text"
+      ]
+    },
     "settings-page": {
       "export": "SettingsPageRecipe",
       "meta": {
@@ -6183,6 +6278,38 @@
         "Stack",
         "Switch",
         "Tabs",
+        "Text"
+      ]
+    },
+    "split-pane": {
+      "export": "SplitPaneRecipe",
+      "meta": {
+        "description": "List/detail split: a selectable List beside a Panel showing the selection, on Grid layout=\"split\" (list ≥ 240px, one column below the md breakpoint).",
+        "example": "<SplitPaneRecipe />",
+        "whenNotToUse": [
+          "The detail is a short-lived inspection — use DetailPanel over the list instead",
+          "The left side is navigation, not data — use the page-with-sidenav recipe"
+        ],
+        "whenToUse": [
+          "A screen that browses a collection and inspects one item at a time (applications, identities, certificates)",
+          "Anywhere a hand-rolled gridTemplateColumns with its own @media is about to be written"
+        ]
+      },
+      "name": "split-pane",
+      "peerDeps": [],
+      "source": "import {useState} from 'react'\nimport {Grid, List, Panel, Stack, Inline, Heading, Text, Badge, Button, EmptyState} from '@duro-app/ui'\n\nconst ITEMS = [\n  {id: 'grafana', name: 'Grafana', owner: 'platform', status: 'active'},\n  {id: 'vault', name: 'Vault', owner: 'security', status: 'active'},\n  {id: 'legacy-crm', name: 'Legacy CRM', owner: 'sales', status: 'retiring'},\n] as const\n\nexport function SplitPaneRecipe() {\n  const [selected, setSelected] = useState<string | null>(ITEMS[0].id)\n  const item = ITEMS.find((candidate) => candidate.id === selected)\n\n  return (\n    <Grid layout=\"split\" gap=\"lg\">\n      <List.Root selectionMode=\"single\" aria-label=\"Applications\">\n        {ITEMS.map((candidate) => (\n          <List.Item\n            key={candidate.id}\n            selected={candidate.id === selected}\n            onClick={() => setSelected(candidate.id)}\n          >\n            <List.Content>\n              <List.Text>{candidate.name}</List.Text>\n              <List.Description>Owned by {candidate.owner}</List.Description>\n            </List.Content>\n            <List.Actions>\n              <Badge variant={candidate.status === 'active' ? 'success' : 'warning'}>\n                {candidate.status}\n              </Badge>\n            </List.Actions>\n          </List.Item>\n        ))}\n        <List.Empty>No applications.</List.Empty>\n      </List.Root>\n\n      <Panel.Root bordered>\n        {item ? (\n          <>\n            <Panel.Header>\n              <Heading level={2}>{item.name}</Heading>\n              <Inline gap=\"sm\">\n                <Button variant=\"secondary\" size=\"small\">\n                  Edit\n                </Button>\n                <Button variant=\"danger\" size=\"small\">\n                  Retire\n                </Button>\n              </Inline>\n            </Panel.Header>\n            <Panel.Body>\n              <Stack gap=\"md\">\n                <Text>\n                  Owner: <Text weight=\"medium\">{item.owner}</Text>\n                </Text>\n                <Text color=\"muted\">\n                  Everything about the selection lives here: fields, history, related records.\n                </Text>\n              </Stack>\n            </Panel.Body>\n          </>\n        ) : (\n          <Panel.Body>\n            <EmptyState message=\"Select an application to see its details.\" />\n          </Panel.Body>\n        )}\n      </Panel.Root>\n    </Grid>\n  )\n}\n",
+      "sourcePath": "docs/ai/recipes/split-pane.recipe.tsx",
+      "title": "Split Pane",
+      "usesComponents": [
+        "Badge",
+        "Button",
+        "EmptyState",
+        "Grid",
+        "Heading",
+        "Inline",
+        "List",
+        "Panel",
+        "Stack",
         "Text"
       ]
     }

@@ -21,6 +21,11 @@ export const meta: ComponentMeta = {
       kind: 'contrast',
       relationship: 'Tabs switch content in-place; SideNav navigates between pages',
     },
+    {
+      component: 'admin-detail-page',
+      kind: 'composition',
+      relationship: 'Tabs as the facets of one record is the admin-detail-page recipe',
+    },
   ],
   example: `<Tabs.Root defaultValue="general">
   <Tabs.List>

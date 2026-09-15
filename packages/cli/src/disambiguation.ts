@@ -27,8 +27,11 @@ export function relatedPairs(registry: Registry, kind: 'contrast' | 'composition
   for (const [name, entry] of Object.entries(registry.components)) {
     for (const related of entry.meta?.relatedTo ?? []) {
       if (related.kind !== kind) continue
-      // A pair is only useful if both sides are documented.
-      if (!(related.component in registry.components) || related.component === name) continue
+      // A pair is only useful if both sides are documented. A recipe counts:
+      // "PageShell + page-with-sidenav" is the edge that stops the hand-roll.
+      const known =
+        related.component in registry.components || related.component in registry.recipes
+      if (!known || related.component === name) continue
       const [a, b] = [name, related.component].sort()
       const candidate: RelatedPair = {a, b, relationship: related.relationship}
       const held = byPair.get(`${a}|${b}`)

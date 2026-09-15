@@ -21,6 +21,7 @@ const meta: Meta<typeof Grid> = {
       options: [1, 2, 3, 4, 5, 6],
     },
     minColumnWidth: {control: 'text'},
+    layout: {control: 'select', options: [undefined, 'split', 'split-wide']},
   },
 }
 
@@ -81,6 +82,24 @@ export const TwoColumns: Story = {
       <Cell>Left</Cell>
       <Cell>Right</Cell>
     </Grid>
+  ),
+}
+
+export const Split: Story = {
+  render: () => (
+    <Stack gap="sm">
+      <html.span style={localStyles.label}>
+        layout=&quot;split&quot; — list ≥ 240px beside the detail, one column below md
+      </html.span>
+      <Grid layout="split" gap="lg">
+        <Cell>list</Cell>
+        <Cell>detail</Cell>
+      </Grid>
+      <Grid layout="split-wide" gap="lg">
+        <Cell>nav</Cell>
+        <Cell>content</Cell>
+      </Grid>
+    </Stack>
   ),
 }
 

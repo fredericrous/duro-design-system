@@ -498,11 +498,14 @@ typeahead and `aria-level`. Don't nest `SideNav` to fake it.
 Complete, runnable compositions. Each emits consumer-ready source (imports already point at the published packages):
 
 - **action-menu** — Dropdown action menu with button trigger, action items, and a link item. `npx @duro-app/cli action-menu --source-only`
+- **admin-detail-page** — Admin detail page for one record: breadcrumb link, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape). `npx @duro-app/cli admin-detail-page --source-only`
 - **data-table** — Striped data table with badge status column. `npx @duro-app/cli data-table --source-only`
 - **empty-state** — Empty state inside a card with icon and action button. `npx @duro-app/cli empty-state --source-only`
 - **filter-bar** — Filter bar with Select dropdowns, ToggleGroup for view switching, and reset button. `npx @duro-app/cli filter-bar --source-only`
 - **login-form** — Login form with username/password fields and Effect Schema validation. `npx @duro-app/cli login-form --source-only`
+- **page-with-sidenav** — Page with a side navigation rail: SideNav in the narrow column of Grid layout="split-wide", the routed content in the wide one; the rail stacks above the content below the md breakpoint. `npx @duro-app/cli page-with-sidenav --source-only`
 - **settings-page** — Full settings page with tabbed navigation, profile form, notification switches, and page shell. `npx @duro-app/cli settings-page --source-only`
+- **split-pane** — List/detail split: a selectable List beside a Panel showing the selection, on Grid layout="split" (list ≥ 240px, one column below the md breakpoint). `npx @duro-app/cli split-pane --source-only`
 
 One inline exemplar (the others follow the same shape — fetch them with the CLI):
 

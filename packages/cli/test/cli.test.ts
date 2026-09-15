@@ -104,6 +104,21 @@ describe('command results', () => {
     }
   })
 
+  it('session-start leads with the screens table and points every layout at a recipe', () => {
+    const text = runHook(registry, 'session-start').text
+    const screens = text.indexOf('SCREENS — START FROM A RECIPE')
+    expect(screens).toBeGreaterThan(0)
+    expect(screens).toBeLessThan(text.indexOf(runList(registry).text))
+    for (const recipe of ['split-pane', 'admin-detail-page', 'page-with-sidenav']) {
+      expect(text).toContain(`  ${recipe}`)
+    }
+    const composition = relatedPairs(registry, 'composition')
+    const targets = composition.map((pair) => `${pair.a}+${pair.b}`)
+    expect(targets).toContain('PageShell+page-with-sidenav')
+    expect(targets).toContain('Grid+split-pane')
+    expect(targets).toContain('Tabs+admin-detail-page')
+  })
+
   it('session-start carries both tables, not just the index', () => {
     const text = runHook(registry, 'session-start').text
     expect(text).toContain('PICKING BETWEEN NEIGHBORS')

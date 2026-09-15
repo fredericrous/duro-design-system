@@ -1,5 +1,10 @@
 import {css} from 'react-strict-dom'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
+
+// Where a split collapses to one column. A defineConsts string, inlined into
+// the @media text at build time.
+const SPLIT_BP = breakpoints.md
 
 export const styles = css.create({
   base: {
@@ -14,6 +19,22 @@ export const styles = css.create({
   autoFit: (minWidth: string) => ({
     gridTemplateColumns: `repeat(auto-fill, minmax(${minWidth}, 1fr))`,
   }),
+  // Asymmetric list/detail splits: a bounded first column, the rest for the
+  // detail; one column below the md breakpoint. Static entries rather than a
+  // parameter because the pair (widths + collapse point) is the design
+  // decision — a screen picks a split, it does not tune one.
+  split: {
+    gridTemplateColumns: {
+      default: '1fr',
+      [`@media (min-width: ${SPLIT_BP})`]: 'minmax(240px, 1fr) minmax(0, 2fr)',
+    },
+  },
+  splitWide: {
+    gridTemplateColumns: {
+      default: '1fr',
+      [`@media (min-width: ${SPLIT_BP})`]: 'minmax(280px, 1fr) minmax(0, 3fr)',
+    },
+  },
   gapXs: {gap: spacing.xs},
   gapSm: {gap: spacing.sm},
   gapMs: {gap: spacing.ms},

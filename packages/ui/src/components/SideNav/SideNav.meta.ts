@@ -26,6 +26,11 @@ export const meta: ComponentMeta = {
       relationship: 'Tabs switch content in-place; SideNav navigates pages',
     },
     {component: 'PageShell', kind: 'composition', relationship: 'Often placed alongside PageShell'},
+    {
+      component: 'page-with-sidenav',
+      kind: 'composition',
+      relationship: 'SideNav beside routed content is the page-with-sidenav recipe',
+    },
   ],
   example: `<SideNav.Root defaultValue="identities">
   {/* Default: always-open sections. Nothing is a click away from being seen. */}
