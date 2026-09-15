@@ -99,6 +99,31 @@ export const COMMANDS: CommandSpec[] = [
     examples: ['duro hook session-start', 'duro hook install', 'duro hook install --check'],
   },
   {
+    name: 'skill',
+    summary:
+      'Claude Code skill /duro-mockup — the mockup → implementation → proof workflow; install writes it into the current repo',
+    args: [
+      {
+        name: 'action',
+        required: true,
+        description: 'install (write .claude/skills/duro-mockup/SKILL.md)',
+        valuesFrom: 'skillActions',
+      },
+    ],
+    flags: [
+      {
+        name: 'check',
+        type: 'boolean',
+        description: 'install: report drift and exit 1 instead of writing (for CI)',
+      },
+    ],
+    returns: {
+      shape: '{ok: boolean, changes: FileChange[]}',
+      description: 'What the wired file did',
+    },
+    examples: ['duro skill install', 'duro skill install --check'],
+  },
+  {
     name: 'mockup',
     summary:
       'Token-seeded mockup artboards: seed writes a .dc.html whose only design vocabulary is the resolved token block; check refuses raw colours/values and controls that name no component',
@@ -162,6 +187,7 @@ export function buildManifest(registry: Registry, version: string) {
       kinds: ['components', 'recipes', 'tokens'],
       events: ['session-start', 'install'],
       mockupActions: ['seed', 'check'],
+      skillActions: ['install'],
     },
   }
 }

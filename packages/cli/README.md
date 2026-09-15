@@ -15,6 +15,9 @@ npx @duro-app/cli rules              # critical rules + what the lint plugin enf
 npx @duro-app/cli "tags that wrap"   # free text falls back to a need-search
 npx @duro-app/cli list
 npx @duro-app/cli hook install       # wire the Claude Code SessionStart hook
+npx @duro-app/cli skill install      # wire the /duro-mockup workflow skill
+npx @duro-app/cli mockup seed --out docs/mockups/approvals   # token-seeded artboard
+npx @duro-app/cli mockup check docs/mockups/approvals/*.dc.html
 ```
 
 Install for the short bin: `pnpm add -D @duro-app/cli` → `duro Button`.
@@ -29,7 +32,8 @@ claude mcp add duro-ds -- npx -y -p @duro-app/cli -p @modelcontextprotocol/sdk d
 ```
 
 Tools: `duro_ds_lookup` (same fallback-to-search behavior as the CLI),
-`duro_ds_list`, `duro_ds_manifest`. Resources: `duro://component/<Name>`,
+`duro_ds_list`, `duro_ds_manifest`, `duro_ds_mockup_check` (an artboard's HTML
+in, findings out — see below). Resources: `duro://component/<Name>`,
 `duro://recipe/<name>`. Prompt: `duro/build-ui` primes a session with the
 critical rules and the component index. The SDK is an optional peer — plain
 CLI use never loads it.
@@ -125,6 +129,47 @@ hand-roll widgets the DS ships.
 ```
 
 Wire `--check` into the repo's lint or CI job to catch a stale hook after a
-CLI upgrade. The generated script pins `@duro-app/cli@^1.2.0` (the floor where
-`hook session-start` landed; older versions treat `hook` as a lookup and cache
-junk) — a floating pin, so patch releases never read as drift.
+CLI upgrade. The generated script pins `@duro-app/cli@^3.0.0` — a floating
+pin, so patch releases never read as drift, but a **floor**: a repo whose
+script still pins `^1.2.0` never resolves a 2.x or 3.x payload and never sees
+what the session-start injection gained since. After a major, re-run
+`hook install` in every consumer and delete `.claude/.duro-session.cache*`
+(the payload is cached seven days).
+
+## Mockups that speak the design system
+
+A mockup drawn outside the token system has to be translated when it is
+implemented, and the translation drifts — one four-direction canvas used
+485 distinct colours, 15 of them in the palette, and the implementation
+carried `marginTop: 23` and a raw `768px` query past every lint rule. Two
+commands and one skill make the artboard the contract instead.
+
+```
+npx -y @duro-app/cli mockup seed --out docs/mockups/<screen> --name Main
+npx -y @duro-app/cli mockup check docs/mockups/<screen>/*.dc.html   # exit 1 on findings
+npx -y @duro-app/cli skill install                                   # /duro-mockup
+```
+
+`seed` writes a `.dc.html` in the shape Claude Code's `design` skill expects,
+whose `<style>` opens with the tokens as **resolved** custom properties for
+every theme (`--duro-color-bg`, `--duro-spacing-md`, … — the same names as
+`@duro-app/tokens/vars.css`, generated from the same sources). `--theme
+light|high-contrast` stamps `<html data-theme>` so the block switches.
+
+`check` reads an artboard back and refuses, with `file:line rule: message`:
+
+| Rule                  | Finding                                                                                                                                                                                                                                                                                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `raw-color`           | A hex / `rgb()` / `hsl()` literal anywhere outside the token block, in a rule or an inline `style`.                                                                                                                                                                                                                                                    |
+| `raw-length`          | A literal on a spacing, radius, font, shadow or motion property (`padding: 23px`, `font-weight: 600`, `transition: opacity 150ms`). Widths, heights and positions are geometry, not tokens — never reported.                                                                                                                                           |
+| `raw-breakpoint`      | A `@media` / `@container` width off the breakpoint scale (480 / 640 / 768 / 1024 / 1280). Queries cannot read a variable, so a literal on the scale is the right spelling.                                                                                                                                                                             |
+| `unknown-component`   | `data-duro="<Name>"` or `<Name>.<Part>` the registry does not know, with suggestions.                                                                                                                                                                                                                                                                  |
+| `no-component-map`    | No `data-duro` anywhere. An artboard names the component behind every control or it cannot be implemented from.                                                                                                                                                                                                                                        |
+| `unannotated-control` | An element that draws like a control but names none. Canvas artboards draw controls as `div`/`span`, so the tag is not the signal: a class is a control when the union of every rule that mentions it has a pointer cursor, a `:hover`/`:active`/`:focus` state, or a padded rounded fill. A named parent covers only a bare native control inside it. |
+
+`skill install` writes `.claude/skills/duro-mockup/SKILL.md` (byte-compared
+by `--check`, like the hook). The skill runs the whole path — seed directions,
+check, publish the canvas, implement the picked direction from its
+`data-duro` map, screenshot the built route and put artboard and screenshot
+side by side in the PR — and it explicitly overrides the `design` skill's
+"lift resolved values" step. Repo notes go in `.claude/duro-mockup.local.md`.

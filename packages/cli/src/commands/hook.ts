@@ -30,6 +30,9 @@ const PREAMBLE = [
   'says what already wraps what, so you never rebuild it. Details:',
   'duro <Component> (props+usage) · duro <recipe> --source-only ·',
   'duro spacing|icons|rules.',
+  'A new screen, page or UI proposal starts with the /duro-mockup skill',
+  '(duro skill install if this repo lacks it): token-seeded artboards,',
+  'checked, then implemented from their component map.',
 ].join('\n')
 
 export interface HookOptions {

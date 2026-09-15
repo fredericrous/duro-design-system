@@ -5,11 +5,15 @@
 > **Machine-queryable docs:** run `npx @duro-app/cli manifest --json` once — every component's props,
 > every recipe's source, tokens and rules follow from it (`npx @duro-app/cli Button`,
 > `npx @duro-app/cli login-form --source-only`, `npx @duro-app/cli "tags that wrap"`).
-> As an MCP server: `duro mcp` (tools `duro_ds_lookup` / `duro_ds_list` / `duro_ds_manifest`).
+> As an MCP server: `duro mcp` (tools `duro_ds_lookup` / `duro_ds_list` / `duro_ds_manifest` /
+> `duro_ds_mockup_check`).
 >
 > **Consuming apps:** run `npx -y @duro-app/cli hook install` once in the repo root. It wires a
 > Claude Code `SessionStart` hook that puts this catalog in every agent session automatically —
-> `--check` in CI keeps it from drifting. See `packages/cli/README.md`.
+> `--check` in CI keeps it from drifting. `npx -y @duro-app/cli skill install` adds the
+> `/duro-mockup` skill: token-seeded artboards (`duro mockup seed`), a checker that refuses raw
+> values and unnamed controls (`duro mockup check`), and the implement-and-prove steps that follow
+> the picked direction. See `packages/cli/README.md`.
 
 ## Architecture
 
