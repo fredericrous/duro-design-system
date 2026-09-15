@@ -2,9 +2,15 @@ import {css} from 'react-strict-dom'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
 
-// Where a split collapses to one column. A defineConsts string, inlined into
-// the @media text at build time.
-const SPLIT_BP = breakpoints.md
+// Where a split collapses to one column — measured on the split's OWN
+// container, not the viewport. A split nested in another split (a list/detail
+// board inside a nav/content shell) has far less room than the window: at a
+// 768px viewport the shell leaves ~408px for its content column, and a
+// viewport-keyed inner split would still open there and squeeze its detail
+// pane to ~150px. Container queries collapse each split on what it actually
+// has. defineConsts strings, inlined into the @container text at build time.
+const SPLIT_WIDE_BP = breakpoints.md // 280px rail + real content
+const SPLIT_BP = breakpoints.sm // 240px list + ≥ 384px detail
 
 export const styles = css.create({
   base: {
@@ -19,20 +25,28 @@ export const styles = css.create({
   autoFit: (minWidth: string) => ({
     gridTemplateColumns: `repeat(auto-fill, minmax(${minWidth}, 1fr))`,
   }),
+  // Hosts the @container query for a named layout. A container cannot query
+  // itself, so the grid sits inside this wrapper (the Table.rootContainer
+  // pattern). Only `layout` grids get it: counted and weighted grids keep
+  // their DOM exactly as before.
+  splitContainer: {
+    containerType: 'inline-size',
+  },
   // Asymmetric list/detail splits: a bounded first column, the rest for the
-  // detail; one column below the md breakpoint. Static entries rather than a
-  // parameter because the pair (widths + collapse point) is the design
-  // decision — a screen picks a split, it does not tune one.
+  // detail; one column when the container is narrower than the breakpoint.
+  // Static entries rather than a parameter because the pair (widths +
+  // collapse point) is the design decision — a screen picks a split, it does
+  // not tune one.
   split: {
     gridTemplateColumns: {
       default: '1fr',
-      [`@media (min-width: ${SPLIT_BP})`]: 'minmax(240px, 1fr) minmax(0, 2fr)',
+      [`@container (min-width: ${SPLIT_BP})`]: 'minmax(240px, 1fr) minmax(0, 2fr)',
     },
   },
   splitWide: {
     gridTemplateColumns: {
       default: '1fr',
-      [`@media (min-width: ${SPLIT_BP})`]: 'minmax(280px, 1fr) minmax(0, 3fr)',
+      [`@container (min-width: ${SPLIT_WIDE_BP})`]: 'minmax(280px, 1fr) minmax(0, 3fr)',
     },
   },
   // Weighted columns: `[1, 2]` → `1fr 2fr` (see columns.ts).

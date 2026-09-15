@@ -2,11 +2,11 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses below the md breakpoint. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native.',
+    'Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses to one column on the width of its own container, so it is safe to nest and to place beside a DetailPanel. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native.',
   whenToUse: [
     'Card grids, dashboard layouts, multi-column forms',
     'Responsive layouts that should auto-adjust column count',
-    'A list/detail or nav/content screen — layout="split" | "split-wide", never a hand-rolled gridTemplateColumns with its own @media',
+    'A list/detail or nav/content screen — layout="split" | "split-wide", never a hand-rolled gridTemplateColumns with its own @media; a split inside a split is fine, each collapses on its own room',
   ],
   whenNotToUse: [
     'Single-column vertical layout — use Stack',

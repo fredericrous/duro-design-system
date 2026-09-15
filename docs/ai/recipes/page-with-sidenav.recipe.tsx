@@ -11,7 +11,7 @@ import type {ComponentMeta} from '../types'
 
 export const recipeMeta: ComponentMeta = {
   description:
-    'Page with a side navigation rail: SideNav in the narrow column of Grid layout="split-wide", the routed content in the wide one; the rail stacks above the content below the md breakpoint.',
+    'Page with a side navigation rail: SideNav in the narrow column of Grid layout="split-wide", the routed content in the wide one; the rail stacks above the content when the page is narrower than md.',
   whenToUse: [
     'The admin or settings area of an app — several destinations, one shell',
     'Anywhere PageShell + SideNav were about to be combined by hand',

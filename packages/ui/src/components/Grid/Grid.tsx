@@ -19,8 +19,11 @@ interface GridProps {
   minColumnWidth?: string
   /**
    * A named responsive layout. `split` is list/detail (1:2, list ≥ 240px),
-   * `split-wide` is nav/content (1:3, nav ≥ 280px); both collapse to one
-   * column below the `md` breakpoint. Wins over `columns` / `minColumnWidth`.
+   * `split-wide` is nav/content (1:3, nav ≥ 280px). Each collapses to one
+   * column on the width of its OWN container — `split` below `sm` (640px),
+   * `split-wide` below `md` (768px) — so a split nested inside another
+   * split, or beside an open DetailPanel, collapses when it runs out of room
+   * rather than when the window does. Wins over `columns` / `minColumnWidth`.
    */
   layout?: GridLayout
   children: ReactNode
@@ -105,7 +108,10 @@ export function Grid({gap = 'md', columns, minColumnWidth, layout, children}: Gr
           ? styles.template(gridTemplate(columnWeights(columns) ?? [1]))
           : undefined
 
-  return <html.div style={[styles.base, gapMap[gap], columnStyle]}>{children}</html.div>
+  const grid = <html.div style={[styles.base, gapMap[gap], columnStyle]}>{children}</html.div>
+  // A named layout answers its container query from a wrapper: an element
+  // cannot query its own size.
+  return layout ? <html.div style={styles.splitContainer}>{grid}</html.div> : grid
 }
 
 /**
