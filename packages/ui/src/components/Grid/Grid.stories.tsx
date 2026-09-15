@@ -1,4 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/react'
+import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Grid} from './Grid'
 import {Stack} from '../Stack/Stack'
@@ -19,6 +20,7 @@ const meta: Meta<typeof Grid> = {
     columns: {
       control: 'select',
       options: [1, 2, 3, 4, 5, 6],
+      description: 'A count, or weights such as [1, 2] for a one-third / two-thirds split',
     },
     minColumnWidth: {control: 'text'},
     layout: {control: 'select', options: [undefined, 'split', 'split-wide']},
@@ -101,6 +103,32 @@ export const Split: Story = {
       </Grid>
     </Stack>
   ),
+}
+
+/**
+ * Weighted columns: the portable form of `grid-template-columns: 1fr 2fr`.
+ * Weights are what the native Grid can honour too (as flex bases), where a
+ * CSS template string would be dropped.
+ */
+export const WeightedColumns: Story = {
+  render: () => (
+    <Grid gap="md" columns={[1, 2]}>
+      <Cell>Sidebar (1)</Cell>
+      <Cell>Content (2)</Cell>
+      <Cell>Sidebar (1)</Cell>
+      <Cell>Content (2)</Cell>
+    </Grid>
+  ),
+  play: async ({canvas}) => {
+    // The grid is the cells' parent (Storybook wraps the story in its own
+    // divs). The browser resolves `1fr 2fr` to pixel tracks, so assert the
+    // ratio rather than the string.
+    const root = canvas.getAllByText('Sidebar (1)')[0].parentElement as HTMLElement
+    const tracks = getComputedStyle(root).gridTemplateColumns.split(' ').map(Number.parseFloat)
+    await expect(tracks).toHaveLength(2)
+    // Second track is twice the first, within a pixel of rounding.
+    await expect(Math.abs(tracks[1] - 2 * tracks[0])).toBeLessThan(1.5)
+  },
 }
 
 export const WithContainerQuery: Story = {

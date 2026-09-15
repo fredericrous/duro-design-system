@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'CSS grid layout. Fixed column count (1-6), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses below the md breakpoint.',
+    'Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses below the md breakpoint. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native.',
   whenToUse: [
     'Card grids, dashboard layouts, multi-column forms',
     'Responsive layouts that should auto-adjust column count',
@@ -42,5 +42,11 @@ export const meta: ComponentMeta = {
   <Card>A</Card>
   <Card>B</Card>
   <Card>C</Card>
+</Grid>
+
+// Weighted: a one-third / two-thirds split (works on native too)
+<Grid columns={[1, 2]} gap="md">
+  <Card>Sidebar</Card>
+  <Card>Content</Card>
 </Grid>`,
 }
