@@ -17,7 +17,12 @@ Object.assign(plugin.configs, {
       'duro/no-raw-html-element': 'error',
       'duro/no-tokens-barrel-import': 'error',
       'duro/no-deprecated-table-parts': 'error',
-      'duro/no-raw-design-values': 'warn',
+      // Errors since 3.0: a raw design value is the drift the system exists
+      // to prevent. Consumers with debt ratchet with an explicit-file
+      // baseline block (see @duro-app/eslint-config README), never a glob
+      // and never --max-warnings.
+      'duro/no-raw-design-values': 'error',
+      'duro/no-raw-breakpoint-query': 'error',
       'duro/no-flex-grow-web': 'warn',
       'duro/prefer-ds-form-components': 'error',
     },

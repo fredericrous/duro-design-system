@@ -66,6 +66,63 @@ export const ICON_SIZES = {
 } as const
 export type IconSize = keyof typeof ICON_SIZES
 
+// Mirrors tokens/breakpoints.css.ts `breakpoints` (css.defineConsts), as
+// numbers. The css.ts file also exports `breakpointsPx`, but importing it
+// pulls react-strict-dom; tooling that only needs the numbers reads here.
+export const BREAKPOINT_KEYS = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+export const BREAKPOINTS_PX = {
+  xs: 480,
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+} as const
+
+// Mirrors tokens/typography.css.ts `typography` font sizes, in rem.
+export const FONT_SIZE_REM = {
+  fontSizeXs: 0.75,
+  fontSizeSm: 0.875,
+  fontSizeMd: 1,
+  fontSizeLg: 1.125,
+  fontSizeXl: 1.25,
+  fontSizeHeading: 1.5,
+} as const
+
+// Mirrors tokens/typography.css.ts `typography` font weights, as numbers.
+export const FONT_WEIGHTS = {
+  fontWeightNormal: 400,
+  fontWeightMedium: 500,
+  fontWeightSemibold: 600,
+  fontWeightBold: 700,
+} as const
+
+// Mirrors tokens/typography.css.ts `typeScale` fontSize1..9, in rem.
+export const TYPE_SCALE_FONT_SIZE_REM = {
+  fontSize1: 0.75,
+  fontSize2: 0.8125,
+  fontSize3: 0.875,
+  fontSize4: 1,
+  fontSize5: 1.125,
+  fontSize6: 1.25,
+  fontSize7: 1.5,
+  fontSize8: 1.875,
+  fontSize9: 2.25,
+} as const
+
+// Mirrors tokens/shadows.css.ts `shadows` (the base, dark palette) verbatim.
+export const SHADOWS = {
+  sm: '0 2px 4px rgba(0, 0, 0, 0.3)',
+  md: '0 4px 12px rgba(0, 0, 0, 0.4)',
+  lg: '0 8px 24px rgba(0, 0, 0, 0.5)',
+} as const
+
+// Mirrors tokens/motion.css.ts `easing` verbatim.
+export const EASINGS = {
+  standard: 'ease',
+  easeOut: 'cubic-bezier(0.32, 0.72, 0, 1)',
+  easeIn: 'cubic-bezier(0.72, 0, 0.68, 0.28)',
+} as const
+
 export type ColorToken = keyof RawColors
 
 export type {Breakpoint} from './tokens/breakpoints.css.js'

@@ -2,8 +2,9 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {css, html} from 'react-strict-dom'
 import {Cluster} from './Cluster'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {SPACING_KEYS} from '@duro-app/tokens/keys'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 const meta: Meta<typeof Cluster> = {
   title: 'Layout/Cluster',
@@ -35,8 +36,8 @@ const localStyles = css.create({
     paddingBottom: spacing.xs,
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
-    borderRadius: 12,
-    fontSize: '0.75rem',
+    borderRadius: radii.md,
+    fontSize: typography.fontSizeXs,
     whiteSpace: 'nowrap',
   },
   narrow: {

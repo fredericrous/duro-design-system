@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Spinner} from './Spinner'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Spinner> = {
   title: 'Components/Spinner',
@@ -41,7 +42,7 @@ export const CustomLabel: Story = {
 }
 
 const rowStyles = css.create({
-  row: {display: 'flex', gap: 24, alignItems: 'center'},
+  row: {display: 'flex', gap: spacing.lg, alignItems: 'center'},
 })
 
 export const AllSizes: Story = {

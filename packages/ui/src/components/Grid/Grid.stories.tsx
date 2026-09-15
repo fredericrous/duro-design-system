@@ -3,9 +3,10 @@ import {css, html} from 'react-strict-dom'
 import {Grid} from './Grid'
 import {Stack} from '../Stack/Stack'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {SPACING_KEYS} from '@duro-app/tokens/keys'
 import {useContainerQuery} from '../../hooks/useContainerQuery'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 const meta: Meta<typeof Grid> = {
   title: 'Layout/Grid',
@@ -31,12 +32,12 @@ const localStyles = css.create({
     backgroundColor: colors.accent,
     color: colors.accentContrast,
     padding: spacing.md,
-    borderRadius: 4,
+    borderRadius: radii.xs,
     textAlign: 'center',
-    fontSize: '0.875rem',
+    fontSize: typography.fontSizeSm,
   },
   label: {
-    fontSize: '0.75rem',
+    fontSize: typography.fontSizeXs,
     color: colors.textMuted,
   },
 })

@@ -2,6 +2,8 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Tag} from './Tag'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {colors} from '@duro-app/tokens/tokens/colors.css'
 
 const meta: Meta<typeof Tag> = {
   title: 'Components/Tag',
@@ -47,10 +49,16 @@ export const Small: Story = {
 }
 
 const layoutStyles = css.create({
-  row: {display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap'},
-  stack: {display: 'flex', flexDirection: 'column', gap: 16},
+  row: {display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap'},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md},
   // Narrow column that a long identifier tag would overflow without `wrap`.
-  narrowCol: {width: 120, borderWidth: 1, borderStyle: 'solid', borderColor: '#333', padding: 8},
+  narrowCol: {
+    width: 120,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: colors.border,
+    padding: spacing.sm,
+  },
 })
 
 const LONG_CAP = 'lldap.group.member.remove'

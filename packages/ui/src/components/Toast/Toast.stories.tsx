@@ -2,10 +2,17 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, userEvent, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ToastProvider, useToast} from './ToastProvider'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const s = css.create({
-  row: {display: 'flex', flexDirection: 'row', gap: 8, flexWrap: 'wrap'},
-  btn: {padding: 8, borderRadius: 6, borderWidth: 1, borderStyle: 'solid', cursor: 'pointer'},
+  row: {display: 'flex', flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap'},
+  btn: {
+    padding: spacing.sm,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    cursor: 'pointer',
+  },
 })
 
 function Triggers() {

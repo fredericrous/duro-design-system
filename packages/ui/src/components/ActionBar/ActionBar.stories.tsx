@@ -6,6 +6,8 @@ import {ActionBar} from './ActionBar'
 import {Button} from '../Button/Button'
 import {Checkbox} from '../Checkbox/Checkbox'
 import {Table} from '../Table/Table'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 interface ActionBarStoryArgs {
   onClearSelection: () => void
@@ -40,16 +42,16 @@ const storyStyles = css.create({
   wrapper: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 32,
-    padding: 24,
+    gap: spacing.xl,
+    padding: spacing.lg,
   },
   label: {
-    fontSize: '0.75rem',
-    fontWeight: 600,
+    fontSize: typography.fontSizeXs,
+    fontWeight: typography.fontWeightSemibold,
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
     opacity: 0.6,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
 })
 

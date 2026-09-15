@@ -2,6 +2,9 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ScrollArea} from './ScrollArea'
+import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta = {
   title: 'Components/ScrollArea',
@@ -15,19 +18,19 @@ const demoStyles = css.create({
     width: 300,
     borderWidth: 1,
     borderStyle: 'solid',
-    borderColor: '#333333',
-    borderRadius: 8,
+    borderColor: colors.border,
+    borderRadius: radii.sm,
   },
   item: {
-    paddingTop: 12,
-    paddingBottom: 12,
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingTop: spacing.ms,
+    paddingBottom: spacing.ms,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.md,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderBottomColor: '#1a1a1a',
-    fontSize: 14,
-    color: '#e5e5e5',
+    borderBottomColor: colors.bgCard,
+    fontSize: typography.fontSizeSm,
+    color: colors.text,
   },
 })
 

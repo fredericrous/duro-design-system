@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Toggle} from './Toggle'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Toggle> = {
   title: 'Components/Toggle',
@@ -59,7 +60,7 @@ export const Small: Story = {
 }
 
 const stackStyles = css.create({
-  stack: {display: 'flex', gap: 8},
+  stack: {display: 'flex', gap: spacing.sm},
 })
 
 export const AllVariants: Story = {

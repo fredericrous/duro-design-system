@@ -3,6 +3,7 @@ import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {InputGroup} from './InputGroup'
 import {Input} from '../Input/Input'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta = {
   title: 'Components/InputGroup',
@@ -94,7 +95,7 @@ export const StandaloneInput: Story = {
 
 const layoutStyles = css.create({
   container: {maxWidth: 400},
-  stack: {display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 400},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: 400},
 })
 
 export const AllVariants: Story = {

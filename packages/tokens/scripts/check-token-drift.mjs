@@ -124,6 +124,68 @@ const shadowsCss = extractCallArg(
   }
 }
 
+// Compare a keys.ts map against a subset of a css.ts literal: every keys.ts
+// entry must exist in the literal with the value `format(n)` produces.
+function checkSubset(label, cssObj, keysObj, format) {
+  const missing = Object.keys(keysObj).filter((k) => !(k in cssObj))
+  const wrong = Object.entries(keysObj).filter(([k, v]) => k in cssObj && cssObj[k] !== format(v))
+  if (missing.length || wrong.length) {
+    console.error(`✗ drift: ${label} in keys.ts differs from its css.ts literal`)
+    for (const k of missing) console.error(`  ${k}: missing from css.ts`)
+    for (const [k, v] of wrong) console.error(`  ${k}: css.ts ${cssObj[k]} vs keys.ts ${format(v)}`)
+    failures++
+  } else {
+    console.log(`✓ ${label} matches`)
+  }
+}
+
+const breakpointsCss = extractCallArg(
+  join(srcDir, 'tokens', 'breakpoints.css.ts'),
+  'defineConsts',
+  0,
+  'breakpoints',
+)
+checkScale('BREAKPOINTS_PX', breakpointsCss, keys.BREAKPOINTS_PX, keys.BREAKPOINT_KEYS, 'px')
+{
+  const mirror = parseModuleExports(join(srcDir, 'tokens', 'breakpoints.css.ts')).breakpointsPx
+  const same = JSON.stringify(mirror) === JSON.stringify(keys.BREAKPOINTS_PX)
+  if (!same) {
+    console.error(
+      `✗ drift: breakpointsPx in breakpoints.css.ts differs from BREAKPOINTS_PX in keys.ts`,
+    )
+    failures++
+  } else {
+    console.log(`✓ breakpointsPx matches`)
+  }
+}
+
+const typographyCss = extractCallArg(
+  join(srcDir, 'tokens', 'typography.css.ts'),
+  'defineVars',
+  0,
+  'typography',
+)
+checkSubset('FONT_SIZE_REM', typographyCss, keys.FONT_SIZE_REM, (n) => `${n}rem`)
+checkSubset('FONT_WEIGHTS', typographyCss, keys.FONT_WEIGHTS, (n) => String(n))
+
+const typeScaleCss = extractCallArg(
+  join(srcDir, 'tokens', 'typography.css.ts'),
+  'defineVars',
+  0,
+  'typeScale',
+)
+checkSubset(
+  'TYPE_SCALE_FONT_SIZE_REM',
+  typeScaleCss,
+  keys.TYPE_SCALE_FONT_SIZE_REM,
+  (n) => `${n}rem`,
+)
+
+checkSubset('SHADOWS', shadowsCss, keys.SHADOWS, (s) => s)
+
+const easingCss = extractCallArg(join(srcDir, 'tokens', 'motion.css.ts'), 'defineVars', 0, 'easing')
+checkSubset('EASINGS', easingCss, keys.EASINGS, (s) => s)
+
 if (failures > 0) {
   console.error(
     `\n${failures} token drift failure(s). Update src/raw.ts / src/keys.ts to match the css.ts files (or vice versa).`,

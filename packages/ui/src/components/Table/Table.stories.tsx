@@ -27,6 +27,7 @@ import {
 import {useDataTable} from './useDataTable'
 import {Combobox} from '../Combobox/Combobox'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 const meta: Meta = {
   title: 'Components/Table',
@@ -326,8 +327,12 @@ export const WithCheckboxes: Story = {
 }
 
 const storyStyles = css.create({
-  stack: {display: 'flex', flexDirection: 'column', gap: 24},
-  label: {color: colors.textMuted, fontSize: '0.875rem', fontWeight: 600},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.lg},
+  label: {
+    color: colors.textMuted,
+    fontSize: typography.fontSizeSm,
+    fontWeight: typography.fontWeightSemibold,
+  },
 })
 
 export const AllVariants: Story = {

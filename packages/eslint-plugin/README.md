@@ -35,7 +35,8 @@ another key — you'd get two live namespaces and confusing config.
 | `duro/no-raw-html-element`       | error  | suggestion           |
 | `duro/no-tokens-barrel-import`   | error  | autofix              |
 | `duro/no-deprecated-table-parts` | error  | autofix / suggestion |
-| `duro/no-raw-design-values`      | warn   | suggestion           |
+| `duro/no-raw-design-values`      | error  | suggestion           |
+| `duro/no-raw-breakpoint-query`   | error  | autofix              |
 
 ### no-raw-html-element
 
@@ -67,20 +68,47 @@ default) — configure via `tableIdentifiers`.
 
 ### no-raw-design-values
 
-Inside `css.create()` objects: hex colors report everywhere (palette matches
-suggest the `colors.*` token; off-palette hexes report without a fix), and
-numeric/`px` values matching the spacing or radius scale report on the
-properties where that mapping is unambiguous (padding/margin/gap families →
-`spacing.*`, border radius family → `radii.*`). `width: 16` or `fontSize: 16`
-never report — same number, different meaning. Ships as `warn`: it informs,
-it doesn't gate.
+Inside `css.create()` objects, a raw design value is the finding — anything
+with a token equivalent, and anything on a tokenised property that is off the
+scale:
+
+- **colors** — a hex / `rgb()` / `hsl()` literal anywhere. A palette value
+  suggests its `colors.*` token; an off-palette one reports without a fix.
+- **spacing and radius** — a number or `'Npx'` on the padding/margin/gap
+  families → `spacing.*`, on the border-radius family → `radii.*`. On the
+  scale it suggests the token; off the scale (`marginTop: 23`) it reports —
+  "not a token" is the point.
+- **breakpoints** — a px inside a `'@media …'` / `'@container …'` condition
+  key. On the scale it suggests the computed key
+  ``[`@media (min-width: ${breakpoints.md})`]`` and the import.
+- **font size** (number, `px` or `rem`) → `typography.fontSize*` or, for the
+  steps typography lacks, `typeScale.fontSizeN`; **font weight** 400–700 →
+  `typography.fontWeight*`; **`boxShadow`** → `shadows.*` on an exact match,
+  otherwise a report; **`transitionDuration` / `animationDuration`** `'Nms'` →
+  `duration.*`; **timing functions** → `easing.*`.
+
+Skipped on purpose: `0`, negatives, shorthands (`'8px 16px'`,
+`'opacity 150ms'`), identifiers, member expressions, template literals, and
+`width` / `top` / `lineHeight` — same numbers, different meaning. Since 3.0 it
+ships as `error`: a raw value is the drift the design system exists to stop.
 
 Options: `{factories?: string[], spacingProperties?: string[], radiiProperties?: string[]}`
 (property lists replace the defaults, they don't merge)
 
+### no-raw-breakpoint-query
+
+A media-query string anywhere in a file — `useMediaQuery('(min-width:
+768px)')`, `matchMedia(...)`, a constant — carries a raw breakpoint that
+`no-raw-design-values` never sees (it only reads `css.create`). On the scale
+the autofix rewrites the literal to `` `(min-width: ${breakpoints.md})` `` and
+adds the import (a `css.defineConsts` string, so it interpolates to
+`'768px'`); off the scale it reports. Skips `css.create` keys, and skips the
+fix when a local `breakpoints` binding would shadow the import.
+
 ## Token data
 
-The rule data (deep-path map, spacing/radius px values, color palette) is
-mirrored from `@duro-app/tokens` as literals so the published plugin stays
+The rule data (deep-path map, spacing/radius/breakpoint px values, font
+sizes and weights, shadows, durations, easings, color palette) is mirrored
+from `@duro-app/tokens` as literals so the published plugin stays
 dependency-free. `test/token-drift.test.ts` rebuilds every table from the real
 tokens package and fails CI when they drift.

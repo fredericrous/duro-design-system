@@ -2,6 +2,9 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {StatusIcon} from './StatusIcon'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 const meta: Meta<typeof StatusIcon> = {
   title: 'Components/StatusIcon',
@@ -47,9 +50,13 @@ export const CustomSize: Story = {
 }
 
 const gridStyles = css.create({
-  grid: {display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 24},
-  cell: {display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8},
-  label: {fontSize: '0.875rem', color: '#888'},
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    gap: spacing.lg,
+  },
+  cell: {display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.sm},
+  label: {fontSize: typography.fontSizeSm, color: colors.textMuted},
 })
 
 export const AllIcons: Story = {
@@ -66,7 +73,7 @@ export const AllIcons: Story = {
 }
 
 const rowStyles = css.create({
-  row: {display: 'flex', gap: 24, alignItems: 'center'},
+  row: {display: 'flex', gap: spacing.lg, alignItems: 'center'},
 })
 
 export const AllVariants: Story = {

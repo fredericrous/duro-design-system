@@ -6211,17 +6211,34 @@
         "severity": "warn"
       },
       {
-        "description": "Prefer design tokens over raw hex colors and px values in css.create styles",
+        "description": "Disallow raw px breakpoints in media-query strings; use breakpoints.<key>",
+        "fixable": "autofix",
+        "id": "duro/no-raw-breakpoint-query",
+        "messages": {
+          "rawBreakpointQuery": "{{value}}px is a raw breakpoint in a media query. Use `breakpoints.{{token}}` from @duro-app/tokens/tokens/breakpoints.css (the scale is {{scale}}px)."
+        },
+        "severity": "error"
+      },
+      {
+        "description": "Prefer design tokens over raw colors, lengths, breakpoints, type, shadows and motion in css.create styles",
         "fixable": "suggestion",
         "id": "duro/no-raw-design-values",
         "messages": {
+          "offScaleRadius": "{{value}} on `{{property}}` is off the radius scale ({{scale}}px). Use the nearest `radii.*` token from {{pkg}}/tokens/spacing.css, or disable this line with the reason.",
+          "offScaleSpacing": "{{value}} on `{{property}}` is off the spacing scale ({{scale}}px). Use the nearest `spacing.*` token from {{pkg}}/tokens/spacing.css, or disable this line with the reason.",
+          "rawBreakpoint": "{{value}}px in `{{key}}` is a raw breakpoint. Use `breakpoints.{{token}}` from {{pkg}}/tokens/breakpoints.css in a template-literal key (the scale is {{scale}}px).",
           "rawColor": "'{{value}}' is not in the palette. Use a semantic token from {{pkg}}/tokens/colors.css instead of a raw color.",
           "rawColorToken": "'{{value}}' is the {{token}} token. Use `colors.{{token}}` from {{pkg}}/tokens/colors.css so it follows the theme.",
+          "rawDuration": "'{{value}}' on `{{property}}` is a raw duration. Use `duration.{{token}}` from {{pkg}}/tokens/motion.css.",
+          "rawEasing": "'{{value}}' on `{{property}}` is a raw easing. Use `easing.{{token}}` from {{pkg}}/tokens/motion.css.",
+          "rawFontSize": "{{value}} on `fontSize` is the {{group}}.{{token}} token. Use it from {{pkg}}/tokens/typography.css.",
+          "rawFontWeight": "{{value}} on `fontWeight` is the typography.{{token}} token. Use it from {{pkg}}/tokens/typography.css.",
           "rawRadius": "{{value}} on `{{property}}` is the {{token}} radius token. Use `radii.{{token}}` from {{pkg}}/tokens/spacing.css.",
+          "rawShadow": "'{{value}}' on `boxShadow` is a raw shadow. Use `shadows.{{token}}` from {{pkg}}/tokens/shadows.css.",
           "rawSpacing": "{{value}} on `{{property}}` is the {{token}} spacing token. Use `spacing.{{token}}` from {{pkg}}/tokens/spacing.css.",
           "replaceWithToken": "Replace with {{replacement}}"
         },
-        "severity": "warn"
+        "severity": "error"
       },
       {
         "description": "Require react-strict-dom html.* elements instead of raw HTML JSX intrinsics",

@@ -3,6 +3,8 @@ import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Card} from './Card'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Card> = {
   title: 'Components/Card',
@@ -85,10 +87,10 @@ const gridStyles = css.create({
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    gap: 16,
+    gap: spacing.md,
   },
-  stack: {display: 'flex', flexDirection: 'column', gap: 16},
-  muted: {color: colors.textMuted, fontSize: '0.875rem'},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md},
+  muted: {color: colors.textMuted, fontSize: typography.fontSizeSm},
 })
 
 export const AllVariants: Story = {

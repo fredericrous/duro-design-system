@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Switch} from './Switch'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Switch> = {
   title: 'Components/Switch',
@@ -67,7 +68,7 @@ export const WithoutLabel: Story = {
 }
 
 const stackStyles = css.create({
-  stack: {display: 'flex', flexDirection: 'column', gap: 12},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.ms},
 })
 
 export const AllVariants: Story = {

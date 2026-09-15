@@ -94,6 +94,9 @@ export function parseModuleExports(file) {
     if (decl?.type !== 'VariableDeclaration') continue
     for (const declarator of decl.declarations) {
       if (declarator.id.type !== 'Identifier') continue
+      // A module may also export css.* calls next to its plain literals
+      // (breakpoints.css.ts); those are read with extractCallArg instead.
+      if (declarator.init?.type === 'CallExpression') continue
       out[declarator.id.name] = evalNode(declarator.init)
     }
   }

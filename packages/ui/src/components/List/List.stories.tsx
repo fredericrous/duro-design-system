@@ -7,6 +7,7 @@ import {Badge} from '../Badge/Badge'
 import {Button} from '../Button/Button'
 import {Checkbox} from '../Checkbox/Checkbox'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {radii} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta = {
   title: 'Components/List',
@@ -76,7 +77,7 @@ const narrowContainer = css.create({
     borderWidth: 1,
     borderStyle: 'solid',
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.sm,
     overflow: 'hidden',
   },
 })

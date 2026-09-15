@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {LinkButton} from './LinkButton'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof LinkButton> = {
   title: 'Components/LinkButton',
@@ -61,8 +62,8 @@ export const ExternalLink: Story = {
 }
 
 const rowStyles = css.create({
-  row: {display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap'},
-  stack: {display: 'flex', flexDirection: 'column', gap: 16},
+  row: {display: 'flex', gap: spacing.ms, alignItems: 'center', flexWrap: 'wrap'},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md},
 })
 
 export const AllVariants: Story = {

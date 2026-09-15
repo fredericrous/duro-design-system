@@ -1,11 +1,12 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {css, html} from 'react-strict-dom'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {Stack} from '../components/Stack/Stack'
 import {Inline} from '../components/Inline/Inline'
 import {useContainerQuery} from '../hooks/useContainerQuery'
 import {TokenTable} from './helpers'
+import {typography, typeScale} from '@duro-app/tokens/tokens/typography.css'
 
 const primitiveTokens: Record<string, string> = {
   xs: '4px',
@@ -35,7 +36,7 @@ const styles = css.create({
     maxWidth: 640,
   },
   hint: {
-    fontSize: '0.75rem',
+    fontSize: typography.fontSizeXs,
     color: colors.textMuted,
     fontStyle: 'italic',
   },
@@ -45,10 +46,10 @@ const styles = css.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomStyle: 'dashed',
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: colors.border,
   },
   baselineLabel: {
-    fontSize: '0.75rem',
+    fontSize: typography.fontSizeXs,
     fontFamily: 'monospace',
     color: colors.textMuted,
     width: 50,
@@ -58,7 +59,7 @@ const styles = css.create({
     height: 24,
     backgroundColor: colors.accent,
     opacity: 0.15,
-    borderRadius: 2,
+    borderRadius: radii.xs,
   },
   resizableContainer: {
     resize: 'horizontal',
@@ -72,25 +73,25 @@ const styles = css.create({
     width: 600,
   },
   sizeLabel: {
-    fontSize: '1.5rem',
-    fontWeight: 700,
+    fontSize: typography.fontSizeHeading,
+    fontWeight: typography.fontWeightBold,
     fontFamily: 'monospace',
   },
   sizeCompact: {
-    color: '#e67e22',
+    color: colors.warningText,
   },
   sizeDefault: {
     color: colors.accent,
   },
   sizeSpacious: {
-    color: '#27ae60',
+    color: colors.successText,
   },
   mappingRow: {
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
     fontFamily: 'monospace',
-    fontSize: '0.8125rem',
+    fontSize: typeScale.fontSize2,
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
   },
@@ -98,7 +99,7 @@ const styles = css.create({
     color: colors.textMuted,
   },
   mappingValue: {
-    fontWeight: 600,
+    fontWeight: typography.fontWeightSemibold,
   },
 })
 
