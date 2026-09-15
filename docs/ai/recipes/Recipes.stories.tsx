@@ -5,6 +5,9 @@ import {SettingsPageRecipe} from './settings-page.recipe'
 import {EmptyStateRecipe} from './empty-state.recipe'
 import {ActionMenuRecipe} from './action-menu.recipe'
 import {FilterBarRecipe} from './filter-bar.recipe'
+import {SplitPaneRecipe} from './split-pane.recipe'
+import {AdminDetailPageRecipe} from './admin-detail-page.recipe'
+import {PageWithSideNavRecipe} from './page-with-sidenav.recipe'
 
 const meta: Meta = {
   title: 'Recipes',
@@ -35,4 +38,16 @@ export const ActionMenu: Story = {
 
 export const FilterBar: Story = {
   render: () => <FilterBarRecipe />,
+}
+
+export const SplitPane: Story = {
+  render: () => <SplitPaneRecipe />,
+}
+
+export const AdminDetailPage: Story = {
+  render: () => <AdminDetailPageRecipe />,
+}
+
+export const PageWithSideNav: Story = {
+  render: () => <PageWithSideNavRecipe />,
 }

@@ -3,6 +3,7 @@ import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Field} from './Field'
 import {Input} from '../Input/Input'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta = {
   title: 'Components/Field',
@@ -62,8 +63,8 @@ export const WithError: Story = {
 }
 
 const stackStyles = css.create({
-  stack: {display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 400},
-  stackWide: {display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 600},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: 400},
+  stackWide: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: 600},
 })
 
 export const FormExample: Story = {

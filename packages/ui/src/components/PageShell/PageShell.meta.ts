@@ -9,7 +9,7 @@ export const meta: ComponentMeta = {
   ],
   whenNotToUse: [
     'Nested section layouts — use Stack or Card',
-    'Sidebar layouts — combine with SideNav manually',
+    'Sidebar layouts — start from the page-with-sidenav recipe (PageShell + Grid layout="split-wide" + SideNav)',
   ],
   relatedTo: [
     {
@@ -18,6 +18,17 @@ export const meta: ComponentMeta = {
       relationship: 'Use Stack for content within PageShell',
     },
     {component: 'SideNav', kind: 'composition', relationship: 'Often placed alongside PageShell'},
+    {
+      component: 'page-with-sidenav',
+      kind: 'composition',
+      relationship:
+        'PageShell with a SideNav rail is the page-with-sidenav recipe — copy it, do not lay it out by hand',
+    },
+    {
+      component: 'admin-detail-page',
+      kind: 'composition',
+      relationship: 'PageShell with a record heading and Tabs is the admin-detail-page recipe',
+    },
   ],
   example: `<PageShell maxWidth="lg" padding="md" header={<Heading level={1}>Dashboard</Heading>}>
   <Stack gap="lg">

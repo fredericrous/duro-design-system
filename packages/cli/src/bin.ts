@@ -4,6 +4,8 @@ import {loadRegistry} from './registry.js'
 import {runLookup, type CommandResult} from './commands/lookup.js'
 import {runList} from './commands/list.js'
 import {runHook} from './commands/hook.js'
+import {runMockup} from './commands/mockup.js'
+import {runSkill} from './commands/skill.js'
 import {runManifest, cliVersion} from './commands/manifest.js'
 
 function emit(result: CommandResult, json: boolean): never {
@@ -17,7 +19,7 @@ function emit(result: CommandResult, json: boolean): never {
 
 function usageError(message: string): never {
   process.stderr.write(
-    `${message}\nUsage: duro <name|list|manifest|hook|mcp> [flags] — duro manifest for details\n`,
+    `${message}\nUsage: duro <name|list|manifest|hook|skill|mockup|mcp> [flags] — duro manifest for details\n`,
   )
   process.exit(2)
 }
@@ -34,6 +36,9 @@ async function main(): Promise<void> {
         'source-only': {type: 'boolean', default: false},
         'no-color': {type: 'boolean', default: false},
         check: {type: 'boolean', default: false},
+        out: {type: 'string'},
+        name: {type: 'string'},
+        theme: {type: 'string'},
         help: {type: 'boolean', short: 'h', default: false},
         version: {type: 'boolean', short: 'v', default: false},
       },
@@ -83,6 +88,17 @@ async function main(): Promise<void> {
   if (first === 'hook') {
     if (rest.length > 1) usageError('duro hook takes exactly one event')
     emit(runHook(registry, rest[0], {check: values.check}), values.json)
+  }
+  if (first === 'skill') {
+    if (rest.length > 1) usageError('duro skill takes exactly one action')
+    emit(runSkill(rest[0], {check: values.check}), values.json)
+  }
+  if (first === 'mockup') {
+    const [sub, ...files] = rest
+    emit(
+      runMockup(registry, sub, files, {out: values.out, name: values.name, theme: values.theme}),
+      values.json,
+    )
   }
   if (first === 'mcp') {
     const {runMcp} = await import('./commands/mcp.js')

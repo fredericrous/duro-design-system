@@ -46,14 +46,15 @@
     "./tokens/type-presets.css": "./src/tokens/type-presets.css.ts",
     "./themes/light.css": "./src/themes/light.css.ts",
     "./themes/high-contrast.css": "./src/themes/high-contrast.css.ts",
-    "./vars.css": "./dist/vars.css"
+    "./vars.css": "./dist/vars.css",
+    "./mockup.css": "./dist/mockup.css"
   },
   "scripts": {
     "dev": "vite build --watch",
     "prebuild": "node scripts/check-token-drift.mjs",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "postbuild": "node scripts/generate-vars-css.mjs"
+    "postbuild": "node scripts/generate-vars-css.mjs && node scripts/generate-mockup-css.mjs"
   },
   "peerDependencies": {
     "react-strict-dom": "^0.0.55"

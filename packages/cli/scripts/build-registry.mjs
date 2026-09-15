@@ -14,8 +14,10 @@ import {extractIcons} from './lib/icons.mjs'
 import {extractRecipes} from './lib/recipes.mjs'
 import {extractRules} from './lib/rules.mjs'
 import {spliceDocs} from './lib/docs.mjs'
+import {buildMockupCss} from '../../tokens/scripts/lib/mockup-css.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
+const tokensSrc = join(here, '..', '..', 'tokens', 'src')
 const registryPath = join(here, '..', 'registry.json')
 
 function sortKeysDeep(value) {
@@ -57,7 +59,14 @@ export function buildRegistry() {
     schemaVersion: 1,
     components: surface.components,
     recipes: extractRecipes(project, surface.components),
-    tokens: extractTokens(project),
+    tokens: {
+      ...extractTokens(project),
+      // The resolved token stylesheet `duro mockup seed` inlines. Built from the
+      // token sources here rather than read from dist/ so the registry stays a
+      // function of the tree, and copied verbatim by the CLI so the public
+      // names come from ONE generator (packages/tokens/scripts/lib/mockup-css).
+      mockupCss: buildMockupCss(tokensSrc).css,
+    },
     icons: extractIcons(project),
     rules: extractRules(project),
     unions: surface.unions,

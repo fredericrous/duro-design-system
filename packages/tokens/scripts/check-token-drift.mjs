@@ -6,97 +6,12 @@
 // plugin under react-strict-dom on web) requires inline object literals, so the
 // values are duplicated. This script keeps the two copies honest.
 
-import {readFile} from 'node:fs/promises'
 import {fileURLToPath, pathToFileURL} from 'node:url'
 import {dirname, join} from 'node:path'
-import {parse} from '@babel/parser'
+import {extractCallArg, parseModuleExports} from './lib/literals.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const srcDir = join(here, '..', 'src')
-
-// Walk a Babel ObjectExpression / StringLiteral / NumericLiteral / etc. into a
-// plain JS value. Throws on anything we don't recognize — we deliberately keep
-// the surface small so a sneaky non-static value can't slip past the check.
-function evalNode(node) {
-  switch (node.type) {
-    case 'StringLiteral':
-    case 'NumericLiteral':
-    case 'BooleanLiteral':
-      return node.value
-    case 'NullLiteral':
-      return null
-    case 'TemplateLiteral':
-      if (node.expressions.length > 0) {
-        throw new Error('Template literals with expressions are not supported in tokens')
-      }
-      return node.quasis.map((q) => q.value.cooked).join('')
-    case 'TSAsExpression': // `{...} as const` in keys.ts
-      return evalNode(node.expression)
-    case 'ArrayExpression':
-      return node.elements.map((el) => evalNode(el))
-    case 'ObjectExpression': {
-      const out = {}
-      for (const prop of node.properties) {
-        if (prop.type !== 'ObjectProperty') {
-          throw new Error(`Unsupported object property type: ${prop.type}`)
-        }
-        const key =
-          prop.key.type === 'Identifier'
-            ? prop.key.name
-            : prop.key.type === 'StringLiteral'
-              ? prop.key.value
-              : null
-        if (key === null) throw new Error(`Unsupported object key type: ${prop.key.type}`)
-        out[key] = evalNode(prop.value)
-      }
-      return out
-    }
-    default:
-      throw new Error(`Unsupported node type in token literal: ${node.type}`)
-  }
-}
-
-async function extractCallArg(file, callee, argIndex, exportName) {
-  const source = await readFile(file, 'utf8')
-  const ast = parse(source, {sourceType: 'module', plugins: ['typescript']})
-
-  for (const stmt of ast.program.body) {
-    if (stmt.type !== 'ExportNamedDeclaration') continue
-    const decl = stmt.declaration
-    if (decl?.type !== 'VariableDeclaration') continue
-    for (const declarator of decl.declarations) {
-      if (exportName && !(declarator.id.type === 'Identifier' && declarator.id.name === exportName))
-        continue
-      const init = declarator.init
-      if (init?.type !== 'CallExpression') continue
-      const c = init.callee
-      const name = c.type === 'MemberExpression' ? c.property.name : c.name
-      if (name !== callee) continue
-      const arg = init.arguments[argIndex]
-      if (!arg) throw new Error(`No arg #${argIndex} for ${callee} in ${file}`)
-      return evalNode(arg)
-    }
-  }
-  throw new Error(`Could not find css.${callee}(...) export in ${file}`)
-}
-
-// Parse a plain-TS module's exported consts into {name: value} without needing
-// a TS loader — same approach as the raw.ts fallback below.
-async function parseModuleExports(file) {
-  const text = await readFile(file, 'utf8')
-  const ast = parse(text, {sourceType: 'module', plugins: ['typescript']})
-  const out = {}
-  for (const stmt of ast.program.body) {
-    if (stmt.type !== 'ExportNamedDeclaration') continue
-    const decl = stmt.declaration
-    if (decl?.type !== 'VariableDeclaration') continue
-    for (const declarator of decl.declarations) {
-      if (declarator.id.type !== 'Identifier') continue
-      out[declarator.id.name] = evalNode(declarator.init)
-    }
-  }
-  return out
-}
 
 const cases = [
   {
@@ -122,27 +37,15 @@ const cases = [
   },
 ]
 
-const rawModule = await import(pathToFileURL(join(srcDir, 'raw.ts')).href).catch(async () => {
+const rawModule = await import(pathToFileURL(join(srcDir, 'raw.ts')).href).catch(() =>
   // Plain TS import via dynamic import won't work without a loader; fall back to
   // text parse so this script doesn't need ts-node / tsx in the build env.
-  const text = await readFile(join(srcDir, 'raw.ts'), 'utf8')
-  const ast = parse(text, {sourceType: 'module', plugins: ['typescript']})
-  const out = {}
-  for (const stmt of ast.program.body) {
-    if (stmt.type !== 'ExportNamedDeclaration') continue
-    const decl = stmt.declaration
-    if (decl?.type !== 'VariableDeclaration') continue
-    for (const declarator of decl.declarations) {
-      if (declarator.id.type !== 'Identifier') continue
-      out[declarator.id.name] = evalNode(declarator.init)
-    }
-  }
-  return out
-})
+  parseModuleExports(join(srcDir, 'raw.ts')),
+)
 
 let failures = 0
 for (const c of cases) {
-  const fromCss = await extractCallArg(c.file, c.callee, c.argIndex)
+  const fromCss = extractCallArg(c.file, c.callee, c.argIndex)
   const fromRaw = rawModule[c.rawExport]
   if (!fromRaw) {
     console.error(`✗ raw.ts is missing export "${c.rawExport}"`)
@@ -165,7 +68,7 @@ for (const c of cases) {
 // keys.ts duplicates the defineVars scales as plain TS (unions + numeric
 // values); these checks keep that copy honest too.
 
-const keys = await parseModuleExports(join(srcDir, 'keys.ts'))
+const keys = parseModuleExports(join(srcDir, 'keys.ts'))
 
 // Compare a keys.ts numeric map against a css.ts defineVars literal whose
 // values are `${n}${unit}` strings, checking key sets (and order) plus values.
@@ -185,7 +88,7 @@ function checkScale(label, cssObj, pxObj, keyList, unit) {
   }
 }
 
-const spacingCss = await extractCallArg(
+const spacingCss = extractCallArg(
   join(srcDir, 'tokens', 'spacing.css.ts'),
   'defineVars',
   0,
@@ -193,15 +96,10 @@ const spacingCss = await extractCallArg(
 )
 checkScale('SPACING_PX', spacingCss, keys.SPACING_PX, keys.SPACING_KEYS, 'px')
 
-const radiiCss = await extractCallArg(
-  join(srcDir, 'tokens', 'spacing.css.ts'),
-  'defineVars',
-  0,
-  'radii',
-)
+const radiiCss = extractCallArg(join(srcDir, 'tokens', 'spacing.css.ts'), 'defineVars', 0, 'radii')
 checkScale('RADII_PX', radiiCss, keys.RADII_PX, keys.RADIUS_KEYS, 'px')
 
-const durationCss = await extractCallArg(
+const durationCss = extractCallArg(
   join(srcDir, 'tokens', 'motion.css.ts'),
   'defineVars',
   0,
@@ -209,7 +107,7 @@ const durationCss = await extractCallArg(
 )
 checkScale('DURATION_MS', durationCss, keys.DURATION_MS, null, 'ms')
 
-const shadowsCss = await extractCallArg(
+const shadowsCss = extractCallArg(
   join(srcDir, 'tokens', 'shadows.css.ts'),
   'defineVars',
   0,
@@ -225,6 +123,68 @@ const shadowsCss = await extractCallArg(
     console.log(`✓ SHADOW_KEYS matches`)
   }
 }
+
+// Compare a keys.ts map against a subset of a css.ts literal: every keys.ts
+// entry must exist in the literal with the value `format(n)` produces.
+function checkSubset(label, cssObj, keysObj, format) {
+  const missing = Object.keys(keysObj).filter((k) => !(k in cssObj))
+  const wrong = Object.entries(keysObj).filter(([k, v]) => k in cssObj && cssObj[k] !== format(v))
+  if (missing.length || wrong.length) {
+    console.error(`✗ drift: ${label} in keys.ts differs from its css.ts literal`)
+    for (const k of missing) console.error(`  ${k}: missing from css.ts`)
+    for (const [k, v] of wrong) console.error(`  ${k}: css.ts ${cssObj[k]} vs keys.ts ${format(v)}`)
+    failures++
+  } else {
+    console.log(`✓ ${label} matches`)
+  }
+}
+
+const breakpointsCss = extractCallArg(
+  join(srcDir, 'tokens', 'breakpoints.css.ts'),
+  'defineConsts',
+  0,
+  'breakpoints',
+)
+checkScale('BREAKPOINTS_PX', breakpointsCss, keys.BREAKPOINTS_PX, keys.BREAKPOINT_KEYS, 'px')
+{
+  const mirror = parseModuleExports(join(srcDir, 'tokens', 'breakpoints.css.ts')).breakpointsPx
+  const same = JSON.stringify(mirror) === JSON.stringify(keys.BREAKPOINTS_PX)
+  if (!same) {
+    console.error(
+      `✗ drift: breakpointsPx in breakpoints.css.ts differs from BREAKPOINTS_PX in keys.ts`,
+    )
+    failures++
+  } else {
+    console.log(`✓ breakpointsPx matches`)
+  }
+}
+
+const typographyCss = extractCallArg(
+  join(srcDir, 'tokens', 'typography.css.ts'),
+  'defineVars',
+  0,
+  'typography',
+)
+checkSubset('FONT_SIZE_REM', typographyCss, keys.FONT_SIZE_REM, (n) => `${n}rem`)
+checkSubset('FONT_WEIGHTS', typographyCss, keys.FONT_WEIGHTS, (n) => String(n))
+
+const typeScaleCss = extractCallArg(
+  join(srcDir, 'tokens', 'typography.css.ts'),
+  'defineVars',
+  0,
+  'typeScale',
+)
+checkSubset(
+  'TYPE_SCALE_FONT_SIZE_REM',
+  typeScaleCss,
+  keys.TYPE_SCALE_FONT_SIZE_REM,
+  (n) => `${n}rem`,
+)
+
+checkSubset('SHADOWS', shadowsCss, keys.SHADOWS, (s) => s)
+
+const easingCss = extractCallArg(join(srcDir, 'tokens', 'motion.css.ts'), 'defineVars', 0, 'easing')
+checkSubset('EASINGS', easingCss, keys.EASINGS, (s) => s)
 
 if (failures > 0) {
   console.error(

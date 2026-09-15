@@ -2294,13 +2294,18 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "CSS grid layout. Supports fixed column count (1-6) or responsive auto-fit via minColumnWidth.",
-        "example": "// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"280px\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>",
+        "description": "CSS grid layout. Fixed column count (1-6), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses below the md breakpoint.",
+        "example": "// Split: list ≥ 240px beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"280px\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>",
         "relatedTo": [
           {
             "component": "Stack",
             "kind": "contrast",
             "relationship": "Grid for multi-column layouts; Stack for a single vertical column"
+          },
+          {
+            "component": "split-pane",
+            "kind": "composition",
+            "relationship": "Grid layout=\"split\" with a List and a Panel is the split-pane recipe"
           }
         ],
         "whenNotToUse": [
@@ -2309,7 +2314,8 @@
         ],
         "whenToUse": [
           "Card grids, dashboard layouts, multi-column forms",
-          "Responsive layouts that should auto-adjust column count"
+          "Responsive layouts that should auto-adjust column count",
+          "A list/detail or nav/content screen — layout=\"split\" | \"split-wide\", never a hand-rolled gridTemplateColumns with its own @media"
         ]
       },
       "name": "Grid",
@@ -2339,6 +2345,12 @@
           "name": "minColumnWidth",
           "required": false,
           "type": "string"
+        },
+        {
+          "description": "A named responsive layout. `split` is list/detail (1:2, list ≥ 240px), `split-wide` is nav/content (1:3, nav ≥ 280px); both collapse to one column below the `md` breakpoint. Wins over `columns` / `minColumnWidth`.",
+          "name": "layout",
+          "required": false,
+          "type": "GridLayout"
         },
         {
           "name": "children",
@@ -3304,11 +3316,21 @@
             "component": "SideNav",
             "kind": "composition",
             "relationship": "Often placed alongside PageShell"
+          },
+          {
+            "component": "page-with-sidenav",
+            "kind": "composition",
+            "relationship": "PageShell with a SideNav rail is the page-with-sidenav recipe — copy it, do not lay it out by hand"
+          },
+          {
+            "component": "admin-detail-page",
+            "kind": "composition",
+            "relationship": "PageShell with a record heading and Tabs is the admin-detail-page recipe"
           }
         ],
         "whenNotToUse": [
           "Nested section layouts — use Stack or Card",
-          "Sidebar layouts — combine with SideNav manually"
+          "Sidebar layouts — start from the page-with-sidenav recipe (PageShell + Grid layout=\"split-wide\" + SideNav)"
         ],
         "whenToUse": [
           "Top-level page layout",
@@ -3840,6 +3862,11 @@
             "component": "PageShell",
             "kind": "composition",
             "relationship": "Often placed alongside PageShell"
+          },
+          {
+            "component": "page-with-sidenav",
+            "kind": "composition",
+            "relationship": "SideNav beside routed content is the page-with-sidenav recipe"
           }
         ],
         "whenNotToUse": [
@@ -4741,6 +4768,11 @@
             "component": "SideNav",
             "kind": "contrast",
             "relationship": "Tabs switch content in-place; SideNav navigates between pages"
+          },
+          {
+            "component": "admin-detail-page",
+            "kind": "composition",
+            "relationship": "Tabs as the facets of one record is the admin-detail-page recipe"
           }
         ],
         "whenNotToUse": [
@@ -6044,6 +6076,39 @@
         "Menu"
       ]
     },
+    "admin-detail-page": {
+      "export": "AdminDetailPageRecipe",
+      "meta": {
+        "description": "Admin detail page for one record: breadcrumb link, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape).",
+        "example": "<AdminDetailPageRecipe />",
+        "whenNotToUse": [
+          "One facet only — a PageShell with a Card is enough",
+          "A collection page — use the data-table or split-pane recipe"
+        ],
+        "whenToUse": [
+          "A record page with several facets — overview, members, approvals, audit",
+          "Any page that would otherwise stack every section into one long scroll"
+        ]
+      },
+      "name": "admin-detail-page",
+      "peerDeps": [],
+      "source": "import {PageShell, Tabs, Stack, Inline, Heading, Text, Badge, Button, LinkButton, Card, EmptyState} from '@duro-app/ui'\n\nfunction Header() {\n  return (\n    <Stack gap=\"sm\">\n      <LinkButton href=\"#applications\" variant=\"secondary\" size=\"small\">\n        ← Applications\n      </LinkButton>\n      <Inline gap=\"md\" align=\"center\" justify=\"between\">\n        <Inline gap=\"sm\" align=\"center\">\n          <Heading level={1}>Grafana</Heading>\n          <Badge variant=\"success\">active</Badge>\n        </Inline>\n        <Inline gap=\"sm\">\n          <Button variant=\"secondary\">Edit</Button>\n          <Button variant=\"danger\">Retire</Button>\n        </Inline>\n      </Inline>\n    </Stack>\n  )\n}\n\nexport function AdminDetailPageRecipe() {\n  return (\n    <PageShell maxWidth=\"lg\" padding=\"md\" header={<Header />}>\n      <Tabs.Root defaultValue=\"overview\">\n        <Tabs.List>\n          <Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n          <Tabs.Tab value=\"members\">Members</Tabs.Tab>\n          <Tabs.Tab value=\"approvals\">Approvals</Tabs.Tab>\n          <Tabs.Tab value=\"audit\">Audit</Tabs.Tab>\n        </Tabs.List>\n\n        <Tabs.Panel value=\"overview\">\n          <Stack gap=\"lg\">\n            <Card>\n              <Stack gap=\"sm\">\n                <Heading level={3}>About</Heading>\n                <Text color=\"muted\">\n                  Dashboards for the platform team. Owned by platform, reachable at grafana.example.\n                </Text>\n              </Stack>\n            </Card>\n            <Card>\n              <Stack gap=\"sm\">\n                <Heading level={3}>Access</Heading>\n                <Text>3 roles · 2 entitlements · 41 grants</Text>\n              </Stack>\n            </Card>\n          </Stack>\n        </Tabs.Panel>\n\n        <Tabs.Panel value=\"members\">\n          <EmptyState message=\"No members yet.\" action={<Button>Add member</Button>} />\n        </Tabs.Panel>\n        <Tabs.Panel value=\"approvals\">\n          <EmptyState message=\"Every grant is auto-approved. Add a gate to require a decision.\" />\n        </Tabs.Panel>\n        <Tabs.Panel value=\"audit\">\n          <EmptyState message=\"Nothing recorded for this application.\" />\n        </Tabs.Panel>\n      </Tabs.Root>\n    </PageShell>\n  )\n}\n",
+      "sourcePath": "docs/ai/recipes/admin-detail-page.recipe.tsx",
+      "title": "Admin Detail Page",
+      "usesComponents": [
+        "Badge",
+        "Button",
+        "Card",
+        "EmptyState",
+        "Heading",
+        "Inline",
+        "LinkButton",
+        "PageShell",
+        "Stack",
+        "Tabs",
+        "Text"
+      ]
+    },
     "data-table": {
       "export": "DataTableRecipe",
       "meta": {
@@ -6150,6 +6215,36 @@
         "Stack"
       ]
     },
+    "page-with-sidenav": {
+      "export": "PageWithSideNavRecipe",
+      "meta": {
+        "description": "Page with a side navigation rail: SideNav in the narrow column of Grid layout=\"split-wide\", the routed content in the wide one; the rail stacks above the content below the md breakpoint.",
+        "example": "<PageWithSideNavRecipe />",
+        "whenNotToUse": [
+          "Three or four destinations — Tabs inside a PageShell read better than a rail",
+          "The left column is data, not navigation — use the split-pane recipe"
+        ],
+        "whenToUse": [
+          "The admin or settings area of an app — several destinations, one shell",
+          "Anywhere PageShell + SideNav were about to be combined by hand"
+        ]
+      },
+      "name": "page-with-sidenav",
+      "peerDeps": [],
+      "source": "import {useState} from 'react'\nimport {Grid, PageShell, SideNav, Icon, Stack, Heading, Text, Card} from '@duro-app/ui'\n\nconst SECTIONS: Record<string, {title: string; body: string}> = {\n  identities: {title: 'Identities', body: 'People and service accounts known to the system.'},\n  grants: {title: 'Grants', body: 'Who holds what, and since when.'},\n  applications: {title: 'Applications', body: 'Everything access is granted to.'},\n  plugins: {title: 'Plugins', body: 'Push and pull connectors. Rarely visited, so it is a Group.'},\n}\n\nexport function PageWithSideNavRecipe() {\n  const [section, setSection] = useState('identities')\n  const current = SECTIONS[section] ?? SECTIONS.identities\n\n  return (\n    <PageShell maxWidth=\"lg\" padding=\"md\">\n      <Grid layout=\"split-wide\" gap=\"xl\">\n        <SideNav.Root value={section} onValueChange={setSection}>\n          <SideNav.Section label=\"People & access\">\n            <SideNav.Item value=\"identities\" icon={<Icon name=\"users\" size=\"md\" />}>\n              Identities\n            </SideNav.Item>\n            <SideNav.Item value=\"grants\" icon={<Icon name=\"key\" size=\"md\" />}>\n              Grants\n            </SideNav.Item>\n          </SideNav.Section>\n          <SideNav.Section label=\"Catalog\">\n            <SideNav.Item value=\"applications\" icon={<Icon name=\"box\" size=\"md\" />}>\n              Applications\n            </SideNav.Item>\n          </SideNav.Section>\n          <SideNav.Group label=\"Advanced\" defaultExpanded={false}>\n            <SideNav.Item value=\"plugins\" icon={<Icon name=\"plug\" size=\"md\" />}>\n              Plugins\n            </SideNav.Item>\n          </SideNav.Group>\n        </SideNav.Root>\n\n        <Stack gap=\"lg\">\n          <Heading level={1}>{current.title}</Heading>\n          <Card>\n            <Text color=\"muted\">{current.body}</Text>\n          </Card>\n        </Stack>\n      </Grid>\n    </PageShell>\n  )\n}\n",
+      "sourcePath": "docs/ai/recipes/page-with-sidenav.recipe.tsx",
+      "title": "Page With Sidenav",
+      "usesComponents": [
+        "Card",
+        "Grid",
+        "Heading",
+        "Icon",
+        "PageShell",
+        "SideNav",
+        "Stack",
+        "Text"
+      ]
+    },
     "settings-page": {
       "export": "SettingsPageRecipe",
       "meta": {
@@ -6185,6 +6280,38 @@
         "Tabs",
         "Text"
       ]
+    },
+    "split-pane": {
+      "export": "SplitPaneRecipe",
+      "meta": {
+        "description": "List/detail split: a selectable List beside a Panel showing the selection, on Grid layout=\"split\" (list ≥ 240px, one column below the md breakpoint).",
+        "example": "<SplitPaneRecipe />",
+        "whenNotToUse": [
+          "The detail is a short-lived inspection — use DetailPanel over the list instead",
+          "The left side is navigation, not data — use the page-with-sidenav recipe"
+        ],
+        "whenToUse": [
+          "A screen that browses a collection and inspects one item at a time (applications, identities, certificates)",
+          "Anywhere a hand-rolled gridTemplateColumns with its own @media is about to be written"
+        ]
+      },
+      "name": "split-pane",
+      "peerDeps": [],
+      "source": "import {useState} from 'react'\nimport {Grid, List, Panel, Stack, Inline, Heading, Text, Badge, Button, EmptyState} from '@duro-app/ui'\n\nconst ITEMS = [\n  {id: 'grafana', name: 'Grafana', owner: 'platform', status: 'active'},\n  {id: 'vault', name: 'Vault', owner: 'security', status: 'active'},\n  {id: 'legacy-crm', name: 'Legacy CRM', owner: 'sales', status: 'retiring'},\n] as const\n\nexport function SplitPaneRecipe() {\n  const [selected, setSelected] = useState<string | null>(ITEMS[0].id)\n  const item = ITEMS.find((candidate) => candidate.id === selected)\n\n  return (\n    <Grid layout=\"split\" gap=\"lg\">\n      <List.Root selectionMode=\"single\" aria-label=\"Applications\">\n        {ITEMS.map((candidate) => (\n          <List.Item\n            key={candidate.id}\n            selected={candidate.id === selected}\n            onClick={() => setSelected(candidate.id)}\n          >\n            <List.Content>\n              <List.Text>{candidate.name}</List.Text>\n              <List.Description>Owned by {candidate.owner}</List.Description>\n            </List.Content>\n            <List.Actions>\n              <Badge variant={candidate.status === 'active' ? 'success' : 'warning'}>\n                {candidate.status}\n              </Badge>\n            </List.Actions>\n          </List.Item>\n        ))}\n        <List.Empty>No applications.</List.Empty>\n      </List.Root>\n\n      <Panel.Root bordered>\n        {item ? (\n          <>\n            <Panel.Header>\n              <Heading level={2}>{item.name}</Heading>\n              <Inline gap=\"sm\">\n                <Button variant=\"secondary\" size=\"small\">\n                  Edit\n                </Button>\n                <Button variant=\"danger\" size=\"small\">\n                  Retire\n                </Button>\n              </Inline>\n            </Panel.Header>\n            <Panel.Body>\n              <Stack gap=\"md\">\n                <Text>\n                  Owner: <Text weight=\"medium\">{item.owner}</Text>\n                </Text>\n                <Text color=\"muted\">\n                  Everything about the selection lives here: fields, history, related records.\n                </Text>\n              </Stack>\n            </Panel.Body>\n          </>\n        ) : (\n          <Panel.Body>\n            <EmptyState message=\"Select an application to see its details.\" />\n          </Panel.Body>\n        )}\n      </Panel.Root>\n    </Grid>\n  )\n}\n",
+      "sourcePath": "docs/ai/recipes/split-pane.recipe.tsx",
+      "title": "Split Pane",
+      "usesComponents": [
+        "Badge",
+        "Button",
+        "EmptyState",
+        "Grid",
+        "Heading",
+        "Inline",
+        "List",
+        "Panel",
+        "Stack",
+        "Text"
+      ]
     }
   },
   "rules": {
@@ -6211,17 +6338,34 @@
         "severity": "warn"
       },
       {
-        "description": "Prefer design tokens over raw hex colors and px values in css.create styles",
+        "description": "Disallow raw px breakpoints in media-query strings; use breakpoints.<key>",
+        "fixable": "autofix",
+        "id": "duro/no-raw-breakpoint-query",
+        "messages": {
+          "rawBreakpointQuery": "{{value}}px is a raw breakpoint in a media query. Use `breakpoints.{{token}}` from @duro-app/tokens/tokens/breakpoints.css (the scale is {{scale}}px)."
+        },
+        "severity": "error"
+      },
+      {
+        "description": "Prefer design tokens over raw colors, lengths, breakpoints, type, shadows and motion in css.create styles",
         "fixable": "suggestion",
         "id": "duro/no-raw-design-values",
         "messages": {
+          "offScaleRadius": "{{value}} on `{{property}}` is off the radius scale ({{scale}}px). Use the nearest `radii.*` token from {{pkg}}/tokens/spacing.css, or disable this line with the reason.",
+          "offScaleSpacing": "{{value}} on `{{property}}` is off the spacing scale ({{scale}}px). Use the nearest `spacing.*` token from {{pkg}}/tokens/spacing.css, or disable this line with the reason.",
+          "rawBreakpoint": "{{value}}px in `{{key}}` is a raw breakpoint. Use `breakpoints.{{token}}` from {{pkg}}/tokens/breakpoints.css in a template-literal key (the scale is {{scale}}px).",
           "rawColor": "'{{value}}' is not in the palette. Use a semantic token from {{pkg}}/tokens/colors.css instead of a raw color.",
           "rawColorToken": "'{{value}}' is the {{token}} token. Use `colors.{{token}}` from {{pkg}}/tokens/colors.css so it follows the theme.",
+          "rawDuration": "'{{value}}' on `{{property}}` is a raw duration. Use `duration.{{token}}` from {{pkg}}/tokens/motion.css.",
+          "rawEasing": "'{{value}}' on `{{property}}` is a raw easing. Use `easing.{{token}}` from {{pkg}}/tokens/motion.css.",
+          "rawFontSize": "{{value}} on `fontSize` is the {{group}}.{{token}} token. Use it from {{pkg}}/tokens/typography.css.",
+          "rawFontWeight": "{{value}} on `fontWeight` is the typography.{{token}} token. Use it from {{pkg}}/tokens/typography.css.",
           "rawRadius": "{{value}} on `{{property}}` is the {{token}} radius token. Use `radii.{{token}}` from {{pkg}}/tokens/spacing.css.",
+          "rawShadow": "'{{value}}' on `boxShadow` is a raw shadow. Use `shadows.{{token}}` from {{pkg}}/tokens/shadows.css.",
           "rawSpacing": "{{value}} on `{{property}}` is the {{token}} spacing token. Use `spacing.{{token}}` from {{pkg}}/tokens/spacing.css.",
           "replaceWithToken": "Replace with {{replacement}}"
         },
-        "severity": "warn"
+        "severity": "error"
       },
       {
         "description": "Require react-strict-dom html.* elements instead of raw HTML JSX intrinsics",
@@ -6810,7 +6954,8 @@
         "exportName": "typography",
         "importPath": "@duro-app/tokens/tokens/typography.css"
       }
-    }
+    },
+    "mockupCss": "/*\n * GENERATED by scripts/generate-mockup-css.mjs — do not edit.\n *\n * The design tokens as resolved values, for HTML that loads no stylesheet\n * (mockup artboards, static previews). Same names as vars.css; where vars.css\n * follows the live theme, this file carries every theme and switches on\n * <html data-theme=\"light|high-contrast\">.\n *\n * Inside the component library and the apps, never use this: go through\n * css.create() and the token imports, or vars.css from plain CSS.\n */\n:root {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #6aaffc;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #0f0f0f;\n  --duro-color-bg-card: #1a1a1a;\n  --duro-color-bg-card-hover: #242424;\n  --duro-color-border: #333333;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.1);\n  --duro-color-error-border: rgba(248, 113, 113, 0.3);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-info: #6aaffc;\n  --duro-color-info-bg: rgba(106, 175, 252, 0.1);\n  --duro-color-info-border: rgba(106, 175, 252, 0.3);\n  --duro-color-info-text: #93c5fd;\n  --duro-color-success: #22c55e;\n  --duro-color-success-bg: rgba(34, 197, 94, 0.1);\n  --duro-color-success-border: rgba(34, 197, 94, 0.3);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #e5e5e5;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fbbf24;\n  --duro-color-warning-bg: rgba(251, 191, 36, 0.1);\n  --duro-color-warning-border: rgba(251, 191, 36, 0.3);\n  --duro-color-warning-text: #fde68a;\n  /* shadows */\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);\n  /* spacing */\n  --duro-spacing-lg: 24px;\n  --duro-spacing-md: 16px;\n  --duro-spacing-ms: 12px;\n  --duro-spacing-sm: 8px;\n  --duro-spacing-xl: 32px;\n  --duro-spacing-xs: 4px;\n  --duro-spacing-xxl: 48px;\n  --duro-spacing-xxxl: 64px;\n  /* radii */\n  --duro-radius-full: 9999px;\n  --duro-radius-lg: 16px;\n  --duro-radius-md: 12px;\n  --duro-radius-sm: 8px;\n  --duro-radius-xs: 4px;\n  /* layoutSpacing */\n  --duro-layout-spacing-container-lg: 32px;\n  --duro-layout-spacing-container-md: 24px;\n  --duro-layout-spacing-container-sm: 16px;\n  --duro-layout-spacing-inline-lg: 24px;\n  --duro-layout-spacing-inline-md: 16px;\n  --duro-layout-spacing-inline-sm: 8px;\n  --duro-layout-spacing-inline-xs: 4px;\n  --duro-layout-spacing-stack-lg: 24px;\n  --duro-layout-spacing-stack-md: 16px;\n  --duro-layout-spacing-stack-sm: 8px;\n  --duro-layout-spacing-stack-xl: 48px;\n  --duro-layout-spacing-stack-xs: 4px;\n  /* typography */\n  --duro-typography-font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n  --duro-typography-font-family-mono: \"SF Mono\", \"Fira Code\", \"Fira Mono\", \"Roboto Mono\", \"Courier New\", monospace;\n  --duro-typography-font-size-heading: 1.5rem;\n  --duro-typography-font-size-lg: 1.125rem;\n  --duro-typography-font-size-md: 1rem;\n  --duro-typography-font-size-sm: 0.875rem;\n  --duro-typography-font-size-xl: 1.25rem;\n  --duro-typography-font-size-xs: 0.75rem;\n  --duro-typography-font-weight-bold: 700;\n  --duro-typography-font-weight-medium: 500;\n  --duro-typography-font-weight-normal: 400;\n  --duro-typography-font-weight-semibold: 600;\n  --duro-typography-line-height: 1.5;\n  /* typeScale */\n  --duro-type-scale-display-lg: clamp(3.5rem, 2rem + 3.5vw, 4.5rem);\n  --duro-type-scale-display-md: clamp(2.75rem, 1.75rem + 2.5vw, 3.75rem);\n  --duro-type-scale-display-sm: clamp(2.25rem, 1.5rem + 2vw, 3rem);\n  --duro-type-scale-font-size1: 0.75rem;\n  --duro-type-scale-font-size2: 0.8125rem;\n  --duro-type-scale-font-size3: 0.875rem;\n  --duro-type-scale-font-size4: 1rem;\n  --duro-type-scale-font-size5: 1.125rem;\n  --duro-type-scale-font-size6: 1.25rem;\n  --duro-type-scale-font-size7: 1.5rem;\n  --duro-type-scale-font-size8: 1.875rem;\n  --duro-type-scale-font-size9: 2.25rem;\n  --duro-type-scale-letter-spacing-normal: 0;\n  --duro-type-scale-letter-spacing-tight: -0.02em;\n  --duro-type-scale-letter-spacing-wide: 0.04em;\n  --duro-type-scale-line-height1: 1rem;\n  --duro-type-scale-line-height2: 1.25rem;\n  --duro-type-scale-line-height3: 1.25rem;\n  --duro-type-scale-line-height4: 1.5rem;\n  --duro-type-scale-line-height5: 1.5rem;\n  --duro-type-scale-line-height6: 1.75rem;\n  --duro-type-scale-line-height7: 2rem;\n  --duro-type-scale-line-height8: 2.25rem;\n  --duro-type-scale-line-height9: 2.75rem;\n  /* duration */\n  --duro-duration-base: 200ms;\n  --duro-duration-fast: 150ms;\n  --duro-duration-instant: 0ms;\n  --duro-duration-slow: 280ms;\n  /* easing */\n  --duro-easing-ease-in: cubic-bezier(0.72, 0, 0.68, 0.28);\n  --duro-easing-ease-out: cubic-bezier(0.32, 0.72, 0, 1);\n  --duro-easing-standard: ease;\n  /* breakpoints */\n  --duro-breakpoint-lg: 1024px;\n  --duro-breakpoint-md: 768px;\n  --duro-breakpoint-sm: 640px;\n  --duro-breakpoint-xl: 1280px;\n  --duro-breakpoint-xs: 480px;\n}\n\n:root[data-theme=\"light\"] {\n  color-scheme: light;\n  /* colors */\n  --duro-color-accent: #1e40af;\n  --duro-color-accent-contrast: #ffffff;\n  --duro-color-accent-hover: #1a3799;\n  --duro-color-bg: #ffffff;\n  --duro-color-bg-card: #f5f5f5;\n  --duro-color-bg-card-hover: #ebebeb;\n  --duro-color-border: #d4d4d4;\n  --duro-color-error: #991b1b;\n  --duro-color-error-bg: rgba(153, 27, 27, 0.08);\n  --duro-color-error-border: rgba(153, 27, 27, 0.3);\n  --duro-color-error-contrast: #ffffff;\n  --duro-color-error-hover: #7f1d1d;\n  --duro-color-error-text: #7f1d1d;\n  --duro-color-info: #1e40af;\n  --duro-color-info-bg: rgba(30, 64, 175, 0.08);\n  --duro-color-info-border: rgba(30, 64, 175, 0.3);\n  --duro-color-info-text: #1e40af;\n  --duro-color-success: #166534;\n  --duro-color-success-bg: rgba(22, 101, 52, 0.08);\n  --duro-color-success-border: rgba(22, 101, 52, 0.3);\n  --duro-color-success-text: #14532d;\n  --duro-color-text: #1a1a1a;\n  --duro-color-text-muted: #4a4a4a;\n  --duro-color-warning: #92400e;\n  --duro-color-warning-bg: rgba(146, 64, 14, 0.08);\n  --duro-color-warning-border: rgba(146, 64, 14, 0.3);\n  --duro-color-warning-text: #78350f;\n  /* shadows */\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);\n}\n\n:root[data-theme=\"high-contrast\"] {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #60a5fa;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #000000;\n  --duro-color-bg-card: #111111;\n  --duro-color-bg-card-hover: #1a1a1a;\n  --duro-color-border: #555555;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.15);\n  --duro-color-error-border: rgba(248, 113, 113, 0.5);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-info: #60a5fa;\n  --duro-color-info-bg: rgba(96, 165, 250, 0.15);\n  --duro-color-info-border: rgba(96, 165, 250, 0.5);\n  --duro-color-info-text: #bfdbfe;\n  --duro-color-success: #4ade80;\n  --duro-color-success-bg: rgba(74, 222, 128, 0.15);\n  --duro-color-success-border: rgba(74, 222, 128, 0.5);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #ffffff;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fcd34d;\n  --duro-color-warning-bg: rgba(252, 211, 77, 0.15);\n  --duro-color-warning-border: rgba(252, 211, 77, 0.5);\n  --duro-color-warning-text: #fef08a;\n  /* shadows */\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6);\n}\n"
   },
   "unions": {
     "AlertVariant": [

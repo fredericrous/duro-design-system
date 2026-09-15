@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Badge} from './Badge'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Badge> = {
   title: 'Components/Badge',
@@ -52,8 +53,8 @@ export const Small: Story = {
 }
 
 const stackStyles = css.create({
-  row: {display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap'},
-  stack: {display: 'flex', flexDirection: 'column', gap: 16},
+  row: {display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap'},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md},
 })
 
 export const AllVariants: Story = {

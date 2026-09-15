@@ -4,13 +4,14 @@ import {runLookup} from './lookup.js'
 import {runList} from './list.js'
 import {cliVersion} from './manifest.js'
 import {renderComponent, renderRecipe} from '../format.js'
+import {checkArtboard} from './mockup.js'
 
 const INSTALL_HINT = `duro mcp needs @modelcontextprotocol/sdk (an optional peer).
   npm i -D @modelcontextprotocol/sdk
 or run it without installing:
   npx -y -p @duro-app/cli -p @modelcontextprotocol/sdk duro mcp`
 
-/** The three MCP tools, JSON Schemas hand-written (no zod dependency). */
+/** The MCP tools, JSON Schemas hand-written (no zod dependency). */
 export function toolDefinitions(registry: Registry) {
   return [
     {
@@ -49,6 +50,19 @@ export function toolDefinitions(registry: Registry) {
       description: 'The duro command spec plus all valid lookup names.',
       inputSchema: {type: 'object', properties: {}},
     },
+    {
+      name: 'duro_ds_mockup_check',
+      description:
+        'Check a mockup artboard (.dc.html source) against the design system: every colour, spacing, radius, font, shadow and duration must be a var(--duro-*) token, media queries must sit on the breakpoint scale, and every control must carry data-duro="<Component>" naming an @duro-app/ui component. Returns findings; an empty list means the artboard is a valid handoff contract.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          html: {type: 'string', description: 'The full artboard HTML'},
+          file: {type: 'string', description: 'A name for the findings, e.g. Main.dc.html'},
+        },
+        required: ['html'],
+      },
+    },
   ]
 }
 
@@ -82,6 +96,15 @@ export function callTool(registry: Registry, name: string, args: Record<string, 
     }
     case 'duro_ds_manifest':
       return {text: '', data: buildManifest(registry, cliVersion()), isError: false}
+    case 'duro_ds_mockup_check': {
+      const file = typeof args.file === 'string' ? args.file : 'artboard.dc.html'
+      const findings = checkArtboard(registry, file, String(args.html ?? ''))
+      const text =
+        findings.length === 0
+          ? `${file}: speaks tokens and names its components`
+          : findings.map((f) => `${f.file}:${f.line} ${f.rule}: ${f.message}`).join('\n')
+      return {text, data: {ok: findings.length === 0, findings}, isError: false}
+    }
     default:
       throw new Error(`unknown tool ${name}`)
   }

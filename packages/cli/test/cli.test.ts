@@ -8,6 +8,8 @@ import {loadRegistry, lookup} from '../src/registry.js'
 import {runLookup} from '../src/commands/lookup.js'
 import {runList} from '../src/commands/list.js'
 import {runManifest} from '../src/commands/manifest.js'
+import {runSkill} from '../src/commands/skill.js'
+import {SKILL, SKILL_PATH} from '../src/skill-template.js'
 import {runHook} from '../src/commands/hook.js'
 import {relatedPairs} from '../src/disambiguation.js'
 import {search} from '../src/search.js'
@@ -102,6 +104,21 @@ describe('command results', () => {
     }
   })
 
+  it('session-start leads with the screens table and points every layout at a recipe', () => {
+    const text = runHook(registry, 'session-start').text
+    const screens = text.indexOf('SCREENS — START FROM A RECIPE')
+    expect(screens).toBeGreaterThan(0)
+    expect(screens).toBeLessThan(text.indexOf(runList(registry).text))
+    for (const recipe of ['split-pane', 'admin-detail-page', 'page-with-sidenav']) {
+      expect(text).toContain(`  ${recipe}`)
+    }
+    const composition = relatedPairs(registry, 'composition')
+    const targets = composition.map((pair) => `${pair.a}+${pair.b}`)
+    expect(targets).toContain('PageShell+page-with-sidenav')
+    expect(targets).toContain('Grid+split-pane')
+    expect(targets).toContain('Tabs+admin-detail-page')
+  })
+
   it('session-start carries both tables, not just the index', () => {
     const text = runHook(registry, 'session-start').text
     expect(text).toContain('PICKING BETWEEN NEIGHBORS')
@@ -115,6 +132,7 @@ describe('command results', () => {
     const ok = runHook(registry, 'session-start')
     expect(ok.exitCode).toBeUndefined()
     expect(ok.text).toContain('hand-rolling')
+    expect(ok.text).toContain('/duro-mockup')
     expect(ok.text).toContain(runList(registry).text)
     expect(runHook(registry, 'nope').exitCode).toBe(2)
     expect(runHook(registry).exitCode).toBe(2)
@@ -140,6 +158,8 @@ describe('command results', () => {
       'lookup',
       'manifest',
       'mcp',
+      'mockup',
+      'skill',
     ])
   })
 })
@@ -279,5 +299,44 @@ describe('hook install', () => {
     const result = install(root)
     expect(result.exitCode).toBe(2)
     expect(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8')).toBe('{ not json')
+  })
+})
+
+describe('skill install', () => {
+  const repo = () => mkdtempSync(join(tmpdir(), 'duro-skill-'))
+  const install = (root: string, check = false) => runSkill('install', {cwd: root, check})
+
+  it('writes the skill file and nothing else', () => {
+    const root = repo()
+    const result = install(root)
+    expect(result.exitCode).toBeUndefined()
+    expect(readFileSync(join(root, SKILL_PATH), 'utf8')).toBe(SKILL)
+    expect(result.text).toContain('/duro-mockup')
+    expect(() => readFileSync(join(root, '.claude', 'settings.json'), 'utf8')).toThrow()
+  })
+
+  it('is idempotent, --check passes when wired and exits 1 when not or when edited', () => {
+    const root = repo()
+    expect(install(root, true).exitCode).toBe(1)
+    install(root)
+    expect(install(root).data).toMatchObject({changes: [{status: 'unchanged'}]})
+    expect(install(root, true).exitCode).toBeUndefined()
+    writeFileSync(join(root, SKILL_PATH), '# tampered\n')
+    const stale = install(root, true)
+    expect(stale.exitCode).toBe(1)
+    expect(stale.text).toContain('differs')
+    expect(readFileSync(join(root, SKILL_PATH), 'utf8')).toBe('# tampered\n')
+  })
+
+  it('refuses an unknown action', () => {
+    expect(runSkill('uninstall', {cwd: repo()}).exitCode).toBe(2)
+  })
+
+  it('the skill overrides the design skill and pins the CLI floor', () => {
+    expect(SKILL).toContain('name: duro-mockup')
+    expect(SKILL).toContain("overrides the `design` skill's step 0")
+    expect(SKILL).toContain('npx -y @duro-app/cli@^3.0.0 mockup check')
+    expect(SKILL).toContain('docs/mockups/<screen>')
+    expect(SKILL).toContain('Mockup: none')
   })
 })

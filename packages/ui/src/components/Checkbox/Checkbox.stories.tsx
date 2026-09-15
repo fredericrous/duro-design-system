@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Checkbox} from './Checkbox'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Checkbox> = {
   title: 'Components/Checkbox',
@@ -67,7 +68,7 @@ export const WithoutLabel: Story = {
 }
 
 const stackStyles = css.create({
-  stack: {display: 'flex', flexDirection: 'column', gap: 12},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.ms},
 })
 
 export const AllVariants: Story = {

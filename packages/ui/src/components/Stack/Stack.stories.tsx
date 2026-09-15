@@ -2,8 +2,9 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {css, html} from 'react-strict-dom'
 import {Stack} from './Stack'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {SPACING_KEYS} from '@duro-app/tokens/keys'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 const meta: Meta<typeof Stack> = {
   title: 'Layout/Stack',
@@ -28,12 +29,12 @@ const localStyles = css.create({
     backgroundColor: colors.accent,
     color: colors.accentContrast,
     padding: spacing.sm,
-    borderRadius: 4,
+    borderRadius: radii.xs,
     textAlign: 'center',
-    fontSize: '0.875rem',
+    fontSize: typography.fontSizeSm,
   },
   label: {
-    fontSize: '0.75rem',
+    fontSize: typography.fontSizeXs,
     color: colors.textMuted,
   },
 })

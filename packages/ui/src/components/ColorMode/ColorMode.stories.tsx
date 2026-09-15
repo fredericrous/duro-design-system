@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ColorModeProvider, ColorModeToggle, useColorMode} from './ColorMode'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof ColorModeToggle> = {
   title: 'Components/ColorMode',
@@ -58,7 +59,7 @@ export const AllModes: Story = {
 }
 
 const readout = css.create({
-  row: {display: 'flex', alignItems: 'center', gap: 12},
+  row: {display: 'flex', alignItems: 'center', gap: spacing.ms},
 })
 
 function Readout() {

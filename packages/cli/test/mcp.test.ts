@@ -5,12 +5,32 @@ import {toolDefinitions, callTool, toolResponse} from '../src/commands/mcp.js'
 const registry = loadRegistry()
 
 describe('mcp tools', () => {
-  it('exposes exactly the three read surfaces', () => {
+  it('exposes exactly the read surfaces and the artboard check', () => {
     expect(toolDefinitions(registry).map((tool) => tool.name)).toEqual([
       'duro_ds_lookup',
       'duro_ds_list',
       'duro_ds_manifest',
+      'duro_ds_mockup_check',
     ])
+  })
+
+  it('duro_ds_mockup_check reports findings for a raw artboard and none for a token one', () => {
+    const raw = callTool(registry, 'duro_ds_mockup_check', {
+      html: '<style>.a{color:#fff;padding:8px}</style><div class="a"></div>',
+      file: 'Raw.dc.html',
+    })
+    expect(raw.isError).toBe(false)
+    const rawData = raw.data as {ok: boolean; findings: {rule: string}[]}
+    expect(rawData.ok).toBe(false)
+    expect(rawData.findings.map((f) => f.rule)).toEqual(
+      expect.arrayContaining(['raw-color', 'raw-length', 'no-component-map']),
+    )
+    expect(raw.text).toContain('Raw.dc.html:1')
+
+    const clean = callTool(registry, 'duro_ds_mockup_check', {
+      html: '<style>.a{color:var(--duro-color-text);padding:var(--duro-spacing-sm)}</style><button class="a" data-duro="Button">Go</button>',
+    })
+    expect((clean.data as {ok: boolean}).ok).toBe(true)
   })
 
   it('duro_ds_lookup returns structured entries and search fallback', () => {

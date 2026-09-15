@@ -3,9 +3,10 @@ import {css, html} from 'react-strict-dom'
 import {Grid} from './Grid'
 import {Stack} from '../Stack/Stack'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {SPACING_KEYS} from '@duro-app/tokens/keys'
 import {useContainerQuery} from '../../hooks/useContainerQuery'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 const meta: Meta<typeof Grid> = {
   title: 'Layout/Grid',
@@ -20,6 +21,7 @@ const meta: Meta<typeof Grid> = {
       options: [1, 2, 3, 4, 5, 6],
     },
     minColumnWidth: {control: 'text'},
+    layout: {control: 'select', options: [undefined, 'split', 'split-wide']},
   },
 }
 
@@ -31,12 +33,12 @@ const localStyles = css.create({
     backgroundColor: colors.accent,
     color: colors.accentContrast,
     padding: spacing.md,
-    borderRadius: 4,
+    borderRadius: radii.xs,
     textAlign: 'center',
-    fontSize: '0.875rem',
+    fontSize: typography.fontSizeSm,
   },
   label: {
-    fontSize: '0.75rem',
+    fontSize: typography.fontSizeXs,
     color: colors.textMuted,
   },
 })
@@ -80,6 +82,24 @@ export const TwoColumns: Story = {
       <Cell>Left</Cell>
       <Cell>Right</Cell>
     </Grid>
+  ),
+}
+
+export const Split: Story = {
+  render: () => (
+    <Stack gap="sm">
+      <html.span style={localStyles.label}>
+        layout=&quot;split&quot; — list ≥ 240px beside the detail, one column below md
+      </html.span>
+      <Grid layout="split" gap="lg">
+        <Cell>list</Cell>
+        <Cell>detail</Cell>
+      </Grid>
+      <Grid layout="split-wide" gap="lg">
+        <Cell>nav</Cell>
+        <Cell>content</Cell>
+      </Grid>
+    </Stack>
   ),
 }
 

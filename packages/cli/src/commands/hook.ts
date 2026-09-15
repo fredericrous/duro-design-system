@@ -30,6 +30,9 @@ const PREAMBLE = [
   'says what already wraps what, so you never rebuild it. Details:',
   'duro <Component> (props+usage) · duro <recipe> --source-only ·',
   'duro spacing|icons|rules.',
+  'A new screen, page or UI proposal starts with the /duro-mockup skill',
+  '(duro skill install if this repo lacks it): token-seeded artboards,',
+  'checked, then implemented from their component map.',
 ].join('\n')
 
 export interface HookOptions {
@@ -61,6 +64,7 @@ export function runHook(
   const composition = relatedPairs(registry, 'composition')
   const sections = [
     PREAMBLE,
+    renderScreens(registry),
     list.text,
     renderPairs(contrast, 'PICKING BETWEEN NEIGHBORS', 'vs'),
     renderPairs(composition, 'COMPOSE — DO NOT HAND-ROLL THE WRAPPER', '+'),
@@ -69,6 +73,23 @@ export function runHook(
     text: sections.join('\n\n'),
     data: {preamble: PREAMBLE, entries: list.data, contrast, composition},
   }
+}
+
+/**
+ * Recipes are in the index too, but buried under 65 components. A screen
+ * starts from one of these before any grid is hand-rolled, so they lead.
+ */
+function renderScreens(registry: Registry): string {
+  const entries = Object.entries(registry.recipes).sort(([a], [b]) => a.localeCompare(b))
+  if (entries.length === 0) return ''
+  const width = Math.max(...entries.map(([name]) => name.length)) + 2
+  const rows = entries.map(([name, entry]) => `  ${name.padEnd(width)}${entry.meta.description}`)
+  return [
+    `SCREENS — START FROM A RECIPE (${entries.length})`,
+    'A new screen copies the closest recipe (duro <recipe> --source-only) and',
+    'edits it; a hand-rolled page layout needs a reason in the PR.',
+    ...rows,
+  ].join('\n')
 }
 
 type HookEntry = {type?: string; command?: string}

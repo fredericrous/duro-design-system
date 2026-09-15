@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Input} from './Input'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Input> = {
   title: 'Components/Input',
@@ -66,7 +67,7 @@ export const Disabled: Story = {
 }
 
 const stackStyles = css.create({
-  stack: {display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 320},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.ms, maxWidth: 320},
 })
 
 export const AllVariants: Story = {

@@ -3,6 +3,7 @@ import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ToggleGroup} from './ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof ToggleGroup> = {
   title: 'Components/ToggleGroup',
@@ -125,7 +126,7 @@ export const Vertical: Story = {
 }
 
 const stackStyles = css.create({
-  stack: {display: 'flex', flexDirection: 'column', gap: 16},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md},
 })
 
 export const AllVariants: Story = {

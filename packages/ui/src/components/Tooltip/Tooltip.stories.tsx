@@ -3,6 +3,7 @@ import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Tooltip} from './Tooltip'
 import {Badge} from '../Badge/Badge'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta = {
   title: 'Components/Tooltip',
@@ -31,8 +32,8 @@ const centerStyles = css.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 80,
-    gap: 24,
+    padding: spacing.xxxl,
+    gap: spacing.lg,
   },
 })
 

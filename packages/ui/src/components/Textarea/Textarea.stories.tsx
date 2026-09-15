@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Textarea} from './Textarea'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Textarea> = {
   title: 'Components/Textarea',
@@ -59,7 +60,7 @@ export const CustomRows: Story = {
 }
 
 const stackStyles = css.create({
-  stack: {display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 320},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.ms, maxWidth: 320},
 })
 
 export const AllVariants: Story = {

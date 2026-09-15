@@ -7,6 +7,7 @@ import {Stack} from '../components/Stack/Stack'
 import {Text} from '../components/Text/Text'
 import {Heading} from '../components/Heading/Heading'
 import {TypeScaleTable} from './helpers'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 const meta: Meta = {
   title: 'Foundations/Typography',
@@ -171,7 +172,7 @@ const localStyles = css.create({
     maxWidth: 720,
   },
   hint: {
-    fontSize: '0.75rem',
+    fontSize: typography.fontSizeXs,
     color: colors.textMuted,
     fontStyle: 'italic',
   },
@@ -180,7 +181,7 @@ const localStyles = css.create({
     fontSize: '0.6875rem',
     fontFamily: 'monospace',
     color: colors.textMuted,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   gridContainer: {
     position: 'relative',
@@ -189,7 +190,7 @@ const localStyles = css.create({
     height: 24,
     borderBottomWidth: 1,
     borderBottomStyle: 'dashed',
-    borderBottomColor: 'rgba(0,0,0,0.08)',
+    borderBottomColor: colors.border,
   },
   gridOverlay: {
     position: 'absolute',

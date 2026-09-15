@@ -4,7 +4,7 @@ import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ThemeProvider, type ThemeName} from './ThemeProvider'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii} from '@duro-app/tokens/tokens/spacing.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 
@@ -18,26 +18,26 @@ type Story = StoryObj<typeof ThemeProvider>
 
 const sampleStyles = css.create({
   container: {
-    padding: 24,
+    padding: spacing.lg,
     backgroundColor: colors.bg,
     color: colors.text,
     borderRadius: radii.md,
     fontFamily: typography.fontFamily,
   },
   card: {
-    padding: 16,
+    padding: spacing.md,
     backgroundColor: colors.bgCard,
     borderWidth: 1,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.md,
     boxShadow: shadows.md,
-    marginBottom: 12,
+    marginBottom: spacing.ms,
   },
   title: {
     fontSize: typography.fontSizeLg,
     fontWeight: typography.fontWeightSemibold,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   muted: {
     color: colors.textMuted,
@@ -49,7 +49,7 @@ const sampleStyles = css.create({
   },
   row: {
     display: 'flex',
-    gap: 16,
+    gap: spacing.md,
     flexWrap: 'wrap',
   },
   swatch: {
@@ -126,7 +126,7 @@ export const HighContrast: Story = {
 const sideBySideStyles = css.create({
   wrapper: {
     display: 'flex',
-    gap: 24,
+    gap: spacing.lg,
     flexWrap: 'wrap',
   },
   column: {
@@ -136,8 +136,8 @@ const sideBySideStyles = css.create({
   label: {
     fontSize: typography.fontSizeSm,
     fontWeight: typography.fontWeightSemibold,
-    marginBottom: 8,
-    color: '#888',
+    marginBottom: spacing.sm,
+    color: colors.textMuted,
   },
 })
 

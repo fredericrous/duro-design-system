@@ -54,6 +54,34 @@ Severity is the one gating line: `error` gates at commit and CI, `warn`
 informs everywhere. Don't add `--max-warnings=0` — promote a rule to
 `error` here instead if it earns gating.
 
+### Adopting 3.0 with existing debt
+
+3.0 promotes `duro/no-raw-design-values` to `error` and adds
+`duro/no-raw-breakpoint-query`. A repo that already carries raw values keeps
+the gate for every **new** file and ratchets the old ones down with an
+explicit file list — never a glob, never `--max-warnings`:
+
+```js
+// eslint.duro-baseline.js — delete a line when its file is migrated. Never add one.
+export const RAW_VALUES_BASELINE = [
+  'app/routes/legacy-dashboard.tsx',
+  'app/components/OldChart/OldChart.tsx',
+]
+```
+
+```js
+// eslint.config.js — after the presets, so last-wins downgrades only these
+import {RAW_VALUES_BASELINE} from './eslint.duro-baseline.js'
+export default [
+  ...react,
+  {files: RAW_VALUES_BASELINE, rules: {'duro/no-raw-design-values': 'warn'}},
+]
+```
+
+Most findings carry a suggestion; the ESLint API can apply them in bulk
+(`message.suggestions[0].fix`). What is left is the handful that need a
+human choice — an off-palette color, an off-scale spacing.
+
 ## Escape hatches
 
 Flat config is last-wins — scope an override after the preset:

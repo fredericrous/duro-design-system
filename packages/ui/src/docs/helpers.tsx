@@ -2,17 +2,18 @@ import {css, html} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {typography, typeScale} from '@duro-app/tokens/tokens/typography.css'
 import {Table} from '../components/Table/Table'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const styles = css.create({
   bar: {
     height: 12,
-    borderRadius: 2,
+    borderRadius: radii.xs,
     backgroundColor: colors.accent,
   },
   label: {
-    fontSize: '1rem',
-    fontWeight: 600,
-    marginBottom: 4,
+    fontSize: typography.fontSizeMd,
+    fontWeight: typography.fontWeightSemibold,
+    marginBottom: spacing.xs,
   },
   mono: {
     fontFamily: 'monospace',

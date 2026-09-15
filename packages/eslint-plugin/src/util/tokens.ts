@@ -34,6 +34,13 @@ export const TOKEN_DEEP_PATHS: Record<string, string> = {
   DurationToken: 'keys',
   ICON_SIZES: 'keys',
   IconSize: 'keys',
+  BREAKPOINT_KEYS: 'keys',
+  BREAKPOINTS_PX: 'keys',
+  FONT_SIZE_REM: 'keys',
+  FONT_WEIGHTS: 'keys',
+  TYPE_SCALE_FONT_SIZE_REM: 'keys',
+  SHADOWS: 'keys',
+  EASINGS: 'keys',
   ColorToken: 'keys',
   RawColors: 'raw',
   darkColors: 'raw',
@@ -129,6 +136,73 @@ export const COLOR_TOKENS: Record<string, string> = {
   'rgba(96, 165, 250, 0.5)': 'infoBorder',
   '#bfdbfe': 'infoText',
 }
+
+/** px value → breakpoint token name (`breakpoints.md` is the '768px' const). */
+export const BREAKPOINT_TOKENS_BY_PX: Record<number, string> = {
+  480: 'xs',
+  640: 'sm',
+  768: 'md',
+  1024: 'lg',
+  1280: 'xl',
+}
+
+/**
+ * rem value → font-size token. Built from typeScale.fontSize1..9 first, then
+ * typography.fontSize* on top — so a size both scales carry suggests the
+ * named `typography` token, and only the steps typography lacks (13px, 30px,
+ * 36px) fall back to the numbered typeScale one.
+ */
+export const FONT_SIZE_TOKENS_BY_REM: Record<number, {group: string; token: string}> = {
+  0.75: {group: 'typography', token: 'fontSizeXs'},
+  0.8125: {group: 'typeScale', token: 'fontSize2'},
+  0.875: {group: 'typography', token: 'fontSizeSm'},
+  1: {group: 'typography', token: 'fontSizeMd'},
+  1.125: {group: 'typography', token: 'fontSizeLg'},
+  1.25: {group: 'typography', token: 'fontSizeXl'},
+  1.5: {group: 'typography', token: 'fontSizeHeading'},
+  1.875: {group: 'typeScale', token: 'fontSize8'},
+  2.25: {group: 'typeScale', token: 'fontSize9'},
+}
+
+/** numeric weight → typography token. */
+export const FONT_WEIGHT_TOKENS: Record<number, string> = {
+  400: 'fontWeightNormal',
+  500: 'fontWeightMedium',
+  600: 'fontWeightSemibold',
+  700: 'fontWeightBold',
+}
+
+/** Shadow value (base palette, whitespace-normalized) → shadows token. */
+export const SHADOW_TOKENS: Record<string, string> = {
+  '02px4pxrgba(0,0,0,0.3)': 'sm',
+  '04px12pxrgba(0,0,0,0.4)': 'md',
+  '08px24pxrgba(0,0,0,0.5)': 'lg',
+}
+
+/** ms value → duration token. */
+export const DURATION_TOKENS_BY_MS: Record<number, string> = {
+  0: 'instant',
+  150: 'fast',
+  200: 'base',
+  280: 'slow',
+}
+
+/** Easing value (whitespace-normalized) → easing token. */
+export const EASING_TOKENS: Record<string, string> = {
+  ease: 'standard',
+  'cubic-bezier(0.32,0.72,0,1)': 'easeOut',
+  'cubic-bezier(0.72,0,0.68,0.28)': 'easeIn',
+}
+
+/** Collapse whitespace so `rgba(0, 0, 0, .3)` and `rgba(0,0,0,.3)` compare equal. */
+export function normalizeValue(value: string): string {
+  return value.trim().replace(/\s+/g, '')
+}
+
+/** COLOR_TOKENS keyed by normalized value, so rgba() entries are reachable. */
+export const COLOR_TOKENS_NORMALIZED: Record<string, string> = Object.fromEntries(
+  Object.entries(COLOR_TOKENS).map(([value, token]) => [normalizeValue(value), token]),
+)
 
 /** Expand #abc / #abcd to the 6/8-digit form, lowercased. */
 export function normalizeHex(hex: string): string {
