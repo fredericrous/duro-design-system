@@ -140,6 +140,7 @@ describe('command results', () => {
       'lookup',
       'manifest',
       'mcp',
+      'mockup',
     ])
   })
 })

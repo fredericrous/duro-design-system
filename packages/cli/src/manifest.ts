@@ -99,8 +99,42 @@ export const COMMANDS: CommandSpec[] = [
     examples: ['duro hook session-start', 'duro hook install', 'duro hook install --check'],
   },
   {
+    name: 'mockup',
+    summary:
+      'Token-seeded mockup artboards: seed writes a .dc.html whose only design vocabulary is the resolved token block; check refuses raw colours/values and controls that name no component',
+    args: [
+      {
+        name: 'action',
+        required: true,
+        description: 'seed (write <Name>.dc.html) | check <file.dc.html>... (exit 1 on findings)',
+        valuesFrom: 'mockupActions',
+      },
+    ],
+    flags: [
+      {name: 'out', type: 'string', description: 'seed: directory (default docs/mockups/<name>)'},
+      {name: 'name', type: 'string', description: 'seed: artboard stem (default Main)'},
+      {
+        name: 'theme',
+        type: 'string',
+        description: 'seed: dark (default) | light | high-contrast — sets <html data-theme>',
+      },
+    ],
+    returns: {
+      shape: '{ok: boolean, path: string} | {ok: boolean, findings: Finding[]}',
+      description:
+        'seed: where it wrote. check: {file, line, rule, message} per finding — raw-color, raw-length, raw-breakpoint, unknown-component, no-component-map, unannotated-control',
+    },
+    examples: [
+      'duro mockup seed --name Main --out docs/mockups/approvals',
+      'duro mockup check docs/mockups/approvals/*.dc.html',
+      'duro mockup check Main.dc.html --json',
+    ],
+    mcpTool: 'duro_ds_mockup_check',
+  },
+  {
     name: 'mcp',
-    summary: 'Run a stdio MCP server exposing duro_ds_lookup / duro_ds_list / duro_ds_manifest',
+    summary:
+      'Run a stdio MCP server exposing duro_ds_lookup / duro_ds_list / duro_ds_manifest / duro_ds_mockup_check',
     args: [],
     flags: [],
     returns: {shape: 'never', description: 'Serves until stdin closes'},
@@ -127,6 +161,7 @@ export function buildManifest(registry: Registry, version: string) {
       names: lookupNames(registry),
       kinds: ['components', 'recipes', 'tokens'],
       events: ['session-start', 'install'],
+      mockupActions: ['seed', 'check'],
     },
   }
 }
