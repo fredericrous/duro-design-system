@@ -96,6 +96,27 @@ describe('token drift', () => {
       expect(asMap(groups.motion)[`duration.${token}`]).toBe(`${ms}ms`)
     }
   })
+  it('mockupCss resolves the palette for every theme under the vars.css names', () => {
+    const css = registry.tokens.mockupCss
+    // One block per theme, each carrying the palette as literals, not var().
+    for (const selector of [
+      ':root {',
+      ':root[data-theme="light"] {',
+      ':root[data-theme="high-contrast"] {',
+    ]) {
+      const start = css.indexOf(selector)
+      expect(start, `${selector} block missing`).toBeGreaterThanOrEqual(0)
+      const block = css.slice(start, css.indexOf('\n}', start))
+      expect(block).toMatch(/--duro-color-bg: #[0-9a-f]{6};/)
+      expect(block).toMatch(/--duro-shadow-sm: 0 /)
+      expect(block).not.toContain('var(--')
+    }
+    // Scales are declared once and match the group values.
+    for (const [token, px] of Object.entries(SPACING_PX)) {
+      expect(css).toContain(`--duro-spacing-${token}: ${px}px;`)
+    }
+    expect(css).toContain('--duro-breakpoint-md: 768px;')
+  })
   it('every group import path is a real tokens exports key', () => {
     const tokensPkg = JSON.parse(
       readFileSync(new URL('../../tokens/package.json', import.meta.url), 'utf8'),
