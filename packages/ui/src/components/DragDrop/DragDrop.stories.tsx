@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn} from 'storybook/test'
-import {useState} from 'react'
+import {expect, fn, waitFor} from 'storybook/test'
+import {StrictMode, useState} from 'react'
 import {css, html} from 'react-strict-dom'
 import {DragDrop, type DragDropEvent} from './DragDrop'
 import {Button} from '../Button/Button'
@@ -219,18 +219,39 @@ export const TouchBurstAfterHold: Story = {
           ),
         )
       }
-      await new Promise((r) => requestAnimationFrame(() => r(null)))
-      // Checkpoint: the burst alone must have activated the drag.
-      await expect(canvas.getByRole('status')).toHaveTextContent('Picked up Noor.')
+      // Checkpoint: the burst alone must have activated the drag. The update
+      // came from a native event, so React flushes it on its own task.
+      await waitFor(() => expect(canvas.getByRole('status')).toHaveTextContent('Picked up Noor.'))
       document.dispatchEvent(new PointerEvent('pointerup', init(ex, ey, 0)))
     } finally {
       window.setTimeout = original
     }
-    // The release came from a native event; React flushes it asynchronously.
-    await new Promise((r) => setTimeout(r, 50))
-    await expect(canvas.getByRole('status')).toHaveTextContent('Dropped Noor in Gates.')
+    await waitFor(() =>
+      expect(canvas.getByRole('status')).toHaveTextContent('Dropped Noor in Gates.'),
+    )
     await expect(args.onDrop).toHaveBeenCalledTimes(1)
     await expect(canvas.queryByRole('button', {name: 'Noor'})).toBeNull()
+  },
+}
+
+/** onDrop runs from the release handler, not from a state updater, so
+ *  StrictMode's double-invoked updaters cannot fire it twice. */
+export const StrictModeDropsOnce: Story = {
+  args: {onDrop: fn()},
+  render: (args) => (
+    <StrictMode>
+      <Board onDrop={args.onDrop as never} />
+    </StrictMode>
+  ),
+  play: async ({canvas, args}) => {
+    const marie = await canvas.findByRole('button', {name: 'Marie'})
+    const gatesZone = canvas.getByText('Drop a person here.')
+    await pointerDrag(marie.parentElement as Element, gatesZone)
+    await waitFor(() =>
+      expect(canvas.getByRole('status')).toHaveTextContent('Dropped Marie in Gates.'),
+    )
+    await expect(args.onDrop).toHaveBeenCalledTimes(1)
+    await expect(canvas.queryByRole('button', {name: 'Marie'})).toBeNull()
   },
 }
 
