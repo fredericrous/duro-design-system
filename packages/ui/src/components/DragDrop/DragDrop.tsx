@@ -69,6 +69,8 @@ interface ItemRecord {
 interface DragSession {
   readonly id: string
   readonly pointerId: number
+  /** Event time of the press, for judging the touch hold by timestamps. */
+  readonly downAt: number
   readonly startX: number
   readonly startY: number
   readonly offsetX: number
@@ -241,6 +243,7 @@ function Root<T = unknown>({onDrop, announce, children}: DragDropRootProps<T>) {
       const s: DragSession = {
         id,
         pointerId: e.pointerId,
+        downAt: e.timeStamp,
         startX: e.clientX,
         startY: e.clientY,
         offsetX: e.clientX - rect.left,
@@ -280,12 +283,25 @@ function Root<T = unknown>({onDrop, announce, children}: DragDropRootProps<T>) {
       if (!s.active) {
         const moved = Math.hypot(e.clientX - s.startX, e.clientY - s.startY)
         if (e.pointerType === 'touch') {
-          // Moved before the hold elapsed: this is a scroll, not a drag.
-          if (moved > MOVE_THRESHOLD_PX) finish(false)
-          return
+          // The hold is judged by event time, not by the timer having fired:
+          // a busy main thread (seen on iOS Safari) can withhold the timer
+          // AND every pointermove until the finger lifts, then deliver them
+          // in one burst. Since touch-action:none keeps the browser from
+          // panning on the item, a move stream that arrives at all is ours;
+          // the hold only separates a drag from a quick flick.
+          if (e.timeStamp - s.downAt >= TOUCH_HOLD_MS) {
+            if (s.holdTimer) clearTimeout(s.holdTimer)
+            s.holdTimer = null
+            activate(s, s.startX, s.startY)
+          } else {
+            // Moved before the hold elapsed: a flick, not a drag.
+            if (moved > MOVE_THRESHOLD_PX) finish(false)
+            return
+          }
+        } else {
+          if (moved < MOVE_THRESHOLD_PX) return
+          activate(s, e.clientX, e.clientY)
         }
-        if (moved < MOVE_THRESHOLD_PX) return
-        activate(s, e.clientX, e.clientY)
       }
       if (frame.current !== null) return
       frame.current = requestAnimationFrame(() => {
@@ -437,6 +453,20 @@ function Item<T = unknown>({
     if (!el || isNative) return
     return registerItem(id, {el, zone, data, label, preview: preview ?? children})
   }, [id, zone, data, label, preview, children, registerItem])
+
+  // WebKit only honours the prefixed user-select, and a touch held on
+  // selectable text becomes iOS's selection gesture (loupe and handles)
+  // before our hold can turn it into a drag; the callout is the same race
+  // for links and images. StyleX emits neither prefixed property and
+  // react-strict-dom's types have no vendor keys, so they are set on the
+  // element directly. Both inherit into the item's children.
+  useEffect(() => {
+    const el = ref.current
+    if (!el || isNative) return
+    const style = el.style as CSSStyleDeclaration & {webkitTouchCallout?: string}
+    style.webkitUserSelect = 'none'
+    style.webkitTouchCallout = 'none'
+  }, [])
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {

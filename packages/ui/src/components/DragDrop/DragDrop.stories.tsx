@@ -175,6 +175,65 @@ export const TouchHoldThenDrag: Story = {
   },
 }
 
+/**
+ * iOS Safari under load: the hold timer never fires while the finger is down
+ * and every pointermove arrives in one burst just before pointerup. The hold
+ * is judged by event timestamps, so the drag still activates and drops.
+ */
+export const TouchBurstAfterHold: Story = {
+  args: {onDrop: fn()},
+  render: (args) => <Board onDrop={args.onDrop as never} />,
+  play: async ({canvas, args}) => {
+    const noor = await canvas.findByRole('button', {name: 'Noor'})
+    const gatesZone = canvas.getByText('Drop a person here.')
+    // Swallow the component's hold timer for the duration of the gesture.
+    const original = window.setTimeout.bind(window)
+    window.setTimeout = ((fn: TimerHandler, ms?: number, ...rest: unknown[]) =>
+      ms === 180 ? 0 : original(fn, ms, ...rest)) as typeof window.setTimeout
+    try {
+      const a = (noor.parentElement as Element).getBoundingClientRect()
+      const b = gatesZone.getBoundingClientRect()
+      const init = (x: number, y: number, buttons = 1) => ({
+        bubbles: true,
+        cancelable: true,
+        pointerId: 8,
+        pointerType: 'touch',
+        isPrimary: true,
+        button: 0,
+        buttons,
+        clientX: x,
+        clientY: y,
+      })
+      ;(noor.parentElement as Element).dispatchEvent(
+        new PointerEvent('pointerdown', init(a.left + a.width / 2, a.top + a.height / 2)),
+      )
+      await new Promise((r) => original(r, 300))
+      // The whole move stream lands at once, then the release.
+      const ex = b.left + b.width / 2
+      const ey = b.top + b.height / 2
+      for (let i = 1; i <= 4; i++) {
+        document.dispatchEvent(
+          new PointerEvent(
+            'pointermove',
+            init(a.left + ((ex - a.left) * i) / 4, a.top + ((ey - a.top) * i) / 4),
+          ),
+        )
+      }
+      await new Promise((r) => requestAnimationFrame(() => r(null)))
+      // Checkpoint: the burst alone must have activated the drag.
+      await expect(canvas.getByRole('status')).toHaveTextContent('Picked up Noor.')
+      document.dispatchEvent(new PointerEvent('pointerup', init(ex, ey, 0)))
+    } finally {
+      window.setTimeout = original
+    }
+    // The release came from a native event; React flushes it asynchronously.
+    await new Promise((r) => setTimeout(r, 50))
+    await expect(canvas.getByRole('status')).toHaveTextContent('Dropped Noor in Gates.')
+    await expect(args.onDrop).toHaveBeenCalledTimes(1)
+    await expect(canvas.queryByRole('button', {name: 'Noor'})).toBeNull()
+  },
+}
+
 /** A plain click on an item still reaches the button inside: no drag starts
  *  under the movement threshold. */
 export const TapStaysAClick: Story = {
