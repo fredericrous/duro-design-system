@@ -20,6 +20,13 @@ export {Checkbox} from './components/Checkbox/Checkbox'
 export {CheckboxGroup} from './components/CheckboxGroup/CheckboxGroup'
 export {ColorInput} from './components/ColorInput/ColorInput'
 export {ConfirmDialog} from './components/ConfirmDialog/ConfirmDialog'
+export {
+  DragDrop,
+  useDragDrop,
+  type DragDropEvent,
+  type DragDropItemData,
+  type DragDropTarget,
+} from './components/DragDrop/DragDrop'
 export {Dialog, type DialogSize} from './components/Dialog/Dialog'
 export {DetailPanel, type DetailPanelSize} from './components/DetailPanel/DetailPanel'
 export {Drawer, type DrawerAnchor, type DrawerSize} from './components/Drawer/Drawer'
