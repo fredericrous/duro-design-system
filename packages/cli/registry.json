@@ -1743,6 +1743,152 @@
       "props": null,
       "sourcePath": "packages/ui/src/components/Dialog/Dialog.tsx"
     },
+    "DragDrop": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "required": [
+            "Root",
+            "Zone",
+            "Item"
+          ]
+        },
+        "description": "Move items between zones with one pointer — mouse, pen and touch through the same pointer-event path (touch holds briefly, then drags; a moving touch stays a scroll). A ghost follows the pointer, the zone under it lights up, and the Root announces picks and drops to screen readers. Dragging is pointer-only by design: keep a button or remove affordance that does the same thing.",
+        "example": "<DragDrop.Root onDrop={({item, target}) => move(item.id, target.zone, target.index)}>\n  <DragDrop.Zone id=\"roster\" label=\"Roster\">\n    <Cluster gap=\"sm\">\n      {people.map((p) => (\n        <DragDrop.Item key={p.id} id={p.id} zone=\"roster\" label={p.name} data={p}>\n          <Button variant=\"secondary\" size=\"small\" onClick={() => slot(p)}>{p.name}</Button>\n        </DragDrop.Item>\n      ))}\n    </Cluster>\n  </DragDrop.Zone>\n  <DragDrop.Zone id=\"gates\" label=\"Gates\" orientation=\"horizontal\">\n    <Inline gap=\"sm\">\n      {gates.map((g) => (\n        <DragDrop.Item key={g.id} id={g.id} zone=\"gates\" label={g.name} data={g}>\n          <Tag removable onRemove={() => unslot(g)}>{g.name}</Tag>\n        </DragDrop.Item>\n      ))}\n    </Inline>\n  </DragDrop.Zone>\n</DragDrop.Root>",
+        "relatedTo": [
+          {
+            "component": "Tag",
+            "kind": "composition",
+            "relationship": "A removable Tag inside an Item gives the drop target its non-drag remove path"
+          },
+          {
+            "component": "ScrollArea",
+            "kind": "contrast",
+            "relationship": "ScrollArea drags a thumb along one axis; DragDrop moves items between zones"
+          }
+        ],
+        "whenNotToUse": [
+          "As the ONLY way to do something — every drag needs a tap/click equivalent (WCAG 2.5.7); this component does not provide one",
+          "Long lists that scroll while dragging — the ghost follows the pointer but zones do not auto-scroll",
+          "Sorting tabular data — sort the Table instead",
+          "React Native — Item renders its children without drag behaviour there"
+        ],
+        "whenToUse": [
+          "Slotting things into places — people into approval gates, cards into columns, files into folders",
+          "Reordering a short row or list when the order is visible and meaningful"
+        ]
+      },
+      "name": "DragDrop",
+      "parts": {
+        "Item": {
+          "name": "Item",
+          "props": [
+            {
+              "name": "id",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "The zone this item currently lives in.",
+              "name": "zone",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "Read to screen readers when picked up or dropped.",
+              "name": "label",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "Carried to onDrop untouched.",
+              "name": "data",
+              "required": false,
+              "type": "T"
+            },
+            {
+              "description": "What follows the pointer; defaults to the children.",
+              "name": "preview",
+              "required": false,
+              "type": "ReactNode"
+            },
+            {
+              "default": "false",
+              "name": "disabled",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/DragDrop/DragDrop.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [
+            {
+              "description": "Called when an item is released over a zone that accepts it. Reordering inside the item's own zone arrives here too, with the new index.",
+              "name": "onDrop",
+              "required": true,
+              "type": "(event: DragDropEvent<T>) => void"
+            },
+            {
+              "description": "Overrides the default screen-reader announcements.",
+              "name": "announce",
+              "required": false,
+              "type": "(event: {kind: 'pick' | 'drop' | 'cancel'; item: string; zone?: string}) => string"
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/DragDrop/DragDrop.tsx"
+        },
+        "Zone": {
+          "name": "Zone",
+          "props": [
+            {
+              "name": "id",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "Read to screen readers when an item is dropped here.",
+              "name": "label",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": "'horizontal'",
+              "description": "Which axis items flow along; decides how the insertion index is read from the pointer.",
+              "name": "orientation",
+              "required": false,
+              "type": "'horizontal' | 'vertical'"
+            },
+            {
+              "description": "Refuse an item; the zone then never lights up for it.",
+              "name": "accepts",
+              "required": false,
+              "type": "(item: DragDropItemData<T>) => boolean"
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/DragDrop/DragDrop.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/DragDrop/DragDrop.tsx"
+    },
     "Drawer": {
       "importPath": "@duro-app/ui",
       "kind": "compound",
@@ -5877,6 +6023,46 @@
       "name": "useDataTable",
       "props": [],
       "sourcePath": "packages/ui/src/components/Table/useDataTable.ts"
+    },
+    "useDragDrop": {
+      "importPath": "@duro-app/ui",
+      "kind": "hook",
+      "meta": {
+        "anatomy": {
+          "required": [
+            "Root",
+            "Zone",
+            "Item"
+          ]
+        },
+        "description": "Move items between zones with one pointer — mouse, pen and touch through the same pointer-event path (touch holds briefly, then drags; a moving touch stays a scroll). A ghost follows the pointer, the zone under it lights up, and the Root announces picks and drops to screen readers. Dragging is pointer-only by design: keep a button or remove affordance that does the same thing.",
+        "example": "<DragDrop.Root onDrop={({item, target}) => move(item.id, target.zone, target.index)}>\n  <DragDrop.Zone id=\"roster\" label=\"Roster\">\n    <Cluster gap=\"sm\">\n      {people.map((p) => (\n        <DragDrop.Item key={p.id} id={p.id} zone=\"roster\" label={p.name} data={p}>\n          <Button variant=\"secondary\" size=\"small\" onClick={() => slot(p)}>{p.name}</Button>\n        </DragDrop.Item>\n      ))}\n    </Cluster>\n  </DragDrop.Zone>\n  <DragDrop.Zone id=\"gates\" label=\"Gates\" orientation=\"horizontal\">\n    <Inline gap=\"sm\">\n      {gates.map((g) => (\n        <DragDrop.Item key={g.id} id={g.id} zone=\"gates\" label={g.name} data={g}>\n          <Tag removable onRemove={() => unslot(g)}>{g.name}</Tag>\n        </DragDrop.Item>\n      ))}\n    </Inline>\n  </DragDrop.Zone>\n</DragDrop.Root>",
+        "relatedTo": [
+          {
+            "component": "Tag",
+            "kind": "composition",
+            "relationship": "A removable Tag inside an Item gives the drop target its non-drag remove path"
+          },
+          {
+            "component": "ScrollArea",
+            "kind": "contrast",
+            "relationship": "ScrollArea drags a thumb along one axis; DragDrop moves items between zones"
+          }
+        ],
+        "whenNotToUse": [
+          "As the ONLY way to do something — every drag needs a tap/click equivalent (WCAG 2.5.7); this component does not provide one",
+          "Long lists that scroll while dragging — the ghost follows the pointer but zones do not auto-scroll",
+          "Sorting tabular data — sort the Table instead",
+          "React Native — Item renders its children without drag behaviour there"
+        ],
+        "whenToUse": [
+          "Slotting things into places — people into approval gates, cards into columns, files into folders",
+          "Reordering a short row or list when the order is visible and meaningful"
+        ]
+      },
+      "name": "useDragDrop",
+      "props": [],
+      "sourcePath": "packages/ui/src/components/DragDrop/DragDrop.tsx"
     },
     "usePortalMount": {
       "importPath": "@duro-app/ui",

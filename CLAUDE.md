@@ -164,6 +164,7 @@ These components **must** be wrapped in their `.Root`:
 | **DetailPanel** | Non-modal side panel for right-side inspection | compound: Body, Close, Content, Footer, Header, … |
 | **Diagram** | Root SVG canvas for a static diagram | `width`, `height`, `title` |
 | **Dialog** | Modal dialog with backdrop overlay | compound: Body, Close, Description, Footer, Header, … |
+| **DragDrop** | Move items between zones with one pointer — mouse, pen and touch through the same pointer-event path (touch holds briefly, then drags; a moving touch stays a scroll) | compound: Item, Root, Zone |
 | **Drawer** | Modal sliding panel from a screen edge (right, left, or bottom) | compound: Body, Close, Description, Footer, Header, … |
 | **EmptyState** | Placeholder for empty content areas | `message`, `icon`, `action` |
 | **Field** | Compound form field with label, description, and error display | compound: Description, Error, Label, Root |
