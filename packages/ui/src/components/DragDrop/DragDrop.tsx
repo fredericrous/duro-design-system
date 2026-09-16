@@ -188,8 +188,12 @@ function Root<T = unknown>({onDrop, announce, children}: DragDropRootProps<T>) {
     return null
   }, [])
 
+  // `target` is the resolved drop target (null cancels). The consumer's
+  // onDrop runs here, in the event handler, never inside a state updater:
+  // React may call an updater more than once and forbids updating another
+  // component from it.
   const finish = useCallback(
-    (dropped: boolean) => {
+    (target: DragDropTarget | null) => {
       const s = session.current
       if (!s) return
       if (s.holdTimer) clearTimeout(s.holdTimer)
@@ -202,17 +206,14 @@ function Root<T = unknown>({onDrop, announce, children}: DragDropRootProps<T>) {
         // already released
       }
       if (!s.active) return
-      setDrag((current) => {
-        const target = current?.over ?? null
-        const item = items.current.get(s.id)
-        if (dropped && target && item) {
-          onDrop({item: {id: s.id, zone: item.zone, data: item.data as T}, target})
-          say('drop', s.id, target.zone)
-        } else {
-          say('cancel', s.id)
-        }
-        return null
-      })
+      const item = items.current.get(s.id)
+      setDrag(null)
+      if (target && item) {
+        onDrop({item: {id: s.id, zone: item.zone, data: item.data as T}, target})
+        say('drop', s.id, target.zone)
+      } else {
+        say('cancel', s.id)
+      }
     },
     [onDrop, say],
   )
@@ -295,7 +296,7 @@ function Root<T = unknown>({onDrop, announce, children}: DragDropRootProps<T>) {
             activate(s, s.startX, s.startY)
           } else {
             // Moved before the hold elapsed: a flick, not a drag.
-            if (moved > MOVE_THRESHOLD_PX) finish(false)
+            if (moved > MOVE_THRESHOLD_PX) finish(null)
             return
           }
         } else {
@@ -319,19 +320,15 @@ function Root<T = unknown>({onDrop, announce, children}: DragDropRootProps<T>) {
       const s = session.current
       if (!s || e.pointerId !== s.pointerId) return
       // Resolve the target from the release point, not the last frame.
-      if (s.active) {
-        const over = locate(s.id, e.clientX, e.clientY)
-        setDrag((current) => (current ? {...current, over} : current))
-      }
-      finish(true)
+      finish(s.active ? locate(s.id, e.clientX, e.clientY) : null)
     }
     const onCancel = (e: PointerEvent) => {
       const s = session.current
       if (!s || e.pointerId !== s.pointerId) return
-      finish(false)
+      finish(null)
     }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && session.current) finish(false)
+      if (e.key === 'Escape' && session.current) finish(null)
     }
     document.addEventListener('pointermove', onMove)
     document.addEventListener('pointerup', onUp)
