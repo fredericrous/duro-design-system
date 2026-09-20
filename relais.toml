@@ -1,0 +1,89 @@
+schema_version = 1
+
+# Profiles the router selects among. Explicit model IDs keep policies
+# reproducible; the effective model is recorded on every dispatch.
+[models.research]
+id = "haiku"
+
+[models.implementation]
+id = "sonnet"
+effort = "medium"
+
+[models.escalation]
+id = "fable"
+effort = "medium"
+
+[execution]
+max_attempts = 3
+max_repairs_before_escalation = 1
+max_wall_seconds = 1200
+allow_nested_agents = true
+max_agent_depth = 3
+max_agents_total = 24
+
+# How much context one worker prompt may carry: objective, acceptance
+# criteria, architectural constraints and entry points together. A task
+# whose package does not fit is a sizing problem — split it — and never a
+# silently truncated prompt (SPEC §7). This is executable authority: it
+# is hashed into the trust grant, so raising it is reviewed.
+# [context]
+# budget_bytes = 65536
+
+# required blocks execution when missing; optional gaps are reported and
+# never counted as passed checks. `off` is not checked at all, and
+# `relais doctor` says which of the three each one is.
+[integrations]
+aval = "required"
+amont = "required"
+amont_agent = "required"
+
+[[verification.profiles.default.commands]]
+argv = ["pnpm", "run", "typecheck"]
+timeout_seconds = 900
+
+[[verification.profiles.default.commands]]
+argv = ["pnpm", "exec", "vitest", "run", "--project=unit"]
+timeout_seconds = 900
+
+# A candidate that touches what the profile's verdict depends on — build
+# manifests, lockfiles, the test tree, fixtures, or a program the profile
+# runs — is reviewed explicitly whatever the route said (SPEC §10). The
+# built-in list covers the common ones; add this repository's own here.
+# [verification.profiles.default]
+# inputs = ["scripts/check.sh", "ci/**"]
+# amont check IDs this profile requires to be in force. Left empty, every
+# check the inventory reports as in force at `block` severity is required.
+# amont_checks = ["pre-push-cargo-test"]
+# Bypasses and severity downgrades this profile accepts. A bypassed or
+# downgraded check cannot fail the gate, so by default it is a
+# verification GAP and the run ends needs_decision (SPEC §10). Listing an
+# ID here is a reviewed waiver in policy — the run can never grant one.
+# amont_waivers = ["pre-push-cargo-test"]
+# Cache baseline results by base SHA, profile and toolchain (SPEC §18).
+# Off by default: only a profile with no undeclared external dependency
+# and no nondeterministic check is safe to cache.
+# cache_baseline = true
+
+# Risk floors: writes touching these patterns cannot route below the
+# minimum tier, and the review requirement here is a floor, not a hint.
+# Floors apply to the DECLARED scope, over-approximated: a contract
+# scoped `src/**` COULD write `src/trust/x`, so a `**/trust/**` rule
+# floors it. That is why no rule ships enabled. A leading-`**` pattern
+# matches every scope that ends in `**`, which is nearly every ordinary
+# contract, so one such rule pins the whole repository to the escalation
+# tier with mandatory review and the cheap tiers become unreachable.
+#
+# Write rules against the real directories instead of a `**` prefix
+# (`crates/relais/src/trust/**`, not `**/trust/**`), and scope contracts
+# as narrowly as the task allows.
+# [[risk]]
+# paths = ["crates/*/src/trust/**", "crates/*/src/restore/**"]
+# minimum_tier = "escalation"
+# review = "required"
+
+# Path-to-aval-key mappings. aval resolves exact keys; it has no
+# source-impact analysis, so the mapping lives here (SPEC §7).
+# [[architecture.mapping]]
+# paths = ["crates/**"]
+# keys = ["storage.object-store"]
+# scope = "default"
