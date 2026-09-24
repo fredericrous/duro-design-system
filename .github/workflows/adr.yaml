@@ -1,0 +1,77 @@
+name: ADR
+
+# A separate workflow rather than a job in ci.yaml, deliberately. This job's
+# `AVAL_VERSION` changes on every aval release, and the main CI has suites of
+# its own to pay for. Keeping the ADR check apart means a pin bump costs
+# seconds and queues nothing else.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  adr:
+    name: architecture decisions resolve
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The local gate reports a GAP rather than blocking when the binary is
+      # absent, which is correct — a command that never ran has judged nothing.
+      # That is why this job is not redundant: a contributor without `aval`
+      # installed is waved through locally and must still be unable to merge a
+      # corpus that no longer resolves.
+      - name: Ensure aval
+        env:
+          AVAL_VERSION: 1.7.1
+        run: |
+          set -euo pipefail
+          # The baked binary is an optimisation, not the pin. Accepting whatever
+          # the runner image happens to carry meant a version bump was silently
+          # ignored until the image rebuilt — which is how a 0.3.1 pin once ran
+          # 0.2.0 and reported the projection stale.
+          have=""
+          if command -v aval > /dev/null 2>&1; then
+            have="$(aval --version 2>/dev/null | awk '{print $2}')"
+          fi
+          if [ "$have" = "$AVAL_VERSION" ]; then
+            aval --version
+            exit 0
+          fi
+          echo "::warning::runner carries aval ${have:-none}, this repository pins ${AVAL_VERSION} — downloading it"
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL --retry 3 --retry-delay 5 --retry-all-errors \
+            "https://github.com/fredericrous/aval/releases/download/v${AVAL_VERSION}/aval-${AVAL_VERSION}-x86_64-unknown-linux-gnu.tar.gz" \
+            | tar xz -C "$RUNNER_TEMP/bin" --strip-components=1 \
+                "aval-${AVAL_VERSION}-x86_64-unknown-linux-gnu/aval"
+          chmod +x "$RUNNER_TEMP/bin/aval"
+          # GITHUB_PATH applies to LATER steps only.
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/bin/aval" --version
+
+      # This repository keeps no records of its own: every decision it answers
+      # from is vendored. What this proves is that the vendored pack still
+      # parses and that nothing here contradicts it.
+      - name: aval check
+        run: aval check
+
+      # The areas above are a reviewed declaration of which parts of this
+      # repository are a command line or a UI; they decide which fleet rules
+      # the session hook shows. This says when a package stops matching them
+      # (exit 1) or could not be inspected (exit 3). Detection is advisory: a
+      # false positive belongs under `disclaims:` in .adr.yaml.
+      - name: The declared areas still describe the repository
+        run: aval traits --check
+
+      # A stale `.claude/hooks/aval-heads.sh` injects last release's preamble
+      # into every session and nothing else would say so.
+      - name: The session hook is wired and current
+        run: aval hook install --check
