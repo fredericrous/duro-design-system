@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "sh .claude/hooks/aval-heads.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}

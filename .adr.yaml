@@ -1,0 +1,33 @@
+# The decision registry for duro-design-system.
+#
+# This repository declares no architectural questions of its own yet: every
+# decision it lives under is a FLEET decision, made once in the `decisions`
+# repository and vendored below. A record here deciding one of their slots
+# would be a contradiction, not an override.
+#
+# `aval add github:fredericrous/decisions` refreshes the pack; nothing tells
+# this repository when a fleet decision changes, so `aval add --check` asks.
+
+packs:
+  - .adr/packs/decisions.pack
+
+# No scopes and no keys of this repository's own: everything answerable here
+# comes from the pack. Declare a key here the day this repository has a
+# question the fleet does not answer.
+scopes: []
+keys:
+
+# Which parts of this repository have which traits (aval 1.7, SEMANTICS
+# section 2.5), as `aval traits --detect` proposed and a reviewer accepted.
+# Rules about a trait not named here are left out of the session hook and
+# counted; `aval rules --all-traits` lists them. `aval traits --check`, run
+# by this repository's gate, reports a package this stops describing.
+areas:
+  # cli: packages/cli/package.json — a `bin` entry
+  packages/cli/**: [cli]
+  # ui: packages/diagrams/package.json — `react` in dependencies
+  packages/diagrams/**: [ui]
+  # ui: packages/ui-email/package.json — `react` in dependencies
+  packages/ui-email/**: [ui]
+  # ui: packages/ui/package.json — `react` in dependencies
+  packages/ui/**: [ui]
