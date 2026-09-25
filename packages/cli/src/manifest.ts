@@ -157,6 +157,26 @@ export const COMMANDS: CommandSpec[] = [
     mcpTool: 'duro_ds_mockup_check',
   },
   {
+    name: 'doctor',
+    summary:
+      "Check how the app in the cwd wires @duro-app/ui into its build: runtimeInjection left on, unlayered StyleX extraction, the stylesheet missing from the entry, layers declared out of order, unlayered resets. Each one flattens component spacing while the design system's own CSS is fine",
+    args: [],
+    flags: [
+      {
+        name: 'session',
+        type: 'boolean',
+        description:
+          'SessionStart mode: silent when healthy, an agent-facing block otherwise, always exit 0',
+      },
+    ],
+    returns: {
+      shape: '{ok: boolean, findings: DoctorFinding[], checked: string[]}',
+      description:
+        '{rule, severity, file, line?, message, fix} per finding — runtime-injection, layered-extraction, css-imported, css-load-order, unlayered-reset, version-skew. Exit 1 on any error',
+    },
+    examples: ['duro doctor', 'duro doctor --json', 'duro doctor --session'],
+  },
+  {
     name: 'mcp',
     summary:
       'Run a stdio MCP server exposing duro_ds_lookup / duro_ds_list / duro_ds_manifest / duro_ds_mockup_check',

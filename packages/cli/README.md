@@ -109,11 +109,11 @@ npx -y @duro-app/cli hook install --check  # CI: exit 1 if it drifted
 
 `install` is idempotent, and touches exactly three files:
 
-| File                            | What install does                                                                                                                                                                                                     |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.claude/hooks/duro-catalog.sh` | Writes the generated hook: fetches the catalog, caches it for 7 days (npx resolution dominates session start; the catalog only changes on upgrade), stays silent when offline with no cache.                          |
-| `.claude/settings.json`         | Adds the `SessionStart` entry. Existing hooks, permissions and skill overrides are preserved; a hand-renamed duro command is migrated in place rather than duplicated. Unparseable JSON is reported, never clobbered. |
-| `.gitignore`                    | Ignores `.claude/.duro-session.cache*` — a glob, because a hook killed mid-`npx` leaves the staging `.tmp` behind.                                                                                                    |
+| File                            | What install does                                                                                                                                                                                                                                                                         |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.claude/hooks/duro-catalog.sh` | Writes the generated hook: fetches the catalog, caches it for 7 days (npx resolution dominates session start; the catalog only changes on upgrade), stays silent when offline with no cache. Then runs [`duro doctor --session`](#duro-doctor), re-run only when a file it reads changes. |
+| `.claude/settings.json`         | Adds the `SessionStart` entry. Existing hooks, permissions and skill overrides are preserved; a hand-renamed duro command is migrated in place rather than duplicated. Unparseable JSON is reported, never clobbered.                                                                     |
+| `.gitignore`                    | Ignores `.claude/.duro-session.cache*` — a glob, because a hook killed mid-`npx` leaves the staging `.tmp` behind.                                                                                                                                                                        |
 
 Do not hand-edit the generated script — `--check` is a byte comparison, so an
 edit shows up as drift and the next `install` overwrites it. **Repo-specific
@@ -129,12 +129,46 @@ hand-roll widgets the DS ships.
 ```
 
 Wire `--check` into the repo's lint or CI job to catch a stale hook after a
-CLI upgrade. The generated script pins `@duro-app/cli@^3.0.0` — a floating
+CLI upgrade. The generated script pins `@duro-app/cli@^3.4.0` — a floating
 pin, so patch releases never read as drift, but a **floor**: a repo whose
 script still pins `^1.2.0` never resolves a 2.x or 3.x payload and never sees
 what the session-start injection gained since. After a major, re-run
 `hook install` in every consumer and delete `.claude/.duro-session.cache*`
 (the payload is cached seven days).
+
+## duro doctor
+
+The design system's stylesheet is layered: `reset`, then StyleX's
+`priority1`…`priority5`, so a component's `padding-left` beats the reset's
+`padding: 0`. An app can break that without touching a component, and the
+symptom is always the same — buttons, inputs and page wrappers rendered with
+almost no padding while `@duro-app/ui`'s CSS is fine. `duro doctor` checks the
+app's wiring, statically, from its package root (or a repo root: it follows
+pnpm/npm workspaces, else looks one directory down):
+
+| Rule                 | Severity | What breaks                                                                                                                                                                                          |
+| -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `runtime-injection`  | error    | `runtimeInjection: true` in a vite/babel config. StyleX injects react-strict-dom's element reset into an unlayered `<style>`, and unlayered beats every layer. A warning in `vitest.*` (jsdom only). |
+| `layered-extraction` | error    | `useCSSLayers: false` in postcss.config: the app's extracted rules — react-strict-dom's reset included — land unlayered.                                                                             |
+| `css-imported`       | error    | The entry (`app/root.tsx`, `src/main.tsx`, …) never imports `@duro-app/ui/dist/index.css`. The JavaScript does not load it; components render unstyled.                                              |
+| `css-load-order`     | error    | A stylesheet declares the `priority*` layers before `reset`. The first declaration fixes layer order for the page, which puts the reset on top.                                                      |
+| `unlayered-reset`    | warn     | `* { padding: 0 }` (or on `button`, `input`, `main`, …) outside any `@layer` in the app's own CSS.                                                                                                   |
+| `version-skew`       | warn     | The installed `@duro-app/ui` is not the version this CLI checks.                                                                                                                                     |
+
+It exits 1 on any error, so it gates. Two places run it, and a consuming repo
+wires both:
+
+- **Every agent session** — the [session hook](#claude-code-session-hook)
+  runs `doctor --session`, which prints nothing when the repo is healthy and
+  an agent-facing block when it is not. `hook install` wires it.
+- **Every commit that touches the wiring** — an [amont](https://github.com/fredericrous/amont)
+  row in `amont.conf`. Add any custom config file the app has (a
+  `vite.strict-dom.ts`) to the scope:
+
+```
+# stage     name         scope                                                                                                          severity  command
+pre-commit  duro-doctor  *.css,package.json,root.tsx,main.tsx,vite.config.ts,vitest.config.ts,postcss.config.js,postcss.config.mjs,babel.config.js  block     npx -y @duro-app/cli@^3.4.0 doctor
+```
 
 ## Mockups that speak the design system
 
