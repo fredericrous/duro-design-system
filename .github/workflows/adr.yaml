@@ -31,7 +31,7 @@ jobs:
       # corpus that no longer resolves.
       - name: Ensure aval
         env:
-          AVAL_VERSION: 1.7.1
+          AVAL_VERSION: 1.8.0
         run: |
           set -euo pipefail
           # The baked binary is an optimisation, not the pin. Accepting whatever
