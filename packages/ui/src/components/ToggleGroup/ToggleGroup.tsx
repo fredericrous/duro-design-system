@@ -3,6 +3,7 @@ import {html} from 'react-strict-dom'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import type {ToggleSize} from '../Toggle/Toggle'
 import {ToggleGroupContext, type Orientation} from './ToggleGroupContext'
+import {useFieldGroupLabelling} from '../Field/FieldContext'
 import {styles} from './styles.css'
 
 interface ToggleGroupProps {
@@ -20,6 +21,11 @@ interface ToggleGroupProps {
   orientation?: Orientation
   /** Size applied to all child toggles. */
   size?: ToggleSize
+  /** Accessible name when the group is not inside a Field.Root (inside one,
+   *  the Field.Label names it). */
+  'aria-label'?: string
+  /** id of the element that names the group, when not inside a Field.Root. */
+  'aria-labelledby'?: string
   children: ReactNode
 }
 
@@ -32,7 +38,9 @@ export function ToggleGroup({
   orientation = 'horizontal',
   size = 'default',
   children,
+  ...labelling
 }: ToggleGroupProps) {
+  const a11y = useFieldGroupLabelling(labelling)
   const [value, setValue] = useControllableValue(controlledValue, defaultValue, onValueChange)
 
   const toggle = useCallback(
@@ -54,6 +62,7 @@ export function ToggleGroup({
       <html.div
         role="toolbar"
         aria-orientation={orientation}
+        {...a11y}
         style={[styles.root, orientation === 'vertical' && styles.vertical]}
       >
         {children}
@@ -61,3 +70,6 @@ export function ToggleGroup({
     </ToggleGroupContext.Provider>
   )
 }
+
+// inside a Field.Root, the label names this group (see Field's `group`)
+ToggleGroup.isFieldGroup = true as const

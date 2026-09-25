@@ -6,6 +6,7 @@ export const meta: ComponentMeta = {
   whenToUse: [
     'Any form input that needs a label and/or error message',
     'Standalone labeled input (without Form) with manual error display',
+    'A labelled GROUP of controls (ToggleGroup, CheckboxGroup, RadioGroup): the label names the group via aria-labelledby — detected for a direct child, `group` for a nested one',
   ],
   whenNotToUse: ['Bare input without label — use Input directly (rare)'],
   anatomy: {
@@ -21,6 +22,21 @@ export const meta: ComponentMeta = {
     {component: 'Input', kind: 'composition', relationship: 'Place Input inside Field.Root'},
     {component: 'Textarea', kind: 'composition', relationship: 'Place Textarea inside Field.Root'},
     {component: 'Select', kind: 'composition', relationship: 'Place Select inside Field.Root'},
+    {
+      component: 'ToggleGroup',
+      kind: 'composition',
+      relationship: 'Inside Field.Root the Field.Label names the group',
+    },
+    {
+      component: 'CheckboxGroup',
+      kind: 'composition',
+      relationship: 'Inside Field.Root the Field.Label names the group',
+    },
+    {
+      component: 'RadioGroup',
+      kind: 'composition',
+      relationship: 'Inside Field.Root the Field.Label names the group',
+    },
   ],
   example: `// Inside Form (auto-binds validation)
 <Field.Root name="email">
@@ -28,6 +44,17 @@ export const meta: ComponentMeta = {
   <Input type="email" placeholder="you@example.com" />
   <Field.Description>We'll never share your email.</Field.Description>
   <Field.Error />
+</Field.Root>
+
+// A group of controls — the label names the group (aria-labelledby).
+// A direct ToggleGroup / CheckboxGroup / RadioGroup child is detected;
+// pass \`group\` when the group is nested (e.g. inside a Stack).
+<Field.Root>
+  <Field.Label>Type</Field.Label>
+  <ToggleGroup value={[type]} onValueChange={setType}>
+    <Toggle value="app">Application</Toggle>
+    <Toggle value="platform">Platform</Toggle>
+  </ToggleGroup>
 </Field.Root>
 
 // Standalone (manual error)

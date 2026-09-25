@@ -700,6 +700,18 @@
               "type": "boolean"
             },
             {
+              "description": "Accessible name when the group is not inside a Field.Root (inside one, the Field.Label names it).",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "id of the element that names the group, when not inside a Field.Root.",
+              "name": "aria-labelledby",
+              "required": false,
+              "type": "string"
+            },
+            {
               "name": "children",
               "required": true,
               "type": "ReactNode"
@@ -2166,7 +2178,7 @@
           ]
         },
         "description": "Compound form field with label, description, and error display. Inside Form, auto-binds to react-hook-form via name prop. Works standalone with manual invalid prop.",
-        "example": "// Inside Form (auto-binds validation)\n<Field.Root name=\"email\">\n  <Field.Label>Email</Field.Label>\n  <Input type=\"email\" placeholder=\"you@example.com\" />\n  <Field.Description>We'll never share your email.</Field.Description>\n  <Field.Error />\n</Field.Root>\n\n// Standalone (manual error)\n<Field.Root invalid>\n  <Field.Label>Email</Field.Label>\n  <Input variant=\"error\" />\n  <Field.Error>This email is already taken.</Field.Error>\n</Field.Root>",
+        "example": "// Inside Form (auto-binds validation)\n<Field.Root name=\"email\">\n  <Field.Label>Email</Field.Label>\n  <Input type=\"email\" placeholder=\"you@example.com\" />\n  <Field.Description>We'll never share your email.</Field.Description>\n  <Field.Error />\n</Field.Root>\n\n// A group of controls — the label names the group (aria-labelledby).\n// A direct ToggleGroup / CheckboxGroup / RadioGroup child is detected;\n// pass `group` when the group is nested (e.g. inside a Stack).\n<Field.Root>\n  <Field.Label>Type</Field.Label>\n  <ToggleGroup value={[type]} onValueChange={setType}>\n    <Toggle value=\"app\">Application</Toggle>\n    <Toggle value=\"platform\">Platform</Toggle>\n  </ToggleGroup>\n</Field.Root>\n\n// Standalone (manual error)\n<Field.Root invalid>\n  <Field.Label>Email</Field.Label>\n  <Input variant=\"error\" />\n  <Field.Error>This email is already taken.</Field.Error>\n</Field.Root>",
         "relatedTo": [
           {
             "component": "Form",
@@ -2187,6 +2199,21 @@
             "component": "Select",
             "kind": "composition",
             "relationship": "Place Select inside Field.Root"
+          },
+          {
+            "component": "ToggleGroup",
+            "kind": "composition",
+            "relationship": "Inside Field.Root the Field.Label names the group"
+          },
+          {
+            "component": "CheckboxGroup",
+            "kind": "composition",
+            "relationship": "Inside Field.Root the Field.Label names the group"
+          },
+          {
+            "component": "RadioGroup",
+            "kind": "composition",
+            "relationship": "Inside Field.Root the Field.Label names the group"
           }
         ],
         "whenNotToUse": [
@@ -2194,7 +2221,8 @@
         ],
         "whenToUse": [
           "Any form input that needs a label and/or error message",
-          "Standalone labeled input (without Form) with manual error display"
+          "Standalone labeled input (without Form) with manual error display",
+          "A labelled GROUP of controls (ToggleGroup, CheckboxGroup, RadioGroup): the label names the group via aria-labelledby — detected for a direct child, `group` for a nested one"
         ]
       },
       "name": "Field",
@@ -2239,6 +2267,12 @@
               "name": "name",
               "required": false,
               "type": "string"
+            },
+            {
+              "description": "The control is a group of controls rather than one input — the label then names the group (`aria-labelledby`) instead of pointing `for` at an input. Detected automatically when a direct child is a ToggleGroup, CheckboxGroup.Root or RadioGroup.Root; set it for any other group.",
+              "name": "group",
+              "required": false,
+              "type": "boolean"
             },
             {
               "name": "invalid",
@@ -3715,6 +3749,18 @@
               "name": "disabled",
               "required": false,
               "type": "boolean"
+            },
+            {
+              "description": "Accessible name when the group is not inside a Field.Root (inside one, the Field.Label names it).",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "id of the element that names the group, when not inside a Field.Root.",
+              "name": "aria-labelledby",
+              "required": false,
+              "type": "string"
             },
             {
               "name": "children",
@@ -5710,6 +5756,18 @@
             "default",
             "small"
           ]
+        },
+        {
+          "description": "Accessible name when the group is not inside a Field.Root (inside one, the Field.Label names it).",
+          "name": "aria-label",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "id of the element that names the group, when not inside a Field.Root.",
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "string"
         },
         {
           "name": "children",

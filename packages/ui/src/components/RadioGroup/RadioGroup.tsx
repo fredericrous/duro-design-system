@@ -2,6 +2,7 @@ import {type ReactNode, createContext, useContext, useCallback} from 'react'
 import {html} from 'react-strict-dom'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {styles} from './styles.css'
+import {useFieldGroupLabelling} from '../Field/FieldContext'
 
 // --- Context ---
 
@@ -29,6 +30,11 @@ interface RootProps {
   onValueChange?: (value: string) => void
   orientation?: 'horizontal' | 'vertical'
   disabled?: boolean
+  /** Accessible name when the group is not inside a Field.Root (inside one,
+   *  the Field.Label names it). */
+  'aria-label'?: string
+  /** id of the element that names the group, when not inside a Field.Root. */
+  'aria-labelledby'?: string
   children: ReactNode
 }
 
@@ -39,7 +45,9 @@ function Root({
   orientation = 'vertical',
   disabled = false,
   children,
+  ...labelling
 }: RootProps) {
+  const a11y = useFieldGroupLabelling(labelling)
   const [value, setValue] = useControllableValue(controlledValue, defaultValue, onValueChange)
 
   const onSelect = useCallback(
@@ -56,6 +64,7 @@ function Root({
       <html.div
         role="radiogroup"
         aria-orientation={orientation}
+        {...a11y}
         style={[styles.root, orientation === 'horizontal' && styles.rootHorizontal]}
       >
         {children}
@@ -103,6 +112,9 @@ function Item({value, disabled: itemDisabled = false, children}: ItemProps) {
     </html.label>
   )
 }
+
+// inside a Field.Root, the label names this group (see Field's `group`)
+Root.isFieldGroup = true as const
 
 export const RadioGroup = {
   Root,
