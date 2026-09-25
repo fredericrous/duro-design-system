@@ -9,6 +9,11 @@ import {styles} from './styles.css'
 // --- Root ---
 interface RootProps {
   name?: string
+  /** The control is a group of controls rather than one input — the label
+   *  then names the group (`aria-labelledby`) instead of pointing `for` at an
+   *  input. Detected automatically when a direct child is a ToggleGroup,
+   *  CheckboxGroup.Root or RadioGroup.Root; set it for any other group. */
+  group?: boolean
   invalid?: boolean
   required?: boolean
   disabled?: boolean
@@ -16,18 +21,31 @@ interface RootProps {
   children: ReactNode
 }
 
-function Root({name, ...props}: RootProps) {
+/** A group control marks itself so a Field can tell it holds a group. */
+export type FieldGroupComponent = {isFieldGroup?: true}
+
+function holdsGroup(children: ReactNode): boolean {
+  let found = false
+  Children.forEach(children, (child) => {
+    if (isValidElement(child) && (child.type as FieldGroupComponent).isFieldGroup) found = true
+  })
+  return found
+}
+
+function Root({name, group, ...props}: RootProps) {
   const formCtx = useFormContext()
+  const isGroup = group ?? holdsGroup(props.children)
   if (name && formCtx) {
-    return <ControlledRoot name={name} formCtx={formCtx} {...props} />
+    return <ControlledRoot name={name} formCtx={formCtx} group={isGroup} {...props} />
   }
-  return <StaticRoot {...props} />
+  return <StaticRoot group={isGroup} {...props} />
 }
 
 // Always calls useController — no conditional hooks
 function ControlledRoot({
   name,
   formCtx,
+  group,
   invalid: invalidProp = false,
   required,
   disabled,
@@ -36,6 +54,7 @@ function ControlledRoot({
 }: {
   name: string
   formCtx: NonNullable<ReturnType<typeof useFormContext>>
+  group: boolean
   invalid?: boolean
   required?: boolean
   disabled?: boolean
@@ -54,6 +73,8 @@ function ControlledRoot({
   const ctx = useMemo(
     () => ({
       controlId: `${id}-control`,
+      labelId: `${id}-label`,
+      group,
       descriptionId: `${id}-description`,
       errorId: `${id}-error`,
       invalid,
@@ -72,6 +93,7 @@ function ControlledRoot({
     }),
     [
       id,
+      group,
       invalid,
       required,
       effectiveDisabled,
@@ -95,12 +117,14 @@ function ControlledRoot({
 
 // Current behavior, no RHF dependency
 function StaticRoot({
+  group,
   invalid = false,
   required,
   disabled,
   labelPosition = 'top',
   children,
 }: {
+  group: boolean
   invalid?: boolean
   required?: boolean
   disabled?: boolean
@@ -111,6 +135,8 @@ function StaticRoot({
   const ctx = useMemo(
     () => ({
       controlId: `${id}-control`,
+      labelId: `${id}-label`,
+      group,
       descriptionId: `${id}-description`,
       errorId: `${id}-error`,
       invalid,
@@ -118,7 +144,7 @@ function StaticRoot({
       disabled,
       labelPosition,
     }),
-    [id, invalid, required, disabled, labelPosition],
+    [id, group, invalid, required, disabled, labelPosition],
   )
 
   return (
@@ -170,9 +196,8 @@ function Label({children}: LabelProps) {
   const ctx = useFieldContext()
   const isSide = ctx?.labelPosition === 'side'
   const indicator = ctx?.necessityIndicator
-
-  return (
-    <html.label for={ctx?.controlId} style={[styles.label, isSide && styles.labelSide]}>
+  const content = (
+    <>
       {children}
       {indicator === 'icon' && ctx?.required && (
         <html.span style={styles.necessityIcon} aria-hidden={true}>
@@ -184,6 +209,25 @@ function Label({children}: LabelProps) {
           {ctx?.required ? ' (required)' : ' (optional)'}
         </html.span>
       )}
+    </>
+  )
+
+  // A group is not a labelable element: `for` would point at nothing. The
+  // group names itself from this id instead (aria-labelledby).
+  if (ctx?.group) {
+    return (
+      <html.span id={ctx.labelId} style={[styles.label, isSide && styles.labelSide]}>
+        {content}
+      </html.span>
+    )
+  }
+  return (
+    <html.label
+      id={ctx?.labelId}
+      for={ctx?.controlId}
+      style={[styles.label, isSide && styles.labelSide]}
+    >
+      {content}
     </html.label>
   )
 }

@@ -3,6 +3,13 @@ import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Field} from './Field'
 import {Input} from '../Input/Input'
+import {ToggleGroup} from '../ToggleGroup/ToggleGroup'
+import {Toggle} from '../Toggle/Toggle'
+import {CheckboxGroup} from '../CheckboxGroup/CheckboxGroup'
+import {RadioGroup} from '../RadioGroup/RadioGroup'
+import {Checkbox} from '../Checkbox/Checkbox'
+import {Stack} from '../Stack/Stack'
+import {Fieldset} from '../Fieldset/Fieldset'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta = {
@@ -157,5 +164,91 @@ export const Disabled: Story = {
   play: async ({canvas}) => {
     const input = canvas.getByPlaceholderText('Enter username')
     await expect(input).toBeDisabled()
+  },
+}
+
+export const GroupControls: Story = {
+  name: 'Group controls named by the label',
+  render: () => (
+    <html.div style={stackStyles.stack}>
+      {/* a direct ToggleGroup / CheckboxGroup / RadioGroup child is detected */}
+      <Field.Root>
+        <Field.Label>Type</Field.Label>
+        <ToggleGroup defaultValue={['app']}>
+          <Toggle value="app">Application</Toggle>
+          <Toggle value="platform">Platform</Toggle>
+        </ToggleGroup>
+        <Field.Description>What the record describes.</Field.Description>
+      </Field.Root>
+      <Field.Root>
+        <Field.Label>Channels</Field.Label>
+        <CheckboxGroup.Root defaultValue={['mail']}>
+          <CheckboxGroup.Item value="mail">Mail</CheckboxGroup.Item>
+          <CheckboxGroup.Item value="sms">SMS</CheckboxGroup.Item>
+        </CheckboxGroup.Root>
+      </Field.Root>
+      <Field.Root>
+        <Field.Label>Plan</Field.Label>
+        <RadioGroup.Root defaultValue="free">
+          <RadioGroup.Item value="free">Free</RadioGroup.Item>
+          <RadioGroup.Item value="pro">Pro</RadioGroup.Item>
+        </RadioGroup.Root>
+      </Field.Root>
+      {/* a group that is not a direct child (here inside a Stack) says so */}
+      <Field.Root group>
+        <Field.Label>Technologies</Field.Label>
+        <Stack gap="sm">
+          <CheckboxGroup.Root orientation="horizontal">
+            <CheckboxGroup.Item value="pg">PostgreSQL</CheckboxGroup.Item>
+            <CheckboxGroup.Item value="kafka">Kafka</CheckboxGroup.Item>
+          </CheckboxGroup.Root>
+        </Stack>
+      </Field.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    // each group control carries the Field.Label's text as its accessible name
+    await expect(canvas.getByRole('toolbar', {name: 'Type'})).toBeInTheDocument()
+    await expect(canvas.getByRole('group', {name: 'Channels'})).toBeInTheDocument()
+    await expect(canvas.getByRole('radiogroup', {name: 'Plan'})).toBeInTheDocument()
+    await expect(canvas.getByRole('group', {name: 'Technologies'})).toBeInTheDocument()
+    // the description reaches the group too
+    await expect(canvas.getByRole('toolbar', {name: 'Type'})).toHaveAccessibleDescription(
+      'What the record describes.',
+    )
+    // a group's label is not a <label for> pointing at nothing
+    for (const text of ['Type', 'Channels', 'Plan', 'Technologies']) {
+      const label = canvas.getByText(text)
+      await expect(label.tagName).not.toBe('LABEL')
+      await expect(label.id).not.toBe('')
+    }
+  },
+}
+
+export const SingleControlStillLabelled: Story = {
+  name: 'A single input keeps its <label for>',
+  render: () => (
+    <Field.Root>
+      <Field.Label>Name</Field.Label>
+      <Input placeholder="Name" />
+    </Field.Root>
+  ),
+  play: async ({canvas}) => {
+    const label = canvas.getByText('Name')
+    await expect(label.tagName).toBe('LABEL')
+    await expect(canvas.getByRole('textbox', {name: 'Name'})).toBeInTheDocument()
+  },
+}
+
+export const FieldsetLegendNamesTheGroup: Story = {
+  name: 'Fieldset legend names its group',
+  render: () => (
+    <Fieldset.Root>
+      <Fieldset.Legend>Notifications</Fieldset.Legend>
+      <Checkbox value="a">Weekly digest</Checkbox>
+    </Fieldset.Root>
+  ),
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('group', {name: 'Notifications'})).toBeInTheDocument()
   },
 }
