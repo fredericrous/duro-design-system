@@ -6,6 +6,7 @@ import {runList} from './commands/list.js'
 import {runHook} from './commands/hook.js'
 import {runMockup} from './commands/mockup.js'
 import {runSkill} from './commands/skill.js'
+import {runDoctor, uiVersionSkew} from './commands/doctor.js'
 import {runManifest, cliVersion} from './commands/manifest.js'
 
 function emit(result: CommandResult, json: boolean): never {
@@ -19,7 +20,7 @@ function emit(result: CommandResult, json: boolean): never {
 
 function usageError(message: string): never {
   process.stderr.write(
-    `${message}\nUsage: duro <name|list|manifest|hook|skill|mockup|mcp> [flags] — duro manifest for details\n`,
+    `${message}\nUsage: duro <name|list|manifest|hook|skill|mockup|doctor|mcp> [flags] — duro manifest for details\n`,
   )
   process.exit(2)
 }
@@ -36,6 +37,7 @@ async function main(): Promise<void> {
         'source-only': {type: 'boolean', default: false},
         'no-color': {type: 'boolean', default: false},
         check: {type: 'boolean', default: false},
+        session: {type: 'boolean', default: false},
         out: {type: 'string'},
         name: {type: 'string'},
         theme: {type: 'string'},
@@ -55,25 +57,19 @@ async function main(): Promise<void> {
 
   const registry = loadRegistry()
 
+  const [first, ...rest] = positionals
+
   // Version-skew guard: the registry documents the lockstep-released ui
-  // version; warn (stderr only) when a locally installed ui differs.
-  if (!values.json) {
-    try {
-      const {createRequire} = await import('node:module')
-      const require = createRequire(process.cwd() + '/')
-      const uiPkg = require('@duro-app/ui/package.json') as {version?: string}
-      const own = cliVersion()
-      if (uiPkg.version && own !== '0.0.0' && uiPkg.version !== own) {
-        process.stderr.write(
-          `duro: docs are for @duro-app/ui@${own}, you have ${uiPkg.version} — npm i -D @duro-app/cli@${uiPkg.version}\n`,
-        )
-      }
-    } catch {
-      // No local ui — nothing to compare.
+  // version; warn (stderr only) when a locally installed ui differs. doctor
+  // reports the same skew as one of its findings instead.
+  if (!values.json && first !== 'doctor') {
+    const skew = uiVersionSkew(process.cwd())
+    if (skew) {
+      process.stderr.write(
+        `duro: docs are for @duro-app/ui@${skew.own}, you have ${skew.installed} — npm i -D @duro-app/cli@${skew.installed}\n`,
+      )
     }
   }
-
-  const [first, ...rest] = positionals
 
   if (values.help || first === undefined) {
     emit(runManifest(registry), values.json)
@@ -99,6 +95,10 @@ async function main(): Promise<void> {
       runMockup(registry, sub, files, {out: values.out, name: values.name, theme: values.theme}),
       values.json,
     )
+  }
+  if (first === 'doctor') {
+    if (rest.length > 0) usageError('duro doctor takes no arguments — run it from the package root')
+    emit(runDoctor({session: values.session}), values.json)
   }
   if (first === 'mcp') {
     const {runMcp} = await import('./commands/mcp.js')

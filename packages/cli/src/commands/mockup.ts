@@ -4,6 +4,7 @@ import type {Registry} from '../registry-types.js'
 import type {CommandResult} from './lookup.js'
 import {lookup} from '../registry.js'
 import {suggestions} from '../search.js'
+import {lineOf} from '../scan.js'
 
 /*
  * duro mockup — token-seeded artboards, and the check that makes one a
@@ -200,12 +201,6 @@ const VOID_ELEMENTS = new Set([
 
 function usage(text: string): CommandResult {
   return {text, data: {kind: 'usage-error'}, exitCode: 2}
-}
-
-function lineOf(source: string, index: number): number {
-  let line = 1
-  for (let i = 0; i < index && i < source.length; i++) if (source[i] === '\n') line++
-  return line
 }
 
 /** Blank out the token block so its literals are never scanned, keeping offsets. */
