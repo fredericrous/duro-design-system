@@ -28,7 +28,7 @@
     "@typescript-eslint/parser": "^8.0.0",
     "@vitest/browser-playwright": "^4.0.18",
     "@vitest/coverage-v8": "^4.0.18",
-    "amont": "^1.5.0",
+    "amont": "^1.40.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.20.0",
     "eslint-plugin-react-hooks": "^7.1.1",
