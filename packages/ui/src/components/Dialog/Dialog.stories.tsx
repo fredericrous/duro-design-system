@@ -9,7 +9,8 @@ import {Inline} from '../Inline/Inline'
 import {Stack} from '../Stack/Stack'
 import {Input} from '../Input/Input'
 import {Field} from '../Field/Field'
-import {Heading} from '../Heading/Heading'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {colors} from '@duro-app/tokens/tokens/colors.css'
 
 const meta: Meta = {
   title: 'Components/Dialog',
@@ -320,4 +321,55 @@ function BackdropDismissDemo() {
 
 export const BackdropDismiss: Story = {
   render: () => <BackdropDismissDemo />,
+}
+
+// --- Inside a transformed ancestor ---
+// A fixed overlay inside an ancestor with transform / filter / backdrop-filter
+// is positioned against that ancestor, not the viewport. A consumer's sticky
+// blurred top bar is exactly that: the dialog must still centre on the screen,
+// which it does because Portal renders into the ThemeProvider mount.
+
+const barStyles = css.create({
+  bar: {
+    transform: 'translateZ(0)',
+    padding: spacing.sm,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: colors.border,
+  },
+})
+
+export const InsideTransformedAncestor: Story = {
+  render: () => (
+    <html.div style={barStyles.bar}>
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <Button>Open from the bar</Button>
+        </Dialog.Trigger>
+        <Dialog.Portal size="sm">
+          <Dialog.Header>
+            <Dialog.Title>Centred on the screen</Dialog.Title>
+            <Dialog.Close />
+          </Dialog.Header>
+          <Dialog.Body>
+            <Text>Not on the bar it was opened from.</Text>
+          </Dialog.Body>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </html.div>
+  ),
+  play: async ({canvasElement}) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByText('Open from the bar'))
+    const doc = canvasElement.ownerDocument
+    const dialog = doc.querySelector('[role="dialog"]') as HTMLElement
+    await expect(dialog).not.toBeNull()
+    const bar = canvas.getByText('Open from the bar').closest('div') as HTMLElement
+    // rendered outside the bar…
+    await expect(bar.contains(dialog)).toBe(false)
+    // …and fully on screen, not centred on a bar at the top edge
+    const r = dialog.getBoundingClientRect()
+    await expect(r.top).toBeGreaterThanOrEqual(0)
+    await expect(r.bottom).toBeLessThanOrEqual(doc.defaultView!.innerHeight)
+  },
 }
