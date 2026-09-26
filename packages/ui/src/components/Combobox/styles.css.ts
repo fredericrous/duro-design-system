@@ -61,7 +61,9 @@ export const styles = css.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 49,
+    // Above Dialog/Drawer (1000/1001): they portal into the same mount, so a
+    // popup opened from inside a dialog must out-rank the dialog itself.
+    zIndex: 1049,
   },
   popup: {
     // Position is `fixed` and the top/left/width are applied inline by Popup
@@ -78,6 +80,7 @@ export const styles = css.create({
     paddingBottom: spacing.xs,
     maxHeight: 200,
     overflowY: 'auto',
+    zIndex: 1050,
     // Re-enable pointer events: the portal mount is pointer-events: none so
     // clicks fall through except on the popup itself.
     pointerEvents: 'auto',

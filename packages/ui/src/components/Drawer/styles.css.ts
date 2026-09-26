@@ -12,6 +12,9 @@ export const styles = css.create({
     inset: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
     zIndex: 1000,
+    // Portaled into the ThemeProvider mount, which is pointer-events: none:
+    // the backdrop must take clicks back (outside click dismisses).
+    pointerEvents: 'auto',
   },
   backdropOpen: {
     animationName: css.keyframes({
