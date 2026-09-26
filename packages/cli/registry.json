@@ -3667,7 +3667,7 @@
       "kind": "compound",
       "meta": {
         "description": "Radio button group for single-select from a list of options. Compound component with Root container and Item children.",
-        "example": "<RadioGroup.Root defaultValue=\"email\" onValueChange={(v) => console.log(v)}>\n  <RadioGroup.Item value=\"email\">Email</RadioGroup.Item>\n  <RadioGroup.Item value=\"sms\">SMS</RadioGroup.Item>\n  <RadioGroup.Item value=\"push\">Push notification</RadioGroup.Item>\n</RadioGroup.Root>",
+        "example": "<RadioGroup.Root name=\"channel\" defaultValue=\"email\" onValueChange={(v) => console.log(v)}>\n  <RadioGroup.Item value=\"email\">Email</RadioGroup.Item>\n  <RadioGroup.Item value=\"sms\">SMS</RadioGroup.Item>\n  <RadioGroup.Item value=\"push\">Push notification</RadioGroup.Item>\n</RadioGroup.Root>",
         "relatedTo": [
           {
             "component": "CheckboxGroup",
@@ -3749,6 +3749,12 @@
               "name": "disabled",
               "required": false,
               "type": "boolean"
+            },
+            {
+              "description": "Form field name: every item's radio carries it, so the selection is submitted with a native form. Generated when omitted (the radios still form one group).",
+              "name": "name",
+              "required": false,
+              "type": "string"
             },
             {
               "description": "Accessible name when the group is not inside a Field.Root (inside one, the Field.Label names it).",
