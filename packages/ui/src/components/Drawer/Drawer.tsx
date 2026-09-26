@@ -1,3 +1,4 @@
+import {createPortal} from 'react-dom'
 import {
   type ReactNode,
   type RefObject,
@@ -12,6 +13,7 @@ import {
 import {html} from 'react-strict-dom'
 import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
+import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {useSwipeDismiss} from './useSwipeDismiss'
 
 // --- Types ---
@@ -230,6 +232,7 @@ function Portal({children, size = 'md'}: PortalProps) {
     descriptionId,
     panelRef,
   } = useDrawer()
+  const mount = usePortalMount()
 
   const handleBackdropClick = useCallback(() => {
     if (dismissable) {
@@ -249,7 +252,7 @@ function Portal({children, size = 'md'}: PortalProps) {
 
   const isHorizontal = anchor === 'left' || anchor === 'right'
 
-  return (
+  const node = (
     <>
       {/* Backdrop — click to dismiss */}
       <html.div
@@ -287,6 +290,13 @@ function Portal({children, size = 'md'}: PortalProps) {
       </html.div>
     </>
   )
+
+  // Out of the tree into the ThemeProvider mount (like Select and Combobox):
+  // a fixed overlay inside an ancestor with transform / filter /
+  // backdrop-filter is positioned against THAT ancestor, not the viewport —
+  // a dialog opened from a sticky blurred top bar centred on the bar. Without
+  // a mount (SSR, no ThemeProvider) it renders in place.
+  return mount ? createPortal(node, mount) : node
 }
 
 // --- Header ---
