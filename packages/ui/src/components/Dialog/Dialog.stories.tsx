@@ -9,6 +9,7 @@ import {Inline} from '../Inline/Inline'
 import {Stack} from '../Stack/Stack'
 import {Input} from '../Input/Input'
 import {Field} from '../Field/Field'
+import {Select} from '../Select/Select'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 
@@ -371,5 +372,84 @@ export const InsideTransformedAncestor: Story = {
     const r = dialog.getBoundingClientRect()
     await expect(r.top).toBeGreaterThanOrEqual(0)
     await expect(r.bottom).toBeLessThanOrEqual(doc.defaultView!.innerHeight)
+  },
+}
+
+// --- A Select inside a Dialog ---
+// Dialog and Select both render into the ThemeProvider portal mount, so the
+// Select's listbox must stack ABOVE the dialog or its options cannot be
+// picked (they were covered by the dialog when Dialog started portaling).
+
+function SelectInDialogDemo() {
+  const [value, setValue] = useState('en')
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger>
+        <Button>Open settings</Button>
+      </Dialog.Trigger>
+      <Dialog.Portal size="sm">
+        <Dialog.Header>
+          <Dialog.Title>Settings</Dialog.Title>
+          <Dialog.Close />
+        </Dialog.Header>
+        <Dialog.Body>
+          <Select.Root value={value} onValueChange={(v) => v && setValue(v)}>
+            <Select.Trigger aria-label="Language">
+              <Select.Value />
+              <Select.Icon />
+            </Select.Trigger>
+            <Select.Popup>
+              <Select.Item value="en">
+                <Select.ItemText>English</Select.ItemText>
+              </Select.Item>
+              <Select.Item value="fr">
+                <Select.ItemText>Français</Select.ItemText>
+              </Select.Item>
+            </Select.Popup>
+          </Select.Root>
+          <Text>Chosen: {value}</Text>
+        </Dialog.Body>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}
+
+export const SelectInsideDialog: Story = {
+  render: () => <SelectInDialogDemo />,
+  play: async ({canvasElement}) => {
+    const canvas = within(canvasElement)
+    const doc = within(canvasElement.ownerDocument.body)
+    await userEvent.click(canvas.getByText('Open settings'))
+    await userEvent.click(await doc.findByRole('combobox', {name: 'Language'}))
+    // Hit-test every option: an option that sits over the dialog panel (not
+    // only over the click-through backdrop) must still be the topmost element.
+    for (const name of ['English', 'Français']) {
+      const opt = await doc.findByRole('option', {name})
+      const r = opt.getBoundingClientRect()
+      const top = canvasElement.ownerDocument.elementFromPoint(
+        r.left + r.width / 2,
+        r.top + r.height / 2,
+      )
+      await expect(opt.contains(top)).toBe(true)
+    }
+    const option = await doc.findByRole('option', {name: 'Français'})
+    await userEvent.click(option)
+    await expect(await doc.findByText('Chosen: fr')).toBeInTheDocument()
+  },
+}
+
+// --- Backdrop click dismisses (the portal mount is pointer-events: none) ---
+
+export const BackdropClickDismisses: Story = {
+  render: () => <BackdropDismissDemo />,
+  play: async ({canvasElement}) => {
+    const canvas = within(canvasElement)
+    const docEl = canvasElement.ownerDocument
+    await userEvent.click(canvas.getByText('Open dialog'))
+    await expect(docEl.querySelector('[role="dialog"]')).not.toBeNull()
+    // a point on the backdrop, well outside the centred dialog
+    const target = docEl.elementFromPoint(5, 5) as HTMLElement
+    await userEvent.click(target)
+    await expect(await canvas.findByText('Last action: Dismissed')).toBeInTheDocument()
   },
 }
