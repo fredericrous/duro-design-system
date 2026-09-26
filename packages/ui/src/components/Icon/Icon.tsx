@@ -37,6 +37,9 @@ export type IconName =
   | 'mail'
   | 'file-text'
   | 'plug'
+  // Input / action glyphs
+  | 'search'
+  | 'mic'
   // Color-mode glyphs
   | 'sun'
   | 'moon'
@@ -262,6 +265,23 @@ const strokeIcons: Partial<Record<IconName, ReactNode>> = {
     <>
       <line x1="12" y1="17" x2="12" y2="22" />
       <path d="M9 10.76V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6.76a2 2 0 0 0 .55 1.38l1.68 1.78A1 1 0 0 1 16.5 16h-9a1 1 0 0 1-.73-1.68l1.68-1.78A2 2 0 0 0 9 10.76z" />
+    </>
+  ),
+  // ---- input / action ----
+  // Magnifying glass — search fields, find actions.
+  search: (
+    <>
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </>
+  ),
+  // Microphone — voice input, dictation.
+  mic: (
+    <>
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <line x1="12" y1="19" x2="12" y2="23" />
+      <line x1="8" y1="23" x2="16" y2="23" />
     </>
   ),
   // ---- color mode ----
