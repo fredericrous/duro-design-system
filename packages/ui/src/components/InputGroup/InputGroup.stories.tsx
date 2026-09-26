@@ -3,6 +3,7 @@ import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {InputGroup} from './InputGroup'
 import {Input} from '../Input/Input'
+import {Icon} from '../Icon/Icon'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta = {
@@ -61,6 +62,26 @@ export const BothSides: Story = {
     await expect(canvas.getByText('https://')).toBeInTheDocument()
     await expect(canvas.getByPlaceholderText('example.com')).toBeInTheDocument()
     await expect(canvas.getByRole('button', {name: 'Go'})).toBeInTheDocument()
+  },
+}
+
+export const SearchField: Story = {
+  render: () => (
+    <html.div style={layoutStyles.container}>
+      <InputGroup.Root>
+        <InputGroup.Addon position="start">
+          <Icon name="search" size="sm" />
+        </InputGroup.Addon>
+        <Input type="search" name="q" aria-label="Search" placeholder="Search" />
+        <InputGroup.Addon>
+          <Icon name="mic" size="sm" />
+        </InputGroup.Addon>
+      </InputGroup.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const input = canvas.getByRole('searchbox', {name: 'Search'})
+    await expect(input).toHaveAttribute('name', 'q')
   },
 }
 
