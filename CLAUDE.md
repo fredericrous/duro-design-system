@@ -402,6 +402,8 @@ is added.
 
 **People / access / admin glyphs:** `users`, `user-plus`, `mail`, `file-text`, `plug`
 
+**Input / action glyphs:** `search`, `mic`
+
 **Color-mode glyphs:** `sun`, `moon`, `monitor`, `contrast`
 
 **Filled variants (solid shape with cutout symbol):** `info-circle-filled`, `alert-triangle-filled`, `check-circle-filled`, `x-circle-filled`, `shield-filled`, `lock-filled`

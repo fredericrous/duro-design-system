@@ -2666,6 +2666,8 @@
             "mail",
             "file-text",
             "plug",
+            "search",
+            "mic",
             "sun",
             "moon",
             "monitor",
@@ -6227,6 +6229,13 @@
         ]
       },
       {
+        "label": "Input / action glyphs",
+        "names": [
+          "search",
+          "mic"
+        ]
+      },
+      {
         "label": "Color-mode glyphs",
         "names": [
           "sun",
@@ -6278,6 +6287,8 @@
       "mail",
       "file-text",
       "plug",
+      "search",
+      "mic",
       "sun",
       "moon",
       "monitor",
@@ -7326,6 +7337,8 @@
       "mail",
       "file-text",
       "plug",
+      "search",
+      "mic",
       "sun",
       "moon",
       "monitor",
