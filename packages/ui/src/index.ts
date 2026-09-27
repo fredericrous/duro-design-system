@@ -74,6 +74,7 @@ export {TagGroup} from './components/TagGroup/TagGroup'
 // from there gives the same object with those attached.
 export {Table, type TableVariant, type TableSize} from './components/Table/Table'
 export {Tabs} from './components/Tabs/Tabs'
+export {Tree} from './components/Tree/Tree'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {
   ThemeProvider,
