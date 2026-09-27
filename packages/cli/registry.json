@@ -2934,6 +2934,22 @@
           "type": "() => void"
         },
         {
+          "name": "onFocus",
+          "required": false,
+          "type": "(e: React.FocusEvent<HTMLInputElement>) => void"
+        },
+        {
+          "description": "Keyboard handlers — e.g. Enter to commit, Escape to cancel, arrow-key navigation of a list driven by this field.",
+          "name": "onKeyDown",
+          "required": false,
+          "type": "(e: React.KeyboardEvent<HTMLInputElement>) => void"
+        },
+        {
+          "name": "onKeyUp",
+          "required": false,
+          "type": "(e: React.KeyboardEvent<HTMLInputElement>) => void"
+        },
+        {
           "name": "ref",
           "required": false,
           "type": "React.Ref<HTMLInputElement>"
@@ -5504,6 +5520,22 @@
           "name": "onBlur",
           "required": false,
           "type": "() => void"
+        },
+        {
+          "name": "onFocus",
+          "required": false,
+          "type": "(e: React.FocusEvent<HTMLTextAreaElement>) => void"
+        },
+        {
+          "description": "Keyboard handlers — e.g. Enter to commit, Escape to cancel, arrow-key navigation of a list driven by this field.",
+          "name": "onKeyDown",
+          "required": false,
+          "type": "(e: React.KeyboardEvent<HTMLTextAreaElement>) => void"
+        },
+        {
+          "name": "onKeyUp",
+          "required": false,
+          "type": "(e: React.KeyboardEvent<HTMLTextAreaElement>) => void"
         },
         {
           "name": "ref",

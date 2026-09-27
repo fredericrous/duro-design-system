@@ -18,6 +18,11 @@ interface TextareaProps {
   autoFocus?: boolean
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   onBlur?: () => void
+  onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void
+  /** Keyboard handlers — e.g. Enter to commit, Escape to cancel, arrow-key
+   *  navigation of a list driven by this field. */
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
+  onKeyUp?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
   ref?: React.Ref<HTMLTextAreaElement>
 }
 
@@ -33,6 +38,9 @@ export function Textarea({
   autoFocus,
   onChange,
   onBlur,
+  onFocus,
+  onKeyDown,
+  onKeyUp,
   ref,
 }: TextareaProps) {
   const ctx = useFieldContext()
@@ -65,6 +73,9 @@ export function Textarea({
       aria-invalid={ctx?.invalid || variant === 'error' || undefined}
       onChange={effectiveOnChange as StrictTextareaProps['onChange']}
       onBlur={effectiveOnBlur as StrictTextareaProps['onBlur']}
+      onFocus={onFocus as StrictTextareaProps['onFocus']}
+      onKeyDown={onKeyDown as StrictTextareaProps['onKeyDown']}
+      onKeyUp={onKeyUp as StrictTextareaProps['onKeyUp']}
       ref={effectiveRef as React.Ref<HTMLTextAreaElement>}
       style={[styles.base, styles[effectiveVariant]]}
       {...extraProps}

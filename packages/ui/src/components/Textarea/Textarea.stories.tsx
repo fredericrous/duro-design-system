@@ -36,6 +36,22 @@ export const Default: Story = {
   },
 }
 
+export const KeyboardEvents: Story = {
+  args: {placeholder: 'Edit note', onFocus: fn(), onKeyDown: fn(), onKeyUp: fn()},
+  play: async ({args, canvas, userEvent}) => {
+    const textarea = canvas.getByPlaceholderText('Edit note')
+    await userEvent.click(textarea)
+    await expect(args.onFocus).toHaveBeenCalledTimes(1)
+
+    await userEvent.keyboard('{ArrowDown}{Enter}{Escape}')
+    const keys = (args.onKeyDown as ReturnType<typeof fn>).mock.calls.map(
+      ([e]) => (e as React.KeyboardEvent).key,
+    )
+    await expect(keys).toEqual(['ArrowDown', 'Enter', 'Escape'])
+    await expect(args.onKeyUp).toHaveBeenCalledTimes(3)
+  },
+}
+
 export const Error: Story = {
   args: {variant: 'error', placeholder: 'Invalid content'},
   play: async ({canvas}) => {
