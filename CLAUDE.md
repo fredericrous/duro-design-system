@@ -205,6 +205,7 @@ These components **must** be wrapped in their `.Root`:
 | **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |
 | **ToggleGroup** | Container for Toggle buttons enabling single or multi selection | `value`, `defaultValue`, `onValueChange` |
 | **Tooltip** | Hover/focus tooltip that shows supplementary content | compound: Root, Trigger |
+| **Tree** | Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead | compound: Item, Root |
 | **VirtualTable** | Sortable data table that windows its rows above a threshold (default 150) with @tanstack/react-virtual, shows a floating position indicator, and reports the visible page so the caller can mirror it in the URL | `data`, `columns`, `sorting` |
 
 Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `duro_ds_lookup` MCP tool).
@@ -494,7 +495,7 @@ The healthy shape is a **mix**: flat `Section`s for the journey, one collapsed
 it hides the entire IA behind chevrons and makes the user hunt.
 
 **Neither is a tree.** Arbitrary-depth _data_ browsing (a file tree, a
-namespace → resource drill-down) needs `role="tree"` with roving tabindex,
+namespace → resource drill-down) is `Tree`: `role="tree"`, roving tabindex,
 typeahead and `aria-level`. Don't nest `SideNav` to fake it.
 
 ## Canonical Recipes
