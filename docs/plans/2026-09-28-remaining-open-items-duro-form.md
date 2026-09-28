@@ -72,7 +72,7 @@ duro-design-system — PR 1 (branch `fix/form-subpath`)
 
 duro-lexical-multi — PR 2 (branch `fix/link-editor-submit`)
 
-- [ ] Phase 5 — red first: a story with **two** editors under one
+- [x] Phase 5 — red first: a story with **two** editors under one
       MultiEditorProvider and a shared floating anchor, driving select → Link →
       type → Enter and ✓; asserts the text survives and `href` is the typed URL,
       plus a link-edit regression. While red, instrument to NAME the mechanism
@@ -85,7 +85,7 @@ duro-lexical-multi — PR 2 (branch `fix/link-editor-submit`)
 n => $isLinkNode(n) && !$isAutoLinkNode(n))` → `setURL`, else
       `$toggleLink(url)`; only the editor whose `isLink` is true renders/focuses
       its input (`isLinkEditMode` is shared across editors, `MultiEditorContext.tsx:48`).
-- [ ] Phase 6 — hook deps: hoist `defaultConfig` to module scope
+- [x] Phase 6 — hook deps: hoist `defaultConfig` to module scope
       (`MultiEditorContext.tsx`; `PlaygroundNodes`/`DuroEditorTheme` are module
       constants); drop `activeEditor` from `$updateToolbar`'s deps in
       `useFormatText.ts`/`useFormatElement.ts` (it closes over nothing that
@@ -128,6 +128,23 @@ duro-app — PR 4 (branch `build/duro-ui-4`)
   local ADR (`docs/adr/0001-optional-peer-behind-subpath.md`, key
   `packaging.optional-peer-entry`). There is no changelog in this repo, so the
   BREAKING note goes in the commit, the PR and the v4.0.0 release body.
+- 2026-09-28 — Link bug mechanism, named by instrumenting the live editor
+  (update listener + a listener on every registered command, real keys via
+  Playwright): Enter in the URL field → `TOGGLE_LINK_COMMAND` applies the URL →
+  Lexical restores the DOM selection onto the link text and fires
+  `FOCUS_COMMAND` → the same, unconsumed Enter arrives in the editor as
+  `BEFORE_INPUT` → `INSERT_PARAGRAPH` over that selection, replacing "Duro" and
+  its link. ✓ never failed (a click has no text default). Not the lexical
+  version skew. Fix: the field consumes Enter/Escape; the submit restores
+  `lastSelection` when the host dropped it. The `setURL`/`$findMatchingParent`
+  rewrite was dropped — `$toggleLink` was never the fault.
+- 2026-09-28 — Found while verifying: with two editors, one whose caret sits in
+  a link, the shared `isLinkEditMode` opened TWO URL fields that fought for
+  focus. `Editor` now opens its field only when it is the provider's current
+  editor. Covered by its own story.
+- 2026-09-28 — user-event never performs a key's default action, so the Enter
+  story asserts the contract that failed (the keydown is `defaultPrevented`);
+  the end-to-end check with real keys is the Playwright run below.
 
 ## Verification
 
@@ -156,7 +173,17 @@ by __vite-optional-peer-dep:@hookform/resolvers/effect-ts` (the peer
   as in P1–3.
 - P5: new story red on main (text deleted, mechanism logged), green after;
   link-edit story green; Storybook preview: select → Link → type → Enter.
+  - Observed (lexical-multi@ae9fd4f): `NewLinkConfirmedWithEnter` red on the
+    unfixed plugin (`defaultPrevented` false), green after;
+    `NewLinkInSecondEditorWhileFirstSitsInALink` red on the unfixed `Editor`
+    (two URL fields), green after; Toolbar + EditorAppearance stories 11/11.
+  - Observed, real keys (Playwright): main build — select "Duro" → Insert link
+    → type → Enter → `"Visit  now"`, 2 paragraphs, no link; ✓ → linked.
+    Fixed build, second editor while the first holds a link — Enter and ✓
+    both → `"Visit Duro now"`, 1 paragraph, `Duro→https://duro.example`.
 - P6: `eslint --max-warnings 0` on the three files; toolbar stories green.
+  - Observed: `pnpm lint --max-warnings 0` exit 0 (was 3 warnings); the
+    three files alone exit 0; toolbar stories green.
 - P8: make the mocked picker dispatch `change` in a `setTimeout` → the test is
   red on main, green after; webapp suite 3× green.
 - P9: webapp localhost (production build): canvas text → Link → type URL →
