@@ -72,6 +72,33 @@ describe('duro doctor', () => {
     ])
   })
 
+  // website-builder moved its StyleX options out of vite.config.ts into a
+  // module it imports; doctor read only the config and went blind to them.
+  it('follows a config into the sibling module that holds its StyleX options', () => {
+    const root = app({
+      'vite.config.ts': `import {stylexOpts} from './vite-stylex'\nexport default {plugins: [stylex(stylexOpts)]}\n`,
+      'vite-stylex.ts': `export const stylexOpts = {\n  dev: true,\n  runtimeInjection: true,\n}\n`,
+    })
+    expect(findings(root)).toEqual([
+      expect.objectContaining({
+        rule: 'runtime-injection',
+        severity: 'error',
+        file: 'vite-stylex.ts',
+        line: 3,
+      }),
+    ])
+    expect(runDoctor({cwd: root}).text).toContain('vite-stylex.ts')
+  })
+
+  it('does not follow imports out of the package root or into tests', () => {
+    const root = app({
+      'vite.config.ts': `import {x} from './src/opts'\nimport {y} from './setup.test'\nexport default {plugins: [stylex({runtimeInjection: false})]}\n`,
+      'src/opts.ts': `export const x = {runtimeInjection: true}\n`,
+      'setup.test.ts': `export const y = {runtimeInjection: true}\n`,
+    })
+    expect(findings(root)).toEqual([])
+  })
+
   it('reads a comment about runtimeInjection as prose, not config', () => {
     const root = app({
       'vite.config.ts': `// never set runtimeInjection: true here\n/* runtimeInjection: true */\nexport default {runtimeInjection: false}\n`,

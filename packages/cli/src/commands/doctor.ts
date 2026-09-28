@@ -151,9 +151,20 @@ function checkPackage(
   const findings: DoctorFinding[] = []
   let unlayeredExtraction = false
   const configs: ConfigFile[] = []
-  for (const name of readdirSync(dir)
+  const names = readdirSync(dir)
     .filter((entry) => CONFIG_FILE.test(entry))
-    .sort()) {
+    .sort()
+  // A config may keep its StyleX options in a module it imports
+  // (`vite.config.ts` → `./vite-stylex.ts`). Read those too, one level deep,
+  // or moving the options out of the config silently blinds every check below.
+  for (const name of [...names]) {
+    const source = readText(join(dir, name))
+    if (source === null) continue
+    for (const imported of relativeImports(dir, source)) {
+      if (!names.includes(imported)) names.push(imported)
+    }
+  }
+  for (const name of names) {
     const source = readText(join(dir, name))
     if (source === null) continue
     const file = rel(join(dir, name))
@@ -261,6 +272,29 @@ function childDirs(dir: string): string[] {
   } catch {
     return []
   }
+}
+
+/** Source modules a config can import by a relative path. */
+const MODULE_EXT = ['.ts', '.mts', '.cts', '.js', '.mjs', '.cjs']
+const RELATIVE_IMPORT = /(?:\bfrom\s*|\bimport\s*\(\s*|\brequire\s*\(\s*)(['"])(\.\/[^'"\n]+)\1/g
+
+/**
+ * Files in `dir` that a config imports by `./relative` path: the modules a
+ * split config keeps its build options in. Siblings only — a config that
+ * reaches into `../` or a subdirectory is importing app code, not options.
+ */
+function relativeImports(dir: string, source: string): string[] {
+  const found: string[] = []
+  for (const match of maskComments(source, {line: true}).matchAll(RELATIVE_IMPORT)) {
+    const spec = match[2].slice(2)
+    if (spec.includes('/')) continue
+    const candidates = MODULE_EXT.some((ext) => spec.endsWith(ext))
+      ? [spec, ...MODULE_EXT.map((ext) => spec.replace(/\.[cm]?js$/, ext))]
+      : MODULE_EXT.map((ext) => spec + ext)
+    const hit = candidates.find((name) => existsSync(join(dir, name)))
+    if (hit && !/\.(?:test|spec|d)\./.test(hit) && !found.includes(hit)) found.push(hit)
+  }
+  return found
 }
 
 function readText(path: string): string | null {
