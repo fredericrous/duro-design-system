@@ -24,7 +24,7 @@
 - **Packages:** `@duro-app/ui` (components), `@duro-app/tokens` (design tokens), `@duro-app/eslint-plugin` (lint rules enforcing the Critical Rules below — `duro.configs.recommended`), `@duro-app/eslint-config` (shareable flat config for consumer repos: `base`/`react`/`effect`/`tests` presets bundling the plugin plus stack policy — UI imports only from `@duro-app/ui`, `@effect/sql` not Kysely, a11y test selectors)
 - **Rendering:** [react-strict-dom](https://github.com/nicklockwood/react-strict-dom) — all elements use `html.*` (e.g. `html.div`, `html.button`), **never** raw `<div>` or `<span>`
 - **Styling:** `css.create()` from `react-strict-dom` with token references
-- **Form validation:** Effect Schema + react-hook-form via `@hookform/resolvers`
+- **Form validation:** Effect Schema + react-hook-form via `@hookform/resolvers` — `Form` imports from `@duro-app/ui/form` (4.0.0); `react-hook-form` is a required peer, `@hookform/resolvers` and `effect` are needed only by apps that import that subpath
 - **React 19**, TypeScript strict mode
 
 <!-- duro:rules:start -->
@@ -218,7 +218,8 @@ The canonical nesting for forms with validation:
 
 ```tsx
 import {Schema} from 'effect'
-import {Form, Field, Input, Textarea, Fieldset, Button, Select, Checkbox} from '@duro-app/ui'
+import {Field, Input, Textarea, Fieldset, Button, Select, Checkbox} from '@duro-app/ui'
+import {Form} from '@duro-app/ui/form'
 
 // 1. Define your schema
 const MySchema = Schema.Struct({
@@ -419,6 +420,22 @@ Sizes: `lg` 24px · `md` 18px · `sm` 16px · `xl` 36px · `xxl` 48px — `<Icon
 
 Hand-written judgment that props alone can't carry. (Per-component reference: `npx @duro-app/cli <Name>`.)
 
+### Form
+
+**Import `Form` from `@duro-app/ui/form`, not the package root** (since
+4.0.0). `Form` is the only component that needs `@hookform/resolvers` and
+`effect`; keeping it behind a subpath keeps those two optional peers genuinely
+optional for apps that never validate a schema. `Field`, `Input`, `Textarea`
+and the rest stay on the root and auto-bind when rendered inside a `Form`
+(they need only `react-hook-form`, a required peer):
+
+```tsx
+import {Form} from '@duro-app/ui/form'
+```
+
+Migrating from 3.x is that one line. `FormProps` moves with it;
+`LabelPosition` and `NecessityIndicator` stay root type exports.
+
 ### Data Table
 
 **Import from `@duro-app/ui/table`, not the package root.** Everything that
@@ -521,7 +538,8 @@ One inline exemplar (the others follow the same shape — fetch them with the CL
 ```tsx
 import {Schema} from 'effect'
 import {css, html} from 'react-strict-dom'
-import {Form, Field, Input, Fieldset, Button, Stack, Heading} from '@duro-app/ui'
+import {Field, Input, Fieldset, Button, Stack, Heading} from '@duro-app/ui'
+import {Form} from '@duro-app/ui/form'
 
 const LoginSchema = Schema.Struct({
   username: Schema.String.pipe(
