@@ -1,7 +1,7 @@
 # The decision registry for duro-design-system.
 #
-# This repository declares no architectural questions of its own yet: every
-# decision it lives under is a FLEET decision, made once in the `decisions`
+# Most decisions this repository lives under are FLEET decisions, made once
+# in the `decisions`
 # repository and vendored below. A record here deciding one of their slots
 # would be a contradiction, not an override.
 #
@@ -11,11 +11,13 @@
 packs:
   - .adr/packs/decisions.pack
 
-# No scopes and no keys of this repository's own: everything answerable here
-# comes from the pack. Declare a key here the day this repository has a
-# question the fleet does not answer.
+# Keys of this repository's own answer questions the fleet does not ask;
+# records live in docs/adr/.
+dir: docs/adr
 scopes: []
 keys:
+  packaging.optional-peer-entry:
+    description: Where a component that needs an optional peer dependency is exported from
 
 # Which parts of this repository have which traits (aval 1.7, SEMANTICS
 # section 2.5), as `aval traits --detect` proposed and a reviewer accepted.

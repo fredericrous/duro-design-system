@@ -14,6 +14,7 @@ export default defineConfig({
       entry: {
         index: './src/index.ts',
         table: './src/table.ts',
+        form: './src/form.ts',
       },
       formats: ['es'],
     },

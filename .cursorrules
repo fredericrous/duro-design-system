@@ -44,7 +44,8 @@ import {colors} from '@duro-app/tokens'                        // ❌
 
 ```tsx
 import {Schema} from 'effect'
-import {Form, Field, Input, Fieldset, Button} from '@duro-app/ui'
+import {Field, Input, Fieldset, Button} from '@duro-app/ui'
+import {Form} from '@duro-app/ui/form'
 
 const MySchema = Schema.Struct({
   email: Schema.String.pipe(Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {message: () => 'Invalid'})),

@@ -53,6 +53,7 @@ export function buildRegistry() {
     unions: extractTokenUnions(project),
   })
   extractSurface(project, 'packages/ui/src/table.ts', '@duro-app/ui/table', surface)
+  extractSurface(project, 'packages/ui/src/form.ts', '@duro-app/ui/form', surface)
   extractSurface(project, 'packages/diagrams/src/index.ts', '@duro-app/diagrams', surface)
 
   const registry = {

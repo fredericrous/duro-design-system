@@ -51,12 +51,12 @@ lints clean; website-builder's DesignSystemTab test race is gone.
 
 duro-design-system — PR 1 (branch `fix/form-subpath`)
 
-- [ ] Phase 1 — `packages/ui/src/form.ts` exports `Form`, `FormProps`; remove
+- [x] Phase 1 — `packages/ui/src/form.ts` exports `Form`, `FormProps`; remove
       only `index.ts:37` (the `Form` export), keep the `LabelPosition`/
       `NecessityIndicator` type exports; `vite.config.ts` `lib.entry.form`;
       `package.json` exports `./form` (source/import/types) like `./table`;
       `peerDependenciesMeta`: `react-hook-form` no longer optional.
-- [ ] Phase 2 — `extractSurface(project, 'packages/ui/src/form.ts',
+- [x] Phase 2 — `extractSurface(project, 'packages/ui/src/form.ts',
 '@duro-app/ui/form', surface)` next to the table line in
       `packages/cli/scripts/build-registry.mjs` (recipes map by `importPath`,
       `scripts/lib/recipes.mjs:54`); regenerate with `--write-docs`; hand-edit
@@ -124,6 +124,10 @@ duro-app — PR 4 (branch `build/duro-ui-4`)
   2 files → Phase 10); the link fix's mechanism is unproven (setURL ≡ what
   `$toggleLink` already does) → Phase 5 names it first; the test race is a
   disabled-button click in `install()`, not an early unmount.
+- 2026-09-28 — The subpath rule is recorded as duro-design-system's first
+  local ADR (`docs/adr/0001-optional-peer-behind-subpath.md`, key
+  `packaging.optional-peer-entry`). There is no changelog in this repo, so the
+  BREAKING note goes in the commit, the PR and the v4.0.0 release body.
 
 ## Verification
 
@@ -133,6 +137,21 @@ duro-app — PR 4 (branch `build/duro-ui-4`)
   `Form` from `@duro-app/ui/form` when they are present (as the table split
   was proven); `duro login-form --source-only` prints
   `from '@duro-app/ui/form'`; `build-registry --check --check-docs`.
+  - Observed (2026-09-28): `dist/index.js` chunk graph externals =
+    react, react-dom, react-hook-form, react/jsx-runtime; `dist/form.js` adds
+    `@hookform/resolvers/effect-ts`. `index.d.ts` graph (63 files) imports
+    neither package.
+  - Observed: scratch consumer from the packed tarballs, npm
+    `--legacy-peer-deps`, `node_modules/@hookform` and `effect` absent →
+    `import {Button} from '@duro-app/ui'` builds (exit 0); `import {Form}
+from '@duro-app/ui/form'` fails with `effectTsResolver is not exported
+by __vite-optional-peer-dep:@hookform/resolvers/effect-ts` (the peer
+    requirement now sits where it belongs); after installing the two peers
+    the Form build succeeds (exit 0).
+  - Observed: `duro login-form --source-only` prints `import {Form} from
+'@duro-app/ui/form'`; `duro Form` heads with the same import;
+    `build-registry --check --check-docs` → up to date; `aval check` → 22
+    records, no findings.
 - P4: `npm pack @duro-app/ui@4.0.0` → `exports["./form"]`, root chunk graph
   as in P1–3.
 - P5: new story red on main (text deleted, mechanism logged), green after;
