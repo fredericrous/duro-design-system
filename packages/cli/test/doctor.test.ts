@@ -237,6 +237,117 @@ describe('duro doctor', () => {
   })
 })
 
+describe('duro doctor: breakpoints-extracted', () => {
+  const TOKENS_SRC = 'node_modules/@duro-app/tokens/src/tokens/breakpoints.css.ts'
+  const postcss = (include: string, extra = '') =>
+    `${extra}export default {\n  plugins: {\n    'react-strict-dom/postcss-plugin': {\n      include: ${include},\n    },\n  },\n}\n`
+  /** customer-vision's layout: a @media key built from the StyleX const. */
+  const LAYOUT = {
+    'app/styles/layout.ts': [
+      `import {css} from 'react-strict-dom'`,
+      `import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'`,
+      'export const layout = css.create({grid: {gridTemplateColumns: {default: "2fr 1fr", [`@media (max-width: ${breakpoints.lg})`]: "1fr"}}})',
+      '',
+    ].join('\n'),
+  }
+
+  it('fails when the extraction uses breakpoints but never includes their source', () => {
+    const root = app({...LAYOUT, 'postcss.config.mjs': postcss(`['app/**/*.{ts,tsx}']`)})
+    const result = runDoctor({cwd: root})
+    expect(result.exitCode).toBe(1)
+    expect(findings(root)).toEqual([
+      expect.objectContaining({
+        rule: 'breakpoints-extracted',
+        severity: 'error',
+        file: 'postcss.config.mjs',
+        line: 4,
+      }),
+    ])
+    expect(findings(root)[0]!.message).toContain('app/styles/layout.ts')
+    expect(findings(root)[0]!.fix).toContain(TOKENS_SRC)
+    expect(result.text).toContain('app/styles/layout.ts')
+  })
+
+  it("accepts duro-app's tokens glob and customer-vision's exact path", () => {
+    for (const tokens of [
+      "'node_modules/@duro-app/tokens/src/**/*.{ts,tsx}'",
+      `'${TOKENS_SRC}'`,
+      "'./node_modules/@duro-app/tokens/src/tokens/*.css.ts'",
+    ]) {
+      const root = app({
+        ...LAYOUT,
+        'postcss.config.mjs': postcss(`[${tokens}, 'app/**/*.{ts,tsx}']`),
+      })
+      expect(findings(root), tokens).toEqual([])
+    }
+  })
+
+  it('reads include patterns from a module the config imports', () => {
+    const shared = (sources: string) => ({
+      ...LAYOUT,
+      'strict-dom.babel.mjs': `export const APP_STYLE_SOURCES = ${sources}\n`,
+    })
+    const missing = app({
+      ...shared(`['app/**/*.{ts,tsx}']`),
+      'postcss.config.mjs': postcss(
+        'APP_STYLE_SOURCES',
+        `import {APP_STYLE_SOURCES} from './strict-dom.babel.mjs'\n`,
+      ),
+    })
+    expect(findings(missing).map((f) => f.rule)).toEqual(['breakpoints-extracted'])
+
+    const fixed = app({
+      ...shared(`['app/**/*.{ts,tsx}']`),
+      'postcss.config.mjs': postcss(
+        `[...APP_STYLE_SOURCES, '${TOKENS_SRC}']`,
+        `import {APP_STYLE_SOURCES} from './strict-dom.babel.mjs'\n`,
+      ),
+    })
+    expect(findings(fixed)).toEqual([])
+  })
+
+  it('stays quiet when nothing the extraction covers imports breakpoints', () => {
+    const cases: Array<Record<string, string>> = [
+      // no breakpoints anywhere
+      {},
+      // type-only import: nothing to inline
+      {
+        'app/hooks/size.ts': `import type {Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'\nexport let b: Breakpoint\n`,
+      },
+      // a file outside the include is not part of this extraction
+      {
+        'scripts/gen.ts': `import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'\n`,
+      },
+      // runtime reads from raw are fine
+      {
+        'app/hooks/mobile.ts': `import {breakpointsPx} from '@duro-app/tokens/raw'\n`,
+      },
+    ]
+    for (const files of cases) {
+      const root = app({...files, 'postcss.config.mjs': postcss(`['app/**/*.{ts,tsx}']`)})
+      expect(findings(root)).toEqual([])
+    }
+  })
+
+  it('skips configs it cannot read: no include, a resolved path, a comment is not a pattern', () => {
+    const cases = [
+      `export default {plugins: {'react-strict-dom/postcss-plugin': {}}}\n`,
+      postcss(
+        `['app/**/*.{ts,tsx}', join(dirname(require.resolve('@duro-app/tokens/package.json')), 'src/**/*.ts')]`,
+      ),
+    ]
+    for (const config of cases) {
+      const root = app({...LAYOUT, 'postcss.config.mjs': config})
+      expect(findings(root)).toEqual([])
+    }
+    const commented = app({
+      ...LAYOUT,
+      'postcss.config.mjs': postcss(`['app/**/*.{ts,tsx}' /* , '${TOKENS_SRC}' */]`),
+    })
+    expect(findings(commented).map((f) => f.rule)).toEqual(['breakpoints-extracted'])
+  })
+})
+
 describe('session hook runs doctor', () => {
   it('pins doctor to the same floor as the catalog', () => {
     expect(HOOK_SCRIPT).toContain(`npx -y @duro-app/cli@^${HOOK_MIN_CLI} doctor --session`)

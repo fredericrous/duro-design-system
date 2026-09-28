@@ -14,9 +14,9 @@
 > `/duro-mockup` skill: token-seeded artboards (`duro mockup seed`), a checker that refuses raw
 > values and unnamed controls (`duro mockup check`), and the implement-and-prove steps that follow
 > the picked direction. `npx -y @duro-app/cli doctor` checks the app's build wiring
-> (`runtimeInjection`, layered extraction, stylesheet import and layer order) — the ways an app
-> flattens component spacing while this package's CSS is fine; the session hook runs it too. See
-> `packages/cli/README.md`.
+> (`runtimeInjection`, layered extraction, stylesheet import and layer order, breakpoints in the
+> extraction) — the ways an app flattens component spacing or drops its `@media` rules while this
+> package's CSS is fine; the session hook runs it too. See `packages/cli/README.md`.
 
 ## Architecture
 
