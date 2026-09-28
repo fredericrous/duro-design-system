@@ -95,6 +95,13 @@ describe('token tables match @duro-app/tokens', () => {
     )
   })
 
+  it('TOKEN_DEEP_PATHS sends every raw.ts value export to the runtime-safe module', async () => {
+    const raw = await import('@duro-app/tokens/raw')
+    for (const name of Object.keys(raw)) {
+      expect(TOKEN_DEEP_PATHS[name], `deep path for raw.ts export ${name}`).toBe('raw')
+    }
+  })
+
   it('TOKEN_DEEP_PATHS keys.ts entries stay in sync with the module', async () => {
     const keys = await import('@duro-app/tokens/keys')
     for (const name of Object.keys(keys)) {

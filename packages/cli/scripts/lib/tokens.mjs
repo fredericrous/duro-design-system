@@ -72,7 +72,7 @@ export function extractTokens(project) {
   const easing = callArg(project, 'tokens/motion.css.ts', 'easing')
   const layoutSpacing = callArg(project, 'tokens/layout-spacing.css.ts', 'layoutSpacing')
   const typography = callArg(project, 'tokens/typography.css.ts', 'typography')
-  const breakpoints = constValue(project, 'tokens/breakpoints.css.ts', 'breakpointsPx')
+  const breakpoints = constValue(project, 'raw.ts', 'breakpointsPx')
   const iconSizes = constValue(project, 'keys.ts', 'ICON_SIZES')
   const typePresetKeys = callArgKeys(project, 'tokens/type-presets.css.ts', 'typePresets')
 
@@ -105,11 +105,10 @@ export function extractTokens(project) {
         'layoutSpacing',
         layoutSpacing,
       ),
-      breakpoints: scaleGroup(
-        '@duro-app/tokens/tokens/breakpoints.css',
-        'breakpointsPx',
-        breakpoints,
-      ),
+      // The px numbers are runtime data: raw is the import that works outside
+      // a StyleX compile (tokens/breakpoints.css is css.defineConsts and
+      // throws there). Styles use `breakpoints.<key>` from that module.
+      breakpoints: scaleGroup('@duro-app/tokens/raw', 'breakpointsPx', breakpoints),
       colors: {
         importPath: '@duro-app/tokens/tokens/colors.css',
         exportName: 'colors',

@@ -16,7 +16,7 @@ export const TOKEN_DEEP_PATHS: Record<string, string> = {
   duration: 'tokens/motion.css',
   easing: 'tokens/motion.css',
   breakpoints: 'tokens/breakpoints.css',
-  breakpointsPx: 'tokens/breakpoints.css',
+  breakpointsPx: 'raw',
   Breakpoint: 'tokens/breakpoints.css',
   lightTheme: 'themes/light.css',
   lightShadows: 'themes/light.css',

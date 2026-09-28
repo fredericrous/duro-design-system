@@ -99,11 +99,30 @@ Options: `{factories?: string[], spacingProperties?: string[], radiiProperties?:
 
 A media-query string anywhere in a file — `useMediaQuery('(min-width:
 768px)')`, `matchMedia(...)`, a constant — carries a raw breakpoint that
-`no-raw-design-values` never sees (it only reads `css.create`). On the scale
-the autofix rewrites the literal to `` `(min-width: ${breakpoints.md})` `` and
-adds the import (a `css.defineConsts` string, so it interpolates to
-`'768px'`); off the scale it reports. Skips `css.create` keys, and skips the
-fix when a local `breakpoints` binding would shadow the import.
+`no-raw-design-values` never sees (it only reads `css.create`). What the fix
+writes depends on where the query runs:
+
+| Context                                                                                                 | Autofix                                                                                                               |
+| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Runtime** — `matchMedia`, `useMediaQuery`, any string outside `css.create`                            | `` `(min-width: ${breakpointsPx.md}px)` `` + `import {breakpointsPx} from '@duro-app/tokens/raw'`                     |
+| **Style** — inside `css.create`, or a string that is itself a condition (`'@media (min-width: 768px)'`) | `` `@media (min-width: ${breakpoints.md})` `` + `import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'` |
+
+`tokens/breakpoints.css` is `css.defineConsts`: it only exists where StyleX
+compiles the file, and importing it anywhere else — a hook under vitest,
+Node, a module the app's StyleX config skips — throws at import time. So the
+rule also reports:
+
+- **`breakpoints.*` read at runtime** (outside `css.create` and outside a
+  `@media`/`@container` template). When every read is a template
+  interpolation and the file no longer needs the const for a style, the fix
+  rewrites them to `${breakpointsPx.<key>}px` and swaps the import for raw.
+- **`breakpointsPx` imported from `tokens/breakpoints.css`** — the fix
+  repoints the import at `@duro-app/tokens/raw` when that module exports
+  everything the declaration names.
+
+Off the scale it reports without a fix, and it skips the fix when a local
+binding would shadow the import. Skips `css.create` keys (that is
+`no-raw-design-values`).
 
 ## Token data
 

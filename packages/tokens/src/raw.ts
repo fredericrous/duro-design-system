@@ -131,3 +131,25 @@ export const highContrastColors: RawColors = {
   infoBorder: 'rgba(96, 165, 250, 0.5)',
   infoText: '#bfdbfe',
 }
+
+// Breakpoint scale in px — the runtime-safe mirror of `tokens/breakpoints.css.ts`.
+//
+// That module calls `css.defineConsts`, which only exists once StyleX has
+// compiled the file: imported anywhere StyleX isn't compiling it (a hook's
+// `matchMedia`, a width comparison, a vitest suite, plain Node) it throws at
+// import time. Anything that reads a breakpoint outside a css.create style
+// reads it from here:
+//
+//   window.matchMedia(`(max-width: ${breakpointsPx.md}px)`)
+//
+// Inside css.create keep using `breakpoints.<key>` — StyleX needs the const to
+// inline the query. `scripts/check-token-drift.mjs` keeps the two in step.
+export const breakpointsPx = {
+  xs: 480,
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+} as const
+
+export type Breakpoint = keyof typeof breakpointsPx

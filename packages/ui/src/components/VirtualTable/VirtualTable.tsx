@@ -11,7 +11,7 @@ import {
   type Row,
 } from '@tanstack/react-table'
 import {useVirtualizer} from '@tanstack/react-virtual'
-import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
+import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/raw'
 import {styles} from './styles.css'
 
 // Measure + commit before paint on the client; no-op-safe on the server.

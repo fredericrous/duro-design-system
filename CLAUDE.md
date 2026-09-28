@@ -391,6 +391,27 @@ is added.
 | `inlineXs`-`inlineLg`       | 4-24px  | Horizontal rhythm (Inline gaps) |
 | `containerSm`-`containerLg` | 16-32px | Page/section padding            |
 
+### Breakpoints
+
+`xs` 480 · `sm` 640 · `md` 768 · `lg` 1024 · `xl` 1280 (px). Two imports,
+chosen by where the query runs:
+
+```tsx
+// Styles — inside css.create: the StyleX const, inlined into the query
+import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
+const styles = css.create({
+  grid: {gridTemplateColumns: {default: '1fr 1fr', [`@media (max-width: ${breakpoints.md})`]: '1fr'}},
+})
+
+// Runtime — matchMedia, a hook, a width comparison: plain numbers
+import {breakpointsPx} from '@duro-app/tokens/raw'
+const isMobile = window.matchMedia(`(max-width: ${breakpointsPx.md}px)`).matches
+```
+
+**Never import `tokens/breakpoints.css` from runtime code.** It is
+`css.defineConsts`, which throws wherever StyleX isn't compiling the file (a
+hook under vitest, Node). `duro/no-raw-breakpoint-query` enforces both halves.
+
 ## Icon Names
 
 <!-- duro:generated:icons START -->

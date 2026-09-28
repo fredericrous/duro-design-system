@@ -103,8 +103,10 @@ ${DURO} mockup check docs/mockups/<screen>/*.dc.html
   and \`--duro-type-scale-*\` are \`typography\`/\`typeScale\`, \`--duro-shadow-*\`
   is \`shadows\`, \`--duro-duration-*\`/\`--duro-easing-*\` are \`duration\`/\`easing\`.
   A media query on \`768px\` is \`breakpoints.md\` from
-  \`@duro-app/tokens/tokens/breakpoints.css\`. The lint config refuses the raw
-  value, so write the token the first time.
+  \`@duro-app/tokens/tokens/breakpoints.css\` inside \`css.create\`, and
+  \`\${breakpointsPx.md}px\` from \`@duro-app/tokens/raw\` in runtime code
+  (\`matchMedia\`, a hook) — the StyleX const throws outside a StyleX compile.
+  The lint config refuses the raw value, so write the token the first time.
 - Layout comes from a recipe before a grid: \`${DURO} <recipe> --source-only\`.
 - Geometry in the artboard is a sketch. Match its hierarchy and states, not
   its pixel widths.

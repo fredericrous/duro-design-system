@@ -6759,11 +6759,14 @@
         "severity": "warn"
       },
       {
-        "description": "Disallow raw px breakpoints in media-query strings; use breakpoints.<key>",
+        "description": "Disallow raw px breakpoints in media-query strings; use breakpoints.<key> in styles and breakpointsPx.<key> from @duro-app/tokens/raw at runtime",
         "fixable": "autofix",
         "id": "duro/no-raw-breakpoint-query",
         "messages": {
-          "rawBreakpointQuery": "{{value}}px is a raw breakpoint in a media query. Use `breakpoints.{{token}}` from @duro-app/tokens/tokens/breakpoints.css (the scale is {{scale}}px)."
+          "breakpointsPxFromStyleModule": "Import `{{name}}` from @duro-app/tokens/raw. tokens/breakpoints.css runs css.defineConsts at import time and throws where StyleX is not compiling it.",
+          "rawBreakpointQuery": "{{value}}px is a raw breakpoint in a media query. At runtime use `${breakpointsPx.{{token}}}px` from @duro-app/tokens/raw (the scale is {{scale}}px) — tokens/breakpoints.css throws outside StyleX.",
+          "rawBreakpointStyleQuery": "{{value}}px is a raw breakpoint in a style condition. Use `breakpoints.{{token}}` from @duro-app/tokens/tokens/breakpoints.css (the scale is {{scale}}px).",
+          "runtimeBreakpointConst": "`{{name}}` from tokens/breakpoints.css is a StyleX const: it only exists where StyleX compiles the file, and importing it anywhere else (vitest, Node, a hook) throws. Outside css.create use `${breakpointsPx.<key>}px` from @duro-app/tokens/raw."
         },
         "severity": "error"
       },
@@ -6849,7 +6852,7 @@
           }
         ],
         "exportName": "breakpointsPx",
-        "importPath": "@duro-app/tokens/tokens/breakpoints.css"
+        "importPath": "@duro-app/tokens/raw"
       },
       "colors": {
         "entries": [
