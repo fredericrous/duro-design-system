@@ -14,6 +14,9 @@ import {
   HOOK_SCRIPT,
   HOOK_SCRIPT_PATH,
   HOOK_SETTINGS_PATH,
+  PLAN_HOOK_COMMAND,
+  PLAN_HOOK_SCRIPT,
+  PLAN_HOOK_SCRIPT_PATH,
 } from '../hook-script.js'
 
 // Injected into agent context by a Claude Code SessionStart hook. The point
@@ -116,26 +119,44 @@ function write(path: string, content: string): void {
   writeFileSync(path, content, 'utf8')
 }
 
+/** One settings.json entry install owns: the event, the script it runs, the exact command. */
+interface Wiring {
+  event: string
+  script: string
+  command: string
+}
+
+const WIRINGS: Wiring[] = [
+  {event: 'SessionStart', script: HOOK_SCRIPT_PATH, command: HOOK_COMMAND},
+  {event: 'UserPromptSubmit', script: PLAN_HOOK_SCRIPT_PATH, command: PLAN_HOOK_COMMAND},
+]
+
 /**
- * Add the SessionStart entry without disturbing anything else in the file:
+ * Add each event's entry without disturbing anything else in the file:
  * consuming repos keep their own hooks, permissions and skill overrides here.
- * Returns null when the file is already wired correctly.
+ * Returns the events that changed, and null for the text when the file is
+ * already wired correctly.
  */
-function nextSettings(current: string | null): string | null {
+function nextSettings(current: string | null): {text: string | null; events: string[]} {
   const parsed: Settings = current === null ? {} : (JSON.parse(current) as Settings)
   const hooks = (parsed.hooks ??= {})
-  const sessionStart = (hooks.SessionStart ??= [])
-  const ours = sessionStart
-    .flatMap((group) => group.hooks ?? [])
-    .find((entry) => entry.command?.includes(HOOK_SCRIPT_PATH))
-  if (ours) {
-    if (ours.command === HOOK_COMMAND && ours.type === 'command') return null
-    ours.type = 'command'
-    ours.command = HOOK_COMMAND
-  } else {
-    sessionStart.push({hooks: [{type: 'command', command: HOOK_COMMAND}]})
+  const events: string[] = []
+  for (const {event, script, command} of WIRINGS) {
+    const groups = (hooks[event] ??= [])
+    const ours = groups
+      .flatMap((group) => group.hooks ?? [])
+      .find((entry) => entry.command?.includes(script))
+    if (ours) {
+      if (ours.command === command && ours.type === 'command') continue
+      ours.type = 'command'
+      ours.command = command
+    } else {
+      groups.push({hooks: [{type: 'command', command}]})
+    }
+    events.push(event)
   }
-  return JSON.stringify(parsed, null, 2) + '\n'
+  if (events.length === 0) return {text: null, events}
+  return {text: JSON.stringify(parsed, null, 2) + '\n', events}
 }
 
 /** Append the cache to .gitignore, unless some rule already covers the path. */
@@ -155,7 +176,7 @@ function nextGitignore(current: string | null): string | null {
  * to nobody. Best-effort: no git, no warning.
  */
 function ignoredTrackables(root: string): string[] {
-  const candidates = [HOOK_SCRIPT_PATH, HOOK_SETTINGS_PATH, HOOK_NOTES_PATH]
+  const candidates = [HOOK_SCRIPT_PATH, PLAN_HOOK_SCRIPT_PATH, HOOK_SETTINGS_PATH, HOOK_NOTES_PATH]
   try {
     const out = execFileSync('git', ['check-ignore', '--', ...candidates], {
       cwd: root,
@@ -188,15 +209,16 @@ function runHookInstall(options: HookOptions): CommandResult {
     changes.push({path, status: 'written', detail})
   }
 
-  const script = read(at(HOOK_SCRIPT_PATH))
-  apply(
-    HOOK_SCRIPT_PATH,
-    script === HOOK_SCRIPT ? null : HOOK_SCRIPT,
-    script === null ? 'created' : 'regenerated',
-  )
+  for (const [path, content] of [
+    [HOOK_SCRIPT_PATH, HOOK_SCRIPT],
+    [PLAN_HOOK_SCRIPT_PATH, PLAN_HOOK_SCRIPT],
+  ] as const) {
+    const script = read(at(path))
+    apply(path, script === content ? null : content, script === null ? 'created' : 'regenerated')
+  }
 
   const settingsRaw = read(at(HOOK_SETTINGS_PATH))
-  let settingsNext: string | null
+  let settingsNext: {text: string | null; events: string[]}
   try {
     settingsNext = nextSettings(settingsRaw)
   } catch (error) {
@@ -210,8 +232,8 @@ function runHookInstall(options: HookOptions): CommandResult {
   }
   apply(
     HOOK_SETTINGS_PATH,
-    settingsNext,
-    settingsRaw === null ? 'created' : 'SessionStart entry added',
+    settingsNext.text,
+    settingsRaw === null ? 'created' : `${settingsNext.events.join(' + ')} entry wired`,
   )
 
   const gitignoreRaw = read(at('.gitignore'))
@@ -240,7 +262,7 @@ function runHookInstall(options: HookOptions): CommandResult {
   const ignored = ignoredTrackables(root)
   return {
     text: [
-      'Duro SessionStart hook installed.',
+      'Duro hooks installed: SessionStart (catalog) and UserPromptSubmit (plan-mode nudge).',
       ...lines,
       '',
       `Repo-specific caveats: put them in ${HOOK_NOTES_PATH} — the hook appends that file`,

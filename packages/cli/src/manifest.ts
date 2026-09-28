@@ -75,12 +75,13 @@ export const COMMANDS: CommandSpec[] = [
   {
     name: 'hook',
     summary:
-      'Claude Code SessionStart hook: session-start prints the consult-first preamble + full catalog; install wires it into the current repo',
+      'Claude Code hooks: session-start prints the consult-first preamble + full catalog; install wires it (SessionStart) plus a plan-mode mockup nudge (UserPromptSubmit) into the current repo',
     args: [
       {
         name: 'event',
         required: true,
-        description: 'session-start (print the bootstrap) | install (wire it into this repo)',
+        description:
+          'session-start (print the bootstrap) | install (wire both hooks into this repo)',
         valuesFrom: 'events',
       },
     ],
