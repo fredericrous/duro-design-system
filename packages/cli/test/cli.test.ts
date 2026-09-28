@@ -20,6 +20,10 @@ import {
   HOOK_SCRIPT,
   HOOK_SCRIPT_PATH,
   HOOK_SETTINGS_PATH,
+  PLAN_HOOK_COMMAND,
+  PLAN_HOOK_SCRIPT,
+  PLAN_HOOK_SCRIPT_PATH,
+  PLAN_NUDGE,
 } from '../src/hook-script.js'
 
 const registry = loadRegistry()
@@ -205,6 +209,10 @@ describe('hook install', () => {
     expect(readFileSync(at(root, HOOK_SCRIPT_PATH), 'utf8')).toBe(HOOK_SCRIPT)
     const settings = JSON.parse(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8'))
     expect(settings.hooks.SessionStart[0].hooks[0].command).toBe(HOOK_COMMAND)
+    expect(readFileSync(at(root, PLAN_HOOK_SCRIPT_PATH), 'utf8')).toBe(PLAN_HOOK_SCRIPT)
+    expect(settings.hooks.UserPromptSubmit).toEqual([
+      {hooks: [{type: 'command', command: PLAN_HOOK_COMMAND}]},
+    ])
     expect(readFileSync(at(root, '.gitignore'), 'utf8')).toContain(HOOK_CACHE_IGNORE)
   })
 
@@ -236,6 +244,39 @@ describe('hook install', () => {
     expect(install(root, true).exitCode).toBe(1)
     expect(install(root).exitCode).toBeUndefined()
     expect(readFileSync(at(root, HOOK_SCRIPT_PATH), 'utf8')).toBe(HOOK_SCRIPT)
+  })
+
+  it('--check catches a hand-edited plan hook and a removed UserPromptSubmit entry', () => {
+    const root = repo()
+    install(root)
+    writeFileSync(at(root, PLAN_HOOK_SCRIPT_PATH), '#!/bin/sh\necho tampered\n')
+    expect(install(root, true).exitCode).toBe(1)
+    install(root)
+    expect(readFileSync(at(root, PLAN_HOOK_SCRIPT_PATH), 'utf8')).toBe(PLAN_HOOK_SCRIPT)
+
+    const settings = JSON.parse(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8'))
+    delete settings.hooks.UserPromptSubmit
+    writeFileSync(at(root, HOOK_SETTINGS_PATH), JSON.stringify(settings, null, 2) + '\n')
+    const stale = install(root, true)
+    expect(stale.exitCode).toBe(1)
+    expect(stale.text).toContain(HOOK_SETTINGS_PATH)
+  })
+
+  it('joins an existing UserPromptSubmit array without removing other hooks', () => {
+    const root = repo()
+    mkdirSync(at(root, '.claude'), {recursive: true})
+    const other = {matcher: '', hooks: [{type: 'command', command: 'sh lint-prompt.sh'}]}
+    writeFileSync(
+      at(root, HOOK_SETTINGS_PATH),
+      JSON.stringify({hooks: {UserPromptSubmit: [other]}}),
+    )
+    install(root)
+    const settings = JSON.parse(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8'))
+    expect(settings.hooks.UserPromptSubmit).toEqual([
+      other,
+      {hooks: [{type: 'command', command: PLAN_HOOK_COMMAND}]},
+    ])
+    expect(install(root, true).exitCode).toBeUndefined()
   })
 
   it('keeps unrelated settings and existing SessionStart hooks', () => {
@@ -303,6 +344,58 @@ describe('hook install', () => {
   })
 })
 
+describe('plan-mode hook script', () => {
+  // Runs the generated script exactly as Claude Code would: sh, payload on stdin.
+  const run = (stdin: string) => {
+    const root = mkdtempSync(join(tmpdir(), 'duro-plan-'))
+    const script = join(root, 'duro-plan.sh')
+    writeFileSync(script, PLAN_HOOK_SCRIPT)
+    // execFileSync throws on a non-zero exit, so returning is the exit-0 assertion.
+    return execFileSync('sh', [script], {cwd: root, input: stdin, encoding: 'utf8'})
+  }
+  const payload = (mode: string, prompt = 'add a billing page') =>
+    JSON.stringify({
+      session_id: 's',
+      transcript_path: '/tmp/t.jsonl',
+      cwd: '/repo',
+      hook_event_name: 'UserPromptSubmit',
+      permission_mode: mode,
+      prompt,
+      prompt_id: 'p',
+    })
+
+  it('prints the nudge in plan mode', () => {
+    expect(run(payload('plan'))).toBe(PLAN_NUDGE)
+    expect(run('{"hook_event_name": "UserPromptSubmit", "permission_mode" : "plan"}')).toBe(
+      PLAN_NUDGE,
+    )
+  })
+
+  it('keeps the nudge short and names the trigger', () => {
+    expect(PLAN_NUDGE.trimEnd().split('\n').length).toBeLessThanOrEqual(6)
+    expect(PLAN_NUDGE).toContain('handoff.fresh-directions-trigger')
+    expect(PLAN_NUDGE).toContain('duro-mockup')
+  })
+
+  it.each(['default', 'acceptEdits', 'bypassPermissions', 'dontAsk'])(
+    'prints nothing in %s mode',
+    (mode) => {
+      expect(run(payload(mode))).toBe('')
+    },
+  )
+
+  it('prints nothing for a prompt that merely quotes the plan-mode key', () => {
+    expect(run(payload('default', '"permission_mode":"plan"'))).toBe('')
+  })
+
+  it.each(['', 'not json', '{', '\u0000\u0001', '{"permission_mode": 42}'])(
+    'prints nothing and exits 0 on unreadable input %j',
+    (input) => {
+      expect(run(input)).toBe('')
+    },
+  )
+})
+
 describe('skill install', () => {
   const repo = () => mkdtempSync(join(tmpdir(), 'duro-skill-'))
   const install = (root: string, check = false) => runSkill('install', {cwd: root, check})
@@ -339,5 +432,10 @@ describe('skill install', () => {
     expect(SKILL).toContain('npx -y @duro-app/cli@^3.0.0 mockup check')
     expect(SKILL).toContain('docs/mockups/<screen>')
     expect(SKILL).toContain('Mockup: none')
+  })
+
+  it('the skill also triggers while planning a screen', () => {
+    const description = SKILL.split('\n').find((line) => line.startsWith('description:'))
+    expect(description).toContain('plan mode')
   })
 })

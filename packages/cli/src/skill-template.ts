@@ -25,7 +25,7 @@ const DURO = `npx -y @duro-app/cli@^${SKILL_MIN_CLI}`
 
 export const SKILL = `---
 name: duro-mockup
-description: Take a new screen from mockup directions to an implemented, verified PR without leaving the Duro design system. Use whenever the user asks for a screen, a page, a UI proposal, mockups, or "show me options" in a repo that consumes @duro-app/ui.
+description: Take a new screen from mockup directions to an implemented, verified PR without leaving the Duro design system. Use whenever the user asks for a screen, a page, a UI proposal, mockups, or "show me options" in a repo that consumes @duro-app/ui — and when planning (plan mode) a new screen or a material layout, hierarchy or interaction change there.
 ---
 
 # duro-mockup
