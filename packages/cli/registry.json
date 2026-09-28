@@ -2791,7 +2791,8 @@
           "Picking from predefined options — use Select"
         ],
         "whenToUse": [
-          "Single-line text entry (text, email, password, url, tel, number, search)"
+          "Single-line text entry (text, email, password, url, tel, number, search)",
+          "Picking a file with type=\"file\" — narrow the types with accept (e.g. \"image/*\")"
         ]
       },
       "name": "Input",
@@ -2883,6 +2884,12 @@
         },
         {
           "name": "pattern",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "File types a `type=\"file\"` input offers — MIME types, wildcards or extensions (`\"image/*\"`, `\".png,.jpg\"`). The browser ignores it on every other type.",
+          "name": "accept",
           "required": false,
           "type": "string"
         },

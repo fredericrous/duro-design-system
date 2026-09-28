@@ -74,6 +74,16 @@ export const Password: Story = {
   },
 }
 
+/** `accept` narrows a file picker to the listed types (image upload here). */
+export const FileAccept: Story = {
+  args: {type: 'file', accept: 'image/png,image/jpeg,.webp', 'aria-label': 'Upload image'},
+  play: async ({canvas}) => {
+    const input = canvas.getByLabelText('Upload image')
+    await expect(input).toHaveAttribute('type', 'file')
+    await expect(input).toHaveAttribute('accept', 'image/png,image/jpeg,.webp')
+  },
+}
+
 export const Disabled: Story = {
   args: {placeholder: 'Disabled', disabled: true},
   play: async ({canvas}) => {
