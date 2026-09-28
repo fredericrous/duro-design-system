@@ -14,7 +14,7 @@ npx @duro-app/cli spacing            # token scale + the deep import to copy
 npx @duro-app/cli rules              # critical rules + what the lint plugin enforces
 npx @duro-app/cli "tags that wrap"   # free text falls back to a need-search
 npx @duro-app/cli list
-npx @duro-app/cli hook install       # wire the Claude Code SessionStart hook
+npx @duro-app/cli hook install       # wire the Claude Code session + plan-mode hooks
 npx @duro-app/cli skill install      # wire the /duro-mockup workflow skill
 npx @duro-app/cli mockup seed --out docs/mockups/approvals   # token-seeded artboard
 npx @duro-app/cli mockup check docs/mockups/approvals/*.dc.html
@@ -107,15 +107,16 @@ npx -y @duro-app/cli hook install          # wire this repo
 npx -y @duro-app/cli hook install --check  # CI: exit 1 if it drifted
 ```
 
-`install` is idempotent, and touches exactly three files:
+`install` is idempotent, and touches exactly four files:
 
 | File                            | What install does                                                                                                                                                                                                                                                                         |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `.claude/hooks/duro-catalog.sh` | Writes the generated hook: fetches the catalog, caches it for 7 days (npx resolution dominates session start; the catalog only changes on upgrade), stays silent when offline with no cache. Then runs [`duro doctor --session`](#duro-doctor), re-run only when a file it reads changes. |
-| `.claude/settings.json`         | Adds the `SessionStart` entry. Existing hooks, permissions and skill overrides are preserved; a hand-renamed duro command is migrated in place rather than duplicated. Unparseable JSON is reported, never clobbered.                                                                     |
+| `.claude/hooks/duro-plan.sh`    | Writes the generated [plan-mode nudge](#plan-mode-nudge).                                                                                                                                                                                                                                 |
+| `.claude/settings.json`         | Adds the `SessionStart` and `UserPromptSubmit` entries. Existing hooks, permissions and skill overrides are preserved; a hand-renamed duro command is migrated in place rather than duplicated. Unparseable JSON is reported, never clobbered.                                            |
 | `.gitignore`                    | Ignores `.claude/.duro-session.cache*` — a glob, because a hook killed mid-`npx` leaves the staging `.tmp` behind.                                                                                                                                                                        |
 
-Do not hand-edit the generated script — `--check` is a byte comparison, so an
+Do not hand-edit the generated scripts — `--check` is a byte comparison, so an
 edit shows up as drift and the next `install` overwrites it. **Repo-specific
 caveats go in `.claude/duro-hook.local.md`**: the hook appends that file after
 the catalog, and regeneration leaves it alone. Use it for the things the
@@ -135,6 +136,24 @@ script still pins `^1.2.0` never resolves a 2.x or 3.x payload and never sees
 what the session-start injection gained since. After a major, re-run
 `hook install` in every consumer and delete `.claude/.duro-session.cache*`
 (the payload is cached seven days).
+
+### Plan-mode nudge
+
+The second hook runs on Claude Code's `UserPromptSubmit`. While the session is
+in plan mode (the event's `permission_mode` is `"plan"`) it adds five lines to
+the planner's context: a plan that adds a new screen, or makes a material
+choice in layout, hierarchy or interaction, starts by picking a direction —
+load the `duro-mockup` skill and draw 2–4 directions with `duro mockup` before
+`ExitPlanMode` (fleet decision `handoff.fresh-directions-trigger`). A fix that
+restores an existing design reuses the picked artboard; any other UI change
+needs no mockup. So fresh directions come up while planning without anyone
+typing `/duro-mockup`.
+
+Outside plan mode, and on any payload it cannot read, it prints nothing. It
+runs on every prompt, so it is plain `sh` and one `grep` over the event JSON —
+no npx, no node, no network — and every path exits 0: it can never block or
+fail a prompt. Existing `UserPromptSubmit` hooks in `settings.json` are kept;
+the duro entry joins the array.
 
 ## duro doctor
 
@@ -207,3 +226,7 @@ check, publish the canvas, implement the picked direction from its
 `data-duro` map, screenshot the built route and put artboard and screenshot
 side by side in the PR — and it explicitly overrides the `design` skill's
 "lift resolved values" step. Repo notes go in `.claude/duro-mockup.local.md`.
+Its description triggers on a request for a screen, page or mockups, and also
+while planning (plan mode) a new screen or a material layout, hierarchy or
+interaction change — the moment the [plan-mode nudge](#plan-mode-nudge) points
+at it.
