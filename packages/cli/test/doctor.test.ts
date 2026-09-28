@@ -72,6 +72,33 @@ describe('duro doctor', () => {
     ])
   })
 
+  // website-builder moved its StyleX options out of vite.config.ts into a
+  // module it imports; doctor read only the config and went blind to them.
+  it('follows a config into the sibling module that holds its StyleX options', () => {
+    const root = app({
+      'vite.config.ts': `import {stylexOpts} from './vite-stylex'\nexport default {plugins: [stylex(stylexOpts)]}\n`,
+      'vite-stylex.ts': `export const stylexOpts = {\n  dev: true,\n  runtimeInjection: true,\n}\n`,
+    })
+    expect(findings(root)).toEqual([
+      expect.objectContaining({
+        rule: 'runtime-injection',
+        severity: 'error',
+        file: 'vite-stylex.ts',
+        line: 3,
+      }),
+    ])
+    expect(runDoctor({cwd: root}).text).toContain('vite-stylex.ts')
+  })
+
+  it('does not follow imports out of the package root or into tests', () => {
+    const root = app({
+      'vite.config.ts': `import {x} from './src/opts'\nimport {y} from './setup.test'\nexport default {plugins: [stylex({runtimeInjection: false})]}\n`,
+      'src/opts.ts': `export const x = {runtimeInjection: true}\n`,
+      'setup.test.ts': `export const y = {runtimeInjection: true}\n`,
+    })
+    expect(findings(root)).toEqual([])
+  })
+
   it('reads a comment about runtimeInjection as prose, not config', () => {
     const root = app({
       'vite.config.ts': `// never set runtimeInjection: true here\n/* runtimeInjection: true */\nexport default {runtimeInjection: false}\n`,
@@ -157,6 +184,102 @@ describe('duro doctor', () => {
       ['unlayered-reset', 'warn', 6],
     ])
     expect(runDoctor({cwd: root}).exitCode).toBeUndefined()
+  })
+
+  describe('tokens-compiled', () => {
+    /** website-builder's shape: bare StyleX over app code, nothing over the tokens. */
+    const BARE_STYLEX = [
+      `import react from '@vitejs/plugin-react'`,
+      `import stylexPlugin from '@stylexjs/babel-plugin'`,
+      `const stylexBabelOpts = {runtimeInjection: false, importSources: [{from: 'react-strict-dom', as: 'css'}]}`,
+      `const rsdSourceRE = /\\/react-strict-dom\\/dist\\/(web|dom)\\/[^/]+\\.js(\\?|$)/`,
+      `// @duro-app/tokens is read through the barrel (prose, not config)`,
+      `export default {`,
+      `  optimizeDeps: {exclude: ['react-strict-dom']},`,
+      `  plugins: [react({babel: {plugins: [[stylexPlugin, stylexBabelOpts]]}})],`,
+      `}`,
+      '',
+    ].join('\n')
+
+    /** duro-app's shape: the preset over app code AND over the tokens, both SSR-inlined. */
+    const DURO_APP = [
+      `import {reactRouter} from '@react-router/dev/vite'`,
+      `import babel from 'vite-plugin-babel'`,
+      `const preset = ['react-strict-dom/babel-preset', {dev: true, platform: 'web'}]`,
+      `export default {`,
+      `  plugins: [`,
+      `    reactRouter(),`,
+      `    babel({filter: /\\/app\\/.*\\.[jt]sx?$/, babelConfig: {presets: [preset]}}),`,
+      `    babel({filter: /node_modules\\/@duro-app\\/tokens\\/.*\\.[jt]sx?$/, babelConfig: {presets: [preset]}}),`,
+      `    babel({filter: /node_modules\\/react-strict-dom/, babelConfig: {plugins: [['@stylexjs/babel-plugin', {runtimeInjection: false}]]}}),`,
+      `  ],`,
+      `  ssr: {noExternal: ['react-strict-dom', '@duro-app/tokens']},`,
+      `}`,
+      '',
+    ].join('\n')
+
+    const tokens = (root: string) => findings(root).filter((f) => f.rule === 'tokens-compiled')
+
+    it('warns when StyleX compiles the app but nothing compiles the tokens', () => {
+      const root = app({'vite.config.ts': BARE_STYLEX})
+      expect(tokens(root)).toEqual([
+        expect.objectContaining({severity: 'warn', file: 'vite.config.ts', line: 2}),
+      ])
+      const [finding] = tokens(root)
+      expect(finding!.message).toContain('.stylex.ts extension')
+      expect(finding!.message).toContain('Latent')
+      expect(finding!.fix).toContain('react-strict-dom/babel-preset')
+      expect(finding!.fix).toContain('ssr.noExternal')
+      expect(runDoctor({cwd: root}).exitCode).toBeUndefined()
+      expect(runDoctor({cwd: root, session: true}).text).toContain('tokens-compiled')
+    })
+
+    it('fails when a css.create file already deep-imports the tokens', () => {
+      const root = app({
+        'vite.config.ts': BARE_STYLEX,
+        'app/components/Card.tsx': [
+          `import {css} from 'react-strict-dom'`,
+          `import {spacing} from '@duro-app/tokens/tokens/spacing.css'`,
+          `export const styles = css.create({card: {padding: spacing.md}})`,
+          '',
+        ].join('\n'),
+      })
+      expect(tokens(root)).toEqual([expect.objectContaining({severity: 'error'})])
+      expect(tokens(root)[0]!.message).toContain('app/components/Card.tsx:2')
+      expect(runDoctor({cwd: root}).exitCode).toBe(1)
+    })
+
+    it('is silent on the duro-app wiring', () => {
+      const root = app({'vite.config.ts': DURO_APP})
+      expect(findings(root)).toEqual([])
+    })
+
+    it('does not take a postcss extraction include for compiling the tokens', () => {
+      const root = app({
+        'vite.config.ts': DURO_APP.replace(
+          / {4}babel\(\{filter: \/node_modules\\\/@duro-app.*\n/,
+          '',
+        ),
+        'postcss.config.mjs': `export default {plugins: {'react-strict-dom/postcss-plugin': {include: ['app/**', 'node_modules/@duro-app/tokens/src/**/*.ts']}}}\n`,
+      })
+      expect(tokens(root)).toEqual([expect.objectContaining({rule: 'tokens-compiled'})])
+    })
+
+    it('is silent when nothing compiles with StyleX', () => {
+      const root = app({
+        'vite.config.ts': `import react from '@vitejs/plugin-react'\nexport default {plugins: [react()]}\n`,
+      })
+      expect(findings(root)).toEqual([])
+    })
+
+    it('fails on an SSR app that compiles the tokens but does not inline them', () => {
+      const root = app({
+        'vite.config.ts': DURO_APP.replace(`, '@duro-app/tokens'`, ''),
+        'app/root.tsx': `${HEALTHY['app/root.tsx']}export const s = css.create({})\n`,
+      })
+      expect(tokens(root)).toEqual([expect.objectContaining({severity: 'error'})])
+      expect(tokens(root)[0]!.fix).toContain('ssr.noExternal')
+    })
   })
 
   it('prints an agent-facing block in session mode, and still exits 0', () => {
