@@ -1,4 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/react'
+import {expect} from 'storybook/test'
 import {LoginFormRecipe} from './login-form.recipe'
 import {DataTableRecipe} from './data-table.recipe'
 import {SettingsPageRecipe} from './settings-page.recipe'
@@ -34,6 +35,13 @@ export const EmptyState: Story = {
 
 export const ActionMenu: Story = {
   render: () => <ActionMenuRecipe />,
+  play: async ({canvas}) => {
+    // Menu.Trigger is the button: the recipe must not nest a control in it
+    // (a <button> in a <button> is invalid HTML and breaks hydration).
+    const trigger = canvas.getByRole('button', {name: 'Actions'})
+    await expect(trigger).toHaveAttribute('aria-haspopup', 'menu')
+    await expect(trigger.querySelector('button, a[href], [role="button"]')).toBeNull()
+  },
 }
 
 export const FilterBar: Story = {

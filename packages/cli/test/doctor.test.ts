@@ -273,5 +273,8 @@ describe('session hook runs doctor', () => {
     )
     session()
     expect(runs()).toBe(2)
-  })
+    // Four real `sh` runs, each forking find, cksum and the stand-in npx:
+    // well under a second alone, but the pre-push gate runs every suite at
+    // once and has taken this past vitest's 5s default.
+  }, 30_000)
 })

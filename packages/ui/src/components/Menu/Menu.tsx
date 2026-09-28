@@ -3,6 +3,7 @@ import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {MenuContext, useMenu} from './MenuContext'
 import {useMenuRoot} from './useMenuRoot'
+import {devWarnOnce} from '../../shared/devWarnOnce'
 
 // --- Root ---
 interface RootProps {
@@ -22,6 +23,11 @@ function Root({children}: RootProps) {
 }
 
 // --- Trigger ---
+// Trigger IS the button: aria-haspopup / aria-expanded / aria-controls have to
+// sit on the focusable element, so it cannot be a wrapper like Dialog.Trigger.
+// Its children are the label (text, an Icon) — never a Button or other control.
+const NESTED_CONTROL = 'button, a[href], input, select, textarea, [role="button"]'
+
 function Trigger({children}: {children: ReactNode}) {
   const {open, toggle, menuId, triggerRef} = useMenu()
   const localRef = useRef<HTMLButtonElement>(null)
@@ -30,6 +36,17 @@ function Trigger({children}: {children: ReactNode}) {
   useEffect(() => {
     triggerRef.current = localRef.current
   })
+
+  // TypeScript can't stop a <Button> child; the DOM can tell.
+  useEffect(() => {
+    if (localRef.current?.querySelector(NESTED_CONTROL)) {
+      devWarnOnce(
+        'Menu',
+        'trigger-nested-control',
+        'Menu.Trigger is itself the button — give it the label (text, an Icon), not a Button, link or other control. A control inside a <button> is invalid HTML: it breaks hydration and hands assistive tech a button inside a button.',
+      )
+    }
+  }, [])
 
   return (
     <html.button

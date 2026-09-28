@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it).',
+    'Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button.',
   whenToUse: [
     'Context menu or "more actions" dropdown',
     'Navigation links in a dropdown',
@@ -19,12 +19,15 @@ export const meta: ComponentMeta = {
       kind: 'contrast',
       relationship: 'Select picks values; Menu triggers actions',
     },
-    {component: 'Button', kind: 'composition', relationship: 'Often used as Menu.Trigger content'},
+    {
+      component: 'Button',
+      kind: 'contrast',
+      relationship:
+        'Button runs one action; Menu opens a list of them. Menu.Trigger is already a button — never put a Button inside it',
+    },
   ],
   example: `<Menu.Root>
-  <Menu.Trigger>
-    <Button variant="secondary">Actions</Button>
-  </Menu.Trigger>
+  <Menu.Trigger>Actions</Menu.Trigger>
   <Menu.Popup>
     <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>
     <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>
