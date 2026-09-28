@@ -39,6 +39,22 @@ export const Default: Story = {
   },
 }
 
+export const KeyboardEvents: Story = {
+  args: {placeholder: 'Search commands', onFocus: fn(), onKeyDown: fn(), onKeyUp: fn()},
+  play: async ({args, canvas, userEvent}) => {
+    const input = canvas.getByPlaceholderText('Search commands')
+    await userEvent.click(input)
+    await expect(args.onFocus).toHaveBeenCalledTimes(1)
+
+    await userEvent.keyboard('{ArrowDown}{Enter}{Escape}')
+    const keys = (args.onKeyDown as ReturnType<typeof fn>).mock.calls.map(
+      ([e]) => (e as React.KeyboardEvent).key,
+    )
+    await expect(keys).toEqual(['ArrowDown', 'Enter', 'Escape'])
+    await expect(args.onKeyUp).toHaveBeenCalledTimes(3)
+  },
+}
+
 export const Error: Story = {
   args: {variant: 'error', placeholder: 'Invalid input'},
   play: async ({canvas}) => {

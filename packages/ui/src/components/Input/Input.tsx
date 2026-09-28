@@ -51,6 +51,11 @@ interface InputProps {
   'aria-describedby'?: string
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   onBlur?: () => void
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void
+  /** Keyboard handlers — e.g. Enter to commit, Escape to cancel, arrow-key
+   *  navigation of a list driven by this field. */
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   ref?: React.Ref<HTMLInputElement>
 }
 
@@ -80,6 +85,9 @@ export function Input({
   'aria-describedby': ariaDescribedby,
   onChange,
   onBlur,
+  onFocus,
+  onKeyDown,
+  onKeyUp,
   ref,
 }: InputProps) {
   const ctx = useFieldContext()
@@ -129,6 +137,9 @@ export function Input({
       aria-invalid={ctx?.invalid || variant === 'error' || undefined}
       onChange={effectiveOnChange as StrictInputProps['onChange']}
       onBlur={effectiveOnBlur as StrictInputProps['onBlur']}
+      onFocus={onFocus as StrictInputProps['onFocus']}
+      onKeyDown={onKeyDown as StrictInputProps['onKeyDown']}
+      onKeyUp={onKeyUp as StrictInputProps['onKeyUp']}
       ref={effectiveRef as React.Ref<HTMLInputElement>}
       style={[
         styles.base,
