@@ -12,7 +12,9 @@ import {lineOf, maskComments} from '../scan.js'
  * stylesheet was correct: the stylesheet is layered (`reset`, then StyleX's
  * `priority1..5`), and anything that lands outside those layers, or declares
  * them in the wrong order, outranks it. Each app used to rediscover this
- * alone; the contract lives here now.
+ * alone; the contract lives here now. One rule is about the tokens rather
+ * than the cascade: an app whose build never compiles @duro-app/tokens'
+ * sources cannot use them in css.create (`tokens-compiled`).
  *
  * Static and dependency-free on purpose: it runs under npx from the
  * SessionStart hook, so it reads files with regexes over comment-masked
@@ -26,6 +28,7 @@ export type DoctorRule =
   | 'css-load-order'
   | 'unlayered-reset'
   | 'version-skew'
+  | 'tokens-compiled'
 
 export interface DoctorFinding {
   rule: DoctorRule
@@ -147,6 +150,7 @@ function checkPackage(
 ): DoctorFinding[] {
   const findings: DoctorFinding[] = []
   let unlayeredExtraction = false
+  const configs: ConfigFile[] = []
   for (const name of readdirSync(dir)
     .filter((entry) => CONFIG_FILE.test(entry))
     .sort()) {
@@ -154,6 +158,7 @@ function checkPackage(
     if (source === null) continue
     const file = rel(join(dir, name))
     checked.push(file)
+    configs.push({file, source})
     findings.push(...checkRuntimeInjection(file, source))
     const extraction = checkExtraction(file, source)
     if (extraction) {
@@ -161,6 +166,8 @@ function checkPackage(
       findings.push(extraction)
     }
   }
+  const tokens = checkTokensCompiled(dir, configs, rel)
+  if (tokens) findings.push(tokens)
 
   const entry = ENTRIES.map((path) => join(dir, path)).find((path) => existsSync(path))
   if (entry !== undefined) {
@@ -338,6 +345,139 @@ function checkExtraction(file: string, source: string): DoctorFinding | null {
       "useCSSLayers: false emits this app's StyleX rules unlayered — including react-strict-dom's element reset (padding: 0) — and unlayered rules beat the design system's layered component styles.",
     fix: 'Remove useCSSLayers (it defaults to true) so the extracted rules land in the same priority layers as @duro-app/ui.',
   }
+}
+
+interface ConfigFile {
+  /** Relative to the checked package root. */
+  file: string
+  source: string
+}
+
+/**
+ * A StyleX compiler referenced from build config. react-strict-dom's preset
+ * counts: it bundles @stylexjs/babel-plugin.
+ */
+const STYLEX_COMPILER =
+  /(['"])(?:@stylexjs\/(?:babel-plugin|unplugin|rollup-plugin)|vite-plugin-stylex|@stylex-extend\/[\w-]+|react-strict-dom\/babel-preset)(?:\/[\w./-]*)?\1/
+
+/** `@duro-app/tokens`, also as it appears inside a regex literal (`@duro-app\/tokens`). */
+const TOKENS_MENTION = /@duro-app\\?\/tokens\b/
+
+/** `noExternal: [...]`, `: true`, `: /re/` or `: 'pkg'`. */
+const NO_EXTERNAL =
+  /\bnoExternal\s*:\s*(?:\[[^\]]*\]|true\b|\/(?:\\.|[^/\n])+\/[a-z]*|(['"`])[^'"`\n]*\1)/g
+
+/** Vite configs that render on the server: an `ssr` block or an SSR framework plugin. */
+const SSR_CONFIG = /\bssr\s*:|['"]@react-router\/dev\/vite['"]|['"]@remix-run\/dev['"]/
+
+const TOKENS_DEEP_IMPORT = /\bfrom\s*(['"])@duro-app\/tokens\/tokens\/[^'"\n]+\1/
+const STYLEX_CREATE = /\b(?:css|stylex)\.create\s*\(/
+
+const STYLEX_ERROR =
+  'Could not resolve the path to the imported file. Please ensure the theme file has a .stylex.js or .stylex.ts extension'
+
+/**
+ * `@duro-app/tokens/tokens/*.css` resolves to the package's uncompiled
+ * `src/tokens/*.css.ts` (react-strict-dom `css.defineVars`), which only
+ * react-strict-dom's babel preset turns into StyleX theme variables. An app
+ * that compiles its own code with StyleX but routes nothing of
+ * @duro-app/tokens through that preset cannot use the tokens in css.create.
+ *
+ * Conservative: any vite/babel config text naming @duro-app/tokens outside
+ * `noExternal` counts as routing it. An error only with evidence — a source file that
+ * deep-imports the tokens and calls css.create, whose build fails today;
+ * otherwise a warning, since the design system's own rules tell the next
+ * edit to write exactly that import.
+ */
+function checkTokensCompiled(
+  dir: string,
+  configs: ConfigFile[],
+  rel: (path: string) => string,
+): DoctorFinding | null {
+  // The bundle's build only: vitest runs its own transform, and a postcss
+  // extraction `include` that names the tokens (duro-app's does) collects
+  // their rules without compiling the module the bundle imports.
+  const build = configs.filter(({file}) => !/^(?:vitest|postcss)\./.test(basename(file)))
+  let stylex: {file: string; line: number} | null = null
+  let routed = false
+  let ssr = false
+  let ssrExternal = false
+  for (const {file, source} of build) {
+    const masked = maskComments(source, {line: true})
+    const lists = [...masked.matchAll(NO_EXTERNAL)]
+    let outside = masked
+    for (const list of lists) {
+      if (list[0].endsWith('true') || TOKENS_MENTION.test(list[0])) ssrExternal = true
+      outside =
+        outside.slice(0, list.index) +
+        ' '.repeat(list[0].length) +
+        outside.slice(list.index + list[0].length)
+    }
+    if (TOKENS_MENTION.test(outside)) routed = true
+    if (/^vite\./.test(basename(file)) && SSR_CONFIG.test(masked)) ssr = true
+    const compiler = STYLEX_COMPILER.exec(masked)
+    if (compiler && !stylex) stylex = {file, line: lineOf(source, compiler.index)}
+  }
+  if (!stylex) return null
+  const ssrGap = ssr && !ssrExternal
+  if (routed && !ssrGap) return null
+
+  const evidence = tokensInCreate(dir)
+  const where = evidence ? `${rel(evidence.path)}:${evidence.line}` : null
+  const cause = routed
+    ? `${stylex.file} routes @duro-app/tokens through Babel, but this app renders on the server and ssr.noExternal does not list it: SSR loads the tokens from node_modules as native ESM, bypassing that rule, and css.defineVars throws at runtime.`
+    : `${stylex.file} compiles the app with StyleX, but nothing compiles @duro-app/tokens' sources: @duro-app/tokens/tokens/*.css resolves to uncompiled src/tokens/*.css.ts (react-strict-dom css.defineVars), which only react-strict-dom/babel-preset turns into StyleX theme variables. css.create then cannot import them — StyleX fails with "${STYLEX_ERROR}".`
+  return {
+    rule: 'tokens-compiled',
+    severity: evidence ? 'error' : 'warn',
+    file: stylex.file,
+    line: stylex.line,
+    message: `${cause} ${
+      where
+        ? `${where} imports one into css.create.`
+        : 'Latent until a file imports a token into css.create — the import the design system prescribes; the barrel import apps fall back on is forbidden.'
+    }`,
+    fix: routed
+      ? `Add '@duro-app/tokens' (with 'react-strict-dom') to ssr.noExternal in ${stylex.file}.`
+      : `Compile node_modules/@duro-app/tokens with react-strict-dom/babel-preset, as duro-app's vite.config.ts does — babel({filter: /node_modules\\/@duro-app\\/tokens\\/.*\\.[jt]sx?$/, babelConfig: {presets: ['@babel/preset-typescript', ['react-strict-dom/babel-preset', {platform: 'web', rootDir: process.cwd()}]]}}) from vite-plugin-babel, ahead of the app's StyleX pass — and add '@duro-app/tokens' to ssr.noExternal if the app renders on the server.`,
+  }
+}
+
+/** Sources under app/ and src/ scanned for tokens evidence, at most. */
+const SOURCE_SCAN_LIMIT = 5000
+
+/** The first app source that deep-imports @duro-app/tokens and calls css.create. */
+function tokensInCreate(dir: string): {path: string; line: number} | null {
+  const stack = ['src', 'app'].map((name) => join(dir, name))
+  let budget = SOURCE_SCAN_LIMIT
+  while (stack.length > 0 && budget > 0) {
+    const current = stack.pop()!
+    let entries
+    try {
+      entries = readdirSync(current, {withFileTypes: true})
+    } catch {
+      continue
+    }
+    const dirs: string[] = []
+    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      if (entry.name.startsWith('.') || entry.name === 'node_modules') continue
+      const path = join(current, entry.name)
+      if (entry.isDirectory()) {
+        dirs.push(path)
+        continue
+      }
+      if (!/\.[cm]?[jt]sx?$/.test(entry.name) || /\.native\./.test(entry.name)) continue
+      if (--budget < 0) break
+      const source = readText(path)
+      if (source === null) continue
+      const masked = maskComments(source, {line: true})
+      const deep = TOKENS_DEEP_IMPORT.exec(masked)
+      if (deep && STYLEX_CREATE.test(masked)) return {path, line: lineOf(source, deep.index)}
+    }
+    // Depth-first, alphabetical: the first match is stable across runs.
+    stack.push(...dirs.reverse())
+  }
+  return null
 }
 
 interface LayerOrigin {
