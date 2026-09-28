@@ -37,6 +37,11 @@
       "source": "./src/table.ts",
       "import": "./dist/table.js",
       "types": "./dist/table.d.ts"
+    },
+    "./form": {
+      "source": "./src/form.ts",
+      "import": "./dist/form.js",
+      "types": "./dist/form.d.ts"
     }
   },
   "scripts": {

@@ -26,6 +26,7 @@ export type DoctorRule =
   | 'css-load-order'
   | 'unlayered-reset'
   | 'version-skew'
+  | 'breakpoints-extracted'
 
 export interface DoctorFinding {
   rule: DoctorRule
@@ -160,6 +161,8 @@ function checkPackage(
       unlayeredExtraction = true
       findings.push(extraction)
     }
+    const breakpoints = checkBreakpointsExtracted(dir, join(dir, name), source, rel, checked)
+    if (breakpoints) findings.push(breakpoints)
   }
 
   const entry = ENTRIES.map((path) => join(dir, path)).find((path) => existsSync(path))
@@ -338,6 +341,177 @@ function checkExtraction(file: string, source: string): DoctorFinding | null {
       "useCSSLayers: false emits this app's StyleX rules unlayered — including react-strict-dom's element reset (padding: 0) — and unlayered rules beat the design system's layered component styles.",
     fix: 'Remove useCSSLayers (it defaults to true) so the extracted rules land in the same priority layers as @duro-app/ui.',
   }
+}
+
+const BREAKPOINTS_MODULE = '@duro-app/tokens/tokens/breakpoints.css'
+/** Where the defining file sits, relative to the package root StyleX runs from. */
+const BREAKPOINTS_SOURCE = 'node_modules/@duro-app/tokens/src/tokens/breakpoints.css.ts'
+const EXTRACTION_PLUGIN = /['"](?:react-strict-dom\/postcss-plugin|@stylexjs\/postcss-plugin)['"]/
+const SOURCE_FILE = /\.[cm]?[jt]sx?$/
+const SKIP_DIRS = new Set(['node_modules', 'dist', 'build', 'coverage', 'public'])
+const SOURCE_SCAN_LIMIT = 5000
+
+/**
+ * `breakpoints.*` are css.defineConsts. StyleX substitutes a const into a
+ * `@media` key only when the file that defines it is part of the same
+ * extraction; left out, the query compiles to an unresolvable `var(--md-…)`
+ * and the whole rule is dropped from the built CSS — lint, typecheck and
+ * every other check stay green. So when the files this PostCSS extraction
+ * covers import the breakpoints, its `include` must cover the tokens source
+ * too (customer-vision shipped without it; duro-app carries it).
+ *
+ * Static like its siblings: the include is read as the string literals in
+ * the config and the relative modules it imports. Anything it cannot read
+ * (no include, a path built with resolve()) is skipped, not guessed.
+ */
+function checkBreakpointsExtracted(
+  root: string,
+  configPath: string,
+  source: string,
+  rel: (path: string) => string,
+  checked: string[],
+): DoctorFinding | null {
+  if (!basename(configPath).startsWith('postcss.config')) return null
+  const masked = maskComments(source, {line: true})
+  if (!EXTRACTION_PLUGIN.test(masked)) return null
+  const include = /\binclude\s*:/.exec(masked)
+  if (!include) return null
+
+  const texts = [masked, ...importedModules(configPath, masked)]
+  // A path computed from the package (require.resolve, import.meta.resolve,
+  // createRequire) can point anywhere: don't guess what it covers.
+  if (texts.some((text) => /\bresolve\s*\(\s*['"]@duro-app\/tokens/.test(text))) return null
+
+  const patterns = texts
+    .flatMap(stringLiterals)
+    .filter((literal) => /\*/.test(literal) || SOURCE_FILE.test(literal))
+  if (patterns.length === 0) return null
+  const matchers = patterns.map((pattern) => ({pattern, re: globToRegExp(pattern)}))
+  if (matchers.some(({re}) => re.test(BREAKPOINTS_SOURCE))) return null
+
+  const user = findBreakpointsImport(
+    root,
+    matchers.filter(({pattern}) => !pattern.includes('node_modules')),
+  )
+  if (!user) return null
+  checked.push(rel(user))
+  const file = rel(configPath)
+  return {
+    rule: 'breakpoints-extracted',
+    severity: 'error',
+    file,
+    line: lineOf(source, include.index),
+    message: `${rel(user)} imports breakpoints from '${BREAKPOINTS_MODULE}', but the StyleX extraction in ${file} does not include ${BREAKPOINTS_SOURCE}. breakpoints.* are css.defineConsts, inlined into a @media query only when the defining file is part of the same extraction — without it every @media built from them compiles to var(--…) and is silently dropped from the CSS.`,
+    fix: `Add '${BREAKPOINTS_SOURCE}' to the include in ${file}.`,
+  }
+}
+
+/** Masked text of the relative modules a config imports (one hop). */
+function importedModules(configPath: string, masked: string): string[] {
+  const out: string[] = []
+  for (const match of masked.matchAll(
+    /(?:\bfrom\s+|\bimport\s*\(\s*|\brequire\s*\(\s*)(['"])(\.\.?\/[^'"\n]+)\1/g,
+  )) {
+    const base = resolve(dirname(configPath), match[2]!)
+    const path = ['', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs']
+      .map((ext) => base + ext)
+      .find((candidate) => existsSync(candidate) && SOURCE_FILE.test(candidate))
+    const text = path ? readText(path) : null
+    if (text !== null) out.push(maskComments(text, {line: true}))
+  }
+  return out
+}
+
+/** Plain string literals (no `${}` interpolation) in masked source. */
+function stringLiterals(masked: string): string[] {
+  return [...masked.matchAll(/(['"`])((?:\\.|(?!\1)[^\\\n])*)\1/g)]
+    .map((match) => match[2]!)
+    .filter((literal) => !literal.includes('${'))
+}
+
+/**
+ * A micromatch-style glob (`**`, `*`, `?`, `{a,b}`) as a RegExp over a path
+ * relative to the package root. Leading `./` and `../` are dropped: a
+ * workspace config can reach the same node_modules path from above.
+ */
+function globToRegExp(glob: string): RegExp {
+  const pattern = glob.replace(/^(?:\.\.?\/)+/, '')
+  let out = ''
+  let braces = 0
+  for (let i = 0; i < pattern.length; i++) {
+    const char = pattern[i]!
+    if (char === '*') {
+      if (pattern[i + 1] === '*') {
+        const slash = pattern[i + 2] === '/'
+        out += slash ? '(?:.*/)?' : '.*'
+        i += slash ? 2 : 1
+      } else {
+        out += '[^/]*'
+      }
+    } else if (char === '?') out += '[^/]'
+    else if (char === '{') {
+      braces++
+      out += '(?:'
+    } else if (char === '}' && braces > 0) {
+      braces--
+      out += ')'
+    } else if (char === ',' && braces > 0) out += '|'
+    else out += char.replace(/[.+^$()|[\]\\]/g, '\\$&')
+  }
+  return new RegExp(`^${out}$`)
+}
+
+/**
+ * The first source file the extraction covers that value-imports from the
+ * breakpoints module. Walks only the include patterns' static roots.
+ */
+function findBreakpointsImport(
+  root: string,
+  matchers: Array<{pattern: string; re: RegExp}>,
+): string | null {
+  const roots = new Set(
+    matchers.map(({pattern}) => {
+      const stat = pattern.replace(/^\.\//, '').split('/')
+      const cut = stat.findIndex((segment) => /[*?{]/.test(segment))
+      return (cut < 0 ? stat.slice(0, -1) : stat.slice(0, cut)).join('/')
+    }),
+  )
+  const importRe = new RegExp(
+    `^[ \\t]*import\\s+(?!type\\b)[^;'"]*?from\\s+['"]${BREAKPOINTS_MODULE.replace(/[./]/g, '\\$&')}['"]`,
+    'm',
+  )
+  let budget = SOURCE_SCAN_LIMIT
+  const seen = new Set<string>()
+  const walk = (dir: string): string | null => {
+    let entries
+    try {
+      entries = readdirSync(dir, {withFileTypes: true})
+    } catch {
+      return null
+    }
+    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      if (budget <= 0) return null
+      const path = join(dir, entry.name)
+      if (entry.isDirectory()) {
+        if (entry.name.startsWith('.') || SKIP_DIRS.has(entry.name)) continue
+        const found = walk(path)
+        if (found) return found
+      } else if (SOURCE_FILE.test(entry.name) && !seen.has(path)) {
+        seen.add(path)
+        budget--
+        const relPath = relative(root, path).split('\\').join('/')
+        if (!matchers.some(({re}) => re.test(relPath))) continue
+        const text = readText(path)
+        if (text !== null && importRe.test(maskComments(text, {line: true}))) return path
+      }
+    }
+    return null
+  }
+  for (const start of roots) {
+    const found = walk(join(root, start))
+    if (found) return found
+  }
+  return null
 }
 
 interface LayerOrigin {

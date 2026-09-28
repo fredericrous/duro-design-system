@@ -25,6 +25,8 @@ Object.assign(plugin.configs, {
       'duro/no-raw-breakpoint-query': 'error',
       'duro/no-flex-grow-web': 'warn',
       'duro/prefer-ds-form-components': 'error',
+      // Form moved to @duro-app/ui/form in 4.0; the fix rewrites the import.
+      'duro/no-ui-subpath-from-root': 'error',
     },
   } satisfies TSESLint.FlatConfig.Config,
 })

@@ -35,6 +35,13 @@ tester.run('no-tokens-barrel-import', noTokensBarrelImport, {
         "import {colors as c} from '@duro-app/tokens/tokens/colors.css';",
     },
     {
+      // breakpointsPx is runtime data: the deep path is raw, not the StyleX
+      // module (which throws when imported outside a StyleX compile)
+      code: "import {breakpointsPx} from '@duro-app/tokens'",
+      errors: [{messageId: 'barrelImport'}],
+      output: "import {breakpointsPx} from '@duro-app/tokens/raw'",
+    },
+    {
       code: 'import type {SpacingToken} from "@duro-app/tokens"',
       errors: [{messageId: 'barrelImport'}],
       output: 'import type {SpacingToken} from "@duro-app/tokens/keys"',

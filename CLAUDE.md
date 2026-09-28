@@ -14,9 +14,9 @@
 > `/duro-mockup` skill: token-seeded artboards (`duro mockup seed`), a checker that refuses raw
 > values and unnamed controls (`duro mockup check`), and the implement-and-prove steps that follow
 > the picked direction. `npx -y @duro-app/cli doctor` checks the app's build wiring
-> (`runtimeInjection`, layered extraction, stylesheet import and layer order) — the ways an app
-> flattens component spacing while this package's CSS is fine; the session hook runs it too. See
-> `packages/cli/README.md`.
+> (`runtimeInjection`, layered extraction, stylesheet import and layer order, breakpoints in the
+> extraction) — the ways an app flattens component spacing or drops its `@media` rules while this
+> package's CSS is fine; the session hook runs it too. See `packages/cli/README.md`.
 
 ## Architecture
 
@@ -137,7 +137,7 @@ These components **must** be wrapped in their `.Root`:
 
 | Component     | Sub-components                          | Standalone behavior                                                             |
 | ------------- | --------------------------------------- | ------------------------------------------------------------------------------- |
-| `Field`       | `Root`, `Label`, `Description`, `Error` | Static labels/errors; inside `Form` auto-binds to react-hook-form               |
+| `Field`       | `Root`, `Label`, `Description`, `Error` | Static labels/errors; inside `Form` (`@duro-app/ui/form`) auto-binds to it      |
 | `Fieldset`    | `Root`, `Legend`                        | Groups form controls with gap                                                   |
 | `ToggleGroup` | (wraps `Toggle` children)               | Toggle works alone; group adds multi/single select                              |
 | `InputGroup`  | `Root`, `Addon`                         | Input works alone; group adds prefix/suffix addons                              |
@@ -214,11 +214,17 @@ Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `dur
 
 ## Form Composition Pattern
 
-The canonical nesting for forms with validation:
+The canonical nesting for forms with validation. **`Form` comes from
+`@duro-app/ui/form`, not the package root** — it is the only part of the
+design system that reaches `react-hook-form` and `@hookform/resolvers`, so
+those stay optional peers for apps that never render a form (install both,
+plus `effect`, when you use it). `Field`, `Input` and the other controls stay
+on the root:
 
 ```tsx
 import {Schema} from 'effect'
-import {Form, Field, Input, Textarea, Fieldset, Button, Select, Checkbox} from '@duro-app/ui'
+import {Field, Input, Textarea, Fieldset, Button, Select, Checkbox} from '@duro-app/ui'
+import {Form} from '@duro-app/ui/form'
 
 // 1. Define your schema
 const MySchema = Schema.Struct({
@@ -261,7 +267,7 @@ const MySchema = Schema.Struct({
 
 **Key points:**
 
-- `Form` wraps everything and provides react-hook-form context
+- `Form` wraps everything and provides react-hook-form context — import it from `@duro-app/ui/form`
 - `Field.Root name="..."` auto-binds to the form field matching that schema key
 - `Field.Error` auto-displays validation errors (no manual wiring)
 - `Field.Root` also works **standalone** (without `Form`) for static labels/errors — pass `invalid` prop manually
@@ -374,6 +380,7 @@ is added.
 | `success` / `successBg` / `successText` | Success states                       |
 | `warning` / `warningBg` / `warningText` | Warning states                       |
 | `info` / `infoBg` / `infoText`          | Informational states                 |
+| `backdrop`                              | Scrim behind modals (Dialog, Drawer) |
 
 ### Shadows
 
@@ -390,6 +397,27 @@ is added.
 | `stackXs`-`stackXl`         | 4-48px  | Vertical rhythm (Stack gaps)    |
 | `inlineXs`-`inlineLg`       | 4-24px  | Horizontal rhythm (Inline gaps) |
 | `containerSm`-`containerLg` | 16-32px | Page/section padding            |
+
+### Breakpoints
+
+`xs` 480 · `sm` 640 · `md` 768 · `lg` 1024 · `xl` 1280 (px). Two imports,
+chosen by where the query runs:
+
+```tsx
+// Styles — inside css.create: the StyleX const, inlined into the query
+import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
+const styles = css.create({
+  grid: {gridTemplateColumns: {default: '1fr 1fr', [`@media (max-width: ${breakpoints.md})`]: '1fr'}},
+})
+
+// Runtime — matchMedia, a hook, a width comparison: plain numbers
+import {breakpointsPx} from '@duro-app/tokens/raw'
+const isMobile = window.matchMedia(`(max-width: ${breakpointsPx.md}px)`).matches
+```
+
+**Never import `tokens/breakpoints.css` from runtime code.** It is
+`css.defineConsts`, which throws wherever StyleX isn't compiling the file (a
+hook under vitest, Node). `duro/no-raw-breakpoint-query` enforces both halves.
 
 ## Icon Names
 
@@ -521,7 +549,8 @@ One inline exemplar (the others follow the same shape — fetch them with the CL
 ```tsx
 import {Schema} from 'effect'
 import {css, html} from 'react-strict-dom'
-import {Form, Field, Input, Fieldset, Button, Stack, Heading} from '@duro-app/ui'
+import {Field, Input, Fieldset, Button, Stack, Heading} from '@duro-app/ui'
+import {Form} from '@duro-app/ui/form'
 
 const LoginSchema = Schema.Struct({
   username: Schema.String.pipe(

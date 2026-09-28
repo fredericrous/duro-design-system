@@ -30,6 +30,7 @@ export const highContrastTheme = css.createTheme(colors, {
   infoBg: 'rgba(96, 165, 250, 0.15)',
   infoBorder: 'rgba(96, 165, 250, 0.5)',
   infoText: '#bfdbfe',
+  backdrop: 'rgba(0, 0, 0, 0.8)',
 })
 
 export const highContrastShadows = css.createTheme(shadows, {

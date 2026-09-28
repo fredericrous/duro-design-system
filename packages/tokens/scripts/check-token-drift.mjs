@@ -157,6 +157,15 @@ checkScale('BREAKPOINTS_PX', breakpointsCss, keys.BREAKPOINTS_PX, keys.BREAKPOIN
   } else {
     console.log(`✓ breakpointsPx matches`)
   }
+  // The runtime-safe copy consumers import from @duro-app/tokens/raw.
+  const rawMirror = rawModule.breakpointsPx
+  if (JSON.stringify(rawMirror) !== JSON.stringify(keys.BREAKPOINTS_PX)) {
+    console.error(`✗ drift: breakpointsPx in raw.ts differs from BREAKPOINTS_PX in keys.ts`)
+    console.error(`  raw.ts:  ${JSON.stringify(rawMirror)}`)
+    failures++
+  } else {
+    console.log(`✓ raw breakpointsPx matches`)
+  }
 }
 
 const typographyCss = extractCallArg(

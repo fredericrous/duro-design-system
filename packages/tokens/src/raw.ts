@@ -37,6 +37,8 @@ export type RawColors = {
   infoBg: string
   infoBorder: string
   infoText: string
+  /** Scrim behind a modal (Dialog, Drawer, a command palette). */
+  backdrop: string
 }
 
 // Dark theme — matches the defaults in `tokens/colors.css.ts`.
@@ -68,6 +70,7 @@ export const darkColors: RawColors = {
   infoBg: 'rgba(106, 175, 252, 0.1)',
   infoBorder: 'rgba(106, 175, 252, 0.3)',
   infoText: '#93c5fd',
+  backdrop: 'rgba(0, 0, 0, 0.6)',
 }
 
 // Light theme — matches the overrides in `themes/light.css.ts`.
@@ -99,6 +102,7 @@ export const lightColors: RawColors = {
   infoBg: 'rgba(30, 64, 175, 0.08)',
   infoBorder: 'rgba(30, 64, 175, 0.3)',
   infoText: '#1e40af',
+  backdrop: 'rgba(0, 0, 0, 0.4)',
 }
 
 // High-contrast theme — matches the overrides in `themes/high-contrast.css.ts`.
@@ -130,4 +134,27 @@ export const highContrastColors: RawColors = {
   infoBg: 'rgba(96, 165, 250, 0.15)',
   infoBorder: 'rgba(96, 165, 250, 0.5)',
   infoText: '#bfdbfe',
+  backdrop: 'rgba(0, 0, 0, 0.8)',
 }
+
+// Breakpoint scale in px — the runtime-safe mirror of `tokens/breakpoints.css.ts`.
+//
+// That module calls `css.defineConsts`, which only exists once StyleX has
+// compiled the file: imported anywhere StyleX isn't compiling it (a hook's
+// `matchMedia`, a width comparison, a vitest suite, plain Node) it throws at
+// import time. Anything that reads a breakpoint outside a css.create style
+// reads it from here:
+//
+//   window.matchMedia(`(max-width: ${breakpointsPx.md}px)`)
+//
+// Inside css.create keep using `breakpoints.<key>` — StyleX needs the const to
+// inline the query. `scripts/check-token-drift.mjs` keeps the two in step.
+export const breakpointsPx = {
+  xs: 480,
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+} as const
+
+export type Breakpoint = keyof typeof breakpointsPx

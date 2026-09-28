@@ -31,6 +31,10 @@ interface InputProps {
   /** id of a <datalist> for native typeahead. */
   list?: string
   pattern?: string
+  /** File types a `type="file"` input offers — MIME types, wildcards or
+   *  extensions (`"image/*"`, `".png,.jpg"`). The browser ignores it on
+   *  every other type. */
+  accept?: string
   autoComplete?:
     | 'on'
     | 'off'
@@ -76,6 +80,7 @@ export function Input({
   inputMode,
   list,
   pattern,
+  accept,
   autoComplete,
   value,
   defaultValue,
@@ -119,6 +124,7 @@ export function Input({
   if (step !== undefined) extraProps.step = step
   if (inputMode !== undefined) extraProps.inputMode = inputMode
   if (list !== undefined) extraProps.list = list
+  if (accept !== undefined) extraProps.accept = accept
   if (ariaLabel !== undefined) extraProps['aria-label'] = ariaLabel
 
   return (

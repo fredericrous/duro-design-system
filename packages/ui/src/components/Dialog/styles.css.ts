@@ -10,7 +10,7 @@ export const styles = css.create({
   backdrop: {
     position: 'fixed',
     inset: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: colors.backdrop,
     zIndex: 1000,
     // Portaled into the ThemeProvider mount, which is pointer-events: none:
     // the backdrop must take clicks back (outside click dismisses).

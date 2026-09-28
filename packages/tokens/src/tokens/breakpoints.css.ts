@@ -8,9 +8,12 @@ import {css} from 'react-strict-dom'
 // build time by the StyleX babel plugin (that's their whole reason to exist),
 // so `@container (max-width: ${breakpoints.sm})` compiles to a real `640px`.
 //
-// For runtime JS comparisons (`containerWidth < breakpointsPx.sm`) use the
-// plain-number mirror below — defineConsts values are query strings, not
-// numbers. Keep the two in sync. Values follow the common Tailwind-aligned scale.
+// This module is style-only: `css.defineConsts` throws when the file is
+// imported somewhere StyleX isn't compiling it (a hook's `matchMedia`, a
+// vitest suite, plain Node). For runtime JS — a matchMedia query, a
+// `containerWidth < breakpointsPx.sm` comparison — import `breakpointsPx` from
+// `@duro-app/tokens/raw` instead. Values follow the common
+// Tailwind-aligned scale; `scripts/check-token-drift.mjs` keeps every copy in step.
 export const breakpoints = css.defineConsts({
   /** Phones — dense tables card up below here. */
   xs: '480px',
@@ -24,6 +27,10 @@ export const breakpoints = css.defineConsts({
   xl: '1280px',
 })
 
+/**
+ * @deprecated Importing this module outside a StyleX-compiled style file
+ * throws (see above). Use `breakpointsPx` from `@duro-app/tokens/raw`.
+ */
 export const breakpointsPx = {
   xs: 480,
   sm: 640,

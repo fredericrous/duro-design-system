@@ -1,9 +1,8 @@
 import {type ReactNode, Children, isValidElement, useId, useMemo} from 'react'
 import {html} from 'react-strict-dom'
-import {useFormContext as useRHFFormContext, useController} from 'react-hook-form'
 import {FieldContext, useFieldContext} from './FieldContext'
 import {useFormContext} from '../Form/FormContext'
-import type {LabelPosition, NecessityIndicator} from '../Form/FormContext'
+import type {FieldBinding, LabelPosition} from '../Form/FormContext'
 import {styles} from './styles.css'
 
 // --- Root ---
@@ -41,16 +40,13 @@ function Root({name, group, ...props}: RootProps) {
   return <StaticRoot group={isGroup} {...props} />
 }
 
-// Always calls useController — no conditional hooks
+// Bound to the enclosing Form. The binding itself (react-hook-form's
+// useController) comes from FormContext — Form supplies it from
+// `@duro-app/ui/form` — so this module never imports the form library.
 function ControlledRoot({
   name,
   formCtx,
-  group,
-  invalid: invalidProp = false,
-  required,
-  disabled,
-  labelPosition,
-  children,
+  ...props
 }: {
   name: string
   formCtx: NonNullable<ReturnType<typeof useFormContext>>
@@ -61,10 +57,35 @@ function ControlledRoot({
   labelPosition?: LabelPosition
   children: ReactNode
 }) {
+  const {FieldBinder} = formCtx
+  return (
+    <FieldBinder name={name}>
+      {(binding) => <BoundRoot binding={binding} formCtx={formCtx} {...props} />}
+    </FieldBinder>
+  )
+}
+
+function BoundRoot({
+  binding,
+  formCtx,
+  group,
+  invalid: invalidProp = false,
+  required,
+  disabled,
+  labelPosition,
+  children,
+}: {
+  binding: FieldBinding
+  formCtx: NonNullable<ReturnType<typeof useFormContext>>
+  group: boolean
+  invalid?: boolean
+  required?: boolean
+  disabled?: boolean
+  labelPosition?: LabelPosition
+  children: ReactNode
+}) {
   const id = useId()
-  const {control} = useRHFFormContext()
-  const {field, fieldState} = useController({control, name})
-  const invalid = invalidProp || !!fieldState.error
+  const invalid = invalidProp || binding.errorMessage !== undefined
 
   const effectiveDisabled = disabled ?? formCtx.disabled
   const effectiveLabelPosition = labelPosition ?? formCtx.labelPosition
@@ -83,13 +104,13 @@ function ControlledRoot({
       labelPosition: effectiveLabelPosition,
       necessityIndicator: effectiveNecessityIndicator,
       field: {
-        value: field.value,
-        onChange: field.onChange,
-        onBlur: field.onBlur,
-        ref: field.ref,
-        name: field.name,
+        value: binding.value,
+        onChange: binding.onChange,
+        onBlur: binding.onBlur,
+        ref: binding.ref,
+        name: binding.name,
       },
-      errorMessage: fieldState.error?.message,
+      errorMessage: binding.errorMessage,
     }),
     [
       id,
@@ -99,12 +120,12 @@ function ControlledRoot({
       effectiveDisabled,
       effectiveLabelPosition,
       effectiveNecessityIndicator,
-      field.value,
-      field.onChange,
-      field.onBlur,
-      field.ref,
-      field.name,
-      fieldState.error,
+      binding.value,
+      binding.onChange,
+      binding.onBlur,
+      binding.ref,
+      binding.name,
+      binding.errorMessage,
     ],
   )
 
