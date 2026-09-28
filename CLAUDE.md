@@ -16,7 +16,9 @@
 > values and unnamed controls (`duro mockup check`), and the implement-and-prove steps that follow
 > the picked direction. `npx -y @duro-app/cli doctor` checks the app's build wiring
 > (`runtimeInjection`, layered extraction, stylesheet import and layer order) — the ways an app
-> flattens component spacing while this package's CSS is fine; the session hook runs it too. See
+> flattens component spacing while this package's CSS is fine — and whether the build compiles
+> `@duro-app/tokens` at all, without which `css.create` cannot import the tokens (StyleX: "ensure
+> the theme file has a .stylex.js or .stylex.ts extension"); the session hook runs it too. See
 > `packages/cli/README.md`.
 
 ## Architecture
