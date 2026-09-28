@@ -153,6 +153,7 @@ describe('rules', () => {
       'error duro/no-raw-design-values',
       'error duro/no-raw-html-element',
       'error duro/no-tokens-barrel-import',
+      'error duro/no-ui-subpath-from-root',
       'error duro/prefer-ds-form-components',
     ])
   })

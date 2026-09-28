@@ -5,6 +5,7 @@ import {noRawDesignValues} from './no-raw-design-values.js'
 import {noRawBreakpointQuery} from './no-raw-breakpoint-query.js'
 import {noFlexGrowWeb} from './no-flex-grow-web.js'
 import {preferDsFormComponents} from './prefer-ds-form-components.js'
+import {noUiSubpathFromRoot} from './no-ui-subpath-from-root.js'
 
 export const rules = {
   'no-raw-html-element': noRawHtmlElement,
@@ -14,4 +15,5 @@ export const rules = {
   'no-raw-breakpoint-query': noRawBreakpointQuery,
   'no-flex-grow-web': noFlexGrowWeb,
   'prefer-ds-form-components': preferDsFormComponents,
+  'no-ui-subpath-from-root': noUiSubpathFromRoot,
 }

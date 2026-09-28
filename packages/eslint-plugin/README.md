@@ -37,6 +37,7 @@ another key — you'd get two live namespaces and confusing config.
 | `duro/no-deprecated-table-parts` | error  | autofix / suggestion |
 | `duro/no-raw-design-values`      | error  | suggestion           |
 | `duro/no-raw-breakpoint-query`   | error  | autofix              |
+| `duro/no-ui-subpath-from-root`   | error  | autofix              |
 
 ### no-raw-html-element
 
@@ -57,6 +58,24 @@ autofix splits the barrel import into the right deep imports
 `type` specifiers. Imports with any unmapped specifier report without a fix.
 
 Options: `{packages?: string[]}`
+
+### no-ui-subpath-from-root
+
+Some `@duro-app/ui` exports live only behind a subpath, so the root never
+reaches their optional peers: `Form` / `FormProps` at `@duro-app/ui/form`
+(react-hook-form, @hookform/resolvers — moved in 4.0) and `useDataTable`,
+`VirtualTable`, `VirtualTableRange` at `@duro-app/ui/table` (TanStack, 3.0).
+Imported from the root they are missing. The autofix moves those specifiers
+to the subpath — extending an existing import of it — and keeps the rest on
+the root, preserving aliases and `type` markers:
+
+```diff
+-import {Form, Field, Input} from '@duro-app/ui'
++import {Field, Input} from '@duro-app/ui'
++import {Form} from '@duro-app/ui/form'
+```
+
+Re-exports (`export {Form} from '@duro-app/ui'`) report without a fix.
 
 ### no-deprecated-table-parts
 

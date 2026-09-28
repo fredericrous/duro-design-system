@@ -1,6 +1,6 @@
 import {Schema} from 'effect'
 import {css, html} from 'react-strict-dom'
-import {Form} from '../../../packages/ui/src/components/Form/Form'
+import {Form} from '../../../packages/ui/src/form'
 import {Field} from '../../../packages/ui/src/components/Field/Field'
 import {Input} from '../../../packages/ui/src/components/Input/Input'
 import {Fieldset} from '../../../packages/ui/src/components/Fieldset/Fieldset'

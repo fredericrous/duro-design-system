@@ -8,12 +8,15 @@ export default defineConfig({
   build: {
     lib: {
       name: 'DuroUI',
-      // Two entries, so the TanStack-aware code is a separate chunk the root
+      // Separate entries, so the TanStack-aware code is a chunk the root
       // never pulls in. One entry would put `@tanstack/react-table` back in
       // the root's graph and undo the point of the `./table` subpath.
       entry: {
         index: './src/index.ts',
         table: './src/table.ts',
+        // Same reason for Form: react-hook-form / @hookform/resolvers stay
+        // out of the root chunk, so those peers are optional for real.
+        form: './src/form.ts',
       },
       formats: ['es'],
     },

@@ -34,7 +34,8 @@ export {EmptyState} from './components/EmptyState/EmptyState'
 export {Heading, type HeadingVariant} from './components/Heading/Heading'
 export {List, type ListSelectionMode} from './components/List/List'
 export {Field} from './components/Field/Field'
-export {Form, type FormProps} from './components/Form/Form'
+// Form (react-hook-form + @hookform/resolvers) lives at `@duro-app/ui/form`:
+// importing it here would put those optional peers in every consumer's graph.
 export type {LabelPosition, NecessityIndicator} from './components/Form/FormContext'
 export {Fieldset, type FieldsetGap} from './components/Fieldset/Fieldset'
 export {Input, type InputVariant} from './components/Input/Input'

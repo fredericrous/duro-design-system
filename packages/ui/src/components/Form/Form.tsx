@@ -12,6 +12,7 @@ import {
 import {effectTsResolver} from '@hookform/resolvers/effect-ts'
 import type {Schema} from 'effect'
 import {FormContext, type LabelPosition, type NecessityIndicator} from './FormContext'
+import {FieldBinder} from './FieldBinder'
 
 export interface FormProps<T extends FieldValues> {
   schema: Schema.Schema<T>
@@ -101,7 +102,7 @@ export function Form<T extends FieldValues>({
   }, [handleSubmit])
 
   const formCtx = useMemo(
-    () => ({disabled, labelPosition, necessityIndicator}),
+    () => ({disabled, labelPosition, necessityIndicator, FieldBinder}),
     [disabled, labelPosition, necessityIndicator],
   )
 
