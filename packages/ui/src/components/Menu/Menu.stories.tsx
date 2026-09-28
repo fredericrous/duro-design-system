@@ -1,6 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn} from 'storybook/test'
+import {expect, fn, spyOn} from 'storybook/test'
 import {Menu} from './Menu'
+import {Button} from '../Button/Button'
 
 const meta: Meta = {
   title: 'Components/Menu',
@@ -142,5 +143,30 @@ export const WithLinks: Story = {
     // Link items should be anchor elements with href
     await expect(items[0].tagName).toBe('A')
     await expect(items[0]).toHaveAttribute('href', '#admin')
+  },
+}
+
+// Misuse on purpose, so it runs as a test but stays out of the sidebar:
+// Menu.Trigger is the button, and a Button inside it earns a dev warning.
+export const NestedControlWarns: Story = {
+  tags: ['!dev', '!autodocs'],
+  beforeEach: () => {
+    const warn = spyOn(console, 'warn').mockImplementation(() => {})
+    return () => warn.mockRestore()
+  },
+  render: () => (
+    <Menu.Root>
+      <Menu.Trigger>
+        <Button variant="secondary">Nested</Button>
+      </Menu.Trigger>
+      <Menu.Popup>
+        <Menu.Item>Edit</Menu.Item>
+      </Menu.Popup>
+    </Menu.Root>
+  ),
+  play: async () => {
+    await expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('Menu.Trigger is itself the button'),
+    )
   },
 }

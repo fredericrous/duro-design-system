@@ -12,6 +12,7 @@ import {
 } from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
+import {devWarnOnce} from '../../shared/devWarnOnce'
 
 // --- Types ---
 
@@ -42,19 +43,6 @@ function useTable() {
 // --- HeaderContext ---
 
 const HeaderContext = createContext(false)
-
-// --- Dev-only warn registry ---
-//
-// One-shot per warning code per process: long-running dev sessions
-// shouldn't drown the console on every re-render of a misconfigured table.
-const _IS_PROD = typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
-const _devWarned = new Set<string>()
-function devWarnOnce(code: string, message: string) {
-  if (_IS_PROD || _devWarned.has(code)) return
-  _devWarned.add(code)
-
-  console.warn(`[duro-app/ui Table] ${message}`)
-}
 
 // --- Container — owns the @container query target ---
 //
@@ -148,6 +136,7 @@ function extractColumnMeta(
           // Children are JSX with no string content — stack mode will render
           // an unlabeled cell. Tell the developer once.
           devWarnOnce(
+            'Table',
             'headerCell-missing-label',
             'Table.HeaderCell with JSX children must set `label` for stack-mode rendering.',
           )

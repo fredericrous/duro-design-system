@@ -1,13 +1,11 @@
 import {Menu} from '../../../packages/ui/src/components/Menu/Menu'
-import {Button} from '../../../packages/ui/src/components/Button/Button'
 import type {ComponentMeta} from '../types'
 
 export function ActionMenuRecipe() {
   return (
     <Menu.Root>
-      <Menu.Trigger>
-        <Button variant="secondary">Actions</Button>
-      </Menu.Trigger>
+      {/* Menu.Trigger is the button: give it the label, not a <Button>. */}
+      <Menu.Trigger>Actions</Menu.Trigger>
       <Menu.Popup>
         <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>
         <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>

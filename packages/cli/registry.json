@@ -3326,8 +3326,8 @@
             "Item"
           ]
         },
-        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it).",
-        "example": "<Menu.Root>\n  <Menu.Trigger>\n    <Button variant=\"secondary\">Actions</Button>\n  </Menu.Trigger>\n  <Menu.Popup>\n    <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n    <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n    <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n  </Menu.Popup>\n</Menu.Root>",
+        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button.",
+        "example": "<Menu.Root>\n  <Menu.Trigger>Actions</Menu.Trigger>\n  <Menu.Popup>\n    <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n    <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n    <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n  </Menu.Popup>\n</Menu.Root>",
         "relatedTo": [
           {
             "component": "Select",
@@ -3336,8 +3336,8 @@
           },
           {
             "component": "Button",
-            "kind": "composition",
-            "relationship": "Often used as Menu.Trigger content"
+            "kind": "contrast",
+            "relationship": "Button runs one action; Menu opens a list of them. Menu.Trigger is already a button — never put a Button inside it"
           }
         ],
         "whenNotToUse": [
@@ -6489,11 +6489,10 @@
       },
       "name": "action-menu",
       "peerDeps": [],
-      "source": "import {Menu, Button} from '@duro-app/ui'\n\nexport function ActionMenuRecipe() {\n  return (\n    <Menu.Root>\n      <Menu.Trigger>\n        <Button variant=\"secondary\">Actions</Button>\n      </Menu.Trigger>\n      <Menu.Popup>\n        <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n        <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n        <Menu.Item onClick={() => console.log('archive')}>Archive</Menu.Item>\n        <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n      </Menu.Popup>\n    </Menu.Root>\n  )\n}\n",
+      "source": "import {Menu} from '@duro-app/ui'\n\nexport function ActionMenuRecipe() {\n  return (\n    <Menu.Root>\n      {/* Menu.Trigger is the button: give it the label, not a <Button>. */}\n      <Menu.Trigger>Actions</Menu.Trigger>\n      <Menu.Popup>\n        <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n        <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n        <Menu.Item onClick={() => console.log('archive')}>Archive</Menu.Item>\n        <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n      </Menu.Popup>\n    </Menu.Root>\n  )\n}\n",
       "sourcePath": "docs/ai/recipes/action-menu.recipe.tsx",
       "title": "Action Menu",
       "usesComponents": [
-        "Button",
         "Menu"
       ]
     },
