@@ -145,6 +145,12 @@ duro-app — PR 4 (branch `build/duro-ui-4`)
 - 2026-09-28 — user-event never performs a key's default action, so the Enter
   story asserts the contract that failed (the keydown is `defaultPrevented`);
   the end-to-end check with real keys is the Playwright run below.
+- 2026-09-28 — Tagging v4.0.0 was refused by the pre-push audit gate (67
+  advisories, all transitive, all dev/build tooling). A blanket in-range
+  `pnpm update` pulled majors through open ranges (`@tanstack/react-table
+  > =8`→ 9,`@eslint/js`→ 10) and broke typecheck/build; the fix is`pnpm audit --fix`overrides in`pnpm-workspace.yaml` with every target
+bounded to its patched major (`^x.y.z`, not `>=`). Published manifests are
+  > untouched.
 
 ## Verification
 
