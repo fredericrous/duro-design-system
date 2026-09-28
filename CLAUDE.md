@@ -374,6 +374,7 @@ is added.
 | `success` / `successBg` / `successText` | Success states                       |
 | `warning` / `warningBg` / `warningText` | Warning states                       |
 | `info` / `infoBg` / `infoText`          | Informational states                 |
+| `backdrop`                              | Scrim behind modals (Dialog, Drawer) |
 
 ### Shadows
 

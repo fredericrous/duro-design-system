@@ -99,6 +99,7 @@ export const COLOR_TOKENS: Record<string, string> = {
   '#fde68a': 'warningText',
   'rgba(106, 175, 252, 0.1)': 'infoBg',
   'rgba(106, 175, 252, 0.3)': 'infoBorder',
+  'rgba(0, 0, 0, 0.6)': 'backdrop',
   '#ffffff': 'bg',
   '#f5f5f5': 'bgCard',
   '#ebebeb': 'bgCardHover',
@@ -120,6 +121,7 @@ export const COLOR_TOKENS: Record<string, string> = {
   '#78350f': 'warningText',
   'rgba(30, 64, 175, 0.08)': 'infoBg',
   'rgba(30, 64, 175, 0.3)': 'infoBorder',
+  'rgba(0, 0, 0, 0.4)': 'backdrop',
   '#111111': 'bgCard',
   '#60a5fa': 'accent',
   '#555555': 'border',
@@ -135,6 +137,7 @@ export const COLOR_TOKENS: Record<string, string> = {
   'rgba(96, 165, 250, 0.15)': 'infoBg',
   'rgba(96, 165, 250, 0.5)': 'infoBorder',
   '#bfdbfe': 'infoText',
+  'rgba(0, 0, 0, 0.8)': 'backdrop',
 }
 
 /** px value → breakpoint token name (`breakpoints.md` is the '768px' const). */

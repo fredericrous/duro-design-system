@@ -20,6 +20,7 @@ import {ensureNamedImport} from '../util/imports.js'
 type MessageIds =
   | 'rawColorToken'
   | 'rawColor'
+  | 'rawBackdrop'
   | 'rawSpacing'
   | 'rawRadius'
   | 'offScaleSpacing'
@@ -47,6 +48,23 @@ const TOKENS_PKG = '@duro-app/tokens'
 const FONT_SIZE_PROPERTIES = new Set(['fontSize'])
 const FONT_WEIGHT_PROPERTIES = new Set(['fontWeight'])
 const SHADOW_PROPERTIES = new Set(['boxShadow'])
+const BACKGROUND_PROPERTIES = new Set(['backgroundColor', 'background'])
+/** `rgba(0, 0, 0, a)` / `rgb(0 0 0 / a)` / `#000000xx` with 0 < a < 1. */
+const TRANSLUCENT_BLACK_RE =
+  /^(?:rgba?\(\s*0\s*,\s*0\s*,\s*0\s*,\s*(0?\.\d+|\d+(?:\.\d+)?%)\s*\)|rgba?\(\s*0\s+0\s+0\s*\/\s*(0?\.\d+|\d+(?:\.\d+)?%)\s*\))$/i
+
+function isTranslucentBlack(color: string): boolean {
+  const hex = /^#0{6}([0-9a-f]{2})$/i.exec(normalizeHex(color))
+  if (hex) {
+    const alpha = parseInt(hex[1]!, 16)
+    return alpha > 0 && alpha < 255
+  }
+  const match = TRANSLUCENT_BLACK_RE.exec(color.trim())
+  const raw = match?.[1] ?? match?.[2]
+  if (!raw) return false
+  const alpha = raw.endsWith('%') ? Number(raw.slice(0, -1)) / 100 : Number(raw)
+  return alpha > 0 && alpha < 1
+}
 const DURATION_PROPERTIES = new Set(['transitionDuration', 'animationDuration'])
 const EASING_PROPERTIES = new Set(['transitionTimingFunction', 'animationTimingFunction'])
 
@@ -101,6 +119,8 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         "'{{value}}' is the {{token}} token. Use `colors.{{token}}` from {{pkg}}/tokens/colors.css so it follows the theme.",
       rawColor:
         "'{{value}}' is not in the palette. Use a semantic token from {{pkg}}/tokens/colors.css instead of a raw color.",
+      rawBackdrop:
+        "'{{value}}' on `{{property}}` is a modal scrim. Use `colors.backdrop` from {{pkg}}/tokens/colors.css so it follows the theme.",
       rawSpacing:
         '{{value}} on `{{property}}` is the {{token}} spacing token. Use `spacing.{{token}}` from {{pkg}}/tokens/spacing.css.',
       rawRadius:
@@ -165,17 +185,34 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
       ]
     }
 
-    function checkColorValue(node: TSESTree.Node, raw: string) {
+    function checkColorValue(node: TSESTree.Node, raw: string, property: string | null = null) {
       const match = HEX_RE.exec(raw) ?? FUNC_COLOR_RE.exec(raw)
       if (!match) return
       const literal = match[0]
-      const token = literal.startsWith('#')
+      // Only suggest a direct replacement when the literal IS the color —
+      // inside a compound value (a boxShadow) the rewrite would be wrong.
+      const isWholeValue = raw.trim() === literal
+      let token: string | undefined = literal.startsWith('#')
         ? COLOR_TOKENS[normalizeHex(literal)]
         : COLOR_TOKENS_NORMALIZED[normalizeValue(literal)]
+      // The backdrop values are plain translucent black, which shadows and
+      // text also use: only a whole background value is a scrim.
+      const onBackground = property !== null && BACKGROUND_PROPERTIES.has(property)
+      if (token === 'backdrop' && !(isWholeValue && onBackground)) token = undefined
+      if (!token && isWholeValue && onBackground) {
+        // Any translucent black filling a background is a scrim someone
+        // hand-rolled (ticket-vision's CommandPalette: rgba(0,0,0,0.5)).
+        if (isTranslucentBlack(literal)) {
+          context.report({
+            node,
+            messageId: 'rawBackdrop',
+            data: {value: literal, property, pkg: TOKENS_PKG},
+            suggest: suggestReplacement(node, 'colors.backdrop', 'colors', 'tokens/colors.css'),
+          })
+          return
+        }
+      }
       if (token) {
-        // Only suggest a direct replacement when the literal IS the color —
-        // inside a compound value (a boxShadow) the rewrite would be wrong.
-        const isWholeValue = raw.trim() === literal
         context.report({
           node,
           messageId: 'rawColorToken',
@@ -323,7 +360,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           if (property && SHADOW_PROPERTIES.has(property)) {
             checkStringValue(node, property, node.value)
           } else {
-            checkColorValue(node, node.value)
+            checkColorValue(node, node.value, property)
             if (property) checkStringValue(node, property, node.value)
           }
         } else if (typeof node.value === 'number' && property && node.value > 0) {

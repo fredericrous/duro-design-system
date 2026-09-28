@@ -104,6 +104,91 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       ],
     },
     {
+      // A palette backdrop value on a background is the token
+      code: wrap("backgroundColor: 'rgba(0, 0, 0, 0.4)'"),
+      errors: [
+        {
+          messageId: 'rawColorToken',
+          data: {value: 'rgba(0, 0, 0, 0.4)', token: 'backdrop', pkg: '@duro-app/tokens'},
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {colors} from '@duro-app/tokens/tokens/colors.css'\n" +
+                wrap('backgroundColor: colors.backdrop'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // ticket-vision's hand-rolled scrim: off-palette translucent black on a
+      // background still means the backdrop
+      code: wrap("backgroundColor: 'rgba(0,0,0,0.5)'"),
+      errors: [
+        {
+          messageId: 'rawBackdrop',
+          data: {value: 'rgba(0,0,0,0.5)', property: 'backgroundColor', pkg: '@duro-app/tokens'},
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {colors} from '@duro-app/tokens/tokens/colors.css'\n" +
+                wrap('backgroundColor: colors.backdrop'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // Other spellings of translucent black
+      code: wrap("background: 'rgb(0 0 0 / 45%)'"),
+      errors: [
+        {
+          messageId: 'rawBackdrop',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {colors} from '@duro-app/tokens/tokens/colors.css'\n" +
+                wrap('background: colors.backdrop'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap("backgroundColor: '#00000080'"),
+      errors: [
+        {
+          messageId: 'rawBackdrop',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {colors} from '@duro-app/tokens/tokens/colors.css'\n" +
+                wrap('backgroundColor: colors.backdrop'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // Translucent black as text color is not a scrim
+      code: wrap("color: 'rgba(0, 0, 0, 0.4)'"),
+      errors: [{messageId: 'rawColor', suggestions: []}],
+    },
+    {
+      // …nor as a shadow's color
+      code: wrap("boxShadow: '0 1px 3px rgba(0, 0, 0, 0.4)'"),
+      errors: [{messageId: 'rawShadow'}, {messageId: 'rawColor'}],
+    },
+    {
+      // Opaque black on a background is not a scrim either
+      code: wrap("backgroundColor: 'rgba(0, 0, 0, 1)'"),
+      errors: [{messageId: 'rawColor'}],
+    },
+    {
       // Condition keys keep the enclosing property
       code: wrap("color: {default: '#e5e5e5', ':hover': '#242424'}"),
       errors: [

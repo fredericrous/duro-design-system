@@ -43,4 +43,8 @@ export const colors = css.defineVars({
   infoBg: 'rgba(106, 175, 252, 0.1)',
   infoBorder: 'rgba(106, 175, 252, 0.3)',
   infoText: '#93c5fd',
+
+  // Overlay — the scrim behind a modal (Dialog, Drawer, a command palette).
+  // Darker than light mode's: on a near-black page 40% black barely dims.
+  backdrop: 'rgba(0, 0, 0, 0.6)',
 })

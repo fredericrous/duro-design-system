@@ -74,6 +74,9 @@ scale:
 
 - **colors** — a hex / `rgb()` / `hsl()` literal anywhere. A palette value
   suggests its `colors.*` token; an off-palette one reports without a fix.
+  Translucent black as a whole `background`/`backgroundColor` value
+  (`'rgba(0,0,0,0.5)'`, `'rgb(0 0 0 / 45%)'`, `'#00000080'`) is a hand-rolled
+  modal scrim: it suggests `colors.backdrop`.
 - **spacing and radius** — a number or `'Npx'` on the padding/margin/gap
   families → `spacing.*`, on the border-radius family → `radii.*`. On the
   scale it suggests the token; off the scale (`marginTop: 23`) it reports —

@@ -30,6 +30,7 @@ export const lightTheme = css.createTheme(colors, {
   infoBg: 'rgba(30, 64, 175, 0.08)',
   infoBorder: 'rgba(30, 64, 175, 0.3)',
   infoText: '#1e40af',
+  backdrop: 'rgba(0, 0, 0, 0.4)',
 })
 
 export const lightShadows = css.createTheme(shadows, {
