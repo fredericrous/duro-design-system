@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/doctor-token-wiring
 ---
 
@@ -54,14 +54,14 @@ New rule `tokens-compiled`, per consumer package:
 
 ## Phases
 
-- [ ] Phase 1 — plan (this file).
-- [ ] Phase 2 — `tokens-compiled` in `packages/cli/src/commands/doctor.ts`;
+- [x] Phase 1 — plan (this file).
+- [x] Phase 2 — `tokens-compiled` in `packages/cli/src/commands/doctor.ts`;
       tests in `packages/cli/test/doctor.test.ts`: fires on a
       website-builder-shaped config (warn; error with a deep import in a
       `css.create` file), silent on the duro-app shape, silent without StyleX,
       SSR without `noExternal` fires.
-- [ ] Phase 3 — docs: README rule table, CLAUDE.md doctor line.
-- [ ] Phase 4 — pilot against both real apps, repo checks, record below.
+- [x] Phase 3 — docs: README rule table, CLAUDE.md doctor line.
+- [x] Phase 4 — pilot against both real apps, repo checks, record below.
 
 ## Decision log
 
@@ -73,17 +73,27 @@ New rule `tokens-compiled`, per consumer package:
   motivated this.
 - **Any mention counts as routing.** A false alarm on a correctly wired app
   (duro-app) costs trust in doctor; a missed badly-written filter is cheaper.
+- **Only vite/babel configs route the tokens** (found in the pilot): duro-app's
+  `postcss.config.js` lists `node_modules/@duro-app/tokens/src/**` as an
+  extraction `include`. That collects the rules; it does not compile the module
+  the bundle imports. Counting it hid a falsified duro-app copy with the babel
+  rule removed, so postcss (and vitest) configs no longer count.
 - **Finding points at the config** (the file to fix), line of the StyleX
   reference; the evidence source file is named in the message.
 
 ## Verification
 
-| Input                                                    | Expected                                 | Actual |
-| -------------------------------------------------------- | ---------------------------------------- | ------ |
-| `website-builder/apps/builder-webapp`                    | `tokens-compiled` warn at vite.config.ts |        |
-| `duro-app`                                               | no `tokens-compiled` finding             |        |
-| unit tests, lint, typecheck, format, registry/docs check | green                                    |        |
+| Input                                                           | Expected                                                         | Actual                                                                                                            |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `website-builder/apps/builder-webapp`, `duro doctor`            | `tokens-compiled` warn at vite.config.ts                         | `0 error(s), 1 warning(s)`, `warn tokens-compiled vite.config.ts:6` (the `@stylexjs/babel-plugin` import), exit 0 |
+| `duro-app`, `duro doctor` / `--session`                         | no finding / no output                                           | `duro doctor: no problems found` / empty                                                                          |
+| duro-app copy, tokens babel rule and `noExternal` entry removed | error (its `app/root.tsx` deep-imports tokens into `css.create`) | `error tokens-compiled vite.config.ts:15`, `app/root.tsx:15 imports one into css.create`, exit 1                  |
+| `vitest --project=unit`                                         | green                                                            | 248 passed (doctor: 25)                                                                                           |
+| `pnpm lint`, `pnpm typecheck`                                   | green                                                            | 0 errors (26 pre-existing warnings), typecheck clean                                                              |
+| `prettier --check` on changed files                             | clean                                                            | clean; `.github/workflows/release.yml`, `postcss.config.mjs` fail on origin/main already, untouched               |
+| `build-registry.mjs --check` / `--check-docs`, CLI build        | up to date / builds                                              | up to date, builds                                                                                                |
 
 ## Outcome
 
-Pending.
+Done. `duro doctor` now warns on website-builder's builder-webapp and stays
+silent on duro-app. Ships in the next CLI minor (4.1.0).
