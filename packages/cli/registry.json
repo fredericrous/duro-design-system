@@ -3317,7 +3317,8 @@
       "meta": {
         "anatomy": {
           "optional": [
-            "LinkItem"
+            "LinkItem",
+            "Separator"
           ],
           "required": [
             "Root",
@@ -3327,7 +3328,7 @@
           ]
         },
         "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button.",
-        "example": "<Menu.Root>\n  <Menu.Trigger>Actions</Menu.Trigger>\n  <Menu.Popup>\n    <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n    <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n    <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n  </Menu.Popup>\n</Menu.Root>",
+        "example": "<Menu.Root>\n  <Menu.Trigger>Actions</Menu.Trigger>\n  <Menu.Popup>\n    <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n    <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n    <Menu.Separator />\n    <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n  </Menu.Popup>\n</Menu.Root>",
         "relatedTo": [
           {
             "component": "Select",
@@ -3410,6 +3411,11 @@
               "type": "ReactNode"
             }
           ],
+          "sourcePath": "packages/ui/src/components/Menu/Menu.tsx"
+        },
+        "Separator": {
+          "name": "Separator",
+          "props": [],
           "sourcePath": "packages/ui/src/components/Menu/Menu.tsx"
         },
         "Trigger": {

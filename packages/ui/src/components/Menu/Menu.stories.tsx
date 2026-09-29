@@ -146,6 +146,32 @@ export const WithLinks: Story = {
   },
 }
 
+export const WithSeparator: Story = {
+  render: () => (
+    <Menu.Root>
+      <Menu.Trigger>History</Menu.Trigger>
+      <Menu.Popup>
+        <Menu.Item>Added SCADA to Operations</Menu.Item>
+        <Menu.Item>Renamed 2 capabilities</Menu.Item>
+        <Menu.Separator />
+        <Menu.Item>See full history</Menu.Item>
+      </Menu.Popup>
+    </Menu.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: /History/}))
+    const menu = canvas.getByRole('menu')
+    const separator = canvas.getByRole('separator')
+    await expect(separator).toHaveAttribute('aria-orientation', 'horizontal')
+    // The separator is not an item: three items, and arrows pass over it.
+    const items = canvas.getAllByRole('menuitem')
+    await expect(items.length).toBe(3)
+    await userEvent.keyboard('{ArrowDown}')
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(menu).toHaveAttribute('aria-activedescendant', items[2].id)
+  },
+}
+
 // Misuse on purpose, so it runs as a test but stays out of the sidebar:
 // Menu.Trigger is the button, and a Button inside it earns a dev warning.
 export const NestedControlWarns: Story = {
