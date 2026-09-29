@@ -80,6 +80,14 @@ export const styles = css.create({
   itemHighlighted: {
     backgroundColor: colors.bgCardHover,
   },
+  separator: {
+    height: 0,
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    borderTopColor: colors.border,
+  },
   linkItem: {
     textDecoration: 'none',
     color: {

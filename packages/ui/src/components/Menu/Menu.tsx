@@ -159,10 +159,19 @@ function LinkItem({href, children}: LinkItemProps) {
   )
 }
 
+// --- Separator ---
+// A rule between groups of items. role="separator" is a valid child of a
+// menu (WAI-ARIA menu pattern), and it is never registered as an item, so
+// arrow keys and the active descendant pass over it.
+function Separator() {
+  return <html.div role="separator" aria-orientation="horizontal" style={styles.separator} />
+}
+
 export const Menu = {
   Root,
   Trigger,
   Popup,
   Item,
   LinkItem,
+  Separator,
 }

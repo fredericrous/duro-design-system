@@ -11,7 +11,7 @@ export const meta: ComponentMeta = {
   whenNotToUse: ['Picking a value — use Select', 'Primary navigation — use SideNav or Tabs'],
   anatomy: {
     required: ['Root', 'Trigger', 'Popup', 'Item'],
-    optional: ['LinkItem'],
+    optional: ['LinkItem', 'Separator'],
   },
   relatedTo: [
     {
@@ -31,6 +31,7 @@ export const meta: ComponentMeta = {
   <Menu.Popup>
     <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>
     <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>
+    <Menu.Separator />
     <Menu.LinkItem href="/settings">Settings</Menu.LinkItem>
   </Menu.Popup>
 </Menu.Root>`,
