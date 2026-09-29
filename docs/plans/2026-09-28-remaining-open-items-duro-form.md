@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: fix/form-subpath # home repo; others per Phases
 repos: [duro-design-system, duro-lexical-multi, website-builder, duro-app]
 adrs: [ADR-0022, ADR-0023] # + a local duro-design-system ADR (Phase 2)
@@ -65,9 +65,9 @@ duro-design-system — PR 1 (branch `fix/form-subpath`)
       peer is optional lives behind a subpath" in `docs/adr/`, declared as this
       repo's first local key in `.adr.yaml` (`aval check` green); BREAKING note
       for 4.0.0 naming the one-line migration.
-- [ ] Phase 3 — verify (below) → preview (Storybook, ADR-0023) → push → PR →
+- [x] Phase 3 — verify (below) → preview (Storybook, ADR-0023) → push → PR →
       merge-when-green.
-- [ ] Phase 4 — tag **v4.0.0** (approved) from a clean worktree at the merge;
+- [x] Phase 4 — tag **v4.0.0** (approved) from a clean worktree at the merge;
       verify the published tarball.
 
 duro-lexical-multi — PR 2 (branch `fix/link-editor-submit`)
@@ -91,24 +91,24 @@ n => $isLinkNode(n) && !$isAutoLinkNode(n))` → `setURL`, else
       `useFormatText.ts`/`useFormatElement.ts` (it closes over nothing that
       changes; the registering effects depend on `[editor, $updateToolbar]`) and
       the then-dead `activeEditor` state.
-- [ ] Phase 7 — `@duro-app/*` devDeps → 4.0.0, peer `@duro-app/ui`
+- [x] Phase 7 — `@duro-app/*` devDeps → 4.0.0, peer `@duro-app/ui`
       `^3.7.0 || ^4.0.0`, `0.3.1`; verify → preview (Storybook) → push → PR →
       merge → tag **v0.3.1** (approved).
 
 website-builder — PR 3 (branch `fix/lexical-0-3-1`)
 
-- [ ] Phase 8 — `DesignSystemTab.test.tsx` `install()`: after each pick wait
+- [x] Phase 8 — `DesignSystemTab.test.tsx` `install()`: after each pick wait
       for the chosen file name, then `waitFor` Install to be enabled before
       clicking; in the second owner round also wait for `w.server.getActive()` to
       differ from the value captured before `install()`.
-- [ ] Phase 9 — `@fredericrous/lexical-multi ^0.3.1`; `@duro-app/ui ^4.0.0`
+- [x] Phase 9 — `@fredericrous/lexical-multi ^0.3.1`; `@duro-app/ui ^4.0.0`
       in the 4 packages, `@duro-app/tokens ^4.0.0` in builder-webapp only; lock via
       `--lockfile-only` + strip Forgejo tarball URLs (`.npmrc`); CLAUDE.md pin;
       verify → preview (webapp) → push → PR → merge.
 
 duro-app — PR 4 (branch `build/duro-ui-4`)
 
-- [ ] Phase 10 — `@duro-app/ui` (+ tokens/cli if declared) → `^4.0.0`; the two
+- [x] Phase 10 — `@duro-app/ui` (+ tokens/cli if declared) → `^4.0.0`; the two
       files import `Form` from `@duro-app/ui/form`; verify the two routes
       (`/setup`, the CertGate flow) → preview → push → PR → merge.
 
@@ -177,6 +177,10 @@ by __vite-optional-peer-dep:@hookform/resolvers/effect-ts` (the peer
     records, no findings.
 - P4: `npm pack @duro-app/ui@4.0.0` → `exports["./form"]`, root chunk graph
   as in P1–3.
+  - Observed: v4.0.0 tagged at c6a0819 (after #56); release run
+    36474157325 success; the packed tarball: `exports["./form"]` present,
+    `index.js` externals = react, react-dom, react-hook-form, react/jsx-runtime;
+    `form.js` adds `@hookform/resolvers/effect-ts`.
 - P5: new story red on main (text deleted, mechanism logged), green after;
   link-edit story green; Storybook preview: select → Link → type → Enter.
   - Observed (lexical-multi@ae9fd4f): `NewLinkConfirmedWithEnter` red on the
@@ -190,10 +194,50 @@ by __vite-optional-peer-dep:@hookform/resolvers/effect-ts` (the peer
 - P6: `eslint --max-warnings 0` on the three files; toolbar stories green.
   - Observed: `pnpm lint --max-warnings 0` exit 0 (was 3 warnings); the
     three files alone exit 0; toolbar stories green.
+- P7: lexical-multi against Duro 4.0.0 — lint 0 warnings, typecheck, format,
+  build, coverage (24) exit 0; audit clean. Observed (0.3.1, ae8f71d): real
+  keys, second editor while the first holds a link → Enter and ✓ both link
+  "Duro", one URL field, one floating panel. Published: Forgejo npm
+  `latest: 0.3.1`.
 - P8: make the mocked picker dispatch `change` in a `setTimeout` → the test is
   red on main, green after; webapp suite 3× green.
+  - Observed: 2 of 3 DesignSystemTab tests red on main with the async picker,
+    green after; webapp 302/302 ×3, 313/313 after rebasing on 285fa2d.
 - P9: webapp localhost (production build): canvas text → Link → type URL →
   Enter → the text links to it (reproduced as broken on main).
+  - Observed (real keys, Format dock → Link): main production build →
+    `"Visit  now"`, no link; branch production and dev builds → `"Visit Duro
+now"`, one URL field, `Duro→https://duro.example`, 0 page errors.
 - P10: duro-app `/setup` form renders and submits; CertGate form renders.
+  - Observed: CertGate rendered inside the app (scratch route, never
+    committed): form, 3 fields, Create Account; an invalid submit shows the
+    Effect-schema messages; 0 page errors. `/setup` could not render its form
+    locally (needs a pki-client-CA-signed invite certificate; the loader first
+    stops on missing `LLDAP_ADMIN_PASS`) — its only change, the import line, is
+    covered by typecheck, 1553 tests and the production build.
 
 ## Outcome
+
+Shipped: Duro **4.0.0** (#54: `Form` → `@duro-app/ui/form`, local ADR-0001;
+#56: 67 transitive advisories overridden), lexical-multi **0.3.1** (#17),
+duro-app #134 and website-builder #190 adopt both.
+
+What surprised:
+
+- The link bug was not in the link code: an unconsumed Enter became a
+  paragraph break once focus returned to the editor. Verifying it found two
+  more multi-editor faults (a second URL field; a stale panel) from the same
+  shared `isLinkEditMode`.
+- Tagging was the hard part. The v4.0.0 tag was refused twice: by the audit
+  gate (a blanket `pnpm update` broke the build through open ranges, so the
+  fix is bounded overrides) and by the in-tree CLI tests in the release
+  worktree (build the CLI there first; the snapshot now does it too).
+- duro-app's push rehearsal is silent for more than 2 minutes while vitest
+  runs (non-TTY: summary only); it needed a one-off `amont.idleTimeout=600`.
+  Fixed where the rule lives: amont's plan "Busy is not stuck" (CPU-aware
+  silence budget, amont `docs/plans`).
+- duro-app's `/setup` cannot be exercised locally; a dev fixture for a pending
+  certificate invite would make it verifiable.
+
+Pointer files in the other three repositories were merged as `status: active`
+and are not reopened for a status flip; this file is the record.
