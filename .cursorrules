@@ -37,6 +37,7 @@ import {colors} from '@duro-app/tokens'                        // ❌
 - `Tabs`: Root > List > Tab + Panel
 - `Table`: Root > Header + Body > Row > HeaderCell | Cell
 - `Tooltip`: Root > Trigger
+- `Popover`: Root > Trigger (optional with a virtual `anchor`) + Popup > Close
 - `SideNav`: Root > Group > Item
 - `ScrollArea`: Root > Viewport > Content + Scrollbar > Thumb
 

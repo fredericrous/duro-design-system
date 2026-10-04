@@ -30,6 +30,12 @@ export const meta: ComponentMeta = {
       kind: 'contrast',
       relationship: 'DetailPanel is non-modal and in-flow; Drawer is modal with backdrop',
     },
+    {
+      component: 'Popover',
+      kind: 'contrast',
+      relationship:
+        'Popover is a small card anchored to an element; Drawer takes its place at phone width',
+    },
   ],
   example: `<Drawer.Root anchor="right" open={open} onOpenChange={setOpen}>
   <Drawer.Trigger>

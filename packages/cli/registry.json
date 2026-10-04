@@ -1584,6 +1584,11 @@
             "component": "DetailPanel",
             "kind": "contrast",
             "relationship": "DetailPanel is non-modal and in-flow; Dialog is modal with backdrop"
+          },
+          {
+            "component": "Popover",
+            "kind": "contrast",
+            "relationship": "Popover is a small non-modal card anchored to an element; Dialog is a modal decision"
           }
         ],
         "whenNotToUse": [
@@ -1937,6 +1942,11 @@
             "component": "DetailPanel",
             "kind": "contrast",
             "relationship": "DetailPanel is non-modal and in-flow; Drawer is modal with backdrop"
+          },
+          {
+            "component": "Popover",
+            "kind": "contrast",
+            "relationship": "Popover is a small card anchored to an element; Drawer takes its place at phone width"
           }
         ],
         "whenNotToUse": [
@@ -3707,7 +3717,7 @@
           ]
         },
         "description": "Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves.",
-        "example": "const ref = useRef<PopoverHandle>(null)\nconst anchor = () => new DOMRect(point.x, point.y, 0, 0)\n\n<Popover.Root ref={ref} open={open} onOpenChange={setOpen} anchor={anchor} side=\"bottom\" align=\"start\">\n  <Popover.Popup label=\"Edit label\">\n    <Input value={label} onChange={setLabel} />\n    <Popover.Close>Done</Popover.Close>\n  </Popover.Popup>\n</Popover.Root>\n// after the anchor moves: ref.current?.reposition()",
+        "example": "const ref = useRef<PopoverHandle>(null)\nconst anchor = () => new DOMRect(point.x, point.y, 0, 0)\n\n<Popover.Root ref={ref} open={open} onOpenChange={setOpen} anchor={anchor} side=\"bottom\" align=\"start\">\n  <Popover.Popup label=\"Edit label\">\n    <Field.Root>\n      <Field.Label>Label</Field.Label>\n      <Input value={label} onChange={(e) => setLabel(e.target.value)} />\n    </Field.Root>\n    <Popover.Close>Done</Popover.Close>\n  </Popover.Popup>\n</Popover.Root>\n// after the anchor moves: ref.current?.reposition()",
         "relatedTo": [
           {
             "component": "Menu",
@@ -3733,6 +3743,11 @@
             "component": "Drawer",
             "kind": "contrast",
             "relationship": "Drawer is the modal edge panel for phone width; Popover is anchored and non-modal"
+          },
+          {
+            "component": "Field",
+            "kind": "composition",
+            "relationship": "Place Field.Root with its control inside Popover.Popup for a labelled field"
           }
         ],
         "whenNotToUse": [

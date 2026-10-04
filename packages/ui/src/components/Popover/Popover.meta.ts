@@ -47,13 +47,21 @@ export const meta: ComponentMeta = {
       relationship:
         'Drawer is the modal edge panel for phone width; Popover is anchored and non-modal',
     },
+    {
+      component: 'Field',
+      kind: 'composition',
+      relationship: 'Place Field.Root with its control inside Popover.Popup for a labelled field',
+    },
   ],
   example: `const ref = useRef<PopoverHandle>(null)
 const anchor = () => new DOMRect(point.x, point.y, 0, 0)
 
 <Popover.Root ref={ref} open={open} onOpenChange={setOpen} anchor={anchor} side="bottom" align="start">
   <Popover.Popup label="Edit label">
-    <Input value={label} onChange={setLabel} />
+    <Field.Root>
+      <Field.Label>Label</Field.Label>
+      <Input value={label} onChange={(e) => setLabel(e.target.value)} />
+    </Field.Root>
     <Popover.Close>Done</Popover.Close>
   </Popover.Popup>
 </Popover.Root>
