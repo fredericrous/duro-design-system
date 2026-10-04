@@ -37,6 +37,20 @@ aval = "required"
 amont = "required"
 amont_agent = "required"
 
+# A verification worktree is a bare checkout: the profile's commands need
+# node_modules installed there first. Executable authority like the
+# commands (hashed into the trust grant), run in every worktree the
+# commands run in.
+[[verification.profiles.default.setup]]
+argv = ["pnpm", "install", "--frozen-lockfile"]
+timeout_seconds = 900
+
+# The CLI tests run the built bin (packages/cli/dist/bin.js), which is
+# gitignored, so it is built before the commands.
+[[verification.profiles.default.setup]]
+argv = ["pnpm", "--filter", "@duro-app/cli", "run", "build"]
+timeout_seconds = 600
+
 [[verification.profiles.default.commands]]
 argv = ["pnpm", "run", "typecheck"]
 timeout_seconds = 900
