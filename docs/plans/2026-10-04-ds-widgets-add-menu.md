@@ -25,5 +25,6 @@ send a gap upstream instead of working around it in a consumer.
 
 - **approve-with-changes**, then a delta pass with both code findings resolved: the Esc guard narrowed to popup owners (with `holds-until:`), and the registry test asserting `parts.Root.props`.
 - deliberate: Trigger mode also portals into ThemeProvider's layer (`position: fixed` from the trigger rect), not CSS-anchored like `Menu.Popup` as the plan text says. The relais review required the portal layer for theme tokens and stacking above dialogs; the reviewed plan text stays.
-- Tokens: about 71k (round 1) and 27k (delta); about 63 s and 17 s.
+- After the preview approval, the person asked for the AI metadata. The Popover example was fixed (Input `onChange` receives an event), a Field composition entry added, Dialog and Drawer now point back to Popover, and `.cursorrules` lists it. Delta review: **approve**.
+- Tokens: about 71k (round 1), 27k (delta) and 29k (metadata delta); about 63 s, 17 s and 16 s.
 - Candidate from relais `run-65d0ae85cd7e9-7166` (needs_review). Its three findings were fixed, plus `pointerEvents: 'auto'` that the portal layer needs.
