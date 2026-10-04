@@ -1335,6 +1335,11 @@
             "relationship": "Drawer is modal with backdrop; DetailPanel is non-modal and in-flow"
           },
           {
+            "component": "Popover",
+            "kind": "contrast",
+            "relationship": "Popover is a small anchored overlay for a few controls; DetailPanel is an in-flow panel for long editing"
+          },
+          {
             "component": "Table",
             "kind": "composition",
             "relationship": "Common pattern: Table + DetailPanel for master-detail"
@@ -1579,6 +1584,11 @@
             "component": "DetailPanel",
             "kind": "contrast",
             "relationship": "DetailPanel is non-modal and in-flow; Dialog is modal with backdrop"
+          },
+          {
+            "component": "Popover",
+            "kind": "contrast",
+            "relationship": "Popover is a small non-modal card anchored to an element; Dialog is a modal decision"
           }
         ],
         "whenNotToUse": [
@@ -1932,6 +1942,11 @@
             "component": "DetailPanel",
             "kind": "contrast",
             "relationship": "DetailPanel is non-modal and in-flow; Drawer is modal with backdrop"
+          },
+          {
+            "component": "Popover",
+            "kind": "contrast",
+            "relationship": "Popover is a small card anchored to an element; Drawer takes its place at phone width"
           }
         ],
         "whenNotToUse": [
@@ -3343,7 +3358,8 @@
         ],
         "whenNotToUse": [
           "Picking a value — use Select",
-          "Primary navigation — use SideNav or Tabs"
+          "Primary navigation — use SideNav or Tabs",
+          "A small form tied to the trigger — use Popover"
         ],
         "whenToUse": [
           "Context menu or \"more actions\" dropdown",
@@ -3685,6 +3701,167 @@
       },
       "props": null,
       "sourcePath": "packages/ui/src/components/Panel/Panel.tsx"
+    },
+    "Popover": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "Trigger",
+            "Close"
+          ],
+          "required": [
+            "Root",
+            "Popup"
+          ]
+        },
+        "description": "Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves.",
+        "example": "const ref = useRef<PopoverHandle>(null)\nconst anchor = () => new DOMRect(point.x, point.y, 0, 0)\n\n<Popover.Root ref={ref} open={open} onOpenChange={setOpen} anchor={anchor} side=\"bottom\" align=\"start\">\n  <Popover.Popup label=\"Edit label\">\n    <Field.Root>\n      <Field.Label>Label</Field.Label>\n      <Input value={label} onChange={(e) => setLabel(e.target.value)} />\n    </Field.Root>\n    <Popover.Close>Done</Popover.Close>\n  </Popover.Popup>\n</Popover.Root>\n// after the anchor moves: ref.current?.reposition()",
+        "relatedTo": [
+          {
+            "component": "Menu",
+            "kind": "contrast",
+            "relationship": "Menu opens a list of actions; Popover holds small forms and controls"
+          },
+          {
+            "component": "Tooltip",
+            "kind": "contrast",
+            "relationship": "Tooltip shows hover-only text; Popover holds interactive content and stays open"
+          },
+          {
+            "component": "Dialog",
+            "kind": "contrast",
+            "relationship": "Dialog is modal and blocks the page; Popover is non-modal and anchored"
+          },
+          {
+            "component": "DetailPanel",
+            "kind": "contrast",
+            "relationship": "DetailPanel is an in-flow panel for long editing; Popover is a small anchored overlay"
+          },
+          {
+            "component": "Drawer",
+            "kind": "contrast",
+            "relationship": "Drawer is the modal edge panel for phone width; Popover is anchored and non-modal"
+          },
+          {
+            "component": "Field",
+            "kind": "composition",
+            "relationship": "Place Field.Root with its control inside Popover.Popup for a labelled field"
+          }
+        ],
+        "whenNotToUse": [
+          "A list of actions — use Menu",
+          "Hover-only text — use Tooltip",
+          "A blocking decision — use Dialog or ConfirmDialog",
+          "A long editor, or one that follows the selection — use DetailPanel",
+          "Phone width — use Drawer"
+        ],
+        "whenToUse": [
+          "A small form or controls tied to one element that stay open while you work in them",
+          "Anchoring to a spot that is not a button (a canvas point, a text selection) with a virtual anchor"
+        ]
+      },
+      "name": "Popover",
+      "parts": {
+        "Close": {
+          "name": "Close",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Popover/Popover.tsx"
+        },
+        "Popup": {
+          "name": "Popup",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "description": "Accessible name for the dialog.",
+              "name": "label",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Popover/Popover.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "name": "open",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "default": "false",
+              "name": "defaultOpen",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "onOpenChange",
+              "required": false,
+              "type": "(open: boolean) => void"
+            },
+            {
+              "default": "'bottom'",
+              "name": "side",
+              "required": false,
+              "type": "PopoverSide"
+            },
+            {
+              "default": "'start'",
+              "name": "align",
+              "required": false,
+              "type": "PopoverAlign"
+            },
+            {
+              "description": "Virtual anchor: a viewport rect. Replaces the Trigger as the anchor.",
+              "name": "anchor",
+              "required": false,
+              "type": "() => DOMRect"
+            },
+            {
+              "description": "Elements (or getters) whose pointerdown does not count as an outside press.",
+              "name": "ignore",
+              "required": false,
+              "type": "ReadonlyArray<IgnoreEntry>"
+            },
+            {
+              "name": "ref",
+              "required": false,
+              "type": "Ref<PopoverHandle>"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Popover/Popover.tsx"
+        },
+        "Trigger": {
+          "name": "Trigger",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Popover/Popover.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/Popover/Popover.tsx"
     },
     "RadioGroup": {
       "importPath": "@duro-app/ui",
@@ -5831,7 +6008,7 @@
         "example": "<Tooltip.Root content=\"Delete this item permanently\" placement=\"top\">\n  <Tooltip.Trigger>\n    <Button variant=\"danger\">Delete</Button>\n  </Tooltip.Trigger>\n</Tooltip.Root>",
         "whenNotToUse": [
           "Critical information that must always be visible — use Text or Callout",
-          "Interactive content (links, buttons) — tooltips are not interactive"
+          "Interactive content (links, buttons) — tooltips are not interactive — use Popover"
         ],
         "whenToUse": [
           "Providing extra context on hover for icon-only buttons",

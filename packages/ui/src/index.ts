@@ -90,6 +90,8 @@ export {Text, type TextVariant, type TextColor} from './components/Text/Text'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
 export {ToggleGroup} from './components/ToggleGroup/ToggleGroup'
 export {Tooltip} from './components/Tooltip/Tooltip'
+export {Popover} from './components/Popover/Popover'
+export type {PopoverHandle} from './components/Popover/Popover'
 export {Switch} from './components/Switch/Switch'
 
 // Layout primitives

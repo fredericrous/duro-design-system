@@ -8,7 +8,11 @@ export const meta: ComponentMeta = {
     'Navigation links in a dropdown',
     'Overflow menu for toolbar actions',
   ],
-  whenNotToUse: ['Picking a value — use Select', 'Primary navigation — use SideNav or Tabs'],
+  whenNotToUse: [
+    'Picking a value — use Select',
+    'Primary navigation — use SideNav or Tabs',
+    'A small form tied to the trigger — use Popover',
+  ],
   anatomy: {
     required: ['Root', 'Trigger', 'Popup', 'Item'],
     optional: ['LinkItem', 'Separator'],

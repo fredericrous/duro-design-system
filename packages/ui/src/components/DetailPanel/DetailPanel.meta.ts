@@ -24,6 +24,12 @@ export const meta: ComponentMeta = {
       relationship: 'Drawer is modal with backdrop; DetailPanel is non-modal and in-flow',
     },
     {
+      component: 'Popover',
+      kind: 'contrast',
+      relationship:
+        'Popover is a small anchored overlay for a few controls; DetailPanel is an in-flow panel for long editing',
+    },
+    {
       component: 'Table',
       kind: 'composition',
       relationship: 'Common pattern: Table + DetailPanel for master-detail',
