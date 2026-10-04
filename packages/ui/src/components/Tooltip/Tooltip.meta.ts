@@ -9,7 +9,7 @@ export const meta: ComponentMeta = {
   ],
   whenNotToUse: [
     'Critical information that must always be visible — use Text or Callout',
-    'Interactive content (links, buttons) — tooltips are not interactive',
+    'Interactive content (links, buttons) — tooltips are not interactive — use Popover',
   ],
   anatomy: {
     required: ['Root', 'Trigger'],
