@@ -48,14 +48,23 @@ const FOCUSABLE =
 const OFFSET = 4 // `xs` token
 
 /**
- * Whether a nested control owns this Escape: a Select, Menu or Combobox
- * inside the popup closes on Esc without preventing default, and that Esc
- * must close only it. An expanded trigger, a listbox or a menu around the
- * target means one is open — other than this popover's own Trigger.
+ * Whether a nested popup control owns this Escape: a Select, Menu or
+ * Combobox inside the popup closes on Esc without preventing default, and
+ * that Esc must close only it. Only controls that open a popup count — an
+ * expanded trigger that declares one (`aria-haspopup`), an expanded combobox,
+ * or focus inside a listbox or menu — never a plain disclosure, and never
+ * this popover's own Trigger.
+ *
+ * holds-until: Duro's Select, Menu and Combobox call preventDefault on the
+ * Escape they consume; the defaultPrevented check alone then suffices and
+ * this selector goes.
  */
+const NESTED_POPUP_OWNER =
+  '[aria-expanded="true"][aria-haspopup], [role="combobox"][aria-expanded="true"], [role="listbox"], [role="menu"]'
+
 function nestedOwnsEscape(target: EventTarget | null, ownTrigger: Element | null): boolean {
   if (!(target instanceof Element)) return false
-  const owner = target.closest('[aria-expanded="true"], [role="listbox"], [role="menu"]')
+  const owner = target.closest(NESTED_POPUP_OWNER)
   return owner !== null && owner !== ownTrigger
 }
 

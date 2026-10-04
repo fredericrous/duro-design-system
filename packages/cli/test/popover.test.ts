@@ -21,9 +21,9 @@ describe('Popover in the registry and CLI', () => {
   it('is registered with its props and schemaVersion 1', () => {
     expect(registry.schemaVersion).toBe(1)
     expect(registry.components.Popover).toBeDefined()
-    const serialized = JSON.stringify(registry.components.Popover)
+    const rootProps = registry.components.Popover!.parts!.Root!.props.map((p) => p.name)
     for (const prop of ['anchor', 'side', 'align', 'ignore']) {
-      expect(serialized).toContain(`"${prop}"`)
+      expect(rootProps).toContain(prop)
     }
   })
 

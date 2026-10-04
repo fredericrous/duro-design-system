@@ -221,3 +221,30 @@ export const VirtualAnchor: Story = {
     )
   },
 }
+
+function DisclosureDemo() {
+  const [expanded, setExpanded] = useState(true)
+  return (
+    <Popover.Root>
+      <Popover.Trigger>Details</Popover.Trigger>
+      <Popover.Popup label="Details">
+        <html.button type="button" aria-expanded={expanded} onClick={() => setExpanded((e) => !e)}>
+          More
+        </html.button>
+      </Popover.Popup>
+    </Popover.Root>
+  )
+}
+
+export const DisclosureDoesNotOwnEscape: Story = {
+  render: () => <DisclosureDemo />,
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Details'}))
+    const more = page().getByRole('button', {name: 'More'})
+    await waitFor(() => expect(more).toHaveFocus())
+    await expect(more).toHaveAttribute('aria-expanded', 'true')
+    // An expanded disclosure opens no popup of its own: Esc closes the popover.
+    await userEvent.keyboard('{Escape}')
+    await expect(page().queryByRole('dialog')).not.toBeInTheDocument()
+  },
+}
