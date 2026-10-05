@@ -65,6 +65,10 @@ export const styles = css.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+    // More actions than the bar's room (a narrow window, or a docked panel
+    // taking part of it): the row scrolls instead of spilling past the bar.
+    minWidth: 0,
+    overflowX: 'auto',
   },
   closeButton: {
     display: 'inline-flex',

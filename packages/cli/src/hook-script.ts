@@ -70,9 +70,10 @@ pin="${HOOK_PIN_LINE}"
 # first line), or older than this script (a regenerate).
 if [ ! -s "$cache" ] || [ "$(head -n 1 "$cache" 2>/dev/null)" != "$pin" ] ||
   [ -n "$(find "$cache" -mtime +7 2>/dev/null)" ] || [ "${HOOK_SCRIPT_PATH}" -nt "$cache" ]; then
-  # The pin is written with the payload, so a failed fetch leaves the old
-  # cache as it was and never a pin-only file.
-  if { echo "$pin"; npx -y @duro-app/cli@^${HOOK_MIN_CLI} hook session-start; } >"$cache.tmp" 2>/dev/null; then
+  # The pin is written with the payload, so a failed fetch (or one that
+  # printed nothing) leaves the old cache as it was and never a pin-only file.
+  if { echo "$pin"; npx -y @duro-app/cli@^${HOOK_MIN_CLI} hook session-start; } >"$cache.tmp" 2>/dev/null &&
+    [ "$(wc -l <"$cache.tmp" | tr -d ' ')" -gt 1 ]; then
     mv "$cache.tmp" "$cache"
   else
     rm -f "$cache.tmp"

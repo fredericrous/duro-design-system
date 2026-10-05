@@ -51,8 +51,11 @@ describe('the CLI floors', () => {
   })
 })
 
-/** A repo with the generated hook and a fake npx that prints `catalog` (or fails). */
-function repo(npx: {catalog: string} | 'fails') {
+/** POSIX sh, and dash when present: consumers run the hook with whatever /bin/sh is. */
+const SHELLS = ['sh', ...(existsSync('/bin/dash') ? ['dash'] : [])]
+
+/** A repo with the generated hook and a fake npx that prints `catalog`, nothing, or fails. */
+function repo(npx: {catalog: string} | 'fails' | 'empty', shell: string) {
   const dir = mkdtempSync(join(tmpdir(), 'duro-hook-'))
   mkdirSync(join(dir, '.claude/hooks'), {recursive: true})
   writeFileSync(join(dir, HOOK_SCRIPT_PATH), HOOK_SCRIPT)
@@ -61,14 +64,16 @@ function repo(npx: {catalog: string} | 'fails') {
   const body =
     npx === 'fails'
       ? 'exit 1'
-      : `case "$*" in *session-start*) printf '%s\\n' ${npx.catalog
-          .split('\n')
-          .map((l) => `'${l}'`)
-          .join(' ')} ;; *) : ;; esac`
+      : npx === 'empty'
+        ? 'exit 0'
+        : `case "$*" in *session-start*) printf '%s\\n' ${npx.catalog
+            .split('\n')
+            .map((l) => `'${l}'`)
+            .join(' ')} ;; *) : ;; esac`
   writeFileSync(join(bin, 'npx'), `#!/bin/sh\n${body}\n`)
   chmodSync(join(bin, 'npx'), 0o755)
   const run = () =>
-    spawnSync('sh', [HOOK_SCRIPT_PATH], {
+    spawnSync(shell, [HOOK_SCRIPT_PATH], {
       cwd: dir,
       env: {...process.env, PATH: `${bin}:${process.env['PATH']}`},
       encoding: 'utf8',
@@ -83,9 +88,9 @@ function oldCache(cache: string) {
   utimesSync(cache, later, later)
 }
 
-describe('the session hook cache', () => {
+describe.each(SHELLS)('the session hook cache, under %s', (shell) => {
   it('replaces a 3.x cache with the current catalog, and never prints the pin', () => {
-    const r = repo({catalog: 'CATALOG 4.4\nsecond line'})
+    const r = repo({catalog: 'CATALOG 4.4\nsecond line'}, shell)
     oldCache(r.cache)
     const out = r.run()
     expect(out.stdout.split('\n')[0]).toBe('CATALOG 4.4')
@@ -94,7 +99,7 @@ describe('the session hook cache', () => {
   })
 
   it('keeps the old cache, untouched, when the refresh fails, and says why', () => {
-    const r = repo('fails')
+    const r = repo('fails', shell)
     oldCache(r.cache)
     const before = readFileSync(r.cache, 'utf8')
     const out = r.run()
@@ -106,14 +111,21 @@ describe('the session hook cache', () => {
   })
 
   it('leaves no pin-only cache when the first fetch fails', () => {
-    const r = repo('fails')
+    const r = repo('fails', shell)
+    r.run()
+    expect(existsSync(r.cache)).toBe(false)
+    expect(existsSync(`${r.cache}.tmp`)).toBe(false)
+  })
+
+  it('keeps no pin-only cache when npx succeeds but prints nothing', () => {
+    const r = repo('empty', shell)
     r.run()
     expect(existsSync(r.cache)).toBe(false)
     expect(existsSync(`${r.cache}.tmp`)).toBe(false)
   })
 
   it('does not refetch a current cache', () => {
-    const r = repo({catalog: 'CATALOG 4.4'})
+    const r = repo({catalog: 'CATALOG 4.4'}, shell)
     r.run()
     writeFileSync(join(r.dir, 'bin/npx'), '#!/bin/sh\nexit 1\n')
     const out = r.run()

@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn} from 'storybook/test'
+import {expect, fn, within} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ActionBar} from './ActionBar'
 import {Button} from '../Button/Button'
@@ -321,8 +321,21 @@ const docked = css.create({
     borderInlineStartWidth: 1,
     borderInlineStartStyle: 'solid',
   },
-  wide: {width: 800},
 })
+
+// Real buttons: they don't shrink below their labels, so together they are
+// wider than the free area beside the panel.
+const WIDE_ACTIONS = [
+  'Duplicate',
+  'Move to section',
+  'Copy style',
+  'Paste style',
+  'Group',
+  'Ungroup',
+  'Bring forward',
+  'Send backward',
+  'Delete',
+]
 
 const barRect = () =>
   (document.querySelector('[role="toolbar"]') as Element).getBoundingClientRect()
@@ -370,12 +383,22 @@ export const DockedPanelWideBar: Story = {
     <>
       <html.div style={docked.panel} data-testid="docked-panel" />
       <ActionBar selectedItemCount={2} insetInlineEnd={360} onClearSelection={() => {}}>
-        <html.div style={docked.wide} />
+        {WIDE_ACTIONS.map((a) => (
+          <Button key={a} variant="secondary" size="small">
+            {a}
+          </Button>
+        ))}
       </ActionBar>
     </>
   ),
   play: async () => {
-    // A bar wider than the free area still keeps 24px clear of the panel.
-    await expect(barRect().right).toBeLessThanOrEqual(panelRect().left - 24)
+    // A bar wider than the free area still keeps 24px clear of the panel,
+    // and so does what it holds: the actions scroll, they don't spill.
+    const limit = panelRect().left - 24
+    await expect(barRect().right).toBeLessThanOrEqual(limit)
+    const last = await within(document.body).findByRole('button', {name: 'Delete'})
+    const actions = last.parentElement!
+    await expect(actions.getBoundingClientRect().right).toBeLessThanOrEqual(limit)
+    await expect(actions.scrollWidth).toBeGreaterThan(actions.clientWidth)
   },
 }
