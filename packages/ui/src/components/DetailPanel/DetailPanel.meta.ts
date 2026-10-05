@@ -19,6 +19,12 @@ export const meta: ComponentMeta = {
   },
   relatedTo: [
     {
+      component: 'ActionBar',
+      kind: 'composition',
+      relationship:
+        "An ActionBar shown while the panel is open takes the panel's width as insetInlineEnd",
+    },
+    {
       component: 'Drawer',
       kind: 'contrast',
       relationship: 'Drawer is modal with backdrop; DetailPanel is non-modal and in-flow',

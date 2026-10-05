@@ -9,8 +9,6 @@ export const styles = css.create({
   overlay: {
     position: 'fixed',
     bottom: spacing.lg,
-    left: '50%',
-    transform: 'translateX(-50%)',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -26,8 +24,25 @@ export const styles = css.create({
     borderRadius: radii.md,
     boxShadow: shadows.lg,
     zIndex: 50,
+  },
+  // Centred on the window: the default, with nothing docked at its edge.
+  centered: {
+    left: '50%',
+    transform: 'translateX(-50%)',
     maxWidth: 'calc(100vw - 48px)',
   },
+  // Centred in the window minus chrome docked at the inline-end edge (a
+  // DetailPanel). Both insets and auto margins centre a fixed box of
+  // fit-content width in what is left, measured on the containing block
+  // (the window without a classic scrollbar), not on 100vw.
+  inset: (end: number) => ({
+    insetInlineStart: 0,
+    insetInlineEnd: end,
+    marginInlineStart: 'auto',
+    marginInlineEnd: 'auto',
+    width: 'fit-content',
+    maxWidth: `calc(100% - ${end}px - 48px)`,
+  }),
   overlayOffset: (bottom: number) => ({
     bottom,
   }),
@@ -50,6 +65,23 @@ export const styles = css.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  // Beside a docked panel the room is narrower: more actions than fit scroll
+  // instead of spilling past the bar. A scroll box clips vertically too, so
+  // the row gets room on every side for the buttons' focus rings, taken back
+  // by its margin so the bar keeps its size.
+  actionsScroll: {
+    minWidth: 0,
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.xs,
+    paddingRight: spacing.xs,
+    marginTop: `calc(-1 * ${spacing.xs})`,
+    marginBottom: `calc(-1 * ${spacing.xs})`,
+    marginLeft: `calc(-1 * ${spacing.xs})`,
+    marginRight: `calc(-1 * ${spacing.xs})`,
   },
   closeButton: {
     display: 'inline-flex',

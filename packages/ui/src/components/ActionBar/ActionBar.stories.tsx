@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn, userEvent, within} from 'storybook/test'
+import {expect, fn, within} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ActionBar} from './ActionBar'
 import {Button} from '../Button/Button'
@@ -155,8 +155,7 @@ export const Default: Story = {
       onClearSelection={args.onClearSelection as () => void}
     />
   ),
-  play: async ({canvasElement}) => {
-    const canvas = within(canvasElement)
+  play: async () => {
     // The ActionBar is portalled to document.body, so query from there
     const toolbar = document.querySelector('[role="toolbar"]')
     await expect(toolbar).toBeInTheDocument()
@@ -309,4 +308,97 @@ export const AllVariants: Story = {
       </html.div>
     </html.div>
   ),
+}
+
+// A panel docked at the window's end edge, standing in for an open DetailPanel.
+const docked = css.create({
+  panel: {
+    position: 'fixed',
+    top: 0,
+    bottom: 0,
+    insetInlineEnd: 0,
+    width: 360,
+    borderInlineStartWidth: 1,
+    borderInlineStartStyle: 'solid',
+  },
+})
+
+// Real buttons: they don't shrink below their labels, so together they are
+// wider than the free area beside the panel.
+const WIDE_ACTIONS = [
+  'Duplicate',
+  'Move to section',
+  'Copy style',
+  'Paste style',
+  'Group',
+  'Ungroup',
+  'Bring forward',
+  'Send backward',
+  'Delete',
+]
+
+const barRect = () =>
+  (document.querySelector('[role="toolbar"]') as Element).getBoundingClientRect()
+const panelRect = () =>
+  (document.querySelector('[data-testid="docked-panel"]') as Element).getBoundingClientRect()
+
+export const NoInset: Story = {
+  render: () => (
+    <ActionBar selectedItemCount={2} onClearSelection={() => {}}>
+      <Button variant="secondary" size="small">
+        Delete
+      </Button>
+    </ActionBar>
+  ),
+  play: async () => {
+    const bar = barRect()
+    const centre = document.documentElement.clientWidth / 2
+    // Today's placement: centred on the window.
+    await expect(Math.abs(bar.left + bar.width / 2 - centre)).toBeLessThanOrEqual(1)
+  },
+}
+
+export const DockedPanel: Story = {
+  render: () => (
+    <>
+      <html.div style={docked.panel} data-testid="docked-panel" />
+      <ActionBar selectedItemCount={2} insetInlineEnd={360} onClearSelection={() => {}}>
+        <Button variant="secondary" size="small">
+          Delete
+        </Button>
+      </ActionBar>
+    </>
+  ),
+  play: async () => {
+    const bar = barRect()
+    const panel = panelRect()
+    // Clear of the panel, and centred in what is left of the window.
+    await expect(bar.right).toBeLessThanOrEqual(panel.left - 24)
+    await expect(Math.abs(bar.left + bar.width / 2 - panel.left / 2)).toBeLessThanOrEqual(1)
+  },
+}
+
+export const DockedPanelWideBar: Story = {
+  render: () => (
+    <>
+      <html.div style={docked.panel} data-testid="docked-panel" />
+      <ActionBar selectedItemCount={2} insetInlineEnd={360} onClearSelection={() => {}}>
+        {WIDE_ACTIONS.map((a) => (
+          <Button key={a} variant="secondary" size="small">
+            {a}
+          </Button>
+        ))}
+      </ActionBar>
+    </>
+  ),
+  play: async () => {
+    // A bar wider than the free area still keeps 24px clear of the panel,
+    // and so does what it holds: the actions scroll, they don't spill.
+    const limit = panelRect().left - 24
+    await expect(barRect().right).toBeLessThanOrEqual(limit)
+    const last = await within(document.body).findByRole('button', {name: 'Delete'})
+    const actions = last.parentElement!
+    await expect(actions.getBoundingClientRect().right).toBeLessThanOrEqual(limit)
+    await expect(actions.scrollWidth).toBeGreaterThan(actions.clientWidth)
+  },
 }
