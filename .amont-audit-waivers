@@ -1,0 +1,10 @@
+# Advisories a v* release may ship while nobody can fix them (amont >= 1.47).
+# One line each: <advisory id> <expires YYYY-MM-DD> <reason>. A waiver is void
+# once expired or when dated more than 90 days ahead: revisit, then re-date
+# or remove it.
+#
+# braces <= 3.0.3 (stack exhaustion on deeply nested patterns) has no patched
+# version. It ships through react-strict-dom > postcss-react-strict-dom >
+# fast-glob > micromatch, a build-time PostCSS plugin fed the app's own
+# config patterns, never user input. Remove when braces publishes a fix.
+GHSA-vfj7-8cjw-p6xm 2026-12-31 braces via react-strict-dom > postcss-react-strict-dom > fast-glob > micromatch; no patched version exists
