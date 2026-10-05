@@ -73,7 +73,7 @@ if [ ! -s "$cache" ] || [ "$(head -n 1 "$cache" 2>/dev/null)" != "$pin" ] ||
   # The pin is written with the payload, so a failed fetch (or one that
   # printed nothing) leaves the old cache as it was and never a pin-only file.
   if { echo "$pin"; npx -y @duro-app/cli@^${HOOK_MIN_CLI} hook session-start; } >"$cache.tmp" 2>/dev/null &&
-    [ "$(wc -l <"$cache.tmp" | tr -d ' ')" -gt 1 ]; then
+    [ -n "$(tail -n +2 "$cache.tmp")" ]; then
     mv "$cache.tmp" "$cache"
   else
     rm -f "$cache.tmp"

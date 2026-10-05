@@ -65,10 +65,23 @@ export const styles = css.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    // More actions than the bar's room (a narrow window, or a docked panel
-    // taking part of it): the row scrolls instead of spilling past the bar.
+  },
+  // Beside a docked panel the room is narrower: more actions than fit scroll
+  // instead of spilling past the bar. A scroll box clips vertically too, so
+  // the row gets room on every side for the buttons' focus rings, taken back
+  // by its margin so the bar keeps its size.
+  actionsScroll: {
     minWidth: 0,
     overflowX: 'auto',
+    overflowY: 'hidden',
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.xs,
+    paddingRight: spacing.xs,
+    marginTop: `calc(-1 * ${spacing.xs})`,
+    marginBottom: `calc(-1 * ${spacing.xs})`,
+    marginLeft: `calc(-1 * ${spacing.xs})`,
+    marginRight: `calc(-1 * ${spacing.xs})`,
   },
   closeButton: {
     display: 'inline-flex',

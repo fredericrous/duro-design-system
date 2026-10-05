@@ -55,7 +55,7 @@ describe('the CLI floors', () => {
 const SHELLS = ['sh', ...(existsSync('/bin/dash') ? ['dash'] : [])]
 
 /** A repo with the generated hook and a fake npx that prints `catalog`, nothing, or fails. */
-function repo(npx: {catalog: string} | 'fails' | 'empty', shell: string) {
+function repo(npx: {catalog: string} | 'fails' | 'empty' | 'no-newline', shell: string) {
   const dir = mkdtempSync(join(tmpdir(), 'duro-hook-'))
   mkdirSync(join(dir, '.claude/hooks'), {recursive: true})
   writeFileSync(join(dir, HOOK_SCRIPT_PATH), HOOK_SCRIPT)
@@ -66,10 +66,12 @@ function repo(npx: {catalog: string} | 'fails' | 'empty', shell: string) {
       ? 'exit 1'
       : npx === 'empty'
         ? 'exit 0'
-        : `case "$*" in *session-start*) printf '%s\\n' ${npx.catalog
-            .split('\n')
-            .map((l) => `'${l}'`)
-            .join(' ')} ;; *) : ;; esac`
+        : npx === 'no-newline'
+          ? `case "$*" in *session-start*) printf 'ONE LINE' ;; *) : ;; esac`
+          : `case "$*" in *session-start*) printf '%s\\n' ${npx.catalog
+              .split('\n')
+              .map((l) => `'${l}'`)
+              .join(' ')} ;; *) : ;; esac`
   writeFileSync(join(bin, 'npx'), `#!/bin/sh\n${body}\n`)
   chmodSync(join(bin, 'npx'), 0o755)
   const run = () =>
@@ -122,6 +124,13 @@ describe.each(SHELLS)('the session hook cache, under %s', (shell) => {
     r.run()
     expect(existsSync(r.cache)).toBe(false)
     expect(existsSync(`${r.cache}.tmp`)).toBe(false)
+  })
+
+  it('keeps a one-line catalog that ends without a newline', () => {
+    const r = repo('no-newline', shell)
+    const out = r.run()
+    expect(out.stdout.startsWith('ONE LINE')).toBe(true)
+    expect(readFileSync(r.cache, 'utf8').split('\n')[0]).toBe(HOOK_PIN_LINE)
   })
 
   it('does not refetch a current cache', () => {

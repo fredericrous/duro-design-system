@@ -64,7 +64,9 @@ function ActionBarContent({
         {label}
       </html.span>
       <html.div style={[styles.separator, isEmphasized && styles.separatorEmphasized]} />
-      <html.div style={styles.actions}>{children}</html.div>
+      <html.div style={[styles.actions, insetInlineEnd > 0 && styles.actionsScroll]}>
+        {children}
+      </html.div>
       {dismissible && (
         <html.button
           type="button"
