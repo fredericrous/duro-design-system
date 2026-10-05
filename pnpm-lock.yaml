@@ -103,8 +103,8 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@vitest/browser@4.1.11)(vitest@4.1.11)
       amont:
-        specifier: ^1.40.0
-        version: 1.40.0
+        specifier: ^1.47.0
+        version: 1.47.0
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
@@ -353,36 +353,36 @@ packages:
   '@adobe/css-tools@4.4.4':
     resolution: {integrity: sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==}
 
-  '@amont-hooks/darwin-arm64@1.40.0':
-    resolution: {integrity: sha512-HeeZimQvopUaM0aA52U+WNlhOFI496X5U5+nmvc8tDqMJaAuWGJ9gMYG8x6j8TSYWWFXOb12Tvg9gzJ5Xge4Wg==}
+  '@amont-hooks/darwin-arm64@1.47.0':
+    resolution: {integrity: sha512-vOa/FM9aE/cqVK/B5ZstqmDseq/snXgoKlqyicYdUJQeyo4MfnDs8e+f1bjnlXT9wCk5tD71rA9LkvbbR+Vp0w==}
     cpu: [arm64]
     os: [darwin]
 
-  '@amont-hooks/darwin-x64@1.40.0':
-    resolution: {integrity: sha512-5rTz+JI2WMyWdMpiQmpLIMOvA5O8aVF3KQhsTTIJUoyiB1y7alrbAsXPSjT81i4fWtOK0MVc93dxjT/KtgmSMw==}
+  '@amont-hooks/darwin-x64@1.47.0':
+    resolution: {integrity: sha512-bRlIyUgsk1z+T3Tp5CwstFrgN9klGaPaouXnNHwmWuEN5401x1hDKrFofqrM02w26fnCMSa5x+EJ9NGlXkHn9w==}
     cpu: [x64]
     os: [darwin]
 
-  '@amont-hooks/linux-arm64-gnu@1.40.0':
-    resolution: {integrity: sha512-ZTeSWLjPiCSrJeoR4PW5Xf6bY8DhZDf00NgPbQkhvqj3yFpRriDeaQmryZs2UIT6See+7JasphkdDsGAlMELng==}
+  '@amont-hooks/linux-arm64-gnu@1.47.0':
+    resolution: {integrity: sha512-BJthu3wFQO2IWlZxHO1mkq9vwFqLJN9pXdxa8GT0xCVQHhqjnLeSIhNgd9jPtodhn83Ksp3re+qqj/ulNRo1rQ==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@amont-hooks/linux-x64-gnu@1.40.0':
-    resolution: {integrity: sha512-OVgFat5qxVz1fs0UPH0UzZoYIQBQxAfRxTp5qBzoC9R8/XlAgQMaWzrwYgIPo5OTHHo4S37+YPbRfp7+i68ErA==}
+  '@amont-hooks/linux-x64-gnu@1.47.0':
+    resolution: {integrity: sha512-hntNej88nya6gc+Uc1WY7PGs3gAlApe1WIrb7WCxGqLKfKGUX2dx4FcYcgX1UAwN0k2CEL0gGvKWv9Fmkg7KZw==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@amont-hooks/linux-x64-musl@1.40.0':
-    resolution: {integrity: sha512-3Kl1MR9bMAuptYeTRTB/b77A2A4qd2OJbi12hu+eKmkhtGMaipq3k0eepG/R9YOtnLBx6jph1OcDRltV5HrxVw==}
+  '@amont-hooks/linux-x64-musl@1.47.0':
+    resolution: {integrity: sha512-i1VOZow+0REs1xlXJ6BilrBF/rCcoj4Gp9hGLyF6oUSf294qKO9V/vqtrrZWJjiRXM8oVJC1BHSa3bUI89t6vQ==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@amont-hooks/win32-x64@1.40.0':
-    resolution: {integrity: sha512-uVPLNKb/fayurksnrOyYiThlAkT/vuVVCeOQffQ2T5FXZLxTL+3mgS5Q21FtkvlketSXmo3EgW5D2AYomuc8Nw==}
+  '@amont-hooks/win32-x64@1.47.0':
+    resolution: {integrity: sha512-GH83EUbigonbLm2lSre1KwhcAy8Qu8Hmx8O1tw4YjyLnLgBhcu3dlQwsIVBhbKqH2rkXY8X1iFyThqEdA20/1w==}
     cpu: [x64]
     os: [win32]
 
@@ -1752,7 +1752,7 @@ packages:
     resolution: {integrity: sha512-2XJVD55d1o5AZous5CCGKS74g/riOj9odEt2bQpCVZeblHyHdnMeFl4jl0XjU21stf4mbjUkew2eXQZt65g5CQ==}
     peerDependencies:
       msw: ^2.4.9
-      vite: ^6.4.2
+      vite: ^6.4.3
     peerDependenciesMeta:
       msw:
         optional: true
@@ -1865,8 +1865,8 @@ packages:
   alien-signals@0.4.14:
     resolution: {integrity: sha512-itUAVzhczTmP2U5yX67xVpsbbOiquusbWVyA9N+sy6+r6YVbFkahXvNCeEPWEOMhwDYwbVbGHFkVL03N9I5g+Q==}
 
-  amont@1.40.0:
-    resolution: {integrity: sha512-bUFqMxGUKdLK4cC5NNWbzVfQZwZY/B2Vgk0RG4ObNZvt9y6/6X/2a1roqOWLA+rCjaPI9GKmlCEpsWCtiVu8tg==}
+  amont@1.47.0:
+    resolution: {integrity: sha512-G2zBD//wbXMNtCkKaZC0PYEX27sivV9kExekZInkXVXMQyU1XFznd/qMsclTpsJwV7qDZZcSgGm+xSRRmT/d2A==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -3940,22 +3940,22 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@amont-hooks/darwin-arm64@1.40.0':
+  '@amont-hooks/darwin-arm64@1.47.0':
     optional: true
 
-  '@amont-hooks/darwin-x64@1.40.0':
+  '@amont-hooks/darwin-x64@1.47.0':
     optional: true
 
-  '@amont-hooks/linux-arm64-gnu@1.40.0':
+  '@amont-hooks/linux-arm64-gnu@1.47.0':
     optional: true
 
-  '@amont-hooks/linux-x64-gnu@1.40.0':
+  '@amont-hooks/linux-x64-gnu@1.47.0':
     optional: true
 
-  '@amont-hooks/linux-x64-musl@1.40.0':
+  '@amont-hooks/linux-x64-musl@1.47.0':
     optional: true
 
-  '@amont-hooks/win32-x64@1.40.0':
+  '@amont-hooks/win32-x64@1.47.0':
     optional: true
 
   '@babel/code-frame@7.29.0':
@@ -4765,7 +4765,7 @@ snapshots:
   '@react-native/codegen@0.84.1(@babel/core@7.29.7)':
     dependencies:
       '@babel/core': 7.29.7
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.9
       hermes-parser: 0.32.0
       invariant: 2.2.4
       nullthrows: 1.1.1
@@ -5114,7 +5114,7 @@ snapshots:
 
   '@testing-library/dom@10.4.1':
     dependencies:
-      '@babel/code-frame': 7.29.0
+      '@babel/code-frame': 7.29.7
       '@babel/runtime': 7.28.6
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
@@ -5544,14 +5544,14 @@ snapshots:
 
   alien-signals@0.4.14: {}
 
-  amont@1.40.0:
+  amont@1.47.0:
     optionalDependencies:
-      '@amont-hooks/darwin-arm64': 1.40.0
-      '@amont-hooks/darwin-x64': 1.40.0
-      '@amont-hooks/linux-arm64-gnu': 1.40.0
-      '@amont-hooks/linux-x64-gnu': 1.40.0
-      '@amont-hooks/linux-x64-musl': 1.40.0
-      '@amont-hooks/win32-x64': 1.40.0
+      '@amont-hooks/darwin-arm64': 1.47.0
+      '@amont-hooks/darwin-x64': 1.47.0
+      '@amont-hooks/linux-arm64-gnu': 1.47.0
+      '@amont-hooks/linux-x64-gnu': 1.47.0
+      '@amont-hooks/linux-x64-musl': 1.47.0
+      '@amont-hooks/win32-x64': 1.47.0
 
   anser@1.4.10: {}
 
@@ -5621,8 +5621,8 @@ snapshots:
 
   babel-plugin-jest-hoist@29.6.3:
     dependencies:
-      '@babel/template': 7.28.6
-      '@babel/types': 7.29.0
+      '@babel/template': 7.29.7
+      '@babel/types': 7.29.8
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.28.0
 
@@ -6426,7 +6426,7 @@ snapshots:
   istanbul-lib-instrument@5.2.1:
     dependencies:
       '@babel/core': 7.29.7
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.9
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
@@ -6473,7 +6473,7 @@ snapshots:
 
   jest-message-util@29.7.0:
     dependencies:
-      '@babel/code-frame': 7.29.0
+      '@babel/code-frame': 7.29.7
       '@jest/types': 29.6.3
       '@types/stack-utils': 2.0.3
       chalk: 4.1.2
@@ -6722,8 +6722,8 @@ snapshots:
 
   metro-source-map@0.83.4:
     dependencies:
-      '@babel/traverse': 7.29.0
-      '@babel/types': 7.29.0
+      '@babel/traverse': 7.29.8
+      '@babel/types': 7.29.8
       flow-enums-runtime: 0.0.6
       invariant: 2.2.4
       metro-symbolicate: 0.83.4
@@ -6748,9 +6748,9 @@ snapshots:
   metro-transform-plugins@0.83.4:
     dependencies:
       '@babel/core': 7.29.7
-      '@babel/generator': 7.29.1
-      '@babel/template': 7.28.6
-      '@babel/traverse': 7.29.0
+      '@babel/generator': 7.29.8
+      '@babel/template': 7.29.7
+      '@babel/traverse': 7.29.8
       flow-enums-runtime: 0.0.6
       nullthrows: 1.1.1
     transitivePeerDependencies:
@@ -6759,9 +6759,9 @@ snapshots:
   metro-transform-worker@0.83.4:
     dependencies:
       '@babel/core': 7.29.7
-      '@babel/generator': 7.29.1
-      '@babel/parser': 7.29.0
-      '@babel/types': 7.29.0
+      '@babel/generator': 7.29.8
+      '@babel/parser': 7.29.9
+      '@babel/types': 7.29.8
       flow-enums-runtime: 0.0.6
       metro: 0.83.4
       metro-babel-transformer: 0.83.4
@@ -6778,13 +6778,13 @@ snapshots:
 
   metro@0.83.4:
     dependencies:
-      '@babel/code-frame': 7.29.0
+      '@babel/code-frame': 7.29.7
       '@babel/core': 7.29.7
-      '@babel/generator': 7.29.1
-      '@babel/parser': 7.29.0
-      '@babel/template': 7.28.6
-      '@babel/traverse': 7.29.0
-      '@babel/types': 7.29.0
+      '@babel/generator': 7.29.8
+      '@babel/parser': 7.29.9
+      '@babel/template': 7.29.7
+      '@babel/traverse': 7.29.8
+      '@babel/types': 7.29.8
       accepts: 2.0.0
       chalk: 4.1.2
       ci-info: 2.0.0
