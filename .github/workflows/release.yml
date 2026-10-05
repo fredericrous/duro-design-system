@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
 
 permissions:
   contents: read
@@ -27,6 +27,8 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           echo "Publishing version $VERSION"
           pnpm -r exec npm pkg set "version=$VERSION"
+      - name: CLI floors match the release's major
+        run: node packages/cli/scripts/check-pin-major.mjs "${GITHUB_REF_NAME#v}"
       - run: pnpm build
       - run: pnpm -r publish --no-git-checks
         env:

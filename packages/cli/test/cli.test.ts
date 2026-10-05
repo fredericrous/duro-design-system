@@ -9,7 +9,7 @@ import {runLookup} from '../src/commands/lookup.js'
 import {runList} from '../src/commands/list.js'
 import {runManifest} from '../src/commands/manifest.js'
 import {runSkill} from '../src/commands/skill.js'
-import {SKILL, SKILL_PATH} from '../src/skill-template.js'
+import {SKILL, SKILL_MIN_CLI, SKILL_PATH} from '../src/skill-template.js'
 import {runHook} from '../src/commands/hook.js'
 import {relatedPairs} from '../src/disambiguation.js'
 import {search} from '../src/search.js'
@@ -429,7 +429,7 @@ describe('skill install', () => {
   it('the skill overrides the design skill and pins the CLI floor', () => {
     expect(SKILL).toContain('name: duro-mockup')
     expect(SKILL).toContain("overrides the `design` skill's step 0")
-    expect(SKILL).toContain('npx -y @duro-app/cli@^3.0.0 mockup check')
+    expect(SKILL).toContain(`npx -y @duro-app/cli@^${SKILL_MIN_CLI} mockup check`)
     expect(SKILL).toContain('docs/mockups/<screen>')
     expect(SKILL).toContain('Mockup: none')
   })

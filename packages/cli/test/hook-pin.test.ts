@@ -1,0 +1,123 @@
+import {describe, expect, it} from 'vitest'
+import {spawnSync} from 'node:child_process'
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs'
+import {tmpdir} from 'node:os'
+import {join} from 'node:path'
+import {fileURLToPath} from 'node:url'
+import {
+  HOOK_CACHE_PATH,
+  HOOK_MIN_CLI,
+  HOOK_PIN_LINE,
+  HOOK_SCRIPT,
+  HOOK_SCRIPT_PATH,
+} from '../src/hook-script.js'
+import {SKILL_MIN_CLI} from '../src/skill-template.js'
+// @ts-expect-error — a plain .mjs release script, no types
+import {pinMajorProblems} from '../scripts/check-pin-major.mjs'
+
+const src = (f: string) =>
+  readFileSync(fileURLToPath(new URL(`../src/${f}`, import.meta.url)), 'utf8')
+
+describe('the CLI floors', () => {
+  it('share one major, the hook and the skill', () => {
+    expect(HOOK_MIN_CLI.split('.')[0]).toBe(SKILL_MIN_CLI.split('.')[0])
+  })
+
+  it('pass the release check for their own major, and fail it for another', () => {
+    const hook = src('hook-script.ts')
+    const skill = src('skill-template.ts')
+    expect(pinMajorProblems('4.4.0', hook, skill)).toEqual([])
+    expect(pinMajorProblems('v4.9.1', hook, skill)).toEqual([])
+    expect(pinMajorProblems('5.0.0', hook, skill)).toHaveLength(2)
+    // The drift that kept 4.x consumers on 3.x: a floor left on ^3.
+    const old = hook.replace(`HOOK_MIN_CLI = '${HOOK_MIN_CLI}'`, "HOOK_MIN_CLI = '3.4.0'")
+    expect(pinMajorProblems('4.4.0', old, skill)).toEqual([
+      expect.stringContaining('HOOK_MIN_CLI is ^3.x'),
+    ])
+  })
+
+  it('exits non-zero from the command line on a mismatch', () => {
+    const script = fileURLToPath(new URL('../scripts/check-pin-major.mjs', import.meta.url))
+    expect(spawnSync('node', [script, '5.0.0']).status).toBe(1)
+    expect(spawnSync('node', [script, HOOK_MIN_CLI]).status).toBe(0)
+  })
+})
+
+/** A repo with the generated hook and a fake npx that prints `catalog` (or fails). */
+function repo(npx: {catalog: string} | 'fails') {
+  const dir = mkdtempSync(join(tmpdir(), 'duro-hook-'))
+  mkdirSync(join(dir, '.claude/hooks'), {recursive: true})
+  writeFileSync(join(dir, HOOK_SCRIPT_PATH), HOOK_SCRIPT)
+  const bin = join(dir, 'bin')
+  mkdirSync(bin)
+  const body =
+    npx === 'fails'
+      ? 'exit 1'
+      : `case "$*" in *session-start*) printf '%s\\n' ${npx.catalog
+          .split('\n')
+          .map((l) => `'${l}'`)
+          .join(' ')} ;; *) : ;; esac`
+  writeFileSync(join(bin, 'npx'), `#!/bin/sh\n${body}\n`)
+  chmodSync(join(bin, 'npx'), 0o755)
+  const run = () =>
+    spawnSync('sh', [HOOK_SCRIPT_PATH], {
+      cwd: dir,
+      env: {...process.env, PATH: `${bin}:${process.env['PATH']}`},
+      encoding: 'utf8',
+    })
+  return {dir, cache: join(dir, HOOK_CACHE_PATH), run}
+}
+
+/** A cache written by a 3.x hook: no pin line, newer than the script. */
+function oldCache(cache: string) {
+  writeFileSync(cache, 'OLD CATALOG\nold second line\n')
+  const later = new Date(Date.now() + 60_000)
+  utimesSync(cache, later, later)
+}
+
+describe('the session hook cache', () => {
+  it('replaces a 3.x cache with the current catalog, and never prints the pin', () => {
+    const r = repo({catalog: 'CATALOG 4.4\nsecond line'})
+    oldCache(r.cache)
+    const out = r.run()
+    expect(out.stdout.split('\n')[0]).toBe('CATALOG 4.4')
+    expect(out.stdout).not.toContain('#duro-hook-pin')
+    expect(readFileSync(r.cache, 'utf8').split('\n')[0]).toBe(HOOK_PIN_LINE)
+  })
+
+  it('keeps the old cache, untouched, when the refresh fails, and says why', () => {
+    const r = repo('fails')
+    oldCache(r.cache)
+    const before = readFileSync(r.cache, 'utf8')
+    const out = r.run()
+    expect(readFileSync(r.cache, 'utf8')).toBe(before)
+    expect(existsSync(`${r.cache}.tmp`)).toBe(false)
+    // Printed whole: no catalog line lost to the pin skip.
+    expect(out.stdout.startsWith('OLD CATALOG\nold second line')).toBe(true)
+    expect(out.stderr).toContain(`npx -y @duro-app/cli@^${HOOK_MIN_CLI} hook install`)
+  })
+
+  it('leaves no pin-only cache when the first fetch fails', () => {
+    const r = repo('fails')
+    r.run()
+    expect(existsSync(r.cache)).toBe(false)
+    expect(existsSync(`${r.cache}.tmp`)).toBe(false)
+  })
+
+  it('does not refetch a current cache', () => {
+    const r = repo({catalog: 'CATALOG 4.4'})
+    r.run()
+    writeFileSync(join(r.dir, 'bin/npx'), '#!/bin/sh\nexit 1\n')
+    const out = r.run()
+    expect(out.stdout.split('\n')[0]).toBe('CATALOG 4.4')
+    expect(out.stderr).toBe('')
+  })
+})
