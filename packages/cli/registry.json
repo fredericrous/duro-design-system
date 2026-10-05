@@ -11,6 +11,11 @@
             "component": "Table",
             "kind": "composition",
             "relationship": "Common pattern: Table checkboxes + ActionBar for bulk ops"
+          },
+          {
+            "component": "DetailPanel",
+            "kind": "composition",
+            "relationship": "With a DetailPanel docked at the end edge, pass the panel's width as insetInlineEnd"
           }
         ],
         "whenNotToUse": [
@@ -20,7 +25,8 @@
         "whenToUse": [
           "Bulk actions on table selections (delete, revoke, export)",
           "Multi-select workflows where actions apply to all selected items",
-          "Selection-scoped verbs on a canvas/editor surface (set `bottomOffset` to clear any bottom chrome such as zoom controls)"
+          "Selection-scoped verbs on a canvas/editor surface (set `bottomOffset` to clear any bottom chrome such as zoom controls)",
+          "A docked side panel (DetailPanel) is open: pass its width as `insetInlineEnd` so the bar centres beside it, not under it (follows the writing direction: the left edge in right-to-left)"
         ]
       },
       "name": "ActionBar",
@@ -62,6 +68,12 @@
           "type": "SpacingToken | number"
         },
         {
+          "description": "Width in px of chrome docked at the window's inline-end edge (right in left-to-right, left in right-to-left), such as an open DetailPanel: the bar centres in what is left and keeps 24px clear of it. 0 or omitted centres on the window.",
+          "name": "insetInlineEnd",
+          "required": false,
+          "type": "number"
+        },
+        {
           "description": "Action buttons to display.",
           "name": "children",
           "required": true,
@@ -81,6 +93,11 @@
             "component": "Table",
             "kind": "composition",
             "relationship": "Common pattern: Table checkboxes + ActionBar for bulk ops"
+          },
+          {
+            "component": "DetailPanel",
+            "kind": "composition",
+            "relationship": "With a DetailPanel docked at the end edge, pass the panel's width as insetInlineEnd"
           }
         ],
         "whenNotToUse": [
@@ -90,7 +107,8 @@
         "whenToUse": [
           "Bulk actions on table selections (delete, revoke, export)",
           "Multi-select workflows where actions apply to all selected items",
-          "Selection-scoped verbs on a canvas/editor surface (set `bottomOffset` to clear any bottom chrome such as zoom controls)"
+          "Selection-scoped verbs on a canvas/editor surface (set `bottomOffset` to clear any bottom chrome such as zoom controls)",
+          "A docked side panel (DetailPanel) is open: pass its width as `insetInlineEnd` so the bar centres beside it, not under it (follows the writing direction: the left edge in right-to-left)"
         ]
       },
       "name": "ActionBarProvider",
@@ -1329,6 +1347,11 @@
         "description": "Non-modal side panel for right-side inspection. Click a table row to show details, click another to update in place. Built on Panel internally. In-flow (flex child), not fixed/modal — content behind remains interactive.",
         "example": "<html.div style={layoutStyles.container}>\n  <html.div style={layoutStyles.main}>\n    <Table.Root columns={3}>...</Table.Root>\n  </html.div>\n  <DetailPanel.Root open={selectedId != null} onOpenChange={handleOpenChange}>\n    <DetailPanel.Content size=\"sm\" label=\"User details\">\n      <DetailPanel.Header>\n        <DetailPanel.Title>{user.name}</DetailPanel.Title>\n        <DetailPanel.Close />\n      </DetailPanel.Header>\n      <DetailPanel.Body>\n        <Stack gap=\"md\">...</Stack>\n      </DetailPanel.Body>\n    </DetailPanel.Content>\n  </DetailPanel.Root>\n</html.div>",
         "relatedTo": [
+          {
+            "component": "ActionBar",
+            "kind": "composition",
+            "relationship": "An ActionBar shown while the panel is open takes the panel's width as insetInlineEnd"
+          },
           {
             "component": "Drawer",
             "kind": "contrast",

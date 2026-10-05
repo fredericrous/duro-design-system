@@ -7,6 +7,7 @@ export const meta: ComponentMeta = {
     'Bulk actions on table selections (delete, revoke, export)',
     'Multi-select workflows where actions apply to all selected items',
     'Selection-scoped verbs on a canvas/editor surface (set `bottomOffset` to clear any bottom chrome such as zoom controls)',
+    'A docked side panel (DetailPanel) is open: pass its width as `insetInlineEnd` so the bar centres beside it, not under it (follows the writing direction: the left edge in right-to-left)',
   ],
   whenNotToUse: [
     'Single-item actions that have an inline home — use inline buttons or a Menu',
@@ -17,6 +18,12 @@ export const meta: ComponentMeta = {
       component: 'Table',
       kind: 'composition',
       relationship: 'Common pattern: Table checkboxes + ActionBar for bulk ops',
+    },
+    {
+      component: 'DetailPanel',
+      kind: 'composition',
+      relationship:
+        "With a DetailPanel docked at the end edge, pass the panel's width as insetInlineEnd",
     },
   ],
   example: `<ActionBar selectedItemCount={selected.size} onClearSelection={() => setSelected(new Set())}>

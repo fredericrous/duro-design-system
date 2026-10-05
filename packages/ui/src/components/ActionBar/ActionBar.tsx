@@ -22,6 +22,13 @@ export interface ActionBarProps {
    * height. Defaults to the spacing.lg token.
    */
   bottomOffset?: SpacingToken | number
+  /**
+   * Width in px of chrome docked at the window's inline-end edge (right in
+   * left-to-right, left in right-to-left), such as an open DetailPanel: the
+   * bar centres in what is left and keeps 24px clear of it. 0 or omitted
+   * centres on the window.
+   */
+  insetInlineEnd?: number
   /** Action buttons to display. */
   children: ReactNode
 }
@@ -33,6 +40,7 @@ function ActionBarContent({
   onClearSelection,
   dismissible = true,
   bottomOffset,
+  insetInlineEnd = 0,
   children,
 }: ActionBarProps) {
   const countStr = selectedItemCount === 'all' ? 'All' : `${selectedItemCount}`
@@ -44,6 +52,7 @@ function ActionBarContent({
       aria-label={label}
       style={[
         styles.overlay,
+        insetInlineEnd > 0 ? styles.inset(insetInlineEnd) : styles.centered,
         bottomOffset != null &&
           styles.overlayOffset(
             typeof bottomOffset === 'number' ? bottomOffset : SPACING_PX[bottomOffset],
