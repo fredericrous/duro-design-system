@@ -22,7 +22,7 @@ export const styles = css.create({
   col4: {gridTemplateColumns: 'repeat(4, 1fr)'},
   col5: {gridTemplateColumns: 'repeat(5, 1fr)'},
   col6: {gridTemplateColumns: 'repeat(6, 1fr)'},
-  autoFit: (minWidth: string) => ({
+  autoFit: (minWidth: string | number) => ({
     gridTemplateColumns: `repeat(auto-fill, minmax(${minWidth}, 1fr))`,
   }),
   // Hosts the @container query for a named layout. A container cannot query
@@ -86,7 +86,7 @@ export const styles = css.create({
   // Auto-fit approximation: start at the minimum width, grow to fill. flexGrow
   // is fine here: this style is native-only, so RSD-web's forced flex-grow: 0
   // never applies.
-  nativeMinCell: (minWidth: string) => ({
+  nativeMinCell: (minWidth: string | number) => ({
     flexBasis: minWidth,
     flexGrow: 1,
     boxSizing: 'border-box',

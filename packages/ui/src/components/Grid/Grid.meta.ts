@@ -31,7 +31,7 @@ export const meta: ComponentMeta = {
 </Grid>
 
 // Responsive: columns auto-fit based on min width
-<Grid minColumnWidth="280px" gap="md">
+<Grid minColumnWidth="gridColMd" gap="md">
   <Card>A</Card>
   <Card>B</Card>
   <Card>C</Card>

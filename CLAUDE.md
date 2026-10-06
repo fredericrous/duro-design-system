@@ -62,13 +62,17 @@ import {colors, spacing} from '@duro-app/tokens'
 ```tsx
 import {css, html} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const styles = css.create({
   container: {
     padding: spacing.md,
     backgroundColor: colors.bgCard,
-    borderRadius: 12,
+    borderRadius: radii.md,
+    borderWidth: borders.hairline,
+    maxWidth: sizes.dialogMd,
   },
 })
 
@@ -77,6 +81,18 @@ const styles = css.create({
 ```
 
 <!-- duro:rules:end -->
+
+### 4. Every measure is a token
+
+A width, height, border width, spacing, radius, colour or duration comes from a
+token (`sizes.*`, `borders.*`, `spacing.*`, `microSpacing.*`, `radii.*`,
+`colors.*`, `duration.*`): ADR-0027, `design-system.every-measure-is-a-token`.
+Allowed raw: `0`, relative units (`%`, `vh`, `fr`, `rem`…), keywords (`auto`,
+`max-content`…) and a `calc()` of tokens. When no token fits, add one to
+`@duro-app/tokens` with the value the design needs — never the nearest one.
+Measure props take token keys: `<Grid minColumnWidth="gridColMd">`,
+`<ScrollArea.Viewport maxHeight="listMaxH">`. `duro/no-raw-design-values`
+reports the rest.
 
 ## Layout Decision Tree
 
@@ -111,7 +127,7 @@ Pick the right layout component:
 </Cluster>
 
 // Responsive card grid
-<Grid minColumnWidth="280px" gap="md">
+<Grid minColumnWidth="gridColMd" gap="md">
   <Card>...</Card>
   <Card>...</Card>
 </Grid>
@@ -418,13 +434,14 @@ module, a global rule), use the published `--duro-*` custom properties:
 ```css
 .card {
   background: var(--duro-color-bg-card);
-  border: 1px solid var(--duro-color-border);
+  border: var(--duro-border-hairline) solid var(--duro-color-border);
   padding: var(--duro-spacing-md);
   border-radius: var(--duro-radius-md);
 }
 ```
 
-Naming is `--duro-<group>-<token>` in kebab-case: `colors.bgCard` →
+Naming is `--duro-<group>-<token>` in kebab-case: `sizes.touchTarget` →
+`--duro-size-touch-target`, `borders.hairline` → `--duro-border-hairline`, `colors.bgCard` →
 `--duro-color-bg-card`, `spacing.md` → `--duro-spacing-md`, `radii.md` →
 `--duro-radius-md`. They come with `@duro-app/ui`'s stylesheet, and they
 follow the active theme — including inside a `ThemeProvider` subtree.

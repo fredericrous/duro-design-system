@@ -75,7 +75,7 @@ export const FixedColumns: Story = {
 
 export const AutoFit: Story = {
   render: () => (
-    <Grid gap="md" minColumnWidth="200px">
+    <Grid gap="md" minColumnWidth="gridColSm">
       <Cell>Card A</Cell>
       <Cell>Card B</Cell>
       <Cell>Card C</Cell>

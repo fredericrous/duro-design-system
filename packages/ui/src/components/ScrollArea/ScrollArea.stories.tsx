@@ -42,7 +42,7 @@ export const Default: Story = {
   render: () => (
     <html.div style={demoStyles.container}>
       <ScrollArea.Root>
-        <ScrollArea.Viewport maxHeight={300}>
+        <ScrollArea.Viewport maxHeight="listMaxH">
           <ScrollArea.Content>
             {items.map((item) => (
               <html.div key={item} style={demoStyles.item}>
@@ -68,7 +68,7 @@ export const ShortContent: Story = {
   render: () => (
     <html.div style={demoStyles.container}>
       <ScrollArea.Root>
-        <ScrollArea.Viewport maxHeight={300}>
+        <ScrollArea.Viewport maxHeight="listMaxH">
           <ScrollArea.Content>
             <html.div style={demoStyles.item}>Only one item</html.div>
             <html.div style={demoStyles.item}>Two items</html.div>

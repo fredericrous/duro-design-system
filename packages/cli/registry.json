@@ -2527,7 +2527,7 @@
       "kind": "component",
       "meta": {
         "description": "Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses to one column on the width of its own container, so it is safe to nest and to place beside a DetailPanel. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native.",
-        "example": "// Split: list ≥ 240px beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"280px\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Weighted: a one-third / two-thirds split (works on native too)\n<Grid columns={[1, 2]} gap=\"md\">\n  <Card>Sidebar</Card>\n  <Card>Content</Card>\n</Grid>",
+        "example": "// Split: list ≥ 240px beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"gridColMd\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Weighted: a one-third / two-thirds split (works on native too)\n<Grid columns={[1, 2]} gap=\"md\">\n  <Card>Sidebar</Card>\n  <Card>Content</Card>\n</Grid>",
         "relatedTo": [
           {
             "component": "Stack",
@@ -2575,10 +2575,10 @@
           "type": "GridColumns"
         },
         {
-          "description": "Responsive auto-fit: as many columns of at least this width as fit. Wins over `columns` when both are set. On native this approximates to cells of that minimum width that grow and wrap.",
+          "description": "Responsive auto-fit: as many columns of at least this width as fit — a size token key (`\"gridColMd\"`) or a relative length. Wins over `columns` when both are set. On native this approximates to cells of that minimum width that grow and wrap.",
           "name": "minColumnWidth",
           "required": false,
-          "type": "string"
+          "type": "Length"
         },
         {
           "description": "A named responsive layout. `split` is list/detail (1:2, list ≥ 240px), `split-wide` is nav/content (1:3, nav ≥ 280px). Each collapses to one column on the width of its OWN container — `split` below `sm` (640px), `split-wide` below `md` (768px) — so a split nested inside another split, or beside an open DetailPanel, collapses when it runs out of room rather than when the window does. Wins over `columns` / `minColumnWidth`.",
@@ -3067,10 +3067,10 @@
               "type": "boolean"
             },
             {
-              "description": "Optional minimum width to prevent layout shift (e.g. Copy → Copied!)",
+              "description": "Optional minimum width to prevent layout shift (e.g. Copy → Copied!): a size token key or a relative length.",
               "name": "minWidth",
               "required": false,
-              "type": "number | string"
+              "type": "Length"
             },
             {
               "name": "children",
@@ -4032,7 +4032,7 @@
           ]
         },
         "description": "Custom scrollbar region with draggable thumb. Supports vertical and horizontal scrolling. Compound component — Root is required. Inside a Drawer, a drag in the viewport scrolls it; the drawer only takes a drag toward its edge from the scroll start.",
-        "example": "<ScrollArea.Root>\n  <ScrollArea.Viewport maxHeight={300}>\n    <ScrollArea.Content>\n      {/* Long content here */}\n    </ScrollArea.Content>\n  </ScrollArea.Viewport>\n  <ScrollArea.Scrollbar orientation=\"vertical\">\n    <ScrollArea.Thumb orientation=\"vertical\" />\n  </ScrollArea.Scrollbar>\n</ScrollArea.Root>",
+        "example": "<ScrollArea.Root>\n  <ScrollArea.Viewport maxHeight=\"listMaxH\">\n    <ScrollArea.Content>\n      {/* Long content here */}\n    </ScrollArea.Content>\n  </ScrollArea.Viewport>\n  <ScrollArea.Scrollbar orientation=\"vertical\">\n    <ScrollArea.Thumb orientation=\"vertical\" />\n  </ScrollArea.Scrollbar>\n</ScrollArea.Root>",
         "whenNotToUse": [
           "Simple page-level scrolling — browser scroll is fine",
           "Very short content that never overflows"
@@ -4106,7 +4106,7 @@
             {
               "name": "maxHeight",
               "required": false,
-              "type": "number | string"
+              "type": "Length"
             },
             {
               "description": "Extra styles for the viewport (e.g. a pointer-aware max height).",
@@ -4764,16 +4764,16 @@
               "type": "ReactNode"
             },
             {
-              "description": "Column width at default (wide) viewport. CSS grid-template-columns track value — e.g. '40px', '2fr', 'max-content'. Defaults to 'minmax(0, 1fr)' so each column shares the row evenly and is free to shrink below its content's intrinsic size.",
+              "description": "Column width at default (wide) viewport. CSS grid-template-columns track value — e.g. `sizes` key `\"iconButton\"`, '2fr', 'max-content'. Defaults to 'minmax(0, 1fr)' so each column shares the row evenly and is free to shrink below its content's intrinsic size.",
               "name": "width",
               "required": false,
-              "type": "string"
+              "type": "GridTrack"
             },
             {
               "description": "Column width when the table's container drops into compact mode (≤720px container). Use this to switch to a content-aware layout at narrow widths — e.g. give a status badge `max-content` and the action column `minmax(0, 2fr)` so it absorbs the slack — while keeping evenly-distributed columns on wide screens. Defaults to the same value as `width`.",
               "name": "compactWidth",
               "required": false,
-              "type": "string"
+              "type": "GridTrack"
             },
             {
               "description": "Stack-mode label string. Optional when children is a plain string — the text content is used as the label automatically. Required when children contain JSX (icon + text, sort indicator, etc.).",
@@ -4826,11 +4826,11 @@
               "type": "boolean"
             },
             {
-              "default": "SIZES_PX.labelMinW",
-              "description": "Minimum width (px) each flexible column keeps before the table scrolls horizontally rather than crushing its cells. Columns still share the row evenly (`minmax(<minColumnWidth>px, 1fr)`); this is only the floor. Raise it for roomier columns (more scrolling), lower it to fit more before scrolling. Columns with an explicit `width` are unaffected. Default 120.",
+              "default": "'labelMinW'",
+              "description": "Minimum width each flexible column keeps before the table scrolls horizontally rather than crushing its cells: a size token key or a relative length. Columns still share the row evenly (`minmax(<minColumnWidth>, 1fr)`); this is only the floor. Raise it for roomier columns (more scrolling), lower it to fit more before scrolling. Columns with an explicit `width` are unaffected. Default `\"labelMinW\"`.",
               "name": "minColumnWidth",
               "required": false,
-              "type": "number"
+              "type": "Length"
             },
             {
               "description": "Optional sort UI rendered above the grid. Visible only in stack mode (SortChip carries its own `display: none → inline-flex` rule). Typical value: `<Table.SortChip options={...} value={...} onChange={...} />`.",
@@ -5002,7 +5002,7 @@
               "description": "Min width (px) each flexible column keeps before the table scrolls horizontally. Forwarded to Table.Root — see its `minColumnWidth`.",
               "name": "minColumnWidth",
               "required": false,
-              "type": "number"
+              "type": "Length"
             },
             {
               "description": "Render a SortChip above the grid (stack-mode only). Options derive from columns where `column.getCanSort()` returns true. Wires value/onChange through the TanStack sorting state automatically.",
@@ -5045,16 +5045,16 @@
               "type": "ReactNode"
             },
             {
-              "description": "Column width at default (wide) viewport. CSS grid-template-columns track value — e.g. '40px', '2fr', 'max-content'. Defaults to 'minmax(0, 1fr)' so each column shares the row evenly and is free to shrink below its content's intrinsic size.",
+              "description": "Column width at default (wide) viewport. CSS grid-template-columns track value — e.g. `sizes` key `\"iconButton\"`, '2fr', 'max-content'. Defaults to 'minmax(0, 1fr)' so each column shares the row evenly and is free to shrink below its content's intrinsic size.",
               "name": "width",
               "required": false,
-              "type": "string"
+              "type": "GridTrack"
             },
             {
               "description": "Column width when the table's container drops into compact mode (≤720px container). Use this to switch to a content-aware layout at narrow widths — e.g. give a status badge `max-content` and the action column `minmax(0, 2fr)` so it absorbs the slack — while keeping evenly-distributed columns on wide screens. Defaults to the same value as `width`.",
               "name": "compactWidth",
               "required": false,
-              "type": "string"
+              "type": "GridTrack"
             },
             {
               "description": "Stack-mode label string. Optional when children is a plain string — the text content is used as the label automatically. Required when children contain JSX (icon + text, sort indicator, etc.).",
@@ -5118,11 +5118,11 @@
               "type": "boolean"
             },
             {
-              "default": "SIZES_PX.labelMinW",
-              "description": "Minimum width (px) each flexible column keeps before the table scrolls horizontally rather than crushing its cells. Columns still share the row evenly (`minmax(<minColumnWidth>px, 1fr)`); this is only the floor. Raise it for roomier columns (more scrolling), lower it to fit more before scrolling. Columns with an explicit `width` are unaffected. Default 120.",
+              "default": "'labelMinW'",
+              "description": "Minimum width each flexible column keeps before the table scrolls horizontally rather than crushing its cells: a size token key or a relative length. Columns still share the row evenly (`minmax(<minColumnWidth>, 1fr)`); this is only the floor. Raise it for roomier columns (more scrolling), lower it to fit more before scrolling. Columns with an explicit `width` are unaffected. Default `\"labelMinW\"`.",
               "name": "minColumnWidth",
               "required": false,
-              "type": "number"
+              "type": "Length"
             },
             {
               "description": "Optional sort UI rendered above the grid. Visible only in stack mode (SortChip carries its own `display: none → inline-flex` rule). Typical value: `<Table.SortChip options={...} value={...} onChange={...} />`.",
@@ -6379,7 +6379,7 @@
           "description": "Max height of the scroll viewport once virtualized. Default '70vh'.",
           "name": "maxHeight",
           "required": false,
-          "type": "number | string"
+          "type": "Length"
         },
         {
           "default": "150",
@@ -6993,7 +6993,7 @@
     }
   },
   "rules": {
-    "critical": "## Critical Rules\n\n### 1. Always use `html.*` elements (react-strict-dom)\n\n```tsx\n// ✅ Correct\nimport {css, html} from 'react-strict-dom'\n<html.div style={styles.container}>...</html.div>\n\n// ❌ Wrong — never use raw HTML tags\n<div className=\"container\">...</div>\n```\n\n### 2. Deep imports for tokens\n\n```tsx\n// ✅ Correct — deep imports\nimport {colors} from '@duro-app/tokens/tokens/colors.css'\nimport {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'\nimport {typography} from '@duro-app/tokens/tokens/typography.css'\n\n// ❌ Wrong — barrel imports break StyleX babel plugin\nimport {colors, spacing} from '@duro-app/tokens'\n```\n\n### 3. Styling with css.create()\n\n```tsx\nimport {css, html} from 'react-strict-dom'\nimport {colors} from '@duro-app/tokens/tokens/colors.css'\nimport {spacing} from '@duro-app/tokens/tokens/spacing.css'\n\nconst styles = css.create({\n  container: {\n    padding: spacing.md,\n    backgroundColor: colors.bgCard,\n    borderRadius: 12,\n  },\n})\n\n// Apply styles via the style prop (array for composition)\n<html.div style={[styles.container, isActive && styles.active]}>\n```",
+    "critical": "## Critical Rules\n\n### 1. Always use `html.*` elements (react-strict-dom)\n\n```tsx\n// ✅ Correct\nimport {css, html} from 'react-strict-dom'\n<html.div style={styles.container}>...</html.div>\n\n// ❌ Wrong — never use raw HTML tags\n<div className=\"container\">...</div>\n```\n\n### 2. Deep imports for tokens\n\n```tsx\n// ✅ Correct — deep imports\nimport {colors} from '@duro-app/tokens/tokens/colors.css'\nimport {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'\nimport {typography} from '@duro-app/tokens/tokens/typography.css'\n\n// ❌ Wrong — barrel imports break StyleX babel plugin\nimport {colors, spacing} from '@duro-app/tokens'\n```\n\n### 3. Styling with css.create()\n\n```tsx\nimport {css, html} from 'react-strict-dom'\nimport {colors} from '@duro-app/tokens/tokens/colors.css'\nimport {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'\nimport {sizes} from '@duro-app/tokens/tokens/sizes.css'\nimport {borders} from '@duro-app/tokens/tokens/borders.css'\n\nconst styles = css.create({\n  container: {\n    padding: spacing.md,\n    backgroundColor: colors.bgCard,\n    borderRadius: radii.md,\n    borderWidth: borders.hairline,\n    maxWidth: sizes.dialogMd,\n  },\n})\n\n// Apply styles via the style prop (array for composition)\n<html.div style={[styles.container, isActive && styles.active]}>\n```",
     "lint": [
       {
         "description": "Disallow deprecated Table parts (Table.Container, HeaderCell isActions)",

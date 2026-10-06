@@ -50,7 +50,7 @@ export const SmallList: Story = {
 export const Virtualized: Story = {
   args: {
     data: makeData(500),
-    maxHeight: 300,
+    maxHeight: 'listMaxH',
     rangeLabel: ({from, to, total}) => `${from}-${to} of ${total}`,
     onVisiblePageChange: fn(),
   },
@@ -70,7 +70,7 @@ export const Virtualized: Story = {
 export const ScrollReportsPage: Story = {
   args: {
     data: makeData(500),
-    maxHeight: 300,
+    maxHeight: 'listMaxH',
     pageSize: 50,
     rangeLabel: ({page, pages}) => `page ${page}/${pages}`,
     onVisiblePageChange: fn(),

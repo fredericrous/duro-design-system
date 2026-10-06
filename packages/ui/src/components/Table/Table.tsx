@@ -13,7 +13,7 @@ import {
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {devWarnOnce} from '../../shared/devWarnOnce'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {resolveLength, resolveTrack, type GridTrack, type Length} from '../../shared/length'
 
 // --- Types ---
 
@@ -96,7 +96,7 @@ function unwrapElementType(t: unknown): unknown {
 
 function extractColumnMeta(
   children: ReactNode,
-  minColumnWidth: number,
+  minColumnWidth: Length,
 ): {
   template: string
   compactTemplate: string
@@ -121,15 +121,17 @@ function extractColumnMeta(
         // That floor is what makes a dense table overflow its container
         // instead of crushing — Root's scroll wrapper then scrolls sideways.
         // Narrow columns (a checkbox) or naturally-wide ones (an actions
-        // cell) override this with an explicit `width` (e.g. '40px',
-        // 'max-content').
-        const width = props.width || `minmax(${minColumnWidth}px, 1fr)`
+        // cell) override this with an explicit `width` (e.g. a size token
+        // key, 'max-content').
+        const width = props.width
+          ? String(resolveTrack(props.width))
+          : `minmax(${resolveLength(minColumnWidth)}, 1fr)`
         widths.push(width)
         // `compactWidth` lets the consumer switch to a content-aware
         // layout in the compact band while staying evenly distributed
         // at desktop. Falls back to `width` so columns that don't opt
         // in keep one template across both breakpoints.
-        compactWidths.push(props.compactWidth || width)
+        compactWidths.push(props.compactWidth ? String(resolveTrack(props.compactWidth)) : width)
         const explicit = typeof props.label === 'string' ? props.label : undefined
         const fallback = extractText(props.children).trim()
         const label = explicit ?? fallback
@@ -215,13 +217,14 @@ interface RootProps {
   /** Opt out of responsive behavior (horizontal scroll + card breakpoint). Default true. */
   responsive?: boolean
   /**
-   * Minimum width (px) each flexible column keeps before the table scrolls
-   * horizontally rather than crushing its cells. Columns still share the row
-   * evenly (`minmax(<minColumnWidth>px, 1fr)`); this is only the floor. Raise
-   * it for roomier columns (more scrolling), lower it to fit more before
-   * scrolling. Columns with an explicit `width` are unaffected. Default 120.
+   * Minimum width each flexible column keeps before the table scrolls
+   * horizontally rather than crushing its cells: a size token key or a
+   * relative length. Columns still share the row evenly
+   * (`minmax(<minColumnWidth>, 1fr)`); this is only the floor. Raise it for
+   * roomier columns (more scrolling), lower it to fit more before scrolling.
+   * Columns with an explicit `width` are unaffected. Default `"labelMinW"`.
    */
-  minColumnWidth?: number
+  minColumnWidth?: Length
   /**
    * Optional sort UI rendered above the grid. Visible only in stack mode
    * (SortChip carries its own `display: none → inline-flex` rule). Typical
@@ -240,7 +243,7 @@ export function Root({
   variant = 'default',
   size = 'md',
   responsive = true,
-  minColumnWidth = SIZES_PX.labelMinW,
+  minColumnWidth = 'labelMinW',
   sortChip,
   pagination,
 }: RootProps) {
@@ -439,17 +442,17 @@ export function HeaderCell({
 }: {
   children?: ReactNode
   /** Column width at default (wide) viewport. CSS grid-template-columns
-   *  track value — e.g. '40px', '2fr', 'max-content'. Defaults to
+   *  track value — e.g. `sizes` key `"iconButton"`, '2fr', 'max-content'. Defaults to
    *  'minmax(0, 1fr)' so each column shares the row evenly and is free
    *  to shrink below its content's intrinsic size. */
-  width?: string
+  width?: GridTrack
   /** Column width when the table's container drops into compact mode
    *  (≤720px container). Use this to switch to a content-aware layout
    *  at narrow widths — e.g. give a status badge `max-content` and the
    *  action column `minmax(0, 2fr)` so it absorbs the slack — while
    *  keeping evenly-distributed columns on wide screens. Defaults to the
    *  same value as `width`. */
-  compactWidth?: string
+  compactWidth?: GridTrack
   /** Stack-mode label string. Optional when children is a plain string — the
    *  text content is used as the label automatically. Required when children
    *  contain JSX (icon + text, sort indicator, etc.). */
