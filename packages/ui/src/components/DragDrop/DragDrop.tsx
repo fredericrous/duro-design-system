@@ -11,6 +11,7 @@ import {
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {isNative} from '../../platform'
+import {visuallyHidden} from '../../styles/visually-hidden.css'
 
 // ---------------------------------------------------------------------------
 // DragDrop — move items between zones with one pointer, on mouse, pen and
@@ -358,7 +359,7 @@ function Root<T = unknown>({onDrop, announce, children}: DragDropRootProps<T>) {
           {drag.preview}
         </html.div>
       )}
-      <html.div role="status" aria-live="polite" aria-atomic style={styles.liveRegion}>
+      <html.div role="status" aria-live="polite" aria-atomic style={visuallyHidden.base}>
         {announcement}
       </html.div>
     </RootContext.Provider>

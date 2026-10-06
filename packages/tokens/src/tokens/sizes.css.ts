@@ -27,6 +27,8 @@ export const sizes = css.defineVars({
   iconXxl: '48px',
   navMarkerW: '3px',
   navMarkerH: '18px',
+  divider: '1px',
+  tabIndicator: '2px',
   scrollbar: '8px',
   swatchW: '44px',
   swatchH: '34px',

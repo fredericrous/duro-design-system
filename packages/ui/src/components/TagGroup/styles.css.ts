@@ -75,10 +75,4 @@ export const styles = css.create({
       ':focus': colors.error,
     },
   },
-  liveRegion: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
-    overflow: 'hidden',
-  },
 })

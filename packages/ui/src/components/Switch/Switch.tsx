@@ -3,6 +3,7 @@ import {html} from 'react-strict-dom'
 import {isNative} from '../../platform'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {styles} from './styles.css'
+import {visuallyHidden} from '../../styles/visually-hidden.css'
 
 interface SwitchProps {
   /** Controlled checked state. */
@@ -67,7 +68,7 @@ export function Switch({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             onCheckedChange?.(e.target.checked)
           }}
-          style={styles.input}
+          style={[visuallyHidden.base, styles.input]}
         />
       )}
       <html.button

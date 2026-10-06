@@ -354,6 +354,8 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `iconXxl` | 48px |
 | `navMarkerW` | 3px |
 | `navMarkerH` | 18px |
+| `divider` | 1px |
+| `tabIndicator` | 2px |
 | `scrollbar` | 8px |
 | `swatchW` | 44px |
 | `swatchH` | 34px |

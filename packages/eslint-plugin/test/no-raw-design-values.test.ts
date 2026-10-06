@@ -99,7 +99,31 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       ],
     },
     {
+      // 1 is sizes.divider; EMAIL_PX.trackingPixel is never a candidate
       code: wrap('width: 1'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          data: {
+            value: '1',
+            property: 'width',
+            group: 'sizes',
+            tokens: 'sizes.divider',
+            pkg: '@duro-app/tokens',
+          },
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.divider'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap('width: 7'),
       errors: [{messageId: 'missingMeasureToken', suggestions: []}],
     },
     {
@@ -222,10 +246,23 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       errors: [{messageId: 'missingMeasureToken', suggestions: []}],
     },
     {
+      // The same 1px outside the exempt module is reported
       code: wrap('width: 1'),
       filename: 'packages/ui/src/styles/x.css.ts',
       options: [{exemptFiles: ['packages/ui/src/styles/visually-hidden.css.ts']}],
-      errors: [{messageId: 'missingMeasureToken', suggestions: []}],
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.divider'),
+            },
+          ],
+        },
+      ],
     },
     {
       code: wrap('gap: 24'),

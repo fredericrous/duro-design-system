@@ -57,11 +57,8 @@ export const styles = css.create({
     borderRadius: radii.full,
     backgroundColor: colors.accent,
   },
+  // Layered on visuallyHidden.base: a native input is also made transparent.
   input: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
     opacity: 0,
-    overflow: 'hidden',
   },
 })

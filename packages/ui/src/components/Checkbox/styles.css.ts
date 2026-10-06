@@ -77,12 +77,9 @@ export const styles = css.create({
     backgroundColor: 'transparent',
     padding: 0,
   },
+  // Layered on visuallyHidden.base: a native input is also made transparent.
   input: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
     opacity: 0,
-    overflow: 'hidden',
   },
   // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
   // native via `isNative` (on both .root and .box); web keeps inline-flex.

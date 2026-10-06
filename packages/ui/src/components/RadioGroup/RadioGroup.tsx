@@ -3,6 +3,7 @@ import {html} from 'react-strict-dom'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {styles} from './styles.css'
 import {useFieldGroupLabelling} from '../Field/FieldContext'
+import {visuallyHidden} from '../../styles/visually-hidden.css'
 
 // --- Context ---
 
@@ -100,7 +101,7 @@ function Item({value, disabled: itemDisabled = false, children}: ItemProps) {
         checked={isChecked}
         disabled={isDisabled}
         onChange={() => onSelect(value)}
-        style={styles.input}
+        style={[visuallyHidden.base, styles.input]}
       />
       <html.span
         style={[styles.circle, isChecked ? styles.circleChecked : styles.circleUnchecked]}

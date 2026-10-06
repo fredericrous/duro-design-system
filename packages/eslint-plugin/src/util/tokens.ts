@@ -359,6 +359,8 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   12: ['glyphSm'],
   48: ['iconXxl'],
   3: ['navMarkerW'],
+  1: ['divider'],
+  2: ['tabIndicator'],
   34: ['swatchH'],
   120: ['labelMinW'],
   160: ['popupMinW'],

@@ -52,11 +52,4 @@ export const styles = css.create({
     height,
     transform: `translate3d(${x}px, ${y}px, 0)`,
   }),
-  // Same visually-hidden recipe as TagGroup's live region.
-  liveRegion: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
-    overflow: 'hidden',
-  },
 })

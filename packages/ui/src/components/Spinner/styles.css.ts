@@ -37,11 +37,8 @@ export const styles = css.create({
     height: 40,
     borderWidth: 3,
   },
+  // Layered on visuallyHidden.base.
   srOnly: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
-    overflow: 'hidden',
     clip: 'rect(0, 0, 0, 0)',
   },
 })

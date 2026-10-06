@@ -62,12 +62,9 @@ export const styles = css.create({
   thumbChecked: {
     transform: 'translateX(16px)',
   },
+  // Layered on visuallyHidden.base: a native input is also made transparent.
   input: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
     opacity: 0,
-    overflow: 'hidden',
   },
   // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
   // native via `isNative` so the flex container applies; web keeps inline-flex.

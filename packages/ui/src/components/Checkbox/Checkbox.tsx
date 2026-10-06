@@ -2,6 +2,7 @@ import {type ReactNode, useState, useCallback} from 'react'
 import {html} from 'react-strict-dom'
 import {isNative} from '../../platform'
 import {styles} from './styles.css'
+import {visuallyHidden} from '../../styles/visually-hidden.css'
 
 interface CheckboxProps {
   name?: string
@@ -99,7 +100,7 @@ export function Checkbox({
         disabled={disabled}
         aria-label={!children ? ariaLabel : undefined}
         onChange={handleChange}
-        style={styles.input}
+        style={[visuallyHidden.base, styles.input]}
       />
       <html.span
         style={[styles.box, isChecked ? styles.boxChecked : styles.boxUnchecked]}
