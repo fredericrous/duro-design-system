@@ -130,7 +130,7 @@ hand-roll widgets the DS ships.
 ```
 
 Wire `--check` into the repo's lint or CI job to catch a stale hook after a
-CLI upgrade. The generated script pins `@duro-app/cli@^4.4.0` — a floating
+CLI upgrade. The generated script pins `@duro-app/cli@^5.0.0` — a floating
 pin, so patch releases never read as drift, but a **floor**: a repo whose
 script still pins `^3.4.0` never resolves a 4.x payload and never sees what
 the session-start injection gained since. The release refuses a tag whose
@@ -189,7 +189,7 @@ wires both:
 
 ```
 # stage     name         scope                                                                                                          severity  command
-pre-commit  duro-doctor  *.css,package.json,root.tsx,main.tsx,vite.config.ts,vitest.config.ts,postcss.config.js,postcss.config.mjs,babel.config.js  block     npx -y @duro-app/cli@^4.4.0 doctor
+pre-commit  duro-doctor  *.css,package.json,root.tsx,main.tsx,vite.config.ts,vitest.config.ts,postcss.config.js,postcss.config.mjs,babel.config.js  block     npx -y @duro-app/cli@^5.0.0 doctor
 ```
 
 ## Mockups that speak the design system

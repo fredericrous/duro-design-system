@@ -17,11 +17,11 @@ export const SKILL_NOTES_PATH = '.claude/duro-mockup.local.md'
 
 /**
  * Floor for the npx pin inside the skill. `duro mockup` landed in 3.0.0; it
- * moves with the hook's floor to the release's own major (4.4.0), so a 4.x
- * consumer runs a 4.x CLI. A floating pin keeps patch releases from showing
+ * moves with the hook's floor to the release's own major (5.0.0), so a 5.x
+ * consumer runs a 5.x CLI. A floating pin keeps patch releases from showing
  * up as --check drift.
  */
-export const SKILL_MIN_CLI = '4.4.0'
+export const SKILL_MIN_CLI = '5.0.0'
 
 const DURO = `npx -y @duro-app/cli@^${SKILL_MIN_CLI}`
 
