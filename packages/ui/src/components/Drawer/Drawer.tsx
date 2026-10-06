@@ -233,6 +233,16 @@ function Portal({children, size = 'md'}: PortalProps) {
     panelRef,
   } = useDrawer()
   const mount = usePortalMount()
+  // The shown panel element, tracked as state so swipe listeners follow it
+  // when the portal mount arrives and the panel is remounted into it.
+  const [panel, setPanel] = useState<HTMLDivElement | null>(null)
+  const attachPanel = useCallback(
+    (el: HTMLDivElement | null) => {
+      panelRef.current = el
+      setPanel(el)
+    },
+    [panelRef],
+  )
 
   const handleBackdropClick = useCallback(() => {
     if (dismissable) {
@@ -245,7 +255,7 @@ function Portal({children, size = 'md'}: PortalProps) {
     anchor,
     enabled: swipeEnabled && open && !closing,
     onDismiss: requestCloseImmediate,
-    panelRef,
+    panel,
   })
 
   if (!open) return null
@@ -269,7 +279,7 @@ function Portal({children, size = 'md'}: PortalProps) {
       {/* Viewport */}
       <html.div style={[styles.viewport, viewportAnchorMap[anchor]]} data-drawer-viewport="">
         <html.div
-          ref={panelRef}
+          ref={attachPanel}
           role="dialog"
           aria-modal={true}
           aria-labelledby={titleId}
