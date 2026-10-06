@@ -2527,7 +2527,7 @@
       "kind": "component",
       "meta": {
         "description": "Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses to one column on the width of its own container, so it is safe to nest and to place beside a DetailPanel. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native.",
-        "example": "// Split: list ≥ 240px beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"gridColMd\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Weighted: a one-third / two-thirds split (works on native too)\n<Grid columns={[1, 2]} gap=\"md\">\n  <Card>Sidebar</Card>\n  <Card>Content</Card>\n</Grid>",
+        "example": "// Split: list ≥ sizes.gridColSm (240px) beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"gridColMd\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Weighted: a one-third / two-thirds split (works on native too)\n<Grid columns={[1, 2]} gap=\"md\">\n  <Card>Sidebar</Card>\n  <Card>Content</Card>\n</Grid>",
         "relatedTo": [
           {
             "component": "Stack",
@@ -5867,7 +5867,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Toggle button with pressed/unpressed state. Works standalone or within ToggleGroup for multi/single selection. Under a coarse pointer (touch) every Toggle is at least 44×44px; in a wrapping ToggleGroup each keeps its own border and a fixed row height.",
+        "description": "Toggle button with pressed/unpressed state. Works standalone or within ToggleGroup for multi/single selection. Under a coarse pointer (touch) every Toggle is at least sizes.touchTarget (44px) square; in a wrapping ToggleGroup each keeps its own border and a fixed row height.",
         "example": "// Standalone\n<Toggle pressed={isBold} onPressedChange={setIsBold} aria-label=\"Bold\">\n  <Icon name=\"key\" size=\"sm\" />\n</Toggle>\n\n// In a group\n<ToggleGroup value={['grid']} onValueChange={setView} multiple={false}>\n  <Toggle value=\"list\">List</Toggle>\n  <Toggle value=\"grid\">Grid</Toggle>\n</ToggleGroup>",
         "relatedTo": [
           {
@@ -5980,7 +5980,7 @@
         "whenToUse": [
           "Visible option set where user picks one or more (view mode, filter categories)",
           "Segmented control pattern",
-          "A visible grid of icon choices: wrap + maxRows (rows scroll past maxRows, one tab stop with arrow keys, 44px touch targets)"
+          "A visible grid of icon choices: wrap + maxRows (rows scroll past maxRows, one tab stop with arrow keys, sizes.touchTarget (44px) touch targets)"
         ]
       },
       "name": "ToggleGroup",

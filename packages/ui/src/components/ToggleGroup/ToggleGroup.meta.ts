@@ -6,7 +6,7 @@ export const meta: ComponentMeta = {
   whenToUse: [
     'Visible option set where user picks one or more (view mode, filter categories)',
     'Segmented control pattern',
-    'A visible grid of icon choices: wrap + maxRows (rows scroll past maxRows, one tab stop with arrow keys, 44px touch targets)',
+    'A visible grid of icon choices: wrap + maxRows (rows scroll past maxRows, one tab stop with arrow keys, sizes.touchTarget (44px) touch targets)',
   ],
   whenNotToUse: [
     'Dropdown selection — use Select',
