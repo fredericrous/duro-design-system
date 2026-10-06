@@ -23,14 +23,18 @@ interface ToggleGroupProps {
   orientation?: Orientation
   /** Size applied to all child toggles. */
   size?: ToggleSize
-  /** Accessible name when the group is not inside a Field.Root (inside one,
-   *  the Field.Label names it). */
   /** Items wrap onto rows, each with its own border (default false). Enables
    *  roving focus: one tab stop, arrow keys move between items. */
   wrap?: boolean
+  // holds-until: the registry generator (packages/cli/scripts) reads a
+  // discriminated union. `{wrap?: false; maxRows?: never} | {wrap: true;
+  // maxRows?: number}` is the right type, but today it drops both props from
+  // the registry the CLI and MCP serve.
   /** Caps a wrapping group at this many rows (plus half a row, hinting more)
-   *  and scrolls the rest. Only with `wrap`. */
+   *  and scrolls the rest. Only with `wrap`; ignored without it. */
   maxRows?: number
+  /** Accessible name when the group is not inside a Field.Root (inside one,
+   *  the Field.Label names it). */
   'aria-label'?: string
   /** id of the element that names the group, when not inside a Field.Root. */
   'aria-labelledby'?: string
@@ -68,7 +72,7 @@ export function ToggleGroup({
   )
 
   const rootRef = useRef<HTMLDivElement>(null)
-  const roving = useRovingFocus(wrap, value, rootRef)
+  const roving = useRovingFocus({enabled: wrap, pressed: value, rootRef})
   const scrolls = wrap && maxRows !== undefined
   const pressedValue = value[0]
 
@@ -78,11 +82,26 @@ export function ToggleGroup({
   useLayoutEffect(() => {
     if (!scrolls || pressedValue === undefined) return
     const viewport = rootRef.current?.closest<HTMLElement>('[data-duro-scroll]')
-    const el = items.current.get(pressedValue)
-    if (!viewport || !el) return
-    const centered = el.offsetTop - (viewport.clientHeight - el.offsetHeight) / 2
-    const max = viewport.scrollHeight - viewport.clientHeight
-    viewport.scrollTop = Math.min(Math.max(centered, 0), Math.max(max, 0))
+    if (!viewport) return
+    // Measured against the viewport's own box, not offsetTop: a positioned
+    // ancestor (a Drawer panel) would otherwise be the reference.
+    const centre = () => {
+      const el = items.current.get(pressedValue)
+      if (!el || viewport.clientHeight === 0) return false
+      const top =
+        el.getBoundingClientRect().top - viewport.getBoundingClientRect().top + viewport.scrollTop
+      const centered = top - (viewport.clientHeight - el.offsetHeight) / 2
+      const max = viewport.scrollHeight - viewport.clientHeight
+      viewport.scrollTop = Math.min(Math.max(centered, 0), Math.max(max, 0))
+      return true
+    }
+    if (centre()) return
+    // Not laid out yet (a container still opening): centre once it has a size.
+    const observer = new ResizeObserver(() => {
+      if (centre()) observer.disconnect()
+    })
+    observer.observe(viewport)
+    return () => observer.disconnect()
   }, [scrolls, pressedValue, items])
 
   const group = (

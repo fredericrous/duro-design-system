@@ -11,11 +11,15 @@ function sameOrder(a: string[], b: string[]) {
  * stop — the focused item, else the first pressed one, else the first — with
  * arrow keys in reading order, Up/Down by visual row, Home/End.
  */
-export function useRovingFocus(
-  enabled: boolean,
-  pressed: string[],
-  rootRef: RefObject<HTMLElement | null>,
-) {
+export function useRovingFocus({
+  enabled,
+  pressed,
+  rootRef,
+}: {
+  enabled: boolean
+  pressed: string[]
+  rootRef: RefObject<HTMLElement | null>
+}) {
   const items = useRef(new Map<string, HTMLElement>())
   const [order, setOrder] = useState<string[]>([])
   const [focusedValue, setFocusedValue] = useState<string | null>(null)

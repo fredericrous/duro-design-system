@@ -144,8 +144,8 @@ function Popup({children}: {children: ReactNode}) {
 
   const listboxRef = useRef<HTMLDivElement>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
-  usePopoverLayer(listboxRef, open)
-  usePopoverLayer(backdropRef, open)
+  usePopoverLayer(listboxRef, {active: open})
+  usePopoverLayer(backdropRef, {active: open})
 
   const node = (
     <>

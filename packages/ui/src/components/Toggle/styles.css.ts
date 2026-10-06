@@ -36,7 +36,8 @@ export const styles = css.create({
     borderRadius: radii.sm,
     gap: spacing.xs,
   },
-  // wrapped toggles: a fixed block size per size, 44px under a coarse pointer
+  // wrapped toggles: a fixed block size per size, 44px under a coarse pointer.
+  // Must equal ROW_HEIGHT in ./rowHeight (StyleX cannot import it here).
   wrappedDefault: {
     boxSizing: 'border-box',
     height: {default: 39, '@media (pointer: coarse)': 44},

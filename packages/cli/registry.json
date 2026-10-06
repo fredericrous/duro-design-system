@@ -6019,12 +6019,13 @@
           "type": "boolean"
         },
         {
-          "description": "Caps a wrapping group at this many rows (plus half a row, hinting more) and scrolls the rest. Only with `wrap`.",
+          "description": "Caps a wrapping group at this many rows (plus half a row, hinting more) and scrolls the rest. Only with `wrap`; ignored without it.",
           "name": "maxRows",
           "required": false,
           "type": "number"
         },
         {
+          "description": "Accessible name when the group is not inside a Field.Root (inside one, the Field.Label names it).",
           "name": "aria-label",
           "required": false,
           "type": "string"

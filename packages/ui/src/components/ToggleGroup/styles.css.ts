@@ -1,4 +1,5 @@
 import {css} from 'react-strict-dom'
+import {ROW_HEIGHT} from '../Toggle/rowHeight'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 
@@ -29,14 +30,14 @@ export const styles = css.create({
   // sizes itself (max, not fixed). Row heights match the wrapped Toggles.
   maxRowsSmall: (rows: number) => ({
     maxHeight: {
-      default: `calc((${rows} + 0.5) * 28px + ${rows} * ${spacing.xs} + 2 * ${spacing.xs})`,
-      '@media (pointer: coarse)': `calc((${rows} + 0.5) * 44px + ${rows} * ${spacing.xs} + 2 * ${spacing.xs})`,
+      default: `calc((${rows} + 0.5) * ${ROW_HEIGHT.small}px + ${rows} * ${spacing.xs} + 2 * ${spacing.xs})`,
+      '@media (pointer: coarse)': `calc((${rows} + 0.5) * ${ROW_HEIGHT.coarse}px + ${rows} * ${spacing.xs} + 2 * ${spacing.xs})`,
     },
   }),
   maxRowsDefault: (rows: number) => ({
     maxHeight: {
-      default: `calc((${rows} + 0.5) * 39px + ${rows} * ${spacing.xs} + 2 * ${spacing.xs})`,
-      '@media (pointer: coarse)': `calc((${rows} + 0.5) * 44px + ${rows} * ${spacing.xs} + 2 * ${spacing.xs})`,
+      default: `calc((${rows} + 0.5) * ${ROW_HEIGHT.default}px + ${rows} * ${spacing.xs} + 2 * ${spacing.xs})`,
+      '@media (pointer: coarse)': `calc((${rows} + 0.5) * ${ROW_HEIGHT.coarse}px + ${rows} * ${spacing.xs} + 2 * ${spacing.xs})`,
     },
   }),
   vertical: {

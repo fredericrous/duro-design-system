@@ -165,7 +165,7 @@ function Popup({children}: {children: ReactNode}) {
     }
   }, [open, rootRef])
 
-  usePopoverLayer(listboxRef, open && coords !== null)
+  usePopoverLayer(listboxRef, {active: open && coords !== null})
 
   if (!open || !coords) return null
 
