@@ -70,7 +70,7 @@ export const styles = css.create({
     },
     outlineOffset: {
       default: 0,
-      ':focus-visible': borders.focusOffset,
+      ':focus-visible': `calc(-1 * ${borders.focusOffset})`,
     },
   },
   tabVertical: {

@@ -58,7 +58,7 @@ export const styles = css.create({
     outlineWidth: borders.focusRing,
     outlineStyle: 'solid',
     outlineColor: colors.accent,
-    outlineOffset: borders.focusOffset,
+    outlineOffset: `calc(-1 * ${borders.focusOffset})`,
   },
   rowSelected: {
     color: colors.accent,

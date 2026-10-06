@@ -48,7 +48,7 @@ export const styles = css.create({
     },
     outlineStyle: 'solid',
     outlineColor: colors.accent,
-    outlineOffset: borders.focusOffset,
+    outlineOffset: `calc(-1 * ${borders.focusOffset})`,
   },
 
   // Root — the single grid container for the table itself
