@@ -39,8 +39,10 @@ export const HOOK_COMMAND = `sh ${HOOK_SCRIPT_PATH}`
  *        never reaches 4.x, so 4.x consumers were served 3.x docs. The
  *        release refuses a tag whose major differs from this floor's
  *        (scripts/check-pin-major.mjs).
+ * 5.0.0: @duro-app/ui 5 (every measure is a token, ADR-0027); 5.x consumers
+ *        get the sizes/borders tables and Critical Rule 4.
  */
-export const HOOK_MIN_CLI = '4.4.0'
+export const HOOK_MIN_CLI = '5.0.0'
 
 /**
  * First line of the catalog cache: the floor it was fetched with. A cache

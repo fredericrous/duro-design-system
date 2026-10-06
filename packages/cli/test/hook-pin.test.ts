@@ -34,19 +34,24 @@ describe('the CLI floors', () => {
   it('pass the release check for their own major, and fail it for another', () => {
     const hook = src('hook-script.ts')
     const skill = src('skill-template.ts')
-    expect(pinMajorProblems('4.4.0', hook, skill)).toEqual([])
-    expect(pinMajorProblems('v4.9.1', hook, skill)).toEqual([])
-    expect(pinMajorProblems('5.0.0', hook, skill)).toHaveLength(2)
-    // The drift that kept 4.x consumers on 3.x: a floor left on ^3.
-    const old = hook.replace(`HOOK_MIN_CLI = '${HOOK_MIN_CLI}'`, "HOOK_MIN_CLI = '3.4.0'")
-    expect(pinMajorProblems('4.4.0', old, skill)).toEqual([
-      expect.stringContaining('HOOK_MIN_CLI is ^3.x'),
+    const major = Number(HOOK_MIN_CLI.split('.')[0])
+    expect(pinMajorProblems(`${major}.0.0`, hook, skill)).toEqual([])
+    expect(pinMajorProblems(`v${major}.9.1`, hook, skill)).toEqual([])
+    expect(pinMajorProblems(`${major + 1}.0.0`, hook, skill)).toHaveLength(2)
+    // The drift that kept 4.x consumers on 3.x: a floor left a major behind.
+    const old = hook.replace(
+      `HOOK_MIN_CLI = '${HOOK_MIN_CLI}'`,
+      `HOOK_MIN_CLI = '${major - 1}.4.0'`,
+    )
+    expect(pinMajorProblems(`${major}.0.0`, old, skill)).toEqual([
+      expect.stringContaining(`HOOK_MIN_CLI is ^${major - 1}.x`),
     ])
   })
 
   it('exits non-zero from the command line on a mismatch', () => {
     const script = fileURLToPath(new URL('../scripts/check-pin-major.mjs', import.meta.url))
-    expect(spawnSync('node', [script, '5.0.0']).status).toBe(1)
+    const next = `${Number(HOOK_MIN_CLI.split('.')[0]) + 1}.0.0`
+    expect(spawnSync('node', [script, next]).status).toBe(1)
     expect(spawnSync('node', [script, HOOK_MIN_CLI]).status).toBe(0)
   })
 })
