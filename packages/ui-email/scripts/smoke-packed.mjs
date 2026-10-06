@@ -13,7 +13,8 @@
 //      and the tarball holds dist/raw.d.ts;
 //   2. the primitive fixture renders from the tarballs in bare Node, and its
 //      HTML equals the same fixture rendered against the workspace build;
-//   3. a consumer import of both packages type-checks with skipLibCheck: false.
+//   3. a consumer import of both packages type-checks with skipLibCheck: false,
+//      under bundler and nodenext resolution.
 
 import {execFileSync} from 'node:child_process'
 import {
@@ -134,46 +135,55 @@ const sizes: string[] = [space.md, font.sizeSm, darkColors.bg]
 export {EmailShell, Text, width, sizes}
 `,
   )
-  writeFileSync(
-    join(app, 'tsconfig.json'),
-    JSON.stringify({
-      compilerOptions: {
-        strict: true,
-        noEmit: true,
-        skipLibCheck: false,
-        module: 'esnext',
-        moduleResolution: 'bundler',
-        target: 'es2022',
-        jsx: 'react-jsx',
-      },
-      files: ['check.ts'],
-    }),
-  )
-  // skipLibCheck: false checks every .d.ts in the tree; only errors in our
-  // packages or the consumer file count — a third-party declaration with a
-  // missing @types peer is not this release's to fix.
-  let output = ''
-  let exited = 0
-  try {
-    output = run(join(app, 'node_modules', '.bin', 'tsc'), ['-p', 'tsconfig.json'], app, true)
-  } catch (error) {
-    // A spawn failure has no status; it must fail the check, not read as clean.
-    if (typeof error.status !== 'number') throw new Error(`tsc did not run: ${error.message}`)
-    exited = error.status
-    output = String(error.stdout ?? '')
+  // Both resolutions a consumer uses: a bundler app, and a Node ESM package
+  // (nodenext requires explicit extensions in every relative import of our
+  // published .d.ts).
+  for (const [module, moduleResolution] of [
+    ['esnext', 'bundler'],
+    ['nodenext', 'nodenext'],
+  ]) {
+    writeFileSync(
+      join(app, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          strict: true,
+          noEmit: true,
+          skipLibCheck: false,
+          module,
+          moduleResolution,
+          target: 'es2022',
+          jsx: 'react-jsx',
+        },
+        files: ['check.ts'],
+      }),
+    )
+    // skipLibCheck: false checks every .d.ts in the tree; only errors in our
+    // packages or the consumer file count — a third-party declaration with a
+    // missing @types peer is not this release's to fix.
+    let output = ''
+    let exited = 0
+    try {
+      output = run(join(app, 'node_modules', '.bin', 'tsc'), ['-p', 'tsconfig.json'], app, true)
+    } catch (error) {
+      // A spawn failure has no status; it must fail the check, not read as clean.
+      if (typeof error.status !== 'number') throw new Error(`tsc did not run: ${error.message}`)
+      exited = error.status
+      output = String(error.stdout ?? '')
+    }
+    const lines = output.split('\n').filter((line) => /error TS\d+/.test(line))
+    const ours = lines.filter((line) => /^(check\.ts|node_modules\/@duro-app\/)/.test(line))
+    // Anything not attributed to a third-party file (a TS5xxx config error,
+    // a global error with no path) counts as ours.
+    const thirdParty = lines.filter((line) => /^node_modules\//.test(line) && !ours.includes(line))
+    const unattributed = lines.filter((line) => !ours.includes(line) && !thirdParty.includes(line))
+    for (const line of [...ours, ...unattributed]) console.error(`  ${line}`)
+    const failed =
+      ours.length + unattributed.length > 0 || (exited !== 0 && thirdParty.length === 0)
+    check(
+      !failed,
+      `consumer import type-checks with skipLibCheck: false (${moduleResolution}; ${ours.length + unattributed.length} error(s) in @duro-app, check.ts or config; tsc exit ${exited}, ${thirdParty.length} third-party)`,
+    )
   }
-  const lines = output.split('\n').filter((line) => /error TS\d+/.test(line))
-  const ours = lines.filter((line) => /^(check\.ts|node_modules\/@duro-app\/)/.test(line))
-  // Anything not attributed to a third-party file (a TS5xxx config error,
-  // a global error with no path) counts as ours.
-  const thirdParty = lines.filter((line) => /^node_modules\//.test(line) && !ours.includes(line))
-  const unattributed = lines.filter((line) => !ours.includes(line) && !thirdParty.includes(line))
-  for (const line of [...ours, ...unattributed]) console.error(`  ${line}`)
-  const failed = ours.length + unattributed.length > 0 || (exited !== 0 && thirdParty.length === 0)
-  check(
-    !failed,
-    `consumer import type-checks with skipLibCheck: false (bundler resolution; ${ours.length + unattributed.length} error(s) in @duro-app, check.ts or config; tsc exit ${exited}, ${thirdParty.length} third-party)`,
-  )
 } catch (error) {
   failures.push(error.message)
   console.error(`smoke error: ${error.message}`)
