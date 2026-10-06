@@ -1,0 +1,71 @@
+{
+  "$comment": "Variant manifest for render-consumer-emails.mjs against duro-app. Paths are relative to the consumer checkout. Each template variant is rendered once per side (baseline, candidate) and the HTML compared byte for byte.",
+  "i18n": {"module": "app/lib/i18n.server.ts", "export": "createI18nInstance", "locale": "en"},
+  "templates": [
+    {
+      "name": "invite.pixel-and-link",
+      "module": "app/lib/emails/invite-email.tsx",
+      "export": "InviteEmail",
+      "props": {
+        "inviteUrl": "https://join.example/invite/tok",
+        "reinviteUrl": "https://join.example/reinvite/tok",
+        "invitedBy": "admin",
+        "appName": "Duro",
+        "appDescription": "a dashboard",
+        "clickUrl": "https://join.example/c/tok",
+        "pixelUrl": "https://join.example/e/open"
+      }
+    },
+    {
+      "name": "invite.pixel-only",
+      "module": "app/lib/emails/invite-email.tsx",
+      "export": "InviteEmail",
+      "props": {
+        "inviteUrl": "https://join.example/invite/tok",
+        "reinviteUrl": "https://join.example/reinvite/tok",
+        "invitedBy": "admin",
+        "appName": "Duro",
+        "appDescription": "a dashboard",
+        "pixelUrl": "https://join.example/e/open"
+      }
+    },
+    {
+      "name": "invite.link-only",
+      "module": "app/lib/emails/invite-email.tsx",
+      "export": "InviteEmail",
+      "props": {
+        "inviteUrl": "https://join.example/invite/tok",
+        "reinviteUrl": "https://join.example/reinvite/tok",
+        "invitedBy": "admin",
+        "appName": "Duro",
+        "appDescription": "a dashboard",
+        "clickUrl": "https://join.example/c/tok"
+      }
+    },
+    {
+      "name": "invite.neither",
+      "module": "app/lib/emails/invite-email.tsx",
+      "export": "InviteEmail",
+      "props": {
+        "inviteUrl": "https://join.example/invite/tok",
+        "reinviteUrl": "https://join.example/reinvite/tok",
+        "invitedBy": "admin",
+        "appName": "Duro",
+        "appDescription": "a dashboard"
+      }
+    },
+    {
+      "name": "renewal.reveal",
+      "module": "app/lib/emails/cert-renewal-email.tsx",
+      "export": "CertRenewalEmail",
+      "props": {"appName": "Duro", "revealUrl": "https://join.example/reveal/tok"}
+    },
+    {
+      "name": "renewal.no-reveal",
+      "module": "app/lib/emails/cert-renewal-email.tsx",
+      "export": "CertRenewalEmail",
+      "props": {"appName": "Duro"}
+    }
+  ],
+  "fixtures": ["primitives", "shellWithoutPreview"]
+}
