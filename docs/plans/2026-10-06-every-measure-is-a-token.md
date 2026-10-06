@@ -639,6 +639,20 @@ Consumers on `^4` are untouched until they bump.
   was removed: react-strict-dom forces flex-grow to 0 on web, so the
   declaration was already dead.
 
+- **2026-10-07, "close the gaps" (the person), branch `fix/measure-gaps`:**
+  the follow-ups recorded above are closed; the entries above stay as written.
+  - The mockup check reports a raw px/ms/s in a custom property defined
+    outside the token block; only vendor prefixes are skipped now.
+  - ui-email's relative imports carry `.js`, so its `.d.ts` resolves under
+    `nodenext`.
+  - `GridTrack` types the arguments of `minmax()`/`fit-content()`, and
+    `resolveTrack` resolves a size token key inside them.
+  - Found by that branch's review: the rule never inspected grid track
+    properties. `rawTrack` now reports a px in `gridTemplate*`/`gridAuto*`.
+    Grid's split layouts read `sizes.gridColSm/Md` (same values), and two
+    stories' 200px demo columns map to `gridColSm` (the person's demo-frame
+    decision).
+
 ## Verification results (observed before the push)
 
 Input → expected → actual. Evidence is under
@@ -715,6 +729,32 @@ Input → expected → actual. Evidence is under
 10. **Packed artifacts (blocks the release):** the five checks → ok → ok.
     Falsified: an injected type error is caught.
 11. **Preview:** guided preview `054a6baac555c0` → the person approves → approved. Screenshots are byte-identical.
+
+### `fix/measure-gaps` (2026-10-07)
+
+Input → expected → actual.
+
+- **`--gap: 12px` in an artboard** → raw-length → raw-length.
+  `var(--duro-*)`, `50%`, `0px` → allowed → allowed. Falsified: the old skip
+  of every `-` property fails the test.
+- **Packed smoke, consumer `tsc` under bundler and nodenext** → both pass →
+  both pass. Falsified: extensionless imports give TS2834 under nodenext.
+- **`'minmax(40px, 1fr)'` / `'fit-content(120px)'` as `GridTrack`** → type
+  error → type error. Falsified: allowing px fails the fixture.
+- **Table story `Token column widths`** →
+  - `minmax(gridColSm, 1fr)` ≥ 240px → yes;
+  - `fit-content(labelMinW)` ≤ 120px → yes;
+  - `iconButton` = 32px → yes.
+    Falsified: skipping the resolution inside `minmax()` fails it.
+- **`gridTemplateColumns: 'minmax(240px, 1fr)'` and `'minmax(0.5px, 1fr)'`** → rawTrack → rawTrack (the second added after review).
+  `minmax(0, 2fr)` and token templates → allowed → allowed.
+- **Suite:**
+  - typecheck → 0 errors → 0;
+  - unit → 327/327 → 327/327;
+  - lint → 0 errors → 0;
+  - Storybook → 329/329 with the new story → 329/329.
+
+- **Review of `fix/measure-gaps`:** round 1 approve-with-changes (68k, 59 s; plan record, a `resolveTrack` story, grid tracks unlinted); delta approve-with-changes (48k, 30 s; a sub-1px regex miss, story query timing); final pass approve (26k, 28 s).
 
 ## Implementation review
 
