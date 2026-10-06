@@ -4,6 +4,7 @@ import {css, html} from 'react-strict-dom'
 import {ToggleGroup} from './ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
 import {Icon, type IconName} from '../Icon'
+import {ROW_HEIGHT} from '../Toggle/rowHeight'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof ToggleGroup> = {
@@ -209,10 +210,18 @@ const iconStyles = css.create({
   frame: {width: 320},
 })
 
-function IconChoices({names, pressed}: {names: IconName[]; pressed: string}) {
+function IconChoices({
+  names,
+  pressed,
+  size = 'small',
+}: {
+  names: IconName[]
+  pressed: string
+  size?: 'small' | 'default'
+}) {
   return (
     <html.div style={iconStyles.frame}>
-      <ToggleGroup wrap maxRows={3} size="small" defaultValue={[pressed]} aria-label="Icon">
+      <ToggleGroup wrap maxRows={3} size={size} defaultValue={[pressed]} aria-label="Icon">
         {names.map((name) => (
           <Toggle key={name} value={name} aria-label={name}>
             <Icon name={name} size="sm" />
@@ -259,7 +268,10 @@ export const FiveIcons: Story = {
   render: () => <IconChoices names={ICON_NAMES.slice(0, 5)} pressed={ICON_NAMES[0]} />,
   play: async ({canvas}) => {
     const group = canvas.getByRole('toolbar')
-    await expect(group.getBoundingClientRect().height).toBe(28)
+    await expect(group.getBoundingClientRect().height).toBe(ROW_HEIGHT.small)
+    // exact: Toggle's styles repeat ROW_HEIGHT, and a drift must fail here
+    const toggle = canvas.getAllByRole('button')[0].getBoundingClientRect()
+    await expect(Math.abs(toggle.height - ROW_HEIGHT.small)).toBeLessThanOrEqual(0.5)
   },
 }
 
@@ -289,5 +301,16 @@ export const KeyboardRoving: Story = {
     // a second tab leaves the group
     await userEvent.tab()
     await expect(canvas.getAllByRole('button')).not.toContain(document.activeElement)
+  },
+}
+
+export const DefaultSizeRows: Story = {
+  name: 'Default size rows',
+  render: () => (
+    <IconChoices names={ICON_NAMES.slice(0, 5)} pressed={ICON_NAMES[0]} size="default" />
+  ),
+  play: async ({canvas}) => {
+    const toggle = canvas.getAllByRole('button')[0].getBoundingClientRect()
+    await expect(Math.abs(toggle.height - ROW_HEIGHT.default)).toBeLessThanOrEqual(0.5)
   },
 }

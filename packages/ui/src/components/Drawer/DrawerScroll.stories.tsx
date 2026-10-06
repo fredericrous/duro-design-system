@@ -285,7 +285,8 @@ export const CoarsePointerRows: Story = {
     const expected = 3.5 * ROW_HEIGHT.coarse + 3 * 4 + 2 * 4
     await waitFor(() => expect(Math.abs(viewport.clientHeight - expected)).toBeLessThanOrEqual(2))
     const toggle = viewport.querySelector('button')!.getBoundingClientRect()
-    await expect(toggle.height).toBeGreaterThanOrEqual(ROW_HEIGHT.coarse)
+    // exact: Toggle's styles repeat ROW_HEIGHT, and a drift must fail here
+    await expect(Math.abs(toggle.height - ROW_HEIGHT.coarse)).toBeLessThanOrEqual(0.5)
     await expect(toggle.width).toBeGreaterThanOrEqual(ROW_HEIGHT.coarse)
   },
 }
