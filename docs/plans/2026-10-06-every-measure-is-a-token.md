@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/size-border-tokens
 repos: [decisions, duro-design-system]
 adrs: [ADR-0027]
@@ -696,7 +696,14 @@ Input → expected → actual. Evidence is under
    - **duro-app** (`1e82093`): +31 (21 raw, 4 with no token yet, 6
      ambiguous).
    - **application-landscape** (`816cf4e8`): 0.
-8. **Release:** after the tag (`tag-release`).
+8. **Release:** tag `v5.0.0` at `62c2ae3c`, after two unblocking PRs: #69
+   (CLI floors at 5.0, which `check-pin-major` requires) and #70 (`shell-quote`
+   overridden to the patched ^1.11; the audit gate refused the tag on
+   GHSA-pqg4-j6r4-53mv). Release run `37535252245` concluded success, and all 7
+   packages are on npm at 5.0.0. Checked in the published tokens tarball:
+   `sizes.css`/`borders.css` exports, `/raw` types at `dist/raw.d.ts`, the
+   `--duro-size-*` / `--duro-border-*` variables. The plugin tarball carries
+   the measure messages.
 9. **Email (blocks the release):**
    - **Setup:** duro-app `1e82093`, baseline `c1ad41b0`, candidate
      `99448519`.
@@ -713,8 +720,8 @@ Input → expected → actual. Evidence is under
 
 - **Verdict:** approve, after round 1 (approve-with-changes: 8 findings, 128k, 211 s) and a Delta (48k, 41 s).
 - **Fixed:** canvas exemption (person's ruling: seed it via a variable); a smoke tsc failure now fails; render count asserted; README; real-config lint test; deep-path test; prop count; GridTrack holds-until.
-- **Follow-up, older than this branch:** the mockup check skips custom-property definitions outside the token block (`--x: 44px`).
+- **Follow-ups, closed on 2026-10-07 in `fix/measure-gaps`:** the mockup check now reports a raw value behind a custom property outside the token block; ui-email's `.d.ts` resolves under `nodenext` (and the smoke test checks both resolutions); `GridTrack` types and resolves the arguments of `minmax()`/`fit-content()`.
 - **After preview approval:** the pre-push rehearsal on a clean snapshot found ui-email (and the plugin's tests) could not resolve `@duro-app/tokens/raw` without a tokens build, now that its published types live in `dist`. Both resolve via the `source` export condition (`4681ca72`, `f5161a11`). The typecheck passes with tokens `dist` removed and present. Two more reviews: approve (43k, 48 s; 38k, 25 s).
-- **Status:** Phase 2 is implemented. Next: merge, then 2f, the v5.0.0 tag (`tag-release`); the plan closes there.
+- **Status:** done. Both phases are shipped and 5.0.0 is released. Consumers migrate in their own PRs at the 5.x bump (Non-goals).
 
 <!-- panel: repos=duro-design-system,decisions reviewers=backend body-sha=f5006c2288ec -->
