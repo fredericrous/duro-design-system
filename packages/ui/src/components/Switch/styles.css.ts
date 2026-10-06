@@ -1,8 +1,10 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -20,8 +22,8 @@ export const styles = css.create({
   },
   track: {
     position: 'relative',
-    width: 36,
-    height: 20,
+    width: sizes.switchTrackW,
+    height: sizes.switchTrackH,
     borderRadius: radii.full,
     borderWidth: 0,
     padding: 0,
@@ -29,10 +31,10 @@ export const styles = css.create({
     transitionProperty: 'background-color',
     transitionDuration: duration.fast,
     transitionTimingFunction: easing.standard,
-    outlineWidth: {default: 0, ':focus-visible': 2},
+    outlineWidth: {default: 0, ':focus-visible': borders.focusRing},
     outlineStyle: 'solid',
     outlineColor: colors.accent,
-    outlineOffset: 2,
+    outlineOffset: borders.focusOffset,
     flexShrink: 0,
   },
   trackUnchecked: {
@@ -49,18 +51,19 @@ export const styles = css.create({
   },
   thumb: {
     position: 'absolute',
-    top: 2,
-    left: 2,
-    width: 16,
-    height: 16,
+    top: microSpacing.px2,
+    left: microSpacing.px2,
+    width: sizes.switchThumb,
+    height: sizes.switchThumb,
     borderRadius: radii.full,
-    backgroundColor: '#fff',
+    backgroundColor: colors.fixedLight,
     transitionProperty: 'transform',
     transitionDuration: duration.fast,
     transitionTimingFunction: easing.standard,
   },
   thumbChecked: {
-    transform: 'translateX(16px)',
+    // Travel: the track less the thumb and both insets.
+    transform: `translateX(calc(${sizes.switchTrackW} - ${sizes.switchThumb} - 2 * ${microSpacing.px2}))`,
   },
   // Layered on visuallyHidden.base: a native input is also made transparent.
   input: {

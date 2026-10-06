@@ -1,8 +1,11 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 // The "Apple ease" curves and the 280ms open live in the shared motion tokens
 // (easing.easeOut/easeIn, duration.slow). The close is duration.base, and the
@@ -62,7 +65,7 @@ export const styles = css.create({
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: colors.bgCard,
-    borderLeftWidth: 1,
+    borderLeftWidth: borders.hairline,
     borderLeftStyle: 'solid',
     borderLeftColor: colors.border,
     boxShadow: shadows.sm,
@@ -70,8 +73,8 @@ export const styles = css.create({
   },
 
   // Content must maintain its target width even while wrapper is narrower
-  contentSm: {width: 360},
-  contentMd: {width: 480},
+  contentSm: {width: sizes.panelSm},
+  contentMd: {width: sizes.panelMd},
 
   // --- Content slide + fade animations ---
   slideIn: {
@@ -126,15 +129,15 @@ export const styles = css.create({
     paddingRight: spacing.lg,
     paddingBottom: spacing.lg,
     gap: spacing.md,
-    borderBottomWidth: 1,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
   },
 
   // --- Title ---
   title: {
-    fontSize: 18,
-    fontWeight: 600,
+    fontSize: typography.fontSizeLg,
+    fontWeight: typography.fontWeightSemibold,
     lineHeight: 1.4,
     color: colors.text,
     margin: 0,
@@ -169,7 +172,7 @@ export const styles = css.create({
     paddingBottom: spacing.md,
     paddingLeft: spacing.lg,
     paddingRight: spacing.lg,
-    borderTopWidth: 1,
+    borderTopWidth: borders.hairline,
     borderTopStyle: 'solid',
     borderTopColor: colors.border,
   },
@@ -179,9 +182,9 @@ export const styles = css.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: sizes.iconButton,
+    height: sizes.iconButton,
+    borderRadius: radii.sm,
     borderWidth: 0,
     backgroundColor: {
       default: 'transparent',

@@ -13,6 +13,7 @@ import {
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {devWarnOnce} from '../../shared/devWarnOnce'
+import {SIZES_PX} from '@duro-app/tokens/keys'
 
 // --- Types ---
 
@@ -239,7 +240,7 @@ export function Root({
   variant = 'default',
   size = 'md',
   responsive = true,
-  minColumnWidth = 120,
+  minColumnWidth = SIZES_PX.labelMinW,
   sortChip,
   pagination,
 }: RootProps) {

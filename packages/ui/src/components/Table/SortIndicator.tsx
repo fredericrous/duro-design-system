@@ -2,18 +2,20 @@ import type {Column} from '@tanstack/react-table'
 import {html} from 'react-strict-dom'
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {duration} from '@duro-app/tokens/tokens/motion.css'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const styles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'center',
-    marginLeft: 4,
+    marginLeft: spacing.xs,
     fontSize: 10,
     userSelect: 'none',
     // Hidden by default, shown on hover or when active
     opacity: 0,
     transitionProperty: 'opacity',
-    transitionDuration: '120ms',
+    transitionDuration: duration.quick,
   },
   active: {
     opacity: 1,

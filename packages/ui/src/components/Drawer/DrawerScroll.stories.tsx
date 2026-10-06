@@ -5,7 +5,7 @@ import {Drawer} from './Drawer'
 import {ToggleGroup} from '../ToggleGroup/ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
 import {Icon, type IconName} from '../Icon'
-import {ROW_HEIGHT} from '../Toggle/rowHeight'
+import {SIZES_PX} from '@duro-app/tokens/keys'
 
 const meta: Meta = {
   title: 'Components/Drawer/Scroll',
@@ -282,11 +282,11 @@ export const CoarsePointerRows: Story = {
     await cdpSend('Emulation.setTouchEmulationEnabled', {enabled: true, maxTouchPoints: 1})
     await waitFor(() => expect(matchMedia('(pointer: coarse)').matches).toBe(true))
     const viewport = getViewport()
-    const expected = 3.5 * ROW_HEIGHT.coarse + 3 * 4 + 2 * 4
+    const expected = 3.5 * SIZES_PX.touchTarget + 3 * 4 + 2 * 4
     await waitFor(() => expect(Math.abs(viewport.clientHeight - expected)).toBeLessThanOrEqual(2))
     const toggle = viewport.querySelector('button')!.getBoundingClientRect()
-    // exact: Toggle's styles repeat ROW_HEIGHT, and a drift must fail here
-    await expect(Math.abs(toggle.height - ROW_HEIGHT.coarse)).toBeLessThanOrEqual(0.5)
-    await expect(toggle.width).toBeGreaterThanOrEqual(ROW_HEIGHT.coarse)
+    // exact: Toggle's styles read the same size tokens, and a drift must fail here
+    await expect(Math.abs(toggle.height - SIZES_PX.touchTarget)).toBeLessThanOrEqual(0.5)
+    await expect(toggle.width).toBeGreaterThanOrEqual(SIZES_PX.touchTarget)
   },
 }

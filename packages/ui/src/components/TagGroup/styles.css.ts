@@ -3,6 +3,8 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -31,7 +33,7 @@ export const styles = css.create({
   },
   input: {
     width: '100%',
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: {
       default: colors.border,
@@ -47,13 +49,13 @@ export const styles = css.create({
     paddingBottom: spacing.sm,
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
-    minHeight: 40,
+    minHeight: sizes.controlLg,
     transitionProperty: 'border-color',
     transitionDuration: duration.fast,
     transitionTimingFunction: easing.standard,
     outlineWidth: {
       default: 0,
-      ':focus': 2,
+      ':focus': borders.focusRing,
     },
     outlineStyle: {
       default: 'none',
@@ -65,7 +67,7 @@ export const styles = css.create({
     },
     outlineOffset: {
       default: 0,
-      ':focus': 1,
+      ':focus': borders.focusOffsetSm,
     },
     boxSizing: 'border-box',
   },

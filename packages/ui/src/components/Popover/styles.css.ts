@@ -4,6 +4,7 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   trigger: {
@@ -21,7 +22,7 @@ export const styles = css.create({
       default: 'transparent',
       ':hover': colors.bgCardHover,
     },
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,
@@ -35,7 +36,7 @@ export const styles = css.create({
     left: 0,
     boxSizing: 'border-box',
     backgroundColor: colors.bgCard,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,

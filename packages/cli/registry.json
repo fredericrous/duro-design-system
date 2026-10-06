@@ -4826,7 +4826,7 @@
               "type": "boolean"
             },
             {
-              "default": "120",
+              "default": "SIZES_PX.labelMinW",
               "description": "Minimum width (px) each flexible column keeps before the table scrolls horizontally rather than crushing its cells. Columns still share the row evenly (`minmax(<minColumnWidth>px, 1fr)`); this is only the floor. Raise it for roomier columns (more scrolling), lower it to fit more before scrolling. Columns with an explicit `width` are unaffected. Default 120.",
               "name": "minColumnWidth",
               "required": false,
@@ -5118,7 +5118,7 @@
               "type": "boolean"
             },
             {
-              "default": "120",
+              "default": "SIZES_PX.labelMinW",
               "description": "Minimum width (px) each flexible column keeps before the table scrolls horizontally rather than crushing its cells. Columns still share the row evenly (`minmax(<minColumnWidth>px, 1fr)`); this is only the floor. Raise it for roomier columns (more scrolling), lower it to fit more before scrolling. Columns with an explicit `width` are unaffected. Default 120.",
               "name": "minColumnWidth",
               "required": false,
@@ -6368,7 +6368,7 @@
           "type": "number"
         },
         {
-          "default": "44",
+          "default": "SIZES_PX.touchTarget",
           "description": "Estimated row height for the virtualizer. Default 44.",
           "name": "estimateRowHeight",
           "required": false,

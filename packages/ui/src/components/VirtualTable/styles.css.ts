@@ -1,7 +1,8 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   wrap: {
@@ -11,7 +12,7 @@ export const styles = css.create({
   scroll: {
     position: 'relative',
     width: '100%',
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.md,
@@ -32,7 +33,7 @@ export const styles = css.create({
   headRow: {
     display: 'flex',
     flexDirection: 'row',
-    borderBottomWidth: 1,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
   },
@@ -71,7 +72,7 @@ export const styles = css.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    borderBottomWidth: 1,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
   },
@@ -124,7 +125,7 @@ export const styles = css.create({
     gap: spacing.xs,
     width: '100%',
     padding: spacing.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,
@@ -161,13 +162,13 @@ export const styles = css.create({
     position: 'absolute',
     right: spacing.sm,
     bottom: spacing.sm,
-    paddingTop: 3,
-    paddingBottom: 3,
+    paddingTop: microSpacing.px3,
+    paddingBottom: microSpacing.px3,
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
     borderRadius: radii.full,
     backgroundColor: colors.bgCardHover,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     color: colors.textMuted,

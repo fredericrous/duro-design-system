@@ -1,6 +1,7 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -9,7 +10,7 @@ export const styles = css.create({
     backgroundColor: colors.bgCard,
   },
   bordered: {
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
   },
@@ -23,7 +24,7 @@ export const styles = css.create({
     paddingRight: spacing.lg,
     paddingBottom: spacing.lg,
     gap: spacing.md,
-    borderBottomWidth: 1,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
   },
@@ -53,7 +54,7 @@ export const styles = css.create({
     paddingBottom: spacing.md,
     paddingLeft: spacing.lg,
     paddingRight: spacing.lg,
-    borderTopWidth: 1,
+    borderTopWidth: borders.hairline,
     borderTopStyle: 'solid',
     borderTopColor: colors.border,
   },

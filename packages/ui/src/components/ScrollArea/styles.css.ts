@@ -1,7 +1,8 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 export const styles = css.create({
   root: {
@@ -34,21 +35,21 @@ export const styles = css.create({
     top: 0,
     right: 0,
     bottom: 0,
-    width: 8,
+    width: sizes.scrollbar,
     flexDirection: 'column',
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingRight: 2,
+    paddingTop: microSpacing.px2,
+    paddingBottom: microSpacing.px2,
+    paddingRight: microSpacing.px2,
   },
   scrollbarHorizontal: {
     left: 0,
     right: 0,
     bottom: 0,
-    height: 8,
+    height: sizes.scrollbar,
     flexDirection: 'row',
-    paddingLeft: 2,
-    paddingRight: 2,
-    paddingBottom: 2,
+    paddingLeft: microSpacing.px2,
+    paddingRight: microSpacing.px2,
+    paddingBottom: microSpacing.px2,
   },
   scrollbarHidden: {
     opacity: 0,

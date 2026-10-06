@@ -52,4 +52,22 @@ export default [
       parserOptions: {sourceType: 'module', ecmaFeatures: {jsx: true}},
     },
   },
+  {
+    // Every measure is a token (ADR-0027, design-system.every-measure-is-a-token),
+    // in component internals too. Only this one rule: the rest of
+    // `recommended` stays off component internals, as above. The
+    // visually-hidden module is the rule's one named exemption.
+    files: ['packages/ui/src/**/*.{ts,tsx}'],
+    plugins: {duro},
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {sourceType: 'module', ecmaFeatures: {jsx: true}},
+    },
+    rules: {
+      'duro/no-raw-design-values': [
+        'error',
+        {exemptFiles: ['packages/ui/src/styles/visually-hidden.css.ts']},
+      ],
+    },
+  },
 ]

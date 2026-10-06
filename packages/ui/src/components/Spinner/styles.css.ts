@@ -1,5 +1,8 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {easing} from '@duro-app/tokens/tokens/motion.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const spin = css.keyframes({
   '0%': {transform: 'rotate(0deg)'},
@@ -19,23 +22,23 @@ export const styles = css.create({
     borderTopColor: colors.accent,
     animationName: spin,
     animationDuration: '0.6s',
-    animationTimingFunction: 'linear',
+    animationTimingFunction: easing.linear,
     animationIterationCount: 'infinite',
   },
   sm: {
-    width: 16,
-    height: 16,
-    borderWidth: 2,
+    width: sizes.spinnerSm,
+    height: sizes.spinnerSm,
+    borderWidth: borders.strong,
   },
   md: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
+    width: sizes.spinnerMd,
+    height: sizes.spinnerMd,
+    borderWidth: borders.strong,
   },
   lg: {
-    width: 40,
-    height: 40,
-    borderWidth: 3,
+    width: sizes.spinnerLg,
+    height: sizes.spinnerLg,
+    borderWidth: borders.accent,
   },
   // Layered on visuallyHidden.base.
   srOnly: {

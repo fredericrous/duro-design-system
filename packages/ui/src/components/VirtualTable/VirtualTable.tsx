@@ -13,6 +13,7 @@ import {
 import {useVirtualizer} from '@tanstack/react-virtual'
 import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
 import {styles} from './styles.css'
+import {SIZES_PX} from '@duro-app/tokens/keys'
 
 // Measure + commit before paint on the client; no-op-safe on the server.
 const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
@@ -94,7 +95,7 @@ export function VirtualTable<TData>({
   onVisiblePageChange,
   rangeLabel,
   pageSize = 50,
-  estimateRowHeight = 44,
+  estimateRowHeight = SIZES_PX.touchTarget,
   maxHeight = '70vh',
   virtualizeThreshold = 150,
   stackBelow = 'sm',

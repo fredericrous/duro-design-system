@@ -3,12 +3,13 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   wrapper: {
     display: 'flex',
     alignItems: 'stretch',
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: {
       default: colors.border,
@@ -35,12 +36,12 @@ export const styles = css.create({
     borderWidth: 0,
   },
   addonStart: {
-    borderRightWidth: 1,
+    borderRightWidth: borders.hairline,
     borderRightStyle: 'solid',
     borderRightColor: colors.border,
   },
   addonEnd: {
-    borderLeftWidth: 1,
+    borderLeftWidth: borders.hairline,
     borderLeftStyle: 'solid',
     borderLeftColor: colors.border,
   },

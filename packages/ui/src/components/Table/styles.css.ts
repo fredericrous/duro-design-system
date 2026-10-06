@@ -5,6 +5,7 @@ import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 // Container-query thresholds, from the shared breakpoint scale. `sm` (640px)
 // is the single "card up" line used across every table (Table + VirtualTable);
@@ -43,17 +44,17 @@ export const styles = css.create({
     cursor: 'pointer',
     outlineWidth: {
       default: 0,
-      ':focus-visible': 2,
+      ':focus-visible': borders.focusRing,
     },
     outlineStyle: 'solid',
     outlineColor: colors.accent,
-    outlineOffset: -2,
+    outlineOffset: borders.focusOffset,
   },
 
   // Root — the single grid container for the table itself
   root: {
     display: 'grid',
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.md,
@@ -84,7 +85,7 @@ export const styles = css.create({
     // The card-list look needs the outer border to disappear in stack
     // mode — each row paints its own border.
     borderWidth: {
-      default: 1,
+      default: borders.hairline,
       [`@container (max-width: ${STACK_BP})`]: 0,
     },
     backgroundColor: {
@@ -130,7 +131,7 @@ export const styles = css.create({
       [`@container (max-width: ${STACK_BP})`]: '1fr',
     },
     borderBottomWidth: {
-      default: 1,
+      default: borders.hairline,
       [`@container (max-width: ${STACK_BP})`]: 0,
     },
     borderBottomStyle: 'solid',
@@ -314,7 +315,7 @@ export const styles = css.create({
   // Variant: bordered (cells get side borders). Suppressed in stack.
   borderedCell: {
     borderRightWidth: {
-      default: 1,
+      default: borders.hairline,
       [`@container (max-width: ${STACK_BP})`]: 0,
     },
     borderRightStyle: 'solid',

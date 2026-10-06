@@ -4,7 +4,7 @@ import {css, html} from 'react-strict-dom'
 import {ToggleGroup} from './ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
 import {Icon, type IconName} from '../Icon'
-import {ROW_HEIGHT} from '../Toggle/rowHeight'
+import {SIZES_PX} from '@duro-app/tokens/keys'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
@@ -269,10 +269,10 @@ export const FiveIcons: Story = {
   render: () => <IconChoices names={ICON_NAMES.slice(0, 5)} pressed={ICON_NAMES[0]} />,
   play: async ({canvas}) => {
     const group = canvas.getByRole('toolbar')
-    await expect(group.getBoundingClientRect().height).toBe(ROW_HEIGHT.small)
-    // exact: Toggle's styles repeat ROW_HEIGHT, and a drift must fail here
+    await expect(group.getBoundingClientRect().height).toBe(SIZES_PX.controlSm)
+    // exact: Toggle's styles read the same size tokens, and a drift must fail here
     const toggle = canvas.getAllByRole('button')[0].getBoundingClientRect()
-    await expect(Math.abs(toggle.height - ROW_HEIGHT.small)).toBeLessThanOrEqual(0.5)
+    await expect(Math.abs(toggle.height - SIZES_PX.controlSm)).toBeLessThanOrEqual(0.5)
   },
 }
 
@@ -312,6 +312,6 @@ export const DefaultSizeRows: Story = {
   ),
   play: async ({canvas}) => {
     const toggle = canvas.getAllByRole('button')[0].getBoundingClientRect()
-    await expect(Math.abs(toggle.height - ROW_HEIGHT.default)).toBeLessThanOrEqual(0.5)
+    await expect(Math.abs(toggle.height - SIZES_PX.controlMd)).toBeLessThanOrEqual(0.5)
   },
 }

@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   base: {
@@ -15,7 +16,7 @@ export const styles = css.create({
     fontWeight: typography.fontWeightMedium,
     lineHeight: typography.lineHeight,
     borderRadius: radii.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     cursor: 'pointer',
     transitionProperty: 'background-color, border-color, color, opacity, transform',
@@ -34,7 +35,7 @@ export const styles = css.create({
     },
     outlineWidth: {
       default: 0,
-      ':focus-visible': 2,
+      ':focus-visible': borders.focusRing,
     },
     outlineStyle: {
       default: 'none',
@@ -46,7 +47,7 @@ export const styles = css.create({
     },
     outlineOffset: {
       default: 0,
-      ':focus-visible': 2,
+      ':focus-visible': borders.focusOffset,
     },
   },
   sizeDefault: {
@@ -98,12 +99,12 @@ export const styles = css.create({
   },
   inverseSecondary: {
     backgroundColor: {
-      default: 'rgba(0, 0, 0, 0.10)',
-      ':hover': 'rgba(0, 0, 0, 0.18)',
+      default: colors.inverseFill,
+      ':hover': colors.inverseFillHover,
     },
     borderColor: {
-      default: 'rgba(0, 0, 0, 0.55)',
-      ':hover': 'rgba(0, 0, 0, 0.70)',
+      default: colors.inverseBorder,
+      ':hover': colors.inverseBorderHover,
     },
     color: colors.accentContrast,
   },

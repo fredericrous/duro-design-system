@@ -1,9 +1,11 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
-import {easing} from '@duro-app/tokens/tokens/motion.css'
+import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const enter = css.keyframes({
   from: {opacity: 0, transform: 'translateY(10px)'},
@@ -31,17 +33,17 @@ export const styles = css.create({
     pointerEvents: 'auto',
     boxSizing: 'border-box',
     width: '100%',
-    maxWidth: 440,
+    maxWidth: sizes.toastMaxW,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
     padding: spacing.md,
     borderRadius: radii.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
-    borderLeftWidth: 3,
+    borderLeftWidth: borders.accent,
     backgroundColor: colors.bgCard,
     boxShadow: shadows.lg,
     color: colors.text,
@@ -51,7 +53,7 @@ export const styles = css.create({
       default: enter,
       '@media (prefers-reduced-motion: reduce)': 'none',
     },
-    animationDuration: '160ms',
+    animationDuration: duration.brisk,
     animationTimingFunction: easing.easeOut,
   },
   success: {borderLeftColor: colors.successBorder},
@@ -63,7 +65,7 @@ export const styles = css.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 1,
+    paddingTop: microSpacing.px1,
   },
   iconSuccess: {color: colors.successText},
   iconError: {color: colors.errorText},
@@ -74,14 +76,14 @@ export const styles = css.create({
     minWidth: 0,
     display: 'flex',
     flexDirection: 'column',
-    gap: 2,
+    gap: microSpacing.px2,
   },
   message: {
     color: colors.text,
   },
   action: {
     alignSelf: 'flex-start',
-    marginTop: 2,
+    marginTop: microSpacing.px2,
     padding: 0,
     borderWidth: 0,
     backgroundColor: 'transparent',
@@ -91,9 +93,9 @@ export const styles = css.create({
     textDecorationLine: 'underline',
     cursor: 'pointer',
     outlineStyle: {default: 'none', ':focus-visible': 'solid'},
-    outlineWidth: 2,
+    outlineWidth: borders.focusRing,
     outlineColor: colors.accent,
-    outlineOffset: 2,
+    outlineOffset: borders.focusOffset,
     borderRadius: radii.sm,
   },
   closeBtn: {
@@ -101,7 +103,7 @@ export const styles = css.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 2,
+    padding: microSpacing.px2,
     marginTop: -1,
     borderWidth: 0,
     backgroundColor: 'transparent',
@@ -109,8 +111,8 @@ export const styles = css.create({
     cursor: 'pointer',
     borderRadius: radii.sm,
     outlineStyle: {default: 'none', ':focus-visible': 'solid'},
-    outlineWidth: 2,
+    outlineWidth: borders.focusRing,
     outlineColor: colors.accent,
-    outlineOffset: 1,
+    outlineOffset: borders.focusOffsetSm,
   },
 })

@@ -1,6 +1,6 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 export const styles = css.create({
@@ -22,8 +22,8 @@ export const styles = css.create({
     fontSize: typography.fontSizeXs,
   },
   sizeSm: {
-    paddingTop: 2,
-    paddingBottom: 2,
+    paddingTop: microSpacing.px2,
+    paddingBottom: microSpacing.px2,
     paddingLeft: spacing.xs,
     paddingRight: spacing.xs,
     fontSize: '0.625rem',
