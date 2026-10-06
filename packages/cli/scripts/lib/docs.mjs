@@ -55,6 +55,14 @@ function tokensRegion(registry) {
     '### Border Radius',
     '',
     table(registry.tokens.groups.radii),
+    '',
+    '### Sizes',
+    '',
+    table(registry.tokens.groups.sizes),
+    '',
+    '### Borders',
+    '',
+    table(registry.tokens.groups.borders),
   ].join('\n')
 }
 

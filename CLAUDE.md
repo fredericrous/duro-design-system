@@ -311,6 +311,67 @@ const MySchema = Schema.Struct({
 | `lg` | 16px |
 | `full` | 9999px |
 
+### Sizes
+
+| Token | Value |
+| --- | --- |
+| `touchTarget` | 44px |
+| `controlSm` | 28px |
+| `controlMd` | 39px |
+| `controlLg` | 40px |
+| `indicator` | 18px |
+| `indicatorDot` | 8px |
+| `checkMarkW` | 5px |
+| `checkMarkH` | 9px |
+| `switchTrackW` | 36px |
+| `switchTrackH` | 20px |
+| `switchThumb` | 16px |
+| `iconButton` | 32px |
+| `iconButtonSm` | 28px |
+| `spinnerSm` | 16px |
+| `spinnerMd` | 24px |
+| `spinnerLg` | 40px |
+| `glyphXs` | 10px |
+| `glyphSm` | 12px |
+| `glyphMd` | 16px |
+| `iconSm` | 16px |
+| `iconMd` | 18px |
+| `iconLg` | 24px |
+| `iconXl` | 36px |
+| `iconXxl` | 48px |
+| `navMarkerW` | 3px |
+| `navMarkerH` | 18px |
+| `scrollbar` | 8px |
+| `swatchW` | 44px |
+| `swatchH` | 34px |
+| `labelMinW` | 120px |
+| `popupMinW` | 160px |
+| `listMaxH` | 280px |
+| `listMaxHSm` | 200px |
+| `dialogSm` | 400px |
+| `dialogMd` | 520px |
+| `dialogLg` | 680px |
+| `panelSm` | 360px |
+| `panelMd` | 480px |
+| `panelLg` | 640px |
+| `toastMaxW` | 440px |
+| `gridColSm` | 240px |
+| `gridColMd` | 280px |
+| `pageSm` | 600px |
+| `pageMd` | 800px |
+| `pageLg` | 1200px |
+
+### Borders
+
+| Token | Value |
+| --- | --- |
+| `hairline` | 1px |
+| `strong` | 2px |
+| `accent` | 3px |
+| `focusRing` | 2px |
+| `focusOffset` | 2px |
+| `focusOffsetSm` | 1px |
+
 <!-- duro:generated:tokens END -->
 
 ### Typography Presets

@@ -1,6 +1,13 @@
 import {readFileSync} from 'node:fs'
 import {describe, expect, it} from 'vitest'
-import {SPACING_PX, RADII_PX, ICON_SIZES, DURATION_MS} from '@duro-app/tokens/keys'
+import {
+  SPACING_PX,
+  RADII_PX,
+  SIZES_PX,
+  BORDERS_PX,
+  ICON_SIZES,
+  DURATION_MS,
+} from '@duro-app/tokens/keys'
 import type {Registry} from '../src/registry-types.js'
 
 const registry = JSON.parse(
@@ -86,6 +93,16 @@ describe('token drift', () => {
   it('radii matches keys', () => {
     expect(asMap(groups.radii)).toEqual(
       Object.fromEntries(Object.entries(RADII_PX).map(([token, px]) => [token, `${px}px`])),
+    )
+  })
+  it('sizes match keys, in key order', () => {
+    expect(groups.sizes.entries).toEqual(
+      Object.entries(SIZES_PX).map(([key, px]) => ({key, value: `${px}px`})),
+    )
+  })
+  it('borders match keys, in key order', () => {
+    expect(groups.borders.entries).toEqual(
+      Object.entries(BORDERS_PX).map(([key, px]) => ({key, value: `${px}px`})),
     )
   })
   it('icon sizes match keys', () => {

@@ -34,6 +34,34 @@ function constValue(project, file, exportName) {
   return staticEval(decl.getInitializerOrThrow(), `${file}#${exportName}`)
 }
 
+/**
+ * keys.ts derives ICON_SIZES from SIZES_PX (`sm: SIZES_PX.iconSm`, …), which
+ * staticEval can't follow — so resolve the property accesses here and return
+ * the same plain object the literal used to evaluate to.
+ */
+export function iconSizesValue(project) {
+  const sourceFile = project.getSourceFileOrThrow(join(repoRoot, TOKENS, 'keys.ts'))
+  const sizes = constValue(project, 'keys.ts', 'SIZES_PX')
+  const init = sourceFile.getVariableDeclarationOrThrow('ICON_SIZES').getInitializerOrThrow()
+  const object = Node.isAsExpression(init) ? init.getExpression() : init
+  if (!Node.isObjectLiteralExpression(object)) {
+    throw new Error('keys.ts: expected ICON_SIZES to be an object literal')
+  }
+  const out = {}
+  for (const prop of object.getProperties()) {
+    if (!Node.isPropertyAssignment(prop)) {
+      throw new Error(`keys.ts#ICON_SIZES: unsupported member ${prop.getKindName()}`)
+    }
+    const value = prop.getInitializerOrThrow()
+    const match = /^SIZES_PX\.(\w+)$/.exec(value.getText())
+    if (!match || !(match[1] in sizes)) {
+      throw new Error(`keys.ts#ICON_SIZES.${prop.getName()}: expected SIZES_PX.<key>`)
+    }
+    out[prop.getName()] = sizes[match[1]]
+  }
+  return out
+}
+
 function scaleGroup(importPath, exportName, values) {
   return {
     importPath,
@@ -51,7 +79,7 @@ export function extractTokenUnions(project) {
   const radiusKeys = constValue(project, 'keys.ts', 'RADIUS_KEYS')
   const shadowKeys = constValue(project, 'keys.ts', 'SHADOW_KEYS')
   const durations = constValue(project, 'keys.ts', 'DURATION_MS')
-  const iconSizes = constValue(project, 'keys.ts', 'ICON_SIZES')
+  const iconSizes = iconSizesValue(project)
   const breakpoints = constValue(project, 'tokens/breakpoints.css.ts', 'breakpointsPx')
   return {
     SpacingToken: spacingKeys,
@@ -72,8 +100,10 @@ export function extractTokens(project) {
   const easing = callArg(project, 'tokens/motion.css.ts', 'easing')
   const layoutSpacing = callArg(project, 'tokens/layout-spacing.css.ts', 'layoutSpacing')
   const typography = callArg(project, 'tokens/typography.css.ts', 'typography')
+  const sizes = callArg(project, 'tokens/sizes.css.ts', 'sizes')
+  const borders = callArg(project, 'tokens/borders.css.ts', 'borders')
   const breakpoints = constValue(project, 'tokens/breakpoints.css.ts', 'breakpointsPx')
-  const iconSizes = constValue(project, 'keys.ts', 'ICON_SIZES')
+  const iconSizes = iconSizesValue(project)
   const typePresetKeys = callArgKeys(project, 'tokens/type-presets.css.ts', 'typePresets')
 
   const dark = constValue(project, 'raw.ts', 'darkColors')
@@ -84,6 +114,8 @@ export function extractTokens(project) {
     groups: {
       spacing: scaleGroup('@duro-app/tokens/tokens/spacing.css', 'spacing', spacing),
       radii: scaleGroup('@duro-app/tokens/tokens/spacing.css', 'radii', radii),
+      sizes: scaleGroup('@duro-app/tokens/tokens/sizes.css', 'sizes', sizes),
+      borders: scaleGroup('@duro-app/tokens/tokens/borders.css', 'borders', borders),
       shadows: scaleGroup('@duro-app/tokens/tokens/shadows.css', 'shadows', shadows),
       motion: {
         importPath: '@duro-app/tokens/tokens/motion.css',

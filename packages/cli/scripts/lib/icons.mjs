@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {repoRoot} from './project.mjs'
-import {staticEval} from './static-eval.mjs'
+import {iconSizesValue} from './tokens.mjs'
 
 /**
  * IconName members grouped by the `//` comments inside the union — the same
@@ -32,11 +32,7 @@ export function extractIcons(project) {
   const names = groups.flatMap((group) => group.names)
   if (names.length === 0) throw new Error(`parsed zero IconName members from ${iconFile}`)
 
-  const keysFile = project.getSourceFileOrThrow(join(repoRoot, 'packages/tokens/src/keys.ts'))
-  const sizes = staticEval(
-    keysFile.getVariableDeclarationOrThrow('ICON_SIZES').getInitializerOrThrow(),
-    'keys.ts#ICON_SIZES',
-  )
+  const sizes = iconSizesValue(project)
 
   return {names, sizes, groups}
 }

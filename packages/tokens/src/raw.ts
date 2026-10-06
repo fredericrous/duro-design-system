@@ -39,6 +39,98 @@ export type RawColors = {
   infoText: string
 }
 
+// Numeric maps for consumers that load only the compiled `/raw` entry (e.g.
+// ui-email, which cannot read CSS variables or the TypeScript `/keys` source).
+// Copies of the keys.ts maps; check-token-drift.mjs fails if they diverge.
+export const SPACING_PX = {
+  xs: 4,
+  sm: 8,
+  ms: 12,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
+  xxxl: 64,
+} as const
+
+export const RADII_PX = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  full: 9999,
+} as const
+
+export const FONT_SIZE_REM = {
+  fontSizeXs: 0.75,
+  fontSizeSm: 0.875,
+  fontSizeMd: 1,
+  fontSizeLg: 1.125,
+  fontSizeXl: 1.25,
+  fontSizeHeading: 1.5,
+} as const
+
+export const BORDERS_PX = {
+  hairline: 1,
+  strong: 2,
+  accent: 3,
+  focusRing: 2,
+  focusOffset: 2,
+  focusOffsetSm: 1,
+} as const
+
+export const SIZES_PX = {
+  touchTarget: 44,
+  controlSm: 28,
+  controlMd: 39,
+  controlLg: 40,
+  indicator: 18,
+  indicatorDot: 8,
+  checkMarkW: 5,
+  checkMarkH: 9,
+  switchTrackW: 36,
+  switchTrackH: 20,
+  switchThumb: 16,
+  iconButton: 32,
+  iconButtonSm: 28,
+  spinnerSm: 16,
+  spinnerMd: 24,
+  spinnerLg: 40,
+  glyphXs: 10,
+  glyphSm: 12,
+  glyphMd: 16,
+  iconSm: 16,
+  iconMd: 18,
+  iconLg: 24,
+  iconXl: 36,
+  iconXxl: 48,
+  navMarkerW: 3,
+  navMarkerH: 18,
+  scrollbar: 8,
+  swatchW: 44,
+  swatchH: 34,
+  labelMinW: 120,
+  popupMinW: 160,
+  listMaxH: 280,
+  listMaxHSm: 200,
+  dialogSm: 400,
+  dialogMd: 520,
+  dialogLg: 680,
+  panelSm: 360,
+  panelMd: 480,
+  panelLg: 640,
+  toastMaxW: 440,
+  gridColSm: 240,
+  gridColMd: 280,
+  pageSm: 600,
+  pageMd: 800,
+  pageLg: 1200,
+} as const
+
+// Email-only measures: no CSS variable (mail clients cannot read them) and not
+// a lint candidate, so it is deliberately absent from keys.ts.
+export const EMAIL_PX = {emailCardW: 520, trackingPixel: 1} as const
+
 // Dark theme — matches the defaults in `tokens/colors.css.ts`.
 export const darkColors: RawColors = {
   bg: '#0f0f0f',

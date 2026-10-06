@@ -32,13 +32,15 @@
     "./raw": {
       "source": "./src/raw.ts",
       "import": "./dist/raw.js",
-      "types": "./src/raw.ts",
+      "types": "./dist/raw.d.ts",
       "default": "./dist/raw.js"
     },
     "./keys": "./src/keys.ts",
     "./tokens/breakpoints.css": "./src/tokens/breakpoints.css.ts",
     "./tokens/colors.css": "./src/tokens/colors.css.ts",
     "./tokens/spacing.css": "./src/tokens/spacing.css.ts",
+    "./tokens/sizes.css": "./src/tokens/sizes.css.ts",
+    "./tokens/borders.css": "./src/tokens/borders.css.ts",
     "./tokens/typography.css": "./src/tokens/typography.css.ts",
     "./tokens/layout-spacing.css": "./src/tokens/layout-spacing.css.ts",
     "./tokens/shadows.css": "./src/tokens/shadows.css.ts",

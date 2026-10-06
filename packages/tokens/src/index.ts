@@ -2,6 +2,8 @@
 export {breakpoints, breakpointsPx, type Breakpoint} from './tokens/breakpoints.css'
 export {colors} from './tokens/colors.css'
 export {spacing, radii} from './tokens/spacing.css'
+export {sizes} from './tokens/sizes.css'
+export {borders} from './tokens/borders.css'
 export {layoutSpacing} from './tokens/layout-spacing.css'
 export {typography, typeScale} from './tokens/typography.css'
 export {typePresets} from './tokens/type-presets.css'
