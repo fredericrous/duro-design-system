@@ -263,3 +263,107 @@ export const RADII_PROPERTIES = new Set([
   'borderEndStartRadius',
   'borderEndEndRadius',
 ])
+
+/** Style properties whose lengths map to the sizes scale. */
+export const SIZE_PROPERTIES = new Set([
+  'width',
+  'height',
+  'minWidth',
+  'maxWidth',
+  'minHeight',
+  'maxHeight',
+  'flexBasis',
+  'blockSize',
+  'inlineSize',
+  'minBlockSize',
+  'maxBlockSize',
+  'minInlineSize',
+  'maxInlineSize',
+])
+
+/** Longhands holding a border width, an outline width or an outline offset. */
+export const BORDER_WIDTH_PROPERTIES = new Set([
+  'borderWidth',
+  'borderTopWidth',
+  'borderRightWidth',
+  'borderBottomWidth',
+  'borderLeftWidth',
+  'borderBlockWidth',
+  'borderInlineWidth',
+  'borderBlockStartWidth',
+  'borderBlockEndWidth',
+  'borderInlineStartWidth',
+  'borderInlineEndWidth',
+  'outlineWidth',
+  'outlineOffset',
+])
+
+/** Shorthands whose string value carries a width (`1px solid red`). */
+export const BORDER_SHORTHAND_PROPERTIES = new Set([
+  'border',
+  'borderTop',
+  'borderRight',
+  'borderBottom',
+  'borderLeft',
+  'borderBlock',
+  'borderInline',
+  'borderBlockStart',
+  'borderBlockEnd',
+  'borderInlineStart',
+  'borderInlineEnd',
+  'outline',
+])
+
+/**
+ * px value → every sizes token at that value, in key order. A list, because
+ * several tokens share a value (44, 28, 40, 18, 8, 36, 16, 24, 280).
+ */
+export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
+  44: ['touchTarget', 'swatchW'],
+  28: ['controlSm', 'iconButtonSm'],
+  39: ['controlMd'],
+  40: ['controlLg', 'spinnerLg'],
+  18: ['indicator', 'iconMd', 'navMarkerH'],
+  8: ['indicatorDot', 'scrollbar'],
+  5: ['checkMarkW'],
+  9: ['checkMarkH'],
+  36: ['switchTrackW', 'iconXl'],
+  20: ['switchTrackH'],
+  16: ['switchThumb', 'spinnerSm', 'glyphMd', 'iconSm'],
+  32: ['iconButton'],
+  24: ['spinnerMd', 'iconLg'],
+  10: ['glyphXs'],
+  12: ['glyphSm'],
+  48: ['iconXxl'],
+  3: ['navMarkerW'],
+  34: ['swatchH'],
+  120: ['labelMinW'],
+  160: ['popupMinW'],
+  280: ['listMaxH', 'gridColMd'],
+  200: ['listMaxHSm'],
+  400: ['dialogSm'],
+  520: ['dialogMd'],
+  680: ['dialogLg'],
+  360: ['panelSm'],
+  480: ['panelMd'],
+  640: ['panelLg'],
+  440: ['toastMaxW'],
+  240: ['gridColSm'],
+  600: ['pageSm'],
+  800: ['pageMd'],
+  1200: ['pageLg'],
+}
+
+/** px value → every borders token at that value, in key order. */
+export const BORDER_TOKENS_BY_PX: Record<number, string[]> = {
+  1: ['hairline', 'focusOffsetSm'],
+  2: ['strong', 'focusRing', 'focusOffset'],
+  3: ['accent'],
+}
+
+/** Borders tokens a width longhand (or the width in a border shorthand) may use. */
+export const BORDER_WIDTH_TOKENS = ['hairline', 'strong', 'accent']
+/** Borders tokens `outlineWidth` (or the width in `outline`) may use. */
+export const OUTLINE_WIDTH_TOKENS = ['focusRing']
+/** Borders tokens `outlineOffset` may use. */
+export const OUTLINE_OFFSET_TOKENS = ['focusOffset', 'focusOffsetSm']

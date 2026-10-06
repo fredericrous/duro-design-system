@@ -4,6 +4,8 @@ import {css, html} from 'react-strict-dom'
 import {Tag} from './Tag'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta<typeof Tag> = {
   title: 'Components/Tag',
@@ -53,8 +55,8 @@ const layoutStyles = css.create({
   stack: {display: 'flex', flexDirection: 'column', gap: spacing.md},
   // Narrow column that a long identifier tag would overflow without `wrap`.
   narrowCol: {
-    width: 120,
-    borderWidth: 1,
+    width: sizes.labelMinW,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     padding: spacing.sm,

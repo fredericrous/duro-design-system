@@ -8,6 +8,8 @@ import {Button} from '../Button/Button'
 import {Checkbox} from '../Checkbox/Checkbox'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {radii} from '@duro-app/tokens/tokens/spacing.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/List',
@@ -73,8 +75,8 @@ export const Default: Story = {
 
 const narrowContainer = css.create({
   box: {
-    maxWidth: 360,
-    borderWidth: 1,
+    maxWidth: sizes.panelSm,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,

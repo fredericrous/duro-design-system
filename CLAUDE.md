@@ -607,6 +607,8 @@ import {css, html} from 'react-strict-dom'
 import {Field, Input, Fieldset, Button, Stack, Heading} from '@duro-app/ui'
 import {Form} from '@duro-app/ui/form'
 
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+
 const LoginSchema = Schema.Struct({
   username: Schema.String.pipe(
     Schema.minLength(3, {message: () => 'Username must be at least 3 characters'}),
@@ -617,7 +619,7 @@ const LoginSchema = Schema.Struct({
 })
 
 const styles = css.create({
-  wrap: {maxWidth: 400},
+  wrap: {maxWidth: sizes.dialogSm},
 })
 
 export function LoginFormRecipe() {

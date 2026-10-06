@@ -6,6 +6,7 @@ import {Toggle} from '../Toggle/Toggle'
 import {Icon, type IconName} from '../Icon'
 import {ROW_HEIGHT} from '../Toggle/rowHeight'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta<typeof ToggleGroup> = {
   title: 'Components/ToggleGroup',
@@ -207,7 +208,7 @@ const ICON_NAMES: IconName[] = [
 ]
 
 const iconStyles = css.create({
-  frame: {width: 320},
+  frame: {width: sizes.panelSm},
 })
 
 function IconChoices({

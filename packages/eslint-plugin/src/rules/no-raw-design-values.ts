@@ -1,5 +1,9 @@
 import type {TSESLint, TSESTree} from '@typescript-eslint/utils'
 import {
+  BORDER_SHORTHAND_PROPERTIES,
+  BORDER_TOKENS_BY_PX,
+  BORDER_WIDTH_PROPERTIES,
+  BORDER_WIDTH_TOKENS,
   BREAKPOINT_TOKENS_BY_PX,
   COLOR_TOKENS,
   COLOR_TOKENS_NORMALIZED,
@@ -7,15 +11,20 @@ import {
   EASING_TOKENS,
   FONT_SIZE_TOKENS_BY_REM,
   FONT_WEIGHT_TOKENS,
+  OUTLINE_OFFSET_TOKENS,
+  OUTLINE_WIDTH_TOKENS,
   RADII_PROPERTIES,
   RADII_TOKENS_BY_PX,
   SHADOW_TOKENS,
+  SIZE_PROPERTIES,
+  SIZE_TOKENS_BY_PX,
   SPACING_PROPERTIES,
   SPACING_TOKENS_BY_PX,
   normalizeHex,
   normalizeValue,
 } from '../util/tokens.js'
 import {ensureNamedImport} from '../util/imports.js'
+import {matchesAnyGlob} from '../util/glob.js'
 
 type MessageIds =
   | 'rawColorToken'
@@ -30,12 +39,16 @@ type MessageIds =
   | 'rawShadow'
   | 'rawDuration'
   | 'rawEasing'
+  | 'rawMeasure'
+  | 'ambiguousMeasure'
+  | 'missingMeasureToken'
   | 'replaceWithToken'
 type Options = [
   {
     factories?: string[]
     spacingProperties?: string[]
     radiiProperties?: string[]
+    exemptFiles?: string[]
   }?,
 ]
 
@@ -49,6 +62,35 @@ const FONT_WEIGHT_PROPERTIES = new Set(['fontWeight'])
 const SHADOW_PROPERTIES = new Set(['boxShadow'])
 const DURATION_PROPERTIES = new Set(['transitionDuration', 'animationDuration'])
 const EASING_PROPERTIES = new Set(['transitionTimingFunction', 'animationTimingFunction'])
+
+const PX_RE = /^(-?)(\d+(?:\.\d+)?)px$/
+const STATIC_PX_RE = /\d+(?:\.\d+)?px/
+
+type MeasureGroup = 'sizes' | 'borders'
+interface Measure {
+  group: MeasureGroup
+  candidates: (px: number) => string[]
+}
+
+const borderCandidates = (allowed: string[]) => (px: number) =>
+  (BORDER_TOKENS_BY_PX[px] ?? []).filter((token) => allowed.includes(token))
+
+/** Which token set a measure property draws from; null for any other property. */
+function measureFor(property: string): Measure | null {
+  if (SIZE_PROPERTIES.has(property)) {
+    return {group: 'sizes', candidates: (px) => SIZE_TOKENS_BY_PX[px] ?? []}
+  }
+  if (property === 'outlineOffset') {
+    return {group: 'borders', candidates: borderCandidates(OUTLINE_OFFSET_TOKENS)}
+  }
+  if (property === 'outlineWidth' || property === 'outline') {
+    return {group: 'borders', candidates: borderCandidates(OUTLINE_WIDTH_TOKENS)}
+  }
+  if (BORDER_WIDTH_PROPERTIES.has(property) || BORDER_SHORTHAND_PROPERTIES.has(property)) {
+    return {group: 'borders', candidates: borderCandidates(BORDER_WIDTH_TOKENS)}
+  }
+  return null
+}
 
 const scale = (table: Record<number, string>) =>
   Object.keys(table)
@@ -72,9 +114,21 @@ const scale = (table: Record<number, string>) =>
  *   duration and timing function: a literal suggests its token when one
  *   matches, else reports.
  *
- * Skipped on purpose: 0, negatives (UnaryExpression), shorthands ('8px 16px',
- * 'opacity 150ms'), identifiers, member expressions, template literals and
- * calls — the rule reads literals, not expressions.
+ * - sizes and border widths: a px length on width/height (and min/max,
+ *   flexBasis, block/inline size), on border*Width / outlineWidth /
+ *   outlineOffset and on the width inside a border* / outline shorthand,
+ *   negatives included. Each property has its own candidate tokens (sizes.*,
+ *   borders hairline/strong/accent, focusRing, focusOffset/focusOffsetSm); one
+ *   match suggests it, several list them without a fix, none says to add a
+ *   token. Percent, viewport, em/rem/ch, keywords and calc() without a px are
+ *   fine.
+ *
+ * Option `exemptFiles` (globs) silences the rule for whole files.
+ *
+ * Skipped on purpose: 0, negatives on the spacing properties, shorthands
+ * ('8px 16px', 'opacity 150ms'), identifiers, member expressions, template
+ * literals and calls — the rule reads literals, not expressions (the size and
+ * border-width properties also read static px text in template literals).
  */
 export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
   defaultOptions: [{}],
@@ -82,7 +136,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
     type: 'suggestion',
     docs: {
       description:
-        'Prefer design tokens over raw colors, lengths, breakpoints, type, shadows and motion in css.create styles',
+        'Prefer design tokens over raw colors, lengths, sizes, border widths, breakpoints, type, shadows and motion in css.create styles',
     },
     hasSuggestions: true,
     schema: [
@@ -92,6 +146,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           factories: {type: 'array', items: {type: 'string'}, uniqueItems: true},
           spacingProperties: {type: 'array', items: {type: 'string'}, uniqueItems: true},
           radiiProperties: {type: 'array', items: {type: 'string'}, uniqueItems: true},
+          exemptFiles: {type: 'array', items: {type: 'string'}, uniqueItems: true},
         },
         additionalProperties: false,
       },
@@ -121,6 +176,12 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         "'{{value}}' on `{{property}}` is a raw duration. Use `duration.{{token}}` from {{pkg}}/tokens/motion.css.",
       rawEasing:
         "'{{value}}' on `{{property}}` is a raw easing. Use `easing.{{token}}` from {{pkg}}/tokens/motion.css.",
+      rawMeasure:
+        '{{value}} on `{{property}}` is the {{tokens}} token. Use it from {{pkg}}/tokens/{{group}}.css.',
+      ambiguousMeasure:
+        '{{value}} on `{{property}}` matches several {{group}} tokens ({{tokens}}). Pick the one that says what this measure is, from {{pkg}}/tokens/{{group}}.css.',
+      missingMeasureToken:
+        '{{value}} on `{{property}}` has no token. Add a token (design-system.a-missing-token-is-added-not-approximated) instead of using a raw value.',
       replaceWithToken: 'Replace with {{replacement}}',
     },
   },
@@ -134,6 +195,8 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
       ? new Set(options.radiiProperties)
       : RADII_PROPERTIES
     const sourceCode = context.sourceCode
+    const exemptFiles = options.exemptFiles ?? []
+    if (matchesAnyGlob(context.filename, context.cwd, exemptFiles)) return {}
 
     function calleeText(node: TSESTree.CallExpression): string {
       return sourceCode.getText(node.callee)
@@ -163,6 +226,87 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           },
         },
       ]
+    }
+
+    /**
+     * A px length on a size / border-width property. `fixable` is off for the
+     * width inside a shorthand, where a swap would have to rewrite the string.
+     */
+    function checkMeasure(
+      node: TSESTree.Node,
+      property: string,
+      measure: Measure,
+      px: number,
+      negative: boolean,
+      display: string,
+      fixable: boolean,
+    ) {
+      if (px === 0) return
+      const candidates = measure.candidates(px)
+      const data = {
+        value: display,
+        property,
+        group: measure.group,
+        tokens: candidates.map((token) => `${measure.group}.${token}`).join(', '),
+        pkg: TOKENS_PKG,
+      }
+      if (candidates.length === 0) {
+        context.report({node, messageId: 'missingMeasureToken', data})
+      } else if (candidates.length > 1) {
+        context.report({node, messageId: 'ambiguousMeasure', data})
+      } else {
+        const token = candidates[0]!
+        context.report({
+          node,
+          messageId: 'rawMeasure',
+          data,
+          suggest: fixable
+            ? suggestReplacement(
+                node,
+                `${measure.group}.${token}`,
+                measure.group,
+                `tokens/${measure.group}.css`,
+                negative ? (local) => `\`calc(-1 * \${${local}.${token}})\`` : undefined,
+              )
+            : [],
+        })
+      }
+    }
+
+    /** Static text holding a `<number>px` inside calc() or a template literal. */
+    function checkStaticPx(node: TSESTree.Node, property: string, text: string, display: string) {
+      if (STATIC_PX_RE.test(text)) {
+        context.report({
+          node,
+          messageId: 'missingMeasureToken',
+          data: {value: display, property},
+        })
+      }
+    }
+
+    function checkMeasureString(
+      node: TSESTree.Node,
+      property: string,
+      measure: Measure,
+      value: string,
+    ) {
+      const text = value.trim()
+      const display = `'${value}'`
+      const px = PX_RE.exec(text)
+      if (px) {
+        checkMeasure(node, property, measure, Number(px[2]), px[1] === '-', display, true)
+        return
+      }
+      if (BORDER_SHORTHAND_PROPERTIES.has(property)) {
+        // The width is a bare px word outside any function call.
+        const words = text.replace(/\([^)]*\)/g, ' ').split(/\s+/)
+        const width = words.map((word) => PX_RE.exec(word)).find(Boolean)
+        if (width) {
+          checkMeasure(node, property, measure, Number(width[2]), false, display, false)
+        }
+        return
+      }
+      if (/\bcalc\(/.test(text)) checkStaticPx(node, property, text, display)
     }
 
     function checkColorValue(node: TSESTree.Node, raw: string) {
@@ -318,6 +462,34 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
     }
 
     function checkValue(node: TSESTree.Node, property: string | null) {
+      const measure = property ? measureFor(property) : null
+      if (property && measure) {
+        if (node.type === 'Literal' && typeof node.value === 'number') {
+          checkMeasure(node, property, measure, node.value, false, String(node.value), true)
+          return
+        }
+        if (
+          node.type === 'UnaryExpression' &&
+          node.operator === '-' &&
+          node.argument.type === 'Literal' &&
+          typeof node.argument.value === 'number' &&
+          !BORDER_SHORTHAND_PROPERTIES.has(property)
+        ) {
+          const px = node.argument.value
+          checkMeasure(node, property, measure, px, true, `-${px}`, true)
+          return
+        }
+        if (node.type === 'TemplateLiteral') {
+          const text = node.quasis.map((q) => q.value.cooked ?? q.value.raw).join('')
+          checkStaticPx(node, property, text, sourceCode.getText(node))
+          return
+        }
+        if (node.type === 'Literal' && typeof node.value === 'string') {
+          checkColorValue(node, node.value)
+          checkMeasureString(node, property, measure, node.value)
+          return
+        }
+      }
       if (node.type === 'Literal') {
         if (typeof node.value === 'string') {
           if (property && SHADOW_PROPERTIES.has(property)) {

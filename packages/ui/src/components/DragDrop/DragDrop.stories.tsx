@@ -11,6 +11,7 @@ import {Tag} from '../Tag/Tag'
 import {Text} from '../Text/Text'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const meta: Meta<typeof DragDrop.Root> = {
   title: 'Interaction/DragDrop',
@@ -24,7 +25,7 @@ const localStyles = css.create({
   zone: {
     padding: spacing.md,
     minHeight: spacing.xxl,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'dashed',
     borderColor: colors.border,
     borderRadius: radii.sm,

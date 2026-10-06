@@ -22,12 +22,13 @@ import {
   getPaginationRowModel,
   type SortingState,
   type ColumnFiltersState,
-  type PaginationState,
 } from '@tanstack/react-table'
 import {useDataTable} from './useDataTable'
 import {Combobox} from '../Combobox/Combobox'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/Table',
@@ -247,7 +248,6 @@ function CheckboxTableDemo() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
   const allSelected = items.length > 0 && items.every((i) => selected.has(i.id))
-  const someSelected = items.some((i) => selected.has(i.id))
 
   const toggleAll = () => {
     if (allSelected) {
@@ -893,11 +893,11 @@ const responsiveStyles = css.create({
   resizable: {
     resize: 'horizontal',
     overflow: 'auto',
-    minWidth: '320px',
+    minWidth: sizes.panelSm,
     maxWidth: '100%',
-    width: '900px',
+    width: sizes.pageMd,
     padding: spacing.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'dashed',
     borderColor: colors.border,
   },
@@ -1149,11 +1149,11 @@ export const SlotPropsOnRoot: Story = {
 const respStyles = css.create({
   // 8 columns × 120px floor = 960px min. At 800px the grid overflows → the
   // wrapper scrolls sideways, but it's still tabular (above 640).
-  scrollDense: {width: 800},
+  scrollDense: {width: sizes.pageMd},
   // Same table at 1120px: 960 < 1120, so it fits with no scrollbar.
-  roomy: {width: 1120},
+  roomy: {width: sizes.pageLg},
   // Below the 640px card breakpoint → cards.
-  phone: {width: 560},
+  phone: {width: sizes.pageSm},
 })
 
 const LONG_EMAIL = 'a-really-long-service-account.address@subdomain.example-company.com'

@@ -13,7 +13,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
   valid: [
     wrap('padding: spacing.md'),
     // Off the property allowlist — same numbers, different meaning
-    wrap('width: 16, top: 8, borderWidth: 1, lineHeight: 1.5'),
+    wrap('top: 8, zIndex: 16, lineHeight: 1.5'),
     // No token equivalent: zero, negatives, shorthands
     wrap("padding: 0, margin: -8, gap: '8px 16px', transition: 'opacity 150ms'"),
     wrap('color: colors.text, fontSize: typography.fontSizeMd, boxShadow: shadows.sm'),
@@ -21,10 +21,212 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     wrap("fontSize: 11, fontWeight: 'bold', boxShadow: 'none'"),
     // Not a css.create argument
     'const styles = {s: {padding: 16}}',
+    // Sizes and border widths: exemptions and tokens
+    wrap("width: 0, minWidth: '0', height: '0px', width: '100%', maxHeight: '85vh'"),
+    wrap(
+      "width: 'auto', height: 'fit-content', flexBasis: '10rem', maxWidth: '60ch', width: '2em'",
+    ),
+    wrap('width: sizes.touchTarget, borderWidth: borders.hairline, outlineOffset: -0'),
+    wrap('width: `calc(100% - ${spacing.md})`'),
+    wrap("width: 'calc(100% - 2rem)'"),
+    wrap('outlineOffset: `calc(-1 * ${borders.focusOffset})`'),
+    wrap('border: `${borders.hairline} solid ${colors.border}`'),
+    wrap("border: 'none', outline: 0, borderTop: 'inherit'"),
+    {
+      code: wrap('width: 1'),
+      filename: 'packages/ui/src/styles/visually-hidden.css.ts',
+      options: [{exemptFiles: ['packages/ui/src/styles/visually-hidden.css.ts']}],
+    },
+    {
+      code: wrap('width: 1'),
+      filename: '/repo/packages/ui/src/styles/a.css.ts',
+      options: [{exemptFiles: ['**/styles/*.css.{ts,tsx}']}],
+    },
     // Breakpoint already read from the const
     'css.create({s: {[`@media (min-width: ${breakpoints.md})`]: {padding: spacing.xl}}})',
   ],
   invalid: [
+    {
+      code: wrap('width: 44'),
+      errors: [
+        {
+          messageId: 'ambiguousMeasure',
+          data: {
+            value: '44',
+            property: 'width',
+            group: 'sizes',
+            tokens: 'sizes.touchTarget, sizes.swatchW',
+            pkg: '@duro-app/tokens',
+          },
+          suggestions: [],
+        },
+      ],
+    },
+    {
+      code: wrap("minHeight: '28px'"),
+      errors: [
+        {
+          messageId: 'ambiguousMeasure',
+          data: {
+            value: "'28px'",
+            property: 'minHeight',
+            group: 'sizes',
+            tokens: 'sizes.controlSm, sizes.iconButtonSm',
+            pkg: '@duro-app/tokens',
+          },
+          suggestions: [],
+        },
+      ],
+    },
+    {
+      code: wrap('width: 16'),
+      errors: [{messageId: 'ambiguousMeasure', suggestions: []}],
+    },
+    {
+      code: wrap('maxWidth: 520'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('maxWidth: sizes.dialogMd'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap('width: 1'),
+      errors: [{messageId: 'missingMeasureToken', suggestions: []}],
+    },
+    {
+      code: wrap('borderWidth: 2'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                wrap('borderWidth: borders.strong'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap("borderTopWidth: '1px'"),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                wrap('borderTopWidth: borders.hairline'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap('outlineWidth: 2'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                wrap('outlineWidth: borders.focusRing'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap('outlineOffset: 2'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                wrap('outlineOffset: borders.focusOffset'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap('outlineOffset: -2'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                wrap('outlineOffset: `calc(-1 * ${borders.focusOffset})`'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap("outlineOffset: '-1px'"),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                wrap('outlineOffset: `calc(-1 * ${borders.focusOffsetSm})`'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap('marginLeft: -8, width: -44'),
+      errors: [{messageId: 'ambiguousMeasure', suggestions: []}],
+    },
+    {
+      code: wrap("border: '1px solid red'"),
+      errors: [{messageId: 'rawMeasure', suggestions: []}],
+    },
+    {
+      code: wrap("outline: '3px solid rgba(1, 2, 3, 0.5)'"),
+      errors: [
+        {messageId: 'rawColor', suggestions: []},
+        {messageId: 'missingMeasureToken', suggestions: []},
+      ],
+    },
+    {
+      code: wrap("width: 'calc(100% - 8px)'"),
+      errors: [{messageId: 'missingMeasureToken', suggestions: []}],
+    },
+    {
+      code: wrap('width: `calc(100% - ${spacing.md} - 8px)`'),
+      errors: [{messageId: 'missingMeasureToken', suggestions: []}],
+    },
+    {
+      code: wrap('width: 1'),
+      filename: 'packages/ui/src/styles/x.css.ts',
+      options: [{exemptFiles: ['packages/ui/src/styles/visually-hidden.css.ts']}],
+      errors: [{messageId: 'missingMeasureToken', suggestions: []}],
+    },
     {
       code: wrap('gap: 24'),
       errors: [

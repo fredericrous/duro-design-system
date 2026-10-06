@@ -7,6 +7,8 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta<typeof ThemeProvider> = {
   title: 'Theme/ThemeProvider',
@@ -27,7 +29,7 @@ const sampleStyles = css.create({
   card: {
     padding: spacing.md,
     backgroundColor: colors.bgCard,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.md,
@@ -53,10 +55,10 @@ const sampleStyles = css.create({
     flexWrap: 'wrap',
   },
   swatch: {
-    width: 48,
-    height: 48,
+    width: sizes.iconXxl,
+    height: sizes.iconXxl,
     borderRadius: radii.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
   },
@@ -131,7 +133,7 @@ const sideBySideStyles = css.create({
   },
   column: {
     flex: 1,
-    minWidth: 280,
+    minWidth: sizes.gridColMd,
   },
   label: {
     fontSize: typography.fontSizeSm,

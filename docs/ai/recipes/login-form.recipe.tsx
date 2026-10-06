@@ -8,6 +8,7 @@ import {Button} from '../../../packages/ui/src/components/Button/Button'
 import {Stack} from '../../../packages/ui/src/components/Stack/Stack'
 import {Heading} from '../../../packages/ui/src/components/Heading/Heading'
 import type {ComponentMeta} from '../types'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const LoginSchema = Schema.Struct({
   username: Schema.String.pipe(
@@ -19,7 +20,7 @@ const LoginSchema = Schema.Struct({
 })
 
 const styles = css.create({
-  wrap: {maxWidth: 400},
+  wrap: {maxWidth: sizes.dialogSm},
 })
 
 export function LoginFormRecipe() {

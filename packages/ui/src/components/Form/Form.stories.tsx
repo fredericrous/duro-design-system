@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn, userEvent, within} from 'storybook/test'
+import {expect, fn, userEvent} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Schema} from 'effect'
 import {Form} from './Form'
@@ -9,6 +9,7 @@ import {Input} from '../Input/Input'
 import {Textarea} from '../Textarea/Textarea'
 import {Fieldset} from '../Fieldset/Fieldset'
 import {Button} from '../Button/Button'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/Form',
@@ -48,8 +49,8 @@ const ProfileSchema = Schema.Struct({
 })
 
 const wrapStyles = css.create({
-  wrap: {maxWidth: 400},
-  wrapWide: {maxWidth: 600},
+  wrap: {maxWidth: sizes.dialogSm},
+  wrapWide: {maxWidth: sizes.pageSm},
 })
 
 // --- Stories ---

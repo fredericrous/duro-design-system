@@ -12,6 +12,7 @@ import {Field} from '../Field/Field'
 import {Select} from '../Select/Select'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const meta: Meta = {
   title: 'Components/Dialog',
@@ -334,7 +335,7 @@ const barStyles = css.create({
   bar: {
     transform: 'translateZ(0)',
     padding: spacing.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
   },
