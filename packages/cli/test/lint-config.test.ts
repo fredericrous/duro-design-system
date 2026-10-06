@@ -1,6 +1,8 @@
 import {fileURLToPath} from 'node:url'
 import {ESLint} from 'eslint'
-import {describe, expect, it} from 'vitest'
+import {spawnSync} from 'node:child_process'
+import {existsSync} from 'node:fs'
+import {beforeAll, describe, expect, it} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {TOKEN_DEEP_PATHS} from '../../eslint-plugin/src/util/tokens.js'
 
@@ -9,6 +11,17 @@ import {TOKEN_DEEP_PATHS} from '../../eslint-plugin/src/util/tokens.js'
 // this lints seeded code at real paths through the real config.
 const root = fileURLToPath(new URL('../../..', import.meta.url))
 const eslint = new ESLint({cwd: root, overrideConfigFile: `${root}/eslint.config.js`})
+
+// eslint.config.js imports the BUILT plugin (as `pnpm lint` does after its
+// build step); a clean checkout has no dist yet, so build it once here.
+beforeAll(() => {
+  if (existsSync(`${root}/packages/eslint-plugin/dist/index.js`)) return
+  const build = spawnSync('pnpm', ['--filter', '@duro-app/eslint-plugin', 'run', 'build'], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+  if (build.status !== 0) throw new Error(`eslint-plugin build failed: ${build.stderr}`)
+}, 120_000)
 const seeded = `import {css} from 'react-strict-dom'\nexport const s = css.create({a: {width: 44}})\n`
 const hidden = `import {css} from 'react-strict-dom'\nexport const s = css.create({a: {width: 1, height: 1}})\n`
 
