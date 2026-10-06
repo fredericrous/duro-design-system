@@ -1060,6 +1060,11 @@
         "example": "<Combobox.Root name=\"country\" defaultValue=\"us\" initialLabels={{us: 'United States'}}>\n  <Combobox.Input placeholder=\"Search countries…\" />\n  <Combobox.Popup>\n    <Combobox.Item value=\"us\">United States</Combobox.Item>\n    <Combobox.Item value=\"gb\">United Kingdom</Combobox.Item>\n    <Combobox.Item value=\"fr\">France</Combobox.Item>\n    <Combobox.Item value=\"de\">Germany</Combobox.Item>\n    <Combobox.Empty>No countries found</Combobox.Empty>\n  </Combobox.Popup>\n</Combobox.Root>",
         "relatedTo": [
           {
+            "component": "Popover",
+            "kind": "composition",
+            "relationship": "Inside Popover.Popup a Combobox keeps the popover open while you choose; Escape closes only the list"
+          },
+          {
             "component": "Select",
             "kind": "contrast",
             "relationship": "Select for short lists without search; Combobox for long filterable lists"
@@ -3770,7 +3775,7 @@
           {
             "component": "Select",
             "kind": "composition",
-            "relationship": "A Select (or Combobox) inside Popover.Popup keeps the popover open while you choose; its backdrop press closes only the list"
+            "relationship": "A Select or Combobox inside Popover.Popup keeps the popover open while you choose; a Select backdrop press closes only its list"
           },
           {
             "component": "Field",
@@ -3788,7 +3793,7 @@
         "whenToUse": [
           "A small form or controls tied to one element that stay open while you work in them",
           "Anchoring to a spot that is not a button (a canvas point, a text selection) with a virtual anchor",
-          "Holding a Select or Combobox: their portalled list counts as inside the popover, so choosing an item keeps it open, and Escape closes the nested list before the popover"
+          "Holding a Select or Combobox: their portalled list counts as inside the popover, so choosing an item keeps it open; Escape closes an open Select, Combobox or Menu before the popover"
         ]
       },
       "name": "Popover",
@@ -4134,6 +4139,11 @@
         "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it).",
         "example": "<Select.Root name=\"role\" defaultValue=\"viewer\">\n  <Select.Trigger>\n    <Select.Value placeholder=\"Select role\" />\n    <Select.Icon />\n  </Select.Trigger>\n  <Select.Popup>\n    <Select.Item value=\"admin\">Admin</Select.Item>\n    <Select.Item value=\"editor\">Editor</Select.Item>\n    <Select.Item value=\"viewer\">Viewer</Select.Item>\n  </Select.Popup>\n</Select.Root>",
         "relatedTo": [
+          {
+            "component": "Popover",
+            "kind": "composition",
+            "relationship": "Inside Popover.Popup a Select keeps the popover open while you choose; its backdrop press and Escape close only the list"
+          },
           {
             "component": "Menu",
             "kind": "contrast",

@@ -6,7 +6,7 @@ export const meta: ComponentMeta = {
   whenToUse: [
     'A small form or controls tied to one element that stay open while you work in them',
     'Anchoring to a spot that is not a button (a canvas point, a text selection) with a virtual anchor',
-    'Holding a Select or Combobox: their portalled list counts as inside the popover, so choosing an item keeps it open, and Escape closes the nested list before the popover',
+    'Holding a Select or Combobox: their portalled list counts as inside the popover, so choosing an item keeps it open; Escape closes an open Select, Combobox or Menu before the popover',
   ],
   whenNotToUse: [
     'A list of actions — use Menu',
@@ -52,7 +52,7 @@ export const meta: ComponentMeta = {
       component: 'Select',
       kind: 'composition',
       relationship:
-        'A Select (or Combobox) inside Popover.Popup keeps the popover open while you choose; its backdrop press closes only the list',
+        'A Select or Combobox inside Popover.Popup keeps the popover open while you choose; a Select backdrop press closes only its list',
     },
     {
       component: 'Field',

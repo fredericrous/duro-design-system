@@ -19,6 +19,12 @@ export const meta: ComponentMeta = {
   },
   relatedTo: [
     {
+      component: 'Popover',
+      kind: 'composition',
+      relationship:
+        'Inside Popover.Popup a Combobox keeps the popover open while you choose; Escape closes only the list',
+    },
+    {
       component: 'Select',
       kind: 'contrast',
       relationship: 'Select for short lists without search; Combobox for long filterable lists',
