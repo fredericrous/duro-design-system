@@ -709,4 +709,11 @@ Input → expected → actual. Evidence is under
     Falsified: an injected type error is caught.
 11. **Preview:** pending the person's approval before the push.
 
+## Implementation review
+
+- **Verdict:** approve, after round 1 (approve-with-changes: 8 findings, 128k, 211 s) and a Delta (48k, 41 s).
+- **Fixed:** canvas exemption (person's ruling: seed it via a variable); a smoke tsc failure now fails; render count asserted; README; real-config lint test; deep-path test; prop count; GridTrack holds-until.
+- **Follow-up, older than this branch:** the mockup check skips custom-property definitions outside the token block (`--x: 44px`).
+- **Status:** Phase 2 is implemented. Next: merge, then 2f, the v5.0.0 tag (`tag-release`); the plan closes there.
+
 <!-- panel: repos=duro-design-system,decisions reviewers=backend body-sha=f5006c2288ec -->
