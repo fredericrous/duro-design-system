@@ -42,10 +42,27 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       filename: '/repo/packages/ui/src/styles/a.css.ts',
       options: [{exemptFiles: ['**/styles/*.css.{ts,tsx}']}],
     },
+    wrap("gridTemplateColumns: 'minmax(0, 2fr) 1fr'"),
+    wrap('gridTemplateColumns: `minmax(${sizes.gridColSm}, 1fr) minmax(0, 2fr)`'),
+    wrap("gridTemplateColumns: 'repeat(auto-fill, minmax(20%, 1fr))', gridAutoRows: 'auto'"),
     // Breakpoint already read from the const
     'css.create({s: {[`@media (min-width: ${breakpoints.md})`]: {padding: spacing.xl}}})',
   ],
   invalid: [
+    {
+      code: wrap("gridTemplateColumns: 'minmax(240px, 1fr) minmax(0, 2fr)'"),
+      errors: [{messageId: 'rawTrack'}],
+    },
+    {
+      code: wrap(
+        "gridTemplateColumns: {default: '1fr', '@media (prefers-reduced-motion: reduce)': 'minmax(280px, 1fr)'}",
+      ),
+      errors: [{messageId: 'rawTrack'}],
+    },
+    {
+      code: wrap('gridAutoRows: `minmax(${sizes.controlSm}, 44px)`'),
+      errors: [{messageId: 'rawTrack'}],
+    },
     {
       code: wrap('width: 44'),
       errors: [

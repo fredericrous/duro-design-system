@@ -44,6 +44,7 @@ type MessageIds =
   | 'rawMeasure'
   | 'ambiguousMeasure'
   | 'missingMeasureToken'
+  | 'rawTrack'
   | 'replaceWithToken'
 type Options = [
   {
@@ -67,6 +68,12 @@ const EASING_PROPERTIES = new Set(['transitionTimingFunction', 'animationTimingF
 
 const PX_RE = /^(-?)(\d+(?:\.\d+)?)px$/
 const STATIC_PX_RE = /\d+(?:\.\d+)?px/
+const TRACK_PROPERTIES = new Set([
+  'gridTemplateColumns',
+  'gridTemplateRows',
+  'gridAutoColumns',
+  'gridAutoRows',
+])
 
 type MeasureGroup = 'sizes' | 'borders'
 interface Measure {
@@ -186,6 +193,8 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         '{{value}} on `{{property}}` matches several {{group}} tokens ({{tokens}}). Pick the one that says what this measure is, from {{pkg}}/tokens/{{group}}.css.',
       missingMeasureToken:
         '{{value}} on `{{property}}` has no token. Add a token (design-system.a-missing-token-is-added-not-approximated) instead of using a raw value.',
+      rawTrack:
+        '{{value}} on `{{property}}` sizes a track in px. Put a size token inside it: `minmax(${sizes.gridColSm}, 1fr)` from {{pkg}}/tokens/sizes.css.',
       replaceWithToken: 'Replace with {{replacement}}',
     },
   },
@@ -481,6 +490,24 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
     }
 
     function checkValue(node: TSESTree.Node, property: string | null) {
+      // Grid tracks: a px anywhere in the track list is a raw size, the same
+      // as on width (`'minmax(240px, 1fr)'`). Fractions, % and tokens pass.
+      if (property && TRACK_PROPERTIES.has(property)) {
+        const text =
+          node.type === 'Literal' && typeof node.value === 'string'
+            ? node.value
+            : node.type === 'TemplateLiteral'
+              ? node.quasis.map((q) => q.value.cooked ?? q.value.raw).join(' ')
+              : null
+        if (text !== null && /(?<![\w.-])[1-9]\d*(?:\.\d+)?px\b/.test(text)) {
+          context.report({
+            node,
+            messageId: 'rawTrack',
+            data: {value: sourceCode.getText(node), property, pkg: TOKENS_PKG},
+          })
+        }
+        if (node.type !== 'ObjectExpression') return
+      }
       const measure = property ? measureFor(property) : null
       if (property && measure) {
         if (node.type === 'Literal' && typeof node.value === 'number') {
