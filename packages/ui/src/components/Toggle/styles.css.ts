@@ -21,6 +21,8 @@ export const styles = css.create({
     outlineStyle: 'solid',
     outlineColor: colors.accent,
     outlineOffset: 2,
+    minWidth: {default: null, '@media (pointer: coarse)': 44},
+    minHeight: {default: null, '@media (pointer: coarse)': 44},
   },
   sizeDefault: {
     padding: `${spacing.sm} ${spacing.md}`,
@@ -33,6 +35,16 @@ export const styles = css.create({
     fontSize: typography.fontSizeXs,
     borderRadius: radii.sm,
     gap: spacing.xs,
+  },
+  // wrapped toggles: a fixed block size per size, 44px under a coarse pointer.
+  // Must equal ROW_HEIGHT in ./rowHeight (StyleX cannot import it here).
+  wrappedDefault: {
+    boxSizing: 'border-box',
+    height: {default: 39, '@media (pointer: coarse)': 44},
+  },
+  wrappedSmall: {
+    boxSizing: 'border-box',
+    height: {default: 28, '@media (pointer: coarse)': 44},
   },
   unpressed: {
     backgroundColor: {

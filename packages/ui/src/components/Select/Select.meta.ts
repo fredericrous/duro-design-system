@@ -18,6 +18,12 @@ export const meta: ComponentMeta = {
   },
   relatedTo: [
     {
+      component: 'Popover',
+      kind: 'composition',
+      relationship:
+        'Inside Popover.Popup a Select keeps the popover open while you choose; its backdrop press and Escape close only the list',
+    },
+    {
       component: 'Menu',
       kind: 'contrast',
       relationship: 'Menu triggers actions; Select picks a value',

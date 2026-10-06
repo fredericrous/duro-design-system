@@ -10,6 +10,12 @@ export interface ToggleGroupContextValue {
   disabled: boolean
   orientation: Orientation
   size: ToggleSize
+  /** Items wrap onto rows with their own borders (and roving focus). */
+  wrap: boolean
+  /** The item holding the group's single tab stop (wrap only). */
+  tabStopValue: string | null
+  register: (itemValue: string, el: HTMLElement) => () => void
+  onItemFocus: (itemValue: string) => void
 }
 
 export const ToggleGroupContext = createContext<ToggleGroupContextValue | null>(null)

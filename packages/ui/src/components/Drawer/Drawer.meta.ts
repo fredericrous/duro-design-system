@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Use for secondary workflows, settings panels, or mobile-friendly detail views.',
+    'Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). Use for secondary workflows, settings panels, or mobile-friendly detail views.',
   whenToUse: [
     'Settings or configuration panels that slide in from the side',
     'Mobile-friendly detail views (bottom sheet pattern)',

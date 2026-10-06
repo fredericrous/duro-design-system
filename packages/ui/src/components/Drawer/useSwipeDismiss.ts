@@ -21,7 +21,12 @@ interface UseSwipeDismissOptions {
   anchor: DrawerAnchor
   enabled: boolean
   onDismiss: () => void
-  panelRef: React.RefObject<HTMLDivElement | null>
+  /**
+   * The panel element itself, not a ref: a Drawer open from its first render
+   * draws the panel inline, then remounts it into the portal once the mount
+   * exists, and listeners must follow the element that is actually shown.
+   */
+  panel: HTMLDivElement | null
 }
 
 interface SwipeState {
@@ -32,6 +37,9 @@ interface SwipeState {
   startTime: number
   swiping: boolean
   panelSize: number
+  /** Inner Duro scroll viewport the gesture started in; capture is deferred until the axis is decided */
+  deferredScroll: HTMLElement | null
+  pointerId: number
 }
 
 /**
@@ -41,7 +49,7 @@ interface SwipeState {
  * Opposite direction: iOS-style — panel stays anchored, shows subtle
  * overscroll feedback (box-shadow intensifies), then snaps back.
  */
-export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipeDismissOptions) {
+export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDismissOptions) {
   const stateRef = useRef<SwipeState>({
     startX: 0,
     startY: 0,
@@ -50,6 +58,8 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
     startTime: 0,
     swiping: false,
     panelSize: 0,
+    deferredScroll: null,
+    pointerId: 0,
   })
 
   const isHorizontal = anchor === 'left' || anchor === 'right'
@@ -169,14 +179,18 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
   }, [])
 
   useEffect(() => {
-    if (!enabled) return
-    const panel = panelRef.current
-    if (!panel) return
+    if (!enabled || !panel) return
 
     function handlePointerDown(e: PointerEvent) {
       if (e.button !== 0) return
       const target = e.target as HTMLElement
-      if (target.closest('button, a, input, textarea, select, [role="button"]')) {
+      const scrollEl = target.closest<HTMLElement>('[data-duro-scroll]')
+      // Outside a ScrollArea a control keeps its press. Inside one the gesture
+      // is decided on the first move even from a control: a list of toggles is
+      // all buttons, and touch adjustment snaps a finger onto one. A tap
+      // (under the 8px slop) still presses it; a drag never captures before
+      // the decision, so the release lands on the panel, not the control.
+      if (!scrollEl && target.closest('button, a, input, textarea, select, [role="button"]')) {
         return
       }
 
@@ -190,12 +204,28 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
       state.swiping = false
       state.panelSize = isHorizontal ? rect.width : rect.height
 
+      state.pointerId = e.pointerId
+      state.deferredScroll = scrollEl
+
       panel!.dataset.panelSize = String(state.panelSize)
-      panel!.setPointerCapture(e.pointerId)
+
+      // Inside a Duro ScrollArea the scroll may own the gesture: wait for the first move.
+      if (!state.deferredScroll) beginCapture(e.pointerId)
+    }
+
+    function beginCapture(pointerId: number) {
+      panel!.setPointerCapture(pointerId)
 
       // Freeze CSS animation — we take over positioning.
       // Never restore it; the panel is already at its final resting position.
       panel!.style.animation = 'none'
+    }
+
+    /** True when the viewport can't scroll further against the dismiss direction */
+    function isAtDismissEdge(el: HTMLElement) {
+      if (!isHorizontal) return el.scrollTop <= 0
+      if (anchor === 'right') return el.scrollLeft <= 0
+      return el.scrollLeft + el.clientWidth >= el.scrollWidth - 1
     }
 
     function handlePointerMove(e: PointerEvent) {
@@ -219,7 +249,20 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
         } else {
           // Wrong axis — abort gesture
           state.startTime = 0
+          state.deferredScroll = null
           return
+        }
+
+        const scrollEl = state.deferredScroll
+        if (scrollEl) {
+          state.deferredScroll = null
+          if (getMovement(state) <= 0 || !isAtDismissEdge(scrollEl)) {
+            // The scroll owns this gesture: no swiping, no capture, no preventDefault
+            state.swiping = false
+            state.startTime = 0
+            return
+          }
+          beginCapture(state.pointerId)
         }
       }
 
@@ -239,6 +282,7 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
       const velocity = movement / elapsed
 
       state.startTime = 0
+      state.deferredScroll = null
 
       if (!state.swiping) {
         return
@@ -266,6 +310,7 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
       const state = stateRef.current
       state.startTime = 0
       state.swiping = false
+      state.deferredScroll = null
       resetStyles(panel!)
     }
 
@@ -290,7 +335,7 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panelRef}: UseSwipe
     }
   }, [
     enabled,
-    panelRef,
+    panel,
     anchor,
     isHorizontal,
     getMovement,

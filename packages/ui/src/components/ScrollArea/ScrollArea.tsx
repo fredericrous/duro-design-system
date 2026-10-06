@@ -1,4 +1,4 @@
-import {type ReactNode, useRef, useCallback} from 'react'
+import {type ComponentProps, type ReactNode, useRef, useCallback} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {ScrollAreaContext, useScrollArea} from './ScrollAreaContext'
@@ -25,19 +25,25 @@ function Root({children}: RootProps) {
 interface ViewportProps {
   children: ReactNode
   maxHeight?: number | string
+  /** Extra styles for the viewport (e.g. a pointer-aware max height). */
+  style?: ComponentProps<typeof html.div>['style']
+  /** A roving-focus group owns the keyboard: drop the viewport's own tab stop
+   *  and region role. */
+  rovingOwner?: boolean
 }
 
-function Viewport({children, maxHeight}: ViewportProps) {
+function Viewport({children, maxHeight, style, rovingOwner = false}: ViewportProps) {
   const {viewportRef, viewportId} = useScrollArea()
 
   return (
     <html.div
       ref={viewportRef}
       id={viewportId}
-      tabIndex={0}
-      role="region"
-      aria-label="Scrollable content"
-      style={[styles.viewport, maxHeight != null && styles.viewportMaxHeight(maxHeight)]}
+      data-duro-scroll=""
+      tabIndex={rovingOwner ? undefined : 0}
+      role={rovingOwner ? undefined : 'region'}
+      aria-label={rovingOwner ? undefined : 'Scrollable content'}
+      style={[styles.viewport, maxHeight != null && styles.viewportMaxHeight(maxHeight), style]}
     >
       {children}
     </html.div>

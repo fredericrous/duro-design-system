@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Toggle button with pressed/unpressed state. Works standalone or within ToggleGroup for multi/single selection.',
+    'Toggle button with pressed/unpressed state. Works standalone or within ToggleGroup for multi/single selection. Under a coarse pointer (touch) every Toggle is at least 44×44px; in a wrapping ToggleGroup each keeps its own border and a fixed row height.',
   whenToUse: [
     'Toolbar buttons that toggle on/off (bold, italic, grid view)',
     'Within ToggleGroup for selecting from visible options',

@@ -3,6 +3,8 @@ import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ToggleGroup} from './ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
+import {Icon, type IconName} from '../Icon'
+import {ROW_HEIGHT} from '../Toggle/rowHeight'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof ToggleGroup> = {
@@ -156,5 +158,159 @@ export const AllVariants: Story = {
   play: async ({canvas}) => {
     const groups = canvas.getAllByRole('toolbar')
     await expect(groups.length).toBe(4)
+  },
+}
+
+const ICON_NAMES: IconName[] = [
+  'x-circle',
+  'check-circle',
+  'check-done',
+  'clock',
+  'forbidden',
+  'info-circle',
+  'alert-triangle',
+  'shield',
+  'lock',
+  'key',
+  'map',
+  'layers',
+  'repeat',
+  'database',
+  'shield-check',
+  'route',
+  'git-branch',
+  'menu',
+  'pin',
+  'server',
+  'hard-drive',
+  'box',
+  'image',
+  'tag',
+  'pie-chart',
+  'users',
+  'user-plus',
+  'mail',
+  'file-text',
+  'plug',
+  'search',
+  'mic',
+  'sun',
+  'moon',
+  'monitor',
+  'contrast',
+  'info-circle-filled',
+  'alert-triangle-filled',
+  'check-circle-filled',
+  'x-circle-filled',
+  'shield-filled',
+  'lock-filled',
+]
+
+const iconStyles = css.create({
+  frame: {width: 320},
+})
+
+function IconChoices({
+  names,
+  pressed,
+  size = 'small',
+}: {
+  names: IconName[]
+  pressed: string
+  size?: 'small' | 'default'
+}) {
+  return (
+    <html.div style={iconStyles.frame}>
+      <ToggleGroup wrap maxRows={3} size={size} defaultValue={[pressed]} aria-label="Icon">
+        {names.map((name) => (
+          <Toggle key={name} value={name} aria-label={name}>
+            <Icon name={name} size="sm" />
+          </Toggle>
+        ))}
+      </ToggleGroup>
+    </html.div>
+  )
+}
+
+export const IconChoicesStory: Story = {
+  name: 'Icon choices',
+  render: () => <IconChoices names={ICON_NAMES} pressed={ICON_NAMES[39]} />,
+  play: async ({canvas, canvasElement}) => {
+    const scrollTopBefore = document.scrollingElement?.scrollTop
+    await expect(ICON_NAMES.length).toBe(42)
+    const viewport = canvasElement.querySelector<HTMLElement>('[data-duro-scroll]')!
+    await expect(Math.abs(viewport.clientHeight - 118)).toBeLessThanOrEqual(2)
+
+    const pressed = canvas.getByRole('button', {name: ICON_NAMES[39]})
+    const other = canvas.getByRole('button', {name: ICON_NAMES[0]})
+    await expect(pressed).toHaveAttribute('aria-pressed', 'true')
+    for (const el of [pressed, other]) {
+      const cs = getComputedStyle(el)
+      await expect(cs.borderTopWidth).toBe('1px')
+      await expect(cs.borderRightWidth).toBe('1px')
+      await expect(cs.borderBottomWidth).toBe('1px')
+      await expect(cs.borderLeftWidth).toBe('1px')
+      // radii.sm
+      await expect(cs.borderTopLeftRadius).toBe('8px')
+    }
+
+    // the pressed toggle is visible inside the viewport
+    const v = viewport.getBoundingClientRect()
+    const p = pressed.getBoundingClientRect()
+    await expect(p.top).toBeGreaterThanOrEqual(v.top - 1)
+    await expect(p.bottom).toBeLessThanOrEqual(v.bottom + 1)
+    await expect(document.scrollingElement?.scrollTop).toBe(scrollTopBefore)
+  },
+}
+
+export const FiveIcons: Story = {
+  name: 'Five icons',
+  render: () => <IconChoices names={ICON_NAMES.slice(0, 5)} pressed={ICON_NAMES[0]} />,
+  play: async ({canvas}) => {
+    const group = canvas.getByRole('toolbar')
+    await expect(group.getBoundingClientRect().height).toBe(ROW_HEIGHT.small)
+    // exact: Toggle's styles repeat ROW_HEIGHT, and a drift must fail here
+    const toggle = canvas.getAllByRole('button')[0].getBoundingClientRect()
+    await expect(Math.abs(toggle.height - ROW_HEIGHT.small)).toBeLessThanOrEqual(0.5)
+  },
+}
+
+export const KeyboardRoving: Story = {
+  render: () => <IconChoices names={ICON_NAMES} pressed={ICON_NAMES[3]} />,
+  play: async ({canvas, userEvent}) => {
+    const btn = (i: number) => canvas.getByRole('button', {name: ICON_NAMES[i]})
+    await userEvent.tab()
+    await expect(btn(3)).toHaveFocus()
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(btn(4)).toHaveFocus()
+    await userEvent.keyboard('{ArrowLeft}{ArrowLeft}')
+    await expect(btn(2)).toHaveFocus()
+    // Down moves to the next row, Up back
+    const top = btn(2).getBoundingClientRect().top
+    await userEvent.keyboard('{ArrowDown}')
+    const active = document.activeElement as HTMLElement
+    await expect(active.getBoundingClientRect().top).toBeGreaterThan(top + 20)
+    await userEvent.keyboard('{ArrowUp}')
+    await expect(btn(2)).toHaveFocus()
+    await userEvent.keyboard('{End}')
+    await expect(btn(41)).toHaveFocus()
+    await userEvent.keyboard('{Home}')
+    await expect(btn(0)).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
+    await expect(btn(0)).toHaveAttribute('aria-pressed', 'true')
+    // a second tab leaves the group
+    await userEvent.tab()
+    await expect(canvas.getAllByRole('button')).not.toContain(document.activeElement)
+  },
+}
+
+export const DefaultSizeRows: Story = {
+  name: 'Default size rows',
+  render: () => (
+    <IconChoices names={ICON_NAMES.slice(0, 5)} pressed={ICON_NAMES[0]} size="default" />
+  ),
+  play: async ({canvas}) => {
+    const toggle = canvas.getAllByRole('button')[0].getBoundingClientRect()
+    await expect(Math.abs(toggle.height - ROW_HEIGHT.default)).toBeLessThanOrEqual(0.5)
   },
 }

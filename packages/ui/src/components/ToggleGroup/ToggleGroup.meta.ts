@@ -6,10 +6,11 @@ export const meta: ComponentMeta = {
   whenToUse: [
     'Visible option set where user picks one or more (view mode, filter categories)',
     'Segmented control pattern',
+    'A visible grid of icon choices: wrap + maxRows (rows scroll past maxRows, one tab stop with arrow keys, 44px touch targets)',
   ],
   whenNotToUse: [
     'Dropdown selection — use Select',
-    'Many options (5+) — use Select for space efficiency',
+    'Many text options (5+) — use Select for space efficiency; does not apply to icon-only choices, which keep options visible and open no layer',
     'Form checkboxes — use Checkbox group in Fieldset',
   ],
   relatedTo: [
@@ -30,5 +31,14 @@ export const meta: ComponentMeta = {
   <Toggle value="list">List view</Toggle>
   <Toggle value="grid">Grid view</Toggle>
   <Toggle value="board">Board view</Toggle>
+</ToggleGroup>
+
+// Icon choices: wraps onto rows, scrolls past three, one tab stop
+<ToggleGroup wrap maxRows={3} size="small" value={[icon]} onValueChange={(v) => v[0] && setIcon(v[0])} aria-label="Icon">
+  {names.map((name) => (
+    <Toggle key={name} value={name} aria-label={name}>
+      <Icon name={name} size="sm" />
+    </Toggle>
+  ))}
 </ToggleGroup>`,
 }

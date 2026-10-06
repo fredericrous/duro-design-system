@@ -88,7 +88,12 @@ export function useSelectRoot({
     function handleKeyDown(e: KeyboardEvent) {
       const order = orderRef.current
       const items = itemsRef.current
-      if (order.length === 0) return
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        close()
+        return
+      }
+      if (order.length === 0 && e.key !== 'Tab') return
 
       switch (e.key) {
         case 'ArrowDown': {
@@ -132,7 +137,6 @@ export function useSelectRoot({
           })
           break
         }
-        case 'Escape':
         case 'Tab': {
           close()
           break
