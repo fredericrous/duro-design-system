@@ -4,6 +4,7 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 // Container-query thresholds, from the shared breakpoint scale. `sm` (640px)
 // is the single "card up" line used across every table (Table + VirtualTable);
@@ -360,7 +361,7 @@ export const styles = css.create({
     position: 'absolute',
     top: 1,
     bottom: 1,
-    width: spacing.xl,
+    width: sizes.edgeFade,
     pointerEvents: 'none',
     opacity: 0,
     transitionProperty: 'opacity',

@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 export const styles = css.create({
   root: {
@@ -67,7 +68,7 @@ export const styles = css.create({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: spacing.md,
+    width: sizes.glyphMd,
     flexShrink: 0,
     color: colors.textMuted,
     transitionProperty: 'transform',

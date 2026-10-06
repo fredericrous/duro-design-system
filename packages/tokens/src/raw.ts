@@ -115,6 +115,7 @@ export const SIZES_PX = {
   navMarkerH: 18,
   divider: 1,
   tabIndicator: 2,
+  edgeFade: 32,
   scrollbar: 8,
   swatchW: 44,
   swatchH: 34,
