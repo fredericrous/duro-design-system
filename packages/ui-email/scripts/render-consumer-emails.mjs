@@ -162,6 +162,11 @@ try {
     throw new Error(`frozen versions differ between sides: ${JSON.stringify(rendered)}`)
   }
   const names = readdirSync(rendered.baseline.out).sort()
+  const manifest = JSON.parse(readFileSync(variants, 'utf8'))
+  const expected = manifest.templates.length + manifest.fixtures.length
+  if (names.length !== expected) {
+    throw new Error(`rendered ${names.length} files, the manifest lists ${expected}`)
+  }
   const other = readdirSync(rendered.candidate.out).sort()
   if (JSON.stringify(names) !== JSON.stringify(other))
     throw new Error(`rendered file sets differ: ${names} vs ${other}`)

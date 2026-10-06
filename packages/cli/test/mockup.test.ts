@@ -113,6 +113,11 @@ describe('checkArtboard', () => {
       checkArtboard(registry, 'A.dc.html', clean.replace('cursor: pointer', 'width: 44px'))[0]
         ?.message,
     ).toContain('var(--duro-size-*)')
+    // The canvas size is exempt only on the root: the same width on a control is raw.
+    expect(rules(clean.replace('cursor: pointer', 'width: 1120px'))).toContain('raw-length')
+    expect(
+      rules(clean.replace('<div class="btn"', '<div class="btn" style="height: 840px"')),
+    ).toContain('raw-length')
     for (const to of [
       'border: var(--duro-border-hairline) solid',
       'width: var(--duro-size-touch-target)',

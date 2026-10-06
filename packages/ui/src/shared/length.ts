@@ -31,6 +31,10 @@ export type Length = SizeToken | RelativeLength
  * A CSS grid track: a Length, a fraction, or a track function. The arguments
  * of `minmax()` / `fit-content()` are not checked by the type — pass tokens
  * through `resolveLength` or `sizes.*` when building one.
+ *
+ * holds-until: a structured track type (`{min: Length, max: GridTrack}`)
+ * replaces the template-literal functions; a type cannot see inside
+ * `minmax(${string})`, so a px there is the one measure lint and types miss.
  */
 export type GridTrack = Length | `${number}fr` | `minmax(${string})` | `fit-content(${string})`
 
