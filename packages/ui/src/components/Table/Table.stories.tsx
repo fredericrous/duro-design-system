@@ -1319,8 +1319,10 @@ export const TokenColumnWidths: Story = {
     </html.div>
   ),
   play: async ({canvasElement}) => {
+    await waitFor(() =>
+      expect(canvasElement.querySelectorAll('[role="columnheader"]')).toHaveLength(3),
+    )
     const headers = [...canvasElement.querySelectorAll('[role="columnheader"]')]
-    await waitFor(() => expect(headers).toHaveLength(3))
     const [name, owner, act] = headers.map((h) => h.getBoundingClientRect().width)
     // minmax(gridColSm, 1fr): at least 240px and takes the slack.
     await expect(name).toBeGreaterThanOrEqual(240)

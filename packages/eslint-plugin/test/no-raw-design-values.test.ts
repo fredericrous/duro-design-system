@@ -43,6 +43,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       options: [{exemptFiles: ['**/styles/*.css.{ts,tsx}']}],
     },
     wrap("gridTemplateColumns: 'minmax(0, 2fr) 1fr'"),
+    wrap("gridTemplateColumns: 'minmax(0px, 2fr) 1fr'"),
     wrap('gridTemplateColumns: `minmax(${sizes.gridColSm}, 1fr) minmax(0, 2fr)`'),
     wrap("gridTemplateColumns: 'repeat(auto-fill, minmax(20%, 1fr))', gridAutoRows: 'auto'"),
     // Breakpoint already read from the const
@@ -61,6 +62,10 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     },
     {
       code: wrap('gridAutoRows: `minmax(${sizes.controlSm}, 44px)`'),
+      errors: [{messageId: 'rawTrack'}],
+    },
+    {
+      code: wrap("gridAutoRows: 'minmax(0.5px, 1fr)'"),
       errors: [{messageId: 'rawTrack'}],
     },
     {

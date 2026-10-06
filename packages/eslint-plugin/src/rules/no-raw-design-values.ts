@@ -499,7 +499,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
             : node.type === 'TemplateLiteral'
               ? node.quasis.map((q) => q.value.cooked ?? q.value.raw).join(' ')
               : null
-        if (text !== null && /(?<![\w.-])[1-9]\d*(?:\.\d+)?px\b/.test(text)) {
+        if (text !== null && /(?<![\w.-])(?!0+(?:\.0+)?px)\d+(?:\.\d+)?px\b/.test(text)) {
           context.report({
             node,
             messageId: 'rawTrack',
