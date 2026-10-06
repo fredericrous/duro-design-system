@@ -1,4 +1,4 @@
-import {type ReactNode, useCallback} from 'react'
+import {type ReactNode, useCallback, useLayoutEffect, useRef} from 'react'
 import {html} from 'react-strict-dom'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {useToggleGroup} from '../ToggleGroup/ToggleGroupContext'
@@ -23,6 +23,11 @@ interface ToggleProps {
   children: ReactNode
 }
 
+const wrappedSizeMap = {
+  default: styles.wrappedDefault,
+  small: styles.wrappedSmall,
+} as const
+
 const sizeMap = {
   default: styles.sizeDefault,
   small: styles.sizeSmall,
@@ -46,6 +51,14 @@ export function Toggle({
   const disabled = disabledProp || (group?.disabled ?? false)
   const size = group?.size ?? sizeProp
 
+  const wrap = group?.wrap ?? false
+  const ref = useRef<HTMLButtonElement>(null)
+  const register = group?.register
+  useLayoutEffect(() => {
+    if (!wrap || !register || value === undefined || !ref.current) return
+    return register(value, ref.current)
+  }, [wrap, register, value])
+
   const [standalonePressed, setStandalonePressed] = useControllableValue(
     controlledPressed,
     defaultPressed,
@@ -65,7 +78,10 @@ export function Toggle({
 
   return (
     <html.button
+      ref={ref}
       type="button"
+      tabIndex={wrap && value !== undefined ? (group?.tabStopValue === value ? 0 : -1) : undefined}
+      onFocus={wrap && value !== undefined ? () => group?.onItemFocus(value) : undefined}
       aria-pressed={pressed}
       aria-label={ariaLabel}
       disabled={disabled}
@@ -75,7 +91,8 @@ export function Toggle({
         styles.base,
         sizeMap[size],
         pressed ? styles.pressed : styles.unpressed,
-        isGrouped && styles.grouped,
+        wrap && wrappedSizeMap[size],
+        isGrouped && !wrap && styles.grouped,
         disabled && styles.disabled,
       ]}
     >

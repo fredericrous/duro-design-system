@@ -109,7 +109,11 @@ export function useMenuRoot() {
           })
           break
         }
-        case 'Escape':
+        case 'Escape': {
+          e.preventDefault()
+          close()
+          break
+        }
         case 'Tab': {
           close()
           break

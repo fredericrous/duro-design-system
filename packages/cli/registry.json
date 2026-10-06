@@ -4087,6 +4087,19 @@
               "name": "maxHeight",
               "required": false,
               "type": "number | string"
+            },
+            {
+              "description": "Extra styles for the viewport (e.g. a pointer-aware max height).",
+              "name": "style",
+              "required": false,
+              "type": "ComponentProps<typeof html.div>['style']"
+            },
+            {
+              "default": "false",
+              "description": "A roving-focus group owns the keyboard: drop the viewport's own tab stop and region role.",
+              "name": "rovingOwner",
+              "required": false,
+              "type": "boolean"
             }
           ],
           "sourcePath": "packages/ui/src/components/ScrollArea/ScrollArea.tsx"
@@ -5936,12 +5949,13 @@
         ],
         "whenNotToUse": [
           "Dropdown selection — use Select",
-          "Many options (5+) — use Select for space efficiency",
+          "Many text options (5+) — use Select for space efficiency; does not apply to icon-only choices, which keep options visible and open no layer",
           "Form checkboxes — use Checkbox group in Fieldset"
         ],
         "whenToUse": [
           "Visible option set where user picks one or more (view mode, filter categories)",
-          "Segmented control pattern"
+          "Segmented control pattern",
+          "a visible grid of icon choices (wrap + maxRows)"
         ]
       },
       "name": "ToggleGroup",
@@ -5998,7 +6012,19 @@
           ]
         },
         {
-          "description": "Accessible name when the group is not inside a Field.Root (inside one, the Field.Label names it).",
+          "default": "false",
+          "description": "Items wrap onto rows, each with its own border (default false). Enables roving focus: one tab stop, arrow keys move between items.",
+          "name": "wrap",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "Caps a wrapping group at this many rows (plus half a row, hinting more) and scrolls the rest. Only with `wrap`.",
+          "name": "maxRows",
+          "required": false,
+          "type": "number"
+        },
+        {
           "name": "aria-label",
           "required": false,
           "type": "string"

@@ -6,10 +6,11 @@ export const meta: ComponentMeta = {
   whenToUse: [
     'Visible option set where user picks one or more (view mode, filter categories)',
     'Segmented control pattern',
+    'a visible grid of icon choices (wrap + maxRows)',
   ],
   whenNotToUse: [
     'Dropdown selection — use Select',
-    'Many options (5+) — use Select for space efficiency',
+    'Many text options (5+) — use Select for space efficiency; does not apply to icon-only choices, which keep options visible and open no layer',
     'Form checkboxes — use Checkbox group in Fieldset',
   ],
   relatedTo: [

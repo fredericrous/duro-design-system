@@ -8,6 +8,7 @@ import {
   useId,
   useImperativeHandle,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -17,6 +18,7 @@ import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {styles} from './styles.css'
 import {computePopoverPosition, type PopoverAlign, type PopoverSide} from './position'
 import {isOutsidePress} from './outside'
+import {PopoverLayerContext, type PopoverLayerContextValue} from './PopoverLayerContext'
 
 // --- Context ---
 
@@ -46,27 +48,6 @@ const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 const OFFSET = 4 // `xs` token
-
-/**
- * Whether a nested popup control owns this Escape: a Select, Menu or
- * Combobox inside the popup closes on Esc without preventing default, and
- * that Esc must close only it. Only controls that open a popup count — an
- * expanded trigger that declares one (`aria-haspopup`), an expanded combobox,
- * or focus inside a listbox or menu — never a plain disclosure, and never
- * this popover's own Trigger.
- *
- * holds-until: Duro's Select, Menu and Combobox call preventDefault on the
- * Escape they consume; the defaultPrevented check alone then suffices and
- * this selector goes.
- */
-const NESTED_POPUP_OWNER =
-  '[aria-expanded="true"][aria-haspopup], [role="combobox"][aria-expanded="true"], [role="listbox"], [role="menu"]'
-
-function nestedOwnsEscape(target: EventTarget | null, ownTrigger: Element | null): boolean {
-  if (!(target instanceof Element)) return false
-  const owner = target.closest(NESTED_POPUP_OWNER)
-  return owner !== null && owner !== ownTrigger
-}
 
 // --- Root ---
 
@@ -148,7 +129,6 @@ function Root({
 
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== 'Escape' || e.defaultPrevented) return
-      if (nestedOwnsEscape(e.target, triggerRef.current)) return
       e.preventDefault()
       setOpen(false)
     }
@@ -157,7 +137,7 @@ function Root({
       const ignored = (ignoreRef.current ?? []).map((entry) =>
         typeof entry === 'function' ? entry() : entry,
       )
-      const inside = [popupRef.current, triggerRef.current, ...ignored]
+      const inside = [popupRef.current, triggerRef.current, ...ignored, ...layersRef.current]
       if (isOutsidePress(e.target as Node | null, inside)) setOpen(false)
     }
 
@@ -168,6 +148,28 @@ function Root({
       document.removeEventListener('pointerdown', onPointerDown, true)
     }
   }, [open, setOpen])
+
+  const layersRef = useRef(new Set<Element>())
+  // A nested Popover's layers are inside its parent too.
+  const parentLayer = useContext(PopoverLayerContext)
+  const layerCtx = useMemo<PopoverLayerContextValue>(
+    () => ({
+      register: (el) => {
+        layersRef.current.add(el)
+        const unregisterParent = parentLayer?.register(el)
+        return () => {
+          layersRef.current.delete(el)
+          unregisterParent?.()
+        }
+      },
+    }),
+    [parentLayer],
+  )
+  useLayoutEffect(() => {
+    const popup = popupRef.current
+    if (!open || !popup) return
+    return parentLayer?.register(popup)
+  }, [open, parentLayer])
 
   const ctx: PopoverContextValue = {
     open,
@@ -181,7 +183,11 @@ function Root({
     repositionRef,
   }
 
-  return <PopoverContext.Provider value={ctx}>{children}</PopoverContext.Provider>
+  return (
+    <PopoverContext.Provider value={ctx}>
+      <PopoverLayerContext.Provider value={layerCtx}>{children}</PopoverLayerContext.Provider>
+    </PopoverContext.Provider>
+  )
 }
 
 // --- Trigger ---

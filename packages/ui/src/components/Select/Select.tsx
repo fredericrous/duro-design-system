@@ -6,6 +6,7 @@ import {SelectContext, useSelect} from './SelectContext'
 import {useSelectRoot} from './useSelectRoot'
 import {useFieldContext} from '../Field/FieldContext'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
+import {usePopoverLayer} from '../Popover/PopoverLayerContext'
 
 // --- Root ---
 interface RootProps {
@@ -141,10 +142,16 @@ function Popup({children}: {children: ReactNode}) {
     }
   }, [open, triggerRef])
 
+  const listboxRef = useRef<HTMLDivElement>(null)
+  const backdropRef = useRef<HTMLDivElement>(null)
+  usePopoverLayer(listboxRef, open)
+  usePopoverLayer(backdropRef, open)
+
   const node = (
     <>
-      {open && <html.div style={styles.backdrop} onClick={close} />}
+      {open && <html.div ref={backdropRef} style={styles.backdrop} onClick={close} />}
       <html.div
+        ref={listboxRef}
         id={listboxId}
         role="listbox"
         aria-hidden={!open}

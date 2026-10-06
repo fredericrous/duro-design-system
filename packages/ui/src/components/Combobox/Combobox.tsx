@@ -5,6 +5,7 @@ import {styles} from './styles.css'
 import {ComboboxContext, useCombobox} from './ComboboxContext'
 import {useComboboxRoot} from './useComboboxRoot'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
+import {usePopoverLayer} from '../Popover/PopoverLayerContext'
 
 // --- Root ---
 interface RootProps {
@@ -137,6 +138,7 @@ function Trigger({children}: {children?: ReactNode}) {
 function Popup({children}: {children: ReactNode}) {
   const {open, listboxId, rootRef} = useCombobox()
   const mount = usePortalMount()
+  const listboxRef = useRef<HTMLDivElement>(null)
   const [coords, setCoords] = useState<{top: number; left: number; width: number} | null>(null)
 
   // Measure the root each time the popup opens, and re-measure on scroll/resize
@@ -163,10 +165,13 @@ function Popup({children}: {children: ReactNode}) {
     }
   }, [open, rootRef])
 
+  usePopoverLayer(listboxRef, open && coords !== null)
+
   if (!open || !coords) return null
 
   const node = (
     <html.div
+      ref={listboxRef}
       id={listboxId}
       role="listbox"
       style={[styles.popup, styles.popupPosition(coords.top, coords.left, coords.width)]}
