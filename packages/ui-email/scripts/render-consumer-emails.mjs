@@ -71,6 +71,15 @@ const sides = {
   baseline: git(dsRoot, 'rev-parse', args.base),
   candidate: git(dsRoot, 'rev-parse', args.candidate),
 }
+// Pack each package at the version the consumer already has installed, so the
+// install keeps the dependency tree's shape (a range like @duro-app/ui's
+// `^4` on tokens stays satisfied) and only the packed content differs.
+const consumerLock = JSON.parse(git(consumer, 'show', `${consumerSha}:package-lock.json`)).packages
+const installedVersion = (pkg) => {
+  const version = consumerLock[`node_modules/${pkg}`]?.version
+  if (!version) throw new Error(`${pkg} is not installed in the consumer at ${consumerSha}`)
+  return version
+}
 const work = mkdtempSync(join(tmpdir(), 'email-harness-'))
 const outRoot = resolve(args.out ?? join(work, 'out'))
 const worktrees = []
@@ -89,9 +98,7 @@ function packDesignSystem(side, sha) {
   mkdirSync(tgz, {recursive: true})
   for (const pkg of PACKAGES) {
     const dir = join(ds, 'packages', pkg.split('/')[1])
-    // One version for both so ui-email's rewritten `workspace:^` range resolves
-    // to the tarball installed beside it, as a release (one tag) would.
-    run('npm', ['pkg', 'set', 'version=0.0.0-email-harness'], dir)
+    run('npm', ['pkg', 'set', `version=${installedVersion(pkg)}`], dir)
   }
   for (const pkg of PACKAGES) run('pnpm', ['--filter', pkg, 'run', 'build'], ds)
   for (const pkg of PACKAGES) run('pnpm', ['--filter', pkg, 'pack', '--pack-destination', tgz], ds)
