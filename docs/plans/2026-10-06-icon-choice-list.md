@@ -47,6 +47,7 @@ Popover lost its value); recorded here per
 Fixed: the coarse story; touch radius; Drawer-mounted centring (it measured `offsetTop` from the panel); row heights in one module with exact checks for every size; options objects; the aria-label JSDoc; and the closing record.
 deliberate: `wrap`/`maxRows` stay optional props, because the registry generator drops union and `extends` members (named by a `holds-until`).
 Person's call: 1c was investigated (touch adjustment, recorded below), and its proof is falsification against its own mechanism, not against origin/main.
+Preview: the person approved `4f1f8eb`, asking "don't forget .meta.ts file". Popover, Toggle, ScrollArea, Drawer and ToggleGroup meta were updated (`7c7e1a9e`). A meta delta (56k, 61 s) found a Combobox backdrop that does not exist and missing Select/Combobox→Popover links; these were fixed in `02f3366a` and re-bound (approve, 40k, 26 s). Menu keeps Popover as a contrast only, because the CLI test forbids a pair in both tables. Reviewed tree: `513925ad`.
 Next: phase 1d, the 4.5.0 release after the merge. A real-phone check (a tap presses, a short drag at the top dismisses) rides on website-builder's guided preview.
 
 ## Decision log
