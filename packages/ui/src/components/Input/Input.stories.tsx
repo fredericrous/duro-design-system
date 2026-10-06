@@ -3,6 +3,7 @@ import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Input} from './Input'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta<typeof Input> = {
   title: 'Components/Input',
@@ -83,7 +84,7 @@ export const Disabled: Story = {
 }
 
 const stackStyles = css.create({
-  stack: {display: 'flex', flexDirection: 'column', gap: spacing.ms, maxWidth: 320},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.ms, maxWidth: sizes.panelSm},
 })
 
 export const AllVariants: Story = {

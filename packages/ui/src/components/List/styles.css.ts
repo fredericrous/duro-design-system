@@ -1,7 +1,9 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {duration} from '@duro-app/tokens/tokens/motion.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   // --- Root ---
@@ -21,7 +23,7 @@ export const styles = css.create({
     paddingBottom: spacing.sm,
     paddingLeft: spacing.ms,
     paddingRight: spacing.ms,
-    borderBottomWidth: 1,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
     backgroundColor: {
@@ -29,7 +31,7 @@ export const styles = css.create({
       ':hover': colors.bgCardHover,
     },
     transitionProperty: 'background-color',
-    transitionDuration: '120ms',
+    transitionDuration: duration.quick,
     cursor: 'default',
   },
   itemSelected: {
@@ -51,7 +53,7 @@ export const styles = css.create({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    gap: 2,
+    gap: microSpacing.px2,
     minWidth: 0,
   },
 

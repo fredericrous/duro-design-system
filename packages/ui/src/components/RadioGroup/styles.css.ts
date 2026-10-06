@@ -3,6 +3,8 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -27,9 +29,9 @@ export const styles = css.create({
     cursor: 'not-allowed',
   },
   circle: {
-    width: 18,
-    height: 18,
-    borderWidth: 1,
+    width: sizes.indicator,
+    height: sizes.indicator,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderRadius: radii.full,
     display: 'inline-flex',
@@ -52,16 +54,13 @@ export const styles = css.create({
     borderColor: colors.accent,
   },
   dot: {
-    width: 8,
-    height: 8,
+    width: sizes.indicatorDot,
+    height: sizes.indicatorDot,
     borderRadius: radii.full,
     backgroundColor: colors.accent,
   },
+  // Layered on visuallyHidden.base: a native input is also made transparent.
   input: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
     opacity: 0,
-    overflow: 'hidden',
   },
 })

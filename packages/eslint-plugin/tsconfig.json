@@ -4,7 +4,8 @@
     "module": "NodeNext",
     "moduleResolution": "nodenext",
     "noEmit": true,
-    "types": []
+    "types": [],
+    "customConditions": ["source"]
   },
   "include": ["src", "test"],
   "exclude": ["dist", "node_modules"]

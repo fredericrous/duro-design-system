@@ -2,6 +2,7 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   base: {
@@ -10,7 +11,7 @@ export const styles = css.create({
     gap: spacing.sm,
     padding: spacing.md,
     borderRadius: radii.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     fontSize: typography.fontSizeSm,
     lineHeight: typography.lineHeight,

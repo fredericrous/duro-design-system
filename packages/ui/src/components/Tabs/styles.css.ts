@@ -1,8 +1,10 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -15,7 +17,7 @@ export const styles = css.create({
   list: {
     display: 'flex',
     flexDirection: 'row',
-    borderBottomWidth: 1,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
     gap: spacing.xs,
@@ -25,7 +27,7 @@ export const styles = css.create({
   listVertical: {
     flexDirection: 'column',
     borderBottomWidth: 0,
-    borderRightWidth: 1,
+    borderRightWidth: borders.hairline,
     borderRightStyle: 'solid',
     borderRightColor: colors.border,
     gap: 0,
@@ -47,7 +49,7 @@ export const styles = css.create({
     },
     backgroundColor: 'transparent',
     borderWidth: 0,
-    borderBottomWidth: 2,
+    borderBottomWidth: borders.strong,
     borderBottomStyle: 'solid',
     borderBottomColor: 'transparent',
     cursor: 'pointer',
@@ -56,7 +58,7 @@ export const styles = css.create({
     transitionTimingFunction: easing.standard,
     outlineWidth: {
       default: 0,
-      ':focus-visible': 2,
+      ':focus-visible': borders.focusRing,
     },
     outlineStyle: {
       default: 'none',
@@ -68,13 +70,13 @@ export const styles = css.create({
     },
     outlineOffset: {
       default: 0,
-      ':focus-visible': -2,
+      ':focus-visible': `calc(-1 * ${borders.focusOffset})`,
     },
   },
   tabVertical: {
     justifyContent: 'flex-start',
     borderBottomWidth: 0,
-    borderRightWidth: 2,
+    borderRightWidth: borders.strong,
     borderRightStyle: 'solid',
     borderRightColor: 'transparent',
   },
@@ -105,12 +107,12 @@ export const styles = css.create({
   indicatorHorizontal: {
     bottom: -1,
     left: 0,
-    height: 2,
+    height: sizes.tabIndicator,
   },
   indicatorVertical: {
     right: -1,
     top: 0,
-    width: 2,
+    width: sizes.tabIndicator,
   },
   // Dynamic transform/size from the measured active tab (StyleX dynamic style:
   // simple identifier params only).

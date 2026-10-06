@@ -4,6 +4,8 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -23,7 +25,7 @@ export const styles = css.create({
     fontSize: typography.fontSizeSm,
     color: colors.text,
     backgroundColor: colors.bgCard,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: {
       default: colors.border,
@@ -64,15 +66,15 @@ export const styles = css.create({
     // ancestor with `overflow: hidden` / `transform` (notably inside a Dialog).
     position: 'fixed',
     backgroundColor: colors.bgCard,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,
     boxShadow: shadows.md,
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
-    minWidth: 120,
-    maxHeight: 280,
+    minWidth: sizes.labelMinW,
+    maxHeight: sizes.listMaxH,
     overflowY: 'auto',
     zIndex: 1050,
     // Re-enable pointer events: the portal mount is pointer-events: none.

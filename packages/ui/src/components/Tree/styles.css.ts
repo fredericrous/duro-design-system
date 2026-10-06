@@ -1,8 +1,10 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -32,8 +34,8 @@ export const styles = css.create({
     display: 'flex',
     alignItems: 'center',
     gap: spacing.xs,
-    paddingTop: '5px',
-    paddingBottom: '5px',
+    paddingTop: microSpacing.px5,
+    paddingBottom: microSpacing.px5,
     paddingRight: spacing.sm,
     fontFamily: typography.fontFamily,
     fontSize: typography.fontSizeSm,
@@ -53,10 +55,10 @@ export const styles = css.create({
     paddingLeft: `calc(${spacing.sm} + ${Math.max(0, level - 1)} * ${spacing.lg})`,
   }),
   rowFocused: {
-    outlineWidth: 2,
+    outlineWidth: borders.focusRing,
     outlineStyle: 'solid',
     outlineColor: colors.accent,
-    outlineOffset: -2,
+    outlineOffset: `calc(-1 * ${borders.focusOffset})`,
   },
   rowSelected: {
     color: colors.accent,
@@ -67,7 +69,7 @@ export const styles = css.create({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: spacing.md,
+    width: sizes.glyphMd,
     flexShrink: 0,
     color: colors.textMuted,
     transitionProperty: 'transform',

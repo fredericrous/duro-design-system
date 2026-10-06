@@ -8,6 +8,7 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {SPACING_KEYS} from '@duro-app/tokens/keys'
 import {useContainerQuery} from '../../hooks/useContainerQuery'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const meta: Meta<typeof Grid> = {
   title: 'Layout/Grid',
@@ -45,7 +46,7 @@ const localStyles = css.create({
   },
   frame: (width: number) => ({
     width,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'dashed',
     borderColor: colors.border,
   }),
@@ -74,7 +75,7 @@ export const FixedColumns: Story = {
 
 export const AutoFit: Story = {
   render: () => (
-    <Grid gap="md" minColumnWidth="200px">
+    <Grid gap="md" minColumnWidth="gridColSm">
       <Cell>Card A</Cell>
       <Cell>Card B</Cell>
       <Cell>Card C</Cell>

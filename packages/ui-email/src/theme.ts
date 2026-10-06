@@ -1,41 +1,54 @@
-import {darkColors, lightColors, type RawColors} from '@duro-app/tokens/raw'
+import {
+  darkColors,
+  FONT_SIZE_REM,
+  lightColors,
+  RADII_PX,
+  SPACING_PX,
+  type RawColors,
+} from '@duro-app/tokens/raw'
 
 // ---------------------------------------------------------------------------
 // Spacing / radius / type
 //
 // Email needs literal px values (clients reset the root font-size, so rem is
-// unsafe) and table-friendly units. These mirror @duro-app/tokens (spacing /
-// type scale) converted to px. Colours, by contrast, are imported live from
-// the tokens package below so the brand palette can never drift.
+// unsafe, and they cannot read CSS variables) and table-friendly units. Every
+// value below is computed from the @duro-app/tokens raw maps, so a measure
+// still comes from its token (ADR-0027); only the unit is resolved here.
 // ---------------------------------------------------------------------------
 
+const px = <N extends number>(n: N) => `${n}px` as `${N}px`
+
+// Type sizes are rem tokens; email resolves them against a fixed root size.
+const REM_PX = 16
+const remPx = (rem: number) => px(rem * REM_PX)
+
 export const space = {
-  xs: '4px',
-  sm: '8px',
-  ms: '12px',
-  md: '16px',
-  lg: '24px',
-  xl: '32px',
-  xxl: '48px',
-  xxxl: '64px',
+  xs: px(SPACING_PX.xs),
+  sm: px(SPACING_PX.sm),
+  ms: px(SPACING_PX.ms),
+  md: px(SPACING_PX.md),
+  lg: px(SPACING_PX.lg),
+  xl: px(SPACING_PX.xl),
+  xxl: px(SPACING_PX.xxl),
+  xxxl: px(SPACING_PX.xxxl),
 } as const
 
 export const radius = {
-  sm: '8px',
-  md: '12px',
-  lg: '16px',
+  sm: px(RADII_PX.sm),
+  md: px(RADII_PX.md),
+  lg: px(RADII_PX.lg),
 } as const
 
 export const font = {
   family:
     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
-  // rem → px (1rem = 16px): xs .75 / sm .875 / md 1 / lg 1.125 / xl 1.25 / heading 1.5
-  sizeXs: '12px',
-  sizeSm: '14px',
-  sizeMd: '16px',
-  sizeLg: '18px',
-  sizeXl: '20px',
-  sizeHeading: '24px',
+  // FONT_SIZE_REM resolved against the fixed REM_PX root.
+  sizeXs: remPx(FONT_SIZE_REM.fontSizeXs),
+  sizeSm: remPx(FONT_SIZE_REM.fontSizeSm),
+  sizeMd: remPx(FONT_SIZE_REM.fontSizeMd),
+  sizeLg: remPx(FONT_SIZE_REM.fontSizeLg),
+  sizeXl: remPx(FONT_SIZE_REM.fontSizeXl),
+  sizeHeading: remPx(FONT_SIZE_REM.fontSizeHeading),
   weightNormal: 400,
   weightMedium: 500,
   weightSemibold: 600,

@@ -1,8 +1,10 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -80,8 +82,8 @@ export const styles = css.create({
     display: 'flex',
     alignItems: 'center',
     gap: spacing.sm,
-    paddingTop: '6px',
-    paddingBottom: '6px',
+    paddingTop: microSpacing.px6,
+    paddingBottom: microSpacing.px6,
     paddingLeft: spacing.md,
     paddingRight: spacing.md,
     fontFamily: typography.fontFamily,
@@ -104,7 +106,7 @@ export const styles = css.create({
     textAlign: 'left' as const,
     outlineWidth: {
       default: 0,
-      ':focus-visible': 2,
+      ':focus-visible': borders.focusRing,
     },
     outlineStyle: {
       default: 'none',
@@ -125,7 +127,7 @@ export const styles = css.create({
     position: 'absolute',
     left: 0,
     top: '50%',
-    width: '3px',
+    width: sizes.navMarkerW,
     height: 0,
     transform: 'translateY(-50%)',
     borderTopRightRadius: radii.full,
@@ -136,15 +138,15 @@ export const styles = css.create({
     transitionTimingFunction: easing.standard,
   },
   markerActive: {
-    height: '18px',
+    height: sizes.navMarkerH,
   },
   itemIcon: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    width: '18px',
-    height: '18px',
+    width: sizes.indicator,
+    height: sizes.indicator,
   },
   itemLabel: {
     flexGrow: 1,

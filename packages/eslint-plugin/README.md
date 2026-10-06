@@ -87,13 +87,32 @@ scale:
   otherwise a report; **`transitionDuration` / `animationDuration`** `'Nms'` →
   `duration.*`; **timing functions** → `easing.*`.
 
-Skipped on purpose: `0`, negatives, shorthands (`'8px 16px'`,
-`'opacity 150ms'`), identifiers, member expressions, template literals, and
-`width` / `top` / `lineHeight` — same numbers, different meaning. Since 3.0 it
-ships as `error`: a raw value is the drift the design system exists to stop.
+- **sizes and border widths** (since 5.0, ADR-0027) — a number, `'Npx'` or
+  negative on `width`/`height` and their min/max, `flexBasis`, block/inline
+  size; on `border*Width`, `outlineWidth`, `outlineOffset`; and the width
+  inside a `border*` or `outline` shorthand string. Each property draws from
+  its own candidates: sizes → `sizes.*`; border widths → `borders.hairline /
+strong / accent`; outline width → `borders.focusRing`; outline offset →
+  `borders.focusOffset / focusOffsetSm`. One match suggests it (a negative as
+  `calc(-1 * …)`); several are listed without a fix; none says to add a
+  token. A `calc()` or template literal whose static text holds a px is
+  reported too.
+- **micro spacing** — an off-scale spacing of 1/2/3/5/6px suggests
+  `microSpacing.pxN`.
 
-Options: `{factories?: string[], spacingProperties?: string[], radiiProperties?: string[]}`
-(property lists replace the defaults, they don't merge)
+Allowed: `0`, relative units (`%`, `vh`, `fr`, `em`, `rem`, `ch`…), keywords
+(`auto`, `max-content`…), identifiers and member expressions (tokens), a
+`calc()` of tokens. Skipped on purpose: negatives on spacing properties,
+spacing shorthands (`'8px 16px'`, `'opacity 150ms'`), and positions
+(`top`, `left`) and `lineHeight`. Since 3.0 it ships as `error`: a raw value is
+the drift the design system exists to stop.
+
+Options: `{factories?: string[], spacingProperties?: string[], radiiProperties?: string[], exemptFiles?: string[]}`
+(property lists replace the defaults, they don't merge). `exemptFiles` takes
+globs (`**`, `*`, `?`, `{a,b}`), matched against the path relative to the
+working directory and the absolute path; a matching file is not checked. Name
+only a file whose literals are a technique, not a design value — Duro names
+its visually-hidden module.
 
 ### no-raw-breakpoint-query
 

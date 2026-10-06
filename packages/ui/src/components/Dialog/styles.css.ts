@@ -4,13 +4,15 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   // --- Backdrop ---
   backdrop: {
     position: 'fixed',
     inset: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: colors.scrim,
     zIndex: 1000,
     // Portaled into the ThemeProvider mount, which is pointer-events: none:
     // the backdrop must take clicks back (outside click dismisses).
@@ -62,7 +64,7 @@ export const styles = css.create({
     flexDirection: 'column',
     overflow: 'hidden',
     pointerEvents: 'auto',
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
   },
@@ -103,14 +105,17 @@ export const styles = css.create({
   // The closeAnimationDuration prop token drives both these and the unmount
   // timeout, so the exit animation can never race the unmount.
   closeDurationInstant: {animationDuration: duration.instant},
+  closeDurationMinimal: {animationDuration: duration.minimal},
+  closeDurationQuick: {animationDuration: duration.quick},
   closeDurationFast: {animationDuration: duration.fast},
+  closeDurationBrisk: {animationDuration: duration.brisk},
   closeDurationBase: {animationDuration: duration.base},
   closeDurationSlow: {animationDuration: duration.slow},
 
   // --- Sizes ---
-  sm: {maxWidth: 400},
-  md: {maxWidth: 520},
-  lg: {maxWidth: 680},
+  sm: {maxWidth: sizes.dialogSm},
+  md: {maxWidth: sizes.dialogMd},
+  lg: {maxWidth: sizes.dialogLg},
 
   // --- Header ---
   header: {
@@ -163,7 +168,7 @@ export const styles = css.create({
     paddingLeft: spacing.lg,
     paddingRight: spacing.lg,
     paddingBottom: spacing.lg,
-    borderTopWidth: 1,
+    borderTopWidth: borders.hairline,
     borderTopStyle: 'solid',
     borderTopColor: colors.border,
   },
@@ -173,8 +178,8 @@ export const styles = css.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 32,
-    height: 32,
+    width: sizes.iconButton,
+    height: sizes.iconButton,
     borderRadius: radii.sm,
     borderWidth: 0,
     backgroundColor: {
@@ -196,6 +201,6 @@ export const styles = css.create({
 
   // --- Reduced motion ---
   reducedMotion: {
-    animationDuration: '1ms',
+    animationDuration: duration.minimal,
   },
 })

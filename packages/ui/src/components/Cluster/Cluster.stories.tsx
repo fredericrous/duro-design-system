@@ -5,6 +5,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {SPACING_KEYS} from '@duro-app/tokens/keys'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta<typeof Cluster> = {
   title: 'Layout/Cluster',
@@ -41,7 +42,7 @@ const localStyles = css.create({
     whiteSpace: 'nowrap',
   },
   narrow: {
-    maxWidth: 300,
+    maxWidth: sizes.gridColMd,
   },
 })
 

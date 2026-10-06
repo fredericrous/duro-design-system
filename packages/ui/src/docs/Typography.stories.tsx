@@ -8,6 +8,8 @@ import {Text} from '../components/Text/Text'
 import {Heading} from '../components/Heading/Heading'
 import {TypeScaleTable} from './helpers'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Foundations/Typography',
@@ -169,7 +171,7 @@ export const TextVariants: StoryObj = {
 
 const localStyles = css.create({
   wrapper: {
-    maxWidth: 720,
+    maxWidth: sizes.dialogLg,
   },
   hint: {
     fontSize: typography.fontSizeXs,
@@ -187,8 +189,8 @@ const localStyles = css.create({
     position: 'relative',
   },
   gridLine: {
-    height: 24,
-    borderBottomWidth: 1,
+    height: sizes.iconLg,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'dashed',
     borderBottomColor: colors.border,
   },
@@ -201,12 +203,12 @@ const localStyles = css.create({
   resizableContainer: {
     resize: 'horizontal',
     overflow: 'auto',
-    borderWidth: 2,
+    borderWidth: borders.strong,
     borderStyle: 'dashed',
     borderColor: colors.border,
     padding: spacing.md,
-    minWidth: 280,
+    minWidth: sizes.gridColMd,
     maxWidth: '100%',
-    width: 700,
+    width: sizes.dialogLg,
   },
 })

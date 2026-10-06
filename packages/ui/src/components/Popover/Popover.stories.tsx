@@ -10,6 +10,8 @@ import {Field} from '../Field/Field'
 import {Input} from '../Input/Input'
 import {Select} from '../Select/Select'
 import {Stack} from '../Stack/Stack'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/Popover',
@@ -24,8 +26,8 @@ const page = () => within(document.body)
 const styles = css.create({
   stage: {
     position: 'relative',
-    height: 320,
-    borderWidth: 1,
+    height: sizes.panelSm,
+    borderWidth: borders.hairline,
     borderStyle: 'dashed',
     borderColor: colors.border,
     padding: spacing.md,
@@ -34,9 +36,9 @@ const styles = css.create({
     position: 'absolute',
     top: 120,
     left: 160,
-    width: 120,
+    width: sizes.labelMinW,
     padding: spacing.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.accent,
   },

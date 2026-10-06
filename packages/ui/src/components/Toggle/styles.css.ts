@@ -3,13 +3,15 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   base: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     cursor: 'pointer',
     fontFamily: typography.fontFamily,
@@ -17,12 +19,12 @@ export const styles = css.create({
     transitionProperty: 'background-color, border-color, color, opacity',
     transitionDuration: duration.fast,
     transitionTimingFunction: easing.standard,
-    outlineWidth: {default: 0, ':focus-visible': 2},
+    outlineWidth: {default: 0, ':focus-visible': borders.focusRing},
     outlineStyle: 'solid',
     outlineColor: colors.accent,
-    outlineOffset: 2,
-    minWidth: {default: null, '@media (pointer: coarse)': 44},
-    minHeight: {default: null, '@media (pointer: coarse)': 44},
+    outlineOffset: borders.focusOffset,
+    minWidth: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
+    minHeight: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
   },
   sizeDefault: {
     padding: `${spacing.sm} ${spacing.md}`,
@@ -36,15 +38,15 @@ export const styles = css.create({
     borderRadius: radii.sm,
     gap: spacing.xs,
   },
-  // wrapped toggles: a fixed block size per size, 44px under a coarse pointer.
-  // Must equal ROW_HEIGHT in ./rowHeight (StyleX cannot import it here).
+  // wrapped toggles: a fixed block size per size, the touch target under a
+  // coarse pointer. ToggleGroup's maxRows arithmetic reads the same tokens.
   wrappedDefault: {
     boxSizing: 'border-box',
-    height: {default: 39, '@media (pointer: coarse)': 44},
+    height: {default: sizes.controlMd, '@media (pointer: coarse)': sizes.touchTarget},
   },
   wrappedSmall: {
     boxSizing: 'border-box',
-    height: {default: 28, '@media (pointer: coarse)': 44},
+    height: {default: sizes.controlSm, '@media (pointer: coarse)': sizes.touchTarget},
   },
   unpressed: {
     backgroundColor: {
@@ -68,7 +70,7 @@ export const styles = css.create({
   grouped: {
     borderWidth: 0,
     borderRadius: 0,
-    borderRightWidth: 1,
+    borderRightWidth: borders.hairline,
     borderRightStyle: 'solid',
     // Override any borderColor set by pressed state — dividers always use border token
     borderColor: colors.border,

@@ -1,5 +1,6 @@
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
+import {visuallyHidden} from '../../styles/visually-hidden.css'
 
 export type SpinnerSize = 'sm' | 'md' | 'lg'
 
@@ -18,7 +19,7 @@ export function Spinner({size = 'md', label = 'Loading'}: SpinnerProps) {
   return (
     <html.div role="status" style={styles.root}>
       <html.div style={[styles.spinner, sizeMap[size]]} aria-hidden />
-      <html.span style={styles.srOnly}>{label}</html.span>
+      <html.span style={[visuallyHidden.base, styles.srOnly]}>{label}</html.span>
     </html.div>
   )
 }

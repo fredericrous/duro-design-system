@@ -1,9 +1,11 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   overlay: {
@@ -18,7 +20,7 @@ export const styles = css.create({
     paddingLeft: spacing.md,
     paddingRight: spacing.md,
     backgroundColor: colors.bgCard,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.md,
@@ -29,7 +31,7 @@ export const styles = css.create({
   centered: {
     left: '50%',
     transform: 'translateX(-50%)',
-    maxWidth: 'calc(100vw - 48px)',
+    maxWidth: `calc(100vw - ${spacing.xxl})`,
   },
   // Centred in the window minus chrome docked at the inline-end edge (a
   // DetailPanel). Both insets and auto margins centre a fixed box of
@@ -41,7 +43,7 @@ export const styles = css.create({
     marginInlineStart: 'auto',
     marginInlineEnd: 'auto',
     width: 'fit-content',
-    maxWidth: `calc(100% - ${end}px - 48px)`,
+    maxWidth: `calc(100% - ${end}px - ${spacing.xxl})`,
   }),
   overlayOffset: (bottom: number) => ({
     bottom,
@@ -87,8 +89,8 @@ export const styles = css.create({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 28,
-    height: 28,
+    width: sizes.iconButtonSm,
+    height: sizes.iconButtonSm,
     padding: 0,
     backgroundColor: 'transparent',
     borderWidth: 0,
@@ -103,7 +105,7 @@ export const styles = css.create({
     transitionTimingFunction: easing.standard,
     outlineWidth: {
       default: 0,
-      ':focus-visible': 2,
+      ':focus-visible': borders.focusRing,
     },
     outlineStyle: {
       default: 'none',
@@ -115,7 +117,7 @@ export const styles = css.create({
     },
     outlineOffset: {
       default: 0,
-      ':focus-visible': 2,
+      ':focus-visible': borders.focusOffset,
     },
   },
   closeButtonEmphasized: {
@@ -129,7 +131,7 @@ export const styles = css.create({
     },
   },
   separator: {
-    width: 1,
+    width: sizes.divider,
     alignSelf: 'stretch',
     backgroundColor: colors.border,
     marginTop: spacing.xs,

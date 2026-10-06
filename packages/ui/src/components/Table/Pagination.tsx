@@ -1,9 +1,11 @@
 import type {Table} from '@tanstack/react-table'
 import {html} from 'react-strict-dom'
 import {css} from 'react-strict-dom'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {duration} from '@duro-app/tokens/tokens/motion.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const styles = css.create({
   root: {
@@ -22,10 +24,10 @@ const styles = css.create({
     paddingBottom: spacing.xs,
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
-    borderRadius: 6,
+    borderRadius: radii.px6,
     backgroundColor: {
       default: 'transparent',
       ':hover': colors.bgCardHover,
@@ -34,7 +36,7 @@ const styles = css.create({
     fontSize: typography.fontSizeSm,
     cursor: 'pointer',
     transitionProperty: 'background-color',
-    transitionDuration: '150ms',
+    transitionDuration: duration.fast,
   },
   buttonDisabled: {
     opacity: 0.4,

@@ -8,6 +8,9 @@ export const TOKEN_DEEP_PATHS: Record<string, string> = {
   colors: 'tokens/colors.css',
   spacing: 'tokens/spacing.css',
   radii: 'tokens/spacing.css',
+  microSpacing: 'tokens/spacing.css',
+  sizes: 'tokens/sizes.css',
+  borders: 'tokens/borders.css',
   layoutSpacing: 'tokens/layout-spacing.css',
   typography: 'tokens/typography.css',
   typeScale: 'tokens/typography.css',
@@ -26,8 +29,17 @@ export const TOKEN_DEEP_PATHS: Record<string, string> = {
   SPACING_PX: 'keys',
   SpacingToken: 'keys',
   RADIUS_KEYS: 'keys',
+  MICRO_SPACING_KEYS: 'keys',
+  MICRO_SPACING_PX: 'keys',
+  MicroSpacingToken: 'keys',
   RADII_PX: 'keys',
   RadiusToken: 'keys',
+  SIZE_KEYS: 'keys',
+  SIZES_PX: 'keys',
+  SizeToken: 'keys',
+  BORDER_KEYS: 'keys',
+  BORDERS_PX: 'keys',
+  BorderToken: 'keys',
   SHADOW_KEYS: 'keys',
   ShadowToken: 'keys',
   DURATION_MS: 'keys',
@@ -60,9 +72,19 @@ export const SPACING_TOKENS_BY_PX: Record<number, string> = {
   64: 'xxxl',
 }
 
+/** px value → micro-spacing token name (off-scale nudges). */
+export const MICRO_SPACING_TOKENS_BY_PX: Record<number, string> = {
+  1: 'px1',
+  2: 'px2',
+  3: 'px3',
+  5: 'px5',
+  6: 'px6',
+}
+
 /** px value → radius token name. */
 export const RADII_TOKENS_BY_PX: Record<number, string> = {
   4: 'xs',
+  6: 'px6',
   8: 'sm',
   12: 'md',
   16: 'lg',
@@ -99,7 +121,12 @@ export const COLOR_TOKENS: Record<string, string> = {
   '#fde68a': 'warningText',
   'rgba(106, 175, 252, 0.1)': 'infoBg',
   'rgba(106, 175, 252, 0.3)': 'infoBorder',
-  '#ffffff': 'bg',
+  'rgba(0, 0, 0, 0.4)': 'scrim',
+  'rgba(0, 0, 0, 0.10)': 'inverseFill',
+  'rgba(0, 0, 0, 0.18)': 'inverseFillHover',
+  'rgba(0, 0, 0, 0.55)': 'inverseBorder',
+  'rgba(0, 0, 0, 0.70)': 'inverseBorderHover',
+  '#ffffff': 'fixedLight',
   '#f5f5f5': 'bgCard',
   '#ebebeb': 'bgCardHover',
   '#4a4a4a': 'textMuted',
@@ -182,7 +209,10 @@ export const SHADOW_TOKENS: Record<string, string> = {
 /** ms value → duration token. */
 export const DURATION_TOKENS_BY_MS: Record<number, string> = {
   0: 'instant',
+  1: 'minimal',
+  120: 'quick',
   150: 'fast',
+  160: 'brisk',
   200: 'base',
   280: 'slow',
 }
@@ -190,6 +220,7 @@ export const DURATION_TOKENS_BY_MS: Record<number, string> = {
 /** Easing value (whitespace-normalized) → easing token. */
 export const EASING_TOKENS: Record<string, string> = {
   ease: 'standard',
+  linear: 'linear',
   'cubic-bezier(0.32,0.72,0,1)': 'easeOut',
   'cubic-bezier(0.72,0,0.68,0.28)': 'easeIn',
 }
@@ -255,3 +286,109 @@ export const RADII_PROPERTIES = new Set([
   'borderEndStartRadius',
   'borderEndEndRadius',
 ])
+
+/** Style properties whose lengths map to the sizes scale. */
+export const SIZE_PROPERTIES = new Set([
+  'width',
+  'height',
+  'minWidth',
+  'maxWidth',
+  'minHeight',
+  'maxHeight',
+  'flexBasis',
+  'blockSize',
+  'inlineSize',
+  'minBlockSize',
+  'maxBlockSize',
+  'minInlineSize',
+  'maxInlineSize',
+])
+
+/** Longhands holding a border width, an outline width or an outline offset. */
+export const BORDER_WIDTH_PROPERTIES = new Set([
+  'borderWidth',
+  'borderTopWidth',
+  'borderRightWidth',
+  'borderBottomWidth',
+  'borderLeftWidth',
+  'borderBlockWidth',
+  'borderInlineWidth',
+  'borderBlockStartWidth',
+  'borderBlockEndWidth',
+  'borderInlineStartWidth',
+  'borderInlineEndWidth',
+  'outlineWidth',
+  'outlineOffset',
+])
+
+/** Shorthands whose string value carries a width (`1px solid red`). */
+export const BORDER_SHORTHAND_PROPERTIES = new Set([
+  'border',
+  'borderTop',
+  'borderRight',
+  'borderBottom',
+  'borderLeft',
+  'borderBlock',
+  'borderInline',
+  'borderBlockStart',
+  'borderBlockEnd',
+  'borderInlineStart',
+  'borderInlineEnd',
+  'outline',
+])
+
+/**
+ * px value → every sizes token at that value, in key order. A list, because
+ * several tokens share a value (44, 28, 40, 18, 8, 36, 16, 24, 280).
+ */
+export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
+  44: ['touchTarget', 'swatchW'],
+  28: ['controlSm', 'iconButtonSm'],
+  39: ['controlMd'],
+  40: ['controlLg', 'spinnerLg'],
+  18: ['indicator', 'iconMd', 'navMarkerH'],
+  8: ['indicatorDot', 'scrollbar'],
+  5: ['checkMarkW'],
+  9: ['checkMarkH'],
+  36: ['switchTrackW', 'iconXl'],
+  20: ['switchTrackH'],
+  16: ['switchThumb', 'spinnerSm', 'glyphMd', 'iconSm'],
+  32: ['iconButton', 'edgeFade'],
+  24: ['spinnerMd', 'iconLg'],
+  10: ['glyphXs'],
+  12: ['glyphSm'],
+  48: ['iconXxl'],
+  3: ['navMarkerW'],
+  1: ['divider'],
+  2: ['tabIndicator'],
+  34: ['swatchH'],
+  120: ['labelMinW'],
+  160: ['popupMinW'],
+  280: ['listMaxH', 'gridColMd'],
+  200: ['listMaxHSm'],
+  400: ['dialogSm'],
+  520: ['dialogMd'],
+  680: ['dialogLg'],
+  360: ['panelSm'],
+  480: ['panelMd'],
+  640: ['panelLg'],
+  440: ['toastMaxW'],
+  240: ['gridColSm'],
+  600: ['pageSm'],
+  800: ['pageMd'],
+  1200: ['pageLg'],
+}
+
+/** px value → every borders token at that value, in key order. */
+export const BORDER_TOKENS_BY_PX: Record<number, string[]> = {
+  1: ['hairline', 'focusOffsetSm'],
+  2: ['strong', 'focusRing', 'focusOffset'],
+  3: ['accent'],
+}
+
+/** Borders tokens a width longhand (or the width in a border shorthand) may use. */
+export const BORDER_WIDTH_TOKENS = ['hairline', 'strong', 'accent']
+/** Borders tokens `outlineWidth` (or the width in `outline`) may use. */
+export const OUTLINE_WIDTH_TOKENS = ['focusRing']
+/** Borders tokens `outlineOffset` may use. */
+export const OUTLINE_OFFSET_TOKENS = ['focusOffset', 'focusOffsetSm']

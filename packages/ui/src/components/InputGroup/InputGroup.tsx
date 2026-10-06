@@ -4,6 +4,7 @@ import {css, html} from 'react-strict-dom'
 import {isNative} from '../../platform'
 import {InputGroupContext} from './InputGroupContext'
 import {styles} from './styles.css'
+import {resolveLength, type Length} from '../../shared/length'
 
 // --- Root ---
 interface RootProps {
@@ -29,8 +30,9 @@ interface AddonProps {
   position?: 'start' | 'end'
   onClick?: () => void
   disabled?: boolean
-  /** Optional minimum width to prevent layout shift (e.g. Copy → Copied!) */
-  minWidth?: number | string
+  /** Optional minimum width to prevent layout shift (e.g. Copy → Copied!): a
+   *  size token key or a relative length. */
+  minWidth?: Length
   children: ReactNode
 }
 
@@ -42,7 +44,7 @@ function Addon({position = 'end', onClick, disabled, minWidth, children}: AddonP
     positionStyle,
     onClick && !disabled && styles.addonClickable,
     disabled && styles.addonDisabled,
-    minWidth != null && dynamicStyles.minWidth(minWidth),
+    minWidth != null && dynamicStyles.minWidth(resolveLength(minWidth)),
   ]
 
   if (onClick) {

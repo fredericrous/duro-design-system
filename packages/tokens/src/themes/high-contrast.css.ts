@@ -30,6 +30,15 @@ export const highContrastTheme = css.createTheme(colors, {
   infoBg: 'rgba(96, 165, 250, 0.15)',
   infoBorder: 'rgba(96, 165, 250, 0.5)',
   infoText: '#bfdbfe',
+  // Fixed overlays — the same in every theme (a scrim darkens whatever is
+  // under it; the inverse overlays sit on an accent surface).
+  scrim: 'rgba(0, 0, 0, 0.4)',
+  inverseFill: 'rgba(0, 0, 0, 0.10)',
+  inverseFillHover: 'rgba(0, 0, 0, 0.18)',
+  inverseBorder: 'rgba(0, 0, 0, 0.55)',
+  inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
+  // A light that does not follow the theme (the Switch knob).
+  fixedLight: '#ffffff',
 })
 
 export const highContrastShadows = css.createTheme(shadows, {

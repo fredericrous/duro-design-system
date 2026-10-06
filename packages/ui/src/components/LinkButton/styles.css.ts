@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   base: {
@@ -46,7 +47,7 @@ export const styles = css.create({
       default: 'transparent',
       ':hover': colors.bgCardHover,
     },
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     color: colors.textMuted,

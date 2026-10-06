@@ -4,6 +4,7 @@ import {styles} from './styles.css'
 import {isNative} from '../../platform'
 import {cellBasis, cellPosition, columnWeights, gridTemplate, type GridColumns} from './columns'
 import type {SpacingToken} from '@duro-app/tokens/keys'
+import {resolveLength, type Length} from '../../shared/length'
 
 export type GridLayout = 'split' | 'split-wide'
 
@@ -13,10 +14,11 @@ interface GridProps {
    *  two-thirds split. Weights are the portable form of a track list — a CSS
    *  template string would be silently ignored on native. */
   columns?: GridColumns
-  /** Responsive auto-fit: as many columns of at least this width as fit.
-   *  Wins over `columns` when both are set. On native this approximates to
-   *  cells of that minimum width that grow and wrap. */
-  minColumnWidth?: string
+  /** Responsive auto-fit: as many columns of at least this width as fit — a
+   *  size token key (`"gridColMd"`) or a relative length. Wins over `columns`
+   *  when both are set. On native this approximates to cells of that minimum
+   *  width that grow and wrap. */
+  minColumnWidth?: Length
   /**
    * A named responsive layout. `split` is list/detail (1:2, list ≥ 240px),
    * `split-wide` is nav/content (1:3, nav ≥ 280px). Each collapses to one
@@ -101,7 +103,7 @@ export function Grid({gap = 'md', columns, minColumnWidth, layout, children}: Gr
   const columnStyle = layout
     ? layoutMap[layout]
     : minColumnWidth
-      ? styles.autoFit(minColumnWidth)
+      ? styles.autoFit(resolveLength(minColumnWidth))
       : typeof columns === 'number'
         ? columnsMap[columns]
         : columns
@@ -136,7 +138,7 @@ function NativeGrid({gap = 'md', columns, minColumnWidth, children}: GridProps) 
     return (
       <html.div style={[styles.nativeRow, gapMap[gap]]}>
         {items.map((child, index) => (
-          <html.div key={index} style={styles.nativeMinCell(minColumnWidth)}>
+          <html.div key={index} style={styles.nativeMinCell(resolveLength(minColumnWidth))}>
             {child}
           </html.div>
         ))}

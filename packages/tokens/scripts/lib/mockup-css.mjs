@@ -13,6 +13,9 @@ export function buildMockupCss(srcDir) {
     radii: 'radius',
     shadows: 'shadow',
     spacing: 'spacing',
+    microSpacing: 'micro-spacing',
+    sizes: 'size',
+    borders: 'border',
     layoutSpacing: 'layout-spacing',
     typography: 'typography',
     typeScale: 'type-scale',
@@ -37,7 +40,10 @@ export function buildMockupCss(srcDir) {
   // Theme-independent scales, declared once on :root and inherited everywhere.
   const shared = {
     spacing: vars('spacing.css.ts', 'spacing'),
+    microSpacing: vars('spacing.css.ts', 'microSpacing'),
     radii: vars('spacing.css.ts', 'radii'),
+    sizes: vars('sizes.css.ts', 'sizes'),
+    borders: vars('borders.css.ts', 'borders'),
     layoutSpacing: vars('layout-spacing.css.ts', 'layoutSpacing'),
     typography: vars('typography.css.ts', 'typography'),
     typeScale: vars('typography.css.ts', 'typeScale'),

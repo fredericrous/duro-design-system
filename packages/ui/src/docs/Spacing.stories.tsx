@@ -7,6 +7,8 @@ import {Inline} from '../components/Inline/Inline'
 import {useContainerQuery} from '../hooks/useContainerQuery'
 import {TokenTable} from './helpers'
 import {typography, typeScale} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const primitiveTokens: Record<string, string> = {
   xs: '4px',
@@ -33,7 +35,7 @@ export default meta
 
 const styles = css.create({
   wrapper: {
-    maxWidth: 640,
+    maxWidth: sizes.panelLg,
   },
   hint: {
     fontSize: typography.fontSizeXs,
@@ -41,10 +43,10 @@ const styles = css.create({
     fontStyle: 'italic',
   },
   baselineRow: {
-    height: 24,
+    height: sizes.iconLg,
     display: 'flex',
     alignItems: 'center',
-    borderBottomWidth: 1,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'dashed',
     borderBottomColor: colors.border,
   },
@@ -52,11 +54,10 @@ const styles = css.create({
     fontSize: typography.fontSizeXs,
     fontFamily: 'monospace',
     color: colors.textMuted,
-    width: 50,
+    width: sizes.iconXxl,
   },
   baselineBlock: {
-    flexGrow: 1,
-    height: 24,
+    height: sizes.iconLg,
     backgroundColor: colors.accent,
     opacity: 0.15,
     borderRadius: radii.xs,
@@ -64,13 +65,13 @@ const styles = css.create({
   resizableContainer: {
     resize: 'horizontal',
     overflow: 'auto',
-    borderWidth: 2,
+    borderWidth: borders.strong,
     borderStyle: 'dashed',
     borderColor: colors.border,
     padding: spacing.md,
-    minWidth: 200,
+    minWidth: sizes.listMaxHSm,
     maxWidth: '100%',
-    width: 600,
+    width: sizes.pageSm,
   },
   sizeLabel: {
     fontSize: typography.fontSizeHeading,
@@ -87,7 +88,7 @@ const styles = css.create({
     color: colors.successText,
   },
   mappingRow: {
-    borderBottomWidth: 1,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
     fontFamily: 'monospace',

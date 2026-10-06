@@ -4,6 +4,8 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -25,7 +27,7 @@ export const styles = css.create({
       default: 'transparent',
       ':hover': colors.bgCardHover,
     },
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,
@@ -47,14 +49,14 @@ export const styles = css.create({
     left: 0,
     marginTop: spacing.xs,
     backgroundColor: colors.bgCard,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,
     boxShadow: shadows.md,
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
-    minWidth: 160,
+    minWidth: sizes.popupMinW,
     zIndex: 50,
   },
   popupEnd: {
@@ -84,7 +86,7 @@ export const styles = css.create({
     height: 0,
     marginTop: spacing.xs,
     marginBottom: spacing.xs,
-    borderTopWidth: 1,
+    borderTopWidth: borders.hairline,
     borderTopStyle: 'solid',
     borderTopColor: colors.border,
   },

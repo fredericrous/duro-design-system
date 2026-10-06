@@ -52,9 +52,23 @@ function tokensRegion(registry) {
     '',
     table(registry.tokens.groups.spacing),
     '',
+    '### Micro Spacing',
+    '',
+    'Optical nudges below and between the scale (`microSpacing` from `@duro-app/tokens/tokens/spacing.css`). Not a layout choice: prefer the scale.',
+    '',
+    table(registry.tokens.groups.microSpacing),
+    '',
     '### Border Radius',
     '',
     table(registry.tokens.groups.radii),
+    '',
+    '### Sizes',
+    '',
+    table(registry.tokens.groups.sizes),
+    '',
+    '### Borders',
+    '',
+    table(registry.tokens.groups.borders),
   ].join('\n')
 }
 

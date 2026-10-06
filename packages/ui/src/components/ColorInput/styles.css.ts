@@ -1,14 +1,16 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   base: {
-    width: 44,
-    height: 34,
-    padding: 2,
+    width: sizes.swatchW,
+    height: sizes.swatchH,
+    padding: microSpacing.px2,
     backgroundColor: colors.bg,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: {
       default: colors.border,
@@ -18,7 +20,7 @@ export const styles = css.create({
     cursor: 'pointer',
     outlineWidth: {
       default: 0,
-      ':focus-visible': 2,
+      ':focus-visible': borders.focusRing,
     },
     outlineStyle: {
       default: 'none',
@@ -28,7 +30,7 @@ export const styles = css.create({
       default: 'transparent',
       ':focus-visible': colors.accent,
     },
-    outlineOffset: 1,
+    outlineOffset: borders.focusOffsetSm,
   },
   invalid: {
     borderColor: colors.error,

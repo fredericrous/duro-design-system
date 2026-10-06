@@ -2,18 +2,19 @@ import type {Column} from '@tanstack/react-table'
 import {html} from 'react-strict-dom'
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const styles = css.create({
   input: {
     width: '100%',
-    paddingTop: 2,
-    paddingBottom: 2,
+    paddingTop: microSpacing.px2,
+    paddingBottom: microSpacing.px2,
     paddingLeft: spacing.xs,
     paddingRight: spacing.xs,
     marginTop: spacing.xs,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.xs,

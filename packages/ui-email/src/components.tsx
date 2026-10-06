@@ -12,6 +12,7 @@ import {
   Link as RELink,
   Preview,
 } from '@react-email/components'
+import {BORDERS_PX, EMAIL_PX} from '@duro-app/tokens/raw'
 import {palette, space, radius, font, cls, darkModeCss} from './theme'
 
 const L = palette.light
@@ -43,10 +44,10 @@ export function EmailShell({preview, children}: {preview?: string; children: Rea
           className={cls.card}
           style={{
             backgroundColor: L.card,
-            border: `1px solid ${L.cardBorder}`,
+            border: `${BORDERS_PX.hairline}px solid ${L.cardBorder}`,
             borderRadius: radius.md,
             margin: '0 auto',
-            maxWidth: '520px',
+            maxWidth: `${EMAIL_PX.emailCardW}px`,
             padding: space.xl,
           }}
         >

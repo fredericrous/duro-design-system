@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -22,7 +23,7 @@ export const styles = css.create({
     fontSize: typography.fontSizeXs,
     lineHeight: typography.lineHeight,
     borderRadius: radii.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     boxShadow: shadows.md,

@@ -3,13 +3,14 @@ import {expect, userEvent, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ToastProvider, useToast} from './ToastProvider'
 import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const s = css.create({
   row: {display: 'flex', flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap'},
   btn: {
     padding: spacing.sm,
     borderRadius: radii.sm,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     cursor: 'pointer',
   },

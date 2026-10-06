@@ -13,6 +13,7 @@ import {useControllableValue} from '../../hooks/useControllableValue'
 import {useFieldContext} from '../Field/FieldContext'
 import {TagGroupContext, type TagGroupContextValue} from './TagGroupContext'
 import {styles} from './styles.css'
+import {visuallyHidden} from '../../styles/visually-hidden.css'
 
 // ---------------------------------------------------------------------------
 // Local context accessor (non-throwing, returns null)
@@ -149,7 +150,7 @@ function Root({
         {name && values.map((v) => <html.input key={v} type="hidden" name={name} value={v} />)}
 
         {/* Live region for screen reader announcements */}
-        <html.div role="status" aria-live="polite" aria-atomic style={styles.liveRegion}>
+        <html.div role="status" aria-live="polite" aria-atomic style={visuallyHidden.base}>
           {announcement}
         </html.div>
       </html.div>

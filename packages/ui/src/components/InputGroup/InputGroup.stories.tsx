@@ -5,6 +5,7 @@ import {InputGroup} from './InputGroup'
 import {Input} from '../Input/Input'
 import {Icon} from '../Icon/Icon'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/InputGroup',
@@ -115,8 +116,8 @@ export const StandaloneInput: Story = {
 }
 
 const layoutStyles = css.create({
-  container: {maxWidth: 400},
-  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: 400},
+  container: {maxWidth: sizes.dialogSm},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: sizes.dialogSm},
 })
 
 export const AllVariants: Story = {

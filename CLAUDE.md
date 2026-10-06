@@ -62,13 +62,17 @@ import {colors, spacing} from '@duro-app/tokens'
 ```tsx
 import {css, html} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 const styles = css.create({
   container: {
     padding: spacing.md,
     backgroundColor: colors.bgCard,
-    borderRadius: 12,
+    borderRadius: radii.md,
+    borderWidth: borders.hairline,
+    maxWidth: sizes.dialogMd,
   },
 })
 
@@ -77,6 +81,18 @@ const styles = css.create({
 ```
 
 <!-- duro:rules:end -->
+
+### 4. Every measure is a token
+
+A width, height, border width, spacing, radius, colour or duration comes from a
+token (`sizes.*`, `borders.*`, `spacing.*`, `microSpacing.*`, `radii.*`,
+`colors.*`, `duration.*`): ADR-0027, `design-system.every-measure-is-a-token`.
+Allowed raw: `0`, relative units (`%`, `vh`, `fr`, `rem`…), keywords (`auto`,
+`max-content`…) and a `calc()` of tokens. When no token fits, add one to
+`@duro-app/tokens` with the value the design needs — never the nearest one.
+Measure props take token keys: `<Grid minColumnWidth="gridColMd">`,
+`<ScrollArea.Viewport maxHeight="listMaxH">`. `duro/no-raw-design-values`
+reports the rest.
 
 ## Layout Decision Tree
 
@@ -111,7 +127,7 @@ Pick the right layout component:
 </Cluster>
 
 // Responsive card grid
-<Grid minColumnWidth="280px" gap="md">
+<Grid minColumnWidth="gridColMd" gap="md">
   <Card>...</Card>
   <Card>...</Card>
 </Grid>
@@ -301,15 +317,92 @@ const MySchema = Schema.Struct({
 | `xxl` | 48px |
 | `xxxl` | 64px |
 
+### Micro Spacing
+
+Optical nudges below and between the scale (`microSpacing` from `@duro-app/tokens/tokens/spacing.css`). Not a layout choice: prefer the scale.
+
+| Token | Value |
+| --- | --- |
+| `px1` | 1px |
+| `px2` | 2px |
+| `px3` | 3px |
+| `px5` | 5px |
+| `px6` | 6px |
+
 ### Border Radius
 
 | Token | Value |
 | --- | --- |
 | `xs` | 4px |
+| `px6` | 6px |
 | `sm` | 8px |
 | `md` | 12px |
 | `lg` | 16px |
 | `full` | 9999px |
+
+### Sizes
+
+| Token | Value |
+| --- | --- |
+| `touchTarget` | 44px |
+| `controlSm` | 28px |
+| `controlMd` | 39px |
+| `controlLg` | 40px |
+| `indicator` | 18px |
+| `indicatorDot` | 8px |
+| `checkMarkW` | 5px |
+| `checkMarkH` | 9px |
+| `switchTrackW` | 36px |
+| `switchTrackH` | 20px |
+| `switchThumb` | 16px |
+| `iconButton` | 32px |
+| `iconButtonSm` | 28px |
+| `spinnerSm` | 16px |
+| `spinnerMd` | 24px |
+| `spinnerLg` | 40px |
+| `glyphXs` | 10px |
+| `glyphSm` | 12px |
+| `glyphMd` | 16px |
+| `iconSm` | 16px |
+| `iconMd` | 18px |
+| `iconLg` | 24px |
+| `iconXl` | 36px |
+| `iconXxl` | 48px |
+| `navMarkerW` | 3px |
+| `navMarkerH` | 18px |
+| `divider` | 1px |
+| `tabIndicator` | 2px |
+| `edgeFade` | 32px |
+| `scrollbar` | 8px |
+| `swatchW` | 44px |
+| `swatchH` | 34px |
+| `labelMinW` | 120px |
+| `popupMinW` | 160px |
+| `listMaxH` | 280px |
+| `listMaxHSm` | 200px |
+| `dialogSm` | 400px |
+| `dialogMd` | 520px |
+| `dialogLg` | 680px |
+| `panelSm` | 360px |
+| `panelMd` | 480px |
+| `panelLg` | 640px |
+| `toastMaxW` | 440px |
+| `gridColSm` | 240px |
+| `gridColMd` | 280px |
+| `pageSm` | 600px |
+| `pageMd` | 800px |
+| `pageLg` | 1200px |
+
+### Borders
+
+| Token | Value |
+| --- | --- |
+| `hairline` | 1px |
+| `strong` | 2px |
+| `accent` | 3px |
+| `focusRing` | 2px |
+| `focusOffset` | 2px |
+| `focusOffsetSm` | 1px |
 
 <!-- duro:generated:tokens END -->
 
@@ -341,13 +434,14 @@ module, a global rule), use the published `--duro-*` custom properties:
 ```css
 .card {
   background: var(--duro-color-bg-card);
-  border: 1px solid var(--duro-color-border);
+  border: var(--duro-border-hairline) solid var(--duro-color-border);
   padding: var(--duro-spacing-md);
   border-radius: var(--duro-radius-md);
 }
 ```
 
-Naming is `--duro-<group>-<token>` in kebab-case: `colors.bgCard` →
+Naming is `--duro-<group>-<token>` in kebab-case: `sizes.touchTarget` →
+`--duro-size-touch-target`, `borders.hairline` → `--duro-border-hairline`, `colors.bgCard` →
 `--duro-color-bg-card`, `spacing.md` → `--duro-spacing-md`, `radii.md` →
 `--duro-radius-md`. They come with `@duro-app/ui`'s stylesheet, and they
 follow the active theme — including inside a `ThemeProvider` subtree.
@@ -546,6 +640,8 @@ import {css, html} from 'react-strict-dom'
 import {Field, Input, Fieldset, Button, Stack, Heading} from '@duro-app/ui'
 import {Form} from '@duro-app/ui/form'
 
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+
 const LoginSchema = Schema.Struct({
   username: Schema.String.pipe(
     Schema.minLength(3, {message: () => 'Username must be at least 3 characters'}),
@@ -556,7 +652,7 @@ const LoginSchema = Schema.Struct({
 })
 
 const styles = css.create({
-  wrap: {maxWidth: 400},
+  wrap: {maxWidth: sizes.dialogSm},
 })
 
 export function LoginFormRecipe() {

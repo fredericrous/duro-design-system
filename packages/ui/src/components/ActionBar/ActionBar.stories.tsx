@@ -8,6 +8,8 @@ import {Checkbox} from '../Checkbox/Checkbox'
 import {Table} from '../Table/Table'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 interface ActionBarStoryArgs {
   onClearSelection: () => void
@@ -317,8 +319,8 @@ const docked = css.create({
     top: 0,
     bottom: 0,
     insetInlineEnd: 0,
-    width: 360,
-    borderInlineStartWidth: 1,
+    width: sizes.panelSm,
+    borderInlineStartWidth: borders.hairline,
     borderInlineStartStyle: 'solid',
   },
 })

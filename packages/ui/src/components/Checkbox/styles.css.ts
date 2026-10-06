@@ -3,6 +3,8 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
@@ -19,9 +21,9 @@ export const styles = css.create({
     cursor: 'not-allowed',
   },
   box: {
-    width: 18,
-    height: 18,
-    borderWidth: 1,
+    width: sizes.indicator,
+    height: sizes.indicator,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderRadius: radii.xs,
     display: 'inline-flex',
@@ -47,12 +49,12 @@ export const styles = css.create({
   // rotated 45° into a tick. Pure CSS (RSD translates the transform string to
   // an RN transform), so no SVG / react-native-svg weight reaches web.
   checkmark: {
-    width: 5,
-    height: 9,
-    borderRightWidth: 2,
+    width: sizes.checkMarkW,
+    height: sizes.checkMarkH,
+    borderRightWidth: borders.strong,
     borderRightStyle: 'solid',
     borderRightColor: colors.accentContrast,
-    borderBottomWidth: 2,
+    borderBottomWidth: borders.strong,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.accentContrast,
     transform: 'rotate(45deg)',
@@ -77,12 +79,9 @@ export const styles = css.create({
     backgroundColor: 'transparent',
     padding: 0,
   },
+  // Layered on visuallyHidden.base: a native input is also made transparent.
   input: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
     opacity: 0,
-    overflow: 'hidden',
   },
   // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
   // native via `isNative` (on both .root and .box); web keeps inline-flex.

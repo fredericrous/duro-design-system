@@ -12,6 +12,7 @@ import {
 } from './Table'
 import {Pagination} from './Pagination'
 import {SortChip, type SortValue} from './SortChip'
+import type {Length} from '../../shared/length'
 
 // ColumnMeta is augmented in `./tanstack-augmentation` so the types
 // register independently of whether the consumer imports FromTanstack.
@@ -24,7 +25,7 @@ interface FromTanstackBaseProps<TData> {
   readonly responsive?: boolean
   /** Min width (px) each flexible column keeps before the table scrolls
    *  horizontally. Forwarded to Table.Root — see its `minColumnWidth`. */
-  readonly minColumnWidth?: number
+  readonly minColumnWidth?: Length
   /** Render a SortChip above the grid (stack-mode only). Options derive from
    *  columns where `column.getCanSort()` returns true. Wires value/onChange
    *  through the TanStack sorting state automatically. */

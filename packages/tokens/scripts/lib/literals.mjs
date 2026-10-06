@@ -13,8 +13,18 @@ import {parse} from '@babel/parser'
 // Walk a Babel ObjectExpression / StringLiteral / NumericLiteral / etc. into a
 // plain JS value. Throws on anything we don't recognize — we deliberately keep
 // the surface small so a sneaky non-static value can't slip past.
-export function evalNode(node) {
+// `scope` holds already-evaluated sibling exports, so a derived value such as
+// `SIZES_PX.iconSm` (ICON_SIZES in keys.ts) can be read back.
+export function evalNode(node, scope = {}) {
   switch (node.type) {
+    case 'MemberExpression': {
+      const base = node.object.type === 'Identifier' ? scope[node.object.name] : undefined
+      const prop = node.property.type === 'Identifier' ? node.property.name : null
+      if (base === undefined || prop === null || node.computed || !(prop in base)) {
+        throw new Error('Unsupported member expression in token literal')
+      }
+      return base[prop]
+    }
     case 'StringLiteral':
     case 'NumericLiteral':
     case 'BooleanLiteral':
@@ -27,9 +37,9 @@ export function evalNode(node) {
       }
       return node.quasis.map((q) => q.value.cooked).join('')
     case 'TSAsExpression': // `{...} as const` in keys.ts
-      return evalNode(node.expression)
+      return evalNode(node.expression, scope)
     case 'ArrayExpression':
-      return node.elements.map((el) => evalNode(el))
+      return node.elements.map((el) => evalNode(el, scope))
     case 'ObjectExpression': {
       const out = {}
       for (const prop of node.properties) {
@@ -43,7 +53,7 @@ export function evalNode(node) {
               ? prop.key.value
               : null
         if (key === null) throw new Error(`Unsupported object key type: ${prop.key.type}`)
-        out[key] = evalNode(prop.value)
+        out[key] = evalNode(prop.value, scope)
       }
       return out
     }
@@ -97,7 +107,7 @@ export function parseModuleExports(file) {
       // A module may also export css.* calls next to its plain literals
       // (breakpoints.css.ts); those are read with extractCallArg instead.
       if (declarator.init?.type === 'CallExpression') continue
-      out[declarator.id.name] = evalNode(declarator.init)
+      out[declarator.id.name] = evalNode(declarator.init, out)
     }
   }
   return out

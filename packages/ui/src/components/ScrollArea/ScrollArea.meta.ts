@@ -15,7 +15,7 @@ export const meta: ComponentMeta = {
     required: ['Root', 'Viewport', 'Content', 'Scrollbar', 'Thumb'],
   },
   example: `<ScrollArea.Root>
-  <ScrollArea.Viewport maxHeight={300}>
+  <ScrollArea.Viewport maxHeight="listMaxH">
     <ScrollArea.Content>
       {/* Long content here */}
     </ScrollArea.Content>

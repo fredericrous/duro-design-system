@@ -11,6 +11,7 @@ import {Checkbox} from '../Checkbox/Checkbox'
 import {Stack} from '../Stack/Stack'
 import {Fieldset} from '../Fieldset/Fieldset'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/Field',
@@ -70,8 +71,8 @@ export const WithError: Story = {
 }
 
 const stackStyles = css.create({
-  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: 400},
-  stackWide: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: 600},
+  stack: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: sizes.dialogSm},
+  stackWide: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: sizes.pageSm},
 })
 
 export const FormExample: Story = {

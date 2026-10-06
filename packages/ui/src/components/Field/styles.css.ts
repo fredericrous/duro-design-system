@@ -2,6 +2,7 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 export const styles = css.create({
   root: {
@@ -21,7 +22,7 @@ export const styles = css.create({
     color: colors.text,
   },
   labelSide: {
-    minWidth: 120,
+    minWidth: sizes.labelMinW,
     paddingTop: spacing.sm,
     flexShrink: 0,
   },

@@ -5,6 +5,8 @@ import {ScrollArea} from './ScrollArea'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/ScrollArea',
@@ -15,8 +17,8 @@ type Story = StoryObj
 
 const demoStyles = css.create({
   container: {
-    width: 300,
-    borderWidth: 1,
+    width: sizes.gridColMd,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,
@@ -26,7 +28,7 @@ const demoStyles = css.create({
     paddingBottom: spacing.ms,
     paddingLeft: spacing.md,
     paddingRight: spacing.md,
-    borderBottomWidth: 1,
+    borderBottomWidth: borders.hairline,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.bgCard,
     fontSize: typography.fontSizeSm,
@@ -40,7 +42,7 @@ export const Default: Story = {
   render: () => (
     <html.div style={demoStyles.container}>
       <ScrollArea.Root>
-        <ScrollArea.Viewport maxHeight={300}>
+        <ScrollArea.Viewport maxHeight="listMaxH">
           <ScrollArea.Content>
             {items.map((item) => (
               <html.div key={item} style={demoStyles.item}>
@@ -66,7 +68,7 @@ export const ShortContent: Story = {
   render: () => (
     <html.div style={demoStyles.container}>
       <ScrollArea.Root>
-        <ScrollArea.Viewport maxHeight={300}>
+        <ScrollArea.Viewport maxHeight="listMaxH">
           <ScrollArea.Content>
             <html.div style={demoStyles.item}>Only one item</html.div>
             <html.div style={demoStyles.item}>Two items</html.div>

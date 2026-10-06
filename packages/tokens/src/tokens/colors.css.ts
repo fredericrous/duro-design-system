@@ -43,4 +43,14 @@ export const colors = css.defineVars({
   infoBg: 'rgba(106, 175, 252, 0.1)',
   infoBorder: 'rgba(106, 175, 252, 0.3)',
   infoText: '#93c5fd',
+
+  // Fixed overlays — the same in every theme (a scrim darkens whatever is
+  // under it; the inverse overlays sit on an accent surface).
+  scrim: 'rgba(0, 0, 0, 0.4)',
+  inverseFill: 'rgba(0, 0, 0, 0.10)',
+  inverseFillHover: 'rgba(0, 0, 0, 0.18)',
+  inverseBorder: 'rgba(0, 0, 0, 0.55)',
+  inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
+  // A light that does not follow the theme (the Switch knob).
+  fixedLight: '#ffffff',
 })

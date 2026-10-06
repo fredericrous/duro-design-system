@@ -96,8 +96,62 @@ const spacingCss = extractCallArg(
 )
 checkScale('SPACING_PX', spacingCss, keys.SPACING_PX, keys.SPACING_KEYS, 'px')
 
+const microSpacingCss = extractCallArg(
+  join(srcDir, 'tokens', 'spacing.css.ts'),
+  'defineVars',
+  0,
+  'microSpacing',
+)
+checkScale(
+  'MICRO_SPACING_PX',
+  microSpacingCss,
+  keys.MICRO_SPACING_PX,
+  keys.MICRO_SPACING_KEYS,
+  'px',
+)
+
 const radiiCss = extractCallArg(join(srcDir, 'tokens', 'spacing.css.ts'), 'defineVars', 0, 'radii')
 checkScale('RADII_PX', radiiCss, keys.RADII_PX, keys.RADIUS_KEYS, 'px')
+
+const sizesCss = extractCallArg(join(srcDir, 'tokens', 'sizes.css.ts'), 'defineVars', 0, 'sizes')
+checkScale('SIZES_PX', sizesCss, keys.SIZES_PX, keys.SIZE_KEYS, 'px')
+
+const bordersCss = extractCallArg(
+  join(srcDir, 'tokens', 'borders.css.ts'),
+  'defineVars',
+  0,
+  'borders',
+)
+checkScale('BORDERS_PX', bordersCss, keys.BORDERS_PX, keys.BORDER_KEYS, 'px')
+
+// raw.ts re-publishes the numeric maps for the compiled /raw entry; the copies
+// must equal keys.ts (key order included).
+for (const name of ['SPACING_PX', 'RADII_PX', 'FONT_SIZE_REM', 'BORDERS_PX', 'SIZES_PX']) {
+  const fromRaw = rawModule[name]
+  if (!fromRaw || JSON.stringify(fromRaw) !== JSON.stringify(keys[name])) {
+    console.error(`✗ drift: ${name} in raw.ts differs from keys.ts`)
+    failures++
+  } else {
+    console.log(`✓ raw.ts ${name} matches keys.ts`)
+  }
+}
+
+// ICON_SIZES is derived from SIZES_PX; hold it to its documented shape.
+{
+  const expected = {
+    sm: keys.SIZES_PX.iconSm,
+    md: keys.SIZES_PX.iconMd,
+    lg: keys.SIZES_PX.iconLg,
+    xl: keys.SIZES_PX.iconXl,
+    xxl: keys.SIZES_PX.iconXxl,
+  }
+  if (JSON.stringify(keys.ICON_SIZES) !== JSON.stringify(expected)) {
+    console.error(`✗ drift: ICON_SIZES is not derived from SIZES_PX icon* keys`)
+    failures++
+  } else {
+    console.log(`✓ ICON_SIZES matches`)
+  }
+}
 
 const durationCss = extractCallArg(
   join(srcDir, 'tokens', 'motion.css.ts'),

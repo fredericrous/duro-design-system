@@ -21,7 +21,10 @@ export type DialogSize = 'sm' | 'md' | 'lg'
 
 const closeDurationMap = {
   instant: styles.closeDurationInstant,
+  minimal: styles.closeDurationMinimal,
+  quick: styles.closeDurationQuick,
   fast: styles.closeDurationFast,
+  brisk: styles.closeDurationBrisk,
   base: styles.closeDurationBase,
   slow: styles.closeDurationSlow,
 } as const satisfies Record<DurationToken, unknown>

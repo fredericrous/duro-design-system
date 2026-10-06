@@ -13,6 +13,8 @@ import {
 import {useVirtualizer} from '@tanstack/react-virtual'
 import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
 import {styles} from './styles.css'
+import {SIZES_PX} from '@duro-app/tokens/keys'
+import {resolveLength, type Length} from '../../shared/length'
 
 // Measure + commit before paint on the client; no-op-safe on the server.
 const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
@@ -56,7 +58,7 @@ interface VirtualTableProps<TData> {
   /** Estimated row height for the virtualizer. Default 44. */
   estimateRowHeight?: number
   /** Max height of the scroll viewport once virtualized. Default '70vh'. */
-  maxHeight?: number | string
+  maxHeight?: Length
   /** Render every row (no windowing) at or below this count. Default 150. */
   virtualizeThreshold?: number
   /**
@@ -94,7 +96,7 @@ export function VirtualTable<TData>({
   onVisiblePageChange,
   rangeLabel,
   pageSize = 50,
-  estimateRowHeight = 44,
+  estimateRowHeight = SIZES_PX.touchTarget,
   maxHeight = '70vh',
   virtualizeThreshold = 150,
   stackBelow = 'sm',
@@ -288,7 +290,7 @@ export function VirtualTable<TData>({
         role="table"
         style={[
           stacked ? styles.stackScroll : styles.scroll,
-          virtualize && styles.scrollMax(maxHeight),
+          virtualize && styles.scrollMax(resolveLength(maxHeight)),
         ]}
       >
         {stacked ? null : (

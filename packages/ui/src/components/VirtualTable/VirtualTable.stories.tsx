@@ -3,10 +3,11 @@ import {expect, fn, waitFor} from 'storybook/test'
 import {createColumnHelper} from '@tanstack/react-table'
 import {css, html} from 'react-strict-dom'
 import {VirtualTable} from './VirtualTable'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const storyStyles = css.create({
   // Phone-width wrapper: below VirtualTable's 640px stackBelow default.
-  narrow: {width: 400},
+  narrow: {width: sizes.dialogSm},
 })
 
 interface Item {
@@ -49,7 +50,7 @@ export const SmallList: Story = {
 export const Virtualized: Story = {
   args: {
     data: makeData(500),
-    maxHeight: 300,
+    maxHeight: 'listMaxH',
     rangeLabel: ({from, to, total}) => `${from}-${to} of ${total}`,
     onVisiblePageChange: fn(),
   },
@@ -69,7 +70,7 @@ export const Virtualized: Story = {
 export const ScrollReportsPage: Story = {
   args: {
     data: makeData(500),
-    maxHeight: 300,
+    maxHeight: 'listMaxH',
     pageSize: 50,
     rangeLabel: ({page, pages}) => `page ${page}/${pages}`,
     onVisiblePageChange: fn(),

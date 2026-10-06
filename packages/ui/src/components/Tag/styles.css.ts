@@ -1,7 +1,8 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   base: {
@@ -11,15 +12,15 @@ export const styles = css.create({
     fontFamily: typography.fontFamily,
     fontWeight: typography.fontWeightNormal,
     lineHeight: 1,
-    borderRadius: 4,
+    borderRadius: radii.xs,
     whiteSpace: 'nowrap',
     minWidth: 0,
-    borderWidth: 1,
+    borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
     outlineWidth: {
       default: 0,
-      ':focus-visible': 2,
+      ':focus-visible': borders.focusRing,
     },
     outlineStyle: {
       default: 'none',
@@ -31,7 +32,7 @@ export const styles = css.create({
     },
     outlineOffset: {
       default: 0,
-      ':focus-visible': 1,
+      ':focus-visible': borders.focusOffsetSm,
     },
   },
   sizeMd: {
