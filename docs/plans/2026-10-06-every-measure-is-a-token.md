@@ -586,4 +586,119 @@ Consumers on `^4` are untouched until they bump.
 11. **Preview approval:** a guided preview on Storybook (Duro is a UI repo),
     before the Duro push.
 
+## Decision log
+
+- **2026-10-06, the person:** component sources, linted for the first time,
+  held 51 non-size findings. They get exact tokens, so nothing moves:
+  - `microSpacing` px1/px2/px3/px5/px6, in its own group, so `SpacingToken`
+    (and every `gap=` prop) keeps its eight steps;
+  - `radii.px6`;
+  - `colors.scrim`, `inverseFill(Hover)`, `inverseBorder(Hover)` and
+    `fixedLight`, the same in every theme;
+  - `duration.minimal/quick/brisk`, and `easing.linear`.
+- **2026-10-06, the person:** story and doc frames map to the nearest
+  existing size token (300→gridColMd, 320→panelSm, 560→pageSm, 700/720→
+  dialogLg, 900→pageMd, 1120→pageLg, 50→iconXxl). No demo-only token is
+  published. Verification 2 therefore expects differences inside those
+  stories only.
+- **Tokens the inventory missed**, added with exact values: `sizes.divider`
+  (1, the ActionBar separator), `sizes.tabIndicator` (2), and
+  `sizes.edgeFade` (32, the Table edge fade, which had borrowed
+  `spacing.xl`).
+- **A raw `#ffffff` now suggests `colors.fixedLight`**, not `colors.bg`
+  (`bg` is near-black in the dark theme). This goes in the release notes.
+- **The email harness** is `node packages/ui-email/scripts/render-consumer-emails.mjs`
+  (plain Node; adding `tsx` to Duro would change its lockfile). Its render
+  entry is `.tsx` and runs under the consumer's own `tsx`. It packs both
+  tarballs at the versions the consumer already pins, so the dependency
+  tree keeps its shape. The first run caught a nested-copy lockfile change
+  with a dummy version.
+- **The Verification 10 type check** uses `bundler` resolution and counts
+  only errors in `@duro-app/*` or in the check file. Third-party
+  declarations with missing `@types` peers are not this release's to fix.
+  Found while doing it: ui-email's `.d.ts` uses extensionless relative
+  imports, which `nodenext` consumers reject. This predates the branch and
+  is a follow-up.
+- **deliberate: the mockup check keeps the artboard root's 1120×840 canvas**
+  (`ARTBOARD_WIDTH`/`HEIGHT`) as the one exempt geometry. It is the board's
+  coordinate space, like a Diagram canvas; ADR-0027's list names only the
+  Diagram, so the PR names this for the person.
+- **Table header cell `width`/`compactWidth`** are typed `GridTrack` (Length,
+  `Nfr`, `minmax()`, `fit-content()`). The arguments inside a track
+  function are not type-checked. This is a named gap, like plain `.css`.
+- **The lint-js gate refuses any warning in a staged file.** Unused imports
+  in touched stories were removed, and the Spacing doc story's `flexGrow: 1`
+  was removed: react-strict-dom forces flex-grow to 0 on web, so the
+  declaration was already dead.
+
+## Verification results (observed before the push)
+
+Input → expected → actual. Evidence is under
+`~/.claude/amont-agent/attestations/` (`email-v9-*`, `v2-size-diff-*`).
+
+1. **decisions:** decisions#43, merged as `eb64959`.
+   - The four `aval` checks → exit 0 → exit 0.
+   - `aval resolve ui.mockup-handoff` and `aval resolve ui.measures` → ADR-0027 → ADR-0027.
+2. **No visual change:** 328 stories × (default, focus, coarse), baseline
+   `origin/main` against the branch build.
+   - **Expected:** differences only inside the story frames the person
+     mapped.
+   - **First run:** found a real regression. The inset focus rings of Tabs,
+     Tree and Table had flipped from −2 to +2 (`99448519` fixes it).
+   - **Rerun:** default run, 0 stories outside the mapped frames. The
+     remaining focus and coarse rows are play-function timing: element sets
+     differ between runs, and the baseline differs from its own earlier run.
+     Probing them after the play settles gives identical width and content.
+     The Storybook a11y vision-filter SVG is excluded as noise.
+3. **Lint:**
+   - `pnpm lint` → 0 errors → 0 errors (19 warnings, all from before this
+     branch).
+   - **Branch plugin on main's sources** → recorded → 274 findings in 72
+     files: rawMeasure 167, ambiguousMeasure 35, missingMeasureToken 30,
+     offScaleSpacing 23, rawColor 6, rawDuration 5, rawRadius 2, and 1 each
+     of rawFontSize, rawFontWeight, rawEasing, rawColorToken, offScaleRadius
+     and rawSpacing.
+   - **After the migration** → 0 → 0.
+   - **Seeded checks:** `width: 44` in a component → error → error. The
+     same 1px in `styles/x.css.ts` → error → error. In the exempt module →
+     none → none.
+   - **Fixtures:** every one listed in plan V3 → passes → passes. Exception:
+     `width: 1` now suggests `sizes.divider`, never `EMAIL_PX`.
+   - **ui-email grep** → 0 → 0.
+   - **Type fixtures:** in `shared/length.typecheck.tsx`. Falsified: allowing
+     px fails 9 checks.
+4. **Tokens:**
+   - The drift check, `registry.test.ts` and `token-drift.test.ts` → pass →
+     pass.
+   - `vars.css` has the `--duro-size-*`, `--duro-border-*` and
+     `--duro-micro-spacing-*` variables → yes → yes.
+5. **Mockup check:** `width: 44px` and `border: 1px solid` fail.
+   `var(--duro-border-hairline)`, `top: 120px` and the 1120×840 root pass.
+   As expected.
+6. **Suite:**
+   - Typecheck → pass → pass.
+   - Unit tests → 317/317 → 317/317. Under a load average above 40, the
+     `hook-pin` CLI tests time out intermittently; they pass on rerun.
+   - Storybook → 328/328 → 328/328.
+7. **Consumer impact:** the branch rule against the 4.5 rule, over every
+   `.ts`/`.tsx` file in `origin/main`:
+   - **website-builder** (`294bd2b`): +96 new findings (54 raw size/border,
+     32 with no token yet, 10 ambiguous). Separately, 70 off-scale spacings
+     and 7 radii relabel to `microSpacing` and `radii.px6`.
+   - **duro-app** (`1e82093`): +31 (21 raw, 4 with no token yet, 6
+     ambiguous).
+   - **application-landscape** (`816cf4e8`): 0.
+8. **Release:** after the tag (`tag-release`).
+9. **Email (blocks the release):**
+   - **Setup:** duro-app `1e82093`, baseline `c1ad41b0`, candidate
+     `99448519`.
+   - **Expected:** 8 renders byte-identical. **Actual:** 8 identical.
+   - **Frozen versions:** React 19.2.4, @react-email/render 2.0.8,
+     components 1.0.12, i18next 25.10.10, react-i18next 16.6.6, tsx 4.23.15.
+   - **Falsified:** a 1px change to `space.md` makes 7 of 8 renders
+     DIFFERENT, and the harness FAILs.
+10. **Packed artifacts (blocks the release):** the five checks → ok → ok.
+    Falsified: an injected type error is caught.
+11. **Preview:** pending the person's approval before the push.
+
 <!-- panel: repos=duro-design-system,decisions reviewers=backend body-sha=f5006c2288ec -->
