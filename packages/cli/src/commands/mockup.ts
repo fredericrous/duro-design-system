@@ -19,9 +19,9 @@ import {lineOf} from '../scan.js'
  * one that does not say which design-system component each control is.
  *
  * What binds when a direction is chosen: layout, hierarchy, states, the
- * data-duro component map and the token names. What does not: the artboard's
- * pixel geometry — widths, heights and positions are not tokens and are not
- * checked.
+ * data-duro component map and the token names — sizes and border widths
+ * included (ADR-0027). What does not: positions (top, left, inset,
+ * transform), which are the sketch and are not checked.
  */
 
 export const TOKENS_START = '/* duro:tokens start */'
@@ -172,6 +172,12 @@ const SPACING_PROPS =
 const RADIUS_PROPS = /^border(-[a-z]+-[a-z]+)?-radius$/
 const TYPE_PROPS = /^(font-size|font-weight|font-family|font)$/
 const SHADOW_PROPS = /^box-shadow$/
+const SIZE_PROPS = /^((min|max)-)?(width|height|block-size|inline-size)$|^flex-basis$/
+// border-width and every side/logical variant, the border* shorthands (their
+// width), outline, outline-width and outline-offset. Not border-radius/color/style.
+const BORDER_WIDTH_PROPS =
+  /^(border(-(top|right|bottom|left|block|inline)(-(start|end))?)?(-width)?|outline(-width|-offset)?)$/
+const PX_LITERAL = /(?<![\w.-])-?(\d*\.?\d+)px\b/
 const MOTION_PROPS =
   /^(transition|transition-duration|transition-timing-function|animation|animation-duration|animation-timing-function)$/
 
@@ -277,6 +283,29 @@ function scanCss(
   }
 
   for (const {prop, value, at} of declarations(inert, base)) {
+    // Sizes and border widths: only px is raw; %, vh, fr, rem and keywords are
+    // relative and allowed. The artboard root's canvas size (the board's
+    // coordinate space, like a Diagram canvas) is the one geometry kept.
+    const measure = SIZE_PROPS.test(prop)
+      ? '--duro-size-*'
+      : BORDER_WIDTH_PROPS.test(prop) && !RADIUS_PROPS.test(prop)
+        ? '--duro-border-*'
+        : null
+    if (measure) {
+      const px = value.match(PX_LITERAL)
+      const canvas =
+        (prop === 'width' && value.trim() === `${ARTBOARD_WIDTH}px`) ||
+        (prop === 'height' && value.trim() === `${ARTBOARD_HEIGHT}px`)
+      if (px && Number(px[1]) !== 0 && !canvas) {
+        findings.push({
+          file,
+          line: lineOf(source, at),
+          rule: 'raw-length',
+          message: `${px[0]} on \`${prop}\` is a raw ${measure === '--duro-size-*' ? 'size' : 'border width'} — use a var(${measure}) token`,
+        })
+      }
+      continue
+    }
     const hint = SPACING_PROPS.test(prop)
       ? '--duro-spacing-*'
       : RADIUS_PROPS.test(prop)

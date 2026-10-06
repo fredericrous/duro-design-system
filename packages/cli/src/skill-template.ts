@@ -39,7 +39,8 @@ live in \`${SKILL_NOTES_PATH}\`; read it if it exists.
 Standing rule (fleet decision \`ui.mockup-handoff\`): a mockup is written in
 the design system's own vocabulary, and the direction the user picks is a
 contract. What binds: layout, hierarchy, states, the \`data-duro\` component
-map and the token names. What does not bind: the artboard's pixel geometry.
+map and the token names, sizes and border widths included (ADR-0027). What
+does not bind: positions (top, left, inset, transform).
 
 **This overrides the \`design\` skill's step 0.** That skill says to lift
 resolved values from the real stylesheets. Here you never write a resolved
@@ -66,8 +67,9 @@ ${DURO} mockup seed --out docs/mockups/<screen> --name <Direction>   # B, C, …
   the PR — never leave them in a scratch directory; a session scratchpad is
   garbage-collected and the canvas URL would be the only surviving artefact.
 - Author each artboard inside the seeded \`<style>\` and root div. Colours,
-  spacing, radii, type, shadows and motion come only from the token block;
-  widths, heights and positions are yours. Every button, row, chip, tab,
+  spacing, radii, sizes, border widths, type, shadows and motion come only
+  from the token block (\`var(--duro-size-*)\`, \`var(--duro-border-*)\`);
+  positions are yours, and so is the root's canvas size. Every button, row, chip, tab,
   input, link, table and dialog — whatever element it is drawn as — carries
   \`data-duro="<Component>"\` or \`data-duro="<Component>.<Part>"\`, using names
   from \`${DURO} list components\`. Notes for the implementer go after the
@@ -108,8 +110,9 @@ ${DURO} mockup check docs/mockups/<screen>/*.dc.html
   \`@duro-app/tokens/tokens/breakpoints.css\`. The lint config refuses the raw
   value, so write the token the first time.
 - Layout comes from a recipe before a grid: \`${DURO} <recipe> --source-only\`.
-- Geometry in the artboard is a sketch. Match its hierarchy and states, not
-  its pixel widths.
+- Positions in the artboard are a sketch: match its hierarchy and states.
+  Its sizes are tokens, so they bind like colours do; a size the artboard
+  needs and no token has is added to \`@duro-app/tokens\` first.
 
 ## prove
 
