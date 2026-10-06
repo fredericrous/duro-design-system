@@ -8,6 +8,7 @@ export const TOKEN_DEEP_PATHS: Record<string, string> = {
   colors: 'tokens/colors.css',
   spacing: 'tokens/spacing.css',
   radii: 'tokens/spacing.css',
+  microSpacing: 'tokens/spacing.css',
   sizes: 'tokens/sizes.css',
   borders: 'tokens/borders.css',
   layoutSpacing: 'tokens/layout-spacing.css',
@@ -28,6 +29,9 @@ export const TOKEN_DEEP_PATHS: Record<string, string> = {
   SPACING_PX: 'keys',
   SpacingToken: 'keys',
   RADIUS_KEYS: 'keys',
+  MICRO_SPACING_KEYS: 'keys',
+  MICRO_SPACING_PX: 'keys',
+  MicroSpacingToken: 'keys',
   RADII_PX: 'keys',
   RadiusToken: 'keys',
   SIZE_KEYS: 'keys',
@@ -68,9 +72,19 @@ export const SPACING_TOKENS_BY_PX: Record<number, string> = {
   64: 'xxxl',
 }
 
+/** px value → micro-spacing token name (off-scale nudges). */
+export const MICRO_SPACING_TOKENS_BY_PX: Record<number, string> = {
+  1: 'px1',
+  2: 'px2',
+  3: 'px3',
+  5: 'px5',
+  6: 'px6',
+}
+
 /** px value → radius token name. */
 export const RADII_TOKENS_BY_PX: Record<number, string> = {
   4: 'xs',
+  6: 'px6',
   8: 'sm',
   12: 'md',
   16: 'lg',
@@ -107,7 +121,12 @@ export const COLOR_TOKENS: Record<string, string> = {
   '#fde68a': 'warningText',
   'rgba(106, 175, 252, 0.1)': 'infoBg',
   'rgba(106, 175, 252, 0.3)': 'infoBorder',
-  '#ffffff': 'bg',
+  'rgba(0, 0, 0, 0.4)': 'scrim',
+  'rgba(0, 0, 0, 0.10)': 'inverseFill',
+  'rgba(0, 0, 0, 0.18)': 'inverseFillHover',
+  'rgba(0, 0, 0, 0.55)': 'inverseBorder',
+  'rgba(0, 0, 0, 0.70)': 'inverseBorderHover',
+  '#ffffff': 'fixedLight',
   '#f5f5f5': 'bgCard',
   '#ebebeb': 'bgCardHover',
   '#4a4a4a': 'textMuted',
@@ -190,7 +209,10 @@ export const SHADOW_TOKENS: Record<string, string> = {
 /** ms value → duration token. */
 export const DURATION_TOKENS_BY_MS: Record<number, string> = {
   0: 'instant',
+  1: 'minimal',
+  120: 'quick',
   150: 'fast',
+  160: 'brisk',
   200: 'base',
   280: 'slow',
 }
@@ -198,6 +220,7 @@ export const DURATION_TOKENS_BY_MS: Record<number, string> = {
 /** Easing value (whitespace-normalized) → easing token. */
 export const EASING_TOKENS: Record<string, string> = {
   ease: 'standard',
+  linear: 'linear',
   'cubic-bezier(0.32,0.72,0,1)': 'easeOut',
   'cubic-bezier(0.72,0,0.68,0.28)': 'easeIn',
 }

@@ -6,6 +6,7 @@ import {
   EASINGS,
   FONT_SIZE_REM,
   FONT_WEIGHTS,
+  MICRO_SPACING_PX,
   RADII_PX,
   SHADOWS,
   SIZES_PX,
@@ -21,6 +22,7 @@ import {
   EASING_TOKENS,
   FONT_SIZE_TOKENS_BY_REM,
   FONT_WEIGHT_TOKENS,
+  MICRO_SPACING_TOKENS_BY_PX,
   RADII_TOKENS_BY_PX,
   SHADOW_TOKENS,
   SIZE_TOKENS_BY_PX,
@@ -40,6 +42,12 @@ describe('token tables match @duro-app/tokens', () => {
       Object.entries(SPACING_PX).map(([token, px]) => [px, token]),
     )
     expect(SPACING_TOKENS_BY_PX).toEqual(expected)
+  })
+
+  it('MICRO_SPACING_TOKENS_BY_PX mirrors MICRO_SPACING_PX', () => {
+    expect(MICRO_SPACING_TOKENS_BY_PX).toEqual(
+      Object.fromEntries(Object.entries(MICRO_SPACING_PX).map(([token, px]) => [px, token])),
+    )
   })
 
   it('RADII_TOKENS_BY_PX mirrors RADII_PX', () => {

@@ -37,6 +37,7 @@ const GROUP_NAMES = {
   radii: 'radius',
   shadows: 'shadow',
   spacing: 'spacing',
+  microSpacing: 'micro-spacing',
   sizes: 'size',
   borders: 'border',
   layoutSpacing: 'layout-spacing',

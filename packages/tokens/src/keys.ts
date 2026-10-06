@@ -31,12 +31,24 @@ export const SPACING_PX = {
   xxxl: 64,
 } as const
 
-export const RADIUS_KEYS = ['xs', 'sm', 'md', 'lg', 'full'] as const
+// Mirrors tokens/spacing.css.ts `microSpacing` (px). Not a SpacingToken.
+export const MICRO_SPACING_KEYS = ['px1', 'px2', 'px3', 'px5', 'px6'] as const
+export type MicroSpacingToken = (typeof MICRO_SPACING_KEYS)[number]
+export const MICRO_SPACING_PX = {
+  px1: 1,
+  px2: 2,
+  px3: 3,
+  px5: 5,
+  px6: 6,
+} as const
+
+export const RADIUS_KEYS = ['xs', 'px6', 'sm', 'md', 'lg', 'full'] as const
 export type RadiusToken = (typeof RADIUS_KEYS)[number]
 
 // Mirrors tokens/spacing.css.ts `radii` (px).
 export const RADII_PX = {
   xs: 4,
+  px6: 6,
   sm: 8,
   md: 12,
   lg: 16,
@@ -49,7 +61,10 @@ export type ShadowToken = (typeof SHADOW_KEYS)[number]
 // Mirrors tokens/motion.css.ts `duration`, as numbers for setTimeout use.
 export const DURATION_MS = {
   instant: 0,
+  minimal: 1,
+  quick: 120,
   fast: 150,
+  brisk: 160,
   base: 200,
   slow: 280,
 } as const
@@ -238,6 +253,7 @@ export const SHADOWS = {
 // Mirrors tokens/motion.css.ts `easing` verbatim.
 export const EASINGS = {
   standard: 'ease',
+  linear: 'linear',
   easeOut: 'cubic-bezier(0.32, 0.72, 0, 1)',
   easeIn: 'cubic-bezier(0.72, 0, 0.68, 0.28)',
 } as const

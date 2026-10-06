@@ -386,6 +386,24 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       ],
     },
     {
+      // An off-scale nudge that IS a micro-spacing token: suggest it
+      code: wrap('paddingTop: 2'),
+      errors: [
+        {
+          messageId: 'rawMicroSpacing',
+          data: {value: '2', property: 'paddingTop', token: 'px2', pkg: '@duro-app/tokens'},
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {microSpacing} from '@duro-app/tokens/tokens/spacing.css'\n" +
+                wrap('paddingTop: microSpacing.px2'),
+            },
+          ],
+        },
+      ],
+    },
+    {
       // Off the scale on a tokenised property: reported, no suggestion
       code: wrap('marginTop: 23, borderRadius: 10'),
       errors: [

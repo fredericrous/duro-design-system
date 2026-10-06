@@ -11,6 +11,7 @@ import {
   EASING_TOKENS,
   FONT_SIZE_TOKENS_BY_REM,
   FONT_WEIGHT_TOKENS,
+  MICRO_SPACING_TOKENS_BY_PX,
   OUTLINE_OFFSET_TOKENS,
   OUTLINE_WIDTH_TOKENS,
   RADII_PROPERTIES,
@@ -30,6 +31,7 @@ type MessageIds =
   | 'rawColorToken'
   | 'rawColor'
   | 'rawSpacing'
+  | 'rawMicroSpacing'
   | 'rawRadius'
   | 'offScaleSpacing'
   | 'offScaleRadius'
@@ -160,6 +162,8 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         '{{value}} on `{{property}}` is the {{token}} spacing token. Use `spacing.{{token}}` from {{pkg}}/tokens/spacing.css.',
       rawRadius:
         '{{value}} on `{{property}}` is the {{token}} radius token. Use `radii.{{token}}` from {{pkg}}/tokens/spacing.css.',
+      rawMicroSpacing:
+        '{{value}} on `{{property}}` is off the spacing scale; it is the {{token}} micro-spacing token. Use `microSpacing.{{token}}` from {{pkg}}/tokens/spacing.css, or the scale if the nudge is not needed.',
       offScaleSpacing:
         '{{value}} on `{{property}}` is off the spacing scale ({{scale}}px). Use the nearest `spacing.*` token from {{pkg}}/tokens/spacing.css, or disable this line with the reason.',
       offScaleRadius:
@@ -336,6 +340,21 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
     function checkPxValue(node: TSESTree.Node, property: string, px: number, display: string) {
       if (spacingProperties.has(property)) {
         const token = SPACING_TOKENS_BY_PX[px]
+        const micro = MICRO_SPACING_TOKENS_BY_PX[px]
+        if (!token && micro) {
+          context.report({
+            node,
+            messageId: 'rawMicroSpacing',
+            data: {value: display, property, token: micro, pkg: TOKENS_PKG},
+            suggest: suggestReplacement(
+              node,
+              `microSpacing.${micro}`,
+              'microSpacing',
+              'tokens/spacing.css',
+            ),
+          })
+          return
+        }
         if (!token) {
           context.report({
             node,

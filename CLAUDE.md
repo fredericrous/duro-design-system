@@ -301,11 +301,24 @@ const MySchema = Schema.Struct({
 | `xxl` | 48px |
 | `xxxl` | 64px |
 
+### Micro Spacing
+
+Optical nudges below and between the scale (`microSpacing` from `@duro-app/tokens/tokens/spacing.css`). Not a layout choice: prefer the scale.
+
+| Token | Value |
+| --- | --- |
+| `px1` | 1px |
+| `px2` | 2px |
+| `px3` | 3px |
+| `px5` | 5px |
+| `px6` | 6px |
+
 ### Border Radius
 
 | Token | Value |
 | --- | --- |
 | `xs` | 4px |
+| `px6` | 6px |
 | `sm` | 8px |
 | `md` | 12px |
 | `lg` | 16px |

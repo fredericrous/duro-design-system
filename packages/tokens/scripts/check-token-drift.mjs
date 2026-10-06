@@ -96,6 +96,20 @@ const spacingCss = extractCallArg(
 )
 checkScale('SPACING_PX', spacingCss, keys.SPACING_PX, keys.SPACING_KEYS, 'px')
 
+const microSpacingCss = extractCallArg(
+  join(srcDir, 'tokens', 'spacing.css.ts'),
+  'defineVars',
+  0,
+  'microSpacing',
+)
+checkScale(
+  'MICRO_SPACING_PX',
+  microSpacingCss,
+  keys.MICRO_SPACING_PX,
+  keys.MICRO_SPACING_KEYS,
+  'px',
+)
+
 const radiiCss = extractCallArg(join(srcDir, 'tokens', 'spacing.css.ts'), 'defineVars', 0, 'radii')
 checkScale('RADII_PX', radiiCss, keys.RADII_PX, keys.RADIUS_KEYS, 'px')
 

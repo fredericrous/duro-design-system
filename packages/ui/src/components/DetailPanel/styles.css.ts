@@ -109,7 +109,10 @@ export const styles = css.create({
   // The closeAnimationDuration prop token drives both these and the unmount
   // timeout, so the exit animation can never race the unmount.
   closeDurationInstant: {animationDuration: duration.instant},
+  closeDurationMinimal: {animationDuration: duration.minimal},
+  closeDurationQuick: {animationDuration: duration.quick},
   closeDurationFast: {animationDuration: duration.fast},
+  closeDurationBrisk: {animationDuration: duration.brisk},
   closeDurationBase: {animationDuration: duration.base},
   closeDurationSlow: {animationDuration: duration.slow},
 

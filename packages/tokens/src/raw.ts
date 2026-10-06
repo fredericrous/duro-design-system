@@ -37,6 +37,12 @@ export type RawColors = {
   infoBg: string
   infoBorder: string
   infoText: string
+  scrim: string
+  inverseFill: string
+  inverseFillHover: string
+  inverseBorder: string
+  inverseBorderHover: string
+  fixedLight: string
 }
 
 // Numeric maps for consumers that load only the compiled `/raw` entry (e.g.
@@ -55,6 +61,7 @@ export const SPACING_PX = {
 
 export const RADII_PX = {
   xs: 4,
+  px6: 6,
   sm: 8,
   md: 12,
   lg: 16,
@@ -160,6 +167,12 @@ export const darkColors: RawColors = {
   infoBg: 'rgba(106, 175, 252, 0.1)',
   infoBorder: 'rgba(106, 175, 252, 0.3)',
   infoText: '#93c5fd',
+  scrim: 'rgba(0, 0, 0, 0.4)',
+  inverseFill: 'rgba(0, 0, 0, 0.10)',
+  inverseFillHover: 'rgba(0, 0, 0, 0.18)',
+  inverseBorder: 'rgba(0, 0, 0, 0.55)',
+  inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
+  fixedLight: '#ffffff',
 }
 
 // Light theme — matches the overrides in `themes/light.css.ts`.
@@ -191,6 +204,12 @@ export const lightColors: RawColors = {
   infoBg: 'rgba(30, 64, 175, 0.08)',
   infoBorder: 'rgba(30, 64, 175, 0.3)',
   infoText: '#1e40af',
+  scrim: 'rgba(0, 0, 0, 0.4)',
+  inverseFill: 'rgba(0, 0, 0, 0.10)',
+  inverseFillHover: 'rgba(0, 0, 0, 0.18)',
+  inverseBorder: 'rgba(0, 0, 0, 0.55)',
+  inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
+  fixedLight: '#ffffff',
 }
 
 // High-contrast theme — matches the overrides in `themes/high-contrast.css.ts`.
@@ -222,4 +241,10 @@ export const highContrastColors: RawColors = {
   infoBg: 'rgba(96, 165, 250, 0.15)',
   infoBorder: 'rgba(96, 165, 250, 0.5)',
   infoText: '#bfdbfe',
+  scrim: 'rgba(0, 0, 0, 0.4)',
+  inverseFill: 'rgba(0, 0, 0, 0.10)',
+  inverseFillHover: 'rgba(0, 0, 0, 0.18)',
+  inverseBorder: 'rgba(0, 0, 0, 0.55)',
+  inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
+  fixedLight: '#ffffff',
 }

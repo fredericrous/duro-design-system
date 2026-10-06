@@ -17,7 +17,10 @@ import {styles} from './styles.css'
 
 const closeDurationMap = {
   instant: styles.closeDurationInstant,
+  minimal: styles.closeDurationMinimal,
+  quick: styles.closeDurationQuick,
   fast: styles.closeDurationFast,
+  brisk: styles.closeDurationBrisk,
   base: styles.closeDurationBase,
   slow: styles.closeDurationSlow,
 } as const satisfies Record<DurationToken, unknown>
