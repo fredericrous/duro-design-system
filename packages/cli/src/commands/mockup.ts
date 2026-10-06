@@ -83,6 +83,8 @@ export function seedArtboard(registry: Registry, name: string, theme: MockupThem
   <style>
 ${TOKENS_START}
 ${tokens}
+/* The design canvas size: the board's coordinate space, not a design token. */
+:root { --duro-mockup-canvas-width: ${ARTBOARD_WIDTH}px; --duro-mockup-canvas-height: ${ARTBOARD_HEIGHT}px; }
 ${TOKENS_END}
 
 /*
@@ -104,8 +106,8 @@ body {
   line-height: var(--duro-typography-line-height);
 }
 .artboard {
-  width: ${ARTBOARD_WIDTH}px;
-  height: ${ARTBOARD_HEIGHT}px;
+  width: var(--duro-mockup-canvas-width);
+  height: var(--duro-mockup-canvas-height);
   overflow: hidden;
   padding: var(--duro-spacing-lg);
   box-sizing: border-box;
@@ -249,24 +251,12 @@ function declarations(css: string, base: number): Declaration[] {
   return out
 }
 
-/** The selector of the rule a CSS offset sits in (`.artboard`), or '' at top level. */
-function selectorAt(css: string, offset: number): string {
-  const open = css.lastIndexOf('{', offset)
-  if (open < 0 || css.lastIndexOf('}', offset) > open) return ''
-  const start = css.lastIndexOf('}', open) + 1
-  return css.slice(start, open).trim()
-}
-
-/**
- * `inlineRoot`: the CSS is the inline style of the artboard root element.
- */
 function scanCss(
   file: string,
   source: string,
   css: string,
   base: number,
   findings: Finding[],
-  inlineRoot = false,
 ): void {
   const inert = maskInert(css)
 
@@ -296,11 +286,8 @@ function scanCss(
 
   for (const {prop, value, at} of declarations(inert, base)) {
     // Sizes and border widths: only px is raw; %, vh, fr, rem and keywords are
-    // relative and allowed. The artboard root's canvas size (the board's
-    // coordinate space, like a Diagram canvas) is the one geometry kept — on
-    // the `.artboard` rule or the root's inline style, never elsewhere.
-    // holds-until: the person rules on this exemption (ADR-0027 names only the
-    // Diagram canvas); if refused, the seed writes the canvas through a token.
+    // relative and allowed. The seed sizes the root through the canvas
+    // variables in the token block, so no geometry is exempt.
     const measure = SIZE_PROPS.test(prop)
       ? '--duro-size-*'
       : BORDER_WIDTH_PROPS.test(prop) && !RADIUS_PROPS.test(prop)
@@ -308,12 +295,7 @@ function scanCss(
         : null
     if (measure) {
       const px = value.match(PX_LITERAL)
-      const onRoot = inlineRoot || selectorAt(inert, at - base) === '.artboard'
-      const canvas =
-        onRoot &&
-        ((prop === 'width' && value.trim() === `${ARTBOARD_WIDTH}px`) ||
-          (prop === 'height' && value.trim() === `${ARTBOARD_HEIGHT}px`))
-      if (px && Number(px[1]) !== 0 && !canvas) {
+      if (px && Number(px[1]) !== 0) {
         findings.push({
           file,
           line: lineOf(source, at),
@@ -459,7 +441,7 @@ function scanMarkup(file: string, source: string, findings: Finding[], registry:
     const inlineCss = inline?.[1] ?? inline?.[2] ?? ''
     if (inlineCss) {
       const at = m.index + whole.indexOf(inlineCss)
-      scanCss(file, source, inlineCss, at, findings, classList.includes('artboard'))
+      scanCss(file, source, inlineCss, at, findings)
     }
     // A styled control must name itself: a named parent never covers a child
     // that draws like a control, or naming the list once would excuse every

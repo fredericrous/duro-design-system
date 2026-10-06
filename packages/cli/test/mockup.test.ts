@@ -26,7 +26,7 @@ body { background: var(--duro-color-bg); padding: var(--duro-spacing-md); }
 .btn { padding: var(--duro-spacing-sm) var(--duro-spacing-md); border-radius: var(--duro-radius-sm); background: var(--duro-color-accent); cursor: pointer; }
 @media (min-width: 768px) { .row { gap: var(--duro-spacing-md); } }
 </style>
-<div class="artboard" style="width: 1120px; height: 840px">
+<div class="artboard" style="width: var(--duro-mockup-canvas-width); height: var(--duro-mockup-canvas-height)">
   <div class="btn" data-duro="Button variant=primary">Save</div>
 </div>`
 
@@ -67,13 +67,13 @@ describe('checkArtboard', () => {
 
   it('reports a raw colour on any property, in a rule or inline', () => {
     expect(rules(clean.replace('cursor: pointer', 'border: 1px solid #333'))).toContain('raw-color')
-    expect(
-      rules(clean.replace('style="width: 1120px', 'style="color: rgba(0,0,0,.5); width: 1120px')),
-    ).toContain('raw-color')
+    expect(rules(clean.replace('style="width:', 'style="color: rgba(0,0,0,.5); width:'))).toContain(
+      'raw-color',
+    )
   })
 
   it('reports raw design lengths but not geometry', () => {
-    // width/height on the artboard root are its canvas — not a finding.
+    // the root's canvas size comes through the seed's variables — not a finding.
     expect(rules(clean)).not.toContain('raw-length')
     for (const [from, to] of [
       ['padding: var(--duro-spacing-md)', 'padding: 23px'],
@@ -94,7 +94,7 @@ describe('checkArtboard', () => {
   })
 
   it('reports raw sizes and border widths, not positions or the canvas (ADR-0027)', () => {
-    // The root's 1120×840 is the canvas: the one geometry kept.
+    // The root reads the canvas size through the seed's variables.
     expect(rules(clean)).not.toContain('raw-length')
     for (const to of [
       'width: 44px',
@@ -113,10 +113,9 @@ describe('checkArtboard', () => {
       checkArtboard(registry, 'A.dc.html', clean.replace('cursor: pointer', 'width: 44px'))[0]
         ?.message,
     ).toContain('var(--duro-size-*)')
-    // The canvas size is exempt only on the root: the same width on a control is raw.
-    expect(rules(clean.replace('cursor: pointer', 'width: 1120px'))).toContain('raw-length')
+    // No geometry is exempt: a raw canvas size on the root is a raw length too.
     expect(
-      rules(clean.replace('<div class="btn"', '<div class="btn" style="height: 840px"')),
+      rules(clean.replace('width: var(--duro-mockup-canvas-width)', 'width: 1120px')),
     ).toContain('raw-length')
     for (const to of [
       'border: var(--duro-border-hairline) solid',

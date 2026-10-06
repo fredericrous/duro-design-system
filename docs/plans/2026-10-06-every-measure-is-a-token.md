@@ -619,10 +619,18 @@ Consumers on `^4` are untouched until they bump.
   Found while doing it: ui-email's `.d.ts` uses extensionless relative
   imports, which `nodenext` consumers reject. This predates the branch and
   is a follow-up.
-- **deliberate: the mockup check keeps the artboard root's 1120×840 canvas**
-  (`ARTBOARD_WIDTH`/`HEIGHT`) as the one exempt geometry. It is the board's
-  coordinate space, like a Diagram canvas; ADR-0027's list names only the
-  Diagram, so the PR names this for the person.
+- **2026-10-06, the person, on implementation-review finding 1:** the
+  artboard root's 1120×840 canvas is not exempted. The seed writes
+  `--duro-mockup-canvas-width/height` into its token block (canvas constants,
+  not design tokens), and the root reads them through `var()`. The check has
+  no geometry exemption, and ADR-0027's list stays as written. An artboard
+  with an inline `width: 1120px` on its root is now flagged until rewritten.
+- **2c′ count:** the plan's grep found 8 public length props, all retyped:
+  Grid `minColumnWidth`, InputGroup.Addon `minWidth`, ScrollArea.Viewport and
+  VirtualTable `maxHeight`, Table.Root and FromTanstack `minColumnWidth`, and
+  Table.HeaderCell `width`/`compactWidth`. The other grep hits are internal
+  state, style-function parameters, or `estimateRowHeight` (a px input to
+  the virtualizer, not a CSS length).
 - **Table header cell `width`/`compactWidth`** are typed `GridTrack` (Length,
   `Nfr`, `minmax()`, `fit-content()`). The arguments inside a track
   function are not type-checked. This is a named gap, like plain `.css`.

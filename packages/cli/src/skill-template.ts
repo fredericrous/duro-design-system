@@ -69,7 +69,8 @@ ${DURO} mockup seed --out docs/mockups/<screen> --name <Direction>   # B, C, …
 - Author each artboard inside the seeded \`<style>\` and root div. Colours,
   spacing, radii, sizes, border widths, type, shadows and motion come only
   from the token block (\`var(--duro-size-*)\`, \`var(--duro-border-*)\`);
-  positions are yours, and so is the root's canvas size. Every button, row, chip, tab,
+  positions are yours, and the root keeps the seeded canvas size
+  (\`var(--duro-mockup-canvas-width)\` / \`-height\`). Every button, row, chip, tab,
   input, link, table and dialog — whatever element it is drawn as — carries
   \`data-duro="<Component>"\` or \`data-duro="<Component>.<Part>"\`, using names
   from \`${DURO} list components\`. Notes for the implementer go after the
