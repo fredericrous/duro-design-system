@@ -28,6 +28,15 @@ export const trackForms: Assignable<
 export const lengthPxString: Assignable<'280px', Length> = false
 export const lengthPxNumber: Assignable<44, Length> = false
 export const trackPx: Assignable<'40px', GridTrack> = false
+export const trackMinmaxPx: Assignable<'minmax(40px, 1fr)', GridTrack> = false
+export const trackFitPx: Assignable<'fit-content(120px)', GridTrack> = false
+export const trackMinmaxTokens: Assignable<
+  | 'minmax(gridColSm, 1fr)'
+  | 'minmax(0, 2fr)'
+  | 'minmax(labelMinW, auto)'
+  | 'fit-content(labelMinW)',
+  GridTrack
+> = true
 
 // The props themselves.
 export const gridMin: Assignable<'280px', Prop<typeof Grid, 'minColumnWidth'>> = false
