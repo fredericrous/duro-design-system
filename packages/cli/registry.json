@@ -1953,7 +1953,7 @@
             "Portal"
           ]
         },
-        "description": "Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Use for secondary workflows, settings panels, or mobile-friendly detail views.",
+        "description": "Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). Use for secondary workflows, settings panels, or mobile-friendly detail views.",
         "example": "<Drawer.Root anchor=\"right\" open={open} onOpenChange={setOpen}>\n  <Drawer.Trigger>\n    <Button>Open drawer</Button>\n  </Drawer.Trigger>\n  <Drawer.Portal size=\"md\">\n    <Drawer.Header>\n      <Drawer.Title>Settings</Drawer.Title>\n      <Drawer.Close />\n    </Drawer.Header>\n    <Drawer.Body>\n      <Stack gap=\"md\">\n        <Text>Drawer content goes here.</Text>\n      </Stack>\n    </Drawer.Body>\n    <Drawer.Footer>\n      <Button variant=\"secondary\" onClick={() => setOpen(false)}>Done</Button>\n    </Drawer.Footer>\n  </Drawer.Portal>\n</Drawer.Root>",
         "relatedTo": [
           {
@@ -3768,6 +3768,11 @@
             "relationship": "Drawer is the modal edge panel for phone width; Popover is anchored and non-modal"
           },
           {
+            "component": "Select",
+            "kind": "composition",
+            "relationship": "A Select (or Combobox) inside Popover.Popup keeps the popover open while you choose; its backdrop press closes only the list"
+          },
+          {
             "component": "Field",
             "kind": "composition",
             "relationship": "Place Field.Root with its control inside Popover.Popup for a labelled field"
@@ -3782,7 +3787,8 @@
         ],
         "whenToUse": [
           "A small form or controls tied to one element that stay open while you work in them",
-          "Anchoring to a spot that is not a button (a canvas point, a text selection) with a virtual anchor"
+          "Anchoring to a spot that is not a button (a canvas point, a text selection) with a virtual anchor",
+          "Holding a Select or Combobox: their portalled list counts as inside the popover, so choosing an item keeps it open, and Escape closes the nested list before the popover"
         ]
       },
       "name": "Popover",
@@ -4011,7 +4017,7 @@
             "Thumb"
           ]
         },
-        "description": "Custom scrollbar region with draggable thumb. Supports vertical and horizontal scrolling. Compound component — Root is required.",
+        "description": "Custom scrollbar region with draggable thumb. Supports vertical and horizontal scrolling. Compound component — Root is required. Inside a Drawer, a drag in the viewport scrolls it; the drawer only takes a drag toward its edge from the scroll start.",
         "example": "<ScrollArea.Root>\n  <ScrollArea.Viewport maxHeight={300}>\n    <ScrollArea.Content>\n      {/* Long content here */}\n    </ScrollArea.Content>\n  </ScrollArea.Viewport>\n  <ScrollArea.Scrollbar orientation=\"vertical\">\n    <ScrollArea.Thumb orientation=\"vertical\" />\n  </ScrollArea.Scrollbar>\n</ScrollArea.Root>",
         "whenNotToUse": [
           "Simple page-level scrolling — browser scroll is fine",
@@ -5842,7 +5848,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Toggle button with pressed/unpressed state. Works standalone or within ToggleGroup for multi/single selection.",
+        "description": "Toggle button with pressed/unpressed state. Works standalone or within ToggleGroup for multi/single selection. Under a coarse pointer (touch) every Toggle is at least 44×44px; in a wrapping ToggleGroup each keeps its own border and a fixed row height.",
         "example": "// Standalone\n<Toggle pressed={isBold} onPressedChange={setIsBold} aria-label=\"Bold\">\n  <Icon name=\"key\" size=\"sm\" />\n</Toggle>\n\n// In a group\n<ToggleGroup value={['grid']} onValueChange={setView} multiple={false}>\n  <Toggle value=\"list\">List</Toggle>\n  <Toggle value=\"grid\">Grid</Toggle>\n</ToggleGroup>",
         "relatedTo": [
           {
@@ -5934,7 +5940,7 @@
       "kind": "component",
       "meta": {
         "description": "Container for Toggle buttons enabling single or multi selection. Provides context to child Toggles.",
-        "example": "<ToggleGroup\n  value={selected}\n  onValueChange={setSelected}\n  multiple={false}\n  orientation=\"horizontal\"\n  size=\"default\"\n>\n  <Toggle value=\"list\">List view</Toggle>\n  <Toggle value=\"grid\">Grid view</Toggle>\n  <Toggle value=\"board\">Board view</Toggle>\n</ToggleGroup>",
+        "example": "<ToggleGroup\n  value={selected}\n  onValueChange={setSelected}\n  multiple={false}\n  orientation=\"horizontal\"\n  size=\"default\"\n>\n  <Toggle value=\"list\">List view</Toggle>\n  <Toggle value=\"grid\">Grid view</Toggle>\n  <Toggle value=\"board\">Board view</Toggle>\n</ToggleGroup>\n\n// Icon choices: wraps onto rows, scrolls past three, one tab stop\n<ToggleGroup wrap maxRows={3} size=\"small\" value={[icon]} onValueChange={(v) => v[0] && setIcon(v[0])} aria-label=\"Icon\">\n  {names.map((name) => (\n    <Toggle key={name} value={name} aria-label={name}>\n      <Icon name={name} size=\"sm\" />\n    </Toggle>\n  ))}\n</ToggleGroup>",
         "relatedTo": [
           {
             "component": "Toggle",
@@ -5955,7 +5961,7 @@
         "whenToUse": [
           "Visible option set where user picks one or more (view mode, filter categories)",
           "Segmented control pattern",
-          "a visible grid of icon choices (wrap + maxRows)"
+          "A visible grid of icon choices: wrap + maxRows (rows scroll past maxRows, one tab stop with arrow keys, 44px touch targets)"
         ]
       },
       "name": "ToggleGroup",

@@ -1,11 +1,8 @@
 import type {ComponentMeta} from '../component-meta'
 
-// Swipe-to-dismiss yields to an inner Duro ScrollArea (`data-duro-scroll`): a drag that starts
-// there dismisses only when it moves in the dismiss direction with the viewport already at its
-// start edge. Native `overflow: auto` children are a non-goal and still lose the gesture to the drawer.
 export const meta: ComponentMeta = {
   description:
-    'Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Use for secondary workflows, settings panels, or mobile-friendly detail views.',
+    'Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). Use for secondary workflows, settings panels, or mobile-friendly detail views.',
   whenToUse: [
     'Settings or configuration panels that slide in from the side',
     'Mobile-friendly detail views (bottom sheet pattern)',
