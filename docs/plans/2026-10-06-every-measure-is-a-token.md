@@ -707,13 +707,14 @@ Input → expected → actual. Evidence is under
      DIFFERENT, and the harness FAILs.
 10. **Packed artifacts (blocks the release):** the five checks → ok → ok.
     Falsified: an injected type error is caught.
-11. **Preview:** pending the person's approval before the push.
+11. **Preview:** guided preview `054a6baac555c0` → the person approves → approved. Screenshots are byte-identical.
 
 ## Implementation review
 
 - **Verdict:** approve, after round 1 (approve-with-changes: 8 findings, 128k, 211 s) and a Delta (48k, 41 s).
 - **Fixed:** canvas exemption (person's ruling: seed it via a variable); a smoke tsc failure now fails; render count asserted; README; real-config lint test; deep-path test; prop count; GridTrack holds-until.
 - **Follow-up, older than this branch:** the mockup check skips custom-property definitions outside the token block (`--x: 44px`).
+- **After preview approval:** the pre-push rehearsal on a clean snapshot found ui-email (and the plugin's tests) could not resolve `@duro-app/tokens/raw` without a tokens build, now that its published types live in `dist`. Both resolve via the `source` export condition (`4681ca72`, `f5161a11`). The typecheck passes with tokens `dist` removed and present. Two more reviews: approve (43k, 48 s; 38k, 25 s).
 - **Status:** Phase 2 is implemented. Next: merge, then 2f, the v5.0.0 tag (`tag-release`); the plan closes there.
 
 <!-- panel: repos=duro-design-system,decisions reviewers=backend body-sha=f5006c2288ec -->
