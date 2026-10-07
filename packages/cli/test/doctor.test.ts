@@ -1,5 +1,5 @@
 import {execFileSync} from 'node:child_process'
-import {chmodSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs'
+import {chmodSync, mkdirSync, mkdtempSync, readFileSync, utimesSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {dirname, join} from 'node:path'
 import {fileURLToPath} from 'node:url'
@@ -280,6 +280,121 @@ describe('duro doctor', () => {
       expect(tokens(root)).toEqual([expect.objectContaining({severity: 'error'})])
       expect(tokens(root)[0]!.fix).toContain('ssr.noExternal')
     })
+
+    /** DURO_APP with its noExternal list moved into a binding. */
+    const withList = (binding: string) =>
+      DURO_APP.replace(`ssr: {noExternal: ['react-strict-dom', '@duro-app/tokens']},`, binding)
+
+    it('passes an imported noExternal const when the tokens are routed through Babel', () => {
+      const root = app({
+        'vite.config.ts': `import {SSR_NO_EXTERNAL} from './ssr-externals'\n${withList('ssr: {noExternal: SSR_NO_EXTERNAL},')}`,
+        'ssr-externals.ts': `export const SSR_NO_EXTERNAL = ['react-strict-dom', '@duro-app/tokens']\n`,
+      })
+      expect(findings(root)).toEqual([])
+      expect(runDoctor({cwd: root}).exitCode).toBeUndefined()
+    })
+
+    it('passes the {noExternal} shorthand over a local const', () => {
+      const root = app({
+        'vite.config.ts': `const noExternal = ['react-strict-dom', '@duro-app/tokens']\n${withList('ssr: {noExternal},')}`,
+      })
+      expect(findings(root)).toEqual([])
+    })
+
+    it('warns, naming the identifier, when noExternal cannot be resolved', () => {
+      const root = app({
+        'vite.config.ts': `import {externals} from 'some-preset'\n${withList('ssr: {noExternal: externals},')}`,
+      })
+      const result = runDoctor({cwd: root})
+      expect(tokens(root)).toEqual([
+        expect.objectContaining({severity: 'warn', file: 'vite.config.ts', line: 12}),
+      ])
+      expect(tokens(root)[0]!.message).toContain('`externals`')
+      expect(tokens(root)[0]!.fix).toContain("'@duro-app/tokens' is in `externals`")
+      expect(result.exitCode).toBeUndefined()
+      expect(result.data).toMatchObject({ok: true})
+    })
+
+    it('does not take a declared list for Babel routing', () => {
+      const root = app({
+        'vite.config.ts': [
+          `import stylexPlugin from '@stylexjs/babel-plugin'`,
+          `import {reactRouter} from '@react-router/dev/vite'`,
+          `const noExternal = ['react-strict-dom', '@duro-app/tokens']`,
+          `export default {plugins: [reactRouter(), stylexPlugin()], ssr: {noExternal}}`,
+          '',
+        ].join('\n'),
+        'app/components/Card.tsx': [
+          `import {css} from 'react-strict-dom'`,
+          `import {spacing} from '@duro-app/tokens/tokens/spacing.css'`,
+          `export const styles = css.create({card: {padding: spacing.md}})`,
+          '',
+        ].join('\n'),
+      })
+      expect(tokens(root)).toEqual([expect.objectContaining({severity: 'error'})])
+      expect(tokens(root)[0]!.message).toContain('nothing compiles')
+      expect(runDoctor({cwd: root}).exitCode).toBe(1)
+    })
+  })
+
+  describe('media-var', () => {
+    const BROKEN_CSS = `.a{color:red}@media (max-width: var(--x-1abc)){.b{display:none}}`
+    const media = (root: string) => findings(root).filter((f) => f.rule === 'media-var')
+    /** Back-date every input so the build output is the newest file. */
+    const ageInputs = (root: string, files: string[]) => {
+      const past = new Date(Date.now() - 60_000)
+      for (const file of files) utimesSync(join(root, file), past, past)
+    }
+
+    it('fails on a fresh built @media that reads a variable', () => {
+      const root = app({'dist/assets/x.css': BROKEN_CSS})
+      ageInputs(root, Object.keys(HEALTHY))
+      const result = runDoctor({cwd: root})
+      expect(media(root)).toEqual([
+        expect.objectContaining({severity: 'error', file: 'dist/assets/x.css', line: 1}),
+      ])
+      expect(media(root)[0]!.message).toContain('@media (max-width: var(--x-1abc))')
+      expect(media(root)[0]!.fix).toContain('breakpoints.css.ts')
+      expect(result.exitCode).toBe(1)
+      expect(result.data).toMatchObject({checked: expect.arrayContaining(['dist/assets/x.css'])})
+      expect(result.text).not.toContain('skipped')
+    })
+
+    it('skips build output older than the config', () => {
+      const root = app({'dist/assets/x.css': BROKEN_CSS})
+      const past = new Date(Date.now() - 60_000)
+      utimesSync(join(root, 'dist/assets/x.css'), past, past)
+      const result = runDoctor({cwd: root})
+      expect(media(root)).toEqual([])
+      expect(result.exitCode).toBeUndefined()
+      expect(result.text).toContain('skipped: media-var (no fresh build)')
+      const data = result.data as {checked: string[]; skipped: string[]}
+      expect(data.checked).not.toContain('dist/assets/x.css')
+      expect(data.skipped).toEqual(['media-var (no fresh build)'])
+    })
+
+    it('passes fresh CSS whose media queries hold px', () => {
+      const root = app({'build/client/a.css': `@media (max-width:768px){.b{display:none}}`})
+      ageInputs(root, Object.keys(HEALTHY))
+      expect(findings(root)).toEqual([])
+      expect(runDoctor({cwd: root}).text).not.toContain('skipped')
+    })
+
+    it('keeps the report columns aligned', () => {
+      const root = app({
+        'dist/x.css': BROKEN_CSS,
+        'vite.config.ts': `export default {runtimeInjection: true}\n`,
+      })
+      ageInputs(root, [...Object.keys(HEALTHY)])
+      const heads = runDoctor({cwd: root})
+        .text.split('\n')
+        .filter((line) => /^ {2}(?:error|warn) /.test(line))
+      expect(heads.length).toBe(2)
+      // severity (5) + rule (18) columns: the location starts at the same column.
+      const starts = heads.map((line) => line.indexOf(line.trim().split(/\s+/)[2]!))
+      expect(new Set(starts).size).toBe(1)
+      for (const line of heads) expect(line.length).toBeLessThanOrEqual(80)
+    })
   })
 
   it('prints an agent-facing block in session mode, and still exits 0', () => {
@@ -288,6 +403,17 @@ describe('duro doctor', () => {
     expect(result.exitCode).toBeUndefined()
     expect(result.text).toMatch(/^DURO DOCTOR/)
     expect(result.text).toContain('runtime-injection at vite.config.ts:1')
+  })
+
+  it('words the session opening line by finding type', () => {
+    const root = app({'dist/x.css': `@media (min-width: var(--bp)){a{b:c}}`})
+    const past = new Date(Date.now() - 60_000)
+    for (const file of Object.keys(HEALTHY)) utimesSync(join(root, file), past, past)
+    const [first] = runDoctor({cwd: root, session: true}).text.split('\n')
+    expect(first).toBe(
+      "DURO DOCTOR — 1 error in this repo's @duro-app/ui setup: breakpoint media queries never match until fixed. Fix before any styling work:",
+    )
+    expect(first).not.toContain('spacing flattened')
   })
 
   it('ignores packages that do not use @duro-app/ui', () => {

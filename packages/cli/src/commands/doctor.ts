@@ -1,4 +1,4 @@
-import {existsSync, readdirSync, readFileSync} from 'node:fs'
+import {existsSync, readdirSync, readFileSync, statSync} from 'node:fs'
 import {createRequire} from 'node:module'
 import {basename, dirname, join, relative, resolve} from 'node:path'
 import type {CommandResult} from './lookup.js'
@@ -14,7 +14,9 @@ import {lineOf, maskComments} from '../scan.js'
  * them in the wrong order, outranks it. Each app used to rediscover this
  * alone; the contract lives here now. One rule is about the tokens rather
  * than the cascade: an app whose build never compiles @duro-app/tokens'
- * sources cannot use them in css.create (`tokens-compiled`).
+ * sources cannot use them in css.create (`tokens-compiled`). And one reads
+ * fresh build output: a built `@media` that compares against a `var(--…)`
+ * never matches (`media-var`).
  *
  * Static and dependency-free on purpose: it runs under npx from the
  * SessionStart hook, so it reads files with regexes over comment-masked
@@ -29,6 +31,7 @@ export type DoctorRule =
   | 'unlayered-reset'
   | 'version-skew'
   | 'tokens-compiled'
+  | 'media-var'
 
 export interface DoctorFinding {
   rule: DoctorRule
@@ -125,19 +128,23 @@ export function runDoctor(options: DoctorOptions = {}): CommandResult {
       text: options.session
         ? ''
         : 'duro doctor: no package here uses @duro-app/ui — nothing to check',
-      data: {ok: true, findings: [], checked: [], packages: []},
+      data: {ok: true, findings: [], checked: [], skipped: [], packages: []},
     }
   }
 
   const findings: DoctorFinding[] = []
   const checked: string[] = []
   const rel = (path: string) => relative(root, path) || '.'
-  for (const {dir, pkg} of packages) findings.push(...checkPackage(dir, pkg, rel, checked))
+  const skipped: string[] = []
+  for (const {dir, pkg} of packages) {
+    findings.push(...checkPackage(dir, pkg, rel, checked, skipped))
+  }
   return report(
     findings,
     checked,
     packages.map(({dir}) => rel(dir)),
     options.session === true,
+    skipped,
   )
 }
 
@@ -147,6 +154,7 @@ function checkPackage(
   pkg: PackageJson,
   rel: (path: string) => string,
   checked: string[],
+  skipped: string[],
 ): DoctorFinding[] {
   const findings: DoctorFinding[] = []
   let unlayeredExtraction = false
@@ -179,6 +187,14 @@ function checkPackage(
   }
   const tokens = checkTokensCompiled(dir, configs, rel)
   if (tokens) findings.push(tokens)
+
+  const media = checkMediaVar(dir, names, rel)
+  if (media === null) {
+    skipped.push(`${rel(dir) === '.' ? '' : `${rel(dir)}: `}media-var (no fresh build)`)
+  } else {
+    checked.push(...media.checked)
+    findings.push(...media.findings)
+  }
 
   const entry = ENTRIES.map((path) => join(dir, path)).find((path) => existsSync(path))
   if (entry !== undefined) {
@@ -401,7 +417,70 @@ const TOKENS_MENTION = /@duro-app\\?\/tokens\b/
 const NO_EXTERNAL =
   /\bnoExternal\s*:\s*(?:\[[^\]]*\]|true\b|\/(?:\\.|[^/\n])+\/[a-z]*|(['"`])[^'"`\n]*\1)/g
 
-/** Vite configs that render on the server: an `ssr` block or an SSR framework plugin. */
+/** `noExternal: someList` — the list is declared elsewhere. */
+const NO_EXTERNAL_IDENT = /\bnoExternal\s*:\s*([A-Za-z_$][\w$]*)\b(?!\s*[.([])/g
+
+/** The shorthand `{noExternal}` / `{…, noExternal, …}`: a binding named noExternal. */
+const NO_EXTERNAL_SHORTHAND = /[{,]\s*(noExternal)\s*(?=[,}])/g
+
+/** A value a noExternal binding can hold that doctor can read. */
+const LIST_VALUE = String.raw`(\[[^\]]*\]|true\b|false\b|\/(?:\\.|[^/\n])+\/[a-z]*|(['"\x60])[^'"\x60\n]*\3)`
+
+const NAMED_IMPORT = /\bimport\s*(?:type\s+)?\{([^}]*)\}\s*from\s*(['"])([^'"\n]+)\2/g
+
+/** Where a const declares the list, and the list text. */
+interface Declared {
+  file: string
+  index: number
+  length: number
+  value: string
+}
+
+function declarationOf(name: string, file: string, masked: string): Declared | null {
+  const decl = new RegExp(
+    String.raw`\b(?:const|let|var)\s+(${name.replace(/\$/g, '\\$')})\b[^=;\n]*=\s*` + LIST_VALUE,
+  )
+  const match = decl.exec(masked)
+  if (!match) return null
+  return {file, index: match.index, length: match[0].length, value: match[2]!}
+}
+
+/**
+ * Resolve the binding a `noExternal` refers to: a const in the same config, or
+ * one a sibling module exports and the config imports by name.
+ */
+function resolveList(
+  name: string,
+  config: {file: string; masked: string},
+  dir: string,
+  maskedOf: (file: string) => string | null,
+): Declared | null {
+  const local = declarationOf(name, config.file, config.masked)
+  if (local) return local
+  for (const match of config.masked.matchAll(NAMED_IMPORT)) {
+    const specifier = match[3]!
+    if (!specifier.startsWith('./') && !specifier.startsWith('../')) continue
+    for (const part of match[1]!.split(',')) {
+      const [imported, as] = part
+        .trim()
+        .replace(/^type\s+/, '')
+        .split(/\s+as\s+/)
+      if ((as ?? imported)?.trim() !== name || !imported) continue
+      const base = join(dirname(config.file), specifier)
+      const candidates = MODULE_EXT.some((ext) => base.endsWith(ext))
+        ? [base, ...MODULE_EXT.map((ext) => base.replace(/\.[cm]?js$/, ext))]
+        : MODULE_EXT.map((ext) => base + ext)
+      for (const candidate of candidates) {
+        const masked = maskedOf(candidate)
+        if (masked === null) continue
+        return declarationOf(imported.trim(), candidate, masked)
+      }
+      return null
+    }
+  }
+  return null
+}
+
 const SSR_CONFIG = /\bssr\s*:|['"]@react-router\/dev\/vite['"]|['"]@remix-run\/dev['"]/
 
 const TOKENS_DEEP_IMPORT = /\bfrom\s*(['"])@duro-app\/tokens\/tokens\/[^'"\n]+\1/
@@ -432,29 +511,72 @@ function checkTokensCompiled(
   // extraction `include` that names the tokens (duro-app's does) collects
   // their rules without compiling the module the bundle imports.
   const build = configs.filter(({file}) => !/^(?:vitest|postcss)\./.test(basename(file)))
+  // Comment-masked text per config; `outside` is the same with every
+  // noExternal list (inline or declared) blanked, so naming the tokens in a
+  // list never counts as routing them through Babel.
+  const masked = new Map(build.map(({file, source}) => [file, maskComments(source, {line: true})]))
+  const outside = new Map(masked)
+  const blankOut = (file: string, index: number, length: number) => {
+    const text = outside.get(file)
+    if (text === undefined) return
+    outside.set(file, text.slice(0, index) + ' '.repeat(length) + text.slice(index + length))
+  }
+  const maskedOf = (file: string): string | null => {
+    const known = masked.get(file)
+    if (known !== undefined) return known
+    // `file` is relative to the checked root, like every config's name.
+    const source = readText(join(dir, relative(rel(dir), file)))
+    return source === null ? null : maskComments(source, {line: true})
+  }
+  const listsTokens = (value: string) => value === 'true' || TOKENS_MENTION.test(value)
+
   let stylex: {file: string; line: number} | null = null
-  let routed = false
   let ssr = false
   let ssrExternal = false
+  const unresolved: Array<{name: string; file: string; line: number}> = []
   for (const {file, source} of build) {
-    const masked = maskComments(source, {line: true})
-    const lists = [...masked.matchAll(NO_EXTERNAL)]
-    let outside = masked
-    for (const list of lists) {
-      if (list[0].endsWith('true') || TOKENS_MENTION.test(list[0])) ssrExternal = true
-      outside =
-        outside.slice(0, list.index) +
-        ' '.repeat(list[0].length) +
-        outside.slice(list.index + list[0].length)
+    const text = masked.get(file)!
+    for (const list of text.matchAll(NO_EXTERNAL)) {
+      if (listsTokens(list[0].replace(/^\bnoExternal\s*:\s*/, ''))) ssrExternal = true
+      blankOut(file, list.index, list[0].length)
     }
-    if (TOKENS_MENTION.test(outside)) routed = true
-    if (/^vite\./.test(basename(file)) && SSR_CONFIG.test(masked)) ssr = true
-    const compiler = STYLEX_COMPILER.exec(masked)
+    // `import {noExternal} from …` is a binding, not a use of one.
+    const uses = text.replace(NAMED_IMPORT, (statement) => ' '.repeat(statement.length))
+    const refs = [
+      ...[...uses.matchAll(NO_EXTERNAL_IDENT)].map((m) => ({name: m[1]!, index: m.index})),
+      ...[...uses.matchAll(NO_EXTERNAL_SHORTHAND)].map((m) => ({name: m[1]!, index: m.index})),
+    ].filter(({name}) => !['true', 'false', 'undefined', 'null'].includes(name))
+    for (const {name, index} of refs) {
+      const declared = resolveList(name, {file, masked: text}, dir, maskedOf)
+      if (!declared) {
+        unresolved.push({name, file, line: lineOf(source, index)})
+        continue
+      }
+      if (listsTokens(declared.value)) ssrExternal = true
+      blankOut(declared.file, declared.index, declared.length)
+    }
+    if (/^vite\./.test(basename(file)) && SSR_CONFIG.test(text)) ssr = true
+    const compiler = STYLEX_COMPILER.exec(text)
     if (compiler && !stylex) stylex = {file, line: lineOf(source, compiler.index)}
   }
   if (!stylex) return null
+  const routed = [...outside.values()].some((text) => TOKENS_MENTION.test(text))
   const ssrGap = ssr && !ssrExternal
   if (routed && !ssrGap) return null
+
+  // The only gap is SSR inlining, and a list doctor could not read may close
+  // it: say what could not be verified instead of failing.
+  const opaque = unresolved[0]
+  if (routed && opaque) {
+    return {
+      rule: 'tokens-compiled',
+      severity: 'warn',
+      file: opaque.file,
+      line: opaque.line,
+      message: `ssr.noExternal is \`${opaque.name}\` in ${opaque.file}:${opaque.line}, which doctor cannot resolve to a list, so it cannot verify that SSR inlines @duro-app/tokens (without it, css.defineVars throws at runtime).`,
+      fix: `Make sure '@duro-app/tokens' is in \`${opaque.name}\`, or declare noExternal inline in ${opaque.file}.`,
+    }
+  }
 
   const evidence = tokensInCreate(dir)
   const where = evidence ? `${rel(evidence.path)}:${evidence.line}` : null
@@ -512,6 +634,117 @@ function tokensInCreate(dir: string): {path: string; line: number} | null {
     stack.push(...dirs.reverse())
   }
   return null
+}
+
+/** Build output directories `media-var` reads. */
+const BUILD_DIRS = ['build', 'dist']
+
+/** An `@media` prelude, up to its block. */
+const MEDIA_RULE = /@media\b([^{;]*)\{/g
+
+/** Text cut to about `max` characters, for one-line minified CSS. */
+const clip = (text: string, max = 80) =>
+  text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text
+
+/**
+ * The newest modification time among the package's build config and its
+ * sources (app/, src/), scanned up to SOURCE_SCAN_LIMIT files.
+ */
+function newestInput(dir: string, configs: string[]): number {
+  let newest = 0
+  const seen = (path: string) => {
+    try {
+      newest = Math.max(newest, statSync(path).mtimeMs)
+    } catch {
+      // vanished between listing and stat: nothing to compare
+    }
+  }
+  for (const name of [...configs, 'package.json']) seen(join(dir, name))
+  walkFiles(
+    ['src', 'app'].map((name) => join(dir, name)),
+    (name) => /\.[cm]?[jt]sx?$|\.css$/.test(name),
+    seen,
+  )
+  return newest
+}
+
+/** Depth-first over `roots`, calling `visit` on each matching file, capped. */
+function walkFiles(
+  roots: string[],
+  matches: (name: string) => boolean,
+  visit: (path: string) => void,
+): void {
+  const stack = [...roots].reverse()
+  let budget = SOURCE_SCAN_LIMIT
+  while (stack.length > 0 && budget > 0) {
+    const current = stack.pop()!
+    let entries
+    try {
+      entries = readdirSync(current, {withFileTypes: true})
+    } catch {
+      continue
+    }
+    const dirs: string[] = []
+    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      if (entry.name.startsWith('.') || entry.name === 'node_modules') continue
+      const path = join(current, entry.name)
+      if (entry.isDirectory()) dirs.push(path)
+      else if (matches(entry.name)) {
+        if (--budget < 0) return
+        visit(path)
+      }
+    }
+    stack.push(...dirs.reverse())
+  }
+}
+
+/**
+ * A media query cannot read a custom property: `@media (max-width:
+ * var(--x))` never matches, so the rules inside never apply. It happens when
+ * `@duro-app/tokens/tokens/breakpoints.css.ts` reaches the CSS without the
+ * StyleX/RSD compile that turns its consts into px. Reads built CSS only, and
+ * only output newer than every config and source file: stale output says
+ * nothing about the code as it is. `null` when there is no fresh build.
+ */
+function checkMediaVar(
+  dir: string,
+  configs: string[],
+  rel: (path: string) => string,
+): {checked: string[]; findings: DoctorFinding[]} | null {
+  const newest = newestInput(dir, configs)
+  const fresh: string[] = []
+  walkFiles(
+    BUILD_DIRS.map((name) => join(dir, name)),
+    (name) => name.endsWith('.css'),
+    (path) => {
+      try {
+        if (statSync(path).mtimeMs > newest) fresh.push(path)
+      } catch {
+        // vanished mid-scan
+      }
+    },
+  )
+  if (fresh.length === 0) return null
+  const findings: DoctorFinding[] = []
+  for (const path of fresh) {
+    const source = readText(path)
+    if (source === null) continue
+    const css = maskComments(source, {line: false})
+    const broken = [...css.matchAll(MEDIA_RULE)].filter((m) => m[1]!.includes('var(--'))
+    const first = broken[0]
+    if (!first) continue
+    const query = clip(`@media${first[1]!.replace(/\s+/g, ' ').trimEnd()}`)
+    const more = broken.length > 1 ? ` (and ${broken.length - 1} more)` : ''
+    findings.push({
+      rule: 'media-var',
+      severity: 'error',
+      file: rel(path),
+      line: lineOf(source, first.index),
+      message: `${query}${more} compares against a CSS variable, which a media query cannot read: it never matches, so the rules inside never apply.`,
+      fix: 'compile `@duro-app/tokens/tokens/breakpoints.css.ts` through the StyleX/RSD babel step, rebuild, re-run `npx -y @duro-app/cli doctor`',
+    })
+  }
+  return {checked: fresh.map(rel), findings}
 }
 
 interface LayerOrigin {
@@ -721,25 +954,40 @@ function targetsComponents(selectorList: string): boolean {
   })
 }
 
+/** What each kind of error does to the app, for the session block's first line. */
+const CONSEQUENCE: Record<DoctorRule, string> = {
+  'runtime-injection': 'components render with their spacing flattened',
+  'layered-extraction': 'components render with their spacing flattened',
+  'css-imported': 'components render with their spacing flattened',
+  'css-load-order': 'components render with their spacing flattened',
+  'unlayered-reset': 'components render with their spacing flattened',
+  'version-skew': 'the CLI checks a different version than the one installed',
+  'tokens-compiled': 'css.create cannot use the design tokens',
+  'media-var': 'breakpoint media queries never match',
+}
+
 function report(
   findings: DoctorFinding[],
   checked: string[],
   packages: string[],
   session: boolean,
+  skipped: string[] = [],
 ): CommandResult {
   const errors = findings.filter((finding) => finding.severity === 'error')
   const warnings = findings.filter((finding) => finding.severity === 'warn')
-  const data = {ok: errors.length === 0, findings, checked, packages}
+  const data = {ok: errors.length === 0, findings, checked, skipped, packages}
   const where = (finding: DoctorFinding) =>
     finding.line ? `${finding.file}:${finding.line}` : finding.file
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
   if (session) {
     if (findings.length === 0) return {text: '', data}
+    const effects = [...new Set(errors.map((finding) => CONSEQUENCE[finding.rule]))]
     return {
       text: [
         errors.length > 0
-          ? "DURO DOCTOR — this repo's @duro-app/ui wiring is broken: components render with their spacing flattened until it is fixed. Fix it before any styling work:"
-          : "DURO DOCTOR — warnings about this repo's @duro-app/ui wiring:",
+          ? `DURO DOCTOR — ${plural(errors.length, 'error')} in this repo's @duro-app/ui setup: ${effects.join('; ')} until fixed. Fix before any styling work:`
+          : `DURO DOCTOR — ${plural(warnings.length, 'warning')} about this repo's @duro-app/ui setup:`,
         ...findings.map(
           (finding) =>
             `- [${finding.severity}] ${finding.rule} at ${where(finding)}: ${finding.message} Fix: ${finding.fix}`,
@@ -750,9 +998,13 @@ function report(
     }
   }
 
+  const tail = [
+    `  checked: ${checked.join(', ')}`,
+    ...(skipped.length > 0 ? [`  skipped: ${skipped.join(', ')}`] : []),
+  ]
   if (findings.length === 0) {
     return {
-      text: `duro doctor: no problems found\n  checked: ${checked.join(', ')}`,
+      text: ['duro doctor: no problems found', ...tail].join('\n'),
       data,
     }
   }
@@ -764,7 +1016,7 @@ function report(
         `        ${finding.message}`,
         `        fix: ${finding.fix}`,
       ]),
-      `  checked: ${checked.join(', ')}`,
+      ...tail,
     ].join('\n'),
     data,
     exitCode: errors.length > 0 ? 1 : undefined,
