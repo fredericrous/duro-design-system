@@ -24,8 +24,9 @@ export const layers = css.defineVars({
   overlay: '1000',
   // A modal's panel (Dialog, Drawer).
   modal: '1001',
-  // A Popover: above a modal it opens from, below the popups (a Select, a
-  // Menu) and the Select click-catcher opened from inside it.
+  // A Popover inside a Dialog or Drawer: above that modal, below the popups
+  // (a Select, a Menu) and the Select click-catcher opened from inside it.
+  // Outside a modal a Popover is `floating`, so a modal opened later covers it.
   popover: '1040',
   // A popup's click-catcher, under the popup itself.
   popupBackdrop: '1049',

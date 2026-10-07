@@ -15,6 +15,7 @@ import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
+import {ModalContext} from '../../shared/ModalContext'
 import {devWarnOnce} from '../../shared/devWarnOnce'
 
 // --- Types ---
@@ -293,7 +294,9 @@ function Portal({children, size = 'md'}: PortalProps) {
             !closing && styles.popupOpen,
           ]}
         >
-          <ControlContextBoundary>{children}</ControlContextBoundary>
+          <ModalContext.Provider value={true}>
+            <ControlContextBoundary>{children}</ControlContextBoundary>
+          </ModalContext.Provider>
         </html.div>
       </html.div>
     </>

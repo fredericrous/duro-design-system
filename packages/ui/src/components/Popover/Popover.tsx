@@ -22,6 +22,7 @@ import {PopoverLayerContext, type PopoverLayerContextValue} from './PopoverLayer
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {mergeRefs} from '../../shared/mergeRefs'
+import {useInModal} from '../../shared/ModalContext'
 
 // --- Context ---
 
@@ -241,6 +242,7 @@ function Popup({children, label}: PopupProps) {
   // Inside ThemeProvider's portal layer, like Select/Dialog/Drawer: theme
   // tokens cascade into the popup and it stacks above dialogs.
   const mount = usePortalMount()
+  const inModal = useInModal()
 
   // Measure before paint on open; re-measure on scroll/resize (capture phase
   // catches any scrolling ancestor) and when Root.reposition() is called.
@@ -286,7 +288,11 @@ function Popup({children, label}: PopupProps) {
       role="dialog"
       aria-label={label}
       tabIndex={-1}
-      style={[styles.popup, styles.popupPosition(coords.top, coords.left)]}
+      style={[
+        styles.popup,
+        inModal && styles.popupInModal,
+        styles.popupPosition(coords.top, coords.left),
+      ]}
     >
       <ControlContextBoundary>{children}</ControlContextBoundary>
     </html.div>,

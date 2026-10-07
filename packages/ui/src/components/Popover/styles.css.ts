@@ -31,6 +31,11 @@ export const styles = css.create({
     transitionProperty: 'background-color, border-color',
     transitionDuration: duration.fast,
   },
+  // Inside a Dialog or Drawer: above that modal (same portal mount), below a
+  // Select or Menu opened from inside the Popover.
+  popupInModal: {
+    zIndex: layers.popover,
+  },
   popup: {
     position: 'fixed',
     top: 0,
@@ -46,9 +51,9 @@ export const styles = css.create({
     fontFamily: typography.fontFamily,
     fontSize: typography.fontSizeSm,
     color: colors.text,
-    // Above a Dialog or Drawer it opens from (same portal mount), below a
-    // Select or Menu opened from inside it.
-    zIndex: layers.popover,
+    // Outside a modal: floating chrome, so a Dialog or Drawer opened later
+    // (even from inside this Popover) covers it.
+    zIndex: layers.floating,
     // The portal layer is pointer-events: none so clicks fall through it;
     // the popup takes them back.
     pointerEvents: 'auto',

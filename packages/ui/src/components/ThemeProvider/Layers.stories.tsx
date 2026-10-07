@@ -246,3 +246,37 @@ export const SelectInPopover: Story = {
     }
   },
 }
+
+/** A Dialog opened from a button inside an open Popover: the Dialog is on
+ *  top, and the Popover does not stay drawn over it. */
+export const DialogFromPopover: Story = {
+  render: () => (
+    <Popover.Root>
+      <Popover.Trigger>Share</Popover.Trigger>
+      <Popover.Popup label="Share">
+        <Dialog.Root>
+          <Dialog.Trigger>
+            <Button>Invite people</Button>
+          </Dialog.Trigger>
+          <Dialog.Portal size="sm">
+            <Dialog.Header>
+              <Dialog.Title>Invite</Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <Text>Send an invitation.</Text>
+            </Dialog.Body>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </Popover.Popup>
+    </Popover.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Share'}))
+    await userEvent.click(await page().findByRole('button', {name: 'Invite people'}))
+    const dialog = await page().findByRole('dialog', {name: 'Invite'})
+    await waitFor(() => expect(onTop(dialog)).toBe(true))
+    // The Popover is either gone or under the modal's backdrop.
+    const popover = page().queryByRole('dialog', {name: 'Share'})
+    if (popover) await expect(onTop(popover)).toBe(false)
+  },
+}
