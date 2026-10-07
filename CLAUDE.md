@@ -202,6 +202,7 @@ These components **must** be wrapped in their `.Root`:
 | **Leader** | A dashed, thin line for callout/annotation leaders | `from`, `to` |
 | **LinkButton** | Button-styled hyperlink | `href`, `variant`, `size` |
 | **List** | Vertical list of interactive items | compound: Actions, Content, Description, Empty, Item, … |
+| **Listbox** | Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox | compound: Empty, Option, Root, getAnchorProps |
 | **Menu** | Dropdown action menu | compound: Item, LinkItem, Popup, Root, Separator, … |
 | **Node** | A rounded rectangle node with a title and optional subtitle | `x`, `y`, `w` |
 | **PageShell** | Page-level layout wrapper | `maxWidth`, `padding`, `header` |

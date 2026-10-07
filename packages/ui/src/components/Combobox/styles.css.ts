@@ -2,9 +2,7 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
@@ -57,76 +55,4 @@ export const styles = css.create({
     color: colors.textMuted,
     cursor: 'pointer',
   },
-  backdrop: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    // Above Dialog/Drawer (1000/1001): they portal into the same mount, so a
-    // popup opened from inside a dialog must out-rank the dialog itself.
-    zIndex: 1049,
-  },
-  popup: {
-    // Position is `fixed` and the top/left/width are applied inline by Popup
-    // (computed from the root's bounding rect) so the dropdown can escape any
-    // ancestor with `overflow: hidden` or `transform` (e.g. inside a Dialog).
-    position: 'fixed',
-    backgroundColor: colors.bgCard,
-    borderWidth: borders.hairline,
-    borderStyle: 'solid',
-    borderColor: colors.border,
-    borderRadius: radii.sm,
-    boxShadow: shadows.md,
-    paddingTop: spacing.xs,
-    paddingBottom: spacing.xs,
-    maxHeight: sizes.listMaxHSm,
-    overflowY: 'auto',
-    zIndex: 1050,
-    // Re-enable pointer events: the portal mount is pointer-events: none so
-    // clicks fall through except on the popup itself.
-    pointerEvents: 'auto',
-  },
-  item: {
-    display: 'flex',
-    alignItems: 'center',
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.sm,
-    paddingLeft: spacing.md,
-    paddingRight: spacing.md,
-    fontSize: typography.fontSizeSm,
-    fontFamily: typography.fontFamily,
-    color: colors.text,
-    cursor: 'pointer',
-    backgroundColor: 'transparent',
-    transitionProperty: 'background-color',
-    transitionDuration: duration.fast,
-  },
-  itemSelected: {
-    color: colors.accent,
-    fontWeight: typography.fontWeightMedium,
-  },
-  itemHighlighted: {
-    backgroundColor: colors.bgCardHover,
-  },
-  itemHidden: {
-    display: 'none',
-  },
-  empty: {
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.sm,
-    paddingLeft: spacing.md,
-    paddingRight: spacing.md,
-    fontSize: typography.fontSizeSm,
-    color: colors.textMuted,
-  },
-  hidden: {
-    display: 'none',
-  },
-  // Dynamic position — applied at runtime from the input's bounding rect.
-  popupPosition: (top: number, left: number, width: number) => ({
-    top,
-    left,
-    width,
-  }),
 })

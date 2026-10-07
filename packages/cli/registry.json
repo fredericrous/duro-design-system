@@ -3376,6 +3376,197 @@
       "props": null,
       "sourcePath": "packages/ui/src/components/List/List.tsx"
     },
+    "Listbox": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "Empty"
+          ],
+          "required": [
+            "Root",
+            "Option"
+          ]
+        },
+        "description": "Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox. The anchor owns focus and the keyboard: it sets the controlled highlightedId and spreads Listbox.getAnchorProps() for aria-controls / aria-expanded / aria-activedescendant. A press on an option never takes focus from the anchor. Portalled and placed against anchor() (an input rect or a caret rect), capped at a size-token maxHeight (default listMaxH).",
+        "example": "const id = useId()\nconst [highlightedId, setHighlightedId] = useState<string | null>(null)\nconst optionId = (value: string) => `${id}-${value}`\n// On the editor root: Object.entries(Listbox.getAnchorProps({id, open, highlightedId}))\n<Listbox.Root\n  id={id}\n  open={open}\n  anchor={() => caretRect()}\n  highlightedId={highlightedId}\n  onHighlight={setHighlightedId}\n  onSelect={(value) => insertMention(value)}\n  getOptionId={optionId}\n  aria-label=\"Mentions\"\n>\n  {people.map((p) => (\n    <Listbox.Option key={p.id} value={p.id}>{p.name}</Listbox.Option>\n  ))}\n  {people.length === 0 && <Listbox.Empty>No match</Listbox.Empty>}\n</Listbox.Root>",
+        "relatedTo": [
+          {
+            "component": "Combobox",
+            "kind": "contrast",
+            "relationship": "Combobox is a ready-made input + Listbox; Listbox alone serves an anchor you own (an editor)"
+          },
+          {
+            "component": "Menu",
+            "kind": "contrast",
+            "relationship": "Menu takes focus and triggers actions; Listbox leaves focus on its anchor and offers values"
+          }
+        ],
+        "whenNotToUse": [
+          "Picking a value from a filterable list in a form — use Combobox (built on Listbox)",
+          "A short fixed list — use Select",
+          "Actions — use Menu"
+        ],
+        "whenToUse": [
+          "Typeahead inside a rich-text editor, where focus must stay in the editor",
+          "A custom combobox whose input is not Combobox.Input"
+        ]
+      },
+      "name": "Listbox",
+      "parts": {
+        "Empty": {
+          "name": "Empty",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+        },
+        "Option": {
+          "name": "Option",
+          "props": [
+            {
+              "name": "value",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "DOM id. Default: Root's getOptionId(value).",
+              "name": "id",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": "false",
+              "description": "The committed choice (aria-selected).",
+              "name": "selected",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "default": "false",
+              "name": "disabled",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "name": "ref",
+              "required": false,
+              "type": "Ref<HTMLDivElement>"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [
+            {
+              "description": "DOM id of the list; pass the same to getAnchorProps.",
+              "name": "id",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "open",
+              "required": true,
+              "type": "boolean"
+            },
+            {
+              "description": "The rect the list is placed against: the input, or the editor's caret.",
+              "name": "anchor",
+              "required": true,
+              "type": "() => DOMRect | null | undefined"
+            },
+            {
+              "default": "false",
+              "description": "Give the list the anchor's width (a Combobox under its input).",
+              "name": "matchAnchorWidth",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "description": "Id of the highlighted option, controlled by the anchor's keyboard handling.",
+              "name": "highlightedId",
+              "required": true,
+              "type": "string | null"
+            },
+            {
+              "description": "Pointer hover asks to move the highlight.",
+              "name": "onHighlight",
+              "required": false,
+              "type": "(id: string | null) => void"
+            },
+            {
+              "description": "A press on an option.",
+              "name": "onSelect",
+              "required": false,
+              "type": "(value: string) => void"
+            },
+            {
+              "description": "Option value → DOM id. Default: defaultOptionId(id, value).",
+              "name": "getOptionId",
+              "required": false,
+              "type": "(value: string) => string"
+            },
+            {
+              "description": "Accessible name of the list.",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": "'listMaxH'",
+              "description": "Size-token key capping the list's height; longer lists scroll. Default: listMaxH.",
+              "name": "maxHeight",
+              "required": false,
+              "type": "ListboxMaxHeight",
+              "union": [
+                "listMaxH",
+                "listMaxHSm"
+              ]
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+        },
+        "getAnchorProps": {
+          "name": "getAnchorProps",
+          "props": [
+            {
+              "name": "id",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "open",
+              "required": true,
+              "type": "boolean"
+            },
+            {
+              "name": "highlightedId",
+              "required": true,
+              "type": "string | null | undefined"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+    },
     "Menu": {
       "importPath": "@duro-app/ui",
       "kind": "compound",
@@ -8307,6 +8498,10 @@
       "none",
       "single",
       "multiple"
+    ],
+    "ListboxMaxHeight": [
+      "listMaxH",
+      "listMaxHSm"
     ],
     "PageShellMaxWidth": [
       "sm",

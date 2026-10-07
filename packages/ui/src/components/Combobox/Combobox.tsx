@@ -1,11 +1,9 @@
-import {type ReactNode, useRef, useId, useEffect, useLayoutEffect, useState} from 'react'
-import {createPortal} from 'react-dom'
+import {type ReactNode, useCallback, useRef, useId, useEffect, useState} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {ComboboxContext, useCombobox} from './ComboboxContext'
 import {useComboboxRoot} from './useComboboxRoot'
-import {usePortalMount} from '../ThemeProvider/ThemeProvider'
-import {usePopoverLayer} from '../Popover/PopoverLayerContext'
+import {Listbox, getAnchorProps} from '../Listbox/Listbox'
 
 // --- Root ---
 interface RootProps {
@@ -54,6 +52,7 @@ function Input({placeholder, children}: {placeholder?: string; children?: ReactN
     useCombobox()
   const localRef = useRef<HTMLInputElement>(null)
   const [focused, setFocused] = useState(false)
+  const anchor = getAnchorProps({id: listboxId, open, highlightedId})
 
   useEffect(() => {
     inputRef.current = localRef.current
@@ -67,10 +66,10 @@ function Input({placeholder, children}: {placeholder?: string; children?: ReactN
         role={'combobox' as 'listbox'}
         value={inputValue}
         placeholder={placeholder}
-        aria-expanded={open}
+        aria-expanded={anchor['aria-expanded']}
         aria-haspopup="listbox"
-        aria-controls={open ? listboxId : undefined}
-        aria-activedescendant={highlightedId ?? undefined}
+        aria-controls={anchor['aria-controls']}
+        aria-activedescendant={anchor['aria-activedescendant']}
         aria-autocomplete={'list' as 'none'}
         autoComplete="off"
         style={styles.input}
@@ -132,58 +131,27 @@ function Trigger({children}: {children?: ReactNode}) {
 }
 
 // --- Popup ---
-// Rendered into the ThemeProvider portal mount and positioned with viewport
-// coordinates so it escapes ancestor `overflow: hidden` / `transform`
-// containing blocks (notably Dialog and Drawer).
+// A Listbox placed under the input, as wide as the field: rendered into the
+// ThemeProvider portal mount so it escapes ancestor `overflow: hidden` /
+// `transform` containing blocks (notably Dialog and Drawer).
 function Popup({children}: {children: ReactNode}) {
-  const {open, listboxId, rootRef} = useCombobox()
-  const mount = usePortalMount()
-  const listboxRef = useRef<HTMLDivElement>(null)
-  const [coords, setCoords] = useState<{top: number; left: number; width: number} | null>(null)
+  const {open, listboxId, rootRef, highlightedId, setHighlightedId, setValue} = useCombobox()
+  const anchor = useCallback(() => rootRef.current?.getBoundingClientRect(), [rootRef])
 
-  // Measure the root each time the popup opens, and re-measure on scroll/resize
-  // so the dropdown follows the input. Capture-phase scroll listener catches
-  // scroll on any ancestor (e.g. Dialog body).
-  useLayoutEffect(() => {
-    if (!open) {
-      setCoords(null)
-      return
-    }
-    const update = () => {
-      const el = rootRef.current
-      if (!el) return
-      const rect = el.getBoundingClientRect()
-      // Position immediately below the input with a small gap. `xs` token = 4px.
-      setCoords({top: rect.bottom + 4, left: rect.left, width: rect.width})
-    }
-    update()
-    window.addEventListener('resize', update)
-    window.addEventListener('scroll', update, true)
-    return () => {
-      window.removeEventListener('resize', update)
-      window.removeEventListener('scroll', update, true)
-    }
-  }, [open, rootRef])
-
-  usePopoverLayer(listboxRef, {active: open && coords !== null})
-
-  if (!open || !coords) return null
-
-  const node = (
-    <html.div
-      ref={listboxRef}
+  return (
+    <Listbox.Root
       id={listboxId}
-      role="listbox"
-      style={[styles.popup, styles.popupPosition(coords.top, coords.left, coords.width)]}
+      open={open}
+      anchor={anchor}
+      matchAnchorWidth
+      highlightedId={highlightedId}
+      onHighlight={setHighlightedId}
+      onSelect={setValue}
+      maxHeight="listMaxHSm"
     >
       {children}
-    </html.div>
+    </Listbox.Root>
   )
-
-  // SSR / pre-mount fallback: render inline (will be invisible under
-  // overflow:hidden parents but won't crash). Once the mount is available,
-  // portal into it.
-  return mount ? createPortal(node, mount) : node
 }
 
 // --- Item ---
@@ -193,20 +161,10 @@ interface ItemProps {
 }
 
 function Item({value: itemValue, children}: ItemProps) {
-  const {
-    value: selectedValue,
-    setValue,
-    inputValue,
-    labels,
-    registerLabel,
-    highlightedId,
-    setHighlightedId,
-    registerItem,
-  } = useCombobox()
+  const {value: selectedValue, inputValue, labels, registerLabel, registerItem} = useCombobox()
   const id = useId()
   const ref = useRef<HTMLDivElement>(null)
   const isSelected = selectedValue === itemValue
-  const isHighlighted = highlightedId === id
 
   // Filter: check if this item matches the input
   const label = labels[itemValue] ?? itemValue
@@ -229,21 +187,9 @@ function Item({value: itemValue, children}: ItemProps) {
   if (!isVisible) return null
 
   return (
-    <html.div
-      ref={ref}
-      id={id}
-      role="option"
-      aria-selected={isSelected}
-      onClick={() => setValue(itemValue)}
-      onPointerEnter={() => setHighlightedId(id)}
-      style={[
-        styles.item,
-        isSelected && styles.itemSelected,
-        isHighlighted && styles.itemHighlighted,
-      ]}
-    >
+    <Listbox.Option ref={ref} id={id} value={itemValue} selected={isSelected}>
       {children}
-    </html.div>
+    </Listbox.Option>
   )
 }
 
@@ -266,7 +212,7 @@ function Empty({children}: {children: ReactNode}) {
 
   if (hasVisibleItems) return null
 
-  return <html.div style={styles.empty}>{children}</html.div>
+  return <Listbox.Empty>{children}</Listbox.Empty>
 }
 
 export const Combobox = {
