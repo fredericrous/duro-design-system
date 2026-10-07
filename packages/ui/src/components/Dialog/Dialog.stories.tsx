@@ -1,7 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, within, userEvent} from 'storybook/test'
+import {expect, screen, waitFor, within, userEvent} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
-import {useState} from 'react'
+import {useRef, useState} from 'react'
 import {Dialog} from './Dialog'
 import {Button} from '../Button/Button'
 import {Text} from '../Text/Text'
@@ -260,7 +260,7 @@ export const DangerConfirmation: Story = {
 
 export const NonDismissable: Story = {
   render: () => (
-    <Dialog.Root dismissable={false}>
+    <Dialog.Root dismissable={false} closeOnEscape={false}>
       <Dialog.Trigger>
         <Button>Open non-dismissable</Button>
       </Dialog.Trigger>
@@ -452,5 +452,111 @@ export const BackdropClickDismisses: Story = {
     const target = docEl.elementFromPoint(5, 5) as HTMLElement
     await userEvent.click(target)
     await expect(await canvas.findByText('Last action: Dismissed')).toBeInTheDocument()
+  },
+}
+
+// --- Focus and Escape (5.2) ---
+
+// dismissable only governs the backdrop: Escape still closes.
+export const EscapeClosesNonDismissable: Story = {
+  render: () => (
+    <Dialog.Root dismissable={false}>
+      <Dialog.Trigger>
+        <Button>Open terms</Button>
+      </Dialog.Trigger>
+      <Dialog.Portal size="sm">
+        <Dialog.Header>
+          <Dialog.Title>Terms</Dialog.Title>
+        </Dialog.Header>
+        <Dialog.Body>
+          <Text>Read before continuing.</Text>
+        </Dialog.Body>
+      </Dialog.Portal>
+    </Dialog.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const opener = canvas.getByRole('button', {name: 'Open terms'})
+    await userEvent.click(opener)
+    const dialog = await screen.findByRole('dialog', {name: 'Terms'})
+    // Nothing focusable inside: the dialog itself takes focus.
+    await waitFor(() => expect(dialog).toHaveFocus())
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    await waitFor(() => expect(opener).toHaveFocus())
+  },
+}
+
+function InitialFocusDemo() {
+  const nameRef = useRef<HTMLInputElement>(null)
+  return (
+    <Dialog.Root initialFocus={nameRef}>
+      <Dialog.Trigger>
+        <Button>Rename</Button>
+      </Dialog.Trigger>
+      <Dialog.Portal size="sm">
+        <Dialog.Header>
+          <Dialog.Title>Rename file</Dialog.Title>
+          <Dialog.Close />
+        </Dialog.Header>
+        <Dialog.Body>
+          <Field.Root>
+            <Field.Label>Name</Field.Label>
+            <Input ref={nameRef} defaultValue="notes.md" />
+          </Field.Root>
+        </Dialog.Body>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}
+
+export const InitialFocus: Story = {
+  render: () => <InitialFocusDemo />,
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Rename'}))
+    const input = await screen.findByRole('textbox', {name: 'Name'})
+    await waitFor(() => expect(input).toHaveFocus())
+  },
+}
+
+export const FirstFocusableByDefault: Story = {
+  render: () => (
+    <Dialog.Root>
+      <Dialog.Trigger>
+        <Button>Open</Button>
+      </Dialog.Trigger>
+      <Dialog.Portal size="sm">
+        <Dialog.Header>
+          <Dialog.Title>Share</Dialog.Title>
+          <Dialog.Close aria-label="Close share" />
+        </Dialog.Header>
+      </Dialog.Portal>
+    </Dialog.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Open'}))
+    const close = await screen.findByRole('button', {name: 'Close share'})
+    await waitFor(() => expect(close).toHaveFocus())
+  },
+}
+
+export const CloseOnEscapeOff: Story = {
+  render: () => (
+    <Dialog.Root defaultOpen closeOnEscape={false}>
+      <Dialog.Portal size="sm">
+        <Dialog.Header>
+          <Dialog.Title>Required step</Dialog.Title>
+        </Dialog.Header>
+        <Dialog.Footer>
+          <Dialog.Close>
+            <Button>Done</Button>
+          </Dialog.Close>
+        </Dialog.Footer>
+      </Dialog.Portal>
+    </Dialog.Root>
+  ),
+  play: async ({userEvent}) => {
+    await screen.findByRole('dialog', {name: 'Required step'})
+    await userEvent.keyboard('{Escape}')
+    await expect(screen.getByRole('dialog', {name: 'Required step'})).toBeInTheDocument()
   },
 }

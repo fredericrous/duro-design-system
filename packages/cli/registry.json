@@ -1603,7 +1603,7 @@
             "Portal"
           ]
         },
-        "description": "Modal dialog with backdrop overlay. Centered on screen with scale+fade animation. Traps focus, dismisses on backdrop click or Escape. Use for confirmations, forms, or content that requires user attention before continuing.",
+        "description": "Modal dialog with backdrop overlay. Centered on screen with scale+fade animation. Moves focus in on open (initialFocus, else the first focusable element, else the dialog) and back on close; dismisses on backdrop click (dismissable) or Escape (closeOnEscape, independent of dismissable). Use for confirmations, forms, or content that requires user attention before continuing.",
         "example": "<Dialog.Root open={open} onOpenChange={setOpen}>\n  <Dialog.Trigger>\n    <Button>Open dialog</Button>\n  </Dialog.Trigger>\n  <Dialog.Portal size=\"md\">\n    <Dialog.Header>\n      <Dialog.Title>Confirm action</Dialog.Title>\n      <Dialog.Close />\n    </Dialog.Header>\n    <Dialog.Body>\n      <Text>Are you sure you want to proceed?</Text>\n    </Dialog.Body>\n    <Dialog.Footer>\n      <Button variant=\"secondary\" onClick={() => setOpen(false)}>Cancel</Button>\n      <Button variant=\"danger\" onClick={handleConfirm}>Confirm</Button>\n    </Dialog.Footer>\n  </Dialog.Portal>\n</Dialog.Root>",
         "relatedTo": [
           {
@@ -1749,10 +1749,23 @@
             },
             {
               "default": "true",
-              "description": "Whether clicking backdrop closes the dialog. Default: true",
+              "description": "Whether clicking the backdrop closes the dialog. Default: true",
               "name": "dismissable",
               "required": false,
               "type": "boolean"
+            },
+            {
+              "default": "true",
+              "description": "Whether Escape closes the dialog. Default: true, also when `dismissable` is false. Turning it off leaves the keyboard no way out but a Dialog.Close, so render one.",
+              "name": "closeOnEscape",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "description": "Element to focus on open. Default: the first focusable element, else the dialog itself.",
+              "name": "initialFocus",
+              "required": false,
+              "type": "RefObject<HTMLElement | null>"
             },
             {
               "default": "'fast'",
