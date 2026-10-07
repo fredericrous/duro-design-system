@@ -3,12 +3,15 @@ import {createContext, useContext} from 'react'
 export interface MenuContextValue {
   open: boolean
   toggle: () => void
+  /** Close the menu and put focus back on the trigger. */
   close: () => void
   menuId: string
+  triggerId: string
   highlightedId: string | null
   setHighlightedId: (id: string | null) => void
   registerItem: (id: string, element: HTMLElement) => () => void
   triggerRef: React.RefObject<HTMLButtonElement | null>
+  popupRef: React.RefObject<HTMLDivElement | null>
 }
 
 export const MenuContext = createContext<MenuContextValue | null>(null)

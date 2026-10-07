@@ -1,5 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
+import {useRef, useState} from 'react'
 import {css, html} from 'react-strict-dom'
 import {Button} from './Button'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
@@ -127,5 +128,45 @@ export const AllVariants: Story = {
 
     const disabledButtons = buttons.filter((b: HTMLElement) => (b as HTMLButtonElement).disabled)
     await expect(disabledButtons.length).toBe(3)
+  },
+}
+
+// A disclosure: aria-expanded / aria-controls pass through, and the ref
+// reaches the <button> (to return focus to it).
+function DisclosureDemo() {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLButtonElement>(null)
+  return (
+    <html.div>
+      <Button
+        ref={ref}
+        variant="secondary"
+        aria-expanded={open}
+        aria-controls="filters-panel"
+        onClick={() => setOpen(!open)}
+      >
+        Filters
+      </Button>
+      {open && (
+        <html.div id="filters-panel" role="region" aria-label="Filters panel">
+          <Button variant="link" onClick={() => ref.current?.focus()}>
+            Back to Filters
+          </Button>
+        </html.div>
+      )}
+    </html.div>
+  )
+}
+
+export const RefAndDisclosure: Story = {
+  render: () => <DisclosureDemo />,
+  play: async ({canvas, userEvent}) => {
+    const toggle = canvas.getByRole('button', {name: 'Filters'})
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await userEvent.click(toggle)
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    await expect(toggle).toHaveAttribute('aria-controls', 'filters-panel')
+    await userEvent.click(canvas.getByRole('button', {name: 'Back to Filters'}))
+    await expect(toggle).toHaveFocus()
   },
 }

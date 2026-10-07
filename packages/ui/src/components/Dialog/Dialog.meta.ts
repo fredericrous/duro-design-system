@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Modal dialog with backdrop overlay. Centered on screen with scale+fade animation. Traps focus, dismisses on backdrop click or Escape. Use for confirmations, forms, or content that requires user attention before continuing.',
+    'Modal dialog with backdrop overlay. Centered on screen with scale+fade animation. Moves focus in on open (initialFocus, else the first focusable element, else the dialog) and back on close; dismisses on backdrop click (dismissable) or Escape (closeOnEscape, independent of dismissable). Use for confirmations, forms, or content that requires user attention before continuing.',
   whenToUse: [
     'Confirmation prompts (delete, revoke, destructive actions)',
     'Short forms or data entry that blocks the main flow',

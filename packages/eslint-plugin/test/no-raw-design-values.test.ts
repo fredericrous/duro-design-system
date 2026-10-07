@@ -31,6 +31,8 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     wrap("width: 'calc(100% - 2rem)'"),
     wrap('outlineOffset: `calc(-1 * ${borders.focusOffset})`'),
     wrap('border: `${borders.hairline} solid ${colors.border}`'),
+    wrap('boxShadow: `inset 0 0 0 ${borders.hairline} ${colors.border}`'),
+    wrap('boxShadow: shadows.dropOver'),
     wrap("border: 'none', outline: 0, borderTop: 'inherit'"),
     {
       code: wrap('width: 1'),
@@ -80,7 +82,20 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             tokens: 'sizes.touchTarget, sizes.swatchW',
             pkg: '@duro-app/tokens',
           },
-          suggestions: [],
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.touchTarget'),
+            },
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.swatchW'),
+            },
+          ],
         },
       ],
     },
@@ -96,13 +111,62 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             tokens: 'sizes.controlSm, sizes.iconButtonSm',
             pkg: '@duro-app/tokens',
           },
-          suggestions: [],
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('minHeight: sizes.controlSm'),
+            },
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('minHeight: sizes.iconButtonSm'),
+            },
+          ],
         },
       ],
     },
     {
       code: wrap('width: 16'),
-      errors: [{messageId: 'ambiguousMeasure', suggestions: []}],
+      errors: [
+        {
+          messageId: 'ambiguousMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.switchThumb'),
+            },
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.spinnerSm'),
+            },
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.glyphMd'),
+            },
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.iconSm'),
+            },
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.handle'),
+            },
+          ],
+        },
+      ],
     },
     {
       code: wrap('maxWidth: 520'),
@@ -143,6 +207,109 @@ tester.run('no-raw-design-values', noRawDesignValues, {
           ],
         },
       ],
+    },
+    {
+      // Shared value, width axis: one suggestion per width-capable token,
+      // never a height token such as editorMinH.
+      code: wrap('width: 240'),
+      errors: [
+        {
+          messageId: 'ambiguousMeasure',
+          data: {
+            value: '240',
+            property: 'width',
+            group: 'sizes',
+            tokens: 'sizes.gridColSm, sizes.sidebarW, sizes.popoverWSm',
+            pkg: '@duro-app/tokens',
+          },
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.gridColSm'),
+            },
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.sidebarW'),
+            },
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.popoverWSm'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // Height axis: popupMinW and fieldMinW share 160 but name widths.
+      code: wrap('height: 160'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          data: {
+            value: '160',
+            property: 'height',
+            group: 'sizes',
+            tokens: 'sizes.editorMinH',
+            pkg: '@duro-app/tokens',
+          },
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('height: sizes.editorMinH'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // No token at 232; 240 is within 10%, so its roles are named.
+      code: wrap('width: 232'),
+      errors: [
+        {
+          messageId: 'nearestMeasureRole',
+          data: {
+            value: '232',
+            property: 'width',
+            group: 'sizes',
+            tokens: '',
+            pkg: '@duro-app/tokens',
+            nearest: '`sizes.gridColSm`, `sizes.sidebarW`, `sizes.popoverWSm` (240)',
+          },
+          suggestions: [],
+        },
+      ],
+    },
+    {
+      // 200 and 240 are both 20px away: both values, smaller first.
+      // listMaxHSm (200) is a height, so it is left out on width.
+      code: wrap('width: 220'),
+      errors: [
+        {
+          messageId: 'nearestMeasureRole',
+          data: {
+            value: '220',
+            property: 'width',
+            group: 'sizes',
+            tokens: '',
+            pkg: '@duro-app/tokens',
+            nearest:
+              '`sizes.gridColXs` (200), `sizes.gridColSm`, `sizes.sidebarW`, `sizes.popoverWSm` (240)',
+          },
+          suggestions: [],
+        },
+      ],
+    },
+    {
+      code: wrap('boxShadow: `inset 0 0 0 1px ${colors.border}`'),
+      errors: [{messageId: 'rawShadowLength', suggestions: []}],
     },
     {
       code: wrap('width: 7'),
@@ -246,7 +413,25 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     },
     {
       code: wrap('marginLeft: -8, width: -44'),
-      errors: [{messageId: 'ambiguousMeasure', suggestions: []}],
+      errors: [
+        {
+          messageId: 'ambiguousMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('marginLeft: -8, width: `calc(-1 * ${sizes.touchTarget})`'),
+            },
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('marginLeft: -8, width: `calc(-1 * ${sizes.swatchW})`'),
+            },
+          ],
+        },
+      ],
     },
     {
       code: wrap("border: '1px solid red'"),

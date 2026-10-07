@@ -111,14 +111,13 @@ describe('react', () => {
     expect(ruleIds(flagged)).toContain('react-hooks/rules-of-hooks')
   })
 
-  it('warns on flexGrow in css.create without gating', async () => {
+  it('no longer reports flexGrow (react-strict-dom honours it on web)', async () => {
     const result = await lint(
       react,
       "import {css} from 'react-strict-dom'\nexport const s = css.create({row: {flexGrow: 1}})\n",
       'src/styles.ts',
     )
-    const message = result.messages.find((m) => m.ruleId === 'duro/no-flex-grow-web')
-    expect(message?.severity).toBe(1)
+    expect(result.messages.find((m) => m.ruleId === 'duro/no-flex-grow-web')).toBeUndefined()
   })
 })
 

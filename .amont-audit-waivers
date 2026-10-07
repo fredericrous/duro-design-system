@@ -6,15 +6,19 @@
 # braces <= 3.0.3 (stack exhaustion on deeply nested patterns) has no patched
 # version. It ships through react-strict-dom > postcss-react-strict-dom >
 # fast-glob > micromatch, a build-time PostCSS plugin fed the app's own
-# config patterns, never user input. Remove when braces publishes a fix.
-GHSA-vfj7-8cjw-p6xm 2026-12-31 braces via react-strict-dom > postcss-react-strict-dom > fast-glob > micromatch; no patched version exists
+# config patterns, never user input. It also ships through
+# @duro-app/cli > ts-morph > @ts-morph/common > fast-glob > micromatch, where
+# fast-glob expands the CLI's own fixed source globs, again never user input.
+# Remove when braces publishes a fix.
+GHSA-vfj7-8cjw-p6xm 2026-12-31 braces via react-strict-dom > postcss-react-strict-dom > fast-glob and @duro-app/cli > ts-morph > fast-glob; no patched version exists
 
 # sprintf-js <= 1.1.3 (denial of service through an unbounded precision
 # specifier in the FORMAT string) has no patched version. It reaches the
 # published graph the way braces does: react-strict-dom > react-native >
 # babel-jest > babel-plugin-istanbul > js-yaml > argparse, plus dev tooling
-# (vite-plugin-dts > api-extractor). argparse formats only its own help text
+# (diagrams > vite-plugin-dts > @microsoft/api-extractor >
+# @rushstack/ts-command-line > argparse, the path pnpm audit reports). argparse formats only its own help text
 # with it, for test/transform tooling that never runs in a Duro app; no caller
 # passes an attacker-controlled format string. Remove when sprintf-js
 # publishes a fix or react-native stops depending on babel-jest.
-GHSA-hp3w-g68c-fv3c 2026-12-31 sprintf-js via react-strict-dom > react-native > babel-jest > argparse (help-text formatting only); no patched version exists
+GHSA-hp3w-g68c-fv3c 2026-12-31 sprintf-js via react-native > babel-jest and diagrams > vite-plugin-dts > argparse (help-text formatting only); no patched version exists

@@ -1,47 +1,92 @@
-import {useState, useCallback, useRef, useId, useEffect} from 'react'
+import {useState, useCallback, useRef, useId, useEffect, useLayoutEffect} from 'react'
 import type {MenuContextValue} from './MenuContext'
+import {isOutsidePress} from '../Popover/outside'
 
-export function useMenuRoot() {
-  const [open, setOpen] = useState(false)
+export interface MenuRootOptions {
+  open?: boolean
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
+}
+
+/**
+ * The menu-button pattern (WAI-ARIA APG): on open, focus moves to the
+ * `role="menu"` popup, which carries `aria-activedescendant`; arrows move the
+ * highlight; Escape closes and focus returns to the trigger. The keydown
+ * handler sits on the popup itself, never on `document`, so keys typed
+ * elsewhere (an editor) are never intercepted, and Escape stops there so an
+ * enclosing Popover or Dialog stays open.
+ */
+export function useMenuRoot({open: openProp, defaultOpen = false, onOpenChange}: MenuRootOptions) {
+  const [inner, setInner] = useState(defaultOpen)
+  const controlled = openProp !== undefined
+  const open = controlled ? openProp : inner
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  // Read by the keydown handler, so activating an item is not a side effect
+  // inside a state updater (React may run updaters twice).
+  const highlightedRef = useRef(highlightedId)
+  useLayoutEffect(() => {
+    highlightedRef.current = highlightedId
+  }, [highlightedId])
   const menuId = useId()
+  const triggerId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
+  const popupRef = useRef<HTMLDivElement | null>(null)
   const itemsRef = useRef(new Map<string, HTMLElement>())
   const orderRef = useRef<string[]>([])
-  const needsInitialHighlightRef = useRef(false)
+  const openRef = useRef(open)
+  openRef.current = open
+  const onOpenChangeRef = useRef(onOpenChange)
+  onOpenChangeRef.current = onOpenChange
 
-  const close = useCallback(() => {
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (next === openRef.current) return
+      if (!controlled) setInner(next)
+      onOpenChangeRef.current?.(next)
+    },
+    [controlled],
+  )
+
+  // Closes and leaves focus where it is (a press elsewhere put it there).
+  const dismiss = useCallback(() => {
+    if (!openRef.current) return
     setOpen(false)
     setHighlightedId(null)
-    needsInitialHighlightRef.current = false
+  }, [setOpen])
+
+  // Closes and puts focus back on the trigger.
+  const close = useCallback(() => {
+    if (!openRef.current) return
+    dismiss()
     triggerRef.current?.focus()
-  }, [])
+  }, [dismiss])
 
   const toggle = useCallback(() => {
-    setOpen((prev) => {
-      if (!prev) {
-        needsInitialHighlightRef.current = true
-      } else {
-        setHighlightedId(null)
-        needsInitialHighlightRef.current = false
-      }
-      return !prev
-    })
-  }, [])
+    if (openRef.current) close()
+    else setOpen(true)
+  }, [close, setOpen])
 
-  // Highlight the first item after items register on open.
-  // Child effects (item registration) run before this parent effect,
-  // so orderRef is populated by the time this runs.
+  // On open: focus the menu and highlight the first item. Child effects (item
+  // registration) run before this parent effect, so orderRef is populated.
+  const wasOpenRef = useRef(false)
   useEffect(() => {
-    if (open && needsInitialHighlightRef.current) {
-      needsInitialHighlightRef.current = false
-      const order = orderRef.current
-      if (order.length > 0) {
-        setHighlightedId(order[0])
-      }
+    if (open && !wasOpenRef.current) {
+      popupRef.current?.focus({preventScroll: true})
+      const first = orderRef.current[0]
+      if (first) setHighlightedId(first)
+    } else if (!open && wasOpenRef.current) {
+      setHighlightedId(null)
     }
+    wasOpenRef.current = open
   }, [open])
+
+  // Keep the highlighted item in view when the popup scrolls.
+  useEffect(() => {
+    if (!highlightedId) return
+    const el = itemsRef.current.get(highlightedId)
+    el?.scrollIntoView?.({block: 'nearest'})
+  }, [highlightedId])
 
   const registerItem = useCallback((id: string, element: HTMLElement) => {
     itemsRef.current.set(id, element)
@@ -60,12 +105,24 @@ export function useMenuRoot() {
     }
   }, [])
 
-  // Native keydown for full KeyboardEvent access (preventDefault)
+  // Native keydown on the popup element, for full KeyboardEvent access.
   useEffect(() => {
-    const root = rootRef.current
-    if (!root || !open) return
+    const popup = popupRef.current
+    if (!popup || !open) return
 
     function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        close()
+        return
+      }
+      if (e.key === 'Tab') {
+        // Back on the trigger before the browser moves focus, so Tab and
+        // Shift+Tab continue from where the menu was opened.
+        close()
+        return
+      }
       const order = orderRef.current
       if (order.length === 0) return
 
@@ -99,41 +156,41 @@ export function useMenuRoot() {
         case 'Enter':
         case ' ': {
           e.preventDefault()
-          const items = itemsRef.current
-          setHighlightedId((prev) => {
-            if (prev) {
-              const el = items.get(prev)
-              el?.click()
-            }
-            return prev
-          })
-          break
-        }
-        case 'Escape': {
-          e.preventDefault()
-          close()
-          break
-        }
-        case 'Tab': {
-          close()
+          const current = highlightedRef.current
+          if (current) itemsRef.current.get(current)?.click()
           break
         }
       }
     }
 
-    root.addEventListener('keydown', handleKeyDown)
-    return () => root.removeEventListener('keydown', handleKeyDown)
+    popup.addEventListener('keydown', handleKeyDown)
+    return () => popup.removeEventListener('keydown', handleKeyDown)
   }, [open, close])
+
+  // A press outside the trigger and the popup closes the menu, and leaves
+  // focus where the press put it.
+  useEffect(() => {
+    if (!open) return
+    function onPointerDown(e: PointerEvent) {
+      if (isOutsidePress(e.target as Node | null, [popupRef.current, triggerRef.current])) {
+        dismiss()
+      }
+    }
+    document.addEventListener('pointerdown', onPointerDown, true)
+    return () => document.removeEventListener('pointerdown', onPointerDown, true)
+  }, [open, dismiss])
 
   const ctx: MenuContextValue = {
     open,
     toggle,
     close,
     menuId,
+    triggerId,
     highlightedId,
     setHighlightedId,
     registerItem,
     triggerRef,
+    popupRef,
   }
 
   return {ctx, rootRef}

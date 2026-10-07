@@ -64,6 +64,8 @@ export const styles = css.create({
     flexDirection: 'column',
     overflow: 'hidden',
     pointerEvents: 'auto',
+    // Focused only as the fallback when it holds nothing focusable.
+    outlineStyle: 'none',
     borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,

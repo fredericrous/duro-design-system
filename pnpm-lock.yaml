@@ -6,6 +6,7 @@ settings:
 
 overrides:
   '@babel/core@<=7.29.0': ^7.29.6
+  '@modelcontextprotocol/sdk@>=1.12.0 <1.31.0': ^1.31.0
   '@vitest/browser@>=4.0.0 <4.1.10': ^4.1.10
   '@vitest/browser@>=4.0.0 <=4.1.7': ^4.1.8
   '@vitest/browser@>=4.0.17 <4.1.6': ^4.1.6
@@ -147,8 +148,8 @@ importers:
         specifier: workspace:^
         version: link:../ui
       '@modelcontextprotocol/sdk':
-        specifier: ^1.12.0
-        version: 1.30.0(zod@4.4.3)
+        specifier: ^1.31.0
+        version: 1.32.1(zod@4.4.3)
       '@types/node':
         specifier: ^24.0.0
         version: 24.13.3
@@ -993,8 +994,8 @@ packages:
   '@microsoft/tsdoc@0.16.0':
     resolution: {integrity: sha512-xgAyonlVVS+q7Vc7qLW0UrJU7rSFcETRWsqdXZtjzRU8dF+6CkozTK4V4y1LwOX7j8r/vHphjDeMeGI4tNGeGA==}
 
-  '@modelcontextprotocol/sdk@1.30.0':
-    resolution: {integrity: sha512-xKd8OIzlqNzcqcNumGAa6g+PW2kjD5vrpcKOnfldAUPP3j7lnqMPwlTXQm8gF+UwH72z0lqaRbjr9hqGz0eITA==}
+  '@modelcontextprotocol/sdk@1.32.1':
+    resolution: {integrity: sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -4624,7 +4625,7 @@ snapshots:
 
   '@microsoft/tsdoc@0.16.0': {}
 
-  '@modelcontextprotocol/sdk@1.30.0(zod@4.4.3)':
+  '@modelcontextprotocol/sdk@1.32.1(zod@4.4.3)':
     dependencies:
       '@hono/node-server': 2.1.0(hono@4.13.10)
       ajv: 8.18.0

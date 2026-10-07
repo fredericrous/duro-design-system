@@ -14,8 +14,12 @@ import {html} from 'react-strict-dom'
 import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
+import {devWarnOnce} from '../../shared/devWarnOnce'
 
 // --- Types ---
+
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 export type DialogSize = 'sm' | 'md' | 'lg'
 
@@ -41,6 +45,8 @@ interface DialogContextValue {
   titleId: string
   descriptionId: string
   popupRef: RefObject<HTMLDivElement | null>
+  /** Dialog.Close parts currently rendered (for the closeOnEscape dev warning). */
+  registerClose: () => () => void
 }
 
 const DialogContext = createContext<DialogContextValue | null>(null)
@@ -61,8 +67,16 @@ interface RootProps {
   defaultOpen?: boolean
   /** Called when dialog open state changes */
   onOpenChange?: (open: boolean) => void
-  /** Whether clicking backdrop closes the dialog. Default: true */
+  /** Whether clicking the backdrop closes the dialog. Default: true */
   dismissable?: boolean
+  /**
+   * Whether Escape closes the dialog. Default: true, also when `dismissable`
+   * is false. Turning it off leaves the keyboard no way out but a
+   * Dialog.Close, so render one.
+   */
+  closeOnEscape?: boolean
+  /** Element to focus on open. Default: the first focusable element, else the dialog itself. */
+  initialFocus?: RefObject<HTMLElement | null>
   /** Motion token for the close animation. Default: 'fast' (150ms) */
   closeAnimationDuration?: DurationToken
 }
@@ -73,6 +87,8 @@ function Root({
   defaultOpen = false,
   onOpenChange,
   dismissable = true,
+  closeOnEscape = true,
+  initialFocus,
   closeAnimationDuration = 'fast',
 }: RootProps) {
   const isControlled = controlledOpen !== undefined
@@ -120,20 +136,55 @@ function Root({
     }
   }, [])
 
-  // Handle Escape key
+  // Handle Escape key. A layer inside the dialog (a Menu, a Select) that
+  // already handled it marks the event, and the dialog stays open.
   useEffect(() => {
     if (!isOpen && !closing) return
-    if (!dismissable) return
+    if (!closeOnEscape) return
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        e.stopPropagation()
-        requestClose()
-      }
+      if (e.key !== 'Escape' || e.defaultPrevented) return
+      e.stopPropagation()
+      requestClose()
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [isOpen, closing, dismissable, requestClose])
+  }, [isOpen, closing, closeOnEscape, requestClose])
+
+  // Focus: into the dialog on open (initialFocus, else the first focusable
+  // element, else the dialog itself), back to what had it on close. The
+  // Portal is a descendant, so its popup is mounted when this effect runs.
+  const closeCountRef = useRef(0)
+  const registerClose = useCallback(() => {
+    closeCountRef.current += 1
+    return () => {
+      closeCountRef.current -= 1
+    }
+  }, [])
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+  const wasOpenRef = useRef(false)
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      previousFocusRef.current = document.activeElement as HTMLElement | null
+      const popup = popupRef.current
+      if (popup) {
+        const target = initialFocus?.current ?? popup.querySelector<HTMLElement>(FOCUSABLE) ?? popup
+        target.focus({preventScroll: true})
+      }
+      if (!closeOnEscape && closeCountRef.current === 0) {
+        devWarnOnce(
+          'Dialog',
+          'no-escape-no-close',
+          'Dialog.Root has closeOnEscape={false} and no Dialog.Close: a keyboard user cannot leave this dialog. Render a Dialog.Close, or keep Escape.',
+        )
+      }
+    } else if (!isOpen && !closing && wasOpenRef.current) {
+      const target = previousFocusRef.current
+      previousFocusRef.current = null
+      if (target?.isConnected) target.focus({preventScroll: true})
+    }
+    wasOpenRef.current = isOpen || closing
+  }, [isOpen, closing, initialFocus, closeOnEscape])
 
   // Lock body scroll when open
   useEffect(() => {
@@ -158,6 +209,7 @@ function Root({
         titleId,
         descriptionId,
         popupRef,
+        registerClose,
       }}
     >
       {children}
@@ -229,6 +281,7 @@ function Portal({children, size = 'md'}: PortalProps) {
           ref={popupRef}
           role="dialog"
           aria-modal={true}
+          tabIndex={-1}
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
           style={[
@@ -301,7 +354,8 @@ interface CloseProps {
 }
 
 function Close({children, 'aria-label': ariaLabel = 'Close'}: CloseProps) {
-  const {requestClose} = useDialog()
+  const {requestClose, registerClose} = useDialog()
+  useEffect(() => registerClose(), [registerClose])
 
   if (children) {
     return (

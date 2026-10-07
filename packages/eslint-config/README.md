@@ -43,7 +43,7 @@ own `files` scope, so it can be appended unconditionally.
   banned with a message that says where to add missing components); rich
   text goes through `@fredericrous/lexical-multi`, never raw `lexical`;
   plus everything in `@duro-app/eslint-plugin` (html.\* elements, deep token
-  imports, token values, form kit, the RSD flexGrow trap).
+  imports, token values, form kit).
 - **`effect`** — `@effect/sql` not Kysely; `@effect/opentelemetry` only via
   subpath (the barrel statically imports the web SDK and crashes Node at
   module load); barrel-import hygiene via `@effect/eslint-plugin`.

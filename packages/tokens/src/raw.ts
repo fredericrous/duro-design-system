@@ -43,6 +43,10 @@ export type RawColors = {
   inverseBorder: string
   inverseBorderHover: string
   fixedLight: string
+  overlayLight: string
+  contrastSurface: string
+  onContrastSurface: string
+  contrastBorder: string
 }
 
 // Numeric maps for consumers that load only the compiled `/raw` entry (e.g.
@@ -135,6 +139,37 @@ export const SIZES_PX = {
   pageSm: 600,
   pageMd: 800,
   pageLg: 1200,
+  sidebarW: 240,
+  pageXs: 480,
+  pageXl: 1440,
+  asideW: 320,
+  gridColXs: 200,
+  fieldMinWSm: 80,
+  fieldMinW: 160,
+  popoverWSm: 240,
+  popoverW: 320,
+  popupMaxW: 280,
+  meterH: 6,
+  skeletonChipW: 96,
+  dropZoneMinH: 128,
+  canvasMinH: 480,
+  editorMinH: 160,
+  toolbarH: 36,
+  embedW: 550,
+  colorPickerW: 196,
+  colorAreaH: 150,
+  colorTrackH: 12,
+  colorSwatch: 20,
+  colorPreviewH: 22,
+  handle: 16,
+  chip: 24,
+  placeholderMinH: 80,
+  previewMaxH: 320,
+  barH: 4,
+  readoutW: 40,
+  sliderW: 96,
+  paletteMinW: 96,
+  deviceBarW: 96,
 } as const
 
 // Email-only measures: no CSS variable (mail clients cannot read them) and not
@@ -176,6 +211,10 @@ export const darkColors: RawColors = {
   inverseBorder: 'rgba(0, 0, 0, 0.55)',
   inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
   fixedLight: '#ffffff',
+  overlayLight: 'rgba(255, 255, 255, 0.78)',
+  contrastSurface: '#f5f5f5',
+  onContrastSurface: '#1a1a1a',
+  contrastBorder: 'rgba(0, 0, 0, 0.42)',
 }
 
 // Light theme — matches the overrides in `themes/light.css.ts`.
@@ -213,6 +252,10 @@ export const lightColors: RawColors = {
   inverseBorder: 'rgba(0, 0, 0, 0.55)',
   inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
   fixedLight: '#ffffff',
+  overlayLight: 'rgba(255, 255, 255, 0.78)',
+  contrastSurface: '#1a1a1a',
+  onContrastSurface: '#e5e5e5',
+  contrastBorder: 'rgba(255, 255, 255, 0.33)',
 }
 
 // High-contrast theme — matches the overrides in `themes/high-contrast.css.ts`.
@@ -250,4 +293,8 @@ export const highContrastColors: RawColors = {
   inverseBorder: 'rgba(0, 0, 0, 0.55)',
   inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
   fixedLight: '#ffffff',
+  overlayLight: 'rgba(255, 255, 255, 0.78)',
+  contrastSurface: '#ffffff',
+  onContrastSurface: '#000000',
+  contrastBorder: 'rgba(0, 0, 0, 0.42)',
 }

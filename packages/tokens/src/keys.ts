@@ -55,7 +55,7 @@ export const RADII_PX = {
   full: 9999,
 } as const
 
-export const SHADOW_KEYS = ['sm', 'md', 'lg'] as const
+export const SHADOW_KEYS = ['sm', 'md', 'lg', 'dropReady', 'dropOver'] as const
 export type ShadowToken = (typeof SHADOW_KEYS)[number]
 
 // Mirrors tokens/motion.css.ts `duration`, as numbers for setTimeout use.
@@ -119,6 +119,37 @@ export const SIZE_KEYS = [
   'pageSm',
   'pageMd',
   'pageLg',
+  'sidebarW',
+  'pageXs',
+  'pageXl',
+  'asideW',
+  'gridColXs',
+  'fieldMinWSm',
+  'fieldMinW',
+  'popoverWSm',
+  'popoverW',
+  'popupMaxW',
+  'meterH',
+  'skeletonChipW',
+  'dropZoneMinH',
+  'canvasMinH',
+  'editorMinH',
+  'toolbarH',
+  'embedW',
+  'colorPickerW',
+  'colorAreaH',
+  'colorTrackH',
+  'colorSwatch',
+  'colorPreviewH',
+  'handle',
+  'chip',
+  'placeholderMinH',
+  'previewMaxH',
+  'barH',
+  'readoutW',
+  'sliderW',
+  'paletteMinW',
+  'deviceBarW',
 ] as const
 export type SizeToken = (typeof SIZE_KEYS)[number]
 
@@ -172,6 +203,37 @@ export const SIZES_PX = {
   pageSm: 600,
   pageMd: 800,
   pageLg: 1200,
+  sidebarW: 240,
+  pageXs: 480,
+  pageXl: 1440,
+  asideW: 320,
+  gridColXs: 200,
+  fieldMinWSm: 80,
+  fieldMinW: 160,
+  popoverWSm: 240,
+  popoverW: 320,
+  popupMaxW: 280,
+  meterH: 6,
+  skeletonChipW: 96,
+  dropZoneMinH: 128,
+  canvasMinH: 480,
+  editorMinH: 160,
+  toolbarH: 36,
+  embedW: 550,
+  colorPickerW: 196,
+  colorAreaH: 150,
+  colorTrackH: 12,
+  colorSwatch: 20,
+  colorPreviewH: 22,
+  handle: 16,
+  chip: 24,
+  placeholderMinH: 80,
+  previewMaxH: 320,
+  barH: 4,
+  readoutW: 40,
+  sliderW: 96,
+  paletteMinW: 96,
+  deviceBarW: 96,
 } as const
 
 export const BORDER_KEYS = [
@@ -254,6 +316,8 @@ export const SHADOWS = {
   sm: '0 2px 4px rgba(0, 0, 0, 0.3)',
   md: '0 4px 12px rgba(0, 0, 0, 0.4)',
   lg: '0 8px 24px rgba(0, 0, 0, 0.5)',
+  dropReady: 'inset 0 0 0 1px #333333',
+  dropOver: 'inset 0 0 0 2px #6aaffc',
 } as const
 
 // Mirrors tokens/motion.css.ts `easing` verbatim.

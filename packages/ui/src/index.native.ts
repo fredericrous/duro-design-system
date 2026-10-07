@@ -34,6 +34,7 @@ export {Stack, type SpacingKey} from './components/Stack/Stack'
 export {Inline} from './components/Inline/Inline'
 export {Cluster} from './components/Cluster/Cluster'
 export {Grid} from './components/Grid/Grid'
+export type {GridTrack} from './shared/length'
 
 // Theming — resolves to ThemeProvider.native.tsx on Metro (RN-safe variant:
 // no display:contents / portal mount; applies the theme to a flex container).

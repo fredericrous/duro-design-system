@@ -13,4 +13,12 @@ export const visuallyHidden = css.create({
     height: 1,
     overflow: 'hidden',
   },
+  // For text (VisuallyHidden): clipped to nothing, kept on one line so a
+  // screen reader reads it whole.
+  text: {
+    clip: 'rect(0, 0, 0, 0)',
+    whiteSpace: 'nowrap',
+    borderWidth: 0,
+    padding: 0,
+  },
 })

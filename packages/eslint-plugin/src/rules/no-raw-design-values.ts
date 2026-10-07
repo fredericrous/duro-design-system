@@ -44,6 +44,8 @@ type MessageIds =
   | 'rawMeasure'
   | 'ambiguousMeasure'
   | 'missingMeasureToken'
+  | 'nearestMeasureRole'
+  | 'rawShadowLength'
   | 'rawTrack'
   | 'replaceWithToken'
 type Options = [
@@ -78,27 +80,100 @@ const TRACK_PROPERTIES = new Set([
 type MeasureGroup = 'sizes' | 'borders'
 interface Measure {
   group: MeasureGroup
-  candidates: (px: number) => string[]
+  /** Every token this property may use, with its px value, in key order. */
+  tokens: [token: string, px: number][]
 }
 
-const borderCandidates = (allowed: string[]) => (px: number) =>
-  (BORDER_TOKENS_BY_PX[px] ?? []).filter((token) => allowed.includes(token))
+type Axis = 'width' | 'height'
+
+const WIDTH_PROPERTIES = new Set([
+  'width',
+  'minWidth',
+  'maxWidth',
+  'inlineSize',
+  'minInlineSize',
+  'maxInlineSize',
+])
+const HEIGHT_PROPERTIES = new Set([
+  'height',
+  'minHeight',
+  'maxHeight',
+  'blockSize',
+  'minBlockSize',
+  'maxBlockSize',
+])
+
+/**
+ * The axis a size token names: `…W`/`…MinW`/`…MaxW` is a width and
+ * `…H`/`…MinH`/`…MaxH` a height, with an optional step after it
+ * (`popoverWSm`, `listMaxHSm`). Anything else (`touchTarget`, `gridColSm`)
+ * fits both.
+ */
+function tokenAxis(token: string): Axis | null {
+  const match = /[a-z](?:Min|Max)?([WH])(?:Xs|Sm|Md|Lg|Xl)?$/.exec(token)
+  if (!match) return null
+  return match[1] === 'W' ? 'width' : 'height'
+}
+
+function propertyAxis(property: string): Axis | null {
+  if (WIDTH_PROPERTIES.has(property)) return 'width'
+  if (HEIGHT_PROPERTIES.has(property)) return 'height'
+  return null // flexBasis runs along either axis
+}
+
+const entriesOf = (table: Record<number, string[]>) =>
+  Object.entries(table).flatMap(([px, tokens]) =>
+    tokens.map((token) => [token, Number(px)] as [string, number]),
+  )
+
+const borderTokens = (allowed: string[]) =>
+  entriesOf(BORDER_TOKENS_BY_PX).filter(([token]) => allowed.includes(token))
 
 /** Which token set a measure property draws from; null for any other property. */
 function measureFor(property: string): Measure | null {
   if (SIZE_PROPERTIES.has(property)) {
-    return {group: 'sizes', candidates: (px) => SIZE_TOKENS_BY_PX[px] ?? []}
+    const axis = propertyAxis(property)
+    const tokens = entriesOf(SIZE_TOKENS_BY_PX).filter(([token]) => {
+      const own = tokenAxis(token)
+      return own === null || axis === null || own === axis
+    })
+    return {group: 'sizes', tokens}
   }
   if (property === 'outlineOffset') {
-    return {group: 'borders', candidates: borderCandidates(OUTLINE_OFFSET_TOKENS)}
+    return {group: 'borders', tokens: borderTokens(OUTLINE_OFFSET_TOKENS)}
   }
   if (property === 'outlineWidth' || property === 'outline') {
-    return {group: 'borders', candidates: borderCandidates(OUTLINE_WIDTH_TOKENS)}
+    return {group: 'borders', tokens: borderTokens(OUTLINE_WIDTH_TOKENS)}
   }
   if (BORDER_WIDTH_PROPERTIES.has(property) || BORDER_SHORTHAND_PROPERTIES.has(property)) {
-    return {group: 'borders', candidates: borderCandidates(BORDER_WIDTH_TOKENS)}
+    return {group: 'borders', tokens: borderTokens(BORDER_WIDTH_TOKENS)}
   }
   return null
+}
+
+/** Tokens of `measure` at exactly `px`, in key order. */
+function candidatesAt(measure: Measure, px: number): string[] {
+  return measure.tokens.filter(([, value]) => value === px).map(([token]) => token)
+}
+
+/** How far a value may sit from a token for that token to be its nearest role. */
+const NEAREST_ROLE_TOLERANCE = 0.1
+
+/**
+ * The tokens at the nearest value within ±10% of `px`, as `[value, tokens]`
+ * pairs: one pair, or two (smaller value first) when two values are equally
+ * near. Empty when nothing is that close.
+ */
+function nearestRoles(measure: Measure, px: number): [number, string[]][] {
+  const limit = px * NEAREST_ROLE_TOLERANCE
+  const values = [...new Set(measure.tokens.map(([, value]) => value))]
+  const near = values.filter((value) => Math.abs(value - px) <= limit)
+  if (near.length === 0) return []
+  const best = Math.min(...near.map((value) => Math.abs(value - px)))
+  return near
+    .filter((value) => Math.abs(value - px) === best)
+    .sort((a, b) => a - b)
+    .map((value) => [value, candidatesAt(measure, value)])
 }
 
 const scale = (table: Record<number, string>) =>
@@ -127,17 +202,23 @@ const scale = (table: Record<number, string>) =>
  *   flexBasis, block/inline size), on border*Width / outlineWidth /
  *   outlineOffset and on the width inside a border* / outline shorthand,
  *   negatives included. Each property has its own candidate tokens (sizes.*,
- *   borders hairline/strong/accent, focusRing, focusOffset/focusOffsetSm); one
- *   match suggests it, several list them without a fix, none says to add a
- *   token. Percent, viewport, em/rem/ch, keywords and calc() without a px are
- *   fine.
+ *   borders hairline/strong/accent, focusRing, focusOffset/focusOffsetSm),
+ *   filtered by axis: a `…W` token is only offered on a width property and a
+ *   `…H` token on a height one. One match suggests it; several give one
+ *   suggestion each; none names the nearest role (every token at the nearest
+ *   value within ±10%, both values smaller first on a tie), or says to add a
+ *   token when nothing is that close. Percent, viewport, em/rem/ch, keywords
+ *   and calc() without a px are fine.
+ * - box-shadow in a template literal: a px length in its static text is a raw
+ *   shadow (`inset 0 0 0 1px ${colors.border}`); use a `shadows.*` token.
  *
  * Option `exemptFiles` (globs) silences the rule for whole files.
  *
  * Skipped on purpose: 0, negatives on the spacing properties, shorthands
  * ('8px 16px', 'opacity 150ms'), identifiers, member expressions, template
- * literals and calls — the rule reads literals, not expressions (the size and
- * border-width properties also read static px text in template literals).
+ * literals and calls — the rule reads literals, not expressions (the size,
+ * border-width and box-shadow properties also read static px text in template
+ * literals).
  */
 export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
   defaultOptions: [{}],
@@ -193,6 +274,10 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         '{{value}} on `{{property}}` matches several {{group}} tokens ({{tokens}}). Pick the one that says what this measure is, from {{pkg}}/tokens/{{group}}.css.',
       missingMeasureToken:
         '{{value}} on `{{property}}` has no token. Add a token (design-system.a-missing-token-is-added-not-approximated) instead of using a raw value.',
+      nearestMeasureRole:
+        '{{value}} on `{{property}}` has no token; nearest role: {{nearest}}. If this measure plays that role, use its token and take its value; if not, add a token (design-system.a-missing-token-is-added-not-approximated).',
+      rawShadowLength:
+        '{{value}} on `boxShadow` builds a shadow from a raw px length. Use a `shadows.*` token from {{pkg}}/tokens/shadows.css.',
       rawTrack:
         '{{value}} on `{{property}}` sizes a track in px. Put a size token inside it: `minmax(${sizes.gridColSm}, 1fr)` from {{pkg}}/tokens/sizes.css.',
       replaceWithToken: 'Replace with {{replacement}}',
@@ -255,7 +340,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
       fixable: boolean,
     ) {
       if (px === 0) return
-      const candidates = measure.candidates(px)
+      const candidates = candidatesAt(measure, px)
       const data = {
         value: display,
         property,
@@ -264,26 +349,37 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         pkg: TOKENS_PKG,
       }
       if (candidates.length === 0) {
-        context.report({node, messageId: 'missingMeasureToken', data})
-      } else if (candidates.length > 1) {
-        context.report({node, messageId: 'ambiguousMeasure', data})
-      } else {
-        const token = candidates[0]!
-        context.report({
-          node,
-          messageId: 'rawMeasure',
-          data,
-          suggest: fixable
-            ? suggestReplacement(
-                node,
-                `${measure.group}.${token}`,
-                measure.group,
-                `tokens/${measure.group}.css`,
-                negative ? (local) => `\`calc(-1 * \${${local}.${token}})\`` : undefined,
-              )
-            : [],
-        })
+        const nearest = nearestRoles(measure, px)
+        if (nearest.length === 0) {
+          context.report({node, messageId: 'missingMeasureToken', data})
+          return
+        }
+        const text = nearest
+          .map(
+            ([value, tokens]) =>
+              `${tokens.map((token) => `\`${measure.group}.${token}\``).join(', ')} (${value})`,
+          )
+          .join(', ')
+        context.report({node, messageId: 'nearestMeasureRole', data: {...data, nearest: text}})
+        return
       }
+      const suggest = fixable
+        ? candidates.flatMap((token) =>
+            suggestReplacement(
+              node,
+              `${measure.group}.${token}`,
+              measure.group,
+              `tokens/${measure.group}.css`,
+              negative ? (local) => `\`calc(-1 * \${${local}.${token}})\`` : undefined,
+            ),
+          )
+        : []
+      context.report({
+        node,
+        messageId: candidates.length > 1 ? 'ambiguousMeasure' : 'rawMeasure',
+        data,
+        suggest,
+      })
     }
 
     /** Static text holding a `<number>px` inside calc() or a template literal. */
@@ -507,6 +603,17 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           })
         }
         if (node.type !== 'ObjectExpression') return
+      }
+      if (property && SHADOW_PROPERTIES.has(property) && node.type === 'TemplateLiteral') {
+        const text = node.quasis.map((q) => q.value.cooked ?? q.value.raw).join(' ')
+        if (/(?<![\w.-])(?!0+(?:\.0+)?px)\d+(?:\.\d+)?px\b/.test(text)) {
+          context.report({
+            node,
+            messageId: 'rawShadowLength',
+            data: {value: sourceCode.getText(node), pkg: TOKENS_PKG},
+          })
+        }
+        return
       }
       const measure = property ? measureFor(property) : null
       if (property && measure) {

@@ -140,3 +140,23 @@ export const AllVariants: Story = {
     </html.div>
   ),
 }
+
+const onSearch = fn()
+
+// An icon-only clickable addon is a button: aria-label gives it its name.
+export const IconAddonNamed: Story = {
+  render: () => (
+    <html.div style={layoutStyles.container}>
+      <InputGroup.Root>
+        <Input placeholder="Search tickets" aria-label="Search tickets" />
+        <InputGroup.Addon onClick={onSearch} aria-label="Run search">
+          <Icon name="search" size="sm" />
+        </InputGroup.Addon>
+      </InputGroup.Root>
+    </html.div>
+  ),
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Run search'}))
+    await expect(onSearch).toHaveBeenCalled()
+  },
+}

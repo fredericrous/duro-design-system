@@ -354,6 +354,24 @@
           "type": "string"
         },
         {
+          "description": "For a button that shows or hides another element (a disclosure, a panel).",
+          "name": "aria-expanded",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "Id of the element this button controls.",
+          "name": "aria-controls",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "The underlying <button>, e.g. to anchor a Popover or return focus to it. Web only: on native the ref is not attached.",
+          "name": "ref",
+          "required": false,
+          "type": "Ref<HTMLButtonElement>"
+        },
+        {
           "name": "children",
           "required": true,
           "type": "ReactNode"
@@ -1603,7 +1621,7 @@
             "Portal"
           ]
         },
-        "description": "Modal dialog with backdrop overlay. Centered on screen with scale+fade animation. Traps focus, dismisses on backdrop click or Escape. Use for confirmations, forms, or content that requires user attention before continuing.",
+        "description": "Modal dialog with backdrop overlay. Centered on screen with scale+fade animation. Moves focus in on open (initialFocus, else the first focusable element, else the dialog) and back on close; dismisses on backdrop click (dismissable) or Escape (closeOnEscape, independent of dismissable). Use for confirmations, forms, or content that requires user attention before continuing.",
         "example": "<Dialog.Root open={open} onOpenChange={setOpen}>\n  <Dialog.Trigger>\n    <Button>Open dialog</Button>\n  </Dialog.Trigger>\n  <Dialog.Portal size=\"md\">\n    <Dialog.Header>\n      <Dialog.Title>Confirm action</Dialog.Title>\n      <Dialog.Close />\n    </Dialog.Header>\n    <Dialog.Body>\n      <Text>Are you sure you want to proceed?</Text>\n    </Dialog.Body>\n    <Dialog.Footer>\n      <Button variant=\"secondary\" onClick={() => setOpen(false)}>Cancel</Button>\n      <Button variant=\"danger\" onClick={handleConfirm}>Confirm</Button>\n    </Dialog.Footer>\n  </Dialog.Portal>\n</Dialog.Root>",
         "relatedTo": [
           {
@@ -1749,10 +1767,23 @@
             },
             {
               "default": "true",
-              "description": "Whether clicking backdrop closes the dialog. Default: true",
+              "description": "Whether clicking the backdrop closes the dialog. Default: true",
               "name": "dismissable",
               "required": false,
               "type": "boolean"
+            },
+            {
+              "default": "true",
+              "description": "Whether Escape closes the dialog. Default: true, also when `dismissable` is false. Turning it off leaves the keyboard no way out but a Dialog.Close, so render one.",
+              "name": "closeOnEscape",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "description": "Element to focus on open. Default: the first focusable element, else the dialog itself.",
+              "name": "initialFocus",
+              "required": false,
+              "type": "RefObject<HTMLElement | null>"
             },
             {
               "default": "'fast'",
@@ -2526,7 +2557,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses to one column on the width of its own container, so it is safe to nest and to place beside a DetailPanel. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native.",
+        "description": "Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses to one column on the width of its own container, so it is safe to nest and to place beside a DetailPanel. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native. For a fixed track beside fractions (content + a 320px aside), tracks takes a token track list — tracks={['1fr', 'asideW']} — web only, equal columns on native.",
         "example": "// Split: list ≥ sizes.gridColSm (240px) beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"gridColMd\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Weighted: a one-third / two-thirds split (works on native too)\n<Grid columns={[1, 2]} gap=\"md\">\n  <Card>Sidebar</Card>\n  <Card>Content</Card>\n</Grid>",
         "relatedTo": [
           {
@@ -2585,6 +2616,12 @@
           "name": "layout",
           "required": false,
           "type": "GridLayout"
+        },
+        {
+          "description": "An explicit track list, for columns that are not all fractions: a size token for a fixed track (`['1fr', 'asideW']`), or `minmax()` / `fit-content()` of tokens and fractions (`'minmax(gridColXs, 1fr)'`). A px is a type error. Web only — on native it falls back to equal columns, one per track. Wins over `columns` / `minColumnWidth`; `layout` wins over it.",
+          "name": "tracks",
+          "required": false,
+          "type": "readonly GridTrack[]"
         },
         {
           "name": "children",
@@ -2819,7 +2856,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Text input with automatic Field/Form integration. Variant auto-switches to error when inside an invalid Field.",
+        "description": "Text input with automatic Field/Form integration. Variant auto-switches to error when inside an invalid Field. variant=\"ghost\" reads as text until hovered (hairline border) or focused (accent border and ring): only for inline edit where a visible Field.Label names it; it shows the error state when the Field is invalid.",
         "example": "<Field.Root name=\"email\">\n  <Field.Label>Email</Field.Label>\n  <Input type=\"email\" placeholder=\"you@example.com\" autoComplete=\"email\" />\n  <Field.Error />\n</Field.Root>",
         "relatedTo": [
           {
@@ -2840,22 +2877,26 @@
         ],
         "whenNotToUse": [
           "Multi-line text — use Textarea",
-          "Picking from predefined options — use Select"
+          "Picking from predefined options — use Select",
+          "A ghost field without a visible label — it reads as plain text, so the label is what says it is editable"
         ],
         "whenToUse": [
-          "Single-line text entry (text, email, password, url, tel, number, search)"
+          "Single-line text entry (text, email, password, url, tel, number, search)",
+          "Inline edit of a labelled value in place (a ticket title) — variant=\"ghost\""
         ]
       },
       "name": "Input",
       "props": [
         {
           "default": "'default'",
+          "description": "`ghost` reads as text until hovered or focused — only for inline edit where a visible label names the field (Field.Label). It shows the error state when the Field is invalid.",
           "name": "variant",
           "required": false,
           "type": "InputVariant",
           "union": [
             "default",
-            "error"
+            "error",
+            "ghost"
           ]
         },
         {
@@ -3071,6 +3112,12 @@
               "name": "minWidth",
               "required": false,
               "type": "Length"
+            },
+            {
+              "description": "Accessible name of a clickable addon (it renders a button). Required when its content is an icon (copy, reveal): without it the button has no name.",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
             },
             {
               "name": "children",
@@ -3363,6 +3410,197 @@
       "props": null,
       "sourcePath": "packages/ui/src/components/List/List.tsx"
     },
+    "Listbox": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "Empty"
+          ],
+          "required": [
+            "Root",
+            "Option"
+          ]
+        },
+        "description": "Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox. The anchor owns focus and the keyboard: it sets the controlled highlightedId and spreads Listbox.getAnchorProps() for aria-controls / aria-expanded / aria-activedescendant. A press on an option never takes focus from the anchor. Portalled and placed against anchor() (an input rect or a caret rect), capped at a size-token maxHeight (default listMaxH).",
+        "example": "const id = useId()\nconst [highlightedId, setHighlightedId] = useState<string | null>(null)\nconst optionId = (value: string) => `${id}-${value}`\n// On the editor root: Object.entries(Listbox.getAnchorProps({id, open, highlightedId}))\n<Listbox.Root\n  id={id}\n  open={open}\n  anchor={() => caretRect()}\n  highlightedId={highlightedId}\n  onHighlight={setHighlightedId}\n  onSelect={(value) => insertMention(value)}\n  getOptionId={optionId}\n  aria-label=\"Mentions\"\n>\n  {people.map((p) => (\n    <Listbox.Option key={p.id} value={p.id}>{p.name}</Listbox.Option>\n  ))}\n  {people.length === 0 && <Listbox.Empty>No match</Listbox.Empty>}\n</Listbox.Root>",
+        "relatedTo": [
+          {
+            "component": "Combobox",
+            "kind": "contrast",
+            "relationship": "Combobox is a ready-made input + Listbox; Listbox alone serves an anchor you own (an editor)"
+          },
+          {
+            "component": "Menu",
+            "kind": "contrast",
+            "relationship": "Menu takes focus and triggers actions; Listbox leaves focus on its anchor and offers values"
+          }
+        ],
+        "whenNotToUse": [
+          "Picking a value from a filterable list in a form — use Combobox (built on Listbox)",
+          "A short fixed list — use Select",
+          "Actions — use Menu"
+        ],
+        "whenToUse": [
+          "Typeahead inside a rich-text editor, where focus must stay in the editor",
+          "A custom combobox whose input is not Combobox.Input"
+        ]
+      },
+      "name": "Listbox",
+      "parts": {
+        "Empty": {
+          "name": "Empty",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+        },
+        "Option": {
+          "name": "Option",
+          "props": [
+            {
+              "name": "value",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "DOM id. Default: Root's getOptionId(value).",
+              "name": "id",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": "false",
+              "description": "The committed choice (aria-selected).",
+              "name": "selected",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "default": "false",
+              "name": "disabled",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "name": "ref",
+              "required": false,
+              "type": "Ref<HTMLDivElement>"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [
+            {
+              "description": "DOM id of the list; pass the same to getAnchorProps.",
+              "name": "id",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "open",
+              "required": true,
+              "type": "boolean"
+            },
+            {
+              "description": "The rect the list is placed against: the input, or the editor's caret.",
+              "name": "anchor",
+              "required": true,
+              "type": "() => DOMRect | null | undefined"
+            },
+            {
+              "default": "false",
+              "description": "Give the list the anchor's width (a Combobox under its input).",
+              "name": "matchAnchorWidth",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "description": "Id of the highlighted option, controlled by the anchor's keyboard handling.",
+              "name": "highlightedId",
+              "required": true,
+              "type": "string | null"
+            },
+            {
+              "description": "Pointer hover asks to move the highlight.",
+              "name": "onHighlight",
+              "required": false,
+              "type": "(id: string | null) => void"
+            },
+            {
+              "description": "A press on an option.",
+              "name": "onSelect",
+              "required": false,
+              "type": "(value: string) => void"
+            },
+            {
+              "description": "Option value → DOM id. Default: defaultOptionId(id, value).",
+              "name": "getOptionId",
+              "required": false,
+              "type": "(value: string) => string"
+            },
+            {
+              "description": "Accessible name of the list.",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": "'listMaxH'",
+              "description": "Size-token key capping the list's height; longer lists scroll. Default: listMaxH.",
+              "name": "maxHeight",
+              "required": false,
+              "type": "ListboxMaxHeight",
+              "union": [
+                "listMaxH",
+                "listMaxHSm"
+              ]
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+        },
+        "getAnchorProps": {
+          "name": "getAnchorProps",
+          "props": [
+            {
+              "name": "id",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "open",
+              "required": true,
+              "type": "boolean"
+            },
+            {
+              "name": "highlightedId",
+              "required": true,
+              "type": "string | null | undefined"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/Listbox/Listbox.tsx"
+    },
     "Menu": {
       "importPath": "@duro-app/ui",
       "kind": "compound",
@@ -3379,7 +3617,7 @@
             "Item"
           ]
         },
-        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button.",
+        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button; an icon-only trigger takes aria-label, and variant=\"ghost\" suits toolbars. The popup is portalled and placed against the trigger (never clipped by a sticky or overflow ancestor), capped at sizes.listMaxH with scrolling, and takes focus on open (WAI-ARIA menu button); Escape closes only the menu, not an enclosing Popover or Dialog.",
         "example": "<Menu.Root>\n  <Menu.Trigger>Actions</Menu.Trigger>\n  <Menu.Popup>\n    <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n    <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n    <Menu.Separator />\n    <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n  </Menu.Popup>\n</Menu.Root>",
         "relatedTo": [
           {
@@ -3401,7 +3639,8 @@
         "whenToUse": [
           "Context menu or \"more actions\" dropdown",
           "Navigation links in a dropdown",
-          "Overflow menu for toolbar actions"
+          "Overflow menu for toolbar actions",
+          "A toolbar dropdown (align, insert) in an editor — Menu.Trigger variant=\"ghost\""
         ]
       },
       "name": "Menu",
@@ -3462,6 +3701,24 @@
               "name": "children",
               "required": true,
               "type": "ReactNode"
+            },
+            {
+              "description": "Controlled open state.",
+              "name": "open",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "description": "Initial open state (uncontrolled).",
+              "name": "defaultOpen",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "description": "Called when the menu opens or closes.",
+              "name": "onOpenChange",
+              "required": false,
+              "type": "(open: boolean) => void"
             }
           ],
           "sourcePath": "packages/ui/src/components/Menu/Menu.tsx"
@@ -3478,6 +3735,24 @@
               "name": "children",
               "required": true,
               "type": "ReactNode"
+            },
+            {
+              "description": "Accessible name — required when the label is an icon only.",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": "'default'",
+              "description": "`ghost`: no border or fill until hover, for toolbars. Default: `default`.",
+              "name": "variant",
+              "required": false,
+              "type": "MenuTriggerVariant"
+            },
+            {
+              "name": "ref",
+              "required": false,
+              "type": "Ref<HTMLButtonElement>"
             }
           ],
           "sourcePath": "packages/ui/src/components/Menu/Menu.tsx"
@@ -5677,6 +5952,78 @@
       ],
       "sourcePath": "packages/diagrams/src/components/Text/Text.tsx"
     },
+    "TextLink": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "description": "Inline hyperlink for running text and standalone text links (\"View all\", \"Edit profile\"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target=\"_blank\" defaults rel to noopener noreferrer.",
+        "example": "<Text>\n  Read the <TextLink href=\"/docs/migrate\">migration guide</TextLink> before you change seats, or{' '}\n  <TextLink href=\"/plans\" variant=\"subtle\">compare plans</TextLink> first.\n</Text>",
+        "relatedTo": [
+          {
+            "component": "LinkButton",
+            "kind": "contrast",
+            "relationship": "LinkButton is a hyperlink styled as a button; TextLink is a hyperlink styled as text"
+          },
+          {
+            "component": "Button",
+            "kind": "contrast",
+            "relationship": "Button runs an action; TextLink navigates"
+          }
+        ],
+        "whenNotToUse": [
+          "A link that should look like a button — use LinkButton",
+          "An action that does not navigate — use Button (variant=\"link\" for a text-styled action)",
+          "A link inside a dropdown — use Menu.LinkItem"
+        ],
+        "whenToUse": [
+          "A link inside a sentence or paragraph",
+          "A standalone text link under a list or card (\"View all requests\")",
+          "A quiet link in dense UI (variant=\"subtle\")"
+        ]
+      },
+      "name": "TextLink",
+      "props": [
+        {
+          "name": "href",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "`_blank` opens a new tab; `rel` then defaults to `noopener noreferrer`.",
+          "name": "target",
+          "required": false,
+          "type": "'_blank' | '_self'"
+        },
+        {
+          "name": "rel",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "'default'",
+          "description": "`default`: accent text with an accent underline. `subtle`: the surrounding text colour with a muted underline, accent on hover. Both stay underlined, so colour is never the only cue in running text.",
+          "name": "variant",
+          "required": false,
+          "type": "TextLinkVariant",
+          "union": [
+            "default",
+            "subtle"
+          ]
+        },
+        {
+          "description": "Accessible name, when the visible text alone does not say where it goes.",
+          "name": "aria-label",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "children",
+          "required": true,
+          "type": "ReactNode"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/TextLink/TextLink.tsx"
+    },
     "Textarea": {
       "importPath": "@duro-app/ui",
       "kind": "component",
@@ -6410,6 +6757,38 @@
       ],
       "sourcePath": "packages/ui/src/components/VirtualTable/VirtualTable.tsx"
     },
+    "VisuallyHidden": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "description": "Text for assistive tech only: kept in the accessibility tree, clipped off screen. Gives words to an icon-only control or a visual-only cue.",
+        "example": "<Button variant=\"secondary\">\n  <Icon name=\"search\" size=\"sm\" />\n  <VisuallyHidden>Search</VisuallyHidden>\n</Button>",
+        "whenNotToUse": [
+          "Naming a control that takes aria-label — pass aria-label instead",
+          "Hiding content from everyone — render nothing, or use display: none"
+        ],
+        "whenToUse": [
+          "A label for an icon inside a control that has no aria-label prop",
+          "Spelling out what a colour or icon shows (a status dot, \"(opens in a new tab)\")",
+          "A heading that structures a page for screen readers without a visible title"
+        ]
+      },
+      "name": "VisuallyHidden",
+      "props": [
+        {
+          "name": "children",
+          "required": true,
+          "type": "ReactNode"
+        },
+        {
+          "description": "For aria-describedby / aria-labelledby to point at.",
+          "name": "id",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/VisuallyHidden/VisuallyHidden.tsx"
+    },
     "useColorMode": {
       "importPath": "@duro-app/ui",
       "kind": "hook",
@@ -7007,15 +7386,6 @@
         "severity": "error"
       },
       {
-        "description": "Disallow non-zero flexGrow in css.create styles (react-strict-dom forces flex-grow: 0 on web)",
-        "fixable": "none",
-        "id": "duro/no-flex-grow-web",
-        "messages": {
-          "flexGrowForced": "flexGrow has no effect under react-strict-dom on web — the runtime forces computed flex-grow: 0, so this layout silently collapses. Lay out with a plain DOM scaffold, or absolute-position against a measured container."
-        },
-        "severity": "warn"
-      },
-      {
         "description": "Disallow raw px breakpoints in media-query strings; use breakpoints.<key>",
         "fixable": "autofix",
         "id": "duro/no-raw-breakpoint-query",
@@ -7031,6 +7401,7 @@
         "messages": {
           "ambiguousMeasure": "{{value}} on `{{property}}` matches several {{group}} tokens ({{tokens}}). Pick the one that says what this measure is, from {{pkg}}/tokens/{{group}}.css.",
           "missingMeasureToken": "{{value}} on `{{property}}` has no token. Add a token (design-system.a-missing-token-is-added-not-approximated) instead of using a raw value.",
+          "nearestMeasureRole": "{{value}} on `{{property}}` has no token; nearest role: {{nearest}}. If this measure plays that role, use its token and take its value; if not, add a token (design-system.a-missing-token-is-added-not-approximated).",
           "offScaleRadius": "{{value}} on `{{property}}` is off the radius scale ({{scale}}px). Use the nearest `radii.*` token from {{pkg}}/tokens/spacing.css, or disable this line with the reason.",
           "offScaleSpacing": "{{value}} on `{{property}}` is off the spacing scale ({{scale}}px). Use the nearest `spacing.*` token from {{pkg}}/tokens/spacing.css, or disable this line with the reason.",
           "rawBreakpoint": "{{value}}px in `{{key}}` is a raw breakpoint. Use `breakpoints.{{token}}` from {{pkg}}/tokens/breakpoints.css in a template-literal key (the scale is {{scale}}px).",
@@ -7044,6 +7415,7 @@
           "rawMicroSpacing": "{{value}} on `{{property}}` is off the spacing scale; it is the {{token}} micro-spacing token. Use `microSpacing.{{token}}` from {{pkg}}/tokens/spacing.css, or the scale if the nudge is not needed.",
           "rawRadius": "{{value}} on `{{property}}` is the {{token}} radius token. Use `radii.{{token}}` from {{pkg}}/tokens/spacing.css.",
           "rawShadow": "'{{value}}' on `boxShadow` is a raw shadow. Use `shadows.{{token}}` from {{pkg}}/tokens/shadows.css.",
+          "rawShadowLength": "{{value}} on `boxShadow` builds a shadow from a raw px length. Use a `shadows.*` token from {{pkg}}/tokens/shadows.css.",
           "rawSpacing": "{{value}} on `{{property}}` is the {{token}} spacing token. Use `spacing.{{token}}` from {{pkg}}/tokens/spacing.css.",
           "rawTrack": "{{value}} on `{{property}}` sizes a track in px. Put a size token inside it: `minmax(${sizes.gridColSm}, 1fr)` from {{pkg}}/tokens/sizes.css.",
           "replaceWithToken": "Replace with {{replacement}}"
@@ -7408,6 +7780,38 @@
               "highContrast": "#ffffff",
               "light": "#ffffff"
             }
+          },
+          {
+            "key": "overlayLight",
+            "values": {
+              "dark": "rgba(255, 255, 255, 0.78)",
+              "highContrast": "rgba(255, 255, 255, 0.78)",
+              "light": "rgba(255, 255, 255, 0.78)"
+            }
+          },
+          {
+            "key": "contrastSurface",
+            "values": {
+              "dark": "#f5f5f5",
+              "highContrast": "#ffffff",
+              "light": "#1a1a1a"
+            }
+          },
+          {
+            "key": "onContrastSurface",
+            "values": {
+              "dark": "#1a1a1a",
+              "highContrast": "#000000",
+              "light": "#e5e5e5"
+            }
+          },
+          {
+            "key": "contrastBorder",
+            "values": {
+              "dark": "rgba(0, 0, 0, 0.42)",
+              "highContrast": "rgba(0, 0, 0, 0.42)",
+              "light": "rgba(255, 255, 255, 0.33)"
+            }
           }
         ],
         "exportName": "colors",
@@ -7612,6 +8016,14 @@
           {
             "key": "lg",
             "value": "0 8px 24px rgba(0, 0, 0, 0.5)"
+          },
+          {
+            "key": "dropReady",
+            "value": "inset 0 0 0 1px #333333"
+          },
+          {
+            "key": "dropOver",
+            "value": "inset 0 0 0 2px #6aaffc"
           }
         ],
         "exportName": "shadows",
@@ -7810,6 +8222,130 @@
           {
             "key": "pageLg",
             "value": "1200px"
+          },
+          {
+            "key": "sidebarW",
+            "value": "240px"
+          },
+          {
+            "key": "pageXs",
+            "value": "480px"
+          },
+          {
+            "key": "pageXl",
+            "value": "1440px"
+          },
+          {
+            "key": "asideW",
+            "value": "320px"
+          },
+          {
+            "key": "gridColXs",
+            "value": "200px"
+          },
+          {
+            "key": "fieldMinWSm",
+            "value": "80px"
+          },
+          {
+            "key": "fieldMinW",
+            "value": "160px"
+          },
+          {
+            "key": "popoverWSm",
+            "value": "240px"
+          },
+          {
+            "key": "popoverW",
+            "value": "320px"
+          },
+          {
+            "key": "popupMaxW",
+            "value": "280px"
+          },
+          {
+            "key": "meterH",
+            "value": "6px"
+          },
+          {
+            "key": "skeletonChipW",
+            "value": "96px"
+          },
+          {
+            "key": "dropZoneMinH",
+            "value": "128px"
+          },
+          {
+            "key": "canvasMinH",
+            "value": "480px"
+          },
+          {
+            "key": "editorMinH",
+            "value": "160px"
+          },
+          {
+            "key": "toolbarH",
+            "value": "36px"
+          },
+          {
+            "key": "embedW",
+            "value": "550px"
+          },
+          {
+            "key": "colorPickerW",
+            "value": "196px"
+          },
+          {
+            "key": "colorAreaH",
+            "value": "150px"
+          },
+          {
+            "key": "colorTrackH",
+            "value": "12px"
+          },
+          {
+            "key": "colorSwatch",
+            "value": "20px"
+          },
+          {
+            "key": "colorPreviewH",
+            "value": "22px"
+          },
+          {
+            "key": "handle",
+            "value": "16px"
+          },
+          {
+            "key": "chip",
+            "value": "24px"
+          },
+          {
+            "key": "placeholderMinH",
+            "value": "80px"
+          },
+          {
+            "key": "previewMaxH",
+            "value": "320px"
+          },
+          {
+            "key": "barH",
+            "value": "4px"
+          },
+          {
+            "key": "readoutW",
+            "value": "40px"
+          },
+          {
+            "key": "sliderW",
+            "value": "96px"
+          },
+          {
+            "key": "paletteMinW",
+            "value": "96px"
+          },
+          {
+            "key": "deviceBarW",
+            "value": "96px"
           }
         ],
         "exportName": "sizes",
@@ -7960,7 +8496,7 @@
         "importPath": "@duro-app/tokens/tokens/typography.css"
       }
     },
-    "mockupCss": "/*\n * GENERATED by scripts/generate-mockup-css.mjs — do not edit.\n *\n * The design tokens as resolved values, for HTML that loads no stylesheet\n * (mockup artboards, static previews). Same names as vars.css; where vars.css\n * follows the live theme, this file carries every theme and switches on\n * <html data-theme=\"light|high-contrast\">.\n *\n * Inside the component library and the apps, never use this: go through\n * css.create() and the token imports, or vars.css from plain CSS.\n */\n:root {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #6aaffc;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #0f0f0f;\n  --duro-color-bg-card: #1a1a1a;\n  --duro-color-bg-card-hover: #242424;\n  --duro-color-border: #333333;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.1);\n  --duro-color-error-border: rgba(248, 113, 113, 0.3);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-info: #6aaffc;\n  --duro-color-info-bg: rgba(106, 175, 252, 0.1);\n  --duro-color-info-border: rgba(106, 175, 252, 0.3);\n  --duro-color-info-text: #93c5fd;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #22c55e;\n  --duro-color-success-bg: rgba(34, 197, 94, 0.1);\n  --duro-color-success-border: rgba(34, 197, 94, 0.3);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #e5e5e5;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fbbf24;\n  --duro-color-warning-bg: rgba(251, 191, 36, 0.1);\n  --duro-color-warning-border: rgba(251, 191, 36, 0.3);\n  --duro-color-warning-text: #fde68a;\n  /* shadows */\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);\n  /* spacing */\n  --duro-spacing-lg: 24px;\n  --duro-spacing-md: 16px;\n  --duro-spacing-ms: 12px;\n  --duro-spacing-sm: 8px;\n  --duro-spacing-xl: 32px;\n  --duro-spacing-xs: 4px;\n  --duro-spacing-xxl: 48px;\n  --duro-spacing-xxxl: 64px;\n  /* microSpacing */\n  --duro-micro-spacing-px1: 1px;\n  --duro-micro-spacing-px2: 2px;\n  --duro-micro-spacing-px3: 3px;\n  --duro-micro-spacing-px5: 5px;\n  --duro-micro-spacing-px6: 6px;\n  /* radii */\n  --duro-radius-full: 9999px;\n  --duro-radius-lg: 16px;\n  --duro-radius-md: 12px;\n  --duro-radius-px6: 6px;\n  --duro-radius-sm: 8px;\n  --duro-radius-xs: 4px;\n  /* sizes */\n  --duro-size-check-mark-h: 9px;\n  --duro-size-check-mark-w: 5px;\n  --duro-size-control-lg: 40px;\n  --duro-size-control-md: 39px;\n  --duro-size-control-sm: 28px;\n  --duro-size-dialog-lg: 680px;\n  --duro-size-dialog-md: 520px;\n  --duro-size-dialog-sm: 400px;\n  --duro-size-divider: 1px;\n  --duro-size-edge-fade: 32px;\n  --duro-size-glyph-md: 16px;\n  --duro-size-glyph-sm: 12px;\n  --duro-size-glyph-xs: 10px;\n  --duro-size-grid-col-md: 280px;\n  --duro-size-grid-col-sm: 240px;\n  --duro-size-icon-button: 32px;\n  --duro-size-icon-button-sm: 28px;\n  --duro-size-icon-lg: 24px;\n  --duro-size-icon-md: 18px;\n  --duro-size-icon-sm: 16px;\n  --duro-size-icon-xl: 36px;\n  --duro-size-icon-xxl: 48px;\n  --duro-size-indicator: 18px;\n  --duro-size-indicator-dot: 8px;\n  --duro-size-label-min-w: 120px;\n  --duro-size-list-max-h: 280px;\n  --duro-size-list-max-h-sm: 200px;\n  --duro-size-nav-marker-h: 18px;\n  --duro-size-nav-marker-w: 3px;\n  --duro-size-page-lg: 1200px;\n  --duro-size-page-md: 800px;\n  --duro-size-page-sm: 600px;\n  --duro-size-panel-lg: 640px;\n  --duro-size-panel-md: 480px;\n  --duro-size-panel-sm: 360px;\n  --duro-size-popup-min-w: 160px;\n  --duro-size-scrollbar: 8px;\n  --duro-size-spinner-lg: 40px;\n  --duro-size-spinner-md: 24px;\n  --duro-size-spinner-sm: 16px;\n  --duro-size-swatch-h: 34px;\n  --duro-size-swatch-w: 44px;\n  --duro-size-switch-thumb: 16px;\n  --duro-size-switch-track-h: 20px;\n  --duro-size-switch-track-w: 36px;\n  --duro-size-tab-indicator: 2px;\n  --duro-size-toast-max-w: 440px;\n  --duro-size-touch-target: 44px;\n  /* borders */\n  --duro-border-accent: 3px;\n  --duro-border-focus-offset: 2px;\n  --duro-border-focus-offset-sm: 1px;\n  --duro-border-focus-ring: 2px;\n  --duro-border-hairline: 1px;\n  --duro-border-strong: 2px;\n  /* layoutSpacing */\n  --duro-layout-spacing-container-lg: 32px;\n  --duro-layout-spacing-container-md: 24px;\n  --duro-layout-spacing-container-sm: 16px;\n  --duro-layout-spacing-inline-lg: 24px;\n  --duro-layout-spacing-inline-md: 16px;\n  --duro-layout-spacing-inline-sm: 8px;\n  --duro-layout-spacing-inline-xs: 4px;\n  --duro-layout-spacing-stack-lg: 24px;\n  --duro-layout-spacing-stack-md: 16px;\n  --duro-layout-spacing-stack-sm: 8px;\n  --duro-layout-spacing-stack-xl: 48px;\n  --duro-layout-spacing-stack-xs: 4px;\n  /* typography */\n  --duro-typography-font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n  --duro-typography-font-family-mono: \"SF Mono\", \"Fira Code\", \"Fira Mono\", \"Roboto Mono\", \"Courier New\", monospace;\n  --duro-typography-font-size-heading: 1.5rem;\n  --duro-typography-font-size-lg: 1.125rem;\n  --duro-typography-font-size-md: 1rem;\n  --duro-typography-font-size-sm: 0.875rem;\n  --duro-typography-font-size-xl: 1.25rem;\n  --duro-typography-font-size-xs: 0.75rem;\n  --duro-typography-font-weight-bold: 700;\n  --duro-typography-font-weight-medium: 500;\n  --duro-typography-font-weight-normal: 400;\n  --duro-typography-font-weight-semibold: 600;\n  --duro-typography-line-height: 1.5;\n  /* typeScale */\n  --duro-type-scale-display-lg: clamp(3.5rem, 2rem + 3.5vw, 4.5rem);\n  --duro-type-scale-display-md: clamp(2.75rem, 1.75rem + 2.5vw, 3.75rem);\n  --duro-type-scale-display-sm: clamp(2.25rem, 1.5rem + 2vw, 3rem);\n  --duro-type-scale-font-size1: 0.75rem;\n  --duro-type-scale-font-size2: 0.8125rem;\n  --duro-type-scale-font-size3: 0.875rem;\n  --duro-type-scale-font-size4: 1rem;\n  --duro-type-scale-font-size5: 1.125rem;\n  --duro-type-scale-font-size6: 1.25rem;\n  --duro-type-scale-font-size7: 1.5rem;\n  --duro-type-scale-font-size8: 1.875rem;\n  --duro-type-scale-font-size9: 2.25rem;\n  --duro-type-scale-letter-spacing-normal: 0;\n  --duro-type-scale-letter-spacing-tight: -0.02em;\n  --duro-type-scale-letter-spacing-wide: 0.04em;\n  --duro-type-scale-line-height1: 1rem;\n  --duro-type-scale-line-height2: 1.25rem;\n  --duro-type-scale-line-height3: 1.25rem;\n  --duro-type-scale-line-height4: 1.5rem;\n  --duro-type-scale-line-height5: 1.5rem;\n  --duro-type-scale-line-height6: 1.75rem;\n  --duro-type-scale-line-height7: 2rem;\n  --duro-type-scale-line-height8: 2.25rem;\n  --duro-type-scale-line-height9: 2.75rem;\n  /* duration */\n  --duro-duration-base: 200ms;\n  --duro-duration-brisk: 160ms;\n  --duro-duration-fast: 150ms;\n  --duro-duration-instant: 0ms;\n  --duro-duration-minimal: 1ms;\n  --duro-duration-quick: 120ms;\n  --duro-duration-slow: 280ms;\n  /* easing */\n  --duro-easing-ease-in: cubic-bezier(0.72, 0, 0.68, 0.28);\n  --duro-easing-ease-out: cubic-bezier(0.32, 0.72, 0, 1);\n  --duro-easing-linear: linear;\n  --duro-easing-standard: ease;\n  /* breakpoints */\n  --duro-breakpoint-lg: 1024px;\n  --duro-breakpoint-md: 768px;\n  --duro-breakpoint-sm: 640px;\n  --duro-breakpoint-xl: 1280px;\n  --duro-breakpoint-xs: 480px;\n}\n\n:root[data-theme=\"light\"] {\n  color-scheme: light;\n  /* colors */\n  --duro-color-accent: #1e40af;\n  --duro-color-accent-contrast: #ffffff;\n  --duro-color-accent-hover: #1a3799;\n  --duro-color-bg: #ffffff;\n  --duro-color-bg-card: #f5f5f5;\n  --duro-color-bg-card-hover: #ebebeb;\n  --duro-color-border: #d4d4d4;\n  --duro-color-error: #991b1b;\n  --duro-color-error-bg: rgba(153, 27, 27, 0.08);\n  --duro-color-error-border: rgba(153, 27, 27, 0.3);\n  --duro-color-error-contrast: #ffffff;\n  --duro-color-error-hover: #7f1d1d;\n  --duro-color-error-text: #7f1d1d;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-info: #1e40af;\n  --duro-color-info-bg: rgba(30, 64, 175, 0.08);\n  --duro-color-info-border: rgba(30, 64, 175, 0.3);\n  --duro-color-info-text: #1e40af;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #166534;\n  --duro-color-success-bg: rgba(22, 101, 52, 0.08);\n  --duro-color-success-border: rgba(22, 101, 52, 0.3);\n  --duro-color-success-text: #14532d;\n  --duro-color-text: #1a1a1a;\n  --duro-color-text-muted: #4a4a4a;\n  --duro-color-warning: #92400e;\n  --duro-color-warning-bg: rgba(146, 64, 14, 0.08);\n  --duro-color-warning-border: rgba(146, 64, 14, 0.3);\n  --duro-color-warning-text: #78350f;\n  /* shadows */\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);\n}\n\n:root[data-theme=\"high-contrast\"] {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #60a5fa;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #000000;\n  --duro-color-bg-card: #111111;\n  --duro-color-bg-card-hover: #1a1a1a;\n  --duro-color-border: #555555;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.15);\n  --duro-color-error-border: rgba(248, 113, 113, 0.5);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-info: #60a5fa;\n  --duro-color-info-bg: rgba(96, 165, 250, 0.15);\n  --duro-color-info-border: rgba(96, 165, 250, 0.5);\n  --duro-color-info-text: #bfdbfe;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #4ade80;\n  --duro-color-success-bg: rgba(74, 222, 128, 0.15);\n  --duro-color-success-border: rgba(74, 222, 128, 0.5);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #ffffff;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fcd34d;\n  --duro-color-warning-bg: rgba(252, 211, 77, 0.15);\n  --duro-color-warning-border: rgba(252, 211, 77, 0.5);\n  --duro-color-warning-text: #fef08a;\n  /* shadows */\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6);\n}\n"
+    "mockupCss": "/*\n * GENERATED by scripts/generate-mockup-css.mjs — do not edit.\n *\n * The design tokens as resolved values, for HTML that loads no stylesheet\n * (mockup artboards, static previews). Same names as vars.css; where vars.css\n * follows the live theme, this file carries every theme and switches on\n * <html data-theme=\"light|high-contrast\">.\n *\n * Inside the component library and the apps, never use this: go through\n * css.create() and the token imports, or vars.css from plain CSS.\n */\n:root {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #6aaffc;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #0f0f0f;\n  --duro-color-bg-card: #1a1a1a;\n  --duro-color-bg-card-hover: #242424;\n  --duro-color-border: #333333;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #f5f5f5;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.1);\n  --duro-color-error-border: rgba(248, 113, 113, 0.3);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-info: #6aaffc;\n  --duro-color-info-bg: rgba(106, 175, 252, 0.1);\n  --duro-color-info-border: rgba(106, 175, 252, 0.3);\n  --duro-color-info-text: #93c5fd;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #1a1a1a;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #22c55e;\n  --duro-color-success-bg: rgba(34, 197, 94, 0.1);\n  --duro-color-success-border: rgba(34, 197, 94, 0.3);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #e5e5e5;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fbbf24;\n  --duro-color-warning-bg: rgba(251, 191, 36, 0.1);\n  --duro-color-warning-border: rgba(251, 191, 36, 0.3);\n  --duro-color-warning-text: #fde68a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #6aaffc;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #333333;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);\n  /* spacing */\n  --duro-spacing-lg: 24px;\n  --duro-spacing-md: 16px;\n  --duro-spacing-ms: 12px;\n  --duro-spacing-sm: 8px;\n  --duro-spacing-xl: 32px;\n  --duro-spacing-xs: 4px;\n  --duro-spacing-xxl: 48px;\n  --duro-spacing-xxxl: 64px;\n  /* microSpacing */\n  --duro-micro-spacing-px1: 1px;\n  --duro-micro-spacing-px2: 2px;\n  --duro-micro-spacing-px3: 3px;\n  --duro-micro-spacing-px5: 5px;\n  --duro-micro-spacing-px6: 6px;\n  /* radii */\n  --duro-radius-full: 9999px;\n  --duro-radius-lg: 16px;\n  --duro-radius-md: 12px;\n  --duro-radius-px6: 6px;\n  --duro-radius-sm: 8px;\n  --duro-radius-xs: 4px;\n  /* sizes */\n  --duro-size-aside-w: 320px;\n  --duro-size-bar-h: 4px;\n  --duro-size-canvas-min-h: 480px;\n  --duro-size-check-mark-h: 9px;\n  --duro-size-check-mark-w: 5px;\n  --duro-size-chip: 24px;\n  --duro-size-color-area-h: 150px;\n  --duro-size-color-picker-w: 196px;\n  --duro-size-color-preview-h: 22px;\n  --duro-size-color-swatch: 20px;\n  --duro-size-color-track-h: 12px;\n  --duro-size-control-lg: 40px;\n  --duro-size-control-md: 39px;\n  --duro-size-control-sm: 28px;\n  --duro-size-device-bar-w: 96px;\n  --duro-size-dialog-lg: 680px;\n  --duro-size-dialog-md: 520px;\n  --duro-size-dialog-sm: 400px;\n  --duro-size-divider: 1px;\n  --duro-size-drop-zone-min-h: 128px;\n  --duro-size-edge-fade: 32px;\n  --duro-size-editor-min-h: 160px;\n  --duro-size-embed-w: 550px;\n  --duro-size-field-min-w: 160px;\n  --duro-size-field-min-w-sm: 80px;\n  --duro-size-glyph-md: 16px;\n  --duro-size-glyph-sm: 12px;\n  --duro-size-glyph-xs: 10px;\n  --duro-size-grid-col-md: 280px;\n  --duro-size-grid-col-sm: 240px;\n  --duro-size-grid-col-xs: 200px;\n  --duro-size-handle: 16px;\n  --duro-size-icon-button: 32px;\n  --duro-size-icon-button-sm: 28px;\n  --duro-size-icon-lg: 24px;\n  --duro-size-icon-md: 18px;\n  --duro-size-icon-sm: 16px;\n  --duro-size-icon-xl: 36px;\n  --duro-size-icon-xxl: 48px;\n  --duro-size-indicator: 18px;\n  --duro-size-indicator-dot: 8px;\n  --duro-size-label-min-w: 120px;\n  --duro-size-list-max-h: 280px;\n  --duro-size-list-max-h-sm: 200px;\n  --duro-size-meter-h: 6px;\n  --duro-size-nav-marker-h: 18px;\n  --duro-size-nav-marker-w: 3px;\n  --duro-size-page-lg: 1200px;\n  --duro-size-page-md: 800px;\n  --duro-size-page-sm: 600px;\n  --duro-size-page-xl: 1440px;\n  --duro-size-page-xs: 480px;\n  --duro-size-palette-min-w: 96px;\n  --duro-size-panel-lg: 640px;\n  --duro-size-panel-md: 480px;\n  --duro-size-panel-sm: 360px;\n  --duro-size-placeholder-min-h: 80px;\n  --duro-size-popover-w: 320px;\n  --duro-size-popover-w-sm: 240px;\n  --duro-size-popup-max-w: 280px;\n  --duro-size-popup-min-w: 160px;\n  --duro-size-preview-max-h: 320px;\n  --duro-size-readout-w: 40px;\n  --duro-size-scrollbar: 8px;\n  --duro-size-sidebar-w: 240px;\n  --duro-size-skeleton-chip-w: 96px;\n  --duro-size-slider-w: 96px;\n  --duro-size-spinner-lg: 40px;\n  --duro-size-spinner-md: 24px;\n  --duro-size-spinner-sm: 16px;\n  --duro-size-swatch-h: 34px;\n  --duro-size-swatch-w: 44px;\n  --duro-size-switch-thumb: 16px;\n  --duro-size-switch-track-h: 20px;\n  --duro-size-switch-track-w: 36px;\n  --duro-size-tab-indicator: 2px;\n  --duro-size-toast-max-w: 440px;\n  --duro-size-toolbar-h: 36px;\n  --duro-size-touch-target: 44px;\n  /* borders */\n  --duro-border-accent: 3px;\n  --duro-border-focus-offset: 2px;\n  --duro-border-focus-offset-sm: 1px;\n  --duro-border-focus-ring: 2px;\n  --duro-border-hairline: 1px;\n  --duro-border-strong: 2px;\n  /* layoutSpacing */\n  --duro-layout-spacing-container-lg: 32px;\n  --duro-layout-spacing-container-md: 24px;\n  --duro-layout-spacing-container-sm: 16px;\n  --duro-layout-spacing-inline-lg: 24px;\n  --duro-layout-spacing-inline-md: 16px;\n  --duro-layout-spacing-inline-sm: 8px;\n  --duro-layout-spacing-inline-xs: 4px;\n  --duro-layout-spacing-stack-lg: 24px;\n  --duro-layout-spacing-stack-md: 16px;\n  --duro-layout-spacing-stack-sm: 8px;\n  --duro-layout-spacing-stack-xl: 48px;\n  --duro-layout-spacing-stack-xs: 4px;\n  /* typography */\n  --duro-typography-font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n  --duro-typography-font-family-mono: \"SF Mono\", \"Fira Code\", \"Fira Mono\", \"Roboto Mono\", \"Courier New\", monospace;\n  --duro-typography-font-size-heading: 1.5rem;\n  --duro-typography-font-size-lg: 1.125rem;\n  --duro-typography-font-size-md: 1rem;\n  --duro-typography-font-size-sm: 0.875rem;\n  --duro-typography-font-size-xl: 1.25rem;\n  --duro-typography-font-size-xs: 0.75rem;\n  --duro-typography-font-weight-bold: 700;\n  --duro-typography-font-weight-medium: 500;\n  --duro-typography-font-weight-normal: 400;\n  --duro-typography-font-weight-semibold: 600;\n  --duro-typography-line-height: 1.5;\n  /* typeScale */\n  --duro-type-scale-display-lg: clamp(3.5rem, 2rem + 3.5vw, 4.5rem);\n  --duro-type-scale-display-md: clamp(2.75rem, 1.75rem + 2.5vw, 3.75rem);\n  --duro-type-scale-display-sm: clamp(2.25rem, 1.5rem + 2vw, 3rem);\n  --duro-type-scale-font-size1: 0.75rem;\n  --duro-type-scale-font-size2: 0.8125rem;\n  --duro-type-scale-font-size3: 0.875rem;\n  --duro-type-scale-font-size4: 1rem;\n  --duro-type-scale-font-size5: 1.125rem;\n  --duro-type-scale-font-size6: 1.25rem;\n  --duro-type-scale-font-size7: 1.5rem;\n  --duro-type-scale-font-size8: 1.875rem;\n  --duro-type-scale-font-size9: 2.25rem;\n  --duro-type-scale-letter-spacing-normal: 0;\n  --duro-type-scale-letter-spacing-tight: -0.02em;\n  --duro-type-scale-letter-spacing-wide: 0.04em;\n  --duro-type-scale-line-height1: 1rem;\n  --duro-type-scale-line-height2: 1.25rem;\n  --duro-type-scale-line-height3: 1.25rem;\n  --duro-type-scale-line-height4: 1.5rem;\n  --duro-type-scale-line-height5: 1.5rem;\n  --duro-type-scale-line-height6: 1.75rem;\n  --duro-type-scale-line-height7: 2rem;\n  --duro-type-scale-line-height8: 2.25rem;\n  --duro-type-scale-line-height9: 2.75rem;\n  /* duration */\n  --duro-duration-base: 200ms;\n  --duro-duration-brisk: 160ms;\n  --duro-duration-fast: 150ms;\n  --duro-duration-instant: 0ms;\n  --duro-duration-minimal: 1ms;\n  --duro-duration-quick: 120ms;\n  --duro-duration-slow: 280ms;\n  /* easing */\n  --duro-easing-ease-in: cubic-bezier(0.72, 0, 0.68, 0.28);\n  --duro-easing-ease-out: cubic-bezier(0.32, 0.72, 0, 1);\n  --duro-easing-linear: linear;\n  --duro-easing-standard: ease;\n  /* breakpoints */\n  --duro-breakpoint-lg: 1024px;\n  --duro-breakpoint-md: 768px;\n  --duro-breakpoint-sm: 640px;\n  --duro-breakpoint-xl: 1280px;\n  --duro-breakpoint-xs: 480px;\n}\n\n:root[data-theme=\"light\"] {\n  color-scheme: light;\n  /* colors */\n  --duro-color-accent: #1e40af;\n  --duro-color-accent-contrast: #ffffff;\n  --duro-color-accent-hover: #1a3799;\n  --duro-color-bg: #ffffff;\n  --duro-color-bg-card: #f5f5f5;\n  --duro-color-bg-card-hover: #ebebeb;\n  --duro-color-border: #d4d4d4;\n  --duro-color-contrast-border: rgba(255, 255, 255, 0.33);\n  --duro-color-contrast-surface: #1a1a1a;\n  --duro-color-error: #991b1b;\n  --duro-color-error-bg: rgba(153, 27, 27, 0.08);\n  --duro-color-error-border: rgba(153, 27, 27, 0.3);\n  --duro-color-error-contrast: #ffffff;\n  --duro-color-error-hover: #7f1d1d;\n  --duro-color-error-text: #7f1d1d;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-info: #1e40af;\n  --duro-color-info-bg: rgba(30, 64, 175, 0.08);\n  --duro-color-info-border: rgba(30, 64, 175, 0.3);\n  --duro-color-info-text: #1e40af;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #e5e5e5;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #166534;\n  --duro-color-success-bg: rgba(22, 101, 52, 0.08);\n  --duro-color-success-border: rgba(22, 101, 52, 0.3);\n  --duro-color-success-text: #14532d;\n  --duro-color-text: #1a1a1a;\n  --duro-color-text-muted: #4a4a4a;\n  --duro-color-warning: #92400e;\n  --duro-color-warning-bg: rgba(146, 64, 14, 0.08);\n  --duro-color-warning-border: rgba(146, 64, 14, 0.3);\n  --duro-color-warning-text: #78350f;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #1e40af;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #d4d4d4;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);\n}\n\n:root[data-theme=\"high-contrast\"] {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #60a5fa;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #000000;\n  --duro-color-bg-card: #111111;\n  --duro-color-bg-card-hover: #1a1a1a;\n  --duro-color-border: #555555;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #ffffff;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.15);\n  --duro-color-error-border: rgba(248, 113, 113, 0.5);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-info: #60a5fa;\n  --duro-color-info-bg: rgba(96, 165, 250, 0.15);\n  --duro-color-info-border: rgba(96, 165, 250, 0.5);\n  --duro-color-info-text: #bfdbfe;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #000000;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #4ade80;\n  --duro-color-success-bg: rgba(74, 222, 128, 0.15);\n  --duro-color-success-border: rgba(74, 222, 128, 0.5);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #ffffff;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fcd34d;\n  --duro-color-warning-bg: rgba(252, 211, 77, 0.15);\n  --duro-color-warning-border: rgba(252, 211, 77, 0.5);\n  --duro-color-warning-text: #fef08a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #60a5fa;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #555555;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6);\n}\n"
   },
   "unions": {
     "AlertVariant": [
@@ -8110,7 +8646,8 @@
     ],
     "InputVariant": [
       "default",
-      "error"
+      "error",
+      "ghost"
     ],
     "LabelPosition": [
       "top",
@@ -8128,6 +8665,10 @@
       "none",
       "single",
       "multiple"
+    ],
+    "ListboxMaxHeight": [
+      "listMaxH",
+      "listMaxHSm"
     ],
     "PageShellMaxWidth": [
       "sm",
@@ -8162,7 +8703,9 @@
     "ShadowToken": [
       "sm",
       "md",
-      "lg"
+      "lg",
+      "dropReady",
+      "dropOver"
     ],
     "SpacingKey": [
       "xs",
@@ -8228,6 +8771,10 @@
       "error",
       "success",
       "warning"
+    ],
+    "TextLinkVariant": [
+      "default",
+      "subtle"
     ],
     "TextVariant": [
       "t",

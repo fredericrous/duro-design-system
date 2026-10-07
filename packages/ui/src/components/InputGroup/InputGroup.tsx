@@ -33,10 +33,22 @@ interface AddonProps {
   /** Optional minimum width to prevent layout shift (e.g. Copy → Copied!): a
    *  size token key or a relative length. */
   minWidth?: Length
+  /**
+   * Accessible name of a clickable addon (it renders a button). Required when
+   * its content is an icon (copy, reveal): without it the button has no name.
+   */
+  'aria-label'?: string
   children: ReactNode
 }
 
-function Addon({position = 'end', onClick, disabled, minWidth, children}: AddonProps) {
+function Addon({
+  position = 'end',
+  onClick,
+  disabled,
+  minWidth,
+  'aria-label': ariaLabel,
+  children,
+}: AddonProps) {
   const positionStyle = position === 'start' ? styles.addonStart : styles.addonEnd
   const style = [
     styles.addon,
@@ -49,7 +61,13 @@ function Addon({position = 'end', onClick, disabled, minWidth, children}: AddonP
 
   if (onClick) {
     return (
-      <html.button type="button" onClick={onClick} disabled={disabled} style={style}>
+      <html.button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        style={style}
+      >
         {children}
       </html.button>
     )

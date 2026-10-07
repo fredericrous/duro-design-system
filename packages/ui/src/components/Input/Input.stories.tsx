@@ -1,7 +1,9 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn} from 'storybook/test'
+import {expect, fn, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Input} from './Input'
+import {Field} from '../Field/Field'
+import {Stack} from '../Stack/Stack'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
@@ -14,7 +16,7 @@ const meta: Meta<typeof Input> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'error'],
+      options: ['default', 'error', 'ghost'],
     },
     type: {
       control: 'select',
@@ -105,3 +107,51 @@ export const AllVariants: Story = {
     await expect(disabled).toBeDisabled()
   },
 }
+
+// --- Ghost (5.2, direction OutlineOnHover) ---
+
+export const GhostInlineEdit: Story = {
+  render: () => (
+    <html.div style={layoutStyles.narrow}>
+      <Stack gap="md">
+        <Field.Root>
+          <Field.Label>Title</Field.Label>
+          <Input variant="ghost" defaultValue="Printer on floor 3 is jammed" />
+        </Field.Root>
+        <Field.Root invalid>
+          <Field.Label>Assignee</Field.Label>
+          <Input variant="ghost" defaultValue="" />
+          <Field.Error>Assignee is required</Field.Error>
+        </Field.Root>
+        <Field.Root disabled>
+          <Field.Label>Due</Field.Label>
+          <Input variant="ghost" defaultValue="Friday" />
+        </Field.Root>
+      </Stack>
+    </html.div>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const title = canvas.getByRole('textbox', {name: 'Title'})
+    // Reads as text at rest: no border colour, no fill.
+    await expect(getComputedStyle(title).borderTopColor).toBe('rgba(0, 0, 0, 0)')
+    await userEvent.click(title)
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}{Tab}')
+    await expect(title).toHaveFocus()
+    await expect(getComputedStyle(title).outlineStyle).toBe('solid')
+    // The border colour transitions in (duration.fast).
+    await waitFor(() => expect(getComputedStyle(title).borderTopColor).not.toBe('rgba(0, 0, 0, 0)'))
+
+    const assignee = canvas.getByRole('textbox', {name: 'Assignee'})
+    await expect(assignee).toHaveAttribute('aria-invalid', 'true')
+    await expect(getComputedStyle(assignee).backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
+
+    await expect(canvas.getByRole('textbox', {name: 'Due'})).toBeDisabled()
+  },
+}
+
+const layoutStyles = css.create({
+  narrow: {
+    maxWidth: sizes.panelSm,
+    padding: spacing.md,
+  },
+})

@@ -202,6 +202,7 @@ These components **must** be wrapped in their `.Root`:
 | **Leader** | A dashed, thin line for callout/annotation leaders | `from`, `to` |
 | **LinkButton** | Button-styled hyperlink | `href`, `variant`, `size` |
 | **List** | Vertical list of interactive items | compound: Actions, Content, Description, Empty, Item, … |
+| **Listbox** | Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox | compound: Empty, Option, Root, getAnchorProps |
 | **Menu** | Dropdown action menu | compound: Item, LinkItem, Popup, Root, Separator, … |
 | **Node** | A rounded rectangle node with a title and optional subtitle | `x`, `y`, `w` |
 | **PageShell** | Page-level layout wrapper | `maxWidth`, `padding`, `header` |
@@ -222,12 +223,14 @@ These components **must** be wrapped in their `.Root`:
 | **TagGroup** | Compound component for managing a collection of tags | compound: Input, List, Root |
 | **Text** | Body and label typography component | `variant`, `color`, `weight` |
 | **Text (diagrams)** | Free-floating text inside a Diagram | `x`, `y`, `variant` |
+| **TextLink** | Inline hyperlink for running text and standalone text links ("View all", "Edit profile") | `href`, `target`, `rel` |
 | **Textarea** | Multi-line text input with automatic Field/Form integration | `variant`, `name`, `placeholder` |
 | **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |
 | **ToggleGroup** | Container for Toggle buttons enabling single or multi selection | `value`, `defaultValue`, `onValueChange` |
 | **Tooltip** | Hover/focus tooltip that shows supplementary content | compound: Root, Trigger |
 | **Tree** | Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead | compound: Item, Root |
 | **VirtualTable** | Sortable data table that windows its rows above a threshold (default 150) with @tanstack/react-virtual, shows a floating position indicator, and reports the visible page so the caller can mirror it in the URL | `data`, `columns`, `sorting` |
+| **VisuallyHidden** | Text for assistive tech only: kept in the accessibility tree, clipped off screen | `id` |
 
 Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `duro_ds_lookup` MCP tool).
 
@@ -392,6 +395,37 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `pageSm` | 600px |
 | `pageMd` | 800px |
 | `pageLg` | 1200px |
+| `sidebarW` | 240px |
+| `pageXs` | 480px |
+| `pageXl` | 1440px |
+| `asideW` | 320px |
+| `gridColXs` | 200px |
+| `fieldMinWSm` | 80px |
+| `fieldMinW` | 160px |
+| `popoverWSm` | 240px |
+| `popoverW` | 320px |
+| `popupMaxW` | 280px |
+| `meterH` | 6px |
+| `skeletonChipW` | 96px |
+| `dropZoneMinH` | 128px |
+| `canvasMinH` | 480px |
+| `editorMinH` | 160px |
+| `toolbarH` | 36px |
+| `embedW` | 550px |
+| `colorPickerW` | 196px |
+| `colorAreaH` | 150px |
+| `colorTrackH` | 12px |
+| `colorSwatch` | 20px |
+| `colorPreviewH` | 22px |
+| `handle` | 16px |
+| `chip` | 24px |
+| `placeholderMinH` | 80px |
+| `previewMaxH` | 320px |
+| `barH` | 4px |
+| `readoutW` | 40px |
+| `sliderW` | 96px |
+| `paletteMinW` | 96px |
+| `deviceBarW` | 96px |
 
 ### Borders
 
@@ -474,6 +508,9 @@ is added.
 | `success` / `successBg` / `successText` | Success states                       |
 | `warning` / `warningBg` / `warningText` | Warning states                       |
 | `info` / `infoBg` / `infoText`          | Informational states                 |
+| `contrastSurface` / `onContrastSurface` | Opposite-tone surface (toasts, coach marks) and its text |
+| `contrastBorder`                        | Border on `contrastSurface` (≥ 3:1 against it)            |
+| `overlayLight`                          | Fixed translucent white over content (light counterpart of `scrim`) |
 
 ### Shadows
 
@@ -482,6 +519,8 @@ is added.
 | `sm`  | Subtle — cards, dropdowns            |
 | `md`  | Medium — popovers, floating elements |
 | `lg`  | Strong — modals, dialogs             |
+| `dropReady` | Drop-target ring: a zone that can receive (DragDrop) |
+| `dropOver`  | Drop-target ring: the zone under the pointer (not a focus ring) |
 
 ### Layout Spacing (semantic)
 

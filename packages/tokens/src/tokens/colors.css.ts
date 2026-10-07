@@ -53,4 +53,13 @@ export const colors = css.defineVars({
   inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
   // A light that does not follow the theme (the Switch knob).
   fixedLight: '#ffffff',
+  // A fixed translucent white over content (the light counterpart of scrim).
+  overlayLight: 'rgba(255, 255, 255, 0.78)',
+  // The opposite tone of the theme: a surface that stands out from the page
+  // (toasts, coach marks), with its own text colour. Not the fixed inverse*
+  // overlays above, which sit on an accent fill.
+  contrastSurface: '#f5f5f5',
+  onContrastSurface: '#1a1a1a',
+  // A border on contrastSurface, at least 3:1 against it (non-text).
+  contrastBorder: 'rgba(0, 0, 0, 0.42)',
 })

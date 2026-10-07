@@ -4,7 +4,7 @@ import {styles} from './styles.css'
 import {isNative} from '../../platform'
 import {cellBasis, cellPosition, columnWeights, gridTemplate, type GridColumns} from './columns'
 import type {SpacingToken} from '@duro-app/tokens/keys'
-import {resolveLength, type Length} from '../../shared/length'
+import {resolveLength, resolveTrack, type GridTrack, type Length} from '../../shared/length'
 
 export type GridLayout = 'split' | 'split-wide'
 
@@ -28,6 +28,15 @@ interface GridProps {
    * rather than when the window does. Wins over `columns` / `minColumnWidth`.
    */
   layout?: GridLayout
+  /**
+   * An explicit track list, for columns that are not all fractions: a size
+   * token for a fixed track (`['1fr', 'asideW']`), or `minmax()` /
+   * `fit-content()` of tokens and fractions (`'minmax(gridColXs, 1fr)'`).
+   * A px is a type error. Web only — on native it falls back to equal
+   * columns, one per track. Wins over `columns` / `minColumnWidth`; `layout`
+   * wins over it.
+   */
+  tracks?: readonly GridTrack[]
   children: ReactNode
 }
 
@@ -87,13 +96,14 @@ const cellGapTopMap = {
   xxxl: styles.cellGapTopXxxl,
 } as const satisfies Record<SpacingToken, unknown>
 
-export function Grid({gap = 'md', columns, minColumnWidth, layout, children}: GridProps) {
+export function Grid({gap = 'md', columns, minColumnWidth, layout, tracks, children}: GridProps) {
+  const hasTracks = tracks !== undefined && tracks.length > 0
   if (isNative) {
     return (
       <NativeGrid
         gap={gap}
-        columns={layout ? layoutWeights[layout] : columns}
-        minColumnWidth={layout ? undefined : minColumnWidth}
+        columns={layout ? layoutWeights[layout] : hasTracks ? tracks.map(() => 1) : columns}
+        minColumnWidth={layout || hasTracks ? undefined : minColumnWidth}
       >
         {children}
       </NativeGrid>
@@ -102,13 +112,15 @@ export function Grid({gap = 'md', columns, minColumnWidth, layout, children}: Gr
 
   const columnStyle = layout
     ? layoutMap[layout]
-    : minColumnWidth
-      ? styles.autoFit(resolveLength(minColumnWidth))
-      : typeof columns === 'number'
-        ? columnsMap[columns]
-        : columns
-          ? styles.template(gridTemplate(columnWeights(columns) ?? [1]))
-          : undefined
+    : hasTracks
+      ? styles.template(tracks.map((track) => String(resolveTrack(track))).join(' '))
+      : minColumnWidth
+        ? styles.autoFit(resolveLength(minColumnWidth))
+        : typeof columns === 'number'
+          ? columnsMap[columns]
+          : columns
+            ? styles.template(gridTemplate(columnWeights(columns) ?? [1]))
+            : undefined
 
   const grid = <html.div style={[styles.base, gapMap[gap], columnStyle]}>{children}</html.div>
   // A named layout answers its container query from a wrapper: an element
