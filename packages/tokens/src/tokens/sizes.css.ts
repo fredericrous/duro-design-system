@@ -80,4 +80,7 @@ export const sizes = css.defineVars({
   sliderW: '96px',
   paletteMinW: '96px',
   deviceBarW: '96px',
+  // Calendar grids: the time-label column and the day-header row.
+  timeGutterW: '64px',
+  dayHeaderH: '46px',
 })

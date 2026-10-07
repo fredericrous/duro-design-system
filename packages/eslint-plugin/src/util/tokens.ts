@@ -410,6 +410,8 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   150: ['colorAreaH'],
   22: ['colorPreviewH'],
   4: ['barH'],
+  64: ['timeGutterW'],
+  46: ['dayHeaderH'],
 }
 
 /** px value → every borders token at that value, in key order. */

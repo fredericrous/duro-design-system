@@ -426,6 +426,8 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `sliderW` | 96px |
 | `paletteMinW` | 96px |
 | `deviceBarW` | 96px |
+| `timeGutterW` | 64px |
+| `dayHeaderH` | 46px |
 
 ### Borders
 

@@ -174,6 +174,8 @@ export const SIZES_PX = {
   sliderW: 96,
   paletteMinW: 96,
   deviceBarW: 96,
+  timeGutterW: 64,
+  dayHeaderH: 46,
 } as const
 
 // Email-only measures: no CSS variable (mail clients cannot read them) and not
