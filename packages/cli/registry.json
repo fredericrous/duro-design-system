@@ -7541,6 +7541,18 @@
         "severity": "error"
       },
       {
+        "description": "Prefer the layers (z-index) and effects tokens over raw z-index and blur values in css.create styles",
+        "fixable": "suggestion",
+        "id": "duro/no-raw-layer-values",
+        "messages": {
+          "offScaleZIndex": "{{value}} on `zIndex` is not a layer; it sits {{nearest}}. Use a `layers.*` token from {{pkg}}/tokens/layers.css when it plays that role; a stacking value local to one component has no token yet.",
+          "rawEffect": "'{{value}}' on `{{property}}` is a raw effect{{tokenText}}. Use the `effects.*` tokens from {{pkg}}/tokens/effects.css.",
+          "rawZIndex": "{{value}} on `zIndex` is the layers.{{token}} token. Use it from {{pkg}}/tokens/layers.css.",
+          "replaceWithToken": "Replace with {{replacement}}"
+        },
+        "severity": "warn"
+      },
+      {
         "description": "Require deep imports from @duro-app/tokens (barrel imports break StyleX)",
         "fixable": "autofix",
         "id": "duro/no-tokens-barrel-import",

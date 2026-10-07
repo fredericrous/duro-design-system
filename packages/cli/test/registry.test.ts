@@ -168,6 +168,7 @@ describe('rules', () => {
       'error duro/no-raw-breakpoint-query',
       'error duro/no-raw-design-values',
       'error duro/no-raw-html-element',
+      'warn duro/no-raw-layer-values',
       'error duro/no-tokens-barrel-import',
       'error duro/prefer-ds-form-components',
     ])

@@ -435,3 +435,20 @@ export const BORDER_WIDTH_TOKENS = ['hairline', 'strong', 'accent']
 export const OUTLINE_WIDTH_TOKENS = ['focusRing']
 /** Borders tokens `outlineOffset` may use. */
 export const OUTLINE_OFFSET_TOKENS = ['focusOffset', 'focusOffsetSm']
+
+/** z-index value → layers token (unitless). */
+export const LAYERS_BY_VALUE: Record<number, string> = {
+  1: 'raised',
+  50: 'floating',
+  1000: 'overlay',
+  1001: 'modal',
+  1049: 'popupBackdrop',
+  1050: 'popup',
+  1060: 'toast',
+  1100: 'portal',
+}
+
+/** Effect value (whitespace-normalized) → effects token. */
+export const EFFECTS_BY_VALUE: Record<string, string> = {
+  'blur(2px)': 'overlayBlur',
+}

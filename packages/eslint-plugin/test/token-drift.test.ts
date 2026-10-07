@@ -4,8 +4,10 @@ import {
   BREAKPOINTS_PX,
   DURATION_MS,
   EASINGS,
+  EFFECTS,
   FONT_SIZE_REM,
   FONT_WEIGHTS,
+  LAYERS,
   MICRO_SPACING_PX,
   RADII_PX,
   SHADOWS,
@@ -21,8 +23,10 @@ import {
   CONTRAST_MIRROR_TOKENS,
   DURATION_TOKENS_BY_MS,
   EASING_TOKENS,
+  EFFECTS_BY_VALUE,
   FONT_SIZE_TOKENS_BY_REM,
   FONT_WEIGHT_TOKENS,
+  LAYERS_BY_VALUE,
   MICRO_SPACING_TOKENS_BY_PX,
   RADII_TOKENS_BY_PX,
   SHADOW_TOKENS,
@@ -129,6 +133,18 @@ describe('token tables match @duro-app/tokens', () => {
   it('EASING_TOKENS mirrors EASINGS, whitespace-normalized', () => {
     expect(EASING_TOKENS).toEqual(
       Object.fromEntries(Object.entries(EASINGS).map(([token, v]) => [normalizeValue(v), token])),
+    )
+  })
+
+  it('LAYERS_BY_VALUE mirrors LAYERS', () => {
+    expect(LAYERS_BY_VALUE).toEqual(
+      Object.fromEntries(Object.entries(LAYERS).map(([token, v]) => [v, token])),
+    )
+  })
+
+  it('EFFECTS_BY_VALUE mirrors EFFECTS, whitespace-normalized', () => {
+    expect(EFFECTS_BY_VALUE).toEqual(
+      Object.fromEntries(Object.entries(EFFECTS).map(([token, v]) => [normalizeValue(v), token])),
     )
   })
 
