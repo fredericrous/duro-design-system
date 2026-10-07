@@ -3,7 +3,7 @@ import {html} from 'react-strict-dom'
 import {isNative} from '../../platform'
 import {styles} from './styles.css'
 
-export type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info'
+export type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'highlight'
 export type BadgeSize = 'sm' | 'md'
 
 interface BadgeProps {

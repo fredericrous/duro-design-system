@@ -251,7 +251,8 @@
             "success",
             "warning",
             "error",
-            "info"
+            "info",
+            "highlight"
           ]
         },
         {
@@ -8546,7 +8547,8 @@
       "success",
       "warning",
       "error",
-      "info"
+      "info",
+      "highlight"
     ],
     "Breakpoint": [
       "xs",
