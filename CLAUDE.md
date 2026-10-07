@@ -392,6 +392,32 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `pageSm` | 600px |
 | `pageMd` | 800px |
 | `pageLg` | 1200px |
+| `sidebarW` | 240px |
+| `pageXs` | 480px |
+| `pageXl` | 1440px |
+| `asideW` | 320px |
+| `gridColXs` | 200px |
+| `fieldMinWSm` | 80px |
+| `fieldMinW` | 160px |
+| `popoverWSm` | 240px |
+| `popoverW` | 320px |
+| `popupMaxW` | 280px |
+| `meterH` | 6px |
+| `skeletonChipW` | 96px |
+| `dropZoneMinH` | 128px |
+| `canvasMinH` | 480px |
+| `editorMinH` | 160px |
+| `toolbarH` | 36px |
+| `embedW` | 550px |
+| `colorPickerW` | 196px |
+| `colorAreaH` | 150px |
+| `colorTrackH` | 12px |
+| `colorSwatch` | 20px |
+| `colorPreviewH` | 22px |
+| `handle` | 16px |
+| `chip` | 24px |
+| `placeholderMinH` | 80px |
+| `previewMaxH` | 320px |
 
 ### Borders
 

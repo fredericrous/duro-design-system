@@ -339,7 +339,8 @@ export const BORDER_SHORTHAND_PROPERTIES = new Set([
 
 /**
  * px value → every sizes token at that value, in key order. A list, because
- * several tokens share a value (44, 28, 40, 18, 8, 36, 16, 24, 280).
+ * several tokens share a value (44, 28, 40, 18, 8, 36, 16, 24, 160, 200, 240,
+ * 280, 320, 480).
  */
 export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   44: ['touchTarget', 'swatchW'],
@@ -350,33 +351,43 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   8: ['indicatorDot', 'scrollbar'],
   5: ['checkMarkW'],
   9: ['checkMarkH'],
-  36: ['switchTrackW', 'iconXl'],
-  20: ['switchTrackH'],
-  16: ['switchThumb', 'spinnerSm', 'glyphMd', 'iconSm'],
+  36: ['switchTrackW', 'iconXl', 'toolbarH'],
+  20: ['switchTrackH', 'colorSwatch'],
+  16: ['switchThumb', 'spinnerSm', 'glyphMd', 'iconSm', 'handle'],
   32: ['iconButton', 'edgeFade'],
-  24: ['spinnerMd', 'iconLg'],
+  24: ['spinnerMd', 'iconLg', 'chip'],
   10: ['glyphXs'],
-  12: ['glyphSm'],
+  12: ['glyphSm', 'colorTrackH'],
   48: ['iconXxl'],
   3: ['navMarkerW'],
   1: ['divider'],
   2: ['tabIndicator'],
   34: ['swatchH'],
   120: ['labelMinW'],
-  160: ['popupMinW'],
-  280: ['listMaxH', 'gridColMd'],
-  200: ['listMaxHSm'],
+  160: ['popupMinW', 'fieldMinW', 'editorMinH'],
+  280: ['listMaxH', 'gridColMd', 'popupMaxW'],
+  200: ['listMaxHSm', 'gridColXs'],
   400: ['dialogSm'],
   520: ['dialogMd'],
   680: ['dialogLg'],
   360: ['panelSm'],
-  480: ['panelMd'],
+  480: ['panelMd', 'pageXs', 'canvasMinH'],
   640: ['panelLg'],
   440: ['toastMaxW'],
-  240: ['gridColSm'],
+  240: ['gridColSm', 'sidebarW', 'popoverWSm'],
   600: ['pageSm'],
   800: ['pageMd'],
   1200: ['pageLg'],
+  1440: ['pageXl'],
+  320: ['asideW', 'popoverW', 'previewMaxH'],
+  80: ['fieldMinWSm', 'placeholderMinH'],
+  6: ['meterH'],
+  96: ['skeletonChipW'],
+  128: ['dropZoneMinH'],
+  550: ['embedW'],
+  196: ['colorPickerW'],
+  150: ['colorAreaH'],
+  22: ['colorPreviewH'],
 }
 
 /** px value → every borders token at that value, in key order. */
