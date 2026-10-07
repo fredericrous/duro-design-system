@@ -285,6 +285,14 @@ export const LAYERS = {
   portal: 1100,
 } as const
 
+export const EFFECT_KEYS = ['overlayBlur'] as const
+export type EffectToken = (typeof EFFECT_KEYS)[number]
+
+// Mirrors tokens/effects.css.ts `effects` verbatim.
+export const EFFECTS = {
+  overlayBlur: 'blur(2px)',
+} as const
+
 // Icon rendering sizes (SVG width/height, px). Not its own css.defineVars
 // scale — icons size via attributes — so it is derived from the `sizes` group
 // (iconSm…iconXxl), keeping one source.

@@ -75,6 +75,12 @@ function tokensRegion(registry) {
     'The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@duro-app/tokens/keys`.',
     '',
     table(registry.tokens.groups.layers),
+    '',
+    '### Effects',
+    '',
+    '`effects` from `@duro-app/tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport).',
+    '',
+    table(registry.tokens.groups.effects),
   ].join('\n')
 }
 

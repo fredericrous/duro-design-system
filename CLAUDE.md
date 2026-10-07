@@ -456,6 +456,14 @@ The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values o
 | `toast` | 1060 |
 | `portal` | 1100 |
 
+### Effects
+
+`effects` from `@duro-app/tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport).
+
+| Token | Value |
+| --- | --- |
+| `overlayBlur` | blur(2px) |
+
 <!-- duro:generated:tokens END -->
 
 ### Typography Presets

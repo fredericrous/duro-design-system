@@ -41,6 +41,7 @@ const GROUP_NAMES = {
   sizes: 'size',
   borders: 'border',
   layers: 'layer',
+  effects: 'effect',
   layoutSpacing: 'layout-spacing',
   typography: 'typography',
   typeScale: 'type-scale',
