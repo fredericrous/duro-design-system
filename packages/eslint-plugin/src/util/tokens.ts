@@ -347,14 +347,14 @@ export const BORDER_SHORTHAND_PROPERTIES = new Set([
 
 /**
  * px value → every sizes token at that value, in key order. A list, because
- * several tokens share a value (44, 28, 40, 18, 8, 36, 16, 24, 160, 200, 240,
- * 280, 320, 480).
+ * several tokens share a value (44, 28, 40, 18, 8, 36, 16, 24, 96, 160, 200,
+ * 240, 280, 320, 480).
  */
 export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   44: ['touchTarget', 'swatchW'],
   28: ['controlSm', 'iconButtonSm'],
   39: ['controlMd'],
-  40: ['controlLg', 'spinnerLg'],
+  40: ['controlLg', 'spinnerLg', 'readoutW'],
   18: ['indicator', 'iconMd', 'navMarkerH'],
   8: ['indicatorDot', 'scrollbar'],
   5: ['checkMarkW'],
@@ -390,12 +390,13 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   320: ['asideW', 'popoverW', 'previewMaxH'],
   80: ['fieldMinWSm', 'placeholderMinH'],
   6: ['meterH'],
-  96: ['skeletonChipW'],
+  96: ['skeletonChipW', 'sliderW', 'paletteMinW'],
   128: ['dropZoneMinH'],
   550: ['embedW'],
   196: ['colorPickerW'],
   150: ['colorAreaH'],
   22: ['colorPreviewH'],
+  4: ['barH'],
 }
 
 /** px value → every borders token at that value, in key order. */

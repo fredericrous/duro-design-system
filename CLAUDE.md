@@ -420,6 +420,10 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `chip` | 24px |
 | `placeholderMinH` | 80px |
 | `previewMaxH` | 320px |
+| `barH` | 4px |
+| `readoutW` | 40px |
+| `sliderW` | 96px |
+| `paletteMinW` | 96px |
 
 ### Borders
 

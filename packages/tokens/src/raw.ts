@@ -164,6 +164,10 @@ export const SIZES_PX = {
   chip: 24,
   placeholderMinH: 80,
   previewMaxH: 320,
+  barH: 4,
+  readoutW: 40,
+  sliderW: 96,
+  paletteMinW: 96,
 } as const
 
 // Email-only measures: no CSS variable (mail clients cannot read them) and not
