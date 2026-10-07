@@ -6,6 +6,7 @@ import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   root: {
@@ -63,7 +64,7 @@ export const styles = css.create({
     overflowY: 'auto',
     // Above Dialog/Drawer (1000/1001), like Select and Combobox: they portal
     // into the same mount, so a menu opened inside a dialog must out-rank it.
-    zIndex: 1050,
+    zIndex: layers.popup,
     // The portal layer is pointer-events: none so clicks fall through it;
     // the popup takes them back.
     pointerEvents: 'auto',

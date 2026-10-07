@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   wrap: {
@@ -27,7 +28,7 @@ export const styles = css.create({
   head: {
     position: 'sticky',
     top: 0,
-    zIndex: 1,
+    zIndex: layers.raised,
     backgroundColor: colors.bgCard,
   },
   headRow: {

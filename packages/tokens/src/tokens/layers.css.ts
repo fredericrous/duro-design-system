@@ -1,4 +1,5 @@
 import {css} from 'react-strict-dom'
+import type {LayerToken} from '../keys'
 
 // The z-index scale. Values are unitless strings so `--duro-layer-*` exists
 // for plain CSS; React Native takes a number, so a native overlay reads the
@@ -7,6 +8,12 @@ import {css} from 'react-strict-dom'
 // They only compete inside one stacking context. Dialog, Drawer, the popups
 // and the toast region all portal into the ThemeProvider mount (`portal`),
 // and this is the order they keep there.
+// StyleX types a var by its literal, so string values would type every layer
+// as a string, which `zIndex` (a number) refuses. Typing the literals as CSS
+// integers makes `zIndex: layers.popup` a number to TypeScript; the cast has
+// no runtime effect (StyleX and the drift check read straight through it).
+type LayerValue = ReturnType<typeof css.types.integer<number>>
+
 export const layers = css.defineVars({
   // A focused or sticky part above its siblings (a joined group's focus ring,
   // a scrollbar, a sticky table header).
@@ -25,4 +32,4 @@ export const layers = css.defineVars({
   toast: '1060',
   // The ThemeProvider portal mount that holds all of the above.
   portal: '1100',
-})
+} as unknown as Readonly<Record<LayerToken, LayerValue>>)

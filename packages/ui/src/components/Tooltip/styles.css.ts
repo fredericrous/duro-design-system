@@ -4,6 +4,7 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   root: {
@@ -12,7 +13,7 @@ export const styles = css.create({
   },
   popup: {
     position: 'absolute',
-    zIndex: 50,
+    zIndex: layers.floating,
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
     paddingLeft: spacing.sm,
