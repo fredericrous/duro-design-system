@@ -89,6 +89,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
             value: '16',
             nearest: 'between `layers.raised` (1) and `layers.floating` (50)',
             pkg: '@duro-app/tokens',
+            localMax: 9,
           },
           suggestions: [],
         },
@@ -104,6 +105,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
             value: '10',
             nearest: 'between `layers.raised` (1) and `layers.floating` (50)',
             pkg: '@duro-app/tokens',
+            localMax: 9,
           },
           suggestions: [],
         },
@@ -126,7 +128,19 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       // localMax: 0 reports every positive value again.
       code: wrap('zIndex: 5'),
       options: [{localMax: 0}],
-      errors: [{messageId: 'offScaleZIndex', suggestions: []}],
+      errors: [
+        {
+          messageId: 'offScaleZIndex',
+          // The clause names the configured value: "values up to 0 …".
+          data: {
+            value: '5',
+            nearest: 'between `layers.raised` (1) and `layers.floating` (50)',
+            pkg: '@duro-app/tokens',
+            localMax: 0,
+          },
+          suggestions: [],
+        },
+      ],
     },
     {
       code: wrap('zIndex: 1002'),
@@ -148,7 +162,12 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       errors: [
         {
           messageId: 'offScaleZIndex',
-          data: {value: '5000', nearest: 'above `layers.portal` (1100)', pkg: '@duro-app/tokens'},
+          data: {
+            value: '5000',
+            nearest: 'above `layers.portal` (1100)',
+            pkg: '@duro-app/tokens',
+            localMax: 9,
+          },
           suggestions: [],
         },
       ],
@@ -193,6 +212,15 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       errors: [{messageId: 'rawEffect', suggestions: []}],
     },
   ],
+})
+
+describe('no-raw-layer-values messages', () => {
+  it('offScaleZIndex names the configured localMax', () => {
+    expect(noRawLayerValues.meta.messages.offScaleZIndex).toContain(
+      'values up to {{localMax}} that order children inside one component are not reported',
+    )
+    expect(noRawLayerValues.meta.messages.offScaleZIndex).not.toContain('has no token yet')
+  })
 })
 
 describe('no-raw-layer-values options', () => {

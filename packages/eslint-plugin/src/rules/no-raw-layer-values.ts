@@ -69,7 +69,7 @@ export const noRawLayerValues: TSESLint.RuleModule<MessageIds, Options> = {
       rawZIndex:
         '{{value}} on `zIndex` is the layers.{{token}} token. Use it from {{pkg}}/tokens/layers.css.',
       offScaleZIndex:
-        '{{value}} on `zIndex` is not a layer; it sits {{nearest}}. Use a `layers.*` token from {{pkg}}/tokens/layers.css when it plays that role; values up to `localMax` that order children inside one component are not reported.',
+        '{{value}} on `zIndex` is not a layer; it sits {{nearest}}. Use a `layers.*` token from {{pkg}}/tokens/layers.css when it plays that role; values up to {{localMax}} that order children inside one component are not reported.',
       rawEffect:
         "'{{value}}' on `{{property}}` is a raw effect{{tokenText}}. Use the `effects.*` tokens from {{pkg}}/tokens/effects.css.",
       replaceWithToken: 'Replace with {{replacement}}',
@@ -128,7 +128,7 @@ export const noRawLayerValues: TSESLint.RuleModule<MessageIds, Options> = {
       context.report({
         node,
         messageId: 'offScaleZIndex',
-        data: {value: display, nearest: nearestLayers(value), pkg: TOKENS_PKG},
+        data: {value: display, nearest: nearestLayers(value), pkg: TOKENS_PKG, localMax},
       })
     }
 
