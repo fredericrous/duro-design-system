@@ -80,6 +80,23 @@ export function useSelectRoot({
     }
   }, [])
 
+  // Closed: ArrowDown/ArrowUp on the trigger open the listbox (the APG
+  // select-only combobox), on the selected option or the first. In a Toolbar
+  // this is why a closed Select keeps those keys; Left/Right still move on.
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root || open) return
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.target !== triggerRef.current) return
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+      if (e.altKey || e.ctrlKey || e.metaKey) return
+      e.preventDefault()
+      toggle()
+    }
+    root.addEventListener('keydown', handleKeyDown)
+    return () => root.removeEventListener('keydown', handleKeyDown)
+  }, [open, toggle])
+
   // Native keydown for full KeyboardEvent access (preventDefault)
   useEffect(() => {
     const root = rootRef.current
