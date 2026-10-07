@@ -247,53 +247,54 @@ The nine-consumer gate found website-builder measures the sizes table did not fi
 
 ## Verification record (2026-10-07, observed before the push)
 
-**duro-design-system** (tree `d485bb77`):
+**duro-design-system** (tree `ec0822b2`, rebased on `df0d5eb4`; the email harness on `6c32bbed`):
 
-| Check                                                          | Actual                                                                                                                                                            |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| prettier, `pnpm lint`, `typecheck`, `build`, `build-storybook` | exit 0 (lint: 0 errors, 17 pre-existing warnings)                                                                                                                 |
-| unit (343) and Storybook (352) suites                          | pass; under load the full runs timed out `popover.test.ts` (registry, 60 s) and two `DrawerScroll` drag stories (15 s), all three pass when rerun alone           |
-| `smoke-packed.mjs`                                             | pass                                                                                                                                                              |
-| duro-app email harness, v5.1.0 vs branch                       | 8/8 byte-identical                                                                                                                                                |
-| `width: 240`                                                   | 3 suggestions `gridColSm`, `sidebarW`, `popoverWSm`; no height token                                                                                              |
-| `height: 160`                                                  | `editorMinH` only                                                                                                                                                 |
-| `width: 232`                                                   | nearest role `gridColSm`, `sidebarW`, `popoverWSm` (240)                                                                                                          |
-| `width: 220` (tie)                                             | `gridColXs` (200), then the 240 tokens, smaller first                                                                                                             |
-| template-literal `boxShadow` with px                           | reported (`rawShadowLength`)                                                                                                                                      |
-| doctor fixtures (5 rows)                                       | as expected: pass/0, warn/0 naming the identifier, error/1, `media-var` error/1, skipped/0 and absent from `--json` `checked`; header lines ≤ 80 columns, aligned |
-| Menu, sticky overflow toolbar, 30 items                        | inside the viewport; scrolls                                                                                                                                      |
-| ArrowDown in Menu                                              | focus on the menu; `aria-activedescendant` names the item                                                                                                         |
-| Menu in Dialog, one Escape                                     | Menu `onOpenChange(false)` once, Dialog 0×                                                                                                                        |
-| `EscapeInNestedMenu`                                           | passes                                                                                                                                                            |
-| Dialog `dismissable={false}`                                   | Escape closes it                                                                                                                                                  |
-| Listbox from a contenteditable                                 | focus stays in the editor; `aria-activedescendant` follows                                                                                                        |
-| typing in an editor with a Menu open                           | not intercepted                                                                                                                                                   |
-| forced colours (Playwright `emulateMedia`, built Storybook)    | DragDrop: box-shadow `none`, outline solid `rgb(0,0,0)`; ghost Input focused: outline 2px solid, visible                                                          |
-| `contrastSurface` text                                         | ≥ 4.5:1 in every theme                                                                                                                                            |
-| size, 5.1.0 → 5.2                                              | ui dist 3644K → 3796K (tgz 623,031 → 660,678 B); tokens 208K → 224K; eslint-plugin 280K → 292K; cli 456K → 480K; `vars.css` 222 → 257 lines                       |
+| Check                                                                                                              | Actual                                                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| prettier, `pnpm lint`, `typecheck`, `build`, `build-storybook`                                                     | exit 0 (lint: 0 errors, 17 pre-existing warnings)                                                                                                                 |
+| unit (346) and Storybook (354) suites                                                                              | pass, run alone with nothing else on the machine (earlier runs under load timed out `popover.test.ts` and `DrawerScroll` drag stories; both pass alone)           |
+| `smoke-packed.mjs`                                                                                                 | pass                                                                                                                                                              |
+| duro-app email harness, v5.1.0 vs branch                                                                           | 8/8 byte-identical                                                                                                                                                |
+| `width: 240`                                                                                                       | 3 suggestions `gridColSm`, `sidebarW`, `popoverWSm`; no height token                                                                                              |
+| `height: 160`                                                                                                      | `editorMinH` only                                                                                                                                                 |
+| `width: 232`                                                                                                       | nearest role `gridColSm`, `sidebarW`, `popoverWSm` (240)                                                                                                          |
+| `width: 220` (tie)                                                                                                 | `gridColXs` (200), then the 240 tokens, smaller first                                                                                                             |
+| template-literal `boxShadow` with px                                                                               | reported (`rawShadowLength`)                                                                                                                                      |
+| doctor fixtures (5 rows)                                                                                           | as expected: pass/0, warn/0 naming the identifier, error/1, `media-var` error/1, skipped/0 and absent from `--json` `checked`; header lines ≤ 80 columns, aligned |
+| Menu, sticky overflow toolbar, 30 items                                                                            | inside the viewport; scrolls                                                                                                                                      |
+| ArrowDown in Menu                                                                                                  | focus on the menu; `aria-activedescendant` names the item                                                                                                         |
+| Menu in Dialog, one Escape                                                                                         | Menu `onOpenChange(false)` once, Dialog 0×                                                                                                                        |
+| `EscapeInNestedMenu`                                                                                               | passes                                                                                                                                                            |
+| Dialog `dismissable={false}`                                                                                       | Escape closes it                                                                                                                                                  |
+| Listbox from a contenteditable                                                                                     | focus stays in the editor; `aria-activedescendant` follows                                                                                                        |
+| typing in an editor with a Menu open                                                                               | not intercepted                                                                                                                                                   |
+| Tab out of a Menu inside a Dialog (real keyboard: Vitest browser `userEvent.keyboard('{Tab}')`, `TabInsideDialog`) | the menu closes and focus lands on the next button in the dialog                                                                                                  |
+| `contrastBorder` on `contrastSurface`                                                                              | ≥ 3:1 in every theme (3.01 light, 3.00 dark, 3.04 high contrast), unit test                                                                                       |
+| forced colours (Playwright `emulateMedia`, built Storybook)                                                        | DragDrop: box-shadow `none`, outline solid `rgb(0,0,0)`; ghost Input focused: outline 2px solid, visible                                                          |
+| `contrastSurface` text                                                                                             | ≥ 4.5:1 in every theme                                                                                                                                            |
+| size, 5.1.0 → 5.2                                                                                                  | ui dist 3644K → 3796K (tgz 623,031 → 661,750 B); tokens 208K → 228K; eslint-plugin 280K → 292K; cli 456K → 480K; `vars.css` 222 → 259 lines                       |
 
 **Nine consumers** (ESLint errors / doctor errors; 5.2 tarballs packed from this branch; throwaway checkouts, removed after):
 
-| Repo                                                       | 5.1        | 5.2        | 5.2 + §1/§2 swaps                                       |
-| ---------------------------------------------------------- | ---------- | ---------- | ------------------------------------------------------- |
-| application-landscape, kb-vision, cluster-vision, duro-app | 0 / 0 each | 0 / 0 each | —                                                       |
-| customer-vision                                            | 2 / 1      | 2 / 0      | 0 / 0                                                   |
-| social-planner                                             | 2 / 0      | 2 / 0      | 0 / 0                                                   |
-| ticket-vision                                              | 12 / 0     | 12 / 0     | 0 / 0 (CommandPalette → `Input variant="ghost"`)        |
-| duro-lexical-multi                                         | 30 / 0     | 30 / 0     | 0 / 0 (Menu, Dialog, Listbox swaps; tsc and build pass) |
-| website-builder (with that lexical 0.4.0 tarball)          | 61 / 0     | 61 / 0     | 2 / 0                                                   |
+| Repo                                                       | 5.1        | 5.2        | 5.2 + §1/§2 swaps                                                                                                  |
+| ---------------------------------------------------------- | ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------ |
+| application-landscape, kb-vision, cluster-vision, duro-app | 0 / 0 each | 0 / 0 each | —                                                                                                                  |
+| customer-vision                                            | 2 / 1      | 2 / 0      | 0 / 0                                                                                                              |
+| social-planner                                             | 2 / 0      | 2 / 0      | 0 / 0                                                                                                              |
+| ticket-vision                                              | 12 / 0     | 12 / 0     | 0 / 0 (CommandPalette → `Input variant="ghost"`)                                                                   |
+| duro-lexical-multi                                         | 30 / 0     | 30 / 0     | 0 / 0 (Menu, Dialog, Listbox swaps; tsc and build pass)                                                            |
+| website-builder (with that lexical 0.4.0 tarball)          | 61 / 0     | 61 / 0     | 0 / 0 (rerun after the follow-up tokens; text on `contrastSurface` moved to `onContrastSurface`; typecheck passes) |
 
-- website-builder's two left: the device home bar's 96px width (no role decided) and the coach pill's border, which waits on `contrastBorder` (below).
+- website-builder's last two closed with `deviceBarW` (home bar width) and `contrastBorder` (coach-pill border).
 - customer-vision's 5.1 doctor error was a `noExternal` false positive that 5.2 resolves.
 - `media-var` on customer-vision: no error with its PostCSS fix, one error with the fix reverted. The other repos had no fresh build, so it was skipped there.
 - `doctor --session` on website-builder with `dist/` present: 0.13–0.16 s.
 
-**Open:** `contrastBorder` is not built. The value fixed in the addendum (white 28% on the light theme's surface, mirrored) measures 2.53:1, 1.98:1 and 1.99:1 against `contrastSurface` (light, dark, high contrast), under the 3:1 the addendum requires. The person decides the value or the requirement.
+**Resolved:** the person raised `contrastBorder` to 3:1 (white 0.33 light; black 0.42 dark and high contrast) and added `deviceBarW`; see the addendum.
 
 ## Implementation review
 
-- **rework** after the Delta (round 1 85k/95 s, Delta 47k/31 s). Blocking: `contrastBorder` (the fixed value fails the required 3:1), and website-builder ends at 2 / 0 (the home bar's 96px width has no decided role). Both are the person's call.
-- Fixed: Menu Enter clicks outside a state updater (`EnterActivatesOnce`); Escape asserts one `onOpenChange(false)`; forced colours and the consumer gate recorded.
-- Kept for the next round: write `highlightedRef` in an effect, not in render (low); record the real-keyboard Tab probe (a Menu in a Dialog: Tab lands on the next button in the dialog) as a row (low).
+- Earlier tree: **rework** after the Delta (round 1 85k/95 s, Delta 47k/31 s). Blocking: `contrastBorder` and website-builder's last two errors. The person chose Fix; both are now resolved (addendum). The low findings are also fixed: the highlight ref is set in a layout effect, and the real-keyboard Tab check is a browser test.
+- Fresh round 1 on the rebased tree: see below.
 
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,react,ui-design,ux-research,game-ux,unix,tui body-sha=0d0e0a81ffe0 -->
