@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 import {spawnSync} from 'node:child_process'
 import {
   chmodSync,
@@ -22,6 +22,14 @@ import {
 import {SKILL_MIN_CLI} from '../src/skill-template.js'
 // @ts-expect-error — a plain .mjs release script, no types
 import {pinMajorProblems} from '../scripts/check-pin-major.mjs'
+
+// Every test here starts real processes: sh or dash, then the hook's own
+// rm/find/sort/cksum/cat and a stub npx, about ten spawns per run. Measured
+// 2026-10-07 at a load average near 95: 1.3-2.2s per test alone, and past
+// vitest's 5s default once the push gate runs the whole unit suite in
+// parallel. Nothing waits; spawning is slow on a busy machine. The budget
+// fits the work instead of failing the gate on load.
+vi.setConfig({testTimeout: 30_000})
 
 const src = (f: string) =>
   readFileSync(fileURLToPath(new URL(`../src/${f}`, import.meta.url)), 'utf8')
