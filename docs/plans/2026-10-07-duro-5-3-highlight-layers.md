@@ -193,36 +193,38 @@ Each check is listed as what goes in and what must come out.
 
 **Tests:**
 
-| Input                                                                              | Expected                                                                                                                           |
-| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `contrast.test.ts`, highlight in 3 themes                                          | text ≥ 4.5:1, base ≥ 3:1                                                                                                           |
-| Badge story `variant="highlight"`, 3 themes                                        | renders `highlightBg`/`highlightText` (computed style)                                                                             |
-| Popover opened inside an open Dialog (browser)                                     | `elementFromPoint` at the popover's centre is inside it; red on v5.2.0, green on the branch                                        |
-| Popover opened inside an open Drawer (browser)                                     | `elementFromPoint` at the popover's centre is inside it; red on v5.2.0, green on the branch                                        |
-| Toast fired while a Dialog is open (browser)                                       | `elementFromPoint` at the toast's centre is inside it; red on v5.2.0, green on the branch                                          |
-| DragDrop drag inside a Dialog (browser)                                            | run on v5.2.0 first: the result decides whether the fix ships (§2)                                                                 |
-| lint `width: 64` / `height: 46`                                                    | suggestions `timeGutterW` / `dayHeaderH` (axis-filtered)                                                                           |
-| lint `height: 64` / `width: 46`                                                    | no `timeGutterW` / `dayHeaderH` suggestion                                                                                         |
-| lint `flexBasis: 64`                                                               | suggestion `timeGutterW` (flexBasis has no axis)                                                                                   |
-| `ButtonGroup attached` with 3 Selects, 3 themes (browser)                          | one outer border, no gaps; the inner corners' computed radius is 0, the outer ones `radii.sm`; screenshot per theme                |
-| Focus the middle Select of an attached group (browser)                             | its focus ring is fully visible (computed z-index is `layers.raised`, above both neighbours)                                       |
-| `Toolbar` with two groups and a Menu: Tab, then ArrowRight ×8, End, Home (browser) | one Tab enters; each arrow moves `document.activeElement` to the next control across groups; End and Home reach the last and first |
-| Select trigger inside `Toolbar`: ArrowDown                                         | opens the Select, not toolbar navigation; Escape closes it and focus stays on the trigger                                          |
-| Select open inside `Toolbar`: ArrowRight                                           | focus stays on the trigger and the listbox stays open                                                                              |
-| An attached group of three named `Select`s                                         | each trigger `<button>`'s four computed corner radii match its position (outer `radii.sm`, inner 0)                                |
-| Link Popover open inside an attached group in a `Toolbar`: Tab                     | reaches the Popover's Apply button in 1 press; that button has all corners round                                                   |
-| Pressed `Toggle` between two neighbours                                            | its accent border is visible on all four sides                                                                                     |
-| B and I both pressed side by side, then focus I                                    | both accent borders visible; I's whole focus ring visible (`elementFromPoint` sampled along the shared edge)                       |
-| ArrowLeft in the link Popover's URL input, inside a `Toolbar`                      | the caret moves; `document.activeElement` stays the input                                                                          |
-| Toggle in an attached group, pressed (browser)                                     | `aria-pressed="true"`, pressed style, corners still joined                                                                         |
-| `LAYERS` (keys.ts) unit test                                                       | `LAYERS.overlay === 1000`; every value is a number                                                                                 |
-| `packages/ui/src` scan                                                             | 0 raw `zIndex` literals                                                                                                            |
-| Escape inside Menu-in-Dialog, Select-in-Dialog                                     | unchanged from 5.2 (existing stories pass)                                                                                         |
-| lint `zIndex: 1000`                                                                | warning `rawZIndex`, suggestion `layers.overlay`                                                                                   |
-| lint `zIndex: 1050`                                                                | warning, suggestion `layers.popup`                                                                                                 |
-| lint `zIndex: 0` / `-1`                                                            | no report                                                                                                                          |
-| lint `backdropFilter: 'blur(2px)'`                                                 | warning `rawEffect`, suggestion `effects.overlayBlur`                                                                              |
-| `generate-vars-css`                                                                | `--duro-layer-overlay: 1000`, `--duro-layer-toast: 1060`, `--duro-effect-overlay-blur: blur(2px)` present                          |
+| Input                                                                                | Expected                                                                                                                           |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `contrast.test.ts`, highlight in 3 themes                                            | text ≥ 4.5:1, base ≥ 3:1                                                                                                           |
+| Badge story `variant="highlight"`, 3 themes                                          | renders `highlightBg`/`highlightText` (computed style)                                                                             |
+| Popover opened inside an open Dialog (browser)                                       | `elementFromPoint` at the popover's centre is inside it; red on v5.2.0, green on the branch                                        |
+| Popover opened inside an open Drawer (browser)                                       | `elementFromPoint` at the popover's centre is inside it; red on v5.2.0, green on the branch                                        |
+| Toast fired while a Dialog is open (browser)                                         | `elementFromPoint` at the toast's centre is inside it; red on v5.2.0, green on the branch                                          |
+| DragDrop drag inside a Dialog (browser)                                              | run on v5.2.0 first: the result decides whether the fix ships (§2)                                                                 |
+| lint `width: 64` / `height: 46`                                                      | suggestions `timeGutterW` / `dayHeaderH` (axis-filtered)                                                                           |
+| lint `height: 64` / `width: 46`                                                      | no `timeGutterW` / `dayHeaderH` suggestion                                                                                         |
+| lint `flexBasis: 64`                                                                 | suggestion `timeGutterW` (flexBasis has no axis)                                                                                   |
+| `ButtonGroup attached` with 3 Selects, 3 themes (browser)                            | one outer border, no gaps; the inner corners' computed radius is 0, the outer ones `radii.sm`; screenshot per theme                |
+| Focus the middle Select of an attached group (browser)                               | its focus ring is fully visible (computed z-index is `layers.raised`, above both neighbours)                                       |
+| `Toolbar` with two groups and a Menu: Tab, then ArrowRight ×8, End, Home (browser)   | one Tab enters; each arrow moves `document.activeElement` to the next control across groups; End and Home reach the last and first |
+| Select trigger inside `Toolbar`: ArrowDown                                           | opens the Select, not toolbar navigation; Escape closes it and focus stays on the trigger                                          |
+| Select open inside `Toolbar`: ArrowRight                                             | focus stays on the trigger and the listbox stays open                                                                              |
+| An attached group of three named `Select`s                                           | each trigger `<button>`'s four computed corner radii match its position (outer `radii.sm`, inner 0)                                |
+| Link Popover open inside an attached group in a `Toolbar`: Tab                       | reaches the Popover's Apply button in 1 press; that button has all corners round                                                   |
+| Pressed `Toggle` between two neighbours                                              | its accent border is visible on all four sides                                                                                     |
+| B and I both pressed side by side, then focus I                                      | both accent borders visible; I's whole focus ring visible (`elementFromPoint` sampled along the shared edge)                       |
+| ArrowLeft in the link Popover's URL input, inside a `Toolbar`                        | the caret moves; `document.activeElement` stays the input                                                                          |
+| Toggle in an attached group, pressed (browser)                                       | `aria-pressed="true"`, pressed style, corners still joined                                                                         |
+| `LAYERS` (keys.ts) unit test                                                         | `LAYERS.overlay === 1000`; every value is a number                                                                                 |
+| DialogFromPopover (a Dialog opened from a button in an open Popover, no outer modal) | `elementFromPoint` at the Dialog's centre is inside the Dialog; the Popover is `floating` (50)                                     |
+| ReorderKeyedChildren (keyed controls reversed without remount)                       | corners, tab stop and arrow order follow the new DOM order                                                                         |
+| `packages/ui/src` scan                                                               | 0 raw `zIndex` literals                                                                                                            |
+| Escape inside Menu-in-Dialog, Select-in-Dialog                                       | unchanged from 5.2 (existing stories pass)                                                                                         |
+| lint `zIndex: 1000`                                                                  | warning `rawZIndex`, suggestion `layers.overlay`                                                                                   |
+| lint `zIndex: 1050`                                                                  | warning, suggestion `layers.popup`                                                                                                 |
+| lint `zIndex: 0` / `-1`                                                              | no report                                                                                                                          |
+| lint `backdropFilter: 'blur(2px)'`                                                   | warning `rawEffect`, suggestion `effects.overlayBlur`                                                                              |
+| `generate-vars-css`                                                                  | `--duro-layer-overlay: 1000`, `--duro-layer-toast: 1060`, `--duro-effect-overlay-blur: blur(2px)` present                          |
 
 ### All nine consumers, before tagging
 
@@ -241,6 +243,7 @@ Found while implementing; each is in the sections above and in the PR body.
 - **DragDrop's ghost** was red on v5.2.0 because the Dialog panel's transform and overflow clipped and offset it, not because of a z-index tie. Its fix is a portal into the ThemeProvider mount at `layers.popup` (§2).
 - **Layer vars are typed as CSS integers** (a cast inside the `defineVars` argument), so `zIndex: layers.x` typechecks.
 - **Ordered registry** re-reads the DOM order after every commit, so keyed controls reordered without a remount keep correct corners and arrow order.
+- **Known limit:** a Dialog opened from a Popover that is itself inside a Dialog still renders under that Popover. It is marked `holds-until` in `ModalContext.ts`, and no consumer needs it yet.
 - **website-builder** was gated on its held `chore/duro-5.1` branch: origin/main is still on Duro 4.5, and merging the branch onto it conflicted.
 
 <!-- panel: repos=duro-design-system reviewers=backend body-sha=339caf9354ef -->
