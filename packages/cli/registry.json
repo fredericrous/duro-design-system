@@ -5948,6 +5948,78 @@
       ],
       "sourcePath": "packages/diagrams/src/components/Text/Text.tsx"
     },
+    "TextLink": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "description": "Inline hyperlink for running text and standalone text links (\"View all\", \"Edit profile\"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target=\"_blank\" defaults rel to noopener noreferrer.",
+        "example": "<Text>\n  Read the <TextLink href=\"/docs/migrate\">migration guide</TextLink> before you change seats, or{' '}\n  <TextLink href=\"/plans\" variant=\"subtle\">compare plans</TextLink> first.\n</Text>",
+        "relatedTo": [
+          {
+            "component": "LinkButton",
+            "kind": "contrast",
+            "relationship": "LinkButton is a hyperlink styled as a button; TextLink is a hyperlink styled as text"
+          },
+          {
+            "component": "Button",
+            "kind": "contrast",
+            "relationship": "Button runs an action; TextLink navigates"
+          }
+        ],
+        "whenNotToUse": [
+          "A link that should look like a button — use LinkButton",
+          "An action that does not navigate — use Button (variant=\"link\" for a text-styled action)",
+          "A link inside a dropdown — use Menu.LinkItem"
+        ],
+        "whenToUse": [
+          "A link inside a sentence or paragraph",
+          "A standalone text link under a list or card (\"View all requests\")",
+          "A quiet link in dense UI (variant=\"subtle\")"
+        ]
+      },
+      "name": "TextLink",
+      "props": [
+        {
+          "name": "href",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "`_blank` opens a new tab; `rel` then defaults to `noopener noreferrer`.",
+          "name": "target",
+          "required": false,
+          "type": "'_blank' | '_self'"
+        },
+        {
+          "name": "rel",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "'default'",
+          "description": "`default`: accent text with an accent underline. `subtle`: the surrounding text colour with a muted underline, accent on hover. Both stay underlined, so colour is never the only cue in running text.",
+          "name": "variant",
+          "required": false,
+          "type": "TextLinkVariant",
+          "union": [
+            "default",
+            "subtle"
+          ]
+        },
+        {
+          "description": "Accessible name, when the visible text alone does not say where it goes.",
+          "name": "aria-label",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "children",
+          "required": true,
+          "type": "ReactNode"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/TextLink/TextLink.tsx"
+    },
     "Textarea": {
       "importPath": "@duro-app/ui",
       "kind": "component",
@@ -8682,6 +8754,10 @@
       "error",
       "success",
       "warning"
+    ],
+    "TextLinkVariant": [
+      "default",
+      "subtle"
     ],
     "TextVariant": [
       "t",

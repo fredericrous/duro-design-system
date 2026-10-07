@@ -441,8 +441,6 @@
             color: var(--duro-color-accent);
             text-decoration: underline;
             text-decoration-color: var(--duro-color-accent);
-            text-decoration-thickness: var(--duro-border-hairline);
-            text-underline-offset: var(--duro-micro-spacing-px3);
             cursor: pointer;
             transition: color var(--duro-duration-fast) var(--duro-easing-standard);
           }
@@ -450,7 +448,6 @@
           .tl.is-hover {
             color: var(--duro-color-accent-hover);
             text-decoration-color: var(--duro-color-accent-hover);
-            text-decoration-thickness: var(--duro-border-strong);
           }
           .tl.subtle {
             color: inherit;
@@ -471,15 +468,15 @@
         </style>
       </helmet>
       <div class="artboard">
-        <!-- TextLink direction "Underlined": Classic link: accent text with an accent underline; hover deepens the colour and thickens the line. Subtle keeps the body colour with a muted underline, turning accent on hover. The underline is always there, so colour is never the only cue.
+        <!-- TextLink direction "Underlined": Classic link: accent text with an accent underline; hover deepens the colour of text and line. Subtle keeps the body colour with a muted underline, turning accent on hover. The underline is always there, so colour is never the only cue.
      TextLink is the new 5.2 component (href, target, rel, variant default|subtle,
      aria-label); the unknown-component finding on it is expected until it ships. -->
         <div class="board">
           <h1 class="title">TextLink — Underlined</h1>
           <p class="lede">
-            Classic link: accent text with an accent underline; hover deepens the colour and
-            thickens the line. Subtle keeps the body colour with a muted underline, turning accent
-            on hover. The underline is always there, so colour is never the only cue.
+            Classic link: accent text with an accent underline; hover deepens the colour of text and
+            line. Subtle keeps the body colour with a muted underline, turning accent on hover. The
+            underline is always there, so colour is never the only cue.
           </p>
 
           <section class="panel">

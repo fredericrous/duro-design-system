@@ -223,6 +223,7 @@ These components **must** be wrapped in their `.Root`:
 | **TagGroup** | Compound component for managing a collection of tags | compound: Input, List, Root |
 | **Text** | Body and label typography component | `variant`, `color`, `weight` |
 | **Text (diagrams)** | Free-floating text inside a Diagram | `x`, `y`, `variant` |
+| **TextLink** | Inline hyperlink for running text and standalone text links ("View all", "Edit profile") | `href`, `target`, `rel` |
 | **Textarea** | Multi-line text input with automatic Field/Form integration | `variant`, `name`, `placeholder` |
 | **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |
 | **ToggleGroup** | Container for Toggle buttons enabling single or multi selection | `value`, `defaultValue`, `onValueChange` |
