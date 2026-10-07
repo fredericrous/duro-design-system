@@ -4,12 +4,14 @@ import {ensureNamedImport} from '../util/imports.js'
 import {matchesAnyGlob} from '../util/glob.js'
 
 type MessageIds = 'rawZIndex' | 'offScaleZIndex' | 'rawEffect' | 'replaceWithToken'
-type Options = [{factories?: string[]; exemptFiles?: string[]}?]
+type Options = [{factories?: string[]; exemptFiles?: string[]; localMax?: number}?]
 
 const TOKENS_PKG = '@duro-app/tokens'
 const Z_INDEX_PROPERTIES = new Set(['zIndex'])
 const EFFECT_PROPERTIES = new Set(['backdropFilter', 'filter'])
 const BLUR_RE = /\bblur\([^)]*\)/
+/** Default ceiling for component-local stacking values that are not reported. */
+const DEFAULT_LOCAL_MAX = 9
 
 const LAYER_VALUES = Object.keys(LAYERS_BY_VALUE)
   .map(Number)
@@ -29,11 +31,15 @@ function nearestLayers(value: number): string {
  * Inside css.create() style objects, flag a raw z-index and a raw blur:
  *
  * - `zIndex`: a number or numeric string other than 0 and negatives. A layers
- *   value suggests its `layers.*` token; any other names the layers it sits
- *   between, without a fix (a local stacking value inside one component has
- *   no token).
- * - `backdropFilter` / `filter`: a `blur(...)` literal. `blur(2px)` suggests
- *   `effects.overlayBlur`; another blur reports without a fix.
+ *   value suggests its `layers.*` token. A value up to `localMax` (default 9,
+ *   at most 49, below `layers.floating`) that is not a layer orders children
+ *   inside one component and is not reported: a z-index is not one of the
+ *   measures ADR-0027 makes a token, so this is the rule's scope, not an
+ *   exemption. Any other value names the layers it sits between, without a
+ *   fix.
+ * - `backdropFilter` / `filter`: a `blur(...)` literal that is an `effects.*`
+ *   value (`blur(2px)`, `blur(6px)`) suggests its token; another blur reports
+ *   without a fix.
  *
  * Recommended at `warn` in 5.x; it becomes an error in the next major. It is
  * a rule of its own, apart from no-raw-design-values (an error), because
@@ -54,6 +60,7 @@ export const noRawLayerValues: TSESLint.RuleModule<MessageIds, Options> = {
         properties: {
           factories: {type: 'array', items: {type: 'string'}, uniqueItems: true},
           exemptFiles: {type: 'array', items: {type: 'string'}, uniqueItems: true},
+          localMax: {type: 'integer', minimum: 0, maximum: 49},
         },
         additionalProperties: false,
       },
@@ -62,7 +69,7 @@ export const noRawLayerValues: TSESLint.RuleModule<MessageIds, Options> = {
       rawZIndex:
         '{{value}} on `zIndex` is the layers.{{token}} token. Use it from {{pkg}}/tokens/layers.css.',
       offScaleZIndex:
-        '{{value}} on `zIndex` is not a layer; it sits {{nearest}}. Use a `layers.*` token from {{pkg}}/tokens/layers.css when it plays that role; a stacking value local to one component has no token yet.',
+        '{{value}} on `zIndex` is not a layer; it sits {{nearest}}. Use a `layers.*` token from {{pkg}}/tokens/layers.css when it plays that role; values up to `localMax` that order children inside one component are not reported.',
       rawEffect:
         "'{{value}}' on `{{property}}` is a raw effect{{tokenText}}. Use the `effects.*` tokens from {{pkg}}/tokens/effects.css.",
       replaceWithToken: 'Replace with {{replacement}}',
@@ -71,6 +78,7 @@ export const noRawLayerValues: TSESLint.RuleModule<MessageIds, Options> = {
   create(context) {
     const options = context.options[0] ?? {}
     const factories = options.factories ?? ['css.create']
+    const localMax = options.localMax ?? DEFAULT_LOCAL_MAX
     if (matchesAnyGlob(context.filename, context.cwd, options.exemptFiles ?? [])) return {}
     const sourceCode = context.sourceCode
 
@@ -105,6 +113,7 @@ export const noRawLayerValues: TSESLint.RuleModule<MessageIds, Options> = {
         if (/^\d+$/.test(text)) value = Number(text)
       }
       if (value === null || value <= 0) return
+      if (value <= localMax && !LAYERS_BY_VALUE[value]) return
       const display = sourceCode.getText(node)
       const token = LAYERS_BY_VALUE[value]
       if (token) {
