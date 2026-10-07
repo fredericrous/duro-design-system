@@ -96,7 +96,12 @@ export const RADII_TOKENS_BY_PX: Record<number, string> = {
  * light, and high-contrast palettes in that order, first entry wins — so a hex
  * shared across tokens/themes suggests the token it most likely stands for
  * (e.g. #6aaffc is both `accent` and `info` in the dark palette → `accent`).
+ * `contrastSurface` / `onContrastSurface` are another theme's colours, so they
+ * go last (CONTRAST_MIRROR_TOKENS): `#f5f5f5` stays `bgCard`.
  */
+/** Colour tokens whose values mirror another theme's; listed after the rest. */
+export const CONTRAST_MIRROR_TOKENS = ['contrastSurface', 'onContrastSurface']
+
 export const COLOR_TOKENS: Record<string, string> = {
   '#0f0f0f': 'bg',
   '#1a1a1a': 'bgCard',
@@ -127,6 +132,7 @@ export const COLOR_TOKENS: Record<string, string> = {
   'rgba(0, 0, 0, 0.55)': 'inverseBorder',
   'rgba(0, 0, 0, 0.70)': 'inverseBorderHover',
   '#ffffff': 'fixedLight',
+  'rgba(255, 255, 255, 0.78)': 'overlayLight',
   '#f5f5f5': 'bgCard',
   '#ebebeb': 'bgCardHover',
   '#4a4a4a': 'textMuted',
@@ -204,6 +210,8 @@ export const SHADOW_TOKENS: Record<string, string> = {
   '02px4pxrgba(0,0,0,0.3)': 'sm',
   '04px12pxrgba(0,0,0,0.4)': 'md',
   '08px24pxrgba(0,0,0,0.5)': 'lg',
+  'inset0001px#333333': 'dropReady',
+  'inset0002px#6aaffc': 'dropOver',
 }
 
 /** ms value → duration token. */

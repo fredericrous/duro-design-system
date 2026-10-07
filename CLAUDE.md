@@ -500,6 +500,8 @@ is added.
 | `success` / `successBg` / `successText` | Success states                       |
 | `warning` / `warningBg` / `warningText` | Warning states                       |
 | `info` / `infoBg` / `infoText`          | Informational states                 |
+| `contrastSurface` / `onContrastSurface` | Opposite-tone surface (toasts, coach marks) and its text |
+| `overlayLight`                          | Fixed translucent white over content (light counterpart of `scrim`) |
 
 ### Shadows
 
@@ -508,6 +510,8 @@ is added.
 | `sm`  | Subtle — cards, dropdowns            |
 | `md`  | Medium — popovers, floating elements |
 | `lg`  | Strong — modals, dialogs             |
+| `dropReady` | Drop-target ring: a zone that can receive (DragDrop) |
+| `dropOver`  | Drop-target ring: the zone under the pointer (not a focus ring) |
 
 ### Layout Spacing (semantic)
 

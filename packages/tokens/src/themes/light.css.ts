@@ -39,10 +39,19 @@ export const lightTheme = css.createTheme(colors, {
   inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
   // A light that does not follow the theme (the Switch knob).
   fixedLight: '#ffffff',
+  // A fixed translucent white over content (the light counterpart of scrim).
+  overlayLight: 'rgba(255, 255, 255, 0.78)',
+  // The opposite tone of the theme: a surface that stands out from the page
+  // (toasts, coach marks), with its own text colour. Not the fixed inverse*
+  // overlays above, which sit on an accent fill.
+  contrastSurface: '#1a1a1a',
+  onContrastSurface: '#e5e5e5',
 })
 
 export const lightShadows = css.createTheme(shadows, {
   sm: '0 2px 4px rgba(0, 0, 0, 0.08)',
   md: '0 4px 12px rgba(0, 0, 0, 0.12)',
   lg: '0 8px 24px rgba(0, 0, 0, 0.16)',
+  dropReady: 'inset 0 0 0 1px #d4d4d4',
+  dropOver: 'inset 0 0 0 2px #1e40af',
 })

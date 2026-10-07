@@ -55,7 +55,7 @@ export const RADII_PX = {
   full: 9999,
 } as const
 
-export const SHADOW_KEYS = ['sm', 'md', 'lg'] as const
+export const SHADOW_KEYS = ['sm', 'md', 'lg', 'dropReady', 'dropOver'] as const
 export type ShadowToken = (typeof SHADOW_KEYS)[number]
 
 // Mirrors tokens/motion.css.ts `duration`, as numbers for setTimeout use.
@@ -306,6 +306,8 @@ export const SHADOWS = {
   sm: '0 2px 4px rgba(0, 0, 0, 0.3)',
   md: '0 4px 12px rgba(0, 0, 0, 0.4)',
   lg: '0 8px 24px rgba(0, 0, 0, 0.5)',
+  dropReady: 'inset 0 0 0 1px #333333',
+  dropOver: 'inset 0 0 0 2px #6aaffc',
 } as const
 
 // Mirrors tokens/motion.css.ts `easing` verbatim.

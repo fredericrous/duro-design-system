@@ -18,6 +18,7 @@ import {
   BORDER_TOKENS_BY_PX,
   BREAKPOINT_TOKENS_BY_PX,
   COLOR_TOKENS,
+  CONTRAST_MIRROR_TOKENS,
   DURATION_TOKENS_BY_MS,
   EASING_TOKENS,
   FONT_SIZE_TOKENS_BY_REM,
@@ -77,10 +78,14 @@ describe('token tables match @duro-app/tokens', () => {
 
   it('COLOR_TOKENS mirrors the three raw palettes, first entry wins', () => {
     const expected: Record<string, string> = {}
-    for (const palette of [darkColors, lightColors, highContrastColors]) {
-      for (const [token, value] of Object.entries(palette)) {
-        const key = value.toLowerCase()
-        if (!(key in expected)) expected[key] = token
+    const palettes = [darkColors, lightColors, highContrastColors]
+    for (const mirrors of [false, true]) {
+      for (const palette of palettes) {
+        for (const [token, value] of Object.entries(palette)) {
+          if (CONTRAST_MIRROR_TOKENS.includes(token) !== mirrors) continue
+          const key = value.toLowerCase()
+          if (!(key in expected)) expected[key] = token
+        }
       }
     }
     expect(COLOR_TOKENS).toEqual(expected)

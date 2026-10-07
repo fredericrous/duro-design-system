@@ -163,3 +163,53 @@ export const AllThemes: Story = {
     await expect(canvas.getByText('high-contrast')).toBeInTheDocument()
   },
 }
+
+const contrastStyles = css.create({
+  surface: {
+    padding: spacing.md,
+    borderRadius: radii.md,
+    backgroundColor: colors.contrastSurface,
+    color: colors.onContrastSurface,
+  },
+})
+
+/** Parse a computed `rgb(r, g, b)` / `rgba(r, g, b, a)` colour. */
+function rgbOf(value: string): [number, number, number] {
+  const parts = value.match(/\d+(\.\d+)?/g)?.map(Number) ?? []
+  return [parts[0] ?? 0, parts[1] ?? 0, parts[2] ?? 0]
+}
+
+/** WCAG 2.x relative luminance contrast ratio. */
+function contrastRatio(a: string, b: string): number {
+  const lum = (rgb: [number, number, number]) => {
+    const [r, g, bl] = rgb.map((c) => {
+      const s = c / 255
+      return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+    }) as [number, number, number]
+    return 0.2126 * r + 0.7152 * g + 0.0722 * bl
+  }
+  const [hi, lo] = [lum(rgbOf(a)), lum(rgbOf(b))].sort((x, y) => y - x) as [number, number]
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+// contrastSurface takes the opposite tone of the theme; its text must still
+// read at 4.5:1 or better in each one.
+export const ContrastSurfaceInEveryTheme: Story = {
+  render: () => (
+    <html.div style={sideBySideStyles.wrapper}>
+      {(['dark', 'light', 'high-contrast'] as const).map((theme) => (
+        <ThemeProvider key={theme} theme={theme}>
+          <html.div style={contrastStyles.surface}>{`Contrast surface (${theme})`}</html.div>
+        </ThemeProvider>
+      ))}
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    for (const theme of ['dark', 'light', 'high-contrast']) {
+      const el = canvas.getByText(`Contrast surface (${theme})`)
+      const style = getComputedStyle(el)
+      const ratio = contrastRatio(style.color, style.backgroundColor)
+      await expect(ratio).toBeGreaterThanOrEqual(4.5)
+    }
+  },
+}

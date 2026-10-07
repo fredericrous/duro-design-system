@@ -237,6 +237,44 @@ checkSubset(
 
 checkSubset('SHADOWS', shadowsCss, keys.SHADOWS, (s) => s)
 
+// The drop-target rings are a border width and a palette colour, written out
+// per theme because StyleX needs literals. Rebuild each from its parts.
+{
+  const themes = [
+    {label: 'shadows', obj: shadowsCss, palette: rawModule.darkColors},
+    {
+      label: 'lightShadows',
+      obj: extractCallArg(join(srcDir, 'themes', 'light.css.ts'), 'createTheme', 1, 'lightShadows'),
+      palette: rawModule.lightColors,
+    },
+    {
+      label: 'highContrastShadows',
+      obj: extractCallArg(
+        join(srcDir, 'themes', 'high-contrast.css.ts'),
+        'createTheme',
+        1,
+        'highContrastShadows',
+      ),
+      palette: rawModule.highContrastColors,
+    },
+  ]
+  for (const {label, obj, palette} of themes) {
+    const expected = {
+      dropReady: `inset 0 0 0 ${keys.BORDERS_PX.hairline}px ${palette.border}`,
+      dropOver: `inset 0 0 0 ${keys.BORDERS_PX.strong}px ${palette.accent}`,
+    }
+    const wrong = Object.entries(expected).filter(([k, v]) => obj[k] !== v)
+    if (wrong.length) {
+      for (const [k, v] of wrong) {
+        console.error(`✗ drift: ${label}.${k} is ${obj[k]}, expected ${v}`)
+      }
+      failures++
+    } else {
+      console.log(`✓ ${label} drop rings match the palette`)
+    }
+  }
+}
+
 const easingCss = extractCallArg(join(srcDir, 'tokens', 'motion.css.ts'), 'defineVars', 0, 'easing')
 checkSubset('EASINGS', easingCss, keys.EASINGS, (s) => s)
 
