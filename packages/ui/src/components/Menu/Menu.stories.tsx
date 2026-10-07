@@ -423,10 +423,10 @@ export const EnterActivatesOnce: Story = {
   },
 }
 
-// Tab from a menu portalled out of a Dialog closes it and puts focus back on
-// the trigger before the browser moves on, so focus stays in the dialog.
-// (A real keyboard then lands on "After"; user-event's simulated Tab picks
-// its own target, so this asserts what both agree on.)
+// Tab from a menu portalled out of a Dialog closes it and continues from the
+// trigger, so focus lands on the next control in the dialog. Under the Vitest
+// browser runner a real keyboard (Playwright) presses Tab; the simulated
+// keydown below is what the Storybook UI can run.
 export const TabInsideDialog: Story = {
   render: () => (
     <Dialog.Root defaultOpen>
@@ -447,10 +447,33 @@ export const TabInsideDialog: Story = {
     </Dialog.Root>
   ),
   play: async ({userEvent}) => {
-    await userEvent.click(page().getByRole('button', {name: 'Block'}))
+    const trigger = page().getByRole('button', {name: 'Block'})
+    await userEvent.click(trigger)
     const menu = await page().findByRole('menu', {name: 'Block'})
     menu.dispatchEvent(new KeyboardEvent('keydown', {key: 'Tab', bubbles: true}))
     await waitFor(() => expect(page().queryByRole('menu')).not.toBeInTheDocument())
-    await expect(page().getByRole('button', {name: 'Block'})).toHaveFocus()
+    await expect(trigger).toHaveFocus()
+
+    const keyboard = await realKeyboard()
+    if (!keyboard) return
+    await userEvent.click(trigger)
+    await page().findByRole('menu', {name: 'Block'})
+    await keyboard('{Tab}')
+    await waitFor(() => expect(page().queryByRole('menu')).not.toBeInTheDocument())
+    await expect(page().getByRole('button', {name: 'After'})).toHaveFocus()
   },
+}
+
+/**
+ * The Vitest browser runner's keyboard, which drives the browser itself
+ * (Playwright) so Tab moves focus the way a person's would. Outside that
+ * runner (the Storybook UI) the module throws on import, and there is none.
+ */
+async function realKeyboard(): Promise<((keys: string) => Promise<void>) | null> {
+  try {
+    const {userEvent} = await import('vitest/browser')
+    return (keys) => userEvent.keyboard(keys)
+  } catch {
+    return null
+  }
 }

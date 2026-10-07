@@ -1,4 +1,4 @@
-import {useState, useCallback, useRef, useId, useEffect} from 'react'
+import {useState, useCallback, useRef, useId, useEffect, useLayoutEffect} from 'react'
 import type {MenuContextValue} from './MenuContext'
 import {isOutsidePress} from '../Popover/outside'
 
@@ -24,7 +24,9 @@ export function useMenuRoot({open: openProp, defaultOpen = false, onOpenChange}:
   // Read by the keydown handler, so activating an item is not a side effect
   // inside a state updater (React may run updaters twice).
   const highlightedRef = useRef(highlightedId)
-  highlightedRef.current = highlightedId
+  useLayoutEffect(() => {
+    highlightedRef.current = highlightedId
+  }, [highlightedId])
   const menuId = useId()
   const triggerId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
