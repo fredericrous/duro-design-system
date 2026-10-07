@@ -5,7 +5,8 @@ import {Grid} from './Grid'
 import {Stack} from '../Stack/Stack'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {SPACING_KEYS} from '@duro-app/tokens/keys'
+import {SIZES_PX, SPACING_KEYS} from '@duro-app/tokens/keys'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {useContainerQuery} from '../../hooks/useContainerQuery'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
@@ -209,3 +210,54 @@ export const WithContainerQuery: Story = {
     )
   },
 }
+
+// A track list with a fixed aside: the content column takes the rest, the
+// aside is sizes.asideW.
+export const TracksWithAside: Story = {
+  render: () => (
+    <html.div style={trackStyles.frame}>
+      <Grid tracks={['1fr', 'asideW']} gap="md">
+        <html.div role="region" aria-label="Content" style={trackStyles.cell}>
+          Content
+        </html.div>
+        <html.div role="region" aria-label="Aside" style={trackStyles.cell}>
+          Aside
+        </html.div>
+      </Grid>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const aside = canvas.getByRole('region', {name: 'Aside'})
+    await expect(aside.getBoundingClientRect().width).toBe(SIZES_PX.asideW)
+    const content = canvas.getByRole('region', {name: 'Content'})
+    await expect(content.getBoundingClientRect().width).toBeGreaterThan(SIZES_PX.asideW)
+  },
+}
+
+export const TracksWithMinmax: Story = {
+  render: () => (
+    <html.div style={trackStyles.frame}>
+      <Grid tracks={['minmax(gridColXs, 1fr)', 'minmax(gridColXs, 1fr)', 'minmax(gridColXs, 1fr)']}>
+        <html.div style={trackStyles.cell}>One</html.div>
+        <html.div style={trackStyles.cell}>Two</html.div>
+        <html.div role="region" aria-label="Three" style={trackStyles.cell}>
+          Three
+        </html.div>
+      </Grid>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const third = canvas.getByRole('region', {name: 'Three'})
+    await expect(third.getBoundingClientRect().width).toBeGreaterThanOrEqual(SIZES_PX.gridColXs)
+  },
+}
+
+const trackStyles = css.create({
+  frame: {
+    width: sizes.pageMd,
+  },
+  cell: {
+    padding: spacing.sm,
+    backgroundColor: colors.bgCard,
+  },
+})

@@ -102,6 +102,7 @@ export {Stack, type SpacingKey} from './components/Stack/Stack'
 export {Inline} from './components/Inline/Inline'
 export {Cluster} from './components/Cluster/Cluster'
 export {Grid} from './components/Grid/Grid'
+export type {GridTrack} from './shared/length'
 export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'
 
 // Hooks

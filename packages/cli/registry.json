@@ -354,6 +354,24 @@
           "type": "string"
         },
         {
+          "description": "For a button that shows or hides another element (a disclosure, a panel).",
+          "name": "aria-expanded",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "Id of the element this button controls.",
+          "name": "aria-controls",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "The underlying <button>, e.g. to anchor a Popover or return focus to it. Web only: on native the ref is not attached.",
+          "name": "ref",
+          "required": false,
+          "type": "Ref<HTMLButtonElement>"
+        },
+        {
           "name": "children",
           "required": true,
           "type": "ReactNode"
@@ -2539,7 +2557,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses to one column on the width of its own container, so it is safe to nest and to place beside a DetailPanel. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native.",
+        "description": "Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses to one column on the width of its own container, so it is safe to nest and to place beside a DetailPanel. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native. For a fixed track beside fractions (content + a 320px aside), tracks takes a token track list — tracks={['1fr', 'asideW']} — web only, equal columns on native.",
         "example": "// Split: list ≥ sizes.gridColSm (240px) beside a detail pane, one column below md\n<Grid layout=\"split\" gap=\"lg\">\n  <List.Root>…</List.Root>\n  <Panel.Root>…</Panel.Root>\n</Grid>\n\n// Responsive: columns auto-fit based on min width\n<Grid minColumnWidth=\"gridColMd\" gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Fixed: always 3 columns\n<Grid columns={3} gap=\"md\">\n  <Card>A</Card>\n  <Card>B</Card>\n  <Card>C</Card>\n</Grid>\n\n// Weighted: a one-third / two-thirds split (works on native too)\n<Grid columns={[1, 2]} gap=\"md\">\n  <Card>Sidebar</Card>\n  <Card>Content</Card>\n</Grid>",
         "relatedTo": [
           {
@@ -2598,6 +2616,12 @@
           "name": "layout",
           "required": false,
           "type": "GridLayout"
+        },
+        {
+          "description": "An explicit track list, for columns that are not all fractions: a size token for a fixed track (`['1fr', 'asideW']`), or `minmax()` / `fit-content()` of tokens and fractions (`'minmax(gridColXs, 1fr)'`). A px is a type error. Web only — on native it falls back to equal columns, one per track. Wins over `columns` / `minColumnWidth`; `layout` wins over it.",
+          "name": "tracks",
+          "required": false,
+          "type": "readonly GridTrack[]"
         },
         {
           "name": "children",
@@ -3084,6 +3108,12 @@
               "name": "minWidth",
               "required": false,
               "type": "Length"
+            },
+            {
+              "description": "Accessible name of a clickable addon (it renders a button). Required when its content is an icon (copy, reveal): without it the button has no name.",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
             },
             {
               "name": "children",
@@ -6650,6 +6680,38 @@
         }
       ],
       "sourcePath": "packages/ui/src/components/VirtualTable/VirtualTable.tsx"
+    },
+    "VisuallyHidden": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "description": "Text for assistive tech only: kept in the accessibility tree, clipped off screen. Gives words to an icon-only control or a visual-only cue.",
+        "example": "<Button variant=\"secondary\">\n  <Icon name=\"search\" size=\"sm\" />\n  <VisuallyHidden>Search</VisuallyHidden>\n</Button>",
+        "whenNotToUse": [
+          "Naming a control that takes aria-label — pass aria-label instead",
+          "Hiding content from everyone — render nothing, or use display: none"
+        ],
+        "whenToUse": [
+          "A label for an icon inside a control that has no aria-label prop",
+          "Spelling out what a colour or icon shows (a status dot, \"(opens in a new tab)\")",
+          "A heading that structures a page for screen readers without a visible title"
+        ]
+      },
+      "name": "VisuallyHidden",
+      "props": [
+        {
+          "name": "children",
+          "required": true,
+          "type": "ReactNode"
+        },
+        {
+          "description": "For aria-describedby / aria-labelledby to point at.",
+          "name": "id",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/VisuallyHidden/VisuallyHidden.tsx"
     },
     "useColorMode": {
       "importPath": "@duro-app/ui",
