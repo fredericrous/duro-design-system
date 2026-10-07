@@ -384,9 +384,19 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Groups related buttons together with consistent spacing and layout. Supports horizontal and vertical orientation with alignment control.",
+        "description": "Groups related buttons together with consistent spacing and layout. Supports horizontal and vertical orientation with alignment control. With `attached`, the group renders one joined control (shared borders, square inner corners) from any mix of Button, Toggle and Select/Menu/Popover triggers.",
         "example": "<ButtonGroup align=\"end\" gap=\"sm\">\n  <Button variant=\"secondary\">Cancel</Button>\n  <Button variant=\"primary\">Save</Button>\n</ButtonGroup>",
         "relatedTo": [
+          {
+            "component": "Toolbar",
+            "kind": "composition",
+            "relationship": "Put attached groups in a Toolbar for one tab stop and arrow keys across them; a ButtonGroup alone leaves every control its own tab stop"
+          },
+          {
+            "component": "ToggleGroup",
+            "kind": "contrast",
+            "relationship": "ToggleGroup owns a selection (single or multiple) across Toggles; ButtonGroup attached only joins controls visually, each keeps its own state"
+          },
           {
             "component": "Inline",
             "kind": "contrast",
@@ -406,7 +416,8 @@
         "whenToUse": [
           "Dialog footers with Save/Cancel actions",
           "Toolbar-style groupings of related actions",
-          "Form submission areas with multiple actions"
+          "Form submission areas with multiple actions",
+          "`attached`: a segmented control of mixed controls — [Normal | Arial | 15px] as three Selects, [B | I | U | link] as Toggles and a Popover trigger"
         ]
       },
       "name": "ButtonGroup",
@@ -439,10 +450,23 @@
         },
         {
           "default": "'sm'",
-          "description": "Gap between buttons. Default: 'sm'",
+          "description": "Gap between buttons. Default: 'sm' (ignored when `attached`)",
           "name": "gap",
           "required": false,
           "type": "ButtonGroupGap"
+        },
+        {
+          "default": "false",
+          "description": "One joined control: no gap, shared borders, square inner corners. Holds Buttons, Toggles and the Select, Menu and Popover triggers, in any mix.",
+          "name": "attached",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "Names the group for assistive tech (a toolbar segment: \"Text style\").",
+          "name": "aria-label",
+          "required": false,
+          "type": "string"
         }
       ],
       "sourcePath": "packages/ui/src/components/ButtonGroup/ButtonGroup.tsx"
@@ -4174,6 +4198,18 @@
               "name": "children",
               "required": true,
               "type": "ReactNode"
+            },
+            {
+              "description": "Accessible name: required when the label is an icon only.",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "The trigger <button>, e.g. to measure it or return focus to it.",
+              "name": "ref",
+              "required": false,
+              "type": "Ref<HTMLButtonElement>"
             }
           ],
           "sourcePath": "packages/ui/src/components/Popover/Popover.tsx"
@@ -6416,6 +6452,76 @@
         }
       ],
       "sourcePath": "packages/ui/src/components/ToggleGroup/ToggleGroup.tsx"
+    },
+    "Toolbar": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "ButtonGroup attached",
+            "Toggle",
+            "Button",
+            "Select",
+            "Menu",
+            "Popover"
+          ],
+          "required": [
+            "Toolbar",
+            "aria-label"
+          ]
+        },
+        "description": "A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends. A Select or Menu trigger keeps its own keys, and a control whose popup is open keeps Left/Right.",
+        "example": "<Toolbar aria-label=\"Formatting\">\n  <ButtonGroup attached aria-label=\"Text style\">\n    <Toggle aria-label=\"Bold\" pressed={bold} onPressedChange={setBold}>B</Toggle>\n    <Toggle aria-label=\"Italic\" pressed={italic} onPressedChange={setItalic}>I</Toggle>\n  </ButtonGroup>\n  <Menu.Root>\n    <Menu.Trigger>Insert</Menu.Trigger>\n    <Menu.Popup>…</Menu.Popup>\n  </Menu.Root>\n</Toolbar>",
+        "relatedTo": [
+          {
+            "component": "ButtonGroup",
+            "kind": "composition",
+            "relationship": "Place attached ButtonGroups inside a Toolbar: the group joins the controls visually, the toolbar gives them one tab stop and arrow keys"
+          },
+          {
+            "component": "ToggleGroup",
+            "kind": "composition",
+            "relationship": "A ToggleGroup inside a Toolbar hands its arrow keys to the toolbar (one roving handler)"
+          },
+          {
+            "component": "ActionBar",
+            "kind": "contrast",
+            "relationship": "ActionBar floats over a selection; Toolbar sits in the layout"
+          }
+        ],
+        "whenNotToUse": [
+          "A dialog footer or a form action row — use ButtonGroup (every button its own tab stop)",
+          "A floating bulk-selection bar — use ActionBar",
+          "A vertical toolbar holding a Select: a closed Select takes ArrowDown/ArrowUp to open, so use the horizontal orientation"
+        ],
+        "whenToUse": [
+          "An editor toolbar: text style, format toggles, insert menus",
+          "A dense set of related actions that should cost one Tab, not one per control"
+        ]
+      },
+      "name": "Toolbar",
+      "props": [
+        {
+          "description": "Names the toolbar (\"Formatting\"). Required: a toolbar is a landmark-like widget.",
+          "name": "aria-label",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "'horizontal'",
+          "description": "Arrow keys follow the orientation: Left/Right (default) or Up/Down. A vertical toolbar cannot hold a Select, whose closed trigger opens on ArrowDown/ArrowUp.",
+          "name": "orientation",
+          "required": false,
+          "type": "Orientation"
+        },
+        {
+          "name": "children",
+          "required": true,
+          "type": "ReactNode"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/Toolbar/Toolbar.tsx"
     },
     "Tooltip": {
       "importPath": "@duro-app/ui",

@@ -9,7 +9,17 @@ const dirname =
 
 export default defineConfig({
   optimizeDeps: {
-    include: ['react-strict-dom/runtime', 'react', 'react-dom', 'react/jsx-runtime'],
+    // react-dom/server and /client: the Toolbar ServerRender story renders to
+    // a string and hydrates. Listed so Vite does not discover them mid-run
+    // and reload the suite.
+    include: [
+      'react-strict-dom/runtime',
+      'react',
+      'react-dom',
+      'react-dom/client',
+      'react-dom/server',
+      'react/jsx-runtime',
+    ],
   },
   test: {
     projects: [

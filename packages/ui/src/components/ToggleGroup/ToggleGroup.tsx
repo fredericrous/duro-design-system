@@ -6,6 +6,8 @@ import {ToggleGroupContext, type Orientation} from './ToggleGroupContext'
 import {useFieldGroupLabelling} from '../Field/FieldContext'
 import {ScrollArea} from '../ScrollArea/ScrollArea'
 import {useRovingFocus} from './useRovingFocus'
+import {useToolbar} from '../Toolbar/ToolbarContext'
+import {useButtonGroup} from '../ButtonGroup/ButtonGroupContext'
 import {styles} from './styles.css'
 
 interface ToggleGroupProps {
@@ -72,7 +74,12 @@ export function ToggleGroup({
   )
 
   const rootRef = useRef<HTMLDivElement>(null)
-  const roving = useRovingFocus({enabled: wrap, pressed: value, rootRef})
+  // Inside a Toolbar, the toolbar's roving focus covers these toggles: one
+  // handler, never two. Inside an attached ButtonGroup, the group draws the
+  // borders and corners.
+  const inToolbar = useToolbar() !== null
+  const inAttachedGroup = useButtonGroup() !== null
+  const roving = useRovingFocus({enabled: wrap && !inToolbar, pressed: value, rootRef})
   const scrolls = wrap && maxRows !== undefined
   const pressedValue = value[0]
 
@@ -107,10 +114,15 @@ export function ToggleGroup({
   const group = (
     <html.div
       ref={rootRef}
-      role="toolbar"
-      aria-orientation={orientation}
+      role={inToolbar ? 'group' : 'toolbar'}
+      aria-orientation={inToolbar ? undefined : orientation}
       {...a11y}
-      style={[styles.root, orientation === 'vertical' && styles.vertical, wrap && styles.wrap]}
+      style={[
+        styles.root,
+        orientation === 'vertical' && styles.vertical,
+        wrap && styles.wrap,
+        inAttachedGroup && styles.inAttachedGroup,
+      ]}
     >
       {children}
     </html.div>

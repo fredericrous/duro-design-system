@@ -44,4 +44,11 @@ export const styles = css.create({
   vertical: {
     flexDirection: 'column',
   },
+  // In an attached ButtonGroup: no frame of its own; its toggles join the
+  // group's border like any other control.
+  inAttachedGroup: {
+    borderWidth: 0,
+    borderRadius: 0,
+    overflow: 'visible',
+  },
 })

@@ -75,6 +75,12 @@ export const styles = css.create({
     // Override any borderColor set by pressed state — dividers always use border token
     borderColor: colors.border,
   },
+  // Pressed, in an attached group: the accent edge is drawn inset, inside the
+  // border a neighbour's negative margin overlaps, so it shows on all four
+  // sides without a z-index (which stays for focus).
+  attachedPressed: {
+    boxShadow: `inset 0 0 0 ${borders.hairline} ${colors.accent}`,
+  },
   disabled: {
     opacity: 0.5,
     cursor: 'not-allowed',
