@@ -102,7 +102,7 @@ The 5.3 plan's frontmatter moves to `status: done`, with a line recording which 
    - **Image pill:** `blur(6px)` → `effects.surfaceBlur`.
    - **Local stacking:** the `3`–`6` values stay; they are no longer reported.
    - **Nav gap:** NavWidget → `spacing.lg` (24px) in the editor. The published-site CSS in `apps/builder-webapp/src/theme/renderPage.tsx` gets the literal `24px` (it's a CSS string), with a unit test that keeps it equal to `SPACING_PX.lg`.
-     - Live sites pick this up on deploy without being republished, because pages are rebuilt from stored snapshots.
+     - Pages render at publish time, in the browser, and the server serves the committed HTML (website-builder's `apps/workerd-runtime/src/materialize.ts`). Existing sites keep `20px` until they are republished; website-builder's PR decides between adding a re-render and saying so in the release note.
      - The PR body and the website-builder release notes get a line for site owners: "Navigation items are 4px further apart."
    - **Done when:** lint reaches 0 errors and 0 warnings, then the usual preview → push flow.
 
@@ -115,18 +115,18 @@ Each check is listed as what goes in and what must come out.
 - **CI commands:** `pnpm lint`, `typecheck`, `test`, `build` (with the drift check) and `build-storybook` all exit 0.
 - **Visual:** the email harness (v5.3.0 → branch) is 8/8 byte-identical. Storybook screenshots against v5.3.0 match with `maxDiffPixels: 0`, since there's no UI change.
 
-| Input                                 | Expected                                                                           |
-| ------------------------------------- | ---------------------------------------------------------------------------------- |
-| lint `zIndex: 2` / `5` / `9`          | no report                                                                          |
-| lint `zIndex: 10`                     | `offScaleZIndex`, with the new message clause                                      |
-| lint `zIndex: 1`                      | `rawZIndex`, suggestion `layers.raised`                                            |
-| lint `zIndex: 1002`                   | `rawZIndex`, suggestion `layers.modalRaised`                                       |
-| lint `{localMax: 0}` with `zIndex: 5` | reported                                                                           |
-| lint options `{localMax: 50}`         | schema error                                                                       |
-| lint `backdropFilter: 'blur(6px)'`    | `rawEffect`, suggestion `effects.surfaceBlur`                                      |
-| `LAYERS` unit test                    | strictly increasing in key order; every value a number                             |
-| `token-drift.test.ts`                 | `LAYERS_BY_VALUE` and `EFFECTS_BY_VALUE` mirror keys.ts                            |
-| `generate-vars-css`                   | `--duro-layer-modal-raised: 1002`, `--duro-effect-surface-blur: blur(6px)` present |
+| Input                                 | Expected                                                                                                                                                                                     |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| lint `zIndex: 2` / `5` / `9`          | no report                                                                                                                                                                                    |
+| lint `zIndex: 10`                     | `offScaleZIndex`, with the new message clause                                                                                                                                                |
+| lint `zIndex: 1`                      | `rawZIndex`, suggestion `layers.raised`                                                                                                                                                      |
+| lint `zIndex: 1002`                   | `rawZIndex`, suggestion `layers.modalRaised`                                                                                                                                                 |
+| lint `{localMax: 0}` with `zIndex: 5` | reported                                                                                                                                                                                     |
+| lint options `{localMax: 50}`         | schema error                                                                                                                                                                                 |
+| lint `backdropFilter: 'blur(6px)'`    | `rawEffect`, suggestion `effects.surfaceBlur`                                                                                                                                                |
+| `LAYERS` unit test                    | strictly increasing in key order; every value a number                                                                                                                                       |
+| `token-drift.test.ts`                 | `LAYERS_BY_VALUE` and `EFFECTS_BY_VALUE` mirror keys.ts                                                                                                                                      |
+| `generate-vars-css`                   | `--duro-layer-modal-raised` present, aliasing the StyleX var; literal `1002` in mockup.css. `--duro-effect-surface-blur` present, aliasing the StyleX var; literal `blur(6px)` in mockup.css |
 
 ### All nine consumers, before tagging
 
@@ -144,5 +144,9 @@ Install the packed 5.4 tarballs, then run lint and `duro doctor`, and record err
 | Tab-tear drag without a Dialog                                 | the ghost shows and follows the pointer, as on main                                            |
 | Published page, `.wb-nav ul`                                   | computed `gap` is 24px and matches the editor's NavWidget; before/after screenshot of one page |
 | renderPage unit test                                           | the nav gap literal equals `SPACING_PX.lg`                                                     |
+
+## Deviations
+
+- **The live-site nav gap claim (§5 step 3) was false**, corrected above: website-builder renders pages at publish time (`apps/workerd-runtime/src/materialize.ts`), so no snapshot re-render reaches existing sites.
 
 <!-- panel: repos=duro-design-system reviewers=architect,backend,po body-sha=0630c6063f3b -->
