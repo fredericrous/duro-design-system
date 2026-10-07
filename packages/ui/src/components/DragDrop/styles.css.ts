@@ -2,6 +2,7 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {radii} from '@duro-app/tokens/tokens/spacing.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 
 export const styles = css.create({
   // The item is the drag handle: no browser panning starts on it, so a touch
@@ -30,12 +31,13 @@ export const styles = css.create({
     transitionTimingFunction: easing.standard,
   },
   // Every zone shows it can receive while something is in the air; the one
-  // under the pointer lights up.
+  // under the pointer lights up. Drop-target rings, not focus: keyboard focus
+  // stays on outlines, which survive forced-colors mode.
   zoneReady: {
-    boxShadow: `inset 0 0 0 1px ${colors.border}`,
+    boxShadow: shadows.dropReady,
   },
   zoneOver: {
-    boxShadow: `inset 0 0 0 2px ${colors.accent}`,
+    boxShadow: shadows.dropOver,
     backgroundColor: colors.infoBg,
   },
   ghost: {

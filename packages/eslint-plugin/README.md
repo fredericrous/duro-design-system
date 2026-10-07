@@ -93,10 +93,20 @@ scale:
   inside a `border*` or `outline` shorthand string. Each property draws from
   its own candidates: sizes → `sizes.*`; border widths → `borders.hairline /
 strong / accent`; outline width → `borders.focusRing`; outline offset →
-  `borders.focusOffset / focusOffsetSm`. One match suggests it (a negative as
-  `calc(-1 * …)`); several are listed without a fix; none says to add a
-  token. A `calc()` or template literal whose static text holds a px is
-  reported too.
+  `borders.focusOffset / focusOffsetSm`. Since 5.2 the size candidates follow
+  the property's axis: a `…W` / `…MinW` / `…MaxW` token is only offered on a
+  width property, a `…H` / `…MinH` / `…MaxH` token only on a height one, and
+  an unsuffixed token on both (`flexBasis` takes either). One match suggests it
+  (a negative as `calc(-1 * …)`); several give one suggestion each. When none
+  matches, the message names the **nearest role**: every same-axis token at
+  the nearest value within ±10% (`width: 232` → `sizes.gridColSm`,
+  `sizes.sidebarW`, `sizes.popoverWSm` (240)); when two values are equally
+  near, both are listed, smaller first. Only when nothing is that close does
+  it say to add a token. A `calc()` or template literal whose static text
+  holds a px is reported too.
+- **`boxShadow` in a template literal** (since 5.2) — a px length in its
+  static text (`` `inset 0 0 0 1px ${colors.border}` ``) is a raw shadow; use
+  a `shadows.*` token.
 - **micro spacing** — an off-scale spacing of 1/2/3/5/6px suggests
   `microSpacing.pxN`.
 
