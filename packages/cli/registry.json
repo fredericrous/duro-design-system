@@ -2856,7 +2856,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Text input with automatic Field/Form integration. Variant auto-switches to error when inside an invalid Field.",
+        "description": "Text input with automatic Field/Form integration. Variant auto-switches to error when inside an invalid Field. variant=\"ghost\" reads as text until hovered (hairline border) or focused (accent border and ring): only for inline edit where a visible Field.Label names it; it shows the error state when the Field is invalid.",
         "example": "<Field.Root name=\"email\">\n  <Field.Label>Email</Field.Label>\n  <Input type=\"email\" placeholder=\"you@example.com\" autoComplete=\"email\" />\n  <Field.Error />\n</Field.Root>",
         "relatedTo": [
           {
@@ -2877,22 +2877,26 @@
         ],
         "whenNotToUse": [
           "Multi-line text — use Textarea",
-          "Picking from predefined options — use Select"
+          "Picking from predefined options — use Select",
+          "A ghost field without a visible label — it reads as plain text, so the label is what says it is editable"
         ],
         "whenToUse": [
-          "Single-line text entry (text, email, password, url, tel, number, search)"
+          "Single-line text entry (text, email, password, url, tel, number, search)",
+          "Inline edit of a labelled value in place (a ticket title) — variant=\"ghost\""
         ]
       },
       "name": "Input",
       "props": [
         {
           "default": "'default'",
+          "description": "`ghost` reads as text until hovered or focused — only for inline edit where a visible label names the field (Field.Label). It shows the error state when the Field is invalid.",
           "name": "variant",
           "required": false,
           "type": "InputVariant",
           "union": [
             "default",
-            "error"
+            "error",
+            "ghost"
           ]
         },
         {
@@ -8630,7 +8634,8 @@
     ],
     "InputVariant": [
       "default",
-      "error"
+      "error",
+      "ghost"
     ],
     "LabelPosition": [
       "top",

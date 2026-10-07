@@ -53,6 +53,35 @@ export const styles = css.create({
       ':focus': colors.error,
     },
   },
+  // Direction OutlineOnHover (docs/mockups/input-ghost/OutlineOnHover.dc.html):
+  // reads as text at rest; hover draws the field's hairline border, focus
+  // turns it accent and adds the ring. For inline edit with a visible label.
+  ghost: {
+    backgroundColor: 'transparent',
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
+    // The text lines up with its label above.
+    marginLeft: `calc(-1 * ${spacing.sm})`,
+    borderColor: {
+      default: 'transparent',
+      ':hover': colors.border,
+      ':focus': colors.accent,
+    },
+  },
+  ghostError: {
+    backgroundColor: colors.errorBg,
+    borderColor: {
+      default: colors.errorBorder,
+      ':focus': colors.error,
+    },
+  },
+  ghostDisabled: {
+    color: colors.textMuted,
+    cursor: 'not-allowed',
+    borderColor: 'transparent',
+  },
   inGroup: {
     borderWidth: 0,
     borderRadius: 0,

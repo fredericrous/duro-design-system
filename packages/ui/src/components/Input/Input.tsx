@@ -6,9 +6,14 @@ import {styles} from './styles.css'
 type StrictInputProps = React.ComponentProps<typeof html.input>
 export type InputType = NonNullable<StrictInputProps['type']>
 
-export type InputVariant = 'default' | 'error'
+export type InputVariant = 'default' | 'error' | 'ghost'
 
 interface InputProps {
+  /**
+   * `ghost` reads as text until hovered or focused — only for inline edit
+   * where a visible label names the field (Field.Label). It shows the error
+   * state when the Field is invalid.
+   */
   variant?: InputVariant
   /** Orthogonal to variant — `mono` keeps the error border but uses the
    *  monospace family (slugs, identifiers, hashes). */
@@ -100,7 +105,9 @@ export function Input({
   const effectiveOnBlur = onBlur ?? fieldCtx?.onBlur
   const effectiveRef = ref ?? fieldCtx?.ref
   const effectiveDisabled = disabled ?? ctx?.disabled
-  const effectiveVariant = ctx?.invalid ? 'error' : variant
+  const invalid = Boolean(ctx?.invalid) || variant === 'error'
+  const ghost = variant === 'ghost'
+  const effectiveVariant = ghost ? 'ghost' : ctx?.invalid ? 'error' : variant
   // Field context owns describedby (description + error); fall back to the
   // explicit prop only when standalone.
   const describedBy = ctx
@@ -134,7 +141,7 @@ export function Input({
       defaultValue={defaultValue}
       disabled={effectiveDisabled}
       aria-describedby={describedBy || undefined}
-      aria-invalid={ctx?.invalid || variant === 'error' || undefined}
+      aria-invalid={invalid || undefined}
       onChange={effectiveOnChange as StrictInputProps['onChange']}
       onBlur={effectiveOnBlur as StrictInputProps['onBlur']}
       onFocus={onFocus as StrictInputProps['onFocus']}
@@ -144,6 +151,8 @@ export function Input({
       style={[
         styles.base,
         styles[effectiveVariant],
+        ghost && invalid && styles.ghostError,
+        ghost && effectiveDisabled && styles.ghostDisabled,
         font === 'mono' && styles.mono,
         groupCtx?.inGroup && styles.inGroup,
       ]}
