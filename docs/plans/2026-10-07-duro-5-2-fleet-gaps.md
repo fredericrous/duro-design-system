@@ -287,4 +287,10 @@ The nine-consumer gate found website-builder measures the sizes table did not fi
 
 **Open:** `contrastBorder` is not built. The value fixed in the addendum (white 28% on the light theme's surface, mirrored) measures 2.53:1, 1.98:1 and 1.99:1 against `contrastSurface` (light, dark, high contrast), under the 3:1 the addendum requires. The person decides the value or the requirement.
 
+## Implementation review
+
+- **rework** after the Delta (round 1 85k/95 s, Delta 47k/31 s). Blocking: `contrastBorder` (the fixed value fails the required 3:1), and website-builder ends at 2 / 0 (the home bar's 96px width has no decided role). Both are the person's call.
+- Fixed: Menu Enter clicks outside a state updater (`EnterActivatesOnce`); Escape asserts one `onOpenChange(false)`; forced colours and the consumer gate recorded.
+- Kept for the next round: write `highlightedRef` in an effect, not in render (low); record the real-keyboard Tab probe (a Menu in a Dialog: Tab lands on the next button in the dialog) as a row (low).
+
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,react,ui-design,ux-research,game-ux,unix,tui body-sha=0d0e0a81ffe0 -->
