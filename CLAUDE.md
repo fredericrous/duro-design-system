@@ -94,6 +94,11 @@ Measure props take token keys: `<Grid minColumnWidth="gridColMd">`,
 `<ScrollArea.Viewport maxHeight="listMaxH">`. `duro/no-raw-design-values`
 reports the rest.
 
+A z-index comes from `layers.*` and a backdrop blur from `effects.*` (5.3):
+`duro/no-raw-layer-values` warns on the raw ones for the 5.x line, and
+becomes an error in the next major. On React Native, read the numbers from
+`LAYERS` in `@duro-app/tokens/keys`.
+
 ## Layout Decision Tree
 
 Pick the right layout component:
@@ -679,6 +684,39 @@ it hides the entire IA behind chevrons and makes the user hunt.
 **Neither is a tree.** Arbitrary-depth _data_ browsing (a file tree, a
 namespace → resource drill-down) is `Tree`: `role="tree"`, roving tabindex,
 typeahead and `aria-level`. Don't nest `SideNav` to fake it.
+
+### Toolbar and attached groups
+
+**`ButtonGroup attached` joins mixed controls; `Toolbar` gives them one tab
+stop.** An editor toolbar is a `Toolbar` holding attached groups and menus:
+
+```tsx
+<Toolbar aria-label="Formatting">
+  <ButtonGroup attached aria-label="Text style">
+    <Select.Root defaultValue="normal">…</Select.Root>
+    <Select.Root defaultValue="arial">…</Select.Root>
+  </ButtonGroup>
+  <ButtonGroup attached aria-label="Format">
+    <Toggle aria-label="Bold" pressed={bold} onPressedChange={setBold}>B</Toggle>
+    <Popover.Root>
+      <Popover.Trigger aria-label="Link">…</Popover.Trigger>
+      <Popover.Popup label="Link">…</Popover.Popup>
+    </Popover.Root>
+  </ButtonGroup>
+  <Menu.Root>…</Menu.Root>
+</Toolbar>
+```
+
+- An attached group joins `Button`, `Toggle` and the `Select`, `Menu` and
+  `Popover` triggers, in any mix: shared borders, square inner corners, the
+  outer corners round. Use `ToggleGroup` instead when the toggles share one
+  selection.
+- In a `Toolbar`, Left/Right move across every control (Up/Down when
+  vertical), Home/End jump to the ends. A `Select` or `Menu` trigger keeps its
+  own keys: a closed Select opens on ArrowDown/ArrowUp, so a vertical toolbar
+  cannot hold one.
+- What a popup holds (a Popover's form, a Menu's items) is outside the group
+  and the toolbar: its buttons are round and in the normal tab order.
 
 ## Canonical Recipes
 
