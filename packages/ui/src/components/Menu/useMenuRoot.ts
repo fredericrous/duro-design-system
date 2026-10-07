@@ -21,6 +21,10 @@ export function useMenuRoot({open: openProp, defaultOpen = false, onOpenChange}:
   const controlled = openProp !== undefined
   const open = controlled ? openProp : inner
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  // Read by the keydown handler, so activating an item is not a side effect
+  // inside a state updater (React may run updaters twice).
+  const highlightedRef = useRef(highlightedId)
+  highlightedRef.current = highlightedId
   const menuId = useId()
   const triggerId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
@@ -146,11 +150,8 @@ export function useMenuRoot({open: openProp, defaultOpen = false, onOpenChange}:
         case 'Enter':
         case ' ': {
           e.preventDefault()
-          const items = itemsRef.current
-          setHighlightedId((prev) => {
-            if (prev) items.get(prev)?.click()
-            return prev
-          })
+          const current = highlightedRef.current
+          if (current) itemsRef.current.get(current)?.click()
           break
         }
       }

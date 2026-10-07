@@ -340,7 +340,9 @@ export const EscapeInsideDialog: Story = {
     ).toBe(center)
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(page().queryByRole('menu')).not.toBeInTheDocument())
-    await expect(onMenuOpenChange).toHaveBeenCalledTimes(2)
+    // The Escape closes the menu once: onOpenChange(true) on open, then
+    // exactly one onOpenChange(false).
+    await expect(onMenuOpenChange.mock.calls.filter(([open]) => open === false)).toHaveLength(1)
     await expect(onMenuOpenChange).toHaveBeenLastCalledWith(false)
     await expect(onDialogOpenChange).toHaveBeenCalledTimes(0)
     await expect(page().getByRole('dialog', {name: 'Format'})).toBeInTheDocument()
@@ -393,5 +395,62 @@ export const GhostIconTrigger: Story = {
     const trigger = canvas.getByRole('button', {name: 'More actions'})
     await userEvent.click(trigger)
     await expect(await page().findByRole('menu', {name: 'More actions'})).toBeVisible()
+  },
+}
+
+const onRename = fn()
+
+// Enter activates the highlighted item exactly once.
+export const EnterActivatesOnce: Story = {
+  beforeEach: () => {
+    onRename.mockClear()
+  },
+  render: () => (
+    <Menu.Root>
+      <Menu.Trigger>File</Menu.Trigger>
+      <Menu.Popup>
+        <Menu.Item onClick={onRename}>Rename</Menu.Item>
+        <Menu.Item>Delete</Menu.Item>
+      </Menu.Popup>
+    </Menu.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'File'}))
+    await page().findByRole('menu', {name: 'File'})
+    await userEvent.keyboard('{Enter}')
+    await waitFor(() => expect(page().queryByRole('menu')).not.toBeInTheDocument())
+    await expect(onRename).toHaveBeenCalledTimes(1)
+  },
+}
+
+// Tab from a menu portalled out of a Dialog closes it and puts focus back on
+// the trigger before the browser moves on, so focus stays in the dialog.
+// (A real keyboard then lands on "After"; user-event's simulated Tab picks
+// its own target, so this asserts what both agree on.)
+export const TabInsideDialog: Story = {
+  render: () => (
+    <Dialog.Root defaultOpen>
+      <Dialog.Portal>
+        <Dialog.Header>
+          <Dialog.Title>Insert</Dialog.Title>
+        </Dialog.Header>
+        <Dialog.Body>
+          <Menu.Root>
+            <Menu.Trigger>Block</Menu.Trigger>
+            <Menu.Popup>
+              <Menu.Item>Quote</Menu.Item>
+            </Menu.Popup>
+          </Menu.Root>
+          <Button variant="secondary">After</Button>
+        </Dialog.Body>
+      </Dialog.Portal>
+    </Dialog.Root>
+  ),
+  play: async ({userEvent}) => {
+    await userEvent.click(page().getByRole('button', {name: 'Block'}))
+    const menu = await page().findByRole('menu', {name: 'Block'})
+    menu.dispatchEvent(new KeyboardEvent('keydown', {key: 'Tab', bubbles: true}))
+    await waitFor(() => expect(page().queryByRole('menu')).not.toBeInTheDocument())
+    await expect(page().getByRole('button', {name: 'Block'})).toHaveFocus()
   },
 }
