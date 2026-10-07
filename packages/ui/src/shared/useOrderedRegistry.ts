@@ -1,4 +1,4 @@
-import {useCallback, useRef, useState} from 'react'
+import {useCallback, useLayoutEffect, useRef, useState} from 'react'
 
 /** A registered control: its id, in DOM order, and whether it is disabled. */
 export interface RegisteredControl {
@@ -20,6 +20,9 @@ function sameEntries(a: RegisteredControl[], b: RegisteredControl[]) {
  *
  * Registration happens in a layout effect, so server-rendered HTML (and the
  * first client render) sees an empty registry.
+ *
+ * Keyed children can move without remounting, so the order is also re-read
+ * after every commit of the owner; state changes only when the order did.
  */
 export function useOrderedRegistry() {
   const elements = useRef(new Map<string, {el: HTMLElement; disabled: boolean}>())
@@ -45,6 +48,10 @@ export function useOrderedRegistry() {
     },
     [sync],
   )
+
+  useLayoutEffect(() => {
+    sync()
+  })
 
   return {elements, order, register}
 }

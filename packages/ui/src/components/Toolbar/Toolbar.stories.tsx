@@ -387,3 +387,53 @@ export const ServerRender: Story = {
     }
   },
 }
+
+/** Keyed controls reordered without remounting: corners and arrow order
+ *  follow the new DOM order. */
+function Reorderable() {
+  const [names, setNames] = useState(['One', 'Two', 'Three'])
+  return (
+    <Stack gap="md">
+      <Button variant="secondary" onClick={() => setNames((n) => [...n].reverse())}>
+        Reverse
+      </Button>
+      <Toolbar aria-label="Ordered">
+        <ButtonGroup attached aria-label="Items">
+          {names.map((name) => (
+            <Button key={name} variant="secondary">
+              {name}
+            </Button>
+          ))}
+        </ButtonGroup>
+      </Toolbar>
+    </Stack>
+  )
+}
+
+export const ReorderKeyedChildren: Story = {
+  render: () => <Reorderable />,
+  play: async ({canvas}) => {
+    const one = canvas.getByRole('button', {name: 'One'})
+    await userEvent.click(canvas.getByRole('button', {name: 'Reverse'}))
+    // Same element, moved: no remount.
+    await expect(canvas.getByRole('button', {name: 'One'})).toBe(one)
+    const radii = (el: Element) => {
+      const cs = getComputedStyle(el)
+      return [
+        cs.borderTopLeftRadius,
+        cs.borderTopRightRadius,
+        cs.borderBottomRightRadius,
+        cs.borderBottomLeftRadius,
+      ]
+    }
+    const three = canvas.getByRole('button', {name: 'Three'})
+    await waitFor(() => expect(radii(three)).toEqual([R, '0px', '0px', R]))
+    await expect(radii(one)).toEqual(['0px', R, R, '0px'])
+    await expect(three.tabIndex).toBe(0)
+    three.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(canvas.getByRole('button', {name: 'Two'})).toHaveFocus()
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(one).toHaveFocus()
+  },
+}
