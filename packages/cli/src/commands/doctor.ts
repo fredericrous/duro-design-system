@@ -646,10 +646,6 @@ const MEDIA_RULE = /@media\b([^{;]*)\{/g
 const clip = (text: string, max = 80) =>
   text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text
 
-/**
- * The newest modification time among the package's build config and its
- * sources (app/, src/), scanned up to SOURCE_SCAN_LIMIT files.
- */
 /** A path doctor could not read, with the error code (`EACCES`, `EIO`…). */
 interface Unreadable {
   path: string
@@ -673,6 +669,10 @@ function mtimeOf(path: string, unreadable: Unreadable[]): number | null {
   }
 }
 
+/**
+ * The newest modification time among the package's build config and its
+ * sources (app/, src/), scanned up to SOURCE_SCAN_LIMIT files.
+ */
 function newestInput(dir: string, configs: string[], unreadable: Unreadable[]): number {
   let newest = 0
   const seen = (path: string) => {
