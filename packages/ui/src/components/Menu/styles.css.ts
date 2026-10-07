@@ -35,19 +35,21 @@ export const styles = css.create({
     transitionProperty: 'background-color, border-color',
     transitionDuration: duration.fast,
   },
-  backdrop: {
+  // Toolbar trigger: no border or fill until hover, at least icon-button size.
+  triggerGhost: {
+    justifyContent: 'center',
+    minWidth: sizes.iconButton,
+    minHeight: sizes.iconButton,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.xs,
+    paddingRight: spacing.xs,
+    borderColor: 'transparent',
+  },
+  popup: {
     position: 'fixed',
     top: 0,
     left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 49,
-  },
-  popup: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    marginTop: spacing.xs,
     backgroundColor: colors.bgCard,
     borderWidth: borders.hairline,
     borderStyle: 'solid',
@@ -57,12 +59,18 @@ export const styles = css.create({
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
     minWidth: sizes.popupMinW,
+    maxHeight: sizes.listMaxH,
+    overflowY: 'auto',
     zIndex: 50,
+    // The portal layer is pointer-events: none so clicks fall through it;
+    // the popup takes them back.
+    pointerEvents: 'auto',
+    outlineStyle: 'none',
   },
-  popupEnd: {
-    left: 'auto',
-    right: 0,
-  },
+  popupPosition: (top: number, left: number) => ({
+    top,
+    left,
+  }),
   item: {
     display: 'flex',
     alignItems: 'center',
@@ -79,8 +87,14 @@ export const styles = css.create({
     transitionProperty: 'background-color',
     transitionDuration: duration.fast,
   },
+  // The fill is the highlight; the transparent outline is what forced-colors
+  // mode paints, where fills are dropped.
   itemHighlighted: {
     backgroundColor: colors.bgCardHover,
+    outlineStyle: 'solid',
+    outlineWidth: borders.focusRing,
+    outlineColor: 'transparent',
+    outlineOffset: `calc(-1 * ${borders.focusRing})`,
   },
   separator: {
     height: 0,
