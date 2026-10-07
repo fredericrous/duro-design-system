@@ -7,6 +7,8 @@ import {
   BORDERS_PX,
   ICON_SIZES,
   DURATION_MS,
+  LAYERS,
+  EFFECTS,
 } from '@duro-app/tokens/keys'
 import type {Registry} from '../src/registry-types.js'
 
@@ -104,6 +106,34 @@ describe('token drift', () => {
     expect(groups.borders.entries).toEqual(
       Object.entries(BORDERS_PX).map(([key, px]) => ({key, value: `${px}px`})),
     )
+  })
+  it('layers and effects match keys, in key order', () => {
+    expect(groups.layers.entries).toEqual(
+      Object.entries(LAYERS).map(([key, value]) => ({key, value: String(value)})),
+    )
+    expect(groups.effects.entries).toEqual(
+      Object.entries(EFFECTS).map(([key, value]) => ({key, value})),
+    )
+  })
+  it('CLAUDE.md carries a row for every layer and effect', () => {
+    // The tables are generated from the registry (docs.mjs); this holds the
+    // committed file to the scale, so a token never ships undocumented.
+    const doc = readFileSync(new URL('../../../CLAUDE.md', import.meta.url), 'utf8')
+    for (const [key, value] of [...Object.entries(LAYERS), ...Object.entries(EFFECTS)]) {
+      expect(doc, `${key} row missing`).toContain(`| \`${key}\` | ${value} |`)
+    }
+  })
+  it('mockupCss carries every layer and effect as a literal', () => {
+    const css = registry.tokens.mockupCss
+    const kebab = (key: string) => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)
+    for (const [key, value] of Object.entries(LAYERS)) {
+      expect(css).toContain(`--duro-layer-${kebab(key)}: ${value};`)
+    }
+    for (const [key, value] of Object.entries(EFFECTS)) {
+      expect(css).toContain(`--duro-effect-${kebab(key)}: ${value};`)
+    }
+    expect(css).toContain('--duro-layer-modal-raised: 1002;')
+    expect(css).toContain('--duro-effect-surface-blur: blur(6px);')
   })
   it('icon sizes match keys', () => {
     expect(registry.icons.sizes).toEqual(ICON_SIZES)

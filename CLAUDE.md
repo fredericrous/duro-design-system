@@ -94,10 +94,12 @@ Measure props take token keys: `<Grid minColumnWidth="gridColMd">`,
 `<ScrollArea.Viewport maxHeight="listMaxH">`. `duro/no-raw-design-values`
 reports the rest.
 
-A z-index comes from `layers.*` and a backdrop blur from `effects.*` (5.3):
+A z-index comes from `layers.*` and a blur from `effects.*` (5.3):
 `duro/no-raw-layer-values` warns on the raw ones for the 5.x line, and
-becomes an error in the next major. On React Native, read the numbers from
-`LAYERS` in `@duro-app/tokens/keys`.
+becomes an error in the next major. A z-index from `2` to `9` that orders
+children inside one component is not a layer and is not reported (5.4,
+the rule's `localMax`). On React Native, read the numbers from `LAYERS` in
+`@duro-app/tokens/keys`.
 
 ## Layout Decision Tree
 
