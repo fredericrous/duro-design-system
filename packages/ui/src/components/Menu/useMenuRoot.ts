@@ -48,15 +48,19 @@ export function useMenuRoot({open: openProp, defaultOpen = false, onOpenChange}:
     [controlled],
   )
 
-  const close = useCallback(
-    ({restoreFocus = true}: {restoreFocus?: boolean} = {}) => {
-      if (!openRef.current) return
-      setOpen(false)
-      setHighlightedId(null)
-      if (restoreFocus) triggerRef.current?.focus()
-    },
-    [setOpen],
-  )
+  // Closes and leaves focus where it is (a press elsewhere put it there).
+  const dismiss = useCallback(() => {
+    if (!openRef.current) return
+    setOpen(false)
+    setHighlightedId(null)
+  }, [setOpen])
+
+  // Closes and puts focus back on the trigger.
+  const close = useCallback(() => {
+    if (!openRef.current) return
+    dismiss()
+    triggerRef.current?.focus()
+  }, [dismiss])
 
   const toggle = useCallback(() => {
     if (openRef.current) close()
@@ -169,12 +173,12 @@ export function useMenuRoot({open: openProp, defaultOpen = false, onOpenChange}:
     if (!open) return
     function onPointerDown(e: PointerEvent) {
       if (isOutsidePress(e.target as Node | null, [popupRef.current, triggerRef.current])) {
-        close({restoreFocus: false})
+        dismiss()
       }
     }
     document.addEventListener('pointerdown', onPointerDown, true)
     return () => document.removeEventListener('pointerdown', onPointerDown, true)
-  }, [open, close])
+  }, [open, dismiss])
 
   const ctx: MenuContextValue = {
     open,

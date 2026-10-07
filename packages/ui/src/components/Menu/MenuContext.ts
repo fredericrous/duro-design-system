@@ -3,8 +3,8 @@ import {createContext, useContext} from 'react'
 export interface MenuContextValue {
   open: boolean
   toggle: () => void
-  /** Close the menu; focus returns to the trigger unless `restoreFocus` is false. */
-  close: (options?: {restoreFocus?: boolean}) => void
+  /** Close the menu and put focus back on the trigger. */
+  close: () => void
   menuId: string
   triggerId: string
   highlightedId: string | null
