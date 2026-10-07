@@ -18,6 +18,8 @@ import {devWarnOnce} from '../../shared/devWarnOnce'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {computePopoverPosition} from '../Popover/position'
 import {usePopoverLayer} from '../Popover/PopoverLayerContext'
+import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
+import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 
 // --- Root ---
 interface RootProps {
@@ -61,14 +63,17 @@ interface TriggerProps {
 
 function Trigger({children, 'aria-label': ariaLabel, variant = 'default', ref}: TriggerProps) {
   const {open, toggle, menuId, triggerId, triggerRef} = useMenu()
+  const grouped = useGroupedControl<HTMLButtonElement>()
+  const groupedRef = grouped.ref
 
   const setRef = useCallback(
     (el: HTMLButtonElement | null) => {
       triggerRef.current = el
+      groupedRef.current = el
       if (typeof ref === 'function') ref(el)
       else if (ref) ref.current = el
     },
-    [ref, triggerRef],
+    [ref, triggerRef, groupedRef],
   )
 
   // TypeScript can't stop a <Button> child; the DOM can tell.
@@ -85,6 +90,8 @@ function Trigger({children, 'aria-label': ariaLabel, variant = 'default', ref}: 
   return (
     <html.button
       ref={setRef}
+      tabIndex={grouped.tabIndex}
+      onFocus={grouped.onFocus}
       id={triggerId}
       type="button"
       onClick={toggle}
@@ -92,7 +99,7 @@ function Trigger({children, 'aria-label': ariaLabel, variant = 'default', ref}: 
       aria-expanded={open}
       aria-haspopup="menu"
       aria-controls={open ? menuId : undefined}
-      style={[styles.trigger, variant === 'ghost' && styles.triggerGhost]}
+      style={[styles.trigger, variant === 'ghost' && styles.triggerGhost, grouped.style]}
     >
       {children}
     </html.button>
@@ -154,7 +161,7 @@ function Popup({children, align = 'start'}: PopupProps) {
       aria-activedescendant={highlightedId ?? undefined}
       style={[styles.popup, styles.popupPosition(coords.top, coords.left)]}
     >
-      {children}
+      <ControlContextBoundary>{children}</ControlContextBoundary>
     </html.div>,
     mount ?? document.body,
   )

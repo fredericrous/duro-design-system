@@ -21,6 +21,14 @@ export const styles = css.create({
   gapXs: {gap: spacing.xs},
   gapSm: {gap: spacing.sm},
   gapMd: {gap: spacing.md},
+  // One joined control: no gap, one row, every control as tall as the row.
+  attached: {
+    flexWrap: 'nowrap',
+    alignItems: 'stretch',
+  },
+  attachedVertical: {
+    alignItems: 'stretch',
+  },
   disabled: {
     opacity: 0.5,
     pointerEvents: 'none',

@@ -94,6 +94,11 @@ Measure props take token keys: `<Grid minColumnWidth="gridColMd">`,
 `<ScrollArea.Viewport maxHeight="listMaxH">`. `duro/no-raw-design-values`
 reports the rest.
 
+A z-index comes from `layers.*` and a backdrop blur from `effects.*` (5.3):
+`duro/no-raw-layer-values` warns on the raw ones for the 5.x line, and
+becomes an error in the next major. On React Native, read the numbers from
+`LAYERS` in `@duro-app/tokens/keys`.
+
 ## Layout Decision Tree
 
 Pick the right layout component:
@@ -227,6 +232,7 @@ These components **must** be wrapped in their `.Root`:
 | **Textarea** | Multi-line text input with automatic Field/Form integration | `variant`, `name`, `placeholder` |
 | **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |
 | **ToggleGroup** | Container for Toggle buttons enabling single or multi selection | `value`, `defaultValue`, `onValueChange` |
+| **Toolbar** | A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends | `aria-label`, `orientation` |
 | **Tooltip** | Hover/focus tooltip that shows supplementary content | compound: Root, Trigger |
 | **Tree** | Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead | compound: Item, Root |
 | **VirtualTable** | Sortable data table that windows its rows above a threshold (default 150) with @tanstack/react-virtual, shows a floating position indicator, and reports the visible page so the caller can mirror it in the URL | `data`, `columns`, `sorting` |
@@ -426,6 +432,8 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `sliderW` | 96px |
 | `paletteMinW` | 96px |
 | `deviceBarW` | 96px |
+| `timeGutterW` | 64px |
+| `dayHeaderH` | 46px |
 
 ### Borders
 
@@ -437,6 +445,30 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `focusRing` | 2px |
 | `focusOffset` | 2px |
 | `focusOffsetSm` | 1px |
+
+### Layers
+
+The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@duro-app/tokens/keys`.
+
+| Token | Value |
+| --- | --- |
+| `raised` | 1 |
+| `floating` | 50 |
+| `overlay` | 1000 |
+| `modal` | 1001 |
+| `popover` | 1040 |
+| `popupBackdrop` | 1049 |
+| `popup` | 1050 |
+| `toast` | 1060 |
+| `portal` | 1100 |
+
+### Effects
+
+`effects` from `@duro-app/tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport).
+
+| Token | Value |
+| --- | --- |
+| `overlayBlur` | blur(2px) |
 
 <!-- duro:generated:tokens END -->
 
@@ -508,6 +540,7 @@ is added.
 | `success` / `successBg` / `successText` | Success states                       |
 | `warning` / `warningBg` / `warningText` | Warning states                       |
 | `info` / `infoBg` / `infoText`          | Informational states                 |
+| `highlight` / `highlightBg` / `highlightText` | A non-status accent: a category or intent (purple), never a state |
 | `contrastSurface` / `onContrastSurface` | Opposite-tone surface (toasts, coach marks) and its text |
 | `contrastBorder`                        | Border on `contrastSurface` (≥ 3:1 against it)            |
 | `overlayLight`                          | Fixed translucent white over content (light counterpart of `scrim`) |
@@ -652,6 +685,40 @@ it hides the entire IA behind chevrons and makes the user hunt.
 **Neither is a tree.** Arbitrary-depth _data_ browsing (a file tree, a
 namespace → resource drill-down) is `Tree`: `role="tree"`, roving tabindex,
 typeahead and `aria-level`. Don't nest `SideNav` to fake it.
+
+### Toolbar and attached groups
+
+**`ButtonGroup attached` joins mixed controls; `Toolbar` gives them one tab
+stop.** An editor toolbar is a `Toolbar` holding attached groups and menus:
+
+```tsx
+<Toolbar aria-label="Formatting">
+  <ButtonGroup attached aria-label="Text style">
+    <Select.Root defaultValue="normal">…</Select.Root>
+    <Select.Root defaultValue="arial">…</Select.Root>
+  </ButtonGroup>
+  <ButtonGroup attached aria-label="Format">
+    <Toggle aria-label="Bold" pressed={bold} onPressedChange={setBold}>B</Toggle>
+    <Popover.Root>
+      <Popover.Trigger aria-label="Link">…</Popover.Trigger>
+      <Popover.Popup label="Link">…</Popover.Popup>
+    </Popover.Root>
+  </ButtonGroup>
+  <Menu.Root>…</Menu.Root>
+</Toolbar>
+```
+
+- An attached group joins `Button`, `Toggle` and the `Select`, `Menu` and
+  `Popover` triggers, in any mix: shared borders, square inner corners, the
+  outer corners round. Use `ToggleGroup` instead when the toggles share one
+  selection.
+- In a `Toolbar`, Left/Right move across every control (Up/Down when
+  vertical), Home/End jump to the ends. A `Select` or `Menu` trigger keeps its
+  own keys: a closed Select opens on ArrowDown/ArrowUp, so a vertical toolbar
+  cannot hold one. A closed Menu trigger handles no arrow key (Enter or Space
+  opens it), so a Menu can sit in a vertical toolbar.
+- What a popup holds (a Popover's form, a Menu's items) is outside the group
+  and the toolbar: its buttons are round and in the normal tab order.
 
 ## Canonical Recipes
 

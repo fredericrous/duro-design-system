@@ -1,5 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn, screen} from 'storybook/test'
+import {expect, screen} from 'storybook/test'
 import {Dialog} from '../Dialog/Dialog'
 import {Select} from './Select'
 
@@ -192,5 +192,24 @@ export const InsideDialog: Story = {
     const listbox = screen.getByRole('listbox')
     await expect(listbox).toBeInTheDocument()
     await expect(listbox.closest('[role="dialog"]')).toBeNull()
+  },
+}
+
+/** Closed, the trigger opens on ArrowDown or ArrowUp, on the selected option (5.3). */
+export const ArrowKeysOpen: Story = {
+  render: Default.render,
+  play: async ({canvas, userEvent}) => {
+    const trigger = canvas.getByRole('combobox')
+    trigger.focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    await expect(trigger).toHaveFocus()
+    const selected = screen.getByRole('option', {name: 'English'})
+    await expect(trigger).toHaveAttribute('aria-activedescendant', selected.id)
+    await userEvent.keyboard('{Escape}')
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+    await userEvent.keyboard('{ArrowUp}')
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    await userEvent.keyboard('{Escape}')
   },
 }

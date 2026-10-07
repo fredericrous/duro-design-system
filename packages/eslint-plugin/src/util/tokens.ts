@@ -11,6 +11,8 @@ export const TOKEN_DEEP_PATHS: Record<string, string> = {
   microSpacing: 'tokens/spacing.css',
   sizes: 'tokens/sizes.css',
   borders: 'tokens/borders.css',
+  layers: 'tokens/layers.css',
+  effects: 'tokens/effects.css',
   layoutSpacing: 'tokens/layout-spacing.css',
   typography: 'tokens/typography.css',
   typeScale: 'tokens/typography.css',
@@ -40,6 +42,12 @@ export const TOKEN_DEEP_PATHS: Record<string, string> = {
   BORDER_KEYS: 'keys',
   BORDERS_PX: 'keys',
   BorderToken: 'keys',
+  LAYER_KEYS: 'keys',
+  LAYERS: 'keys',
+  LayerToken: 'keys',
+  EFFECT_KEYS: 'keys',
+  EFFECTS: 'keys',
+  EffectToken: 'keys',
   SHADOW_KEYS: 'keys',
   ShadowToken: 'keys',
   DURATION_MS: 'keys',
@@ -126,6 +134,10 @@ export const COLOR_TOKENS: Record<string, string> = {
   '#fde68a': 'warningText',
   'rgba(106, 175, 252, 0.1)': 'infoBg',
   'rgba(106, 175, 252, 0.3)': 'infoBorder',
+  '#c084fc': 'highlight',
+  'rgba(192, 132, 252, 0.1)': 'highlightBg',
+  'rgba(192, 132, 252, 0.3)': 'highlightBorder',
+  '#d8b4fe': 'highlightText',
   'rgba(0, 0, 0, 0.4)': 'scrim',
   'rgba(0, 0, 0, 0.10)': 'inverseFill',
   'rgba(0, 0, 0, 0.18)': 'inverseFillHover',
@@ -154,6 +166,10 @@ export const COLOR_TOKENS: Record<string, string> = {
   '#78350f': 'warningText',
   'rgba(30, 64, 175, 0.08)': 'infoBg',
   'rgba(30, 64, 175, 0.3)': 'infoBorder',
+  '#6b21a8': 'highlight',
+  'rgba(107, 33, 168, 0.08)': 'highlightBg',
+  'rgba(107, 33, 168, 0.3)': 'highlightBorder',
+  '#581c87': 'highlightText',
   'rgba(255, 255, 255, 0.33)': 'contrastBorder',
   '#111111': 'bgCard',
   '#60a5fa': 'accent',
@@ -170,6 +186,9 @@ export const COLOR_TOKENS: Record<string, string> = {
   'rgba(96, 165, 250, 0.15)': 'infoBg',
   'rgba(96, 165, 250, 0.5)': 'infoBorder',
   '#bfdbfe': 'infoText',
+  'rgba(216, 180, 254, 0.15)': 'highlightBg',
+  'rgba(216, 180, 254, 0.5)': 'highlightBorder',
+  '#e9d5ff': 'highlightText',
 }
 
 /** px value → breakpoint token name (`breakpoints.md` is the '768px' const). */
@@ -399,6 +418,8 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   150: ['colorAreaH'],
   22: ['colorPreviewH'],
   4: ['barH'],
+  64: ['timeGutterW'],
+  46: ['dayHeaderH'],
 }
 
 /** px value → every borders token at that value, in key order. */
@@ -414,3 +435,21 @@ export const BORDER_WIDTH_TOKENS = ['hairline', 'strong', 'accent']
 export const OUTLINE_WIDTH_TOKENS = ['focusRing']
 /** Borders tokens `outlineOffset` may use. */
 export const OUTLINE_OFFSET_TOKENS = ['focusOffset', 'focusOffsetSm']
+
+/** z-index value → layers token (unitless). */
+export const LAYERS_BY_VALUE: Record<number, string> = {
+  1: 'raised',
+  50: 'floating',
+  1000: 'overlay',
+  1001: 'modal',
+  1040: 'popover',
+  1049: 'popupBackdrop',
+  1050: 'popup',
+  1060: 'toast',
+  1100: 'portal',
+}
+
+/** Effect value (whitespace-normalized) → effects token. */
+export const EFFECTS_BY_VALUE: Record<string, string> = {
+  'blur(2px)': 'overlayBlur',
+}

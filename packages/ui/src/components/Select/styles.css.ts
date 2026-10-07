@@ -6,6 +6,7 @@ import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   root: {
@@ -55,7 +56,7 @@ export const styles = css.create({
     bottom: 0,
     // Above Dialog/Drawer (1000/1001): they portal into the same mount, so a
     // popup opened from inside a dialog must out-rank the dialog itself.
-    zIndex: 1049,
+    zIndex: layers.popupBackdrop,
     // The portal mount is pointer-events: none, so re-enable here to catch
     // outside clicks that close the popup.
     pointerEvents: 'auto',
@@ -76,7 +77,7 @@ export const styles = css.create({
     minWidth: sizes.labelMinW,
     maxHeight: sizes.listMaxH,
     overflowY: 'auto',
-    zIndex: 1050,
+    zIndex: layers.popup,
     // Re-enable pointer events: the portal mount is pointer-events: none.
     pointerEvents: 'auto',
   },

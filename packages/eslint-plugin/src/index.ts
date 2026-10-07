@@ -22,6 +22,9 @@ Object.assign(plugin.configs, {
       // baseline block (see @duro-app/eslint-config README), never a glob
       // and never --max-warnings.
       'duro/no-raw-design-values': 'error',
+      // New in 5.3: raw z-index and blur values. A warning for the 5.x line,
+      // so no consumer's lint turns red on a minor; an error in the next major.
+      'duro/no-raw-layer-values': 'warn',
       'duro/no-raw-breakpoint-query': 'error',
       'duro/prefer-ds-form-components': 'error',
     },

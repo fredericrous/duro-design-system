@@ -7,6 +7,9 @@ import {useSelectRoot} from './useSelectRoot'
 import {useFieldContext} from '../Field/FieldContext'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {usePopoverLayer} from '../Popover/PopoverLayerContext'
+import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
+import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
+import {mergeRefs} from '../../shared/mergeRefs'
 
 // --- Root ---
 interface RootProps {
@@ -41,6 +44,7 @@ function Trigger({
 }) {
   const {open, toggle, listboxId, highlightedId, triggerRef} = useSelect()
   const localRef = useRef<HTMLButtonElement>(null)
+  const grouped = useGroupedControl<HTMLButtonElement>()
   // Inside a <Field.Root>, adopt its controlId so <Field.Label for={controlId}>
   // labels the trigger (a labelable <button>) — no manual aria-label needed; and
   // surface the field's description/error + invalid state, mirroring <Input>.
@@ -56,7 +60,9 @@ function Trigger({
 
   return (
     <html.button
-      ref={localRef}
+      ref={mergeRefs(localRef, grouped.ref)}
+      tabIndex={grouped.tabIndex}
+      onFocus={grouped.onFocus}
       id={fieldCtx?.controlId}
       type="button"
       role={'combobox' as 'listbox'}
@@ -68,7 +74,7 @@ function Trigger({
       aria-activedescendant={highlightedId ?? undefined}
       aria-describedby={describedBy || undefined}
       aria-invalid={fieldCtx?.invalid || undefined}
-      style={styles.trigger}
+      style={[styles.trigger, grouped.style]}
     >
       {children}
     </html.button>
@@ -161,7 +167,7 @@ function Popup({children}: {children: ReactNode}) {
           coords && styles.popupPosition(coords.top, coords.left, coords.width),
         ]}
       >
-        {children}
+        <ControlContextBoundary>{children}</ControlContextBoundary>
       </html.div>
     </>
   )

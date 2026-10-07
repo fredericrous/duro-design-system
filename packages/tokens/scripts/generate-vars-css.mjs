@@ -40,6 +40,8 @@ const GROUP_NAMES = {
   microSpacing: 'micro-spacing',
   sizes: 'size',
   borders: 'border',
+  layers: 'layer',
+  effects: 'effect',
   layoutSpacing: 'layout-spacing',
   typography: 'typography',
   typeScale: 'type-scale',

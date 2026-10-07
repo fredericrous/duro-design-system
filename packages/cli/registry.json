@@ -251,7 +251,8 @@
             "success",
             "warning",
             "error",
-            "info"
+            "info",
+            "highlight"
           ]
         },
         {
@@ -383,9 +384,19 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Groups related buttons together with consistent spacing and layout. Supports horizontal and vertical orientation with alignment control.",
+        "description": "Groups related buttons together with consistent spacing and layout. Supports horizontal and vertical orientation with alignment control. With `attached`, the group renders one joined control (shared borders, square inner corners) from any mix of Button, Toggle and Select/Menu/Popover triggers.",
         "example": "<ButtonGroup align=\"end\" gap=\"sm\">\n  <Button variant=\"secondary\">Cancel</Button>\n  <Button variant=\"primary\">Save</Button>\n</ButtonGroup>",
         "relatedTo": [
+          {
+            "component": "Toolbar",
+            "kind": "composition",
+            "relationship": "Put attached groups in a Toolbar for one tab stop and arrow keys across them; a ButtonGroup alone leaves every control its own tab stop"
+          },
+          {
+            "component": "ToggleGroup",
+            "kind": "contrast",
+            "relationship": "ToggleGroup owns a selection (single or multiple) across Toggles; ButtonGroup attached only joins controls visually, each keeps its own state"
+          },
           {
             "component": "Inline",
             "kind": "contrast",
@@ -405,7 +416,8 @@
         "whenToUse": [
           "Dialog footers with Save/Cancel actions",
           "Toolbar-style groupings of related actions",
-          "Form submission areas with multiple actions"
+          "Form submission areas with multiple actions",
+          "`attached`: a segmented control of mixed controls — [Normal | Arial | 15px] as three Selects, [B | I | U | link] as Toggles and a Popover trigger"
         ]
       },
       "name": "ButtonGroup",
@@ -438,10 +450,23 @@
         },
         {
           "default": "'sm'",
-          "description": "Gap between buttons. Default: 'sm'",
+          "description": "Gap between buttons. Default: 'sm' (ignored when `attached`)",
           "name": "gap",
           "required": false,
           "type": "ButtonGroupGap"
+        },
+        {
+          "default": "false",
+          "description": "One joined control: no gap, shared borders, square inner corners. Holds Buttons, Toggles and the Select, Menu and Popover triggers, in any mix.",
+          "name": "attached",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "Names the group for assistive tech (a toolbar segment: \"Text style\").",
+          "name": "aria-label",
+          "required": false,
+          "type": "string"
         }
       ],
       "sourcePath": "packages/ui/src/components/ButtonGroup/ButtonGroup.tsx"
@@ -4173,6 +4198,18 @@
               "name": "children",
               "required": true,
               "type": "ReactNode"
+            },
+            {
+              "description": "Accessible name: required when the label is an icon only.",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "The trigger <button>, e.g. to measure it or return focus to it.",
+              "name": "ref",
+              "required": false,
+              "type": "Ref<HTMLButtonElement>"
             }
           ],
           "sourcePath": "packages/ui/src/components/Popover/Popover.tsx"
@@ -6416,6 +6453,76 @@
       ],
       "sourcePath": "packages/ui/src/components/ToggleGroup/ToggleGroup.tsx"
     },
+    "Toolbar": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "ButtonGroup attached",
+            "Toggle",
+            "Button",
+            "Select",
+            "Menu",
+            "Popover"
+          ],
+          "required": [
+            "Toolbar",
+            "aria-label"
+          ]
+        },
+        "description": "A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends. A Select or Menu trigger keeps its own keys, and a control whose popup is open keeps Left/Right.",
+        "example": "<Toolbar aria-label=\"Formatting\">\n  <ButtonGroup attached aria-label=\"Text style\">\n    <Toggle aria-label=\"Bold\" pressed={bold} onPressedChange={setBold}>B</Toggle>\n    <Toggle aria-label=\"Italic\" pressed={italic} onPressedChange={setItalic}>I</Toggle>\n  </ButtonGroup>\n  <Menu.Root>\n    <Menu.Trigger>Insert</Menu.Trigger>\n    <Menu.Popup>…</Menu.Popup>\n  </Menu.Root>\n</Toolbar>",
+        "relatedTo": [
+          {
+            "component": "ButtonGroup",
+            "kind": "composition",
+            "relationship": "Place attached ButtonGroups inside a Toolbar: the group joins the controls visually, the toolbar gives them one tab stop and arrow keys"
+          },
+          {
+            "component": "ToggleGroup",
+            "kind": "composition",
+            "relationship": "A ToggleGroup inside a Toolbar hands its arrow keys to the toolbar (one roving handler)"
+          },
+          {
+            "component": "ActionBar",
+            "kind": "contrast",
+            "relationship": "ActionBar floats over a selection; Toolbar sits in the layout"
+          }
+        ],
+        "whenNotToUse": [
+          "A dialog footer or a form action row — use ButtonGroup (every button its own tab stop)",
+          "A floating bulk-selection bar — use ActionBar",
+          "A vertical toolbar holding a Select: a closed Select takes ArrowDown/ArrowUp to open, so use the horizontal orientation (a Menu is fine: its closed trigger handles no arrow key, Enter or Space opens it)"
+        ],
+        "whenToUse": [
+          "An editor toolbar: text style, format toggles, insert menus",
+          "A dense set of related actions that should cost one Tab, not one per control"
+        ]
+      },
+      "name": "Toolbar",
+      "props": [
+        {
+          "description": "Names the toolbar (\"Formatting\"). Required: a toolbar is a landmark-like widget.",
+          "name": "aria-label",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "'horizontal'",
+          "description": "Arrow keys follow the orientation: Left/Right (default) or Up/Down. A vertical toolbar cannot hold a Select, whose closed trigger opens on ArrowDown/ArrowUp. A Menu can: its closed trigger handles no arrow key, so Up/Down move past it and Enter or Space opens it.",
+          "name": "orientation",
+          "required": false,
+          "type": "Orientation"
+        },
+        {
+          "name": "children",
+          "required": true,
+          "type": "ReactNode"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/Toolbar/Toolbar.tsx"
+    },
     "Tooltip": {
       "importPath": "@duro-app/ui",
       "kind": "compound",
@@ -7434,6 +7541,18 @@
         "severity": "error"
       },
       {
+        "description": "Prefer the layers (z-index) and effects tokens over raw z-index and blur values in css.create styles",
+        "fixable": "suggestion",
+        "id": "duro/no-raw-layer-values",
+        "messages": {
+          "offScaleZIndex": "{{value}} on `zIndex` is not a layer; it sits {{nearest}}. Use a `layers.*` token from {{pkg}}/tokens/layers.css when it plays that role; a stacking value local to one component has no token yet.",
+          "rawEffect": "'{{value}}' on `{{property}}` is a raw effect{{tokenText}}. Use the `effects.*` tokens from {{pkg}}/tokens/effects.css.",
+          "rawZIndex": "{{value}} on `zIndex` is the layers.{{token}} token. Use it from {{pkg}}/tokens/layers.css.",
+          "replaceWithToken": "Replace with {{replacement}}"
+        },
+        "severity": "warn"
+      },
+      {
         "description": "Require deep imports from @duro-app/tokens (barrel imports break StyleX)",
         "fixable": "autofix",
         "id": "duro/no-tokens-barrel-import",
@@ -7734,6 +7853,38 @@
             }
           },
           {
+            "key": "highlight",
+            "values": {
+              "dark": "#c084fc",
+              "highContrast": "#d8b4fe",
+              "light": "#6b21a8"
+            }
+          },
+          {
+            "key": "highlightBg",
+            "values": {
+              "dark": "rgba(192, 132, 252, 0.1)",
+              "highContrast": "rgba(216, 180, 254, 0.15)",
+              "light": "rgba(107, 33, 168, 0.08)"
+            }
+          },
+          {
+            "key": "highlightBorder",
+            "values": {
+              "dark": "rgba(192, 132, 252, 0.3)",
+              "highContrast": "rgba(216, 180, 254, 0.5)",
+              "light": "rgba(107, 33, 168, 0.3)"
+            }
+          },
+          {
+            "key": "highlightText",
+            "values": {
+              "dark": "#d8b4fe",
+              "highContrast": "#e9d5ff",
+              "light": "#581c87"
+            }
+          },
+          {
             "key": "scrim",
             "values": {
               "dark": "rgba(0, 0, 0, 0.4)",
@@ -7817,6 +7968,16 @@
         "exportName": "colors",
         "importPath": "@duro-app/tokens/tokens/colors.css"
       },
+      "effects": {
+        "entries": [
+          {
+            "key": "overlayBlur",
+            "value": "blur(2px)"
+          }
+        ],
+        "exportName": "effects",
+        "importPath": "@duro-app/tokens/tokens/effects.css"
+      },
       "iconSizes": {
         "entries": [
           {
@@ -7842,6 +8003,48 @@
         ],
         "exportName": "ICON_SIZES",
         "importPath": "@duro-app/tokens/keys"
+      },
+      "layers": {
+        "entries": [
+          {
+            "key": "raised",
+            "value": "1"
+          },
+          {
+            "key": "floating",
+            "value": "50"
+          },
+          {
+            "key": "overlay",
+            "value": "1000"
+          },
+          {
+            "key": "modal",
+            "value": "1001"
+          },
+          {
+            "key": "popover",
+            "value": "1040"
+          },
+          {
+            "key": "popupBackdrop",
+            "value": "1049"
+          },
+          {
+            "key": "popup",
+            "value": "1050"
+          },
+          {
+            "key": "toast",
+            "value": "1060"
+          },
+          {
+            "key": "portal",
+            "value": "1100"
+          }
+        ],
+        "exportName": "layers",
+        "importPath": "@duro-app/tokens/tokens/layers.css"
       },
       "layoutSpacing": {
         "entries": [
@@ -8346,6 +8549,14 @@
           {
             "key": "deviceBarW",
             "value": "96px"
+          },
+          {
+            "key": "timeGutterW",
+            "value": "64px"
+          },
+          {
+            "key": "dayHeaderH",
+            "value": "46px"
           }
         ],
         "exportName": "sizes",
@@ -8496,7 +8707,7 @@
         "importPath": "@duro-app/tokens/tokens/typography.css"
       }
     },
-    "mockupCss": "/*\n * GENERATED by scripts/generate-mockup-css.mjs — do not edit.\n *\n * The design tokens as resolved values, for HTML that loads no stylesheet\n * (mockup artboards, static previews). Same names as vars.css; where vars.css\n * follows the live theme, this file carries every theme and switches on\n * <html data-theme=\"light|high-contrast\">.\n *\n * Inside the component library and the apps, never use this: go through\n * css.create() and the token imports, or vars.css from plain CSS.\n */\n:root {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #6aaffc;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #0f0f0f;\n  --duro-color-bg-card: #1a1a1a;\n  --duro-color-bg-card-hover: #242424;\n  --duro-color-border: #333333;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #f5f5f5;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.1);\n  --duro-color-error-border: rgba(248, 113, 113, 0.3);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-info: #6aaffc;\n  --duro-color-info-bg: rgba(106, 175, 252, 0.1);\n  --duro-color-info-border: rgba(106, 175, 252, 0.3);\n  --duro-color-info-text: #93c5fd;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #1a1a1a;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #22c55e;\n  --duro-color-success-bg: rgba(34, 197, 94, 0.1);\n  --duro-color-success-border: rgba(34, 197, 94, 0.3);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #e5e5e5;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fbbf24;\n  --duro-color-warning-bg: rgba(251, 191, 36, 0.1);\n  --duro-color-warning-border: rgba(251, 191, 36, 0.3);\n  --duro-color-warning-text: #fde68a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #6aaffc;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #333333;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);\n  /* spacing */\n  --duro-spacing-lg: 24px;\n  --duro-spacing-md: 16px;\n  --duro-spacing-ms: 12px;\n  --duro-spacing-sm: 8px;\n  --duro-spacing-xl: 32px;\n  --duro-spacing-xs: 4px;\n  --duro-spacing-xxl: 48px;\n  --duro-spacing-xxxl: 64px;\n  /* microSpacing */\n  --duro-micro-spacing-px1: 1px;\n  --duro-micro-spacing-px2: 2px;\n  --duro-micro-spacing-px3: 3px;\n  --duro-micro-spacing-px5: 5px;\n  --duro-micro-spacing-px6: 6px;\n  /* radii */\n  --duro-radius-full: 9999px;\n  --duro-radius-lg: 16px;\n  --duro-radius-md: 12px;\n  --duro-radius-px6: 6px;\n  --duro-radius-sm: 8px;\n  --duro-radius-xs: 4px;\n  /* sizes */\n  --duro-size-aside-w: 320px;\n  --duro-size-bar-h: 4px;\n  --duro-size-canvas-min-h: 480px;\n  --duro-size-check-mark-h: 9px;\n  --duro-size-check-mark-w: 5px;\n  --duro-size-chip: 24px;\n  --duro-size-color-area-h: 150px;\n  --duro-size-color-picker-w: 196px;\n  --duro-size-color-preview-h: 22px;\n  --duro-size-color-swatch: 20px;\n  --duro-size-color-track-h: 12px;\n  --duro-size-control-lg: 40px;\n  --duro-size-control-md: 39px;\n  --duro-size-control-sm: 28px;\n  --duro-size-device-bar-w: 96px;\n  --duro-size-dialog-lg: 680px;\n  --duro-size-dialog-md: 520px;\n  --duro-size-dialog-sm: 400px;\n  --duro-size-divider: 1px;\n  --duro-size-drop-zone-min-h: 128px;\n  --duro-size-edge-fade: 32px;\n  --duro-size-editor-min-h: 160px;\n  --duro-size-embed-w: 550px;\n  --duro-size-field-min-w: 160px;\n  --duro-size-field-min-w-sm: 80px;\n  --duro-size-glyph-md: 16px;\n  --duro-size-glyph-sm: 12px;\n  --duro-size-glyph-xs: 10px;\n  --duro-size-grid-col-md: 280px;\n  --duro-size-grid-col-sm: 240px;\n  --duro-size-grid-col-xs: 200px;\n  --duro-size-handle: 16px;\n  --duro-size-icon-button: 32px;\n  --duro-size-icon-button-sm: 28px;\n  --duro-size-icon-lg: 24px;\n  --duro-size-icon-md: 18px;\n  --duro-size-icon-sm: 16px;\n  --duro-size-icon-xl: 36px;\n  --duro-size-icon-xxl: 48px;\n  --duro-size-indicator: 18px;\n  --duro-size-indicator-dot: 8px;\n  --duro-size-label-min-w: 120px;\n  --duro-size-list-max-h: 280px;\n  --duro-size-list-max-h-sm: 200px;\n  --duro-size-meter-h: 6px;\n  --duro-size-nav-marker-h: 18px;\n  --duro-size-nav-marker-w: 3px;\n  --duro-size-page-lg: 1200px;\n  --duro-size-page-md: 800px;\n  --duro-size-page-sm: 600px;\n  --duro-size-page-xl: 1440px;\n  --duro-size-page-xs: 480px;\n  --duro-size-palette-min-w: 96px;\n  --duro-size-panel-lg: 640px;\n  --duro-size-panel-md: 480px;\n  --duro-size-panel-sm: 360px;\n  --duro-size-placeholder-min-h: 80px;\n  --duro-size-popover-w: 320px;\n  --duro-size-popover-w-sm: 240px;\n  --duro-size-popup-max-w: 280px;\n  --duro-size-popup-min-w: 160px;\n  --duro-size-preview-max-h: 320px;\n  --duro-size-readout-w: 40px;\n  --duro-size-scrollbar: 8px;\n  --duro-size-sidebar-w: 240px;\n  --duro-size-skeleton-chip-w: 96px;\n  --duro-size-slider-w: 96px;\n  --duro-size-spinner-lg: 40px;\n  --duro-size-spinner-md: 24px;\n  --duro-size-spinner-sm: 16px;\n  --duro-size-swatch-h: 34px;\n  --duro-size-swatch-w: 44px;\n  --duro-size-switch-thumb: 16px;\n  --duro-size-switch-track-h: 20px;\n  --duro-size-switch-track-w: 36px;\n  --duro-size-tab-indicator: 2px;\n  --duro-size-toast-max-w: 440px;\n  --duro-size-toolbar-h: 36px;\n  --duro-size-touch-target: 44px;\n  /* borders */\n  --duro-border-accent: 3px;\n  --duro-border-focus-offset: 2px;\n  --duro-border-focus-offset-sm: 1px;\n  --duro-border-focus-ring: 2px;\n  --duro-border-hairline: 1px;\n  --duro-border-strong: 2px;\n  /* layoutSpacing */\n  --duro-layout-spacing-container-lg: 32px;\n  --duro-layout-spacing-container-md: 24px;\n  --duro-layout-spacing-container-sm: 16px;\n  --duro-layout-spacing-inline-lg: 24px;\n  --duro-layout-spacing-inline-md: 16px;\n  --duro-layout-spacing-inline-sm: 8px;\n  --duro-layout-spacing-inline-xs: 4px;\n  --duro-layout-spacing-stack-lg: 24px;\n  --duro-layout-spacing-stack-md: 16px;\n  --duro-layout-spacing-stack-sm: 8px;\n  --duro-layout-spacing-stack-xl: 48px;\n  --duro-layout-spacing-stack-xs: 4px;\n  /* typography */\n  --duro-typography-font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n  --duro-typography-font-family-mono: \"SF Mono\", \"Fira Code\", \"Fira Mono\", \"Roboto Mono\", \"Courier New\", monospace;\n  --duro-typography-font-size-heading: 1.5rem;\n  --duro-typography-font-size-lg: 1.125rem;\n  --duro-typography-font-size-md: 1rem;\n  --duro-typography-font-size-sm: 0.875rem;\n  --duro-typography-font-size-xl: 1.25rem;\n  --duro-typography-font-size-xs: 0.75rem;\n  --duro-typography-font-weight-bold: 700;\n  --duro-typography-font-weight-medium: 500;\n  --duro-typography-font-weight-normal: 400;\n  --duro-typography-font-weight-semibold: 600;\n  --duro-typography-line-height: 1.5;\n  /* typeScale */\n  --duro-type-scale-display-lg: clamp(3.5rem, 2rem + 3.5vw, 4.5rem);\n  --duro-type-scale-display-md: clamp(2.75rem, 1.75rem + 2.5vw, 3.75rem);\n  --duro-type-scale-display-sm: clamp(2.25rem, 1.5rem + 2vw, 3rem);\n  --duro-type-scale-font-size1: 0.75rem;\n  --duro-type-scale-font-size2: 0.8125rem;\n  --duro-type-scale-font-size3: 0.875rem;\n  --duro-type-scale-font-size4: 1rem;\n  --duro-type-scale-font-size5: 1.125rem;\n  --duro-type-scale-font-size6: 1.25rem;\n  --duro-type-scale-font-size7: 1.5rem;\n  --duro-type-scale-font-size8: 1.875rem;\n  --duro-type-scale-font-size9: 2.25rem;\n  --duro-type-scale-letter-spacing-normal: 0;\n  --duro-type-scale-letter-spacing-tight: -0.02em;\n  --duro-type-scale-letter-spacing-wide: 0.04em;\n  --duro-type-scale-line-height1: 1rem;\n  --duro-type-scale-line-height2: 1.25rem;\n  --duro-type-scale-line-height3: 1.25rem;\n  --duro-type-scale-line-height4: 1.5rem;\n  --duro-type-scale-line-height5: 1.5rem;\n  --duro-type-scale-line-height6: 1.75rem;\n  --duro-type-scale-line-height7: 2rem;\n  --duro-type-scale-line-height8: 2.25rem;\n  --duro-type-scale-line-height9: 2.75rem;\n  /* duration */\n  --duro-duration-base: 200ms;\n  --duro-duration-brisk: 160ms;\n  --duro-duration-fast: 150ms;\n  --duro-duration-instant: 0ms;\n  --duro-duration-minimal: 1ms;\n  --duro-duration-quick: 120ms;\n  --duro-duration-slow: 280ms;\n  /* easing */\n  --duro-easing-ease-in: cubic-bezier(0.72, 0, 0.68, 0.28);\n  --duro-easing-ease-out: cubic-bezier(0.32, 0.72, 0, 1);\n  --duro-easing-linear: linear;\n  --duro-easing-standard: ease;\n  /* breakpoints */\n  --duro-breakpoint-lg: 1024px;\n  --duro-breakpoint-md: 768px;\n  --duro-breakpoint-sm: 640px;\n  --duro-breakpoint-xl: 1280px;\n  --duro-breakpoint-xs: 480px;\n}\n\n:root[data-theme=\"light\"] {\n  color-scheme: light;\n  /* colors */\n  --duro-color-accent: #1e40af;\n  --duro-color-accent-contrast: #ffffff;\n  --duro-color-accent-hover: #1a3799;\n  --duro-color-bg: #ffffff;\n  --duro-color-bg-card: #f5f5f5;\n  --duro-color-bg-card-hover: #ebebeb;\n  --duro-color-border: #d4d4d4;\n  --duro-color-contrast-border: rgba(255, 255, 255, 0.33);\n  --duro-color-contrast-surface: #1a1a1a;\n  --duro-color-error: #991b1b;\n  --duro-color-error-bg: rgba(153, 27, 27, 0.08);\n  --duro-color-error-border: rgba(153, 27, 27, 0.3);\n  --duro-color-error-contrast: #ffffff;\n  --duro-color-error-hover: #7f1d1d;\n  --duro-color-error-text: #7f1d1d;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-info: #1e40af;\n  --duro-color-info-bg: rgba(30, 64, 175, 0.08);\n  --duro-color-info-border: rgba(30, 64, 175, 0.3);\n  --duro-color-info-text: #1e40af;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #e5e5e5;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #166534;\n  --duro-color-success-bg: rgba(22, 101, 52, 0.08);\n  --duro-color-success-border: rgba(22, 101, 52, 0.3);\n  --duro-color-success-text: #14532d;\n  --duro-color-text: #1a1a1a;\n  --duro-color-text-muted: #4a4a4a;\n  --duro-color-warning: #92400e;\n  --duro-color-warning-bg: rgba(146, 64, 14, 0.08);\n  --duro-color-warning-border: rgba(146, 64, 14, 0.3);\n  --duro-color-warning-text: #78350f;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #1e40af;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #d4d4d4;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);\n}\n\n:root[data-theme=\"high-contrast\"] {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #60a5fa;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #000000;\n  --duro-color-bg-card: #111111;\n  --duro-color-bg-card-hover: #1a1a1a;\n  --duro-color-border: #555555;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #ffffff;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.15);\n  --duro-color-error-border: rgba(248, 113, 113, 0.5);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-info: #60a5fa;\n  --duro-color-info-bg: rgba(96, 165, 250, 0.15);\n  --duro-color-info-border: rgba(96, 165, 250, 0.5);\n  --duro-color-info-text: #bfdbfe;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #000000;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #4ade80;\n  --duro-color-success-bg: rgba(74, 222, 128, 0.15);\n  --duro-color-success-border: rgba(74, 222, 128, 0.5);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #ffffff;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fcd34d;\n  --duro-color-warning-bg: rgba(252, 211, 77, 0.15);\n  --duro-color-warning-border: rgba(252, 211, 77, 0.5);\n  --duro-color-warning-text: #fef08a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #60a5fa;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #555555;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6);\n}\n"
+    "mockupCss": "/*\n * GENERATED by scripts/generate-mockup-css.mjs — do not edit.\n *\n * The design tokens as resolved values, for HTML that loads no stylesheet\n * (mockup artboards, static previews). Same names as vars.css; where vars.css\n * follows the live theme, this file carries every theme and switches on\n * <html data-theme=\"light|high-contrast\">.\n *\n * Inside the component library and the apps, never use this: go through\n * css.create() and the token imports, or vars.css from plain CSS.\n */\n:root {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #6aaffc;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #0f0f0f;\n  --duro-color-bg-card: #1a1a1a;\n  --duro-color-bg-card-hover: #242424;\n  --duro-color-border: #333333;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #f5f5f5;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.1);\n  --duro-color-error-border: rgba(248, 113, 113, 0.3);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-highlight: #c084fc;\n  --duro-color-highlight-bg: rgba(192, 132, 252, 0.1);\n  --duro-color-highlight-border: rgba(192, 132, 252, 0.3);\n  --duro-color-highlight-text: #d8b4fe;\n  --duro-color-info: #6aaffc;\n  --duro-color-info-bg: rgba(106, 175, 252, 0.1);\n  --duro-color-info-border: rgba(106, 175, 252, 0.3);\n  --duro-color-info-text: #93c5fd;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #1a1a1a;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #22c55e;\n  --duro-color-success-bg: rgba(34, 197, 94, 0.1);\n  --duro-color-success-border: rgba(34, 197, 94, 0.3);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #e5e5e5;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fbbf24;\n  --duro-color-warning-bg: rgba(251, 191, 36, 0.1);\n  --duro-color-warning-border: rgba(251, 191, 36, 0.3);\n  --duro-color-warning-text: #fde68a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #6aaffc;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #333333;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);\n  /* spacing */\n  --duro-spacing-lg: 24px;\n  --duro-spacing-md: 16px;\n  --duro-spacing-ms: 12px;\n  --duro-spacing-sm: 8px;\n  --duro-spacing-xl: 32px;\n  --duro-spacing-xs: 4px;\n  --duro-spacing-xxl: 48px;\n  --duro-spacing-xxxl: 64px;\n  /* microSpacing */\n  --duro-micro-spacing-px1: 1px;\n  --duro-micro-spacing-px2: 2px;\n  --duro-micro-spacing-px3: 3px;\n  --duro-micro-spacing-px5: 5px;\n  --duro-micro-spacing-px6: 6px;\n  /* radii */\n  --duro-radius-full: 9999px;\n  --duro-radius-lg: 16px;\n  --duro-radius-md: 12px;\n  --duro-radius-px6: 6px;\n  --duro-radius-sm: 8px;\n  --duro-radius-xs: 4px;\n  /* sizes */\n  --duro-size-aside-w: 320px;\n  --duro-size-bar-h: 4px;\n  --duro-size-canvas-min-h: 480px;\n  --duro-size-check-mark-h: 9px;\n  --duro-size-check-mark-w: 5px;\n  --duro-size-chip: 24px;\n  --duro-size-color-area-h: 150px;\n  --duro-size-color-picker-w: 196px;\n  --duro-size-color-preview-h: 22px;\n  --duro-size-color-swatch: 20px;\n  --duro-size-color-track-h: 12px;\n  --duro-size-control-lg: 40px;\n  --duro-size-control-md: 39px;\n  --duro-size-control-sm: 28px;\n  --duro-size-day-header-h: 46px;\n  --duro-size-device-bar-w: 96px;\n  --duro-size-dialog-lg: 680px;\n  --duro-size-dialog-md: 520px;\n  --duro-size-dialog-sm: 400px;\n  --duro-size-divider: 1px;\n  --duro-size-drop-zone-min-h: 128px;\n  --duro-size-edge-fade: 32px;\n  --duro-size-editor-min-h: 160px;\n  --duro-size-embed-w: 550px;\n  --duro-size-field-min-w: 160px;\n  --duro-size-field-min-w-sm: 80px;\n  --duro-size-glyph-md: 16px;\n  --duro-size-glyph-sm: 12px;\n  --duro-size-glyph-xs: 10px;\n  --duro-size-grid-col-md: 280px;\n  --duro-size-grid-col-sm: 240px;\n  --duro-size-grid-col-xs: 200px;\n  --duro-size-handle: 16px;\n  --duro-size-icon-button: 32px;\n  --duro-size-icon-button-sm: 28px;\n  --duro-size-icon-lg: 24px;\n  --duro-size-icon-md: 18px;\n  --duro-size-icon-sm: 16px;\n  --duro-size-icon-xl: 36px;\n  --duro-size-icon-xxl: 48px;\n  --duro-size-indicator: 18px;\n  --duro-size-indicator-dot: 8px;\n  --duro-size-label-min-w: 120px;\n  --duro-size-list-max-h: 280px;\n  --duro-size-list-max-h-sm: 200px;\n  --duro-size-meter-h: 6px;\n  --duro-size-nav-marker-h: 18px;\n  --duro-size-nav-marker-w: 3px;\n  --duro-size-page-lg: 1200px;\n  --duro-size-page-md: 800px;\n  --duro-size-page-sm: 600px;\n  --duro-size-page-xl: 1440px;\n  --duro-size-page-xs: 480px;\n  --duro-size-palette-min-w: 96px;\n  --duro-size-panel-lg: 640px;\n  --duro-size-panel-md: 480px;\n  --duro-size-panel-sm: 360px;\n  --duro-size-placeholder-min-h: 80px;\n  --duro-size-popover-w: 320px;\n  --duro-size-popover-w-sm: 240px;\n  --duro-size-popup-max-w: 280px;\n  --duro-size-popup-min-w: 160px;\n  --duro-size-preview-max-h: 320px;\n  --duro-size-readout-w: 40px;\n  --duro-size-scrollbar: 8px;\n  --duro-size-sidebar-w: 240px;\n  --duro-size-skeleton-chip-w: 96px;\n  --duro-size-slider-w: 96px;\n  --duro-size-spinner-lg: 40px;\n  --duro-size-spinner-md: 24px;\n  --duro-size-spinner-sm: 16px;\n  --duro-size-swatch-h: 34px;\n  --duro-size-swatch-w: 44px;\n  --duro-size-switch-thumb: 16px;\n  --duro-size-switch-track-h: 20px;\n  --duro-size-switch-track-w: 36px;\n  --duro-size-tab-indicator: 2px;\n  --duro-size-time-gutter-w: 64px;\n  --duro-size-toast-max-w: 440px;\n  --duro-size-toolbar-h: 36px;\n  --duro-size-touch-target: 44px;\n  /* borders */\n  --duro-border-accent: 3px;\n  --duro-border-focus-offset: 2px;\n  --duro-border-focus-offset-sm: 1px;\n  --duro-border-focus-ring: 2px;\n  --duro-border-hairline: 1px;\n  --duro-border-strong: 2px;\n  /* layers */\n  --duro-layer-floating: 50;\n  --duro-layer-modal: 1001;\n  --duro-layer-overlay: 1000;\n  --duro-layer-popover: 1040;\n  --duro-layer-popup: 1050;\n  --duro-layer-popup-backdrop: 1049;\n  --duro-layer-portal: 1100;\n  --duro-layer-raised: 1;\n  --duro-layer-toast: 1060;\n  /* effects */\n  --duro-effect-overlay-blur: blur(2px);\n  /* layoutSpacing */\n  --duro-layout-spacing-container-lg: 32px;\n  --duro-layout-spacing-container-md: 24px;\n  --duro-layout-spacing-container-sm: 16px;\n  --duro-layout-spacing-inline-lg: 24px;\n  --duro-layout-spacing-inline-md: 16px;\n  --duro-layout-spacing-inline-sm: 8px;\n  --duro-layout-spacing-inline-xs: 4px;\n  --duro-layout-spacing-stack-lg: 24px;\n  --duro-layout-spacing-stack-md: 16px;\n  --duro-layout-spacing-stack-sm: 8px;\n  --duro-layout-spacing-stack-xl: 48px;\n  --duro-layout-spacing-stack-xs: 4px;\n  /* typography */\n  --duro-typography-font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n  --duro-typography-font-family-mono: \"SF Mono\", \"Fira Code\", \"Fira Mono\", \"Roboto Mono\", \"Courier New\", monospace;\n  --duro-typography-font-size-heading: 1.5rem;\n  --duro-typography-font-size-lg: 1.125rem;\n  --duro-typography-font-size-md: 1rem;\n  --duro-typography-font-size-sm: 0.875rem;\n  --duro-typography-font-size-xl: 1.25rem;\n  --duro-typography-font-size-xs: 0.75rem;\n  --duro-typography-font-weight-bold: 700;\n  --duro-typography-font-weight-medium: 500;\n  --duro-typography-font-weight-normal: 400;\n  --duro-typography-font-weight-semibold: 600;\n  --duro-typography-line-height: 1.5;\n  /* typeScale */\n  --duro-type-scale-display-lg: clamp(3.5rem, 2rem + 3.5vw, 4.5rem);\n  --duro-type-scale-display-md: clamp(2.75rem, 1.75rem + 2.5vw, 3.75rem);\n  --duro-type-scale-display-sm: clamp(2.25rem, 1.5rem + 2vw, 3rem);\n  --duro-type-scale-font-size1: 0.75rem;\n  --duro-type-scale-font-size2: 0.8125rem;\n  --duro-type-scale-font-size3: 0.875rem;\n  --duro-type-scale-font-size4: 1rem;\n  --duro-type-scale-font-size5: 1.125rem;\n  --duro-type-scale-font-size6: 1.25rem;\n  --duro-type-scale-font-size7: 1.5rem;\n  --duro-type-scale-font-size8: 1.875rem;\n  --duro-type-scale-font-size9: 2.25rem;\n  --duro-type-scale-letter-spacing-normal: 0;\n  --duro-type-scale-letter-spacing-tight: -0.02em;\n  --duro-type-scale-letter-spacing-wide: 0.04em;\n  --duro-type-scale-line-height1: 1rem;\n  --duro-type-scale-line-height2: 1.25rem;\n  --duro-type-scale-line-height3: 1.25rem;\n  --duro-type-scale-line-height4: 1.5rem;\n  --duro-type-scale-line-height5: 1.5rem;\n  --duro-type-scale-line-height6: 1.75rem;\n  --duro-type-scale-line-height7: 2rem;\n  --duro-type-scale-line-height8: 2.25rem;\n  --duro-type-scale-line-height9: 2.75rem;\n  /* duration */\n  --duro-duration-base: 200ms;\n  --duro-duration-brisk: 160ms;\n  --duro-duration-fast: 150ms;\n  --duro-duration-instant: 0ms;\n  --duro-duration-minimal: 1ms;\n  --duro-duration-quick: 120ms;\n  --duro-duration-slow: 280ms;\n  /* easing */\n  --duro-easing-ease-in: cubic-bezier(0.72, 0, 0.68, 0.28);\n  --duro-easing-ease-out: cubic-bezier(0.32, 0.72, 0, 1);\n  --duro-easing-linear: linear;\n  --duro-easing-standard: ease;\n  /* breakpoints */\n  --duro-breakpoint-lg: 1024px;\n  --duro-breakpoint-md: 768px;\n  --duro-breakpoint-sm: 640px;\n  --duro-breakpoint-xl: 1280px;\n  --duro-breakpoint-xs: 480px;\n}\n\n:root[data-theme=\"light\"] {\n  color-scheme: light;\n  /* colors */\n  --duro-color-accent: #1e40af;\n  --duro-color-accent-contrast: #ffffff;\n  --duro-color-accent-hover: #1a3799;\n  --duro-color-bg: #ffffff;\n  --duro-color-bg-card: #f5f5f5;\n  --duro-color-bg-card-hover: #ebebeb;\n  --duro-color-border: #d4d4d4;\n  --duro-color-contrast-border: rgba(255, 255, 255, 0.33);\n  --duro-color-contrast-surface: #1a1a1a;\n  --duro-color-error: #991b1b;\n  --duro-color-error-bg: rgba(153, 27, 27, 0.08);\n  --duro-color-error-border: rgba(153, 27, 27, 0.3);\n  --duro-color-error-contrast: #ffffff;\n  --duro-color-error-hover: #7f1d1d;\n  --duro-color-error-text: #7f1d1d;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-highlight: #6b21a8;\n  --duro-color-highlight-bg: rgba(107, 33, 168, 0.08);\n  --duro-color-highlight-border: rgba(107, 33, 168, 0.3);\n  --duro-color-highlight-text: #581c87;\n  --duro-color-info: #1e40af;\n  --duro-color-info-bg: rgba(30, 64, 175, 0.08);\n  --duro-color-info-border: rgba(30, 64, 175, 0.3);\n  --duro-color-info-text: #1e40af;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #e5e5e5;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #166534;\n  --duro-color-success-bg: rgba(22, 101, 52, 0.08);\n  --duro-color-success-border: rgba(22, 101, 52, 0.3);\n  --duro-color-success-text: #14532d;\n  --duro-color-text: #1a1a1a;\n  --duro-color-text-muted: #4a4a4a;\n  --duro-color-warning: #92400e;\n  --duro-color-warning-bg: rgba(146, 64, 14, 0.08);\n  --duro-color-warning-border: rgba(146, 64, 14, 0.3);\n  --duro-color-warning-text: #78350f;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #1e40af;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #d4d4d4;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);\n}\n\n:root[data-theme=\"high-contrast\"] {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #60a5fa;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #000000;\n  --duro-color-bg-card: #111111;\n  --duro-color-bg-card-hover: #1a1a1a;\n  --duro-color-border: #555555;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #ffffff;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.15);\n  --duro-color-error-border: rgba(248, 113, 113, 0.5);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-highlight: #d8b4fe;\n  --duro-color-highlight-bg: rgba(216, 180, 254, 0.15);\n  --duro-color-highlight-border: rgba(216, 180, 254, 0.5);\n  --duro-color-highlight-text: #e9d5ff;\n  --duro-color-info: #60a5fa;\n  --duro-color-info-bg: rgba(96, 165, 250, 0.15);\n  --duro-color-info-border: rgba(96, 165, 250, 0.5);\n  --duro-color-info-text: #bfdbfe;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #000000;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #4ade80;\n  --duro-color-success-bg: rgba(74, 222, 128, 0.15);\n  --duro-color-success-border: rgba(74, 222, 128, 0.5);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #ffffff;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fcd34d;\n  --duro-color-warning-bg: rgba(252, 211, 77, 0.15);\n  --duro-color-warning-border: rgba(252, 211, 77, 0.5);\n  --duro-color-warning-text: #fef08a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #60a5fa;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #555555;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6);\n}\n"
   },
   "unions": {
     "AlertVariant": [
@@ -8514,7 +8725,8 @@
       "success",
       "warning",
       "error",
-      "info"
+      "info",
+      "highlight"
     ],
     "Breakpoint": [
       "xs",

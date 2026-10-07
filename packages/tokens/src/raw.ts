@@ -37,6 +37,10 @@ export type RawColors = {
   infoBg: string
   infoBorder: string
   infoText: string
+  highlight: string
+  highlightBg: string
+  highlightBorder: string
+  highlightText: string
   scrim: string
   inverseFill: string
   inverseFillHover: string
@@ -88,6 +92,18 @@ export const BORDERS_PX = {
   focusRing: 2,
   focusOffset: 2,
   focusOffsetSm: 1,
+} as const
+
+export const LAYERS = {
+  raised: 1,
+  floating: 50,
+  overlay: 1000,
+  modal: 1001,
+  popover: 1040,
+  popupBackdrop: 1049,
+  popup: 1050,
+  toast: 1060,
+  portal: 1100,
 } as const
 
 export const SIZES_PX = {
@@ -170,6 +186,8 @@ export const SIZES_PX = {
   sliderW: 96,
   paletteMinW: 96,
   deviceBarW: 96,
+  timeGutterW: 64,
+  dayHeaderH: 46,
 } as const
 
 // Email-only measures: no CSS variable (mail clients cannot read them) and not
@@ -205,6 +223,10 @@ export const darkColors: RawColors = {
   infoBg: 'rgba(106, 175, 252, 0.1)',
   infoBorder: 'rgba(106, 175, 252, 0.3)',
   infoText: '#93c5fd',
+  highlight: '#c084fc',
+  highlightBg: 'rgba(192, 132, 252, 0.1)',
+  highlightBorder: 'rgba(192, 132, 252, 0.3)',
+  highlightText: '#d8b4fe',
   scrim: 'rgba(0, 0, 0, 0.4)',
   inverseFill: 'rgba(0, 0, 0, 0.10)',
   inverseFillHover: 'rgba(0, 0, 0, 0.18)',
@@ -246,6 +268,10 @@ export const lightColors: RawColors = {
   infoBg: 'rgba(30, 64, 175, 0.08)',
   infoBorder: 'rgba(30, 64, 175, 0.3)',
   infoText: '#1e40af',
+  highlight: '#6b21a8',
+  highlightBg: 'rgba(107, 33, 168, 0.08)',
+  highlightBorder: 'rgba(107, 33, 168, 0.3)',
+  highlightText: '#581c87',
   scrim: 'rgba(0, 0, 0, 0.4)',
   inverseFill: 'rgba(0, 0, 0, 0.10)',
   inverseFillHover: 'rgba(0, 0, 0, 0.18)',
@@ -287,6 +313,10 @@ export const highContrastColors: RawColors = {
   infoBg: 'rgba(96, 165, 250, 0.15)',
   infoBorder: 'rgba(96, 165, 250, 0.5)',
   infoText: '#bfdbfe',
+  highlight: '#d8b4fe',
+  highlightBg: 'rgba(216, 180, 254, 0.15)',
+  highlightBorder: 'rgba(216, 180, 254, 0.5)',
+  highlightText: '#e9d5ff',
   scrim: 'rgba(0, 0, 0, 0.4)',
   inverseFill: 'rgba(0, 0, 0, 0.10)',
   inverseFillHover: 'rgba(0, 0, 0, 0.18)',

@@ -6,6 +6,7 @@ import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   // --- Backdrop ---
@@ -13,7 +14,7 @@ export const styles = css.create({
     position: 'fixed',
     inset: 0,
     backgroundColor: colors.scrim,
-    zIndex: 1000,
+    zIndex: layers.overlay,
     // Portaled into the ThemeProvider mount, which is pointer-events: none:
     // the backdrop must take clicks back (outside click dismisses).
     pointerEvents: 'auto',
@@ -43,7 +44,7 @@ export const styles = css.create({
   viewport: {
     position: 'fixed',
     inset: 0,
-    zIndex: 1001,
+    zIndex: layers.modal,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

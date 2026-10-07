@@ -150,6 +150,8 @@ export const SIZE_KEYS = [
   'sliderW',
   'paletteMinW',
   'deviceBarW',
+  'timeGutterW',
+  'dayHeaderH',
 ] as const
 export type SizeToken = (typeof SIZE_KEYS)[number]
 
@@ -234,6 +236,8 @@ export const SIZES_PX = {
   sliderW: 96,
   paletteMinW: 96,
   deviceBarW: 96,
+  timeGutterW: 64,
+  dayHeaderH: 46,
 } as const
 
 export const BORDER_KEYS = [
@@ -254,6 +258,41 @@ export const BORDERS_PX = {
   focusRing: 2,
   focusOffset: 2,
   focusOffsetSm: 1,
+} as const
+
+export const LAYER_KEYS = [
+  'raised',
+  'floating',
+  'overlay',
+  'modal',
+  'popover',
+  'popupBackdrop',
+  'popup',
+  'toast',
+  'portal',
+] as const
+export type LayerToken = (typeof LAYER_KEYS)[number]
+
+// Mirrors tokens/layers.css.ts `layers` (unitless), as numbers: React Native
+// takes a number for zIndex, not the CSS variable string.
+export const LAYERS = {
+  raised: 1,
+  floating: 50,
+  overlay: 1000,
+  modal: 1001,
+  popover: 1040,
+  popupBackdrop: 1049,
+  popup: 1050,
+  toast: 1060,
+  portal: 1100,
+} as const
+
+export const EFFECT_KEYS = ['overlayBlur'] as const
+export type EffectToken = (typeof EFFECT_KEYS)[number]
+
+// Mirrors tokens/effects.css.ts `effects` verbatim.
+export const EFFECTS = {
+  overlayBlur: 'blur(2px)',
 } as const
 
 // Icon rendering sizes (SVG width/height, px). Not its own css.defineVars

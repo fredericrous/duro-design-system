@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {microSpacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   root: {
@@ -23,7 +24,7 @@ export const styles = css.create({
   },
   scrollbar: {
     position: 'absolute',
-    zIndex: 1,
+    zIndex: layers.raised,
     display: 'flex',
     touchAction: 'none',
     userSelect: 'none',

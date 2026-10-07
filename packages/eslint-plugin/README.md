@@ -36,6 +36,7 @@ another key — you'd get two live namespaces and confusing config.
 | `duro/no-tokens-barrel-import`   | error  | autofix              |
 | `duro/no-deprecated-table-parts` | error  | autofix / suggestion |
 | `duro/no-raw-design-values`      | error  | suggestion           |
+| `duro/no-raw-layer-values`       | warn   | suggestion           |
 | `duro/no-raw-breakpoint-query`   | error  | autofix              |
 
 ### no-raw-html-element
@@ -123,6 +124,25 @@ globs (`**`, `*`, `?`, `{a,b}`), matched against the path relative to the
 working directory and the absolute path; a matching file is not checked. Name
 only a file whose literals are a technique, not a design value — Duro names
 its visually-hidden module.
+
+### no-raw-layer-values
+
+Since 5.3. Inside `css.create()` objects:
+
+- **`zIndex`** — a number or numeric string other than `0` and negatives. A
+  layers value suggests its token (`zIndex: 1000` → `layers.overlay`, `1050` →
+  `layers.popup`); any other value names the layers it sits between, without a
+  fix (`zIndex: 16` → between `layers.raised` (1) and `layers.floating` (50)).
+- **`backdropFilter` / `filter`** — a `blur(...)` literal. `blur(2px)`
+  suggests `effects.overlayBlur`; another blur reports without a fix.
+
+It ships as **`warn` for the 5.x line**, so no consumer's lint turns red on a
+minor, and becomes **`error` in the next major**. It is its own rule, apart
+from `no-raw-design-values`, because ESLint sets severity per rule. Local
+stacking values (`2`, `10` inside one component) have no token yet: before
+that major, Duro decides whether to exempt small values or add a `local` step.
+
+Options: `{factories?: string[], exemptFiles?: string[]}`
 
 ### no-raw-breakpoint-query
 

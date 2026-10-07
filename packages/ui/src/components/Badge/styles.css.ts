@@ -48,6 +48,11 @@ export const styles = css.create({
     backgroundColor: colors.infoBg,
     color: colors.infoText,
   },
+  // A category or intent with no status meaning (a purple).
+  highlight: {
+    backgroundColor: colors.highlightBg,
+    color: colors.highlightText,
+  },
   // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
   // native via `isNative` so the flex container applies; web keeps inline-flex.
   nativeFlex: {

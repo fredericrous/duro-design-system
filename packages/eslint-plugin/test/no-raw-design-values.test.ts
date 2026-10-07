@@ -307,6 +307,65 @@ tester.run('no-raw-design-values', noRawDesignValues, {
         },
       ],
     },
+    // Calendar sizes (5.3): each offered on its own axis only; flexBasis takes either.
+    {
+      code: wrap('width: 64'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('width: sizes.timeGutterW'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap('height: 46'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('height: sizes.dayHeaderH'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap('flexBasis: 64'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('flexBasis: sizes.timeGutterW'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // timeGutterW names a width: a 64px height has no token.
+      code: wrap('height: 64'),
+      errors: [{messageId: 'missingMeasureToken', suggestions: []}],
+    },
+    {
+      // dayHeaderH names a height: a 46px width is only near touchTarget/iconXxl.
+      code: wrap('width: 46'),
+      errors: [{messageId: 'nearestMeasureRole', suggestions: []}],
+    },
     {
       code: wrap('boxShadow: `inset 0 0 0 1px ${colors.border}`'),
       errors: [{messageId: 'rawShadowLength', suggestions: []}],

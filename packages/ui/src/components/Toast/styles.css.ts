@@ -6,6 +6,7 @@ import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 const enter = css.keyframes({
   from: {opacity: 0, transform: 'translateY(10px)'},
@@ -28,6 +29,8 @@ export const styles = css.create({
     paddingLeft: spacing.md,
     paddingRight: spacing.md,
     pointerEvents: 'none',
+    // Above modals and popups: a toast fired while a Dialog is open shows.
+    zIndex: layers.toast,
   },
   toast: {
     pointerEvents: 'auto',

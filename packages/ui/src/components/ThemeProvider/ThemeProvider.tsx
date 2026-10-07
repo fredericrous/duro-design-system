@@ -3,6 +3,7 @@ import {css, html} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {lightTheme, lightShadows} from '@duro-app/tokens/themes/light.css'
 import {highContrastTheme, highContrastShadows} from '@duro-app/tokens/themes/high-contrast.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export type ThemeName = 'dark' | 'light' | 'high-contrast'
 
@@ -32,8 +33,9 @@ const styles = css.create({
     right: 0,
     bottom: 0,
     pointerEvents: 'none',
-    // Above Dialog (1001) so popups inside dialogs render on top.
-    zIndex: 1100,
+    // The stacking context the layers scale orders: Dialog, Drawer, the
+    // popups and toasts all portal in here.
+    zIndex: layers.portal,
   },
 })
 

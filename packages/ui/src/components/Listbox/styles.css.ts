@@ -6,6 +6,7 @@ import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   popup: {
@@ -24,7 +25,7 @@ export const styles = css.create({
     paddingBottom: spacing.xs,
     overflowY: 'auto',
     // Above Dialog/Drawer (1000/1001): they portal into the same mount.
-    zIndex: 1050,
+    zIndex: layers.popup,
     // The portal mount is pointer-events: none; the list takes them back.
     pointerEvents: 'auto',
   },

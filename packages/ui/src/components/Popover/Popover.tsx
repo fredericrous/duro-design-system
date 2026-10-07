@@ -19,6 +19,10 @@ import {styles} from './styles.css'
 import {computePopoverPosition, type PopoverAlign, type PopoverSide} from './position'
 import {isOutsidePress} from './outside'
 import {PopoverLayerContext, type PopoverLayerContextValue} from './PopoverLayerContext'
+import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
+import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
+import {mergeRefs} from '../../shared/mergeRefs'
+import {useInModal} from '../../shared/ModalContext'
 
 // --- Context ---
 
@@ -193,18 +197,30 @@ function Root({
 // --- Trigger ---
 // Trigger IS the button (like Menu.Trigger): give it a label, not a Button.
 
-function Trigger({children}: {children: ReactNode}) {
+interface TriggerProps {
+  children: ReactNode
+  /** Accessible name: required when the label is an icon only. */
+  'aria-label'?: string
+  /** The trigger <button>, e.g. to measure it or return focus to it. */
+  ref?: Ref<HTMLButtonElement>
+}
+
+function Trigger({children, 'aria-label': ariaLabel, ref}: TriggerProps) {
   const {open, setOpen, popoverId, triggerRef} = usePopover('Trigger')
+  const grouped = useGroupedControl<HTMLButtonElement>()
 
   return (
     <html.button
-      ref={triggerRef}
+      ref={mergeRefs(triggerRef, grouped.ref, ref)}
+      tabIndex={grouped.tabIndex}
+      onFocus={grouped.onFocus}
       type="button"
       onClick={() => setOpen(!open)}
+      aria-label={ariaLabel}
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-controls={open ? popoverId : undefined}
-      style={styles.trigger}
+      style={[styles.trigger, grouped.style]}
     >
       {children}
     </html.button>
@@ -226,6 +242,7 @@ function Popup({children, label}: PopupProps) {
   // Inside ThemeProvider's portal layer, like Select/Dialog/Drawer: theme
   // tokens cascade into the popup and it stacks above dialogs.
   const mount = usePortalMount()
+  const inModal = useInModal()
 
   // Measure before paint on open; re-measure on scroll/resize (capture phase
   // catches any scrolling ancestor) and when Root.reposition() is called.
@@ -271,9 +288,13 @@ function Popup({children, label}: PopupProps) {
       role="dialog"
       aria-label={label}
       tabIndex={-1}
-      style={[styles.popup, styles.popupPosition(coords.top, coords.left)]}
+      style={[
+        styles.popup,
+        inModal && styles.popupInModal,
+        styles.popupPosition(coords.top, coords.left),
+      ]}
     >
-      {children}
+      <ControlContextBoundary>{children}</ControlContextBoundary>
     </html.div>,
     mount ?? document.body,
   )

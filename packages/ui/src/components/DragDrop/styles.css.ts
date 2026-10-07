@@ -4,6 +4,7 @@ import {radii} from '@duro-app/tokens/tokens/spacing.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   // The item is the drag handle: no browser panning starts on it, so a touch
@@ -56,7 +57,9 @@ export const styles = css.create({
     top: 0,
     left: 0,
     pointerEvents: 'none',
-    zIndex: 1000,
+    // Portalled into the ThemeProvider mount, where it must clear a Dialog
+    // or Drawer the drag happens in.
+    zIndex: layers.popup,
     opacity: 0.9,
     cursor: 'grabbing',
   },

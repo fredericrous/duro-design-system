@@ -14,6 +14,8 @@ import {html} from 'react-strict-dom'
 import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
+import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
+import {ModalContext} from '../../shared/ModalContext'
 import {useSwipeDismiss} from './useSwipeDismiss'
 
 // --- Types ---
@@ -298,7 +300,9 @@ function Portal({children, size = 'md'}: PortalProps) {
             !closing && slideInMap[anchor],
           ]}
         >
-          {children}
+          <ModalContext.Provider value={true}>
+            <ControlContextBoundary>{children}</ControlContextBoundary>
+          </ModalContext.Provider>
         </html.div>
       </html.div>
     </>

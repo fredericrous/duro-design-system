@@ -2,6 +2,8 @@ import {type ReactNode, useCallback, useLayoutEffect, useRef} from 'react'
 import {html} from 'react-strict-dom'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {useToggleGroup} from '../ToggleGroup/ToggleGroupContext'
+import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
+import {mergeRefs} from '../../shared/mergeRefs'
 import {styles} from './styles.css'
 
 export type ToggleSize = 'default' | 'small'
@@ -66,6 +68,9 @@ export function Toggle({
   )
 
   const pressed = groupPressed ?? standalonePressed
+  const grouped = useGroupedControl<HTMLButtonElement>({disabled})
+  // In a Toolbar the toolbar owns the roving tabindex, not a wrapping group.
+  const roving = wrap && value !== undefined && !grouped.onFocus
 
   const handleClick = useCallback(() => {
     if (disabled) return
@@ -78,10 +83,18 @@ export function Toggle({
 
   return (
     <html.button
-      ref={ref}
+      ref={mergeRefs(ref, grouped.ref)}
       type="button"
-      tabIndex={wrap && value !== undefined ? (group?.tabStopValue === value ? 0 : -1) : undefined}
-      onFocus={wrap && value !== undefined ? () => group?.onItemFocus(value) : undefined}
+      tabIndex={
+        grouped.onFocus
+          ? grouped.tabIndex
+          : roving
+            ? group?.tabStopValue === value
+              ? 0
+              : -1
+            : undefined
+      }
+      onFocus={grouped.onFocus ?? (roving ? () => group?.onItemFocus(value) : undefined)}
       aria-pressed={pressed}
       aria-label={ariaLabel}
       disabled={disabled}
@@ -92,8 +105,11 @@ export function Toggle({
         sizeMap[size],
         pressed ? styles.pressed : styles.unpressed,
         wrap && wrappedSizeMap[size],
-        isGrouped && !wrap && styles.grouped,
+        // In an attached ButtonGroup the group joins the borders instead.
+        isGrouped && !wrap && !grouped.attached && styles.grouped,
         disabled && styles.disabled,
+        grouped.style,
+        grouped.attached && pressed && styles.attachedPressed,
       ]}
     >
       {children}

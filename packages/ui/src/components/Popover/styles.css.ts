@@ -5,6 +5,7 @@ import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   trigger: {
@@ -30,6 +31,11 @@ export const styles = css.create({
     transitionProperty: 'background-color, border-color',
     transitionDuration: duration.fast,
   },
+  // Inside a Dialog or Drawer: above that modal (same portal mount), below a
+  // Select or Menu opened from inside the Popover.
+  popupInModal: {
+    zIndex: layers.popover,
+  },
   popup: {
     position: 'fixed',
     top: 0,
@@ -45,7 +51,9 @@ export const styles = css.create({
     fontFamily: typography.fontFamily,
     fontSize: typography.fontSizeSm,
     color: colors.text,
-    zIndex: 50,
+    // Outside a modal: floating chrome, so a Dialog or Drawer opened later
+    // (even from inside this Popover) covers it.
+    zIndex: layers.floating,
     // The portal layer is pointer-events: none so clicks fall through it;
     // the popup takes them back.
     pointerEvents: 'auto',

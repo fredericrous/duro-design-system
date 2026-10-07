@@ -6,6 +6,7 @@ import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
   overlay: {
@@ -25,7 +26,7 @@ export const styles = css.create({
     borderColor: colors.border,
     borderRadius: radii.md,
     boxShadow: shadows.lg,
-    zIndex: 50,
+    zIndex: layers.floating,
   },
   // Centred on the window: the default, with nothing docked at its edge.
   centered: {
