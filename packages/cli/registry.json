@@ -6493,7 +6493,7 @@
         "whenNotToUse": [
           "A dialog footer or a form action row — use ButtonGroup (every button its own tab stop)",
           "A floating bulk-selection bar — use ActionBar",
-          "A vertical toolbar holding a Select: a closed Select takes ArrowDown/ArrowUp to open, so use the horizontal orientation"
+          "A vertical toolbar holding a Select: a closed Select takes ArrowDown/ArrowUp to open, so use the horizontal orientation (a Menu is fine: its closed trigger handles no arrow key, Enter or Space opens it)"
         ],
         "whenToUse": [
           "An editor toolbar: text style, format toggles, insert menus",
@@ -6510,7 +6510,7 @@
         },
         {
           "default": "'horizontal'",
-          "description": "Arrow keys follow the orientation: Left/Right (default) or Up/Down. A vertical toolbar cannot hold a Select, whose closed trigger opens on ArrowDown/ArrowUp.",
+          "description": "Arrow keys follow the orientation: Left/Right (default) or Up/Down. A vertical toolbar cannot hold a Select, whose closed trigger opens on ArrowDown/ArrowUp. A Menu can: its closed trigger handles no arrow key, so Up/Down move past it and Enter or Space opens it.",
           "name": "orientation",
           "required": false,
           "type": "Orientation"

@@ -437,3 +437,32 @@ export const ReorderKeyedChildren: Story = {
     await expect(one).toHaveFocus()
   },
 }
+
+/** Vertical, with a Menu: a closed Menu.Trigger handles no arrow key, so
+ *  ArrowDown moves on (Enter or Space opens it). Unlike a Select, a Menu can
+ *  sit in a vertical toolbar. */
+export const VerticalWithMenu: Story = {
+  render: () => (
+    <Toolbar aria-label="Tools" orientation="vertical">
+      <Menu.Root>
+        <Menu.Trigger>Insert</Menu.Trigger>
+        <Menu.Popup>
+          <Menu.Item>Table</Menu.Item>
+        </Menu.Popup>
+      </Menu.Root>
+      <Button variant="secondary">Undo</Button>
+    </Toolbar>
+  ),
+  play: async ({canvas}) => {
+    const insert = canvas.getByRole('button', {name: 'Insert'})
+    insert.focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(insert).toHaveAttribute('aria-expanded', 'false')
+    await expect(canvas.getByRole('button', {name: 'Undo'})).toHaveFocus()
+    await userEvent.keyboard('{ArrowUp}')
+    await expect(insert).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
+    await expect(insert).toHaveAttribute('aria-expanded', 'true')
+    await userEvent.keyboard('{Escape}')
+  },
+}

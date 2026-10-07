@@ -11,7 +11,8 @@ export interface ToolbarProps {
   /**
    * Arrow keys follow the orientation: Left/Right (default) or Up/Down. A
    * vertical toolbar cannot hold a Select, whose closed trigger opens on
-   * ArrowDown/ArrowUp.
+   * ArrowDown/ArrowUp. A Menu can: its closed trigger handles no arrow key,
+   * so Up/Down move past it and Enter or Space opens it.
    */
   orientation?: Orientation
   children: ReactNode

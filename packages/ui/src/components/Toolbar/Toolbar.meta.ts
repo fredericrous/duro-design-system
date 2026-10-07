@@ -10,7 +10,7 @@ export const meta: ComponentMeta = {
   whenNotToUse: [
     'A dialog footer or a form action row — use ButtonGroup (every button its own tab stop)',
     'A floating bulk-selection bar — use ActionBar',
-    'A vertical toolbar holding a Select: a closed Select takes ArrowDown/ArrowUp to open, so use the horizontal orientation',
+    'A vertical toolbar holding a Select: a closed Select takes ArrowDown/ArrowUp to open, so use the horizontal orientation (a Menu is fine: its closed trigger handles no arrow key, Enter or Space opens it)',
   ],
   anatomy: {
     required: ['Toolbar', 'aria-label'],

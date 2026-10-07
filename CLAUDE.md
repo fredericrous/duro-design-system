@@ -715,7 +715,8 @@ stop.** An editor toolbar is a `Toolbar` holding attached groups and menus:
 - In a `Toolbar`, Left/Right move across every control (Up/Down when
   vertical), Home/End jump to the ends. A `Select` or `Menu` trigger keeps its
   own keys: a closed Select opens on ArrowDown/ArrowUp, so a vertical toolbar
-  cannot hold one.
+  cannot hold one. A closed Menu trigger handles no arrow key (Enter or Space
+  opens it), so a Menu can sit in a vertical toolbar.
 - What a popup holds (a Popover's form, a Menu's items) is outside the group
   and the toolbar: its buttons are round and in the normal tab order.
 

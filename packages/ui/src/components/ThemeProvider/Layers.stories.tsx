@@ -280,3 +280,100 @@ export const DialogFromPopover: Story = {
     if (popover) await expect(onTop(popover)).toBe(false)
   },
 }
+
+/** DragDrop inside a Dialog whose body is scrolled: the ghost stays under the
+ *  pointer and on top. */
+export const DragDropInScrolledDialog: Story = {
+  render: () => (
+    <Dialog.Root>
+      <Dialog.Trigger>
+        <Button>Open long board</Button>
+      </Dialog.Trigger>
+      <Dialog.Portal size="sm">
+        <Dialog.Header>
+          <Dialog.Title>Long board</Dialog.Title>
+        </Dialog.Header>
+        <Dialog.Body>
+          <Stack gap="md">
+            {Array.from({length: 30}, (_, i) => (
+              <Text key={i}>{`Line ${i + 1}`}</Text>
+            ))}
+            <DragDrop.Root<{id: string; name: string}> onDrop={() => {}}>
+              <Stack gap="md">
+                <DragDrop.Zone id="from" label="From">
+                  <Stack gap="sm">
+                    {ITEMS.map((item) => (
+                      <DragDrop.Item
+                        key={item.id}
+                        id={item.id}
+                        zone="from"
+                        label={item.name}
+                        data={item}
+                      >
+                        <Button variant="secondary">{item.name}</Button>
+                      </DragDrop.Item>
+                    ))}
+                  </Stack>
+                </DragDrop.Zone>
+                <DragDrop.Zone id="to" label="To">
+                  <Text>Drop here.</Text>
+                </DragDrop.Zone>
+              </Stack>
+            </DragDrop.Root>
+          </Stack>
+        </Dialog.Body>
+      </Dialog.Portal>
+    </Dialog.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Open long board'}))
+    const alpha = await page().findByRole('button', {name: 'Alpha'})
+    alpha.scrollIntoView({block: 'center'})
+    let scrolled = 0
+    for (let el = alpha.parentElement; el; el = el.parentElement) scrolled += el.scrollTop
+    await expect(scrolled).toBeGreaterThan(0)
+    const from = alpha.parentElement as Element
+    const target = page().getByText('Drop here.')
+    const a = from.getBoundingClientRect()
+    const b = target.getBoundingClientRect()
+    const init = (x: number, y: number) => ({
+      bubbles: true,
+      cancelable: true,
+      pointerId: 7,
+      pointerType: 'mouse',
+      isPrimary: true,
+      button: 0,
+      buttons: 1,
+      clientX: x,
+      clientY: y,
+    })
+    const start = {x: a.left + a.width / 2, y: a.top + a.height / 2}
+    const end = {x: b.left + b.width / 2, y: b.top + b.height / 2}
+    from.dispatchEvent(new PointerEvent('pointerdown', init(start.x, start.y)))
+    for (let i = 1; i <= 6; i++) {
+      const x = start.x + ((end.x - start.x) * i) / 6
+      const y = start.y + ((end.y - start.y) * i) / 6
+      document.dispatchEvent(new PointerEvent('pointermove', init(x, y)))
+      await new Promise((r) => requestAnimationFrame(() => r(null)))
+    }
+    const ghost = await waitFor(() => {
+      const found = [...document.querySelectorAll('[aria-hidden="true"]')].find(
+        (el) => el.textContent === 'Alpha' && getComputedStyle(el).position === 'fixed',
+      ) as HTMLElement | undefined
+      if (!found) throw new Error('no ghost yet')
+      return found
+    })
+    const g = ghost.getBoundingClientRect()
+    ghost.style.pointerEvents = 'auto'
+    const visible = onTop(ghost)
+    ghost.style.pointerEvents = ''
+    document.dispatchEvent(new PointerEvent('pointerup', {...init(end.x, end.y), buttons: 0}))
+    await expect(visible).toBe(true)
+    // Under the pointer: the ghost keeps the grab offset, so the pointer is
+    // inside it, not displaced by the scroll.
+    await expect(end.x).toBeGreaterThanOrEqual(g.left)
+    await expect(end.x).toBeLessThanOrEqual(g.right)
+    await expect(end.y).toBeGreaterThanOrEqual(g.top)
+    await expect(end.y).toBeLessThanOrEqual(g.bottom)
+  },
+}
