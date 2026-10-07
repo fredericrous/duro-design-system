@@ -61,7 +61,9 @@ export const styles = css.create({
     minWidth: sizes.popupMinW,
     maxHeight: sizes.listMaxH,
     overflowY: 'auto',
-    zIndex: 50,
+    // Above Dialog/Drawer (1000/1001), like Select and Combobox: they portal
+    // into the same mount, so a menu opened inside a dialog must out-rank it.
+    zIndex: 1050,
     // The portal layer is pointer-events: none so clicks fall through it;
     // the popup takes them back.
     pointerEvents: 'auto',

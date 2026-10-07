@@ -332,6 +332,12 @@ export const EscapeInsideDialog: Story = {
     await userEvent.click(page().getByRole('button', {name: 'Align'}))
     await page().findByRole('menu', {name: 'Align'})
     await expect(onMenuOpenChange).toHaveBeenCalledWith(true)
+    // The popup stacks above the dialog: its item is what a press hits.
+    const center = page().getByRole('menuitem', {name: 'Center'})
+    const box = center.getBoundingClientRect()
+    await expect(
+      document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2),
+    ).toBe(center)
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(page().queryByRole('menu')).not.toBeInTheDocument())
     await expect(onMenuOpenChange).toHaveBeenCalledTimes(2)
