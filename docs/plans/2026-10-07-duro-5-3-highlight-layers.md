@@ -97,11 +97,11 @@ The controls that read the context are `Button`, `Toggle`, `Select.Trigger`, `Me
 
 - **Focus:** one tab stop, roving tabindex across every focusable control inside, groups included.
 - **Keys:** Left/Right move focus (or Up/Down with `orientation="vertical"`), and Home/End jump to the ends.
-- **Listener:** `Toolbar` handles keys with a native listener on its root, and acts only when the event's target is one of its registered controls, the same guard `useRovingFocus.ts` uses. So an ArrowLeft typed in a portalled Popover's input never moves toolbar focus.
+- **Listener:** `Toolbar` handles keys with a native listener on the document, in the bubble phase, and acts only when the event's target is one of its registered controls, the same guard `useRovingFocus.ts` uses. So an ArrowLeft typed in a portalled Popover's input never moves toolbar focus. The listener sits on the document, not the toolbar root, so that it runs after the controls' own handlers: React dispatches from the app root, below the document. A listener on the toolbar root would run before them.
 - **Registration:** controls register in a layout effect. Server-rendered HTML gives every control the `middle` position, so corners start square-joined, and the outer corners round after hydration.
 - **Vertical toolbars:** they don't support `Select`, since a closed Select takes ArrowDown and ArrowUp to open. This is documented on `Toolbar`.
 - **Tabindex:** `Toolbar` sets each control's tabindex through a `ToolbarContext` register API, read by the same five controls. A `ToggleGroup` inside a `Toolbar` hands its roving focus to the toolbar, so there is never a second roving handler.
-- **Popup triggers:** a `Select` or `Menu` trigger keeps its own keys. New in 5.3, a closed `Select` opens on ArrowDown or ArrowUp; today it handles no key while closed (`useSelectRoot.ts`). The toolbar ignores any key event that is `defaultPrevented`, or that comes from an element with `aria-expanded="true"`. So while a popup is open, Left/Right never move focus away from it. Escape inside a popup closes the popup and leaves focus on its trigger.
+- **Popup triggers:** a `Select` or `Menu` trigger keeps its own keys. New in 5.3, a closed `Select` opens on ArrowDown or ArrowUp; today it handles no key while closed (`useSelectRoot.ts`). The toolbar ignores any key event that comes from an element with `aria-expanded="true"`: that is the guard for open popups, so while a popup is open, Left/Right never move focus away from it. It also ignores a key event that is `defaultPrevented`, so a control that handles an arrow itself keeps it (the binding row "a trigger that preventDefaults ArrowRight → focus doesn't move"). That check only works because the listener runs after the control's handlers (see Listener). Escape inside a popup closes the popup and leaves focus on its trigger.
 
 Today's grouped `Toggle`s keep working unchanged when used outside a `Toolbar`.
 
@@ -117,6 +117,7 @@ The new file is `packages/tokens/src/tokens/layers.css.ts`. It is a `css.defineV
 | `floating`      | 50    | Tooltip, ActionBar                                  |
 | `overlay`       | 1000  | Dialog/Drawer backdrop                              |
 | `modal`         | 1001  | Dialog/Drawer viewport                              |
+| `popover`       | 1040  | new: a Popover inside a Dialog or Drawer            |
 | `popupBackdrop` | 1049  | Select click-catcher                                |
 | `popup`         | 1050  | Select, Listbox (Combobox renders through it), Menu |
 | `toast`         | 1060  | new: Toast region                                   |
@@ -124,7 +125,7 @@ The new file is `packages/tokens/src/tokens/layers.css.ts`. It is a `css.defineV
 
 All 15 raw values in `packages/ui/src` move to these tokens. The drift check then asserts that 0 raw `zIndex` literals remain under `packages/ui/src`. Values only compete inside one stacking context: Dialog, Drawer, the popups and the toast region all live in the ThemeProvider portal mount (`portal`, 1100), and that is the context the scale orders. Without a ThemeProvider, Dialog and Toast render inline, and the same order applies in the root stacking context. Nothing else moves on screen, apart from the fixes below. Each fix has a browser test that **fails on v5.2.0** before the change and passes after it. If a test passes on v5.2.0, that fix is dropped from 5.3.
 
-- **Popover → `popup` (was 50).** It portals into the same mount as Dialog, so a Popover opened inside a Dialog renders under it (50 < 1000).
+- **Popover inside a modal → `popover` (was 50).** It portals into the same mount as Dialog, so a Popover opened inside a Dialog renders under it (50 < 1000). It takes a layer of its own, not `popup`: at `popup` it tied with a Select opened inside it, and the Select's listbox (mounted before the Popover opens) was drawn under the Popover. At 1040 it clears the modal and stays under `popupBackdrop` and `popup`. Outside a Dialog or Drawer, a Popover keeps `floating` (50), so a modal opened later, even from a button inside the Popover, covers it. Dialog and Drawer tell it through a `ModalContext`.
 - **Toast region → `toast` (had no z-index).** It is `position: fixed` with no z-index in the mount, so a toast shown while a Dialog is open renders under the backdrop.
 - **DragDrop ghost:** a candidate only. The ghost isn't portalled, so inside a Dialog it sits in the viewport's own context and may already be on top. Its test (drag inside a Dialog) decides: if it passes on v5.2.0, the ghost keeps its value as `overlay` and no fix ships.
 
@@ -146,13 +147,14 @@ The token is documented with a limit: apply it only on the backdrop element itse
 
 ## 4. Lint
 
-In `no-raw-design-values`:
+A new rule, `duro/no-raw-layer-values`, recommended at `warn`:
 
-- **New properties:** `zIndex` (numbers and numeric strings other than `0` and negatives) and `backdropFilter`/`filter` (`blur(...)` literals). Their message ids are `rawZIndex` and `rawEffect`.
-- **Suggestions:** one per candidate, from `LAYERS_BY_VALUE` and `EFFECTS_BY_VALUE` tables.
-- **No exact token:** for zIndex, the message names the nearest layer at or below and the one above (no fix).
-- **Severity: `warn` in 5.3 for both checks**, so no consumer's lint turns red on a minor. They become `error` in the next major, which is recorded in the plan and the eslint README.
-- **Test update:** the valid case `zIndex: 16` in the rule's tests moves to invalid, as a warning.
+- **Why a separate rule:** ESLint sets severity per rule, and `no-raw-design-values` is an `error`. Folding these checks into it would make every raw z-index a new error on a minor.
+- **Properties:** `zIndex` (numbers and numeric strings other than `0` and negatives) and `backdropFilter`/`filter` (`blur(...)` literals), inside `css.create`, condition objects included.
+- **Message ids:** `rawZIndex` (a layers value, with a suggestion), `offScaleZIndex` (no exact token: it names the layer at or below and the one above, no fix) and `rawEffect` (with a suggestion for `blur(2px)`, report only for another blur).
+- **Suggestions:** one per candidate, from the `LAYERS_BY_VALUE` and `EFFECTS_BY_VALUE` tables, which have drift tests.
+- **Severity: `warn` for the 5.x line**, so no consumer's lint turns red on a minor. It becomes `error` in the next major, which is recorded in the eslint README.
+- **Tests:** `zIndex: 16` is an invalid case (a warning, `offScaleZIndex`) in the new rule's tests; it stays a valid case in `no-raw-design-values`, which does not read z-index.
 - **Local stacking values** (`2`, `10` inside one component) have no token. Their warning names the nearest layers and can't be fixed by a swap. The nine-consumer gate counts them per repo. Before the major that makes the check an error, the person decides whether to exempt small values or add a `local` step.
 
 ## 5. Release, then consumers
@@ -228,5 +230,17 @@ Install the packed 5.3 tarballs, then run lint and `duro doctor`, and record err
 
 - **Lint errors:** 0 new errors in every repo. New `rawZIndex`/`rawEffect` warnings are counted per repo, split into values with an exact token and values without one. New size suggestions per repo (`timeGutterW`/`dayHeaderH` offered for an unrelated 64 or 46) are counted too.
 - **ticket-vision:** with its §5.3 swaps applied, 0 errors and 0 of the new warnings.
+
+## Deviations
+
+Found while implementing; each is in the sections above and in the PR body.
+
+- **`layers.popover` (1040)** added (§2). It is used only inside a Dialog or Drawer; elsewhere a Popover is `floating`.
+- **`duro/no-raw-layer-values`** is a separate rule rather than message ids in `no-raw-design-values` (§4).
+- **Toolbar keeps a `defaultPrevented` check** next to the `aria-expanded` guard, with a document-level listener that makes it effective (§1c).
+- **DragDrop's ghost** was red on v5.2.0 because the Dialog panel's transform and overflow clipped and offset it, not because of a z-index tie. Its fix is a portal into the ThemeProvider mount at `layers.popup` (§2).
+- **Layer vars are typed as CSS integers** (a cast inside the `defineVars` argument), so `zIndex: layers.x` typechecks.
+- **Ordered registry** re-reads the DOM order after every commit, so keyed controls reordered without a remount keep correct corners and arrow order.
+- **website-builder** was gated on its held `chore/duro-5.1` branch: origin/main is still on Duro 4.5, and merging the branch onto it conflicted.
 
 <!-- panel: repos=duro-design-system reviewers=backend body-sha=339caf9354ef -->
