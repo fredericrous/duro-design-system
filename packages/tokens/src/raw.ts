@@ -99,6 +99,7 @@ export const LAYERS = {
   floating: 50,
   overlay: 1000,
   modal: 1001,
+  modalRaised: 1002,
   popover: 1040,
   popupBackdrop: 1049,
   popup: 1050,

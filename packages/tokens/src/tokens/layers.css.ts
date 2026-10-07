@@ -24,6 +24,9 @@ export const layers = css.defineVars({
   overlay: '1000',
   // A modal's panel (Dialog, Drawer).
   modal: '1001',
+  // Chrome that sits on a modal-level surface, above that surface's own
+  // parts: a sheet's toolbar over its bottom bar. Still below a Popover.
+  modalRaised: '1002',
   // A Popover inside a Dialog or Drawer: above that modal, below the popups
   // (a Select, a Menu) and the Select click-catcher opened from inside it.
   // Outside a modal a Popover is `floating`, so a modal opened later covers it.

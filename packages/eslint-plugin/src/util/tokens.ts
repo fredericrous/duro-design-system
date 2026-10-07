@@ -442,6 +442,7 @@ export const LAYERS_BY_VALUE: Record<number, string> = {
   50: 'floating',
   1000: 'overlay',
   1001: 'modal',
+  1002: 'modalRaised',
   1040: 'popover',
   1049: 'popupBackdrop',
   1050: 'popup',

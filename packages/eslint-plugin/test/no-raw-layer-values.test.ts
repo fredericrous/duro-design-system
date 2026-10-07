@@ -129,6 +129,21 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       errors: [{messageId: 'offScaleZIndex', suggestions: []}],
     },
     {
+      code: wrap('zIndex: 1002'),
+      errors: [
+        {
+          messageId: 'rawZIndex',
+          data: {value: '1002', token: 'modalRaised', pkg: '@duro-app/tokens'},
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output: layersImport + wrap('zIndex: layers.modalRaised'),
+            },
+          ],
+        },
+      ],
+    },
+    {
       code: wrap('zIndex: 5000'),
       errors: [
         {
