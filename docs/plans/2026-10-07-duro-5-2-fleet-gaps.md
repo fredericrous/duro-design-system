@@ -1,6 +1,6 @@
 ---
 status: active
-branch: feat/duro-5.2-fleet-gaps
+branch: feat/duro-5-2-fleet-gaps
 repos: [duro-design-system]
 adrs: [ADR-0006, ADR-0016, ADR-0027]
 ---
@@ -230,5 +230,16 @@ Install the packed 5.2 tarballs, then run `pnpm lint` (or `npm run lint`) and `d
 - **The five blocked repos:** 0 errors once the §1 token swaps and §2 component swaps are applied. That proves the list is complete before the version is published. For website-builder, pack duro-lexical-multi from its worktree against the 5.2 tarballs and install that tarball, since lexical-multi 0.4.0 is only released after 5.2.0.
 - **`media-var`** fires only where the problem is real: customer-vision without its PostCSS fix.
 - **Timing:** `duro doctor --session` on website-builder with `dist/` present takes under 1 s.
+
+## Addendum: website-builder values (2026-10-07)
+
+The nine-consumer gate found website-builder measures the sizes table did not fix. The person decided, after the review panel:
+
+- **Mockup picks (ADR-0016):** TextLink takes direction `Underlined`; `Input variant="ghost"` takes `OutlineOnHover`. The other boards are deleted.
+- **New tokens:**
+  - sizes `barH` = 4 (device home bar, page nest bar), `readoutW` = 40 (zoom readout, was 34), `sliderW` = 96 (zoom slider), `paletteMinW` = 96 (add-section tile, was 92);
+  - colour `contrastBorder`, themed with `contrastSurface`: website-builder's coach-pill border where the pill sits, mirrored for the other themes, held to 3:1 non-text contrast against `contrastSurface` by a test.
+- **Existing roles:** the 5×5 override marker → `indicatorDot` (8); the 64px number field → `fieldMinWSm` (80); the 120px grid min-height → `dropZoneMinH` (128).
+- **Branch** renamed `feat/duro-5-2-fleet-gaps` (amont's push pattern refuses a dot after `feat/`).
 
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,react,ui-design,ux-research,game-ux,unix,tui body-sha=0d0e0a81ffe0 -->
