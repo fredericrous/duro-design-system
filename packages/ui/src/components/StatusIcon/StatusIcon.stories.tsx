@@ -1,10 +1,10 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {StatusIcon} from './StatusIcon'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta<typeof StatusIcon> = {
   title: 'Components/StatusIcon',
@@ -52,7 +52,7 @@ export const CustomSize: Story = {
 const gridStyles = css.create({
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    gridTemplateColumns: `repeat(auto-fill, minmax(${sizes.gridColSm}, 1fr))`,
     gap: spacing.lg,
   },
   cell: {display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.sm},

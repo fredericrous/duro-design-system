@@ -7045,6 +7045,7 @@
           "rawRadius": "{{value}} on `{{property}}` is the {{token}} radius token. Use `radii.{{token}}` from {{pkg}}/tokens/spacing.css.",
           "rawShadow": "'{{value}}' on `boxShadow` is a raw shadow. Use `shadows.{{token}}` from {{pkg}}/tokens/shadows.css.",
           "rawSpacing": "{{value}} on `{{property}}` is the {{token}} spacing token. Use `spacing.{{token}}` from {{pkg}}/tokens/spacing.css.",
+          "rawTrack": "{{value}} on `{{property}}` sizes a track in px. Put a size token inside it: `minmax(${sizes.gridColSm}, 1fr)` from {{pkg}}/tokens/sizes.css.",
           "replaceWithToken": "Replace with {{replacement}}"
         },
         "severity": "error"

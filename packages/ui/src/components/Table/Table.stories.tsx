@@ -1293,3 +1293,42 @@ export const CardsBelowMobileBreakpoint: Story = {
     await expect(getComputedStyle(ownerLabel).display).toBe('block')
   },
 }
+
+// A column width can carry a size token inside a track function: resolveTrack
+// turns `minmax(gridColSm, 1fr)` into `minmax(var(--…), 1fr)` (ADR-0027).
+export const TokenColumnWidths: Story = {
+  name: 'Token column widths',
+  render: () => (
+    <html.div style={respStyles.scrollDense}>
+      <Table.Root>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell width="minmax(gridColSm, 1fr)">Name</Table.HeaderCell>
+            <Table.HeaderCell width="fit-content(labelMinW)">Owner</Table.HeaderCell>
+            <Table.HeaderCell width="iconButton">Act</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>SMTP submission service account</Table.Cell>
+            <Table.Cell>{LONG_EMAIL}</Table.Cell>
+            <Table.Cell>x</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table.Root>
+    </html.div>
+  ),
+  play: async ({canvasElement}) => {
+    await waitFor(() =>
+      expect(canvasElement.querySelectorAll('[role="columnheader"]')).toHaveLength(3),
+    )
+    const headers = [...canvasElement.querySelectorAll('[role="columnheader"]')]
+    const [name, owner, act] = headers.map((h) => h.getBoundingClientRect().width)
+    // minmax(gridColSm, 1fr): at least 240px and takes the slack.
+    await expect(name).toBeGreaterThanOrEqual(240)
+    // fit-content(labelMinW): capped at 120px even with a long email inside.
+    await expect(owner).toBeLessThanOrEqual(120.5)
+    // iconButton: exactly 32px.
+    await expect(Math.abs(act! - 32)).toBeLessThanOrEqual(0.5)
+  },
+}

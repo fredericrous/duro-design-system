@@ -1,6 +1,7 @@
 import {css} from 'react-strict-dom'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 // Where a split collapses to one column — measured on the split's OWN
 // container, not the viewport. A split nested in another split (a list/detail
@@ -40,13 +41,13 @@ export const styles = css.create({
   split: {
     gridTemplateColumns: {
       default: '1fr',
-      [`@container (min-width: ${SPLIT_BP})`]: 'minmax(240px, 1fr) minmax(0, 2fr)',
+      [`@container (min-width: ${SPLIT_BP})`]: `minmax(${sizes.gridColSm}, 1fr) minmax(0, 2fr)`,
     },
   },
   splitWide: {
     gridTemplateColumns: {
       default: '1fr',
-      [`@container (min-width: ${SPLIT_WIDE_BP})`]: 'minmax(280px, 1fr) minmax(0, 3fr)',
+      [`@container (min-width: ${SPLIT_WIDE_BP})`]: `minmax(${sizes.gridColMd}, 1fr) minmax(0, 3fr)`,
     },
   },
   // Weighted columns: `[1, 2]` → `1fr 2fr` (see columns.ts).

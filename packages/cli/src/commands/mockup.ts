@@ -240,12 +240,15 @@ interface Declaration {
 /** Every `prop: value` in a CSS text, with file offsets. Braces are ignored. */
 function declarations(css: string, base: number): Declaration[] {
   const out: Declaration[] = []
-  const re = /([a-zA-Z-]+)\s*:\s*([^;{}]+)/g
+  const re = /([a-zA-Z-][a-zA-Z0-9-]*)\s*:\s*([^;{}]+)/g
   let m: RegExpExecArray | null
   while ((m = re.exec(css))) {
     const prop = m[1].toLowerCase()
-    // `a:hover`, `@media (min-width: …)` and URLs are not declarations.
-    if (prop.startsWith('-') || (m.index > 0 && /[(@:]/.test(css[m.index - 1] ?? ''))) continue
+    // `a:hover`, `@media (min-width: …)` and URLs are not declarations, and a
+    // vendor-prefixed property (-webkit-…) is skipped; a custom property
+    // (--x) is kept, so a raw value cannot hide behind a variable.
+    const vendor = prop.startsWith('-') && !prop.startsWith('--')
+    if (vendor || (m.index > 0 && /[(@:]/.test(css[m.index - 1] ?? ''))) continue
     out.push({prop, value: m[2], at: base + m.index + m[0].indexOf(m[2])})
   }
   return out
@@ -285,6 +288,23 @@ function scanCss(
   }
 
   for (const {prop, value, at} of declarations(inert, base)) {
+    // A custom property defined outside the token block (which is masked) is
+    // an author's own measure: a raw length or duration there is the same raw
+    // value one var() away. Colours are already caught on every line above.
+    if (prop.startsWith('--')) {
+      const raw = value
+        .match(LENGTH_LITERAL)
+        ?.find((l) => !/^0(px|rem|em|ms|s)$/.test(l) && /(px|ms|s)$/.test(l))
+      if (raw) {
+        findings.push({
+          file,
+          line: lineOf(source, at),
+          rule: 'raw-length',
+          message: `${raw} in custom property \`${prop}\` is a raw value — define it from a token: \`${prop}: var(--duro-*)\``,
+        })
+      }
+      continue
+    }
     // Sizes and border widths: only px is raw; %, vh, fr, rem and keywords are
     // relative and allowed. The seed sizes the root through the canvas
     // variables in the token block, so no geometry is exempt.

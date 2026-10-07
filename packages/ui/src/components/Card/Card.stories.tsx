@@ -5,6 +5,7 @@ import {Card} from './Card'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 const meta: Meta<typeof Card> = {
   title: 'Components/Card',
@@ -86,7 +87,7 @@ export const Full: Story = {
 const gridStyles = css.create({
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    gridTemplateColumns: `repeat(auto-fill, minmax(${sizes.gridColSm}, 1fr))`,
     gap: spacing.md,
   },
   stack: {display: 'flex', flexDirection: 'column', gap: spacing.md},

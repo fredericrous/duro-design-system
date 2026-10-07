@@ -70,7 +70,9 @@ ${DURO} mockup seed --out docs/mockups/<screen> --name <Direction>   # B, C, …
   spacing, radii, sizes, border widths, type, shadows and motion come only
   from the token block (\`var(--duro-size-*)\`, \`var(--duro-border-*)\`);
   positions are yours, and the root keeps the seeded canvas size
-  (\`var(--duro-mockup-canvas-width)\` / \`-height\`). Every button, row, chip, tab,
+  (\`var(--duro-mockup-canvas-width)\` / \`-height\`). A custom property you define
+  outside the token block holds a token too (\`--gap: var(--duro-spacing-md)\`);
+  \`--gap: 12px\` is the same raw value one \`var()\` away. Every button, row, chip, tab,
   input, link, table and dialog — whatever element it is drawn as — carries
   \`data-duro="<Component>"\` or \`data-duro="<Component>.<Part>"\`, using names
   from \`${DURO} list components\`. Notes for the implementer go after the

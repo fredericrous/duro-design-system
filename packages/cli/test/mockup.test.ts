@@ -133,6 +133,32 @@ describe('checkArtboard', () => {
     }
   })
 
+  it('reports a raw value hidden behind a custom property, not one from a token', () => {
+    for (const to of ['--gap: 12px', '--card-w: 44px', '--fade: 150ms']) {
+      const found = checkArtboard(registry, 'A.dc.html', clean.replace('cursor: pointer', to))
+      expect(
+        found.map((f) => f.rule),
+        `${to} should be a raw-length`,
+      ).toContain('raw-length')
+      expect(found.find((f) => f.rule === 'raw-length')?.message).toContain('custom property')
+    }
+    for (const to of [
+      '--gap: var(--duro-spacing-md)',
+      '--w: calc(2 * var(--duro-size-touch-target))',
+      '--ratio: 1.5',
+      '--half: 50%',
+      '--zero: 0px',
+    ]) {
+      expect(rules(clean.replace('cursor: pointer', to)), `${to} is allowed`).not.toContain(
+        'raw-length',
+      )
+    }
+    // A colour behind a custom property was already caught.
+    expect(rules(clean.replace('cursor: pointer', '--c: #333'))).toContain('raw-color')
+    // The seed's own canvas variables sit in the masked token block.
+    expect(rules(seedArtboard(registry, 'Main', 'dark'))).toEqual(['no-component-map'])
+  })
+
   it('accepts a media query on the breakpoint scale and refuses one off it', () => {
     expect(rules(clean)).not.toContain('raw-breakpoint')
     const off = checkArtboard(registry, 'A.dc.html', clean.replace('768px', '800px'))

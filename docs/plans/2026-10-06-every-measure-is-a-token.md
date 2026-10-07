@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/size-border-tokens
 repos: [decisions, duro-design-system]
 adrs: [ADR-0027]
@@ -639,6 +639,20 @@ Consumers on `^4` are untouched until they bump.
   was removed: react-strict-dom forces flex-grow to 0 on web, so the
   declaration was already dead.
 
+- **2026-10-07, "close the gaps" (the person), branch `fix/measure-gaps`:**
+  the follow-ups recorded above are closed; the entries above stay as written.
+  - The mockup check reports a raw px/ms/s in a custom property defined
+    outside the token block; only vendor prefixes are skipped now.
+  - ui-email's relative imports carry `.js`, so its `.d.ts` resolves under
+    `nodenext`.
+  - `GridTrack` types the arguments of `minmax()`/`fit-content()`, and
+    `resolveTrack` resolves a size token key inside them.
+  - Found by that branch's review: the rule never inspected grid track
+    properties. `rawTrack` now reports a px in `gridTemplate*`/`gridAuto*`.
+    Grid's split layouts read `sizes.gridColSm/Md` (same values), and two
+    stories' 200px demo columns map to `gridColSm` (the person's demo-frame
+    decision).
+
 ## Verification results (observed before the push)
 
 Input → expected → actual. Evidence is under
@@ -696,7 +710,14 @@ Input → expected → actual. Evidence is under
    - **duro-app** (`1e82093`): +31 (21 raw, 4 with no token yet, 6
      ambiguous).
    - **application-landscape** (`816cf4e8`): 0.
-8. **Release:** after the tag (`tag-release`).
+8. **Release:** tag `v5.0.0` at `62c2ae3c`, after two unblocking PRs: #69
+   (CLI floors at 5.0, which `check-pin-major` requires) and #70 (`shell-quote`
+   overridden to the patched ^1.11; the audit gate refused the tag on
+   GHSA-pqg4-j6r4-53mv). Release run `37535252245` concluded success, and all 7
+   packages are on npm at 5.0.0. Checked in the published tokens tarball:
+   `sizes.css`/`borders.css` exports, `/raw` types at `dist/raw.d.ts`, the
+   `--duro-size-*` / `--duro-border-*` variables. The plugin tarball carries
+   the measure messages.
 9. **Email (blocks the release):**
    - **Setup:** duro-app `1e82093`, baseline `c1ad41b0`, candidate
      `99448519`.
@@ -709,12 +730,38 @@ Input → expected → actual. Evidence is under
     Falsified: an injected type error is caught.
 11. **Preview:** guided preview `054a6baac555c0` → the person approves → approved. Screenshots are byte-identical.
 
+### `fix/measure-gaps` (2026-10-07)
+
+Input → expected → actual.
+
+- **`--gap: 12px` in an artboard** → raw-length → raw-length.
+  `var(--duro-*)`, `50%`, `0px` → allowed → allowed. Falsified: the old skip
+  of every `-` property fails the test.
+- **Packed smoke, consumer `tsc` under bundler and nodenext** → both pass →
+  both pass. Falsified: extensionless imports give TS2834 under nodenext.
+- **`'minmax(40px, 1fr)'` / `'fit-content(120px)'` as `GridTrack`** → type
+  error → type error. Falsified: allowing px fails the fixture.
+- **Table story `Token column widths`** →
+  - `minmax(gridColSm, 1fr)` ≥ 240px → yes;
+  - `fit-content(labelMinW)` ≤ 120px → yes;
+  - `iconButton` = 32px → yes.
+    Falsified: skipping the resolution inside `minmax()` fails it.
+- **`gridTemplateColumns: 'minmax(240px, 1fr)'` and `'minmax(0.5px, 1fr)'`** → rawTrack → rawTrack (the second added after review).
+  `minmax(0, 2fr)` and token templates → allowed → allowed.
+- **Suite:**
+  - typecheck → 0 errors → 0;
+  - unit → 327/327 → 327/327;
+  - lint → 0 errors → 0;
+  - Storybook → 329/329 with the new story → 329/329.
+
+- **Review of `fix/measure-gaps`:** round 1 approve-with-changes (68k, 59 s; plan record, a `resolveTrack` story, grid tracks unlinted); delta approve-with-changes (48k, 30 s; a sub-1px regex miss, story query timing); final pass approve (26k, 28 s).
+
 ## Implementation review
 
 - **Verdict:** approve, after round 1 (approve-with-changes: 8 findings, 128k, 211 s) and a Delta (48k, 41 s).
 - **Fixed:** canvas exemption (person's ruling: seed it via a variable); a smoke tsc failure now fails; render count asserted; README; real-config lint test; deep-path test; prop count; GridTrack holds-until.
-- **Follow-up, older than this branch:** the mockup check skips custom-property definitions outside the token block (`--x: 44px`).
+- **Follow-ups, closed on 2026-10-07 in `fix/measure-gaps`:** the mockup check now reports a raw value behind a custom property outside the token block; ui-email's `.d.ts` resolves under `nodenext` (and the smoke test checks both resolutions); `GridTrack` types and resolves the arguments of `minmax()`/`fit-content()`.
 - **After preview approval:** the pre-push rehearsal on a clean snapshot found ui-email (and the plugin's tests) could not resolve `@duro-app/tokens/raw` without a tokens build, now that its published types live in `dist`. Both resolve via the `source` export condition (`4681ca72`, `f5161a11`). The typecheck passes with tokens `dist` removed and present. Two more reviews: approve (43k, 48 s; 38k, 25 s).
-- **Status:** Phase 2 is implemented. Next: merge, then 2f, the v5.0.0 tag (`tag-release`); the plan closes there.
+- **Status:** done. Both phases are shipped and 5.0.0 is released. Consumers migrate in their own PRs at the 5.x bump (Non-goals).
 
 <!-- panel: repos=duro-design-system,decisions reviewers=backend body-sha=f5006c2288ec -->
