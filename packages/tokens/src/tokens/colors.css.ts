@@ -44,6 +44,12 @@ export const colors = css.defineVars({
   infoBorder: 'rgba(106, 175, 252, 0.3)',
   infoText: '#93c5fd',
 
+  // Highlight — a non-status accent (a category, an intent); no status meaning.
+  highlight: '#c084fc',
+  highlightBg: 'rgba(192, 132, 252, 0.1)',
+  highlightBorder: 'rgba(192, 132, 252, 0.3)',
+  highlightText: '#d8b4fe',
+
   // Fixed overlays — the same in every theme (a scrim darkens whatever is
   // under it; the inverse overlays sit on an accent surface).
   scrim: 'rgba(0, 0, 0, 0.4)',

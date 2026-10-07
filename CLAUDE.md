@@ -508,6 +508,7 @@ is added.
 | `success` / `successBg` / `successText` | Success states                       |
 | `warning` / `warningBg` / `warningText` | Warning states                       |
 | `info` / `infoBg` / `infoText`          | Informational states                 |
+| `highlight` / `highlightBg` / `highlightText` | A non-status accent: a category or intent (purple), never a state |
 | `contrastSurface` / `onContrastSurface` | Opposite-tone surface (toasts, coach marks) and its text |
 | `contrastBorder`                        | Border on `contrastSurface` (≥ 3:1 against it)            |
 | `overlayLight`                          | Fixed translucent white over content (light counterpart of `scrim`) |

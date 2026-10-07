@@ -30,6 +30,12 @@ export const highContrastTheme = css.createTheme(colors, {
   infoBg: 'rgba(96, 165, 250, 0.15)',
   infoBorder: 'rgba(96, 165, 250, 0.5)',
   infoText: '#bfdbfe',
+
+  // Highlight — a non-status accent (a category, an intent); no status meaning.
+  highlight: '#d8b4fe',
+  highlightBg: 'rgba(216, 180, 254, 0.15)',
+  highlightBorder: 'rgba(216, 180, 254, 0.5)',
+  highlightText: '#e9d5ff',
   // Fixed overlays — the same in every theme (a scrim darkens whatever is
   // under it; the inverse overlays sit on an accent surface).
   scrim: 'rgba(0, 0, 0, 0.4)',

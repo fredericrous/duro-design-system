@@ -50,3 +50,22 @@ describe('contrastSurface', () => {
     expect(highContrastColors.onContrastSurface).toBe('#000000')
   })
 })
+
+describe('highlight', () => {
+  const themes = {dark: darkColors, light: lightColors, highContrast: highContrastColors}
+
+  // highlightText on highlightBg, the tint composited over the page.
+  for (const [name, palette] of Object.entries(themes)) {
+    it(`${name}: highlightText reads at 4.5:1 or better on highlightBg`, () => {
+      const tint = composite(palette.highlightBg, palette.bg)
+      expect(contrast(palette.highlightText, tint)).toBeGreaterThanOrEqual(4.5)
+    })
+  }
+
+  // Non-text contrast (WCAG 1.4.11): a highlight dot or rule on the page.
+  for (const [name, palette] of Object.entries(themes)) {
+    it(`${name}: highlight stands 3:1 or better on bg`, () => {
+      expect(contrast(palette.highlight, palette.bg)).toBeGreaterThanOrEqual(3)
+    })
+  }
+})

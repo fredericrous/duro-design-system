@@ -30,6 +30,12 @@ export const lightTheme = css.createTheme(colors, {
   infoBg: 'rgba(30, 64, 175, 0.08)',
   infoBorder: 'rgba(30, 64, 175, 0.3)',
   infoText: '#1e40af',
+
+  // Highlight — a non-status accent (a category, an intent); no status meaning.
+  highlight: '#6b21a8',
+  highlightBg: 'rgba(107, 33, 168, 0.08)',
+  highlightBorder: 'rgba(107, 33, 168, 0.3)',
+  highlightText: '#581c87',
   // Fixed overlays — the same in every theme (a scrim darkens whatever is
   // under it; the inverse overlays sit on an accent surface).
   scrim: 'rgba(0, 0, 0, 0.4)',
