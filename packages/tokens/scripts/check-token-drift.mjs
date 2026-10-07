@@ -155,6 +155,7 @@ for (const name of [
   'BORDERS_PX',
   'SIZES_PX',
   'LAYERS',
+  'EFFECTS',
 ]) {
   const fromRaw = rawModule[name]
   if (!fromRaw || JSON.stringify(fromRaw) !== JSON.stringify(keys[name])) {

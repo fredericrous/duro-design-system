@@ -107,6 +107,12 @@ export const LAYERS = {
   portal: 1100,
 } as const
 
+// Copy of keys.ts EFFECTS (CSS filter strings, not a numeric map).
+export const EFFECTS = {
+  overlayBlur: 'blur(2px)',
+  surfaceBlur: 'blur(6px)',
+} as const
+
 export const SIZES_PX = {
   touchTarget: 44,
   controlSm: 28,

@@ -453,4 +453,5 @@ export const LAYERS_BY_VALUE: Record<number, string> = {
 /** Effect value (whitespace-normalized) → effects token. */
 export const EFFECTS_BY_VALUE: Record<string, string> = {
   'blur(2px)': 'overlayBlur',
+  'blur(6px)': 'surfaceBlur',
 }

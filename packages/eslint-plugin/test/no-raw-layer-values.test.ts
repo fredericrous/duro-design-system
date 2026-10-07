@@ -168,6 +168,26 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       ],
     },
     {
+      code: wrap("backdropFilter: 'blur(6px)'"),
+      errors: [
+        {
+          messageId: 'rawEffect',
+          data: {
+            value: 'blur(6px)',
+            property: 'backdropFilter',
+            tokenText: ' (it is effects.surfaceBlur)',
+            pkg: '@duro-app/tokens',
+          },
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output: effectsImport + wrap('backdropFilter: effects.surfaceBlur'),
+            },
+          ],
+        },
+      ],
+    },
+    {
       // Another blur has no token: reported, no fix.
       code: wrap("filter: 'blur(8px)'"),
       errors: [{messageId: 'rawEffect', suggestions: []}],

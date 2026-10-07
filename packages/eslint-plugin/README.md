@@ -137,7 +137,8 @@ Since 5.3. Inside `css.create()` objects:
   it orders children inside one component, which is not a layer (`1` is
   `layers.raised` and keeps its suggestion).
 - **`backdropFilter` / `filter`** — a `blur(...)` literal. `blur(2px)`
-  suggests `effects.overlayBlur`; another blur reports without a fix.
+  suggests `effects.overlayBlur`, `blur(6px)` (5.4) `effects.surfaceBlur`;
+  another blur reports without a fix.
 
 It ships as **`warn` for the 5.x line**, so no consumer's lint turns red on a
 minor, and becomes **`error` in the next major**. It is its own rule, apart

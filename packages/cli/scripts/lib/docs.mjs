@@ -78,7 +78,7 @@ function tokensRegion(registry) {
     '',
     '### Effects',
     '',
-    '`effects` from `@duro-app/tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport).',
+    '`effects` from `@duro-app/tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport). `surfaceBlur` frosts a surface over imagery (a pill or a chip on a photo) and follows the same rule: put it on that surface element only.',
     '',
     table(registry.tokens.groups.effects),
   ].join('\n')
