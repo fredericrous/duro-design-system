@@ -380,6 +380,31 @@ describe('duro doctor', () => {
       expect(runDoctor({cwd: root}).text).not.toContain('skipped')
     })
 
+    // Root reads anything, so chmod cannot make a directory unreadable there.
+    it.skipIf(process.getuid?.() === 0)(
+      'warns, naming the path and the code, on a build dir it cannot read',
+      () => {
+        const root = app({'dist/assets/x.css': BROKEN_CSS})
+        const locked = join(root, 'dist/assets')
+        chmodSync(locked, 0o000)
+        try {
+          const result = runDoctor({cwd: root})
+          expect(media(root)).toEqual([
+            expect.objectContaining({severity: 'warn', file: 'dist/assets'}),
+          ])
+          expect(media(root)[0]!.message).toContain('(EACCES)')
+          expect(result.exitCode).toBeUndefined()
+        } finally {
+          chmodSync(locked, 0o755)
+        }
+      },
+    )
+
+    it('passes over a source root that is missing or a file', () => {
+      const root = app({src: 'not a directory\n'})
+      expect(media(root)).toEqual([])
+    })
+
     it('keeps the report columns aligned', () => {
       const root = app({
         'dist/x.css': BROKEN_CSS,

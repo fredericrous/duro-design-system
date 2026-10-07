@@ -189,11 +189,11 @@ function checkPackage(
   if (tokens) findings.push(tokens)
 
   const media = checkMediaVar(dir, names, rel)
-  if (media === null) {
+  findings.push(...media.findings)
+  if (media.skipped) {
     skipped.push(`${rel(dir) === '.' ? '' : `${rel(dir)}: `}media-var (no fresh build)`)
   } else {
     checked.push(...media.checked)
-    findings.push(...media.findings)
   }
 
   const entry = ENTRIES.map((path) => join(dir, path)).find((path) => existsSync(path))
@@ -650,29 +650,56 @@ const clip = (text: string, max = 80) =>
  * The newest modification time among the package's build config and its
  * sources (app/, src/), scanned up to SOURCE_SCAN_LIMIT files.
  */
-function newestInput(dir: string, configs: string[]): number {
+/** A path doctor could not read, with the error code (`EACCES`, `EIO`…). */
+interface Unreadable {
+  path: string
+  code: string
+}
+
+const errorCode = (error: unknown): string =>
+  (error as NodeJS.ErrnoException | null)?.code ?? 'unknown'
+
+/**
+ * `statSync(path).mtimeMs`, or null when the path is gone (ENOENT: it
+ * vanished between listing and stat). Any other failure is recorded in
+ * `unreadable` and also returns null.
+ */
+function mtimeOf(path: string, unreadable: Unreadable[]): number | null {
+  try {
+    return statSync(path).mtimeMs
+  } catch (error) {
+    if (errorCode(error) !== 'ENOENT') unreadable.push({path, code: errorCode(error)})
+    return null
+  }
+}
+
+function newestInput(dir: string, configs: string[], unreadable: Unreadable[]): number {
   let newest = 0
   const seen = (path: string) => {
-    try {
-      newest = Math.max(newest, statSync(path).mtimeMs)
-    } catch {
-      // vanished between listing and stat: nothing to compare
-    }
+    const mtime = mtimeOf(path, unreadable)
+    if (mtime !== null) newest = Math.max(newest, mtime)
   }
   for (const name of [...configs, 'package.json']) seen(join(dir, name))
   walkFiles(
     ['src', 'app'].map((name) => join(dir, name)),
     (name) => /\.[cm]?[jt]sx?$|\.css$/.test(name),
     seen,
+    unreadable,
   )
   return newest
 }
 
-/** Depth-first over `roots`, calling `visit` on each matching file, capped. */
+/**
+ * Depth-first over `roots`, calling `visit` on each matching file, capped. A
+ * root that does not exist (ENOENT) or is not a directory (ENOTDIR) is
+ * skipped; a directory that cannot be read for any other reason is recorded
+ * in `unreadable`.
+ */
 function walkFiles(
   roots: string[],
   matches: (name: string) => boolean,
   visit: (path: string) => void,
+  unreadable: Unreadable[],
 ): void {
   const stack = [...roots].reverse()
   let budget = SOURCE_SCAN_LIMIT
@@ -681,7 +708,9 @@ function walkFiles(
     let entries
     try {
       entries = readdirSync(current, {withFileTypes: true})
-    } catch {
+    } catch (error) {
+      const code = errorCode(error)
+      if (code !== 'ENOENT' && code !== 'ENOTDIR') unreadable.push({path: current, code})
       continue
     }
     const dirs: string[] = []
@@ -704,28 +733,35 @@ function walkFiles(
  * `@duro-app/tokens/tokens/breakpoints.css.ts` reaches the CSS without the
  * StyleX/RSD compile that turns its consts into px. Reads built CSS only, and
  * only output newer than every config and source file: stale output says
- * nothing about the code as it is. `null` when there is no fresh build.
+ * nothing about the code as it is. `skipped` when there is no fresh build;
+ * a path it could not read is a warning, never silently left out.
  */
 function checkMediaVar(
   dir: string,
   configs: string[],
   rel: (path: string) => string,
-): {checked: string[]; findings: DoctorFinding[]} | null {
-  const newest = newestInput(dir, configs)
+): {checked: string[]; findings: DoctorFinding[]; skipped: boolean} {
+  const unreadable: Unreadable[] = []
+  const newest = newestInput(dir, configs, unreadable)
   const fresh: string[] = []
   walkFiles(
     BUILD_DIRS.map((name) => join(dir, name)),
     (name) => name.endsWith('.css'),
     (path) => {
-      try {
-        if (statSync(path).mtimeMs > newest) fresh.push(path)
-      } catch {
-        // vanished mid-scan
-      }
+      const mtime = mtimeOf(path, unreadable)
+      if (mtime !== null && mtime > newest) fresh.push(path)
     },
+    unreadable,
   )
-  if (fresh.length === 0) return null
-  const findings: DoctorFinding[] = []
+  // What could not be read is said, not silently left out of the check.
+  const findings: DoctorFinding[] = unreadable.map(({path, code}) => ({
+    rule: 'media-var',
+    severity: 'warn',
+    file: rel(path),
+    message: `${rel(path)} could not be read (${code}), so media-var did not check it or what it holds.`,
+    fix: `Make ${rel(path)} readable by the user running doctor, or remove it.`,
+  }))
+  if (fresh.length === 0) return {checked: [], findings, skipped: true}
   for (const path of fresh) {
     const source = readText(path)
     if (source === null) continue
@@ -744,7 +780,7 @@ function checkMediaVar(
       fix: 'compile `@duro-app/tokens/tokens/breakpoints.css.ts` through the StyleX/RSD babel step, rebuild, re-run `npx -y @duro-app/cli doctor`',
     })
   }
-  return {checked: fresh.map(rel), findings}
+  return {checked: fresh.map(rel), findings, skipped: false}
 }
 
 interface LayerOrigin {
