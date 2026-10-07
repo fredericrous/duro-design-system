@@ -240,6 +240,9 @@ The nine-consumer gate found website-builder measures the sizes table did not fi
   - sizes `barH` = 4 (device home bar, page nest bar), `readoutW` = 40 (zoom readout, was 34), `sliderW` = 96 (zoom slider), `paletteMinW` = 96 (add-section tile, was 92);
   - colour `contrastBorder`, themed with `contrastSurface`: website-builder's coach-pill border where the pill sits, mirrored for the other themes, held to 3:1 non-text contrast against `contrastSurface` by a test.
 - **Existing roles:** the 5×5 override marker → `indicatorDot` (8); the 64px number field → `fieldMinWSm` (80); the 120px grid min-height → `dropZoneMinH` (128).
+- **Follow-up decisions (after the first review):**
+  - `contrastBorder` is raised to 3:1: white at 0.33 opacity in light; black at 0.42 in dark and high contrast. Those surfaces are light, so white would vanish; this is the mirror of the light value. The ≥ 3:1 test runs in every theme.
+  - The device home bar's width gets its own size `deviceBarW` = 96 (device-chrome indicator).
 - **Branch** renamed `feat/duro-5-2-fleet-gaps` (amont's push pattern refuses a dot after `feat/`).
 
 ## Verification record (2026-10-07, observed before the push)
