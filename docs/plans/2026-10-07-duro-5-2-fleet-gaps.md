@@ -296,6 +296,7 @@ The nine-consumer gate found website-builder measures the sizes table did not fi
 ## Implementation review
 
 - Earlier tree: **rework** after the Delta (round 1 85k/95 s, Delta 47k/31 s). Blocking: `contrastBorder` and website-builder's last two errors. The person chose Fix; both are now resolved (addendum). The low findings are also fixed: the highlight ref is set in a layout effect, and the real-keyboard Tab check is a browser test.
-- Fresh round 1 on the rebased tree: **approve-with-changes** (88k/81 s). Fixed: the flexGrow premise has its own record row; Menu's `close({restoreFocus})` flag is split into `close()` and `dismiss()`. The Delta follows.
+- Fresh round 1 on the rebased tree: **approve-with-changes** (88k/81 s). Fixed: the flexGrow premise has its own record row; Menu's `close({restoreFocus})` flag is split into `close()` and `dismiss()`. Delta: **approve** (45k/28 s), with both findings resolved and none new.
+- Next phase: §4.2, the PR and release v5.2.0; then §4.3, the consumers, each in its own repository.
 
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,react,ui-design,ux-research,game-ux,unix,tui body-sha=0d0e0a81ffe0 -->
