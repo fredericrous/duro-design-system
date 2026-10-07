@@ -160,7 +160,7 @@ export const COMMANDS: CommandSpec[] = [
   {
     name: 'doctor',
     summary:
-      "Check how the app in the cwd wires @duro-app/ui into its build: runtimeInjection left on, unlayered StyleX extraction, the stylesheet missing from the entry, layers declared out of order, unlayered resets. Each one flattens component spacing while the design system's own CSS is fine. It also flags a StyleX build that never compiles @duro-app/tokens, so css.create cannot import the tokens",
+      "Check how the app in the cwd wires @duro-app/ui into its build: runtimeInjection left on, unlayered StyleX extraction, the stylesheet missing from the entry, layers declared out of order, unlayered resets. Each one flattens component spacing while the design system's own CSS is fine. It also flags a StyleX build that never compiles @duro-app/tokens, so css.create cannot import the tokens, and fresh built CSS whose @media reads a var() (media-var). Exits 1 on an error, 0 on warnings",
     args: [],
     flags: [
       {
