@@ -4,6 +4,7 @@ import {Dialog} from '../Dialog/Dialog'
 import {Drawer} from '../Drawer/Drawer'
 import {DragDrop} from '../DragDrop/DragDrop'
 import {Popover} from '../Popover/Popover'
+import {Select} from '../Select/Select'
 import {ToastProvider, useToast} from '../Toast/ToastProvider'
 import {Button} from '../Button/Button'
 import {Stack} from '../Stack/Stack'
@@ -212,5 +213,36 @@ export const DragDropInDialog: Story = {
     ghost.style.pointerEvents = ''
     document.dispatchEvent(new PointerEvent('pointerup', {...init(end.x, end.y), buttons: 0}))
     await expect(visible).toBe(true)
+  },
+}
+
+/** A Select opened inside a Popover: its listbox (mounted before the Popover
+ *  opens) and click-catcher stack above the Popover. */
+export const SelectInPopover: Story = {
+  render: () => (
+    <Popover.Root>
+      <Popover.Trigger>Style</Popover.Trigger>
+      <Popover.Popup label="Style">
+        <Select.Root defaultValue="primary">
+          <Select.Trigger aria-label="Variant">
+            <Select.Value />
+            <Select.Icon />
+          </Select.Trigger>
+          <Select.Popup>
+            <Select.Item value="primary">Primary</Select.Item>
+            <Select.Item value="secondary">Secondary</Select.Item>
+            <Select.Item value="ghost">Ghost</Select.Item>
+          </Select.Popup>
+        </Select.Root>
+      </Popover.Popup>
+    </Popover.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Style'}))
+    await userEvent.click(await page().findByRole('combobox', {name: 'Variant'}))
+    for (const name of ['Primary', 'Secondary', 'Ghost']) {
+      const option = await page().findByRole('option', {name})
+      await waitFor(() => expect(onTop(option)).toBe(true))
+    }
   },
 }

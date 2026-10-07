@@ -14,6 +14,9 @@ describe('LAYERS', () => {
     const order = LAYER_KEYS.map((key) => LAYERS[key])
     expect(order).toEqual([...order].sort((a, b) => a - b))
     expect(LAYERS.popup).toBeGreaterThan(LAYERS.modal)
+    // A Popover clears a modal, and stays under what opens from inside it.
+    expect(LAYERS.popover).toBeGreaterThan(LAYERS.modal)
+    expect(LAYERS.popover).toBeLessThan(LAYERS.popupBackdrop)
     expect(LAYERS.toast).toBeGreaterThan(LAYERS.popup)
   })
 })

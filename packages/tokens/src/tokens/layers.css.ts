@@ -24,9 +24,12 @@ export const layers = css.defineVars({
   overlay: '1000',
   // A modal's panel (Dialog, Drawer).
   modal: '1001',
+  // A Popover: above a modal it opens from, below the popups (a Select, a
+  // Menu) and the Select click-catcher opened from inside it.
+  popover: '1040',
   // A popup's click-catcher, under the popup itself.
   popupBackdrop: '1049',
-  // Popups: Select, Listbox, Menu, Popover — above a modal they open from.
+  // Popups: Select, Listbox, Menu — above a modal or Popover they open from.
   popup: '1050',
   // The toast region: above popups and modals.
   toast: '1060',
