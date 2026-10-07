@@ -69,6 +69,12 @@ function tokensRegion(registry) {
     '### Borders',
     '',
     table(registry.tokens.groups.borders),
+    '',
+    '### Layers',
+    '',
+    'The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@duro-app/tokens/keys`.',
+    '',
+    table(registry.tokens.groups.layers),
   ].join('\n')
 }
 

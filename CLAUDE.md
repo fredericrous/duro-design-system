@@ -440,6 +440,21 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `focusOffset` | 2px |
 | `focusOffsetSm` | 1px |
 
+### Layers
+
+The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@duro-app/tokens/keys`.
+
+| Token | Value |
+| --- | --- |
+| `raised` | 1 |
+| `floating` | 50 |
+| `overlay` | 1000 |
+| `modal` | 1001 |
+| `popupBackdrop` | 1049 |
+| `popup` | 1050 |
+| `toast` | 1060 |
+| `portal` | 1100 |
+
 <!-- duro:generated:tokens END -->
 
 ### Typography Presets

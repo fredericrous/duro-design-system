@@ -124,9 +124,20 @@ const bordersCss = extractCallArg(
 )
 checkScale('BORDERS_PX', bordersCss, keys.BORDERS_PX, keys.BORDER_KEYS, 'px')
 
+// Unitless: a z-index is a bare number, so the unit is empty.
+const layersCss = extractCallArg(join(srcDir, 'tokens', 'layers.css.ts'), 'defineVars', 0, 'layers')
+checkScale('LAYERS', layersCss, keys.LAYERS, keys.LAYER_KEYS, '')
+
 // raw.ts re-publishes the numeric maps for the compiled /raw entry; the copies
 // must equal keys.ts (key order included).
-for (const name of ['SPACING_PX', 'RADII_PX', 'FONT_SIZE_REM', 'BORDERS_PX', 'SIZES_PX']) {
+for (const name of [
+  'SPACING_PX',
+  'RADII_PX',
+  'FONT_SIZE_REM',
+  'BORDERS_PX',
+  'SIZES_PX',
+  'LAYERS',
+]) {
   const fromRaw = rawModule[name]
   if (!fromRaw || JSON.stringify(fromRaw) !== JSON.stringify(keys[name])) {
     console.error(`✗ drift: ${name} in raw.ts differs from keys.ts`)

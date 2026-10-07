@@ -260,6 +260,31 @@ export const BORDERS_PX = {
   focusOffsetSm: 1,
 } as const
 
+export const LAYER_KEYS = [
+  'raised',
+  'floating',
+  'overlay',
+  'modal',
+  'popupBackdrop',
+  'popup',
+  'toast',
+  'portal',
+] as const
+export type LayerToken = (typeof LAYER_KEYS)[number]
+
+// Mirrors tokens/layers.css.ts `layers` (unitless), as numbers: React Native
+// takes a number for zIndex, not the CSS variable string.
+export const LAYERS = {
+  raised: 1,
+  floating: 50,
+  overlay: 1000,
+  modal: 1001,
+  popupBackdrop: 1049,
+  popup: 1050,
+  toast: 1060,
+  portal: 1100,
+} as const
+
 // Icon rendering sizes (SVG width/height, px). Not its own css.defineVars
 // scale — icons size via attributes — so it is derived from the `sizes` group
 // (iconSm…iconXxl), keeping one source.

@@ -94,6 +94,17 @@ export const BORDERS_PX = {
   focusOffsetSm: 1,
 } as const
 
+export const LAYERS = {
+  raised: 1,
+  floating: 50,
+  overlay: 1000,
+  modal: 1001,
+  popupBackdrop: 1049,
+  popup: 1050,
+  toast: 1060,
+  portal: 1100,
+} as const
+
 export const SIZES_PX = {
   touchTarget: 44,
   controlSm: 28,

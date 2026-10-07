@@ -103,6 +103,7 @@ export function extractTokens(project) {
   const sizes = callArg(project, 'tokens/sizes.css.ts', 'sizes')
   const microSpacing = callArg(project, 'tokens/spacing.css.ts', 'microSpacing')
   const borders = callArg(project, 'tokens/borders.css.ts', 'borders')
+  const layers = callArg(project, 'tokens/layers.css.ts', 'layers')
   const breakpoints = constValue(project, 'tokens/breakpoints.css.ts', 'breakpointsPx')
   const iconSizes = iconSizesValue(project)
   const typePresetKeys = callArgKeys(project, 'tokens/type-presets.css.ts', 'typePresets')
@@ -118,6 +119,7 @@ export function extractTokens(project) {
       microSpacing: scaleGroup('@duro-app/tokens/tokens/spacing.css', 'microSpacing', microSpacing),
       sizes: scaleGroup('@duro-app/tokens/tokens/sizes.css', 'sizes', sizes),
       borders: scaleGroup('@duro-app/tokens/tokens/borders.css', 'borders', borders),
+      layers: scaleGroup('@duro-app/tokens/tokens/layers.css', 'layers', layers),
       shadows: scaleGroup('@duro-app/tokens/tokens/shadows.css', 'shadows', shadows),
       motion: {
         importPath: '@duro-app/tokens/tokens/motion.css',
