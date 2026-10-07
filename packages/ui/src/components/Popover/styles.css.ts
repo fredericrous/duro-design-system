@@ -46,7 +46,8 @@ export const styles = css.create({
     fontFamily: typography.fontFamily,
     fontSize: typography.fontSizeSm,
     color: colors.text,
-    zIndex: layers.floating,
+    // A popup: above a Dialog or Drawer it opens from (same portal mount).
+    zIndex: layers.popup,
     // The portal layer is pointer-events: none so clicks fall through it;
     // the popup takes them back.
     pointerEvents: 'auto',

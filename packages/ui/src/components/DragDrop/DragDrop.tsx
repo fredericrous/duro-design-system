@@ -8,8 +8,10 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import {createPortal} from 'react-dom'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
+import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {isNative} from '../../platform'
 import {visuallyHidden} from '../../styles/visually-hidden.css'
 
@@ -343,6 +345,18 @@ function Root<T = unknown>({onDrop, announce, children}: DragDropRootProps<T>) {
     }
   }, [activate, finish, locate])
 
+  // The ghost renders in the ThemeProvider mount: inline, a Dialog's
+  // transformed, overflow-clipped panel would clip and offset it.
+  const mount = usePortalMount()
+  const ghost = drag && (
+    <html.div
+      aria-hidden
+      style={[styles.ghost, styles.ghostAt(drag.x, drag.y, drag.width, drag.height)]}
+    >
+      {drag.preview}
+    </html.div>
+  )
+
   const value = useMemo<RootContextValue>(
     () => ({registerZone, registerItem, begin, drag}),
     [registerZone, registerItem, begin, drag],
@@ -351,14 +365,7 @@ function Root<T = unknown>({onDrop, announce, children}: DragDropRootProps<T>) {
   return (
     <RootContext.Provider value={value}>
       {children}
-      {drag && (
-        <html.div
-          aria-hidden
-          style={[styles.ghost, styles.ghostAt(drag.x, drag.y, drag.width, drag.height)]}
-        >
-          {drag.preview}
-        </html.div>
-      )}
+      {ghost && (mount ? createPortal(ghost, mount) : ghost)}
       <html.div role="status" aria-live="polite" aria-atomic style={visuallyHidden.base}>
         {announcement}
       </html.div>

@@ -57,7 +57,9 @@ export const styles = css.create({
     top: 0,
     left: 0,
     pointerEvents: 'none',
-    zIndex: layers.overlay,
+    // Portalled into the ThemeProvider mount, where it must clear a Dialog
+    // or Drawer the drag happens in.
+    zIndex: layers.popup,
     opacity: 0.9,
     cursor: 'grabbing',
   },
