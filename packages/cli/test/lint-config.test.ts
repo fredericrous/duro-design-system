@@ -2,7 +2,7 @@ import {fileURLToPath} from 'node:url'
 import {ESLint} from 'eslint'
 import {spawnSync} from 'node:child_process'
 import {existsSync} from 'node:fs'
-import {beforeAll, describe, expect, it} from 'vitest'
+import {beforeAll, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {TOKEN_DEEP_PATHS} from '../../eslint-plugin/src/util/tokens.js'
 
@@ -10,6 +10,10 @@ import {TOKEN_DEEP_PATHS} from '../../eslint-plugin/src/util/tokens.js'
 // component source (ADR-0027). A glob typo there would silently lint nothing;
 // this lints seeded code at real paths through the real config.
 const root = fileURLToPath(new URL('../../..', import.meta.url))
+// The first lintText loads the whole repo config, the TypeScript parser and
+// the plugin: measured 6.4-6.6s at a load average of 84-116 (2026-10-07),
+// past vitest's 5s default. The budget fits that work.
+vi.setConfig({testTimeout: 30_000})
 const eslint = new ESLint({cwd: root, overrideConfigFile: `${root}/eslint.config.js`})
 
 // eslint.config.js imports the BUILT plugin (as `pnpm lint` does after its
