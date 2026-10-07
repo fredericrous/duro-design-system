@@ -7007,15 +7007,6 @@
         "severity": "error"
       },
       {
-        "description": "Disallow non-zero flexGrow in css.create styles (react-strict-dom forces flex-grow: 0 on web)",
-        "fixable": "none",
-        "id": "duro/no-flex-grow-web",
-        "messages": {
-          "flexGrowForced": "flexGrow has no effect under react-strict-dom on web — the runtime forces computed flex-grow: 0, so this layout silently collapses. Lay out with a plain DOM scaffold, or absolute-position against a measured container."
-        },
-        "severity": "warn"
-      },
-      {
         "description": "Disallow raw px breakpoints in media-query strings; use breakpoints.<key>",
         "fixable": "autofix",
         "id": "duro/no-raw-breakpoint-query",
@@ -7031,6 +7022,7 @@
         "messages": {
           "ambiguousMeasure": "{{value}} on `{{property}}` matches several {{group}} tokens ({{tokens}}). Pick the one that says what this measure is, from {{pkg}}/tokens/{{group}}.css.",
           "missingMeasureToken": "{{value}} on `{{property}}` has no token. Add a token (design-system.a-missing-token-is-added-not-approximated) instead of using a raw value.",
+          "nearestMeasureRole": "{{value}} on `{{property}}` has no token; nearest role: {{nearest}}. If this measure plays that role, use its token and take its value; if not, add a token (design-system.a-missing-token-is-added-not-approximated).",
           "offScaleRadius": "{{value}} on `{{property}}` is off the radius scale ({{scale}}px). Use the nearest `radii.*` token from {{pkg}}/tokens/spacing.css, or disable this line with the reason.",
           "offScaleSpacing": "{{value}} on `{{property}}` is off the spacing scale ({{scale}}px). Use the nearest `spacing.*` token from {{pkg}}/tokens/spacing.css, or disable this line with the reason.",
           "rawBreakpoint": "{{value}}px in `{{key}}` is a raw breakpoint. Use `breakpoints.{{token}}` from {{pkg}}/tokens/breakpoints.css in a template-literal key (the scale is {{scale}}px).",
@@ -7044,6 +7036,7 @@
           "rawMicroSpacing": "{{value}} on `{{property}}` is off the spacing scale; it is the {{token}} micro-spacing token. Use `microSpacing.{{token}}` from {{pkg}}/tokens/spacing.css, or the scale if the nudge is not needed.",
           "rawRadius": "{{value}} on `{{property}}` is the {{token}} radius token. Use `radii.{{token}}` from {{pkg}}/tokens/spacing.css.",
           "rawShadow": "'{{value}}' on `boxShadow` is a raw shadow. Use `shadows.{{token}}` from {{pkg}}/tokens/shadows.css.",
+          "rawShadowLength": "{{value}} on `boxShadow` builds a shadow from a raw px length. Use a `shadows.*` token from {{pkg}}/tokens/shadows.css.",
           "rawSpacing": "{{value}} on `{{property}}` is the {{token}} spacing token. Use `spacing.{{token}}` from {{pkg}}/tokens/spacing.css.",
           "rawTrack": "{{value}} on `{{property}}` sizes a track in px. Put a size token inside it: `minmax(${sizes.gridColSm}, 1fr)` from {{pkg}}/tokens/sizes.css.",
           "replaceWithToken": "Replace with {{replacement}}"

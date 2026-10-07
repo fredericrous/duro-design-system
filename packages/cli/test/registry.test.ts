@@ -165,7 +165,6 @@ describe('rules', () => {
   it('mirrors the lint rules with recommended severities', () => {
     expect(registry.rules.lint.map((rule) => `${rule.severity} ${rule.id}`)).toEqual([
       'error duro/no-deprecated-table-parts',
-      'warn duro/no-flex-grow-web',
       'error duro/no-raw-breakpoint-query',
       'error duro/no-raw-design-values',
       'error duro/no-raw-html-element',

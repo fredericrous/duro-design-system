@@ -36,6 +36,9 @@ export function extractRules(project) {
     const ruleObject = ruleVar.getInitializerOrThrow()
     const meta = findProperty(ruleObject, 'meta')
     if (!meta) throw new Error(`${file}: rule has no meta`)
+    // A retired rule stays registered so configs naming it still load, but it
+    // reports nothing and is out of the preset: not part of the catalogue.
+    if (findProperty(meta, 'deprecated')?.getText() === 'true') continue
     const docs = findProperty(meta, 'docs')
     const description = docs
       ? staticEval(findProperty(docs, 'description'), `${file}#description`)

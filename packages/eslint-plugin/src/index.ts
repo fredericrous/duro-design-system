@@ -23,7 +23,6 @@ Object.assign(plugin.configs, {
       // and never --max-warnings.
       'duro/no-raw-design-values': 'error',
       'duro/no-raw-breakpoint-query': 'error',
-      'duro/no-flex-grow-web': 'warn',
       'duro/prefer-ds-form-components': 'error',
     },
   } satisfies TSESLint.FlatConfig.Config,
