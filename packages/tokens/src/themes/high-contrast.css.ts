@@ -46,6 +46,8 @@ export const highContrastTheme = css.createTheme(colors, {
   // overlays above, which sit on an accent fill.
   contrastSurface: '#ffffff',
   onContrastSurface: '#000000',
+  // A border on contrastSurface, at least 3:1 against it (non-text).
+  contrastBorder: 'rgba(0, 0, 0, 0.42)',
 })
 
 export const highContrastShadows = css.createTheme(shadows, {

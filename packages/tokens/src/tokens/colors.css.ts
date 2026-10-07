@@ -60,4 +60,6 @@ export const colors = css.defineVars({
   // overlays above, which sit on an accent fill.
   contrastSurface: '#f5f5f5',
   onContrastSurface: '#1a1a1a',
+  // A border on contrastSurface, at least 3:1 against it (non-text).
+  contrastBorder: 'rgba(0, 0, 0, 0.42)',
 })

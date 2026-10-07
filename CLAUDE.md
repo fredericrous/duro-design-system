@@ -425,6 +425,7 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `readoutW` | 40px |
 | `sliderW` | 96px |
 | `paletteMinW` | 96px |
+| `deviceBarW` | 96px |
 
 ### Borders
 
@@ -508,6 +509,7 @@ is added.
 | `warning` / `warningBg` / `warningText` | Warning states                       |
 | `info` / `infoBg` / `infoText`          | Informational states                 |
 | `contrastSurface` / `onContrastSurface` | Opposite-tone surface (toasts, coach marks) and its text |
+| `contrastBorder`                        | Border on `contrastSurface` (≥ 3:1 against it)            |
 | `overlayLight`                          | Fixed translucent white over content (light counterpart of `scrim`) |
 
 ### Shadows

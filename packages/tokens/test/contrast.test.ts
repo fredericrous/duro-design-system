@@ -13,6 +13,14 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05)
 }
 
+/** An rgba() colour composited over an opaque hex background, as hex. */
+function composite(rgba: string, backgroundHex: string): string {
+  const [r, g, b, a] = rgba.match(/[\d.]+/g)!.map(Number) as [number, number, number, number]
+  const bg = [0, 2, 4].map((i) => parseInt(backgroundHex.replace('#', '').slice(i, i + 2), 16))
+  const mixed = [r, g, b].map((c, i) => Math.round(a * c + (1 - a) * bg[i]!))
+  return '#' + mixed.map((c) => c.toString(16).padStart(2, '0')).join('')
+}
+
 describe('contrastSurface', () => {
   const themes = {dark: darkColors, light: lightColors, highContrast: highContrastColors}
 
@@ -21,6 +29,15 @@ describe('contrastSurface', () => {
       expect(contrast(palette.onContrastSurface, palette.contrastSurface)).toBeGreaterThanOrEqual(
         4.5,
       )
+    })
+  }
+
+  // Non-text contrast (WCAG 1.4.11): the border, composited over the surface,
+  // stands 3:1 or better against it.
+  for (const [name, palette] of Object.entries(themes)) {
+    it(`${name}: contrastBorder stands 3:1 or better on contrastSurface`, () => {
+      const border = composite(palette.contrastBorder, palette.contrastSurface)
+      expect(contrast(border, palette.contrastSurface)).toBeGreaterThanOrEqual(3)
     })
   }
 

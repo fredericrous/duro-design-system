@@ -46,6 +46,7 @@ export type RawColors = {
   overlayLight: string
   contrastSurface: string
   onContrastSurface: string
+  contrastBorder: string
 }
 
 // Numeric maps for consumers that load only the compiled `/raw` entry (e.g.
@@ -168,6 +169,7 @@ export const SIZES_PX = {
   readoutW: 40,
   sliderW: 96,
   paletteMinW: 96,
+  deviceBarW: 96,
 } as const
 
 // Email-only measures: no CSS variable (mail clients cannot read them) and not
@@ -212,6 +214,7 @@ export const darkColors: RawColors = {
   overlayLight: 'rgba(255, 255, 255, 0.78)',
   contrastSurface: '#f5f5f5',
   onContrastSurface: '#1a1a1a',
+  contrastBorder: 'rgba(0, 0, 0, 0.42)',
 }
 
 // Light theme — matches the overrides in `themes/light.css.ts`.
@@ -252,6 +255,7 @@ export const lightColors: RawColors = {
   overlayLight: 'rgba(255, 255, 255, 0.78)',
   contrastSurface: '#1a1a1a',
   onContrastSurface: '#e5e5e5',
+  contrastBorder: 'rgba(255, 255, 255, 0.33)',
 }
 
 // High-contrast theme — matches the overrides in `themes/high-contrast.css.ts`.
@@ -292,4 +296,5 @@ export const highContrastColors: RawColors = {
   overlayLight: 'rgba(255, 255, 255, 0.78)',
   contrastSurface: '#ffffff',
   onContrastSurface: '#000000',
+  contrastBorder: 'rgba(0, 0, 0, 0.42)',
 }

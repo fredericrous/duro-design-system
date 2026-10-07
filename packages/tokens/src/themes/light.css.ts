@@ -46,6 +46,8 @@ export const lightTheme = css.createTheme(colors, {
   // overlays above, which sit on an accent fill.
   contrastSurface: '#1a1a1a',
   onContrastSurface: '#e5e5e5',
+  // A border on contrastSurface, at least 3:1 against it (non-text).
+  contrastBorder: 'rgba(255, 255, 255, 0.33)',
 })
 
 export const lightShadows = css.createTheme(shadows, {

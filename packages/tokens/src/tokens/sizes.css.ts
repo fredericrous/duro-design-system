@@ -79,4 +79,5 @@ export const sizes = css.defineVars({
   readoutW: '40px',
   sliderW: '96px',
   paletteMinW: '96px',
+  deviceBarW: '96px',
 })

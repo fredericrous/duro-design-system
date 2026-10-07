@@ -149,6 +149,7 @@ export const SIZE_KEYS = [
   'readoutW',
   'sliderW',
   'paletteMinW',
+  'deviceBarW',
 ] as const
 export type SizeToken = (typeof SIZE_KEYS)[number]
 
@@ -232,6 +233,7 @@ export const SIZES_PX = {
   readoutW: 40,
   sliderW: 96,
   paletteMinW: 96,
+  deviceBarW: 96,
 } as const
 
 export const BORDER_KEYS = [
