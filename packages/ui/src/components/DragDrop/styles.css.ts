@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {radii} from '@duro-app/tokens/tokens/spacing.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   // The item is the drag handle: no browser panning starts on it, so a touch
@@ -33,12 +34,22 @@ export const styles = css.create({
   // Every zone shows it can receive while something is in the air; the one
   // under the pointer lights up. Drop-target rings, not focus: keyboard focus
   // stays on outlines, which survive forced-colors mode.
+  // Forced-colors mode drops box-shadows and fills; the transparent outline
+  // is what it paints instead (in a system colour), so the rings survive.
   zoneReady: {
     boxShadow: shadows.dropReady,
+    outlineStyle: 'solid',
+    outlineWidth: borders.hairline,
+    outlineColor: 'transparent',
+    outlineOffset: `calc(-1 * ${borders.hairline})`,
   },
   zoneOver: {
     boxShadow: shadows.dropOver,
     backgroundColor: colors.infoBg,
+    outlineStyle: 'solid',
+    outlineWidth: borders.strong,
+    outlineColor: 'transparent',
+    outlineOffset: `calc(-1 * ${borders.strong})`,
   },
   ghost: {
     position: 'fixed',
