@@ -81,6 +81,11 @@ export function CodeBlock({
 
   return (
     <html.div style={styles.root}>
+      <html.div style={styles.bar}>
+        <Button variant="secondary" size="small" onClick={() => void copy()}>
+          {copied ? copiedLabel : copyLabel}
+        </Button>
+      </html.div>
       <html.pre
         ref={preRef}
         tabIndex={scrollable ? 0 : undefined}
@@ -88,11 +93,6 @@ export function CodeBlock({
       >
         {children}
       </html.pre>
-      <html.div style={styles.copy}>
-        <Button variant="secondary" size="small" onClick={() => void copy()}>
-          {copied ? copiedLabel : copyLabel}
-        </Button>
-      </html.div>
       <LiveRegion visuallyHidden>{copied ? copiedLabel : ''}</LiveRegion>
     </html.div>
   )

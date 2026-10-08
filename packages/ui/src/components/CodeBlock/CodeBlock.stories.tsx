@@ -3,6 +3,8 @@ import {expect, fn, spyOn, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {CodeBlock} from './CodeBlock'
 import {onThemeSurface} from '../../docs/themedSurface'
+import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
+import {SIZES_PX} from '@duro-app/tokens/keys'
 
 interface CodeBlockArgs {
   /** The code shown (and copied). */
@@ -90,6 +92,34 @@ export const LongLineScrollsChecks: Story = {
     await expect(getComputedStyle(pre).overflowX).toBe('auto')
     // and a keyboard can reach it to scroll it
     await waitFor(() => expect(pre).toHaveAttribute('tabindex', '0'))
+  },
+}
+
+/**
+ * The copy button never covers the code — a long first line included, and
+ * on a touch screen where the button grows to the 44px target (seen on a
+ * phone in kb-vision: it sat over `kubectl ... get`).
+ */
+export const CopyButtonClearsTheCode: Story = {
+  ...LongLineScrolls,
+  tags: TEST_ONLY,
+  play: async ({canvas, canvasElement}) => {
+    const pre = canvasElement.querySelector('pre') as HTMLElement
+    const button = () => canvas.getByRole('button', {name: 'Copy'})
+    const clear = () =>
+      expect(button().getBoundingClientRect().bottom).toBeLessThanOrEqual(
+        pre.getBoundingClientRect().top,
+      )
+    await withFinePointer()
+    await clear()
+    await withCoarsePointer(async () => {
+      await waitFor(() =>
+        expect(button().getBoundingClientRect().height).toBeGreaterThanOrEqual(
+          SIZES_PX.touchTarget,
+        ),
+      )
+      await clear()
+    })
   },
 }
 
