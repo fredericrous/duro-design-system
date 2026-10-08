@@ -87,8 +87,11 @@ export const ClientNavigation: StoryObj<{onNavigate: OnNavigate}> = {
 /**
  * A touch screen gets 44px links (coarse pointer); a mouse keeps the
  * artboard's text-height row.
+ * It drives Chrome's touch emulation through Vitest's CDP session, so it runs
+ * as a test and stays out of the dev sidebar (there is no Vitest there).
  */
 export const TouchTargets: Story = {
+  tags: ['!dev', '!autodocs'],
   render: () => <Trail />,
   play: async ({canvas}) => {
     const links = () => canvas.getAllByRole('link')
