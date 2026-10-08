@@ -1,11 +1,13 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn} from 'storybook/test'
+import {expect, fn, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {LinkButton} from './LinkButton'
 import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'
 import type {OnNavigate} from '../../shared/navigate'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {SIZES_PX} from '@duro-app/tokens/keys'
+import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 
 const meta: Meta<typeof LinkButton> = {
   title: 'Components/LinkButton',
@@ -129,5 +131,43 @@ export const ClientNavigation: StoryObj<{onNavigate: OnNavigate}> = {
     const help = canvas.getByRole('link', {name: 'Help'})
     await expect(clickLink(help).defaultPrevented).toBe(false)
     await expect(onNavigate).toHaveBeenCalledTimes(1)
+  },
+}
+
+/**
+ * A touch screen gets 44px links, default and small alike (5.6, as Button);
+ * a mouse keeps the compact control.
+ * It drives Chrome's touch emulation through Vitest's CDP session, so it runs
+ * as a test and stays out of the dev sidebar (there is no Vitest there).
+ */
+export const TouchTargets: Story = {
+  tags: ['!dev', '!autodocs'],
+  render: () => (
+    <html.div>
+      <LinkButton href="#a">Open runbook</LinkButton>
+      <LinkButton href="#b" size="small">
+        Edit
+      </LinkButton>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const links = () => [
+      canvas.getByRole('link', {name: 'Open runbook'}),
+      canvas.getByRole('link', {name: 'Edit'}),
+    ]
+    await withFinePointer()
+    for (const link of links()) {
+      await expect(link.getBoundingClientRect().height).toBeLessThan(SIZES_PX.touchTarget)
+    }
+    await withCoarsePointer(async () => {
+      for (const link of links()) {
+        await waitFor(() =>
+          expect(link.getBoundingClientRect().height).toBeGreaterThanOrEqual(SIZES_PX.touchTarget),
+        )
+        await expect(link.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+          SIZES_PX.touchTarget,
+        )
+      }
+    })
   },
 }
