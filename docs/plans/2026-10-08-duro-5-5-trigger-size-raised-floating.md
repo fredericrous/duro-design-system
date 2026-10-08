@@ -107,3 +107,20 @@ Install the packed 5.5 tarballs, then run lint, typecheck and `duro doctor`; rec
 **Overrides:** "No existing value, default or API changes" (Context) for small controls: a text-only small `Toggle` or `Button` goes from 25px to 28px. Stories showing one are named screenshot exceptions in the verification record, and the release notes say "small controls are at least 28px tall".
 
 <!-- panel: repos=duro-design-system reviewers=backend body-sha=8d7066569789 -->
+
+## Verification record (observed before push, tree f3c8be73 rebased on 0b001bef)
+
+- CI commands: lint 0 errors (the 16 warnings main has), typecheck, test:unit 394/394, Storybook 412/412, build with no drift, build-storybook: all exit 0.
+- Email harness main → branch: 8/8 byte-identical.
+- Screenshots main vs branch, 401 shared stories: 386 identical. The 5 named exceptions (Toggle/Small, ToggleGroup/Small, ToggleGroup/All Variants, LinkButton/Small, LinkButton/All Variants) are small text controls growing to 28px. 7 Drawer/Scroll stories differ by the port in their static-build error text. 3 flaky stories match on a rerun or differ main vs main.
+- Small row, fine pointer: all controls 28px; trigger padding 4px/8px, font 12px; ghost Menu 28×28. Coarse pointer: Toggles, triggers and ghost Menu 44px, small Button 28px (`SmallTriggersRowCoarsePointer`).
+- Default-size triggers: 26 triggers, 0 computed properties differ from 5.4.
+- Stacking: raised over the bar 60 > 50; in a Dialog 1041 > 1040, both over the panel; a later Dialog covers a held-open raised Popover; a nested Popover inherits `raised` (fails without the inheritance); a Select from a raised Popover in a Dialog is at 1050. `useInModal` is true in Dialog and Drawer and false outside.
+- Lint `zIndex: 60`/`1041` suggests the new tokens. `LAYERS` stays strictly increasing. The regenerated CLAUDE.md has both rows.
+- Nine consumers on the 5.5.0 tarballs (tree 77d8cc82): 0 new lint, type or doctor errors. lexical-multi with the §3.1 swaps: 12 toolbar controls at 28px, 800px. Re-run on the final tarballs before the tag.
+
+## Implementation review
+
+- Round 1 (tree 6066ad98): approve-with-changes. Fixed: recorded actuals, coarse-pointer story, small LinkButton at 28px; Button's missing touch size recorded as scope in the addendum.
+- Round 2 (tree b196a592), Delta (tree 85f71e67): approve, then approve-with-changes, low only. Fixed: ghost Menu in the touch story. deliberate: LinkButton's 28px is held by its screenshot exceptions, not a play test; the consumer row is re-run before the tag.
+- Next phase: §3 consumers (lexical-multi 0.4.1, website-builder) after v5.5.0.
