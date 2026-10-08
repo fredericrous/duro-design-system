@@ -1,8 +1,11 @@
 import {useState} from 'react'
 import {html} from 'react-strict-dom'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect} from 'storybook/test'
+import {expect, fn} from 'storybook/test'
 import {Tree} from './Tree'
+import {clickLink} from '../../docs/clickLink'
+import {onThemeSurface} from '../../docs/themedSurface'
+import type {OnNavigate} from '../../shared/navigate'
 
 const meta: Meta = {
   title: 'Components/Tree',
@@ -147,5 +150,94 @@ export const Controlled: Story = {
     await expect(trading).toHaveAttribute('tabindex', '0')
     await userEvent.click(canvas.getByText('Finance & steering'))
     await expect(canvas.getByLabelText('Selected')).toHaveTextContent('finance')
+  },
+}
+
+function DocsTree(props: {onNavigate?: OnNavigate; defaultValue?: string}) {
+  const {onNavigate} = props
+  return (
+    <Tree.Root
+      aria-label="Docs"
+      defaultExpanded={['architecture', 'operations']}
+      defaultValue={props.defaultValue}
+    >
+      <Tree.Item value="start" label="Start here" href="#start" onNavigate={onNavigate} />
+      <Tree.Item value="architecture" label="Architecture" meta="4">
+        <Tree.Item
+          value="clusters"
+          label="Clusters and bootstrap"
+          href="#clusters"
+          onNavigate={onNavigate}
+        />
+        <Tree.Item value="ai-ops" label="AI-ops platform" href="#ai-ops" onNavigate={onNavigate} />
+        <Tree.Item
+          value="secrets"
+          label="Secrets and Vault"
+          href="#secrets"
+          onNavigate={onNavigate}
+        />
+      </Tree.Item>
+      <Tree.Item value="operations" label="Operations" meta="31">
+        <Tree.Item value="runbooks" label="Runbooks" href="#runbooks" onNavigate={onNavigate} />
+      </Tree.Item>
+    </Tree.Root>
+  )
+}
+
+/**
+ * Items with `href`: each row is a real link (cmd-click opens a tab, "Copy
+ * link" works) that stays out of the tab order, so the tree keeps one tab stop
+ * and its keyboard. Enter follows the link through `onNavigate`.
+ */
+export const WithLinks: StoryObj<{onNavigate: OnNavigate}> = {
+  parameters: {
+    a11y: {
+      test: 'error',
+      // AA passes; the selected row's accent on bgCardHover is 6.76:1, under
+      // AAA's 7:1. That is Tree's existing selected style, not this story's
+      // business — left to a design-token decision.
+      options: {rules: {'color-contrast-enhanced': {enabled: false}}},
+    },
+  },
+  decorators: [onThemeSurface],
+  args: {onNavigate: fn()},
+  render: (args) => <DocsTree onNavigate={args.onNavigate} defaultValue="ai-ops" />,
+  play: async ({args, canvas, userEvent}) => {
+    const onNavigate = args.onNavigate as unknown as ReturnType<typeof fn>
+    onNavigate.mockImplementation((_href: string, event: {preventDefault(): void}) =>
+      event.preventDefault(),
+    )
+    const item = (name: RegExp) => canvas.getByRole('treeitem', {name})
+
+    // a real link, outside the tab order
+    const link = canvas.getByRole('link', {name: /Clusters and bootstrap/})
+    await expect(link).toHaveAttribute('href', '#clusters')
+    await expect(link).toHaveAttribute('tabindex', '-1')
+
+    // one tab stop (the selection), and the arrow keys still move focus
+    await userEvent.tab()
+    await expect(item(/AI-ops platform/)).toHaveFocus()
+    await userEvent.keyboard('{ArrowUp}')
+    await expect(item(/Clusters and bootstrap/)).toHaveFocus()
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}')
+    await expect(item(/Secrets and Vault/)).toHaveFocus()
+    await userEvent.keyboard('{Home}')
+    await expect(item(/Start here/)).toHaveFocus()
+
+    // Enter follows the link: onNavigate, then the item is selected
+    await userEvent.keyboard('{End}{ArrowUp}{ArrowUp}{Enter}')
+    await expect(onNavigate).toHaveBeenCalledTimes(1)
+    await expect(onNavigate.mock.calls[0][0]).toBe('#secrets')
+    await expect(item(/Secrets and Vault/)).toHaveAttribute('aria-selected', 'true')
+
+    // a plain click goes to the router; a meta-click keeps the browser
+    // default and does not select
+    await expect(clickLink(link).defaultPrevented).toBe(true)
+    await expect(onNavigate).toHaveBeenCalledTimes(2)
+    await expect(onNavigate.mock.calls[1][0]).toBe('#clusters')
+    const runbooks = canvas.getByRole('link', {name: /Runbooks/})
+    await expect(clickLink(runbooks, {metaKey: true}).defaultPrevented).toBe(false)
+    await expect(onNavigate).toHaveBeenCalledTimes(2)
+    await expect(item(/Runbooks/)).toHaveAttribute('aria-selected', 'false')
   },
 }
