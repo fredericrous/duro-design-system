@@ -121,10 +121,10 @@ Install the packed 5.5 tarballs, then run lint, typecheck and `duro doctor`; rec
 
 ## Decision log
 
-- Released as **v5.6.0**, not 5.5.0: another session tagged v5.5.0 at 0b001bef (#82, docs navigation parts) while this branch was in review. Code comments name 5.6. The plan keeps its 5.5 file name, and consumers pin `^5.6.0`.
+- Released as **v5.6.0**, not 5.5.0: another session tagged v5.5.0 at 0b001bef (#82, docs navigation parts) while this branch was in review. Code comments name 5.6. The plan keeps its 5.5 file name. Where §3–§4 and the rollback trigger say 5.5.0 / `^5.5.0` / 5.5.1, read 5.6.0 / `^5.6.0` / 5.6.1. The verification rows that name 5.5 tarballs record what was tested and stay as they are.
 
 ## Implementation review
 
 - Round 1 (tree 6066ad98): approve-with-changes. Fixed: recorded actuals, coarse-pointer story, small LinkButton at 28px; Button's missing touch size recorded as scope in the addendum.
 - Round 2 (tree b196a592), Delta (tree 85f71e67): approve, then approve-with-changes, low only. Fixed: ghost Menu in the touch story. deliberate: LinkButton's 28px is held by its screenshot exceptions, not a play test; the consumer row is re-run before the tag.
-- Next phase: §3 consumers (lexical-multi 0.4.1, website-builder) after v5.5.0.
+- Next phase: §3 consumers (lexical-multi 0.4.1, website-builder) after v5.6.0.
