@@ -104,6 +104,7 @@ export {Tooltip} from './components/Tooltip/Tooltip'
 export {Toolbar, type ToolbarProps} from './components/Toolbar/Toolbar'
 export {Popover} from './components/Popover/Popover'
 export type {PopoverHandle} from './components/Popover/Popover'
+export {useInModal} from './shared/ModalContext'
 export {Switch} from './components/Switch/Switch'
 
 // Layout primitives

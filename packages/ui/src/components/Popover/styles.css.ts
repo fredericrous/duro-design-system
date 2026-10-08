@@ -48,6 +48,14 @@ export const styles = css.create({
   popupInModal: {
     zIndex: layers.popover,
   },
+  // `raised`: over another floating surface, outside a modal (still under a
+  // Dialog or Drawer opened later) and inside one (still under its popups).
+  popupRaised: {
+    zIndex: layers.floatingRaised,
+  },
+  popupInModalRaised: {
+    zIndex: layers.popoverRaised,
+  },
   popup: {
     position: 'fixed',
     top: 0,

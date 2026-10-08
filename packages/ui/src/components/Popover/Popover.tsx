@@ -167,6 +167,8 @@ function Root({
           unregisterParent?.()
         }
       },
+      // Inside a raised Popup, this Popover is raised too.
+      raised: parentLayer?.raised,
     }),
     [parentLayer],
   )
@@ -236,9 +238,18 @@ interface PopupProps {
   children: ReactNode
   /** Accessible name for the dialog. */
   label: string
+  /**
+   * Draw over another floating surface: `layers.floatingRaised` outside a
+   * modal, `layers.popoverRaised` inside a Dialog or Drawer, instead of
+   * `floating` / `popover`. For one floating thing that must cover a sibling
+   * one (a link editor over a format bar), never for covering a modal: a
+   * Dialog opened later still covers it. A Popover nested inside a raised one
+   * is raised too. Default: inherited, else `false`.
+   */
+  raised?: boolean
 }
 
-function Popup({children, label}: PopupProps) {
+function Popup({children, label, raised}: PopupProps) {
   const {open, popoverId, side, align, anchor, triggerRef, popupRef, repositionRef} =
     usePopover('Popup')
   const [coords, setCoords] = useState({top: 0, left: 0})
@@ -246,6 +257,14 @@ function Popup({children, label}: PopupProps) {
   // tokens cascade into the popup and it stacks above dialogs.
   const mount = usePortalMount()
   const inModal = useInModal()
+  const layer = useContext(PopoverLayerContext)
+  const isRaised = raised ?? layer?.raised ?? false
+  // Re-provided around the children: the Root can't see this prop, and a
+  // Popover nested in here reads it to stay above this one.
+  const raisedLayer = useMemo<PopoverLayerContextValue | null>(
+    () => (layer ? {...layer, raised: isRaised} : null),
+    [layer, isRaised],
+  )
 
   // Measure before paint on open; re-measure on scroll/resize (capture phase
   // catches any scrolling ancestor) and when Root.reposition() is called.
@@ -294,10 +313,13 @@ function Popup({children, label}: PopupProps) {
       style={[
         styles.popup,
         inModal && styles.popupInModal,
+        isRaised && (inModal ? styles.popupInModalRaised : styles.popupRaised),
         styles.popupPosition(coords.top, coords.left),
       ]}
     >
-      <ControlContextBoundary>{children}</ControlContextBoundary>
+      <PopoverLayerContext.Provider value={raisedLayer}>
+        <ControlContextBoundary>{children}</ControlContextBoundary>
+      </PopoverLayerContext.Provider>
     </html.div>,
     mount ?? document.body,
   )

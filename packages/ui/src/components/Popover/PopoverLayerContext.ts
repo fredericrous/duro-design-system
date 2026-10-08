@@ -5,6 +5,9 @@ import {type RefObject, createContext, useContext, useLayoutEffect} from 'react'
 // on them counts as inside the Popover.
 export interface PopoverLayerContextValue {
   register: (el: Element) => () => void
+  /** Set by a `raised` Popup for what it holds, so a Popover nested in it is
+   *  raised too and is not drawn under its parent. */
+  raised?: boolean
 }
 
 export const PopoverLayerContext = createContext<PopoverLayerContextValue | null>(null)

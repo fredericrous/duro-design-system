@@ -4362,6 +4362,12 @@
               "name": "label",
               "required": true,
               "type": "string"
+            },
+            {
+              "description": "Draw over another floating surface: `layers.floatingRaised` outside a modal, `layers.popoverRaised` inside a Dialog or Drawer, instead of `floating` / `popover`. For one floating thing that must cover a sibling one (a link editor over a format bar), never for covering a modal: a Dialog opened later still covers it. A Popover nested inside a raised one is raised too. Default: inherited, else `false`.",
+              "name": "raised",
+              "required": false,
+              "type": "boolean"
             }
           ],
           "sourcePath": "packages/ui/src/components/Popover/Popover.tsx"
@@ -7446,6 +7452,14 @@
       "name": "useDragDrop",
       "props": [],
       "sourcePath": "packages/ui/src/components/DragDrop/DragDrop.tsx"
+    },
+    "useInModal": {
+      "importPath": "@duro-app/ui",
+      "kind": "hook",
+      "meta": null,
+      "name": "useInModal",
+      "props": [],
+      "sourcePath": "packages/ui/src/shared/ModalContext.ts"
     },
     "usePortalMount": {
       "importPath": "@duro-app/ui",
