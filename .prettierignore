@@ -14,3 +14,8 @@ packages/cli/registry.json
 # CLAUDE.md contains byte-compared generated regions (build-registry.mjs
 # --check-docs); a prettier reflow of those tables would break the comparison.
 CLAUDE.md
+
+# Mockup artboards are copies of what was picked (often from another
+# repository's canvas): kept byte-identical to the source, so a diff against
+# it shows nothing, and so `duro mockup check` reads exactly what was approved.
+docs/mockups/
