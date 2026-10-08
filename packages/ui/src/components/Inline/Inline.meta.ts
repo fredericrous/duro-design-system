@@ -5,11 +5,12 @@ export const meta: ComponentMeta = {
   whenToUse: [
     'Toolbar or button group that must stay on one row',
     'Horizontal alignment of a known, small number of items',
-    'Icon + text pairs, breadcrumbs, action rows',
+    'Icon + text pairs, action rows',
   ],
   whenNotToUse: [
     'Items that should wrap to the next line — use Cluster',
     'Vertical stacking — use Stack',
+    'A breadcrumb trail — use Breadcrumb (a nav landmark with aria-current)',
   ],
   relatedTo: [
     {

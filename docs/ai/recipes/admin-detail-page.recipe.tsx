@@ -6,14 +6,14 @@ import {Heading} from '../../../packages/ui/src/components/Heading/Heading'
 import {Text} from '../../../packages/ui/src/components/Text/Text'
 import {Badge} from '../../../packages/ui/src/components/Badge/Badge'
 import {Button} from '../../../packages/ui/src/components/Button/Button'
-import {LinkButton} from '../../../packages/ui/src/components/LinkButton/LinkButton'
+import {Breadcrumb} from '../../../packages/ui/src/components/Breadcrumb/Breadcrumb'
 import {Card} from '../../../packages/ui/src/components/Card/Card'
 import {EmptyState} from '../../../packages/ui/src/components/EmptyState/EmptyState'
 import type {ComponentMeta} from '../types'
 
 export const recipeMeta: ComponentMeta = {
   description:
-    'Admin detail page for one record: breadcrumb link, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape).',
+    'Admin detail page for one record: a Breadcrumb back to the collection, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape).',
   whenToUse: [
     'A record page with several facets — overview, members, approvals, audit',
     'Any page that would otherwise stack every section into one long scroll',
@@ -28,9 +28,11 @@ export const recipeMeta: ComponentMeta = {
 function Header() {
   return (
     <Stack gap="sm">
-      <LinkButton href="#applications" variant="secondary" size="small">
-        ← Applications
-      </LinkButton>
+      <Breadcrumb.Root aria-label="Breadcrumb">
+        <Breadcrumb.Item href="#admin">Admin</Breadcrumb.Item>
+        <Breadcrumb.Item href="#applications">Applications</Breadcrumb.Item>
+        <Breadcrumb.Item current>Grafana</Breadcrumb.Item>
+      </Breadcrumb.Root>
       <Inline gap="md" align="center" justify="between">
         <Inline gap="sm" align="center">
           <Heading level={1}>Grafana</Heading>
