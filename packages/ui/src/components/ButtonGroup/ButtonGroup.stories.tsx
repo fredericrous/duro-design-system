@@ -1,9 +1,20 @@
 import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, userEvent, within} from 'storybook/test'
-import {BORDERS_PX, LAYERS, RADII_PX} from '@duro-app/tokens/keys'
+import {
+  BORDERS_PX,
+  FONT_SIZE_REM,
+  LAYERS,
+  RADII_PX,
+  SIZES_PX,
+  SPACING_PX,
+} from '@duro-app/tokens/keys'
 import {ButtonGroup} from './ButtonGroup'
+import type {ControlSize} from '../../shared/types'
 import {Button} from '../Button/Button'
+import {Icon} from '../Icon/Icon'
+import {Inline} from '../Inline/Inline'
+import {Menu} from '../Menu/Menu'
 import {Popover} from '../Popover/Popover'
 import {Select} from '../Select/Select'
 import {Stack} from '../Stack/Stack'
@@ -146,11 +157,11 @@ async function expectJoined(controls: Element[]) {
   }
 }
 
-function TextStyleSelects({named = false}: {named?: boolean}) {
+function TextStyleSelects({named = false, size}: {named?: boolean; size?: ControlSize}) {
   return (
     <ButtonGroup attached aria-label="Text style">
       <Select.Root name={named ? 'block' : undefined} defaultValue="normal">
-        <Select.Trigger aria-label="Block type">
+        <Select.Trigger aria-label="Block type" size={size}>
           <Select.Value />
           <Select.Icon />
         </Select.Trigger>
@@ -160,7 +171,7 @@ function TextStyleSelects({named = false}: {named?: boolean}) {
         </Select.Popup>
       </Select.Root>
       <Select.Root name={named ? 'font' : undefined} defaultValue="arial">
-        <Select.Trigger aria-label="Font">
+        <Select.Trigger aria-label="Font" size={size}>
           <Select.Value />
           <Select.Icon />
         </Select.Trigger>
@@ -170,7 +181,7 @@ function TextStyleSelects({named = false}: {named?: boolean}) {
         </Select.Popup>
       </Select.Root>
       <Select.Root name={named ? 'size' : undefined} defaultValue="15">
-        <Select.Trigger aria-label="Font size">
+        <Select.Trigger aria-label="Font size" size={size}>
           <Select.Value />
           <Select.Icon />
         </Select.Trigger>
@@ -242,25 +253,37 @@ export const AttachedFocusMiddle: Story = {
   },
 }
 
-function FormatGroup() {
+function FormatGroup({size}: {size?: ControlSize}) {
   const [pressed, setPressed] = useState<Record<string, boolean>>({u: true})
   const toggle = (key: string) => (next: boolean) => setPressed((p) => ({...p, [key]: next}))
   return (
     <ButtonGroup attached aria-label="Format">
-      <Toggle aria-label="Bold" pressed={!!pressed.b} onPressedChange={toggle('b')}>
+      <Toggle aria-label="Bold" size={size} pressed={!!pressed.b} onPressedChange={toggle('b')}>
         B
       </Toggle>
-      <Toggle aria-label="Italic" pressed={!!pressed.i} onPressedChange={toggle('i')}>
+      <Toggle aria-label="Italic" size={size} pressed={!!pressed.i} onPressedChange={toggle('i')}>
         I
       </Toggle>
-      <Toggle aria-label="Underline" pressed={!!pressed.u} onPressedChange={toggle('u')}>
+      <Toggle
+        aria-label="Underline"
+        size={size}
+        pressed={!!pressed.u}
+        onPressedChange={toggle('u')}
+      >
         U
       </Toggle>
-      <Toggle aria-label="Code" pressed={!!pressed.code} onPressedChange={toggle('code')}>
+      <Toggle
+        aria-label="Code"
+        size={size}
+        pressed={!!pressed.code}
+        onPressedChange={toggle('code')}
+      >
         {'<>'}
       </Toggle>
       <Popover.Root>
-        <Popover.Trigger aria-label="Link">↗</Popover.Trigger>
+        <Popover.Trigger aria-label="Link" size={size}>
+          ↗
+        </Popover.Trigger>
         <Popover.Popup label="Link">
           <Stack gap="sm">
             <Text>Paste a URL.</Text>
@@ -268,10 +291,10 @@ function FormatGroup() {
           </Stack>
         </Popover.Popup>
       </Popover.Root>
-      <Button variant="secondary" aria-label="Clear formatting">
+      <Button variant="secondary" size={size} aria-label="Clear formatting">
         T
       </Button>
-      <Button variant="secondary" aria-label="Highlight">
+      <Button variant="secondary" size={size} aria-label="Highlight">
         H
       </Button>
     </ButtonGroup>
@@ -370,5 +393,101 @@ export const BothPressedFocusSecond: Story = {
     for (const el of [bold, italic]) await expect(getComputedStyle(el).boxShadow).toMatch(/inset/)
     await expect(drawnAt(bold, b.left + b.width / 2, ringPixels(b).top)).toBe(true)
     await expect(drawnAt(bold, b.left + b.width / 2, ringPixels(b).bottom)).toBe(true)
+  },
+}
+
+// --- Small triggers (5.5) ---
+
+/** fontSizeXs in px, from the root font size. */
+const smallFontPx = () =>
+  `${parseFloat(getComputedStyle(document.documentElement).fontSize) * FONT_SIZE_REM.fontSizeXs}px`
+
+/** [Normal | Arial | 15px] at size="small": joined like the default size. */
+export const AttachedSelectsSmall: Story = {
+  render: () => <TextStyleSelects size="small" />,
+  play: async ({canvas}) => {
+    const triggers = canvas.getAllByRole('combobox')
+    await expectJoined(triggers)
+    for (const el of triggers) {
+      await expect(getComputedStyle(el).fontSize).toBe(smallFontPx())
+    }
+  },
+}
+
+/** The mixed format group at size="small": Toggles, the Popover trigger and
+ *  the Buttons stay joined. */
+export const AttachedMixedSmall: Story = {
+  render: () => <FormatGroup size="small" />,
+  play: async ({canvas}) => {
+    const group = canvas.getByRole('group', {name: 'Format'})
+    await expectJoined(within(group).getAllByRole('button'))
+  },
+}
+
+function SmallControlsRow() {
+  return (
+    <Inline gap="sm" align="center">
+      <Toggle size="small" aria-label="Bold">
+        B
+      </Toggle>
+      <Select.Root defaultValue="normal">
+        <Select.Trigger size="small" aria-label="Block type">
+          <Select.Value />
+          <Select.Icon />
+        </Select.Trigger>
+        <Select.Popup>
+          <Select.Item value="normal">Normal</Select.Item>
+          <Select.Item value="h1">Heading 1</Select.Item>
+        </Select.Popup>
+      </Select.Root>
+      <Menu.Root>
+        <Menu.Trigger size="small">Insert</Menu.Trigger>
+        <Menu.Popup>
+          <Menu.Item onClick={() => undefined}>Image</Menu.Item>
+        </Menu.Popup>
+      </Menu.Root>
+      <Popover.Root>
+        <Popover.Trigger size="small" aria-label="Text colour">
+          A
+        </Popover.Trigger>
+        <Popover.Popup label="Text colour">
+          <Text>Pick a colour.</Text>
+        </Popover.Popup>
+      </Popover.Root>
+      <Menu.Root>
+        <Menu.Trigger size="small" variant="ghost" aria-label="More">
+          <Icon name="menu" size="sm" />
+        </Menu.Trigger>
+        <Menu.Popup>
+          <Menu.Item onClick={() => undefined}>Settings</Menu.Item>
+        </Menu.Popup>
+      </Menu.Root>
+    </Inline>
+  )
+}
+
+/** A small Toggle and small Select, Menu and Popover triggers in a plain
+ *  Inline (no attached group to stretch them): one height, Toggle's padding
+ *  and font. The ghost Menu trigger is the small icon-button size. */
+export const SmallTriggersRow: Story = {
+  render: () => <SmallControlsRow />,
+  play: async ({canvas}) => {
+    const toggle = canvas.getByRole('button', {name: 'Bold'})
+    const triggers = [
+      canvas.getByRole('combobox', {name: 'Block type'}),
+      canvas.getByRole('button', {name: 'Insert'}),
+      canvas.getByRole('button', {name: 'Text colour'}),
+    ]
+    for (const el of triggers) {
+      await expect(el.offsetHeight).toBe(toggle.offsetHeight)
+      const cs = getComputedStyle(el)
+      await expect(cs.paddingTop).toBe(`${SPACING_PX.xs}px`)
+      await expect(cs.paddingLeft).toBe(`${SPACING_PX.sm}px`)
+      await expect(cs.fontSize).toBe(smallFontPx())
+    }
+    const ghost = canvas.getByRole('button', {name: 'More'})
+    await expect(ghost.offsetHeight).toBe(SIZES_PX.iconButtonSm)
+    await expect(ghost.offsetWidth).toBe(SIZES_PX.iconButtonSm)
+    await expect(getComputedStyle(ghost).fontSize).toBe(smallFontPx())
   },
 }

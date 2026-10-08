@@ -22,6 +22,7 @@ import {PopoverLayerContext, type PopoverLayerContextValue} from './PopoverLayer
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {mergeRefs} from '../../shared/mergeRefs'
+import type {ControlSize} from '../../shared/types'
 import {useInModal} from '../../shared/ModalContext'
 
 // --- Context ---
@@ -201,11 +202,13 @@ interface TriggerProps {
   children: ReactNode
   /** Accessible name: required when the label is an icon only. */
   'aria-label'?: string
+  /** `small` matches a small Toggle or Button beside it. Default: `default`. */
+  size?: ControlSize
   /** The trigger <button>, e.g. to measure it or return focus to it. */
   ref?: Ref<HTMLButtonElement>
 }
 
-function Trigger({children, 'aria-label': ariaLabel, ref}: TriggerProps) {
+function Trigger({children, 'aria-label': ariaLabel, size = 'default', ref}: TriggerProps) {
   const {open, setOpen, popoverId, triggerRef} = usePopover('Trigger')
   const grouped = useGroupedControl<HTMLButtonElement>()
 
@@ -220,7 +223,7 @@ function Trigger({children, 'aria-label': ariaLabel, ref}: TriggerProps) {
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-controls={open ? popoverId : undefined}
-      style={[styles.trigger, grouped.style]}
+      style={[styles.trigger, size === 'small' && styles.triggerSmall, grouped.style]}
     >
       {children}
     </html.button>
