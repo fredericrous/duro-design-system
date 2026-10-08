@@ -48,20 +48,25 @@
     line-height: var(--duro-type-scale-line-height9);
     font-weight: var(--duro-typography-font-weight-bold);
   }
+  /* h2 down follow the picked docs artboard (Reader.dc.html): a reading
+     column's sections are a step below the page title, not a second one. */
   :where(.duro-prose, [data-duro-prose]) :where(h2) {
-    font-size: var(--duro-type-scale-font-size8);
-    line-height: var(--duro-type-scale-line-height8);
-    font-weight: var(--duro-typography-font-weight-bold);
-  }
-  :where(.duro-prose, [data-duro-prose]) :where(h3) {
-    font-size: var(--duro-type-scale-font-size7);
-    line-height: var(--duro-type-scale-line-height7);
-    font-weight: var(--duro-typography-font-weight-semibold);
-  }
-  :where(.duro-prose, [data-duro-prose]) :where(h4, h5, h6) {
     font-size: var(--duro-type-scale-font-size6);
     line-height: var(--duro-type-scale-line-height6);
     font-weight: var(--duro-typography-font-weight-semibold);
+    margin-block-start: var(--duro-spacing-lg);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(h3) {
+    font-size: var(--duro-type-scale-font-size5);
+    line-height: var(--duro-type-scale-line-height5);
+    font-weight: var(--duro-typography-font-weight-semibold);
+    margin-block-start: var(--duro-spacing-lg);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(h4, h5, h6) {
+    font-size: var(--duro-type-scale-font-size4);
+    line-height: var(--duro-type-scale-line-height4);
+    font-weight: var(--duro-typography-font-weight-semibold);
+    margin-block-start: var(--duro-spacing-md);
   }
   :where(.duro-prose, [data-duro-prose]) > :where(:first-child) {
     margin-block-start: 0;
@@ -137,24 +142,25 @@
     border: 0;
   }
 
-  /* Tables scroll sideways on their own rather than widening the page. */
+  /* Tables as the docs artboard draws them: the column's full width,
+     horizontal rules only, a muted header. A long cell wraps rather than
+     widening the page (a full-width table cannot also scroll on its own). */
   :where(.duro-prose, [data-duro-prose]) :where(table) {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
+    width: 100%;
     border-collapse: collapse;
     font-size: var(--duro-type-scale-font-size3);
     line-height: var(--duro-type-scale-line-height3);
   }
   :where(.duro-prose, [data-duro-prose]) :where(th, td) {
-    padding: var(--duro-spacing-sm) var(--duro-spacing-ms);
-    border: var(--duro-border-hairline) solid var(--duro-color-border);
+    padding: var(--duro-spacing-xs) var(--duro-spacing-sm);
+    border-block-end: var(--duro-border-hairline) solid var(--duro-color-border);
     text-align: start;
     vertical-align: top;
+    overflow-wrap: anywhere;
   }
   :where(.duro-prose, [data-duro-prose]) :where(th) {
-    font-weight: var(--duro-typography-font-weight-semibold);
-    background-color: var(--duro-color-bg-card);
+    color: var(--duro-color-text-muted);
+    font-weight: var(--duro-typography-font-weight-medium);
   }
 
   :where(.duro-prose, [data-duro-prose]) :where(img) {

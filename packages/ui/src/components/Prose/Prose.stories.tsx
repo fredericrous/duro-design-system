@@ -79,20 +79,27 @@ export const RenderedMarkdown: Story = {
     // flow: no gap before the first block, the scale between the rest
     await expect(style(q('p')).marginTop).toBe('0px')
     await expect(style(q('ol')).marginTop).toBe('16px')
-    // headings from the type scale, more room above than below
-    await expect(style(q('h2')).fontSize).toBe('30px')
-    await expect(style(q('h2')).marginTop).toBe('32px')
-    await expect(style(q('h3')).fontSize).toBe('24px')
+    // headings as the docs artboard draws them (Reader.dc.html): a section is
+    // a step below the page title, with more room above than below
+    await expect(style(q('h2')).fontSize).toBe('20px')
+    await expect(style(q('h2')).fontWeight).toBe('600')
+    await expect(style(q('h2')).marginTop).toBe('24px')
+    await expect(style(q('h2')).marginBottom).toBe('8px')
+    await expect(style(q('h3')).fontSize).toBe('18px')
     // lists keep their markers and indent
     await expect(style(q('ol')).listStyleType).toBe('decimal')
     await expect(style(q('ol ul')).listStyleType).toBe('disc')
     await expect(style(q('ol')).paddingLeft).toBe('24px')
     await expect(style(q('li + li')).marginTop).toBe('4px')
-    // tables: ruled cells, a heading row, sideways scroll of their own
-    await expect(style(q('th')).borderTopWidth).toBe('1px')
-    await expect(style(q('th')).fontWeight).toBe('600')
-    await expect(style(q('td')).paddingLeft).toBe('12px')
-    await expect(style(q('table')).overflowX).toBe('auto')
+    // tables: the column's full width, horizontal rules only, a muted header
+    const table = q('table')
+    await expect(table.getBoundingClientRect().width).toBe(prose.getBoundingClientRect().width)
+    await expect(style(q('td')).borderBottomWidth).toBe('1px')
+    await expect(style(q('td')).borderLeftWidth).toBe('0px')
+    await expect(style(q('th')).borderTopWidth).toBe('0px')
+    await expect(style(q('th')).fontWeight).toBe('500')
+    await expect(style(q('th')).color).toBe(resolved('color', '--duro-color-text-muted', prose))
+    await expect(style(q('td')).paddingLeft).toBe('8px')
     // code: monospace inline and in a block
     await expect(style(q('p code')).fontFamily).toMatch(/mono|Menlo|Consolas|monospace/i)
     await expect(style(q('pre')).overflowX).toBe('auto')
@@ -117,8 +124,8 @@ export const AppCssWins: Story = {
     await waitFor(() => expect(prose.querySelector('h2')).not.toBeNull())
     const h2 = prose.querySelector('h2') as HTMLElement
     const h3 = prose.querySelector('h3') as HTMLElement
-    await expect(style(h2).fontSize).toBe('30px')
-    await expect(style(h3).fontSize).toBe('24px')
+    await expect(style(h2).fontSize).toBe('20px')
+    await expect(style(h3).fontSize).toBe('18px')
 
     const sheet = document.createElement('style')
     // what kb-vision's docs.module.css compiles to, and the weakest rule an app can write
@@ -138,8 +145,8 @@ export const AppCssWins: Story = {
 export const DuroComponentsInside: Story = {
   render: () => (
     <Prose>
-      <Heading level={2} variant="headingSm">
-        Kept at headingSm
+      <Heading level={2} variant="headingLg">
+        Kept at headingLg
       </Heading>
       <Text>A paragraph from Text.</Text>
       <CodeBlock copyLabel="Copy" copiedLabel="Copied">
@@ -148,9 +155,9 @@ export const DuroComponentsInside: Story = {
     </Prose>
   ),
   play: async ({canvas}) => {
-    const heading = canvas.getByRole('heading', {level: 2, name: 'Kept at headingSm'})
-    // headingSm is 20px; a Prose h2 would be 30px
-    await expect(style(heading).fontSize).toBe('20px')
+    const heading = canvas.getByRole('heading', {level: 2, name: 'Kept at headingLg'})
+    // headingLg is 30px; a Prose h2 would be 20px
+    await expect(style(heading).fontSize).toBe('30px')
     await expect(canvas.getByRole('button', {name: 'Copy'})).toBeVisible()
   },
 }
