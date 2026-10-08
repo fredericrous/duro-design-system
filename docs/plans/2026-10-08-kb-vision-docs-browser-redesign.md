@@ -40,3 +40,10 @@ This repository carries Phase 1: `Breadcrumb`, `TableOfContents`, `PageNav`,
 Side effect for consumers: the CLI registry now merges union props, so
 `ui/table` `FromTanstack` lists `onRowClick` and `rowAriaLabel` (named in
 the PR and the release notes).
+
+## Implementation review
+
+- Round 1 approve-with-changes; fixed: pointer record, axe ceiling (#79), Item/TOC prop unions, OnlyPrev play.
+- Delta 1 approve-with-changes; fixed: TOC links block for a mouse, typecheck fixtures kept out of `dist`.
+- Delta 2 approve, after the dev-Storybook crash fix (`9f588ff9`); no open findings.
+- Guided preview `83976f8ac77dfb` approved by the person; five Tree differences named deliberate in its guide.
