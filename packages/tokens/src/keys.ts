@@ -265,6 +265,7 @@ export const LAYER_KEYS = [
   'floating',
   'overlay',
   'modal',
+  'modalRaised',
   'popover',
   'popupBackdrop',
   'popup',
@@ -280,6 +281,7 @@ export const LAYERS = {
   floating: 50,
   overlay: 1000,
   modal: 1001,
+  modalRaised: 1002,
   popover: 1040,
   popupBackdrop: 1049,
   popup: 1050,
@@ -287,12 +289,13 @@ export const LAYERS = {
   portal: 1100,
 } as const
 
-export const EFFECT_KEYS = ['overlayBlur'] as const
+export const EFFECT_KEYS = ['overlayBlur', 'surfaceBlur'] as const
 export type EffectToken = (typeof EFFECT_KEYS)[number]
 
 // Mirrors tokens/effects.css.ts `effects` verbatim.
 export const EFFECTS = {
   overlayBlur: 'blur(2px)',
+  surfaceBlur: 'blur(6px)',
 } as const
 
 // Icon rendering sizes (SVG width/height, px). Not its own css.defineVars

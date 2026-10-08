@@ -12,11 +12,15 @@ describe('LAYERS', () => {
 
   it('stacks in the documented order', () => {
     const order = LAYER_KEYS.map((key) => LAYERS[key])
-    expect(order).toEqual([...order].sort((a, b) => a - b))
+    // Strictly increasing: no two layers share a value.
+    for (let i = 1; i < order.length; i++) expect(order[i]).toBeGreaterThan(order[i - 1]!)
     expect(LAYERS.popup).toBeGreaterThan(LAYERS.modal)
     // A Popover clears a modal, and stays under what opens from inside it.
     expect(LAYERS.popover).toBeGreaterThan(LAYERS.modal)
     expect(LAYERS.popover).toBeLessThan(LAYERS.popupBackdrop)
     expect(LAYERS.toast).toBeGreaterThan(LAYERS.popup)
+    // A sheet's own chrome clears the modal it sits on, under a Popover.
+    expect(LAYERS.modalRaised).toBeGreaterThan(LAYERS.modal)
+    expect(LAYERS.modalRaised).toBeLessThan(LAYERS.popover)
   })
 })

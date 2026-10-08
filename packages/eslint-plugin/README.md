@@ -133,16 +133,24 @@ Since 5.3. Inside `css.create()` objects:
   layers value suggests its token (`zIndex: 1000` → `layers.overlay`, `1050` →
   `layers.popup`); any other value names the layers it sits between, without a
   fix (`zIndex: 16` → between `layers.raised` (1) and `layers.floating` (50)).
+  Since 5.4, a value from `2` up to `localMax` (default `9`) is not reported:
+  it orders children inside one component, which is not a layer (`1` is
+  `layers.raised` and keeps its suggestion).
 - **`backdropFilter` / `filter`** — a `blur(...)` literal. `blur(2px)`
-  suggests `effects.overlayBlur`; another blur reports without a fix.
+  suggests `effects.overlayBlur`, `blur(6px)` (5.4) `effects.surfaceBlur`;
+  another blur reports without a fix.
 
 It ships as **`warn` for the 5.x line**, so no consumer's lint turns red on a
 minor, and becomes **`error` in the next major**. It is its own rule, apart
-from `no-raw-design-values`, because ESLint sets severity per rule. Local
-stacking values (`2`, `10` inside one component) have no token yet: before
-that major, Duro decides whether to exempt small values or add a `local` step.
+from `no-raw-design-values`, because ESLint sets severity per rule.
 
-Options: `{factories?: string[], exemptFiles?: string[]}`
+Leaving local stacking unreported is this rule's scope, not an exemption from
+ADR-0027: a z-index is not one of the measures
+`design-system.every-measure-is-a-token` makes a token (spacing, radius, size,
+border width). `localMax` is capped at `49`, below `layers.floating` (50), so
+the skip never reaches a layer; `{localMax: 0}` reports every positive value.
+
+Options: `{factories?: string[], exemptFiles?: string[], localMax?: number}`
 
 ### no-raw-breakpoint-query
 

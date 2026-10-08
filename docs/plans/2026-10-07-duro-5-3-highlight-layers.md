@@ -1,5 +1,6 @@
 ---
-status: active
+status: done
+landed: 'v5.3.0. Consumers: ticket-vision #19, social-planner #56, lexical-multi 0.4.0 (#21, #22); website-builder goes to 5.4 (2026-10-07-duro-5-4-local-stacking.md), its PR filled in when it merges.'
 branch: feat/duro-5-3-highlight-layers
 repos: [duro-design-system]
 adrs: [ADR-0006, ADR-0027]

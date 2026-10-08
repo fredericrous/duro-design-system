@@ -94,10 +94,12 @@ Measure props take token keys: `<Grid minColumnWidth="gridColMd">`,
 `<ScrollArea.Viewport maxHeight="listMaxH">`. `duro/no-raw-design-values`
 reports the rest.
 
-A z-index comes from `layers.*` and a backdrop blur from `effects.*` (5.3):
+A z-index comes from `layers.*` and a blur from `effects.*` (5.3):
 `duro/no-raw-layer-values` warns on the raw ones for the 5.x line, and
-becomes an error in the next major. On React Native, read the numbers from
-`LAYERS` in `@duro-app/tokens/keys`.
+becomes an error in the next major. A z-index from `2` to `9` that orders
+children inside one component is not a layer and is not reported (5.4,
+the rule's `localMax`). On React Native, read the numbers from `LAYERS` in
+`@duro-app/tokens/keys`.
 
 ## Layout Decision Tree
 
@@ -456,6 +458,7 @@ The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values o
 | `floating` | 50 |
 | `overlay` | 1000 |
 | `modal` | 1001 |
+| `modalRaised` | 1002 |
 | `popover` | 1040 |
 | `popupBackdrop` | 1049 |
 | `popup` | 1050 |
@@ -464,11 +467,12 @@ The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values o
 
 ### Effects
 
-`effects` from `@duro-app/tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport).
+`effects` from `@duro-app/tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport). `surfaceBlur` frosts a surface over imagery (a pill or a chip on a photo) and follows the same rule: put it on that surface element only.
 
 | Token | Value |
 | --- | --- |
 | `overlayBlur` | blur(2px) |
+| `surfaceBlur` | blur(6px) |
 
 <!-- duro:generated:tokens END -->
 
