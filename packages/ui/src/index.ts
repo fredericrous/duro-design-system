@@ -71,6 +71,7 @@ export {
   type ToastOptions,
   type ToastAction,
   type ToastContextValue,
+  type ToastProviderProps,
 } from './components/Toast'
 export {
   StatusIcon,
