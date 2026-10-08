@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'The "On this page" list of a long page\'s sections: a labelled nav of in-page links (href="#id", level 2 or 3). value is the id of the section being read; that item gets aria-current="location", the nav marker bar and a heavier weight. variant="menu" puts the list behind a disclosure button (aria-expanded) for narrow screens. No scroll-spy inside: the app computes value. Compound component — Root is required.',
+    'The "On this page" list of a long page\'s sections: a labelled nav of in-page links (href="#id", level 2 or 3). value is the id of the section being read; that item gets aria-current="location", the nav marker bar and a heavier weight. variant="menu" puts the list behind a disclosure button (aria-expanded) for narrow screens; open / defaultOpen / onOpenChange exist on the menu variant only. No scroll-spy inside: the app computes value. Compound component — Root is required.',
   whenToUse: [
     'A long document page (docs, a runbook, an ADR) with H2/H3 sections',
     'variant="menu" for the same list on a narrow screen, above the body',

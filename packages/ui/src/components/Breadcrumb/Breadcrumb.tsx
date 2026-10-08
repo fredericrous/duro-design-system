@@ -49,25 +49,35 @@ function Root({'aria-label': ariaLabel, children}: RootProps) {
 
 // --- Item ---
 
-interface ItemProps {
-  /** Where the item links to. Not rendered as a link when `current`. */
-  href?: string
-  /** The page the user is on: rendered as text with `aria-current="page"`. */
-  current?: boolean
-  /**
-   * Client-side navigation: called for a plain primary click (no modifier
-   * key). Call `event.preventDefault()`, then your router's navigate.
-   */
-  onNavigate?: OnNavigate
-  children: ReactNode
-}
+/**
+ * A link to an ancestor page, or the current page. The two are exclusive: the
+ * current page has no `href` (it is text) and a link is never `current`.
+ */
+type ItemProps = {children: ReactNode} & (
+  | {
+      /** Where the item links to. */
+      href: string
+      /**
+       * Client-side navigation: called for a plain primary click (no modifier
+       * key). Call `event.preventDefault()`, then your router's navigate.
+       */
+      onNavigate?: OnNavigate
+      current?: never
+    }
+  | {
+      /** The page the user is on: rendered as text with `aria-current="page"`. */
+      current: true
+      href?: never
+      onNavigate?: never
+    }
+)
 
-function Item({href, current = false, onNavigate, children}: ItemProps) {
+function Item({href, current, onNavigate, children}: ItemProps) {
   useBreadcrumb()
   return (
     <html.li style={styles.item}>
-      {current || href === undefined ? (
-        <html.span aria-current={current ? 'page' : undefined} style={styles.current}>
+      {current ? (
+        <html.span aria-current="page" style={styles.current}>
           {children}
         </html.span>
       ) : (

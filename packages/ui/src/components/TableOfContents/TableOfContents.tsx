@@ -22,24 +22,39 @@ import {
 
 // --- Root ---
 
-interface RootProps {
+/**
+ * The disclosure state (`open`, `defaultOpen`, `onOpenChange`) exists only on
+ * the menu: the list variant has no button, so it takes none of them.
+ */
+type RootProps = {
   /** Names the landmark ("On this page"); required, from your text catalog. */
   'aria-label': string
   /** The id of the section being read; the Item whose href is `#<value>` is active. */
   value?: string | null
-  /** `list` (default) for a sidebar; `menu` for a narrow screen, behind a button. */
-  variant?: TableOfContentsVariant
   /**
    * Visible title: the caption above the list, or the menu button's text.
    * The menu button falls back to `aria-label`; the list shows none without it.
    */
   label?: ReactNode
-  /** Menu variant: whether the list is shown (controlled). */
-  open?: boolean
-  defaultOpen?: boolean
-  onOpenChange?: (open: boolean) => void
   children: ReactNode
-}
+} & (
+  | {
+      /** `list` (default) for a sidebar; `menu` for a narrow screen, behind a disclosure button (only `menu` takes open / defaultOpen / onOpenChange). */
+      variant?: 'list'
+      open?: never
+      defaultOpen?: never
+      onOpenChange?: never
+    }
+  | {
+      /** `list` (default) for a sidebar; `menu` for a narrow screen, behind a disclosure button (only `menu` takes open / defaultOpen / onOpenChange). */
+      variant: 'menu'
+      /** Whether the list is shown (controlled). */
+      open?: boolean
+      /** Whether the list starts shown (uncontrolled; default false). */
+      defaultOpen?: boolean
+      onOpenChange?: (open: boolean) => void
+    }
+)
 
 function Root({
   'aria-label': ariaLabel,

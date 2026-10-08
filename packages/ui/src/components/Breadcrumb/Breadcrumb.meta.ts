@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first. The current page is text with aria-current="page"; the › separators are aria-hidden. Links take href and an optional onNavigate(href, event) for a client router (plain clicks only). Compound component — Root is required.',
+    'Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first. An Item is either a link (href, optional onNavigate) or the current page (current: text with aria-current="page"), never both — the types refuse the mix. The › separators are aria-hidden. Links take href and an optional onNavigate(href, event) for a client router (plain clicks only). Compound component — Root is required.',
   whenToUse: [
     'A page deep in a hierarchy — docs › section › page, admin › collection › record',
     'A detail page whose way back to its collection should be one click',

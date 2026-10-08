@@ -751,8 +751,11 @@ const go: OnNavigate = (href, event) => {
 </Breadcrumb.Root>
 ```
 
-Without `onNavigate` a link does a normal page load. Don't wrap a part in your
-router's `Link`, and don't put an `onClick` on a wrapper to intercept it.
+`Breadcrumb.Item` is a link (`href`, `onNavigate`) or the current page
+(`current`), never both; `TableOfContents.Root` takes `open` / `defaultOpen` /
+`onOpenChange` only with `variant="menu"`. Without `onNavigate` a link does a
+normal page load. Don't wrap a part in your router's `Link`, and don't put an
+`onClick` on a wrapper to intercept it.
 
 ## Canonical Recipes
 
