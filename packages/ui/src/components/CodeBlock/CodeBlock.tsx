@@ -66,7 +66,9 @@ export function CodeBlock({
     try {
       await navigator.clipboard.writeText(preRef.current?.textContent ?? '')
     } catch (error) {
-      onCopyError?.(error)
+      // Never dropped: without a handler the failure still reaches the console.
+      if (onCopyError) onCopyError(error)
+      else console.error('CodeBlock: copying to the clipboard failed', error)
       return
     }
     if (timerRef.current) clearTimeout(timerRef.current)

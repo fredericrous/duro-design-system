@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 import {relative} from '../src/components/Time/relative'
 
 const NOW = Date.UTC(2026, 9, 8, 12, 0, 0)
@@ -39,10 +39,17 @@ describe('relative', () => {
     expect(relative(new Date(iso), {now: NOW, locale: 'en'})).toBe(expected)
   })
 
-  it('is a pure function of its arguments: the same now gives the same text', () => {
-    const a = relative(ago(3 * DAY), {now: NOW, locale: 'en'})
-    const b = relative(ago(3 * DAY), {now: NOW, locale: 'en'})
-    expect(a).toBe(b)
+  it('never reads the clock: moving it does not change the text', () => {
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(NOW)
+      const a = relative(ago(3 * DAY), {now: NOW, locale: 'en'})
+      vi.setSystemTime(NOW + 400 * DAY)
+      const b = relative(ago(3 * DAY), {now: NOW, locale: 'en'})
+      expect(b).toBe(a)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('throws a RangeError on an unparseable date', () => {

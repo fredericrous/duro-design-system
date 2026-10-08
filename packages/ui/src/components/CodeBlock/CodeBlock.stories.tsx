@@ -81,6 +81,30 @@ export const CopyRefused: StoryObj<{onCopyError: (error: unknown) => void}> = {
   },
 }
 
+/** Without onCopyError, a refused clipboard still reaches the console. */
+export const CopyRefusedWithoutHandler: Story = {
+  render: () => (
+    <CodeBlock copyLabel="Copy" copiedLabel="Copied">
+      <html.code>{COMMAND}</html.code>
+    </CodeBlock>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const write = spyOn(navigator.clipboard, 'writeText').mockRejectedValue(
+      new DOMException('Denied', 'NotAllowedError'),
+    )
+    const logged = spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      await userEvent.click(canvas.getByRole('button', {name: 'Copy'}))
+      await waitFor(() => expect(logged).toHaveBeenCalledTimes(1))
+      await expect(String(logged.mock.calls[0]?.[0])).toContain('CodeBlock')
+      await expect(canvas.getByRole('status')).toBeEmptyDOMElement()
+    } finally {
+      logged.mockRestore()
+      write.mockRestore()
+    }
+  },
+}
+
 /** A long line scrolls inside the block instead of widening the page. */
 export const LongLineScrolls: Story = {
   render: () => (
