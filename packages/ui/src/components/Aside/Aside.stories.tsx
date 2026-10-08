@@ -2,7 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {SPACING_PX} from '@duro-app/tokens/keys'
+import {SPACING_KEYS, SPACING_PX, type SpacingToken} from '@duro-app/tokens/keys'
 import {Aside} from './Aside'
 import {Grid} from '../Grid/Grid'
 import {Stack} from '../Stack/Stack'
@@ -10,14 +10,26 @@ import {Text} from '../Text/Text'
 import {TextLink} from '../TextLink/TextLink'
 import {onThemeSurface} from '../../docs/themedSurface'
 
-const meta: Meta = {
-  title: 'Layout/Aside',
-  parameters: {a11y: {test: 'error'}},
-  decorators: [onThemeSurface],
+interface AsideArgs {
+  'aria-label': string
+  /** The gap kept between the viewport's top and the Aside while it sticks. */
+  offset: SpacingToken
 }
 
+const meta = {
+  title: 'Layout/Aside',
+  args: {'aria-label': 'Page outline', offset: 'lg'},
+  argTypes: {
+    'aria-label': {control: 'text'},
+    offset: {control: 'select', options: [...SPACING_KEYS]},
+  },
+  parameters: {a11y: {test: 'error'}},
+  decorators: [onThemeSurface],
+  render: (args) => <LongPage {...args} />,
+} satisfies Meta<AsideArgs>
+
 export default meta
-type Story = StoryObj
+type Story = StoryObj<typeof meta>
 
 const styles = css.create({
   page: {width: sizes.pageLg},
@@ -28,7 +40,7 @@ const SECTIONS = Array.from({length: 60}, (_, i) => `Section ${i + 1}`)
 
 const asideRef: {current: HTMLElement | null} = {current: null}
 
-function LongPage() {
+function LongPage({'aria-label': ariaLabel, offset}: AsideArgs) {
   return (
     <html.div style={styles.page}>
       <Grid layout="content-aside" gap="xl">
@@ -37,7 +49,7 @@ function LongPage() {
             <Text key={text}>{text}</Text>
           ))}
         </Stack>
-        <Aside aria-label="Page outline" ref={asideRef}>
+        <Aside aria-label={ariaLabel} offset={offset} ref={asideRef}>
           <Stack gap="xs">
             {SECTIONS.map((name) => (
               <TextLink key={name} href={`#${name}`}>
@@ -52,13 +64,27 @@ function LongPage() {
 }
 
 /**
+ * A long page with its outline beside it. Scroll the canvas: the Aside sticks
+ * `offset` below the viewport's top and scrolls on its own, being taller than
+ * the viewport. Change `offset` to move where it sticks.
+ */
+export const Playground: Story = {
+  play: async ({args, canvas}) => {
+    const aside = canvas.getByRole('complementary', {name: args['aria-label']})
+    await expect(aside.tagName).toBe('ASIDE')
+    await expect(getComputedStyle(aside).top).toBe(`${SPACING_PX[args.offset]}px`)
+  },
+}
+
+/**
  * Sticks within the viewport while the page scrolls, and scrolls on its own
  * when it is taller than the viewport; a labelled complementary landmark.
+ * It scrolls the page, so it runs as a test only.
  */
 export const StickyAndScrolling: Story = {
-  render: () => <LongPage />,
-  play: async ({canvas}) => {
-    const aside = canvas.getByRole('complementary', {name: 'Page outline'})
+  tags: ['!dev', '!autodocs'],
+  play: async ({args, canvas}) => {
+    const aside = canvas.getByRole('complementary', {name: args['aria-label']})
     await expect(asideRef.current).toBe(aside)
     await expect(aside.tagName).toBe('ASIDE')
 

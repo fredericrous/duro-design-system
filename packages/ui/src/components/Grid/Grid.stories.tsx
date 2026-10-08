@@ -6,7 +6,8 @@ import {Grid} from './Grid'
 import {Stack} from '../Stack/Stack'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {SIZES_PX, SPACING_KEYS} from '@duro-app/tokens/keys'
+import {SIZES_PX, SPACING_KEYS, type SpacingToken} from '@duro-app/tokens/keys'
+import {breakpointsPx} from '@duro-app/tokens/tokens/breakpoints.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {useContainerQuery} from '../../hooks/useContainerQuery'
 import {useContainerBelow} from '../../hooks/useContainerBelow'
@@ -278,19 +279,26 @@ const asideStyles = css.create({
     borderStyle: 'solid',
     borderColor: colors.border,
   },
+  // An outline, not a border: the frame's edge without taking its width.
+  frame: (width: number) => ({
+    width,
+    outlineWidth: borders.hairline,
+    outlineStyle: 'dashed',
+    outlineColor: colors.border,
+  }),
 })
 
 // Each page's Grid ref, for the play functions to compare with the DOM.
 const gridRefs = new Map<string, {current: HTMLDivElement | null}>()
 
 /** Reports, beside the grid, what `useContainerBelow` sees on the Grid's ref. */
-function ReadingPage({name}: {name: string}) {
+function ReadingPage({name, gap = 'xl'}: {name: string; gap?: SpacingToken}) {
   const ref = useRef<HTMLDivElement | null>(null)
   gridRefs.set(name, ref)
   const below = useContainerBelow(ref, 'md')
   return (
     <html.div role="group" aria-label={name}>
-      <Grid ref={ref} layout="content-aside" gap="xl">
+      <Grid ref={ref} layout="content-aside" gap={gap}>
         <html.div role="region" aria-label={`${name} content`} style={asideStyles.cell}>
           {below ? 'below md' : 'md or wider'}
         </html.div>
@@ -302,9 +310,50 @@ function ReadingPage({name}: {name: string}) {
   )
 }
 
-/** A reading column beside an Aside (asideW); one column below md, measured
- *  on the Grid's own container. */
-export const ContentAside: Story = {
+interface ContentAsideArgs {
+  /** The gap between the reading column and the Aside. */
+  gap: SpacingToken
+  /** The frame's width in px: the container the Grid measures. */
+  width: number
+}
+
+/**
+ * A reading column beside an Aside (asideW); one column below md (768px),
+ * measured on the Grid's own container. Drag `width` across 768 to see it
+ * collapse: the column reports what `useContainerBelow` sees.
+ */
+export const ContentAside: StoryObj<ContentAsideArgs> = {
+  args: {gap: 'xl', width: SIZES_PX.pageLg},
+  argTypes: {
+    gap: {control: 'select', options: [...SPACING_KEYS]},
+    width: {control: {type: 'range', min: 320, max: 1440, step: 8}},
+  },
+  parameters: {a11y: {test: 'error'}, controls: {include: ['gap', 'width']}},
+  decorators: [onThemeSurface],
+  render: ({gap, width}) => (
+    <html.div style={asideStyles.frame(width)}>
+      <ReadingPage name="Page" gap={gap} />
+    </html.div>
+  ),
+  play: async ({args, canvas}) => {
+    const content = canvas.getByRole('region', {name: 'Page content'})
+    const aside = canvas.getByRole('complementary', {name: 'Page outline'})
+    if (args.width >= breakpointsPx.md) {
+      await expect(aside.getBoundingClientRect().width).toBe(SIZES_PX.asideW)
+      await expect(aside.getBoundingClientRect().left).toBeGreaterThan(
+        content.getBoundingClientRect().right,
+      )
+    } else {
+      await expect(aside.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+        content.getBoundingClientRect().bottom,
+      )
+    }
+  },
+}
+
+/** A wide page and a narrow one, side by side: beside, then stacked. */
+export const ContentAsideWideAndNarrow: Story = {
+  tags: ['!dev', '!autodocs'],
   parameters: {a11y: {test: 'error'}},
   decorators: [onThemeSurface],
   render: () => (
