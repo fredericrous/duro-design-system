@@ -96,4 +96,12 @@ Each check is listed as what goes in and what must come out.
 
 Install the packed 5.5 tarballs, then run lint, typecheck and `duro doctor`; record error and warning counts against 5.4. 0 new errors and 0 new type errors anywhere. lexical-multi with its §3.1 swaps applied: 0 errors, 0 warnings, and its toolbar controls at equal height in an 800px Storybook (vertical-overlap check).
 
+## Addendum (person's decision, 2026-10-08)
+
+**Decision:** every small control (`Toggle`, `Button`, `Select.Trigger`, `Menu.Trigger`, `Popover.Trigger`) gets `minHeight: sizes.controlSm` (28px), plus the coarse-pointer `touchTarget` minimum it already has. A small ghost `Menu.Trigger` stays `iconButtonSm` (28px). §3.1 also passes `size="small"` to lexical-multi's two ghost Menus.
+
+**Why:** equal height whatever a small control holds. With §1 as written, lexical-multi's toolbar at 800px measured 25px (small Selects, 12px text), 28px (Toggles and colour triggers, 18px icons) and 32px (ghost Menus, not swapped): the padding matched, the content did not.
+
+**Overrides:** "No existing value, default or API changes" (Context) for small controls: a text-only small `Toggle` or `Button` goes from 25px to 28px. Stories showing one are named screenshot exceptions in the verification record, and the release notes say "small controls are at least 28px tall".
+
 <!-- panel: repos=duro-design-system reviewers=backend body-sha=8d7066569789 -->
