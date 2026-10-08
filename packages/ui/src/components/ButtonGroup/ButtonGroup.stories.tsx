@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, userEvent, within} from 'storybook/test'
+import {expect, userEvent, waitFor, within} from 'storybook/test'
 import {
   BORDERS_PX,
   FONT_SIZE_REM,
@@ -9,6 +9,7 @@ import {
   SIZES_PX,
   SPACING_PX,
 } from '@duro-app/tokens/keys'
+import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 import {ButtonGroup} from './ButtonGroup'
 import type {ControlSize} from '../../shared/types'
 import {Button} from '../Button/Button'
@@ -479,6 +480,7 @@ function SmallControlsRow() {
 export const SmallTriggersRow: Story = {
   render: () => <SmallControlsRow />,
   play: async ({canvas}) => {
+    await withFinePointer()
     const controls = [
       canvas.getByRole('button', {name: 'Bold'}),
       canvas.getByRole('button', {name: 'Search'}),
@@ -502,5 +504,28 @@ export const SmallTriggersRow: Story = {
     await expect(ghost.offsetHeight).toBe(SIZES_PX.iconButtonSm)
     await expect(ghost.offsetWidth).toBe(SIZES_PX.iconButtonSm)
     await expect(getComputedStyle(ghost).fontSize).toBe(smallFontPx())
+  },
+}
+
+/** The same row under a coarse pointer: Toggle and the three triggers reach
+ *  touchTarget. Button has no touch size at any size, so the small Button stays
+ *  controlSm (the 5.5 plan's addendum). */
+export const SmallTriggersRowCoarsePointer: Story = {
+  render: () => <SmallControlsRow />,
+  play: async ({canvas}) => {
+    const touch = [
+      canvas.getByRole('button', {name: 'Bold'}),
+      canvas.getByRole('button', {name: 'Search'}),
+      canvas.getByRole('combobox', {name: 'Block type'}),
+      canvas.getByRole('button', {name: 'Insert'}),
+      canvas.getByRole('button', {name: 'Text colour'}),
+    ]
+    const button = canvas.getByRole('button', {name: 'Clear'})
+    await withCoarsePointer(async () => {
+      for (const el of touch) {
+        await waitFor(() => expect(el.offsetHeight).toBe(SIZES_PX.touchTarget))
+      }
+      await expect(button.offsetHeight).toBe(SIZES_PX.controlSm)
+    })
   },
 }

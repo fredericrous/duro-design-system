@@ -100,6 +100,8 @@ Install the packed 5.5 tarballs, then run lint, typecheck and `duro doctor`; rec
 
 **Decision:** every small control (`Toggle`, `Button`, `Select.Trigger`, `Menu.Trigger`, `Popover.Trigger`) gets `minHeight: sizes.controlSm` (28px), plus the coarse-pointer `touchTarget` minimum it already has. A small ghost `Menu.Trigger` stays `iconButtonSm` (28px). §3.1 also passes `size="small"` to lexical-multi's two ghost Menus.
 
+**Scope (from the implementation review):** `LinkButton` follows `Button`, so a small LinkButton is also at least 28px. Neither has a coarse-pointer `touchTarget` minimum at any size in 5.x, and 5.5 does not add one: under a coarse pointer, small Toggles and triggers are 44px and a small Button or LinkButton stays 28px. Story `SmallTriggersRowCoarsePointer` checks both.
+
 **Why:** equal height whatever a small control holds. With §1 as written, lexical-multi's toolbar at 800px measured 25px (small Selects, 12px text), 28px (Toggles and colour triggers, 18px icons) and 32px (ghost Menus, not swapped): the padding matched, the content did not.
 
 **Overrides:** "No existing value, default or API changes" (Context) for small controls: a text-only small `Toggle` or `Button` goes from 25px to 28px. Stories showing one are named screenshot exceptions in the verification record, and the release notes say "small controls are at least 28px tall".
