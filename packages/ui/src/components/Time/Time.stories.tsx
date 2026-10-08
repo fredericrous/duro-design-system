@@ -84,7 +84,12 @@ function Updated({locale, label}: {locale: string; label: string}) {
  * `numeric` to always for "1 day ago" instead of "yesterday". Hover the date
  * for the exact instant (title).
  */
-export const Playground: Story = {
+export const Playground: Story = {}
+
+/** Playground's checks, kept off the visible story so a Control change cannot fail them. */
+export const PlaygroundChecks: Story = {
+  ...Playground,
+  tags: TEST_ONLY,
   play: async ({args, canvasElement}) => {
     const time = canvasElement.querySelector('time')!
     const iso = new Date(NOW + args.offsetDays * DAY_MS).toISOString()
@@ -101,6 +106,12 @@ export const TwoLocales: Story = {
       <Updated locale="fr" label="Mis à jour" />
     </Stack>
   ),
+}
+
+/** TwoLocales' checks, kept off the visible story so a Control change cannot fail them. */
+export const TwoLocalesChecks: Story = {
+  ...TwoLocales,
+  tags: TEST_ONLY,
   play: async ({canvasElement}) => {
     const times = [...canvasElement.querySelectorAll('time')]
     await expect(times).toHaveLength(2)

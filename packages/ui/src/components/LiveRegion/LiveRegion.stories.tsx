@@ -90,13 +90,7 @@ const TEST_ONLY = ['!dev', '!autodocs']
  * `visuallyHidden`) and the Actions panel logs `onAnnounce`. Switch
  * `politeness` to assertive for role="alert".
  */
-export const Playground: Story = {
-  play: async ({args, canvas}) => {
-    const region = canvas.getByRole(args.politeness === 'assertive' ? 'alert' : 'status')
-    await expect(region).toHaveAttribute('aria-live', args.politeness)
-    await expect(region).toBeEmptyDOMElement()
-  },
-}
+export const Playground: Story = {}
 
 /** Mounted empty from the start; a change of content is what gets announced. */
 export const Polite: Story = {

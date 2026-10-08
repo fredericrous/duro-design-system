@@ -218,6 +218,12 @@ export const DuroComponentsInside: Story = {
       </CodeBlock>
     </Prose>
   ),
+}
+
+/** DuroComponentsInside's checks, kept off the visible story so a Control change cannot fail them. */
+export const DuroComponentsInsideChecks: Story = {
+  ...DuroComponentsInside,
+  tags: TEST_ONLY,
   play: async ({canvas}) => {
     const heading = canvas.getByRole('heading', {level: 2, name: 'Kept at headingLg'})
     // headingLg is 30px; a Prose h2 would be 20px

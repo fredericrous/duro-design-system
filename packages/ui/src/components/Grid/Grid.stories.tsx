@@ -335,6 +335,12 @@ export const ContentAside: StoryObj<ContentAsideArgs> = {
       <ReadingPage name="Page" gap={gap} />
     </html.div>
   ),
+}
+
+/** ContentAside's checks, kept off the visible story so a Control change cannot fail them. */
+export const ContentAsideChecks: StoryObj<ContentAsideArgs> = {
+  ...ContentAside,
+  tags: ['!dev', '!autodocs'],
   play: async ({args, canvas}) => {
     const content = canvas.getByRole('region', {name: 'Page content'})
     const aside = canvas.getByRole('complementary', {name: 'Page outline'})
@@ -349,6 +355,12 @@ export const ContentAside: StoryObj<ContentAsideArgs> = {
       )
     }
   },
+}
+
+/** ContentAside's checks below md (pageSm, 600px): the Aside stacks under the column. */
+export const ContentAsideStackedChecks: StoryObj<ContentAsideArgs> = {
+  ...ContentAsideChecks,
+  args: {...ContentAsideChecks.args, width: SIZES_PX.pageSm},
 }
 
 /** A wide page and a narrow one, side by side: beside, then stacked. */

@@ -56,7 +56,12 @@ const styles = css.create({
  * `copiedDuration` ms and a polite region announces it. A refused clipboard
  * shows up in Actions as `onCopyError`.
  */
-export const Playground: Story = {
+export const Playground: Story = {}
+
+/** Playground's checks, kept off the visible story so a Control change cannot fail them. */
+export const PlaygroundChecks: Story = {
+  ...Playground,
+  tags: TEST_ONLY,
   play: async ({args, canvas}) => {
     await expect(canvas.getByRole('button', {name: args.copyLabel})).toBeVisible()
     await expect(canvas.getByText(args.code)).toBeInTheDocument()
@@ -73,6 +78,12 @@ export const LongLineScrolls: Story = {
       </CodeBlock>
     </html.div>
   ),
+}
+
+/** LongLineScrolls's checks, kept off the visible story so a Control change cannot fail them. */
+export const LongLineScrollsChecks: Story = {
+  ...LongLineScrolls,
+  tags: TEST_ONLY,
   play: async ({canvasElement}) => {
     const pre = canvasElement.querySelector('pre') as HTMLElement
     await expect(pre.scrollWidth).toBeGreaterThan(pre.clientWidth)

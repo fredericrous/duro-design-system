@@ -198,7 +198,11 @@ const meta = {
     width: {
       control: {
         type: 'radio',
-        labels: {phone: 'phone 375', tablet: 'tablet 768', desktop: 'desktop 1280'},
+        labels: {
+          phone: 'phone 375',
+          tablet: 'tablet 768',
+          desktop: 'desktop 1280 (fits the canvas)',
+        },
       },
       options: ['phone', 'tablet', 'desktop'],
     },
@@ -249,6 +253,8 @@ const TEST_ONLY = ['!dev', '!autodocs']
  * press Menu to open the rail in a drawer; set `collapseBelow` to lg at the
  * tablet width; click in the canvas and press Tab for the skip link. A pick in
  * the navigation, the search box and the account menu show up in Actions.
+ * The desktop frame is 1280px wide, but it shrinks to the canvas when the
+ * Controls panel takes room, so it can measure less there.
  */
 export const Playground: Story = {
   args: {header: 'search-account', footer: FOOTER},
@@ -260,6 +266,24 @@ export const Playground: Story = {
  */
 export const Phone: Story = {
   args: {width: 'phone'},
+}
+
+/** No Header: the desktop shell is the rail and the page, nothing above Main. */
+export const NoHeader: Story = {
+  args: {header: 'none'},
+}
+
+/** `footer` sits at the rail's foot: the signed-in user, a licence line. */
+export const RailFooter: Story = {
+  args: {footer: FOOTER},
+}
+
+// --- test-only stories -----------------------------------------------------
+
+/** Phone's checks, kept off the visible story so a Control change cannot fail them. */
+export const PhoneChecks: Story = {
+  ...Phone,
+  tags: TEST_ONLY,
   play: async ({args, canvas}) => {
     await expect(canvas.queryByRole('navigation', {name: 'Navigation'})).toBeNull()
     const menu = canvas.getByRole('button', {name: args.menuLabel})
@@ -273,9 +297,10 @@ export const Phone: Story = {
   },
 }
 
-/** No Header: the desktop shell is the rail and the page, nothing above Main. */
-export const NoHeader: Story = {
-  args: {header: 'none'},
+/** NoHeader's checks, kept off the visible story so a Control change cannot fail them. */
+export const NoHeaderChecks: Story = {
+  ...NoHeader,
+  tags: TEST_ONLY,
   play: async ({args, canvas}) => {
     await expect(canvas.getByRole('navigation', {name: 'Navigation'})).toBeVisible()
     await expect(canvas.queryByRole('banner')).toBeNull()
@@ -284,9 +309,10 @@ export const NoHeader: Story = {
   },
 }
 
-/** `footer` sits at the rail's foot: the signed-in user, a licence line. */
-export const RailFooter: Story = {
-  args: {footer: FOOTER},
+/** RailFooter's checks, kept off the visible story so a Control change cannot fail them. */
+export const RailFooterChecks: Story = {
+  ...RailFooter,
+  tags: TEST_ONLY,
   play: async ({args, canvas}) => {
     const rail = canvas.getByRole('navigation', {name: 'Navigation'})
     const footer = canvas.getByText(args.footer)
@@ -297,8 +323,6 @@ export const RailFooter: Story = {
     await expect(gap).toBeLessThanOrEqual(SPACING_PX.md)
   },
 }
-
-// --- test-only stories -----------------------------------------------------
 
 /** Desktop: the brand and the rail beside the header and the page; no Menu button. */
 export const DesktopLandmarks: Story = {

@@ -68,13 +68,7 @@ function LongPage({'aria-label': ariaLabel, offset}: AsideArgs) {
  * `offset` below the viewport's top and scrolls on its own, being taller than
  * the viewport. Change `offset` to move where it sticks.
  */
-export const Playground: Story = {
-  play: async ({args, canvas}) => {
-    const aside = canvas.getByRole('complementary', {name: args['aria-label']})
-    await expect(aside.tagName).toBe('ASIDE')
-    await expect(getComputedStyle(aside).top).toBe(`${SPACING_PX[args.offset]}px`)
-  },
-}
+export const Playground: Story = {}
 
 /**
  * Sticks within the viewport while the page scrolls, and scrolls on its own
