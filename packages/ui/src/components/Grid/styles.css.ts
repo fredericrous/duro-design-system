@@ -12,6 +12,7 @@ import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 // has. defineConsts strings, inlined into the @container text at build time.
 const SPLIT_WIDE_BP = breakpoints.md // 280px rail + real content
 const SPLIT_BP = breakpoints.sm // 240px list + ≥ 384px detail
+const CONTENT_ASIDE_BP = breakpoints.md // reading column + 320px aside
 
 export const styles = css.create({
   base: {
@@ -48,6 +49,16 @@ export const styles = css.create({
     gridTemplateColumns: {
       default: '1fr',
       [`@container (min-width: ${SPLIT_WIDE_BP})`]: `minmax(${sizes.gridColMd}, 1fr) minmax(0, 3fr)`,
+    },
+  },
+  // A reading column beside an Aside (table of contents, related links): the
+  // aside keeps its asideW track, the content takes the rest and may shrink
+  // (minmax(0, …) so a wide code block scrolls instead of widening the
+  // grid); one column below md.
+  contentAside: {
+    gridTemplateColumns: {
+      default: 'minmax(0, 1fr)',
+      [`@container (min-width: ${CONTENT_ASIDE_BP})`]: `minmax(0, 1fr) ${sizes.asideW}`,
     },
   },
   // Weighted columns: `[1, 2]` → `1fr 2fr` (see columns.ts).

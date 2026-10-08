@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {SideNav} from './SideNav'
 import {Icon} from '../Icon/Icon'
+import {onThemeSurface} from '../../docs/themedSurface'
 
 const meta: Meta<typeof SideNav.Root> = {
   title: 'Components/SideNav',
@@ -198,5 +199,33 @@ export const FlatWithIcons: Story = {
     await userEvent.click(identities)
     await expect(args.onValueChange).toHaveBeenCalledWith('identities')
     await expect(identities).toHaveAttribute('aria-current', 'page')
+  },
+}
+
+/** `aria-label` names the landmark, so a page with a breadcrumb or a pager
+ *  beside it still lists the side navigation by name. */
+export const Named: Story = {
+  parameters: {
+    a11y: {
+      test: 'error',
+      // holds-until: https://github.com/fredericrous/duro-design-system/issues/79
+      // — the selected item's accent on bgCardHover is 6.76:1, under AAA's
+      // 7:1 (AA passes). Re-enable this rule when that pair reaches 7:1.
+      options: {rules: {'color-contrast-enhanced': {enabled: false}}},
+    },
+  },
+  decorators: [onThemeSurface],
+  render: (args) => (
+    <SideNav.Root {...args} aria-label="Settings" defaultValue="profile">
+      <SideNav.Section label="Account">
+        <SideNav.Item value="profile">Profile</SideNav.Item>
+        <SideNav.Item value="security">Security</SideNav.Item>
+      </SideNav.Section>
+    </SideNav.Root>
+  ),
+  play: async ({canvas}) => {
+    const nav = canvas.getByRole('navigation', {name: 'Settings'})
+    await expect(nav).toHaveAttribute('aria-label', 'Settings')
+    await expect(canvas.getByRole('button', {name: 'Profile'})).toBeInTheDocument()
   },
 }

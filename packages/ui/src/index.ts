@@ -10,6 +10,12 @@ import './strict.css'
 export {ActionBar, type ActionBarProps} from './components/ActionBar/ActionBar'
 export {ActionBarProvider} from './components/ActionBar/ActionBarProvider'
 export {Alert, type AlertVariant} from './components/Alert/Alert'
+export {
+  AppShell,
+  type AppShellCollapse,
+  type AppShellRailState,
+} from './components/AppShell/AppShell'
+export {Aside} from './components/Aside/Aside'
 export {Icon, type IconName} from './components/Icon'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
 export {Breadcrumb} from './components/Breadcrumb/Breadcrumb'
@@ -19,6 +25,7 @@ export {ButtonGroup, type ButtonGroupProps} from './components/ButtonGroup/Butto
 export {Callout, type CalloutVariant} from './components/Callout/Callout'
 export {Card, type CardVariant, type CardSize} from './components/Card/Card'
 export {Checkbox} from './components/Checkbox/Checkbox'
+export {CodeBlock} from './components/CodeBlock/CodeBlock'
 export {CheckboxGroup} from './components/CheckboxGroup/CheckboxGroup'
 export {ColorInput} from './components/ColorInput/ColorInput'
 export {ConfirmDialog} from './components/ConfirmDialog/ConfirmDialog'
@@ -41,6 +48,7 @@ export {Drawer, type DrawerAnchor, type DrawerSize} from './components/Drawer/Dr
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Heading, type HeadingVariant} from './components/Heading/Heading'
 export {List, type ListSelectionMode} from './components/List/List'
+export {LiveRegion, type LiveRegionPoliteness} from './components/LiveRegion/LiveRegion'
 export {Field} from './components/Field/Field'
 export type {LabelPosition, NecessityIndicator} from './components/Form/FormContext'
 export {Fieldset, type FieldsetGap} from './components/Fieldset/Fieldset'
@@ -55,6 +63,7 @@ export {Menu} from './components/Menu/Menu'
 export {Meter, type MeterProps, type MeterTone} from './components/Meter/Meter'
 export {PageNav} from './components/PageNav/PageNav'
 export {Panel} from './components/Panel/Panel'
+export {Prose} from './components/Prose/Prose'
 export {RadioGroup} from './components/RadioGroup/RadioGroup'
 export {ScrollArea} from './components/ScrollArea/ScrollArea'
 export {Combobox} from './components/Combobox/Combobox'
@@ -114,6 +123,8 @@ export {
   type ColorModePreference,
 } from './components/ColorMode'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
+export {Time} from './components/Time/Time'
+export {relative, type RelativeOptions} from './components/Time/relative'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
 export {ToggleGroup} from './components/ToggleGroup/ToggleGroup'
 export {Tooltip} from './components/Tooltip/Tooltip'
@@ -127,7 +138,7 @@ export {Switch} from './components/Switch/Switch'
 export {Stack, type SpacingKey} from './components/Stack/Stack'
 export {Inline} from './components/Inline/Inline'
 export {Cluster} from './components/Cluster/Cluster'
-export {Grid} from './components/Grid/Grid'
+export {Grid, type GridLayout} from './components/Grid/Grid'
 export type {GridTrack} from './shared/length'
 export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'
 
@@ -136,6 +147,7 @@ export type {LinkClickEvent, OnNavigate} from './shared/navigate'
 
 // Hooks
 export {useContainerQuery, type ContainerSize} from './hooks/useContainerQuery'
+export {useContainerBelow} from './hooks/useContainerBelow'
 
 // Tokens — import directly from @duro-app/tokens with deep imports:
 //   import { colors } from '@duro-app/tokens/tokens/colors.css'

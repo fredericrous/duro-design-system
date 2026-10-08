@@ -8,6 +8,9 @@ import {Menu} from './Menu'
 import {Button} from '../Button/Button'
 import {Dialog} from '../Dialog/Dialog'
 import {Icon} from '../Icon/Icon'
+import {onThemeSurface} from '../../docs/themedSurface'
+import {SIZES_PX} from '@duro-app/tokens/keys'
+import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 
 const meta: Meta = {
   title: 'Components/Menu',
@@ -477,3 +480,62 @@ async function realKeyboard(): Promise<((keys: string) => Promise<void>) | null>
     return null
   }
 }
+
+/**
+ * A touch screen gets 44px triggers (coarse pointer), the default and the
+ * ghost variant alike; a mouse keeps the compact control.
+ * It drives Chrome's touch emulation through Vitest's CDP session, so it runs
+ * as a test and stays out of the dev sidebar (there is no Vitest there).
+ */
+export const TouchTargets: Story = {
+  tags: ['!dev', '!autodocs'],
+  parameters: {a11y: {test: 'error'}},
+  decorators: [onThemeSurface],
+  render: () => (
+    <html.div style={touchStyles.row}>
+      <Menu.Root>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Popup>
+          <Menu.Item>Rename</Menu.Item>
+        </Menu.Popup>
+      </Menu.Root>
+      <Menu.Root>
+        <Menu.Trigger variant="ghost" aria-label="Page actions">
+          <Icon name="menu" size="sm" />
+        </Menu.Trigger>
+        <Menu.Popup align="end">
+          <Menu.Item>Copy link</Menu.Item>
+        </Menu.Popup>
+      </Menu.Root>
+      <Menu.Root>
+        <Menu.Trigger size="small">Sort</Menu.Trigger>
+        <Menu.Popup>
+          <Menu.Item>Name</Menu.Item>
+        </Menu.Popup>
+      </Menu.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const triggers = () => [
+      canvas.getByRole('button', {name: 'Actions'}),
+      canvas.getByRole('button', {name: 'Page actions'}),
+      canvas.getByRole('button', {name: 'Sort'}),
+    ]
+    await withFinePointer()
+    const ghost = canvas.getByRole('button', {name: 'Page actions'}).getBoundingClientRect()
+    await expect(ghost.height).toBeLessThan(SIZES_PX.touchTarget)
+    await withCoarsePointer(async () => {
+      for (const trigger of triggers()) {
+        await waitFor(() => {
+          const box = trigger.getBoundingClientRect()
+          expect(box.height).toBeGreaterThanOrEqual(SIZES_PX.touchTarget)
+          expect(box.width).toBeGreaterThanOrEqual(SIZES_PX.touchTarget)
+        })
+      }
+    })
+  },
+}
+
+const touchStyles = css.create({
+  row: {display: 'flex', gap: spacing.md, alignItems: 'center'},
+})

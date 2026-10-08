@@ -112,6 +112,8 @@ Pick the right layout component:
 | Horizontal row, **wraps** to next line | `Cluster`   | flex-direction: row, wrap             |
 | Multi-column grid                      | `Grid`      | CSS grid, fixed or auto-fit columns   |
 | Full page layout with header           | `PageShell` | max-width + padding + optional header |
+| App frame: nav rail, header, main      | `AppShell`  | rail becomes a Drawer below `collapseBelow` (`sm`) |
+| Reading column + table of contents     | `Grid layout="content-aside"` + `Aside` | sticky aside, one column below `md` |
 
 ```tsx
 // Vertical list of form fields
@@ -163,6 +165,7 @@ These components **must** be wrapped in their `.Root`:
 | `TableOfContents` | `Root`, `Item`                                                                           |
 | `PageNav`         | `Root`, `Prev`, `Next`                                                                   |
 | `Timeline`        | `Root`, `Row`, `Bar`                                                                     |
+| `AppShell`        | `Root` (`brand`, `collapseBelow`, `menuLabel`/`closeLabel`/`skipLabel`), `Rail` (`aria-label`, `footer`), `Header` (optional), `Main` (`id`, `ref`) |
 
 ### Optional Root context (works standalone, gains features in context)
 
@@ -182,7 +185,9 @@ These components **must** be wrapped in their `.Root`:
 | --- | --- | --- |
 | **ActionBar** | Floating toolbar that appears at the bottom of the viewport when items are selected | `selectedItemCount`, `selectedLabel`, `isEmphasized` |
 | **Alert** | Inline status message with icon | `variant`, `icon` |
+| **AppShell** | An application's frame: a navigation rail (a labelled nav, the brand at its top, an optional footer at its foot) beside the main content (main), with an optional Header | compound: Header, Main, Rail, Root |
 | **Arrow** | Connector line between two points, with an arrowhead at the end | `from`, `to`, `bend` |
+| **Aside** | Content beside the main reading column — a table of contents, related pages: a labelled aside landmark that sticks within the viewport while the page scrolls and scrolls on its own when taller (offset from a spacing token, the raised layer) | `aria-label`, `offset`, `ref` |
 | **Badge** | Small label or tag for status indicators, counts, or categories | `variant`, `size` |
 | **Breadcrumb** | Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first | compound: Item, Root |
 | **Button** | Standard interactive button | `variant`, `size`, `fullWidth` |
@@ -192,6 +197,7 @@ These components **must** be wrapped in their `.Root`:
 | **Checkbox** | Checkbox input with optional visible label | `name`, `value`, `checked` |
 | **CheckboxGroup** | Checkbox group for multi-select from a list of options | compound: Item, Root |
 | **Cluster** | Horizontal flex layout that WRAPS to the next line when items overflow | `gap`, `align`, `justify` |
+| **CodeBlock** | A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion | `copyLabel`, `copiedLabel`, `copiedDuration` |
 | **ColorInput** | A styled native color swatch (<input type="color">) for picking a hex color | `value`, `defaultValue`, `name` |
 | **ColorModeToggle** | Color-mode controller + toggle | `size`, `aria-label` |
 | **Combobox** | Searchable dropdown for selecting a value from a filterable list | compound: Empty, Input, Item, ItemText, Popup, … |
@@ -215,6 +221,7 @@ These components **must** be wrapped in their `.Root`:
 | **LinkButton** | Button-styled hyperlink | `href`, `variant`, `size` |
 | **List** | Vertical list of interactive items | compound: Actions, Content, Description, Empty, Item, … |
 | **Listbox** | Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox | compound: Empty, Option, Root, getAnchorProps |
+| **LiveRegion** | Tells assistive tech about a change that has no focus move: a polite (role="status") or assertive (role="alert") region | `politeness`, `visuallyHidden`, `id` |
 | **Menu** | Dropdown action menu | compound: Item, LinkItem, Popup, Root, Separator, … |
 | **Meter** | A scalar inside a known range — WIP 2 of 3, a milestone 40% done — as role="meter" with a value text, drawn as a thin bar (the meterH token) | `value`, `min`, `max` |
 | **Node** | A rounded rectangle node with a title and optional subtitle | `x`, `y`, `w` |
@@ -222,6 +229,7 @@ These components **must** be wrapped in their `.Root`:
 | **PageShell** | Page-level layout wrapper | `maxWidth`, `padding`, `header` |
 | **Panel** | Structural primitive for grouping content with header, body, and footer slots | compound: Body, Footer, Header, Root |
 | **Popover** | Non-modal anchored overlay for small interactive content | compound: Close, Popup, Root, Trigger |
+| **Prose** | The container for HTML Duro does not author — rendered Markdown, CMS output: headings, paragraphs, lists, tables, blockquotes, inline code, links and images are styled from tokens by descendant rules scoped to it (plain CSS in dist/index.css, :where() and its own cascade layer) | `ref` |
 | **RadioGroup** | Radio button group for single-select from a list of options | compound: Item, Root |
 | **ScrollArea** | Custom scrollbar region with draggable thumb | compound: Content, Root, Scrollbar, Thumb, Viewport |
 | **Select** | Dropdown select for choosing one value from a list | compound: Icon, Item, ItemText, Popup, Root, … |
@@ -240,6 +248,7 @@ These components **must** be wrapped in their `.Root`:
 | **Text (diagrams)** | Free-floating text inside a Diagram | `x`, `y`, `variant` |
 | **TextLink** | Inline hyperlink for running text and standalone text links ("View all", "Edit profile") | `href`, `target`, `rel` |
 | **Textarea** | Multi-line text input with automatic Field/Form integration | `variant`, `name`, `placeholder` |
+| **Time** | A date or time in running text as a <time> element: the visible text comes from you, the exact instant goes in dateTime (an ISO string) and title | `dateTime`, `title` |
 | **Timeline** | Rows of date bars against a date axis (milestones, releases, sprints), with a progress fill per bar and a today marker | compound: Bar, Root, Row |
 | **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |
 | **ToggleGroup** | Container for Toggle buttons enabling single or multi selection | `value`, `defaultValue`, `onValueChange` |
@@ -446,6 +455,7 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `timeGutterW` | 64px |
 | `dayHeaderH` | 46px |
 | `timelineLabelW` | 180px |
+| `appBarH` | 61px |
 
 ### Borders
 
@@ -788,6 +798,57 @@ const go: OnNavigate = (href, event) => {
 `onOpenChange` only with `variant="menu"`. Without `onNavigate` a link does a
 normal page load. Don't wrap a part in your router's `Link`, and don't put an
 `onClick` on a wrapper to intercept it.
+
+### Docs pages and rendered Markdown
+
+**A docs page is `AppShell` + `Grid layout="content-aside"` + `Prose`.** The
+pieces a reader page needs, each owning its accessibility:
+
+```tsx
+<AppShell.Root
+  menuLabel="Menu"
+  closeLabel="Close navigation"
+  skipLabel="Skip to content"
+  brand={<TextLink href="/">kb-vision</TextLink>}
+>
+  <AppShell.Rail aria-label="Navigation" footer={<UserMenu />}>
+    {({close}) => <DocsNav onPick={close} />}
+  </AppShell.Rail>
+  <AppShell.Header>{search}</AppShell.Header>
+  <AppShell.Main>
+    <Grid ref={pageRef} layout="content-aside" gap="xl">
+      <Prose>
+        <ReactMarkdown components={{pre: ({children}) => <CodeBlock copyLabel="Copy" copiedLabel="Copied">{children}</CodeBlock>}}>
+          {body}
+        </ReactMarkdown>
+      </Prose>
+      <Aside aria-label="Page outline">{toc}</Aside>
+    </Grid>
+  </AppShell.Main>
+</AppShell.Root>
+```
+
+- **`AppShell`** is generic: `Header` is optional (below `collapseBelow` the
+  shell's own sticky bar still holds the Menu button and `brand`, and the
+  Header's content joins them; above, the Header scrolls with the page), the
+  `brand` sits at the top of the rail, `footer` at its foot (the user, a
+  licence line). `collapseBelow` is `sm` (default), `md` or `lg`, on the
+  shell's own width. Keep `Header` a direct child of `Root`. The skip link
+  (`skipLabel`) is the first tab stop and focuses `Main`; an `Aside` inside
+  `Main` sticks below the bar (`appBarH`).
+- **`Prose`** styles HTML you do not write as JSX (headings, lists, tables,
+  blockquotes, inline code, links, images) from tokens. Its rules are plain
+  CSS in `dist/index.css`, in their own cascade layer (`duro-prose`, after
+  the reset and before every component style) and wrapped in `:where()`: a
+  Duro component inside it keeps its styles, and an app's CSS Module wins.
+- **`useContainerBelow(ref, 'md')`** answers what CSS cannot choose (a TOC as
+  a list or a menu, buttons or an overflow `Menu`) from the element's own
+  width; `false` on the server, so the wide layout renders first. Hand it the
+  `ref` of `Grid`, `Aside` or `AppShell.Main`.
+- **`Time`** + **`relative(date, {now, locale})`**: pass the `now` your loader
+  read, never `Date.now()` in render, or hydration sees two strings.
+- **`LiveRegion`** is mounted from the start and changes its content to
+  announce ("Link copied"); never mount it with the message.
 
 ## Canonical Recipes
 

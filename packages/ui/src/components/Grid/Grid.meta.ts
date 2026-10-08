@@ -2,11 +2,12 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    "Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses to one column on the width of its own container, so it is safe to nest and to place beside a DetailPanel. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native. For a fixed track beside fractions (content + a 320px aside), tracks takes a token track list — tracks={['1fr', 'asideW']} — web only, equal columns on native.",
+    "Grid layout. Columns are a count (1-6), a list of weights ([1, 2] for one-third / two-thirds), responsive auto-fit via minColumnWidth, or a named split layout (list/detail, nav/content) that collapses to one column on the width of its own container, so it is safe to nest and to place beside a DetailPanel. Weights rather than CSS template strings, so the same props render as CSS grid on web and as a wrapping flex row on native. layout=\"content-aside\" is a reading column beside an Aside (asideW), one column below md on its own container. ref resolves to the outer element (with a layout, the container its query measures — hand it to useContainerBelow). For another fixed track beside fractions, tracks takes a token track list — tracks={['1fr', 'gridColXs']} — web only, equal columns on native.",
   whenToUse: [
     'Card grids, dashboard layouts, multi-column forms',
     'Responsive layouts that should auto-adjust column count',
     'A list/detail or nav/content screen — layout="split" | "split-wide", never a hand-rolled gridTemplateColumns with its own @media; a split inside a split is fine, each collapses on its own room',
+    'A long page with a table of contents beside it — layout="content-aside" with an Aside',
   ],
   whenNotToUse: [
     'Single-column vertical layout — use Stack',

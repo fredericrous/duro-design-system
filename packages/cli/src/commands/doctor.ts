@@ -60,9 +60,9 @@ const LAYER_STATEMENT = `@layer reset, ${PRIORITIES.join(', ')};`
 
 /** Layers each design-system stylesheet declares, in declaration order. */
 const DS_SHEETS: Record<string, string[]> = {
-  [DS_CSS]: ['reset', ...PRIORITIES],
+  [DS_CSS]: ['reset', 'duro-prose', ...PRIORITIES],
   '@duro-app/ui/reset.css': ['reset'],
-  '@duro-app/ui/strict.css': ['reset', ...PRIORITIES],
+  '@duro-app/ui/strict.css': ['reset', 'duro-prose', ...PRIORITIES],
 }
 
 /** Build config that can carry StyleX / react-strict-dom options. */

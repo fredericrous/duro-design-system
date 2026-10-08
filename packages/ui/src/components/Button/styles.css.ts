@@ -25,6 +25,9 @@ export const styles = css.create({
     transitionTimingFunction: easing.standard,
     textDecoration: 'none',
     whiteSpace: 'nowrap',
+    // A touch screen gets the 44px target, as Toggle and the triggers do; a
+    // mouse keeps the compact control (5.6, the person's decision).
+    minWidth: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
     // Tactile press feedback. The scale is suppressed under reduced motion (and
     // duration.fast collapses to 0ms there too), so it's inert for those users.
     transform: {
@@ -56,6 +59,7 @@ export const styles = css.create({
     paddingBottom: spacing.sm,
     paddingLeft: spacing.md,
     paddingRight: spacing.md,
+    minHeight: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
   },
   sizeSmall: {
     paddingTop: spacing.xs,
@@ -63,8 +67,9 @@ export const styles = css.create({
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
     fontSize: typography.fontSizeXs,
-    // Every small control is at least controlSm tall, whatever it holds (5.6).
-    minHeight: sizes.controlSm,
+    // Every small control is at least controlSm tall, whatever it holds (5.6),
+    // and the touch target under a coarse pointer.
+    minHeight: {default: sizes.controlSm, '@media (pointer: coarse)': sizes.touchTarget},
   },
   primary: {
     backgroundColor: {

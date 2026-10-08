@@ -22,12 +22,15 @@ export const styles = css.create({
     transitionProperty: 'background-color, border-color, color',
     transitionDuration: duration.fast,
     transitionTimingFunction: easing.standard,
+    // Matches Button: the 44px target under a coarse pointer (5.6).
+    minWidth: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
   },
   sizeDefault: {
     paddingTop: spacing.sm,
     paddingBottom: spacing.sm,
     paddingLeft: spacing.md,
     paddingRight: spacing.md,
+    minHeight: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
   },
   sizeSmall: {
     paddingTop: spacing.xs,
@@ -36,8 +39,9 @@ export const styles = css.create({
     paddingRight: spacing.sm,
     fontSize: typography.fontSizeXs,
 
-    // Matches Button: every small control is at least controlSm tall (5.6).
-    minHeight: sizes.controlSm,
+    // Matches Button: every small control is at least controlSm tall, and
+    // the touch target under a coarse pointer (5.6).
+    minHeight: {default: sizes.controlSm, '@media (pointer: coarse)': sizes.touchTarget},
   },
   primary: {
     backgroundColor: {

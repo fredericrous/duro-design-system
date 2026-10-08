@@ -1,4 +1,7 @@
-@layer reset;
+/* Layer order for the whole page: the reset, then Prose's descendant rules
+ * (above the reset's margins, below every component style), then StyleX's
+ * priority layers, which @react-strict-dom declares. */
+@layer reset, duro-prose;
 @react-strict-dom;
 
 /* Table: reveal sort indicator on header cell hover */
