@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/duro-5-5-trigger-size-raised
 repos: [duro-design-system, duro-lexical-multi, website-builder]
 adrs: []
@@ -127,4 +127,12 @@ Install the packed 5.5 tarballs, then run lint, typecheck and `duro doctor`; rec
 
 - Round 1 (tree 6066ad98): approve-with-changes. Fixed: recorded actuals, coarse-pointer story, small LinkButton at 28px; Button's missing touch size recorded as scope in the addendum.
 - Round 2 (tree b196a592), Delta (tree 85f71e67): approve, then approve-with-changes, low only. Fixed: ghost Menu in the touch story. deliberate: LinkButton's 28px is held by its screenshot exceptions, not a play test; the consumer row is re-run before the tag.
-- Next phase: §3 consumers (lexical-multi 0.4.1, website-builder) after v5.6.0.
+- §3 done. The v5.6.0 release, the consumer steps and the issue closure:
+  - v5.6.0 tagged at f9d257c5. All seven packages are on npm, and `latest` is 5.6.0. The pre-tag consumer gate on the 5.6.0 tarballs found 0 new lint, type or doctor errors across nine consumers.
+  - duro-lexical-multi 0.4.1 (Forgejo #25, tag v0.4.1). Record in its pointer plan. The person rejected the first preview over the whole Storybook and widened 0.4.1 to fix every story, finding two editor bugs (theme colours, emoji) and the format bar covering the toolbar. Approved at the second preview. Deferred: duro-lexical-multi#24 (in-modal action menus, Dialog-edge clamping).
+  - website-builder (Forgejo #202): `^5.6.0` and `^0.4.1`. Record in its pointer plan. Its link editor is measured at 60 inside its page-level anchor (a stacking context at 1000), so no stacking regression.
+  - #76 and #77 were closed by #83, with consumer links commented.
+
+## Outcome
+
+Shipped Duro 5.6.0 (planned as 5.5; another session took v5.5.0 for #82). It adds `size` on the three triggers, a 28px minimum for every small control, the `floatingRaised`/`popoverRaised` layers, `useInModal` and `Popover.Popup raised`. lexical-multi 0.4.1 and website-builder use them. Surprises: the release number was taken mid-review; and the person judged lexical-multi by its whole Storybook, not the changed stories, so a library preview now covers every story (memory `feedback-preview-whole-storybook`).
