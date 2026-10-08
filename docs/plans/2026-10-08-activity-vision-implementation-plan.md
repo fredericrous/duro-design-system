@@ -64,3 +64,4 @@ JSON are kept outside the repository, in the session's attestation folder.
 - Fixed: Perf300 now proves the drag started and landed; a vacuous aria-hidden assertion removed; pointer-capture catches rethrow anything but NotFoundError/InvalidStateError.
 - Deliberate: toast placement (WCAG 2.4.11) belongs to the board PR, per §5; `Timeline` keeps `Date.parse` unvalidated (consumers pass ISO dates).
 - Status stays active. Next phase: the release, tagged as the next free minor once the PR merges.
+- Rebased onto 5.6 (`f9d257c5`); generated registry and CLAUDE.md regenerated. The post-rebase delta review approved: no clash with 5.5 layers or 5.6 trigger sizes (113k tokens, 40 s).
