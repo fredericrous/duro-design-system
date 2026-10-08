@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button; an icon-only trigger takes aria-label, and variant="ghost" suits toolbars. The popup is portalled and placed against the trigger (never clipped by a sticky or overflow ancestor), capped at sizes.listMaxH with scrolling, and takes focus on open (WAI-ARIA menu button); Escape closes only the menu, not an enclosing Popover or Dialog.',
+    'Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button; an icon-only trigger takes aria-label, and variant="ghost" suits toolbars; size="small" matches small Toggles and Buttons (a small ghost trigger is iconButtonSm). The popup is portalled and placed against the trigger (never clipped by a sticky or overflow ancestor), capped at sizes.listMaxH with scrolling, and takes focus on open (WAI-ARIA menu button); Escape closes only the menu, not an enclosing Popover or Dialog.',
   whenToUse: [
     'Context menu or "more actions" dropdown',
     'Navigation links in a dropdown',

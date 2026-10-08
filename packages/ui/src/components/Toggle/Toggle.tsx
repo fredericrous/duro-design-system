@@ -4,9 +4,10 @@ import {useControllableValue} from '../../hooks/useControllableValue'
 import {useToggleGroup} from '../ToggleGroup/ToggleGroupContext'
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {mergeRefs} from '../../shared/mergeRefs'
+import type {ControlSize} from '../../shared/types'
 import {styles} from './styles.css'
 
-export type ToggleSize = 'default' | 'small'
+export type ToggleSize = ControlSize
 
 interface ToggleProps {
   /** Controlled pressed state (standalone usage). */

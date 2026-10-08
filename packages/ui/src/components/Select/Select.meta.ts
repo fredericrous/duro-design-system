@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it).',
+    'Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size="small" to match small Toggles and Buttons in a toolbar.',
   whenToUse: [
     'User must pick one option from a predefined list',
     'Form field for country, category, role selection',

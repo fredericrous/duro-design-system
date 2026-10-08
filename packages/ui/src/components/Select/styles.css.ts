@@ -37,6 +37,18 @@ export const styles = css.create({
     transitionProperty: 'border-color',
     transitionDuration: duration.fast,
   },
+  // size="small": Toggle sizeSmall's values, as longhands so they win over the
+  // trigger's own longhands. Every small control is at least controlSm tall,
+  // whatever it holds, and the touch target under a coarse pointer.
+  triggerSmall: {
+    gap: spacing.xs,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
+    fontSize: typography.fontSizeXs,
+    minHeight: {default: sizes.controlSm, '@media (pointer: coarse)': sizes.touchTarget},
+  },
   value: {
     color: colors.text,
   },

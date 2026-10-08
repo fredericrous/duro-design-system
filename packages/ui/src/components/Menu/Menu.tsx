@@ -15,6 +15,7 @@ import {styles} from './styles.css'
 import {MenuContext, useMenu} from './MenuContext'
 import {useMenuRoot} from './useMenuRoot'
 import {devWarnOnce} from '../../shared/devWarnOnce'
+import type {ControlSize} from '../../shared/types'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {computePopoverPosition} from '../Popover/position'
 import {usePopoverLayer} from '../Popover/PopoverLayerContext'
@@ -58,10 +59,18 @@ interface TriggerProps {
   'aria-label'?: string
   /** `ghost`: no border or fill until hover, for toolbars. Default: `default`. */
   variant?: MenuTriggerVariant
+  /** `small` matches a small Toggle or Button beside it; a small ghost trigger is `iconButtonSm`. Default: `default`. */
+  size?: ControlSize
   ref?: Ref<HTMLButtonElement>
 }
 
-function Trigger({children, 'aria-label': ariaLabel, variant = 'default', ref}: TriggerProps) {
+function Trigger({
+  children,
+  'aria-label': ariaLabel,
+  variant = 'default',
+  size = 'default',
+  ref,
+}: TriggerProps) {
   const {open, toggle, menuId, triggerId, triggerRef} = useMenu()
   const grouped = useGroupedControl<HTMLButtonElement>()
   const groupedRef = grouped.ref
@@ -99,7 +108,13 @@ function Trigger({children, 'aria-label': ariaLabel, variant = 'default', ref}: 
       aria-expanded={open}
       aria-haspopup="menu"
       aria-controls={open ? menuId : undefined}
-      style={[styles.trigger, variant === 'ghost' && styles.triggerGhost, grouped.style]}
+      style={[
+        styles.trigger,
+        variant === 'ghost'
+          ? [styles.triggerGhost, size === 'small' && styles.triggerGhostSmall]
+          : size === 'small' && styles.triggerSmall,
+        grouped.style,
+      ]}
     >
       {children}
     </html.button>

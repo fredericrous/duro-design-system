@@ -20,6 +20,11 @@ export const layers = css.defineVars({
   raised: '1',
   // Floating chrome over the page: Tooltip, ActionBar.
   floating: '50',
+  // A floating surface that must cover another floating one, outside a modal:
+  // a link editor over a selection format bar. Pair it with `popoverRaised`
+  // and pick by `useInModal()` (a Popover does it with `raised`). It covers a
+  // sibling floating surface, never a modal.
+  floatingRaised: '60',
   // A modal's backdrop.
   overlay: '1000',
   // A modal's panel (Dialog, Drawer).
@@ -31,6 +36,9 @@ export const layers = css.defineVars({
   // (a Select, a Menu) and the Select click-catcher opened from inside it.
   // Outside a modal a Popover is `floating`, so a modal opened later covers it.
   popover: '1040',
+  // `floatingRaised` inside a Dialog or Drawer: over a Popover there, under
+  // a popup's click-catcher and the popup itself.
+  popoverRaised: '1041',
   // A popup's click-catcher, under the popup itself.
   popupBackdrop: '1049',
   // Popups: Select, Listbox, Menu — above a modal or Popover they open from.

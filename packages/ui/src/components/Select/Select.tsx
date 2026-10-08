@@ -10,6 +10,7 @@ import {usePopoverLayer} from '../Popover/PopoverLayerContext'
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {mergeRefs} from '../../shared/mergeRefs'
+import type {ControlSize} from '../../shared/types'
 
 // --- Root ---
 interface RootProps {
@@ -38,9 +39,12 @@ function Root({name, defaultValue, value, onValueChange, initialLabels, children
 function Trigger({
   children,
   'aria-label': ariaLabel,
+  size = 'default',
 }: {
   children: ReactNode
   'aria-label'?: string
+  /** `small` matches a small Toggle or Button beside it. Default: `default`. */
+  size?: ControlSize
 }) {
   const {open, toggle, listboxId, highlightedId, triggerRef} = useSelect()
   const localRef = useRef<HTMLButtonElement>(null)
@@ -74,7 +78,7 @@ function Trigger({
       aria-activedescendant={highlightedId ?? undefined}
       aria-describedby={describedBy || undefined}
       aria-invalid={fieldCtx?.invalid || undefined}
-      style={[styles.trigger, grouped.style]}
+      style={[styles.trigger, size === 'small' && styles.triggerSmall, grouped.style]}
     >
       {children}
     </html.button>

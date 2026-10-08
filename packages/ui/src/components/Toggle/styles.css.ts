@@ -37,6 +37,8 @@ export const styles = css.create({
     fontSize: typography.fontSizeXs,
     borderRadius: radii.sm,
     gap: spacing.xs,
+    // Every small control is at least controlSm tall, whatever it holds (5.5).
+    minHeight: {default: sizes.controlSm, '@media (pointer: coarse)': sizes.touchTarget},
   },
   // wrapped toggles: a fixed block size per size, the touch target under a
   // coarse pointer. ToggleGroup's maxRows arithmetic reads the same tokens.

@@ -13,6 +13,13 @@ import {createContext, useContext} from 'react'
  */
 export const ModalContext = createContext(false)
 
-export function useInModal() {
+/**
+ * True inside a Dialog or Drawer, false outside. A floating surface that is not
+ * a Duro Popover picks its layer with it, the way a Popover does:
+ * `useInModal() ? layers.popover : layers.floating`, and for one that must
+ * cover another floating surface (a link editor over a format bar)
+ * `useInModal() ? layers.popoverRaised : layers.floatingRaised`.
+ */
+export function useInModal(): boolean {
   return useContext(ModalContext)
 }

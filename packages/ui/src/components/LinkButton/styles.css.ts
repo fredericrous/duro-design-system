@@ -4,6 +4,7 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 export const styles = css.create({
   base: {
@@ -34,6 +35,9 @@ export const styles = css.create({
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
     fontSize: typography.fontSizeXs,
+
+    // Matches Button: every small control is at least controlSm tall (5.5).
+    minHeight: sizes.controlSm,
   },
   primary: {
     backgroundColor: {

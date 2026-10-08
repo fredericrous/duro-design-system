@@ -4,6 +4,7 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
 import {layers} from '@duro-app/tokens/tokens/layers.css'
 
@@ -31,10 +32,30 @@ export const styles = css.create({
     transitionProperty: 'background-color, border-color',
     transitionDuration: duration.fast,
   },
+  // size="small": Toggle sizeSmall's values, as longhands so they win over the
+  // trigger's own longhands. Every small control is at least controlSm tall,
+  // whatever it holds, and the touch target under a coarse pointer.
+  triggerSmall: {
+    gap: spacing.xs,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
+    fontSize: typography.fontSizeXs,
+    minHeight: {default: sizes.controlSm, '@media (pointer: coarse)': sizes.touchTarget},
+  },
   // Inside a Dialog or Drawer: above that modal (same portal mount), below a
   // Select or Menu opened from inside the Popover.
   popupInModal: {
     zIndex: layers.popover,
+  },
+  // `raised`: over another floating surface, outside a modal (still under a
+  // Dialog or Drawer opened later) and inside one (still under its popups).
+  popupRaised: {
+    zIndex: layers.floatingRaised,
+  },
+  popupInModalRaised: {
+    zIndex: layers.popoverRaised,
   },
   popup: {
     position: 'fixed',

@@ -47,6 +47,24 @@ export const styles = css.create({
     paddingRight: spacing.xs,
     borderColor: 'transparent',
   },
+  // size="small": Toggle sizeSmall's values, as longhands so they win over the
+  // trigger's own longhands. Every small control is at least controlSm tall,
+  // whatever it holds, and the touch target under a coarse pointer.
+  triggerSmall: {
+    gap: spacing.xs,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
+    fontSize: typography.fontSizeXs,
+    minHeight: {default: sizes.controlSm, '@media (pointer: coarse)': sizes.touchTarget},
+  },
+  // A small ghost trigger keeps the ghost's xs padding at the small icon-button size.
+  triggerGhostSmall: {
+    fontSize: typography.fontSizeXs,
+    minWidth: sizes.iconButtonSm,
+    minHeight: {default: sizes.iconButtonSm, '@media (pointer: coarse)': sizes.touchTarget},
+  },
   popup: {
     position: 'fixed',
     top: 0,

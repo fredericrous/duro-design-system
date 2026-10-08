@@ -22,5 +22,11 @@ describe('LAYERS', () => {
     // A sheet's own chrome clears the modal it sits on, under a Popover.
     expect(LAYERS.modalRaised).toBeGreaterThan(LAYERS.modal)
     expect(LAYERS.modalRaised).toBeLessThan(LAYERS.popover)
+    // A floating surface over another one: under a modal outside one, and
+    // under what opens from a Popover inside one.
+    expect(LAYERS.floatingRaised).toBeGreaterThan(LAYERS.floating)
+    expect(LAYERS.floatingRaised).toBeLessThan(LAYERS.overlay)
+    expect(LAYERS.popoverRaised).toBeGreaterThan(LAYERS.popover)
+    expect(LAYERS.popoverRaised).toBeLessThan(LAYERS.popupBackdrop)
   })
 })
