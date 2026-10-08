@@ -19,6 +19,7 @@ import {Menu} from '../Menu/Menu'
 import {TextLink} from '../TextLink/TextLink'
 import {Aside} from '../Aside/Aside'
 import {Stack} from '../Stack/Stack'
+import {Prose} from '../Prose/Prose'
 
 // --- the story's frame -----------------------------------------------------
 
@@ -644,6 +645,60 @@ export const AsideBelowBar: Story = {
       setWidth(frame, DESKTOP_PX)
       await waitFor(() => expect(getComputedStyle(aside).top).toBe(`${SPACING_PX.lg}px`))
       await waitFor(() => expect(Math.round(aside.getBoundingClientRect().top)).toBe(SPACING_PX.lg))
+    } finally {
+      scroller.scrollTop = start
+      frame.style.width = ''
+    }
+  },
+}
+
+/**
+ * A jump to a heading inside Prose lands below the phone bar, not under it:
+ * Prose's scroll margin adds the bar's height that AppShell publishes. Above
+ * the collapse point (no sticky bar) it is the spacing offset alone.
+ */
+export const ProseAnchorBelowBar: Story = {
+  tags: TEST_ONLY,
+  args: {width: 'phone', brand: ''},
+  render: ({width, ...args}) => (
+    <Frame px={FRAME_PX[width]}>
+      <Shell {...args}>
+        <Prose>
+          {PARAGRAPHS.slice(0, 40).map((text) => (
+            <html.p key={text}>{text}</html.p>
+          ))}
+          <html.h2 id="recovery-keys">Recovery keys</html.h2>
+          {PARAGRAPHS.slice(40).map((text) => (
+            <html.p key={text}>{text}</html.p>
+          ))}
+        </Prose>
+      </Shell>
+    </Frame>
+  ),
+  play: async ({canvas, canvasElement}) => {
+    const frame = frameOf(canvasElement)
+    setWidth(frame, PHONE_PX)
+    const heading = canvas.getByRole('heading', {name: 'Recovery keys'})
+    const banner = canvas.getByRole('banner')
+    const scroller = document.scrollingElement as HTMLElement
+    const start = scroller.scrollTop
+    try {
+      await waitFor(() =>
+        expect(getComputedStyle(heading).scrollMarginTop).toBe(
+          `${SIZES_PX.appBarH + SPACING_PX.lg}px`,
+        ),
+      )
+      heading.scrollIntoView({block: 'start'})
+      await waitFor(() =>
+        expect(Math.round(heading.getBoundingClientRect().top)).toBeGreaterThanOrEqual(
+          Math.round(banner.getBoundingClientRect().bottom),
+        ),
+      )
+      // above the collapse point: the spacing offset alone
+      setWidth(frame, DESKTOP_PX)
+      await waitFor(() =>
+        expect(getComputedStyle(heading).scrollMarginTop).toBe(`${SPACING_PX.lg}px`),
+      )
     } finally {
       scroller.scrollTop = start
       frame.style.width = ''
