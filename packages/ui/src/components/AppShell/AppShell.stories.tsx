@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import {Component, useState, type ReactNode} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, spyOn, waitFor, within} from 'storybook/test'
@@ -33,6 +34,11 @@ const FRAME_PX: Record<FrameWidth, number> = {
   desktop: DESKTOP_PX,
 }
 
+// In the dev Storybook a frame never overflows the canvas (the Controls panel
+// takes room); under Vitest it keeps its exact width, which the checks
+// measure in a narrower test browser.
+const FIT_CANVAS = !import.meta.env.VITEST
+
 const styles = css.create({
   // An outline, not a border: it shows the frame's edge without taking any
   // of its width.
@@ -42,11 +48,12 @@ const styles = css.create({
     outlineStyle: 'dashed',
     outlineColor: colors.border,
   }),
+  fit: {maxWidth: '100%'},
 })
 
 function Frame({px, children}: {px: number; children?: ReactNode}) {
   return (
-    <html.div style={styles.frame(px)} data-frame="">
+    <html.div style={[styles.frame(px), FIT_CANVAS && styles.fit]} data-frame="">
       {children}
     </html.div>
   )
