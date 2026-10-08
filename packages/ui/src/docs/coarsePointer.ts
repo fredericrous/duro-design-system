@@ -34,6 +34,7 @@ export async function withCoarsePointer(check: () => Promise<void>) {
  * fine-pointer layout calls it first: the browser is shared by every story
  * file, and one that times out mid-emulation (DrawerScroll's, under load)
  * leaves `(pointer: coarse)` on for whatever runs next.
+ * holds-until: #81 (DrawerScroll turns emulation off in a `finally`).
  */
 export async function withFinePointer() {
   await cdpSend('Emulation.setTouchEmulationEnabled', {enabled: false})
