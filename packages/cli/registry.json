@@ -5750,7 +5750,7 @@
             "Item"
           ]
         },
-        "description": "The \"On this page\" list of a long page's sections: a labelled nav of in-page links (href=\"#id\", level 2 or 3). value is the id of the section being read; that item gets aria-current=\"location\", the nav marker bar and a heavier weight. variant=\"menu\" puts the list behind a disclosure button (aria-expanded) for narrow screens; open / defaultOpen / onOpenChange exist on the menu variant only. No scroll-spy inside: the app computes value. Compound component — Root is required.",
+        "description": "The \"On this page\" list of a long page's sections: a labelled nav of in-page links (href=\"#id\", level 2 or 3). value is the id of the section being read; that item gets aria-current=\"location\", the nav marker bar and a heavier weight. variant=\"menu\" puts the list behind a disclosure button (aria-expanded) for narrow screens; the disclosure state (open, defaultOpen and its change callback) exists on the menu variant only. No scroll-spy inside: the app computes value. Compound component — Root is required.",
         "example": "<TableOfContents.Root aria-label=\"On this page\" label=\"On this page\" value={activeId}>\n  <TableOfContents.Item href=\"#components\">The components</TableOfContents.Item>\n  <TableOfContents.Item href=\"#wiring\">Wiring</TableOfContents.Item>\n  <TableOfContents.Item href=\"#webhooks\" level={3}>Webhooks</TableOfContents.Item>\n</TableOfContents.Root>\n\n// narrow screens\n<TableOfContents.Root aria-label=\"On this page\" variant=\"menu\" value={activeId}>\n  …\n</TableOfContents.Root>",
         "relatedTo": [
           {
