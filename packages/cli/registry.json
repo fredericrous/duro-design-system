@@ -283,7 +283,7 @@
             "Item"
           ]
         },
-        "description": "Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first. The current page is text with aria-current=\"page\"; the › separators are aria-hidden. Links take href and an optional onNavigate(href, event) for a client router (plain clicks only). Compound component — Root is required.",
+        "description": "Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first. An Item is either a link (href, optional onNavigate) or the current page (current: text with aria-current=\"page\"), never both — the types refuse the mix. The › separators are aria-hidden. Links take href and an optional onNavigate(href, event) for a client router (plain clicks only). Compound component — Root is required.",
         "example": "<Breadcrumb.Root aria-label=\"Breadcrumb\">\n  <Breadcrumb.Item href=\"/docs\" onNavigate={go}>Docs</Breadcrumb.Item>\n  <Breadcrumb.Item href=\"/docs/architecture\" onNavigate={go}>Architecture</Breadcrumb.Item>\n  <Breadcrumb.Item current>AI-ops platform</Breadcrumb.Item>\n</Breadcrumb.Root>\n\n// go = (href, event) => { event.preventDefault(); navigate(href) }",
         "relatedTo": [
           {
@@ -313,17 +313,15 @@
           "name": "Item",
           "props": [
             {
-              "description": "Where the item links to. Not rendered as a link when `current`.",
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "description": "Where the item links to.",
               "name": "href",
               "required": false,
               "type": "string"
-            },
-            {
-              "default": "false",
-              "description": "The page the user is on: rendered as text with `aria-current=\"page\"`.",
-              "name": "current",
-              "required": false,
-              "type": "boolean"
             },
             {
               "description": "Client-side navigation: called for a plain primary click (no modifier key). Call `event.preventDefault()`, then your router's navigate.",
@@ -332,9 +330,10 @@
               "type": "OnNavigate"
             },
             {
-              "name": "children",
-              "required": true,
-              "type": "ReactNode"
+              "description": "The page the user is on: rendered as text with `aria-current=\"page\"`.",
+              "name": "current",
+              "required": false,
+              "type": "true"
             }
           ],
           "sourcePath": "packages/ui/src/components/Breadcrumb/Breadcrumb.tsx"
@@ -5546,6 +5545,17 @@
               "name": "rowKey",
               "required": false,
               "type": "(row: Row<TData>) => string"
+            },
+            {
+              "name": "onRowClick",
+              "required": false,
+              "type": "(row: Row<TData>) => void"
+            },
+            {
+              "description": "Accessible name for each clickable row. Required because the row's visible cell content alone is rarely a useful accessible name.",
+              "name": "rowAriaLabel",
+              "required": false,
+              "type": "(row: Row<TData>) => string"
             }
           ],
           "sourcePath": "packages/ui/src/components/Table/FromTanstack.tsx"
@@ -5740,7 +5750,7 @@
             "Item"
           ]
         },
-        "description": "The \"On this page\" list of a long page's sections: a labelled nav of in-page links (href=\"#id\", level 2 or 3). value is the id of the section being read; that item gets aria-current=\"location\", the nav marker bar and a heavier weight. variant=\"menu\" puts the list behind a disclosure button (aria-expanded) for narrow screens. No scroll-spy inside: the app computes value. Compound component — Root is required.",
+        "description": "The \"On this page\" list of a long page's sections: a labelled nav of in-page links (href=\"#id\", level 2 or 3). value is the id of the section being read; that item gets aria-current=\"location\", the nav marker bar and a heavier weight. variant=\"menu\" puts the list behind a disclosure button (aria-expanded) for narrow screens; open / defaultOpen / onOpenChange exist on the menu variant only. No scroll-spy inside: the app computes value. Compound component — Root is required.",
         "example": "<TableOfContents.Root aria-label=\"On this page\" label=\"On this page\" value={activeId}>\n  <TableOfContents.Item href=\"#components\">The components</TableOfContents.Item>\n  <TableOfContents.Item href=\"#wiring\">Wiring</TableOfContents.Item>\n  <TableOfContents.Item href=\"#webhooks\" level={3}>Webhooks</TableOfContents.Item>\n</TableOfContents.Root>\n\n// narrow screens\n<TableOfContents.Root aria-label=\"On this page\" variant=\"menu\" value={activeId}>\n  …\n</TableOfContents.Root>",
         "relatedTo": [
           {
@@ -5813,30 +5823,32 @@
               "type": "string | null"
             },
             {
-              "default": "'list'",
-              "description": "`list` (default) for a sidebar; `menu` for a narrow screen, behind a button.",
-              "name": "variant",
-              "required": false,
-              "type": "TableOfContentsVariant",
-              "union": [
-                "list",
-                "menu"
-              ]
-            },
-            {
               "description": "Visible title: the caption above the list, or the menu button's text. The menu button falls back to `aria-label`; the list shows none without it.",
               "name": "label",
               "required": false,
               "type": "ReactNode"
             },
             {
-              "description": "Menu variant: whether the list is shown (controlled).",
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "default": "'list'",
+              "description": "`list` (default) for a sidebar; `menu` for a narrow screen, behind a disclosure button (only `menu` takes open / defaultOpen / onOpenChange).",
+              "name": "variant",
+              "required": false,
+              "type": "'list' | 'menu'"
+            },
+            {
+              "description": "Whether the list is shown (controlled).",
               "name": "open",
               "required": false,
               "type": "boolean"
             },
             {
               "default": "false",
+              "description": "Whether the list starts shown (uncontrolled; default false).",
               "name": "defaultOpen",
               "required": false,
               "type": "boolean"
@@ -5845,11 +5857,6 @@
               "name": "onOpenChange",
               "required": false,
               "type": "(open: boolean) => void"
-            },
-            {
-              "name": "children",
-              "required": true,
-              "type": "ReactNode"
             }
           ],
           "sourcePath": "packages/ui/src/components/TableOfContents/TableOfContents.tsx"
