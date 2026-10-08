@@ -54,6 +54,7 @@ type Options = [
     spacingProperties?: string[]
     radiiProperties?: string[]
     exemptFiles?: string[]
+    inlineStyle?: boolean
   }?,
 ]
 
@@ -237,6 +238,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           spacingProperties: {type: 'array', items: {type: 'string'}, uniqueItems: true},
           radiiProperties: {type: 'array', items: {type: 'string'}, uniqueItems: true},
           exemptFiles: {type: 'array', items: {type: 'string'}, uniqueItems: true},
+          inlineStyle: {type: 'boolean'},
         },
         additionalProperties: false,
       },
@@ -294,6 +296,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
       : RADII_PROPERTIES
     const sourceCode = context.sourceCode
     const exemptFiles = options.exemptFiles ?? []
+    const inlineStyle = options.inlineStyle ?? true
     if (matchesAnyGlob(context.filename, context.cwd, exemptFiles)) return {}
 
     function calleeText(node: TSESTree.CallExpression): string {
@@ -632,7 +635,12 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
       }
     }
 
-    function checkValue(node: TSESTree.Node, property: string | null, suggest: boolean) {
+    function checkValue(
+      node: TSESTree.Node,
+      property: string | null,
+      suggest: boolean,
+      inline = false,
+    ) {
       // Grid tracks: a px anywhere in the track list is a raw size, the same
       // as on width (`'minmax(240px, 1fr)'`). Fractions, % and tokens pass.
       if (property && TRACK_PROPERTIES.has(property)) {
@@ -717,7 +725,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         return
       }
       if (node.type === 'ObjectExpression') {
-        walkStyleObject(node, property, suggest)
+        walkStyleObject(node, property, suggest, inline)
       }
       // Everything else (identifiers, member expressions, template literals,
       // calls, negatives via UnaryExpression) is deliberately skipped.
@@ -766,29 +774,44 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
       obj: TSESTree.ObjectExpression,
       property: string | null,
       suggest: boolean,
+      inline = false,
     ) {
       for (const prop of obj.properties) {
         if (prop.type !== 'Property') continue
+        // An inline style's computed keys and custom properties (`--wb-vw`) hold
+        // no design value we can attribute.
+        if (inline && prop.computed) continue
         const key =
           prop.key.type === 'Identifier'
             ? prop.key.name
             : prop.key.type === 'Literal'
               ? String(prop.key.value)
               : null
+        if (inline && key !== null && key.startsWith('--')) continue
         if (key === null) {
           // Computed key — can't attribute a property; still scan for colors.
-          checkValue(prop.value as TSESTree.Node, null, suggest)
+          checkValue(prop.value as TSESTree.Node, null, suggest, inline)
           continue
         }
         // Condition keys (default, :hover, @media …) keep the enclosing
         // property; anything else IS the property.
         const isCondition = key === 'default' || /^[:@]/.test(key)
         if (isCondition) checkConditionKey(prop, key, suggest)
-        checkValue(prop.value as TSESTree.Node, isCondition ? property : key, suggest)
+        checkValue(prop.value as TSESTree.Node, isCondition ? property : key, suggest, inline)
       }
     }
 
     return {
+      JSXAttribute(node: TSESTree.JSXAttribute) {
+        if (!inlineStyle) return
+        if (node.name.type !== 'JSXIdentifier' || node.name.name !== 'style') return
+        const container = node.value
+        if (container?.type !== 'JSXExpressionContainer') return
+        // style={styles.x}, arrays and identifiers are not literals to read.
+        if (container.expression.type !== 'ObjectExpression') return
+        // No suggestion: plain-React consumers have no .css.ts token imports.
+        walkStyleObject(container.expression, null, false, true)
+      },
       CallExpression(node: TSESTree.CallExpression) {
         if (!factories.includes(calleeText(node))) return
         const arg = node.arguments[0]

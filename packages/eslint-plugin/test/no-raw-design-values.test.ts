@@ -3,11 +3,12 @@ import {noRawDesignValues} from '../src/rules/no-raw-design-values.js'
 
 const tester = new RuleTester({
   languageOptions: {
-    parserOptions: {ecmaVersion: 2022, sourceType: 'module'},
+    parserOptions: {ecmaVersion: 2022, sourceType: 'module', ecmaFeatures: {jsx: true}},
   },
 })
 
 const wrap = (body: string) => `css.create({s: {${body}}})`
+const inline = (body: string) => `const x = <div style={{${body}}} />`
 
 tester.run('no-raw-design-values', noRawDesignValues, {
   valid: [
@@ -22,6 +23,15 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     wrap('color: colors.text, fontSize: typography.fontSizeMd, boxShadow: shadows.sm'),
     // A font size off both scales, a bold keyword, no shadow
     wrap("fontSize: 11, fontWeight: 'bold', boxShadow: 'none'"),
+    // Inline styles: references, arrays, spreads, custom properties, tokens
+    'const x = <div style={styles.x} />',
+    'const x = <div style={[a, b]} />',
+    'const x = <div style={{...base}} />',
+    inline("['--wb-x']: 1"),
+    inline("'--wb-vw': '12px'"),
+    inline('padding: spacing.md'),
+    {code: inline('padding: 16'), options: [{inlineStyle: false}]},
+    {code: inline("color: '#fff', fontWeight: 600"), options: [{inlineStyle: false}]},
     // Not a css.create argument
     'const styles = {s: {padding: 16}}',
     // Sizes and border widths: exemptions and tokens
@@ -947,6 +957,31 @@ tester.run('no-raw-design-values', noRawDesignValues, {
         {messageId: 'rawSpacing', suggestions: []},
         {messageId: 'rawRadius', suggestions: []},
         {messageId: 'offScaleRadius', suggestions: []},
+      ],
+    },
+    {
+      // An inline style object is read like a css.create one, without suggestions
+      code: '<div style={{padding: 16}} />',
+      errors: [{messageId: 'rawSpacing', suggestions: []}],
+    },
+    {
+      code: '<Comp style={{fontSize: 14}} />',
+      errors: [{messageId: 'rawFontSize', suggestions: []}],
+    },
+    {
+      code: inline("color: '#fff'"),
+      errors: [{messageId: 'rawColorToken', suggestions: []}],
+    },
+    {
+      code: inline('fontWeight: 600'),
+      errors: [{messageId: 'rawFontWeight', suggestions: []}],
+    },
+    {
+      code: inline("padding: '4px 8px', width: 240"),
+      errors: [
+        {messageId: 'rawSpacing', suggestions: []},
+        {messageId: 'rawSpacing', suggestions: []},
+        {messageId: 'ambiguousMeasure', suggestions: []},
       ],
     },
   ],
