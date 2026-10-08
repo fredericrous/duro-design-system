@@ -1,8 +1,10 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn} from 'storybook/test'
+import {expect, fn, waitFor} from 'storybook/test'
 import {Breadcrumb} from './Breadcrumb'
 import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'
+import {withCoarsePointer} from '../../docs/coarsePointer'
+import {SIZES_PX} from '@duro-app/tokens/keys'
 import type {OnNavigate} from '../../shared/navigate'
 
 const meta: Meta = {
@@ -79,5 +81,26 @@ export const ClientNavigation: StoryObj<{onNavigate: OnNavigate}> = {
       await expect(clickLink(link, init).defaultPrevented).toBe(false)
     }
     await expect(onNavigate).toHaveBeenCalledTimes(1)
+  },
+}
+
+/**
+ * A touch screen gets 44px links (coarse pointer); a mouse keeps the
+ * artboard's text-height row.
+ */
+export const TouchTargets: Story = {
+  render: () => <Trail />,
+  play: async ({canvas}) => {
+    const links = () => canvas.getAllByRole('link')
+    for (const link of links()) {
+      await expect(link.getBoundingClientRect().height).toBeLessThan(SIZES_PX.touchTarget)
+    }
+    await withCoarsePointer(async () => {
+      for (const link of links()) {
+        await waitFor(() =>
+          expect(link.getBoundingClientRect().height).toBeGreaterThanOrEqual(SIZES_PX.touchTarget),
+        )
+      }
+    })
   },
 }

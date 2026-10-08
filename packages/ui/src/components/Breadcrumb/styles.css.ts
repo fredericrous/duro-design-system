@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 
 // The picked docs browser (docs/mockups/docs-nav/Reader.dc.html, `.crumbs`):
@@ -32,7 +33,12 @@ export const styles = css.create({
     color: colors.textMuted,
     userSelect: 'none',
   },
+  // On a touch screen (coarse pointer, as Toggle does) each link is a
+  // touch target; a mouse keeps the artboard's text-height row.
   link: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    minHeight: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
     color: {
       default: colors.accent,
       ':hover': colors.accentHover,

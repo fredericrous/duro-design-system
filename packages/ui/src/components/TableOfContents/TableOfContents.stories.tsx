@@ -7,6 +7,8 @@ import {TableOfContents} from './TableOfContents'
 import type {TableOfContentsVariant} from './TableOfContentsContext'
 import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'
+import {withCoarsePointer} from '../../docs/coarsePointer'
+import {SIZES_PX} from '@duro-app/tokens/keys'
 import type {OnNavigate} from '../../shared/navigate'
 
 const meta: Meta = {
@@ -187,5 +189,30 @@ export const ClientNavigation: StoryObj<{onNavigate: OnNavigate}> = {
     await expect(onNavigate.mock.calls[0][0]).toBe('#wiring')
     await expect(clickLink(link, {metaKey: true}).defaultPrevented).toBe(false)
     await expect(onNavigate).toHaveBeenCalledTimes(1)
+  },
+}
+
+/**
+ * A touch screen gets 44px items in the list variant too (coarse pointer); a
+ * mouse keeps the artboard's compact rail.
+ */
+export const TouchTargets: Story = {
+  render: () => (
+    <html.div style={styles.aside}>
+      <Sections value="wiring" />
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const links = () => canvas.getAllByRole('link')
+    for (const link of links()) {
+      await expect(link.getBoundingClientRect().height).toBeLessThan(SIZES_PX.touchTarget)
+    }
+    await withCoarsePointer(async () => {
+      for (const link of links()) {
+        await waitFor(() =>
+          expect(link.getBoundingClientRect().height).toBeGreaterThanOrEqual(SIZES_PX.touchTarget),
+        )
+      }
+    })
   },
 }
