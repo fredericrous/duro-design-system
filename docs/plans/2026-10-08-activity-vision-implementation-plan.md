@@ -57,3 +57,10 @@ JSON are kept outside the repository, in the session's attestation folder.
 | Meter tones story                                                                      | `role="meter"`, value text, `meterH`                       | 4 meters named, `aria-valuenow` clamped (4 of 3 → 3) with text "4 of 3, over the limit"; 6 px tall                                                                                                               |
 | Timeline "GA, end" slider: ←, PageDown                                                 | value text is a date                                       | "8 Nov" → "31 Oct"                                                                                                                                                                                               |
 | Mouse drag of "Load test" onto the Beta bar (Timeline as a DragDrop zone)              | dropped on the milestone                                   | Beta 4/9 → 4/10; "Dropped Load test in Beta."                                                                                                                                                                    |
+
+## Implementation review
+
+- **Approve** after the delta: round 1 was approve-with-changes (81k tokens, 81 s), the delta approve (84k, 17 s).
+- Fixed: Perf300 now proves the drag started and landed; a vacuous aria-hidden assertion removed; pointer-capture catches rethrow anything but NotFoundError/InvalidStateError.
+- Deliberate: toast placement (WCAG 2.4.11) belongs to the board PR, per §5; `Timeline` keeps `Date.parse` unvalidated (consumers pass ISO dates).
+- Status stays active. Next phase: the release, tagged as the next free minor once the PR merges.
