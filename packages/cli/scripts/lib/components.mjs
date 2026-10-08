@@ -138,6 +138,12 @@ export function extractSurface(
           ) {
             unions[name] = literals.map((t) => t.getLiteral().getLiteralValue())
           }
+        } else if (Node.isTypeReference(typeNode)) {
+          // An alias of a shared union (ButtonSize = ControlSize): its members.
+          const members = decl.getType().getUnionTypes()
+          if (members.length > 0 && members.every((t) => t.isStringLiteral())) {
+            unions[name] = members.map((t) => t.getLiteralValue())
+          }
         }
       }
     }

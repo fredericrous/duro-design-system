@@ -2572,7 +2572,15 @@
               "description": "Gap between child elements",
               "name": "gap",
               "required": false,
-              "type": "FieldsetGap"
+              "type": "FieldsetGap",
+              "union": [
+                "xs",
+                "sm",
+                "ms",
+                "md",
+                "lg",
+                "xl"
+              ]
             },
             {
               "name": "children",
@@ -3869,6 +3877,17 @@
               "type": "MenuTriggerVariant"
             },
             {
+              "default": "'default'",
+              "description": "`small` matches a small Toggle or Button beside it; a small ghost trigger is `iconButtonSm`. Default: `default`.",
+              "name": "size",
+              "required": false,
+              "type": "ControlSize",
+              "union": [
+                "default",
+                "small"
+              ]
+            },
+            {
               "name": "ref",
               "required": false,
               "type": "Ref<HTMLButtonElement>"
@@ -4418,6 +4437,17 @@
               "type": "string"
             },
             {
+              "default": "'default'",
+              "description": "`small` matches a small Toggle or Button beside it. Default: `default`.",
+              "name": "size",
+              "required": false,
+              "type": "ControlSize",
+              "union": [
+                "default",
+                "small"
+              ]
+            },
+            {
               "description": "The trigger <button>, e.g. to measure it or return focus to it.",
               "name": "ref",
               "required": false,
@@ -4797,6 +4827,17 @@
               "name": "aria-label",
               "required": false,
               "type": "string"
+            },
+            {
+              "default": "'default'",
+              "description": "`small` matches a small Toggle or Button beside it. Default: `default`.",
+              "name": "size",
+              "required": false,
+              "type": "ControlSize",
+              "union": [
+                "default",
+                "small"
+              ]
             }
           ],
           "sourcePath": "packages/ui/src/components/Select/Select.tsx"
@@ -5088,7 +5129,14 @@
         {
           "name": "name",
           "required": true,
-          "type": "StatusIconName"
+          "type": "StatusIconName",
+          "union": [
+            "x-circle",
+            "check-circle",
+            "check-done",
+            "clock",
+            "forbidden"
+          ]
         },
         {
           "default": "'xxl'",
@@ -9143,6 +9191,10 @@
       "default",
       "spacious"
     ],
+    "ControlSize": [
+      "default",
+      "small"
+    ],
     "DetailPanelSize": [
       "sm",
       "md"
@@ -9170,6 +9222,14 @@
       "brisk",
       "base",
       "slow"
+    ],
+    "FieldsetGap": [
+      "xs",
+      "sm",
+      "ms",
+      "md",
+      "lg",
+      "xl"
     ],
     "HeadingVariant": [
       "displayLg",
@@ -9318,6 +9378,13 @@
       "sm",
       "md",
       "lg"
+    ],
+    "StatusIconName": [
+      "x-circle",
+      "check-circle",
+      "check-done",
+      "clock",
+      "forbidden"
     ],
     "StatusIconVariant": [
       "error",
