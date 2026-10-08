@@ -1,5 +1,6 @@
 ---
-status: active
+status: done
+landed: 'v5.4.0 (2d30f214). Consumer: website-builder #200 (50b2b96, git.daddyshome.fr/fredericrous/website-builder), migrated to Duro 5.4 on 2026-10-08.'
 branch: feat/duro-5-4-local-stacking
 repos: [duro-design-system, website-builder]
 adrs: [ADR-0027]
