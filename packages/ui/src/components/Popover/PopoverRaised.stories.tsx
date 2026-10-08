@@ -10,7 +10,7 @@ import {Drawer} from '../Drawer/Drawer'
 import {Select} from '../Select/Select'
 import {Stack} from '../Stack/Stack'
 import {Text} from '../Text/Text'
-import {useInModal} from '../../index'
+import {useInModal} from '../../shared/ModalContext'
 
 /**
  * `Popover.Popup raised`: one floating surface over another (a link editor
@@ -297,8 +297,8 @@ function InModalProbe({label}: {label: string}) {
   return <Text>{`${label}: ${String(useInModal())}`}</Text>
 }
 
-/** `useInModal()` from the package root: true in a Dialog and a Drawer,
- *  false outside. */
+/** `useInModal()`: true in a Dialog and a Drawer, false outside. Its export
+ *  from the package root is checked by shared/exports.typecheck.ts. */
 export const UseInModal: Story = {
   render: () => (
     <>
