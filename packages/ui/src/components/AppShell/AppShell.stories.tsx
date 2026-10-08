@@ -357,8 +357,8 @@ export const SkipLink: Story = {
 const PARAGRAPHS = Array.from({length: 80}, (_, i) => `Paragraph ${i + 1} of a long runbook.`)
 
 /**
- * Below the collapse point an Aside inside Main sticks under the bar, not
- * under it: AppShell sets the bar's height on an element inside its query
+ * Below the collapse point an Aside inside Main sticks below the bar, not
+ * under it; above, at its own offset: AppShell sets the bar's height on an element inside its query
  * container, and Aside's top adds it to its offset.
  */
 export const AsideBelowBar: Story = {
@@ -402,6 +402,10 @@ export const AsideBelowBar: Story = {
           SIZES_PX.appBarH + SPACING_PX.lg,
         ),
       )
+      // above the collapse point the Header scrolls away: only the offset
+      setWidth(frame, DESKTOP_PX)
+      await waitFor(() => expect(getComputedStyle(aside).top).toBe(`${SPACING_PX.lg}px`))
+      await waitFor(() => expect(Math.round(aside.getBoundingClientRect().top)).toBe(SPACING_PX.lg))
     } finally {
       scroller.scrollTop = start
       frame.style.width = ''

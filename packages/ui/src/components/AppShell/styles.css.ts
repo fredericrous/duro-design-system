@@ -23,7 +23,9 @@ const WIDE_LG = `@container (min-width: ${breakpoints.lg})`
 // The custom property an Aside inside the shell adds to its sticky `top`
 // (Aside/styles.css.ts spells the same name). It is set on the grid, inside
 // the query container (a container query cannot style the container itself)
-// and an ancestor of Main.
+// and an ancestor of Main. Above the collapse point it is `initial` (unset),
+// so the Aside's fallback 0px applies: StyleX would write a `0px` as a
+// unitless 0, which makes the Aside's calc() invalid.
 //   '--duro-app-shell-bar'
 
 const RAIL_COLUMNS = `${sizes.sidebarW} minmax(0, 1fr)`
@@ -48,17 +50,17 @@ export const styles = css.create({
   gridSm: {
     gridTemplateColumns: {default: 'minmax(0, 1fr)', [WIDE_SM]: RAIL_COLUMNS},
     gridTemplateAreas: {default: NARROW_AREAS, [WIDE_SM]: WIDE_AREAS},
-    '--duro-app-shell-bar': {default: sizes.appBarH, [WIDE_SM]: '0px'},
+    '--duro-app-shell-bar': {default: sizes.appBarH, [WIDE_SM]: 'initial'},
   },
   gridMd: {
     gridTemplateColumns: {default: 'minmax(0, 1fr)', [WIDE_MD]: RAIL_COLUMNS},
     gridTemplateAreas: {default: NARROW_AREAS, [WIDE_MD]: WIDE_AREAS},
-    '--duro-app-shell-bar': {default: sizes.appBarH, [WIDE_MD]: '0px'},
+    '--duro-app-shell-bar': {default: sizes.appBarH, [WIDE_MD]: 'initial'},
   },
   gridLg: {
     gridTemplateColumns: {default: 'minmax(0, 1fr)', [WIDE_LG]: RAIL_COLUMNS},
     gridTemplateAreas: {default: NARROW_AREAS, [WIDE_LG]: WIDE_AREAS},
-    '--duro-app-shell-bar': {default: sizes.appBarH, [WIDE_LG]: '0px'},
+    '--duro-app-shell-bar': {default: sizes.appBarH, [WIDE_LG]: 'initial'},
   },
 
   // Holds the skip link, the first tab stop: off screen until the link
