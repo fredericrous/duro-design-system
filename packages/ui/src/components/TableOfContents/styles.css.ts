@@ -54,8 +54,8 @@ export const styles = css.create({
   // On a touch screen (coarse pointer, as Toggle does) each item is a touch
   // target; a mouse keeps the artboard's compact rail.
   link: {
-    display: 'flex',
-    alignItems: 'center',
+    display: {default: 'block', '@media (pointer: coarse)': 'flex'},
+    alignItems: {default: null, '@media (pointer: coarse)': 'center'},
     minHeight: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
     paddingTop: microSpacing.px2,
     paddingBottom: microSpacing.px2,
@@ -75,6 +75,8 @@ export const styles = css.create({
   },
   // a touch target per item when the menu is the narrow-screen form
   linkMenu: {
+    display: 'flex',
+    alignItems: 'center',
     minHeight: sizes.touchTarget,
   },
   level3: {
