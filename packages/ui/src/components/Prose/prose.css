@@ -1,0 +1,171 @@
+/*
+ * Prose — styles for HTML that Duro does not author: rendered Markdown, CMS
+ * output. StyleX cannot write descendant rules, so these ship as plain CSS in
+ * dist/index.css. Only var(--duro-*) tokens: the check in
+ * packages/ui/test/prose-css.test.ts fails on any raw length or colour.
+ *
+ * Two things keep it out of everyone's way:
+ *
+ * - The `duro-prose` layer sits after `reset` (so these margins beat the
+ *   reset's `margin: 0`) and before StyleX's own layers (strict.css declares
+ *   the order). A Duro component rendered inside Prose (a TextLink, a
+ *   CodeBlock) keeps its own styles, and any unlayered app CSS — a CSS
+ *   Module rule — wins over every rule here.
+ * - Every selector is wrapped in :where(), so the rules weigh nothing even
+ *   against an app's own layered CSS.
+ *
+ * Scoped to the Prose element: `data-duro-prose` (what the component renders;
+ * react-strict-dom elements take no className) or a `duro-prose` class.
+ */
+
+@layer reset, duro-prose;
+
+@layer duro-prose {
+  :where(.duro-prose, [data-duro-prose]) {
+    color: var(--duro-color-text);
+    font-family: var(--duro-typography-font-family);
+    font-size: var(--duro-type-scale-font-size4);
+    line-height: var(--duro-type-scale-line-height4);
+    overflow-wrap: break-word;
+  }
+
+  /* Flow: one gap between blocks, none before the first. */
+  :where(.duro-prose, [data-duro-prose]) > :where(* + *) {
+    margin-block-start: var(--duro-spacing-md);
+  }
+
+  /* Headings: the Heading presets, with more room above than below. */
+  :where(.duro-prose, [data-duro-prose]) :where(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--duro-typography-font-family);
+    letter-spacing: var(--duro-type-scale-letter-spacing-tight);
+    margin-block-start: var(--duro-spacing-xl);
+    margin-block-end: var(--duro-spacing-sm);
+    /* A table-of-contents jump lands with room above the heading. */
+    scroll-margin-top: var(--duro-spacing-lg);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(h1) {
+    font-size: var(--duro-type-scale-font-size9);
+    line-height: var(--duro-type-scale-line-height9);
+    font-weight: var(--duro-typography-font-weight-bold);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(h2) {
+    font-size: var(--duro-type-scale-font-size8);
+    line-height: var(--duro-type-scale-line-height8);
+    font-weight: var(--duro-typography-font-weight-bold);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(h3) {
+    font-size: var(--duro-type-scale-font-size7);
+    line-height: var(--duro-type-scale-line-height7);
+    font-weight: var(--duro-typography-font-weight-semibold);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(h4, h5, h6) {
+    font-size: var(--duro-type-scale-font-size6);
+    line-height: var(--duro-type-scale-line-height6);
+    font-weight: var(--duro-typography-font-weight-semibold);
+  }
+  :where(.duro-prose, [data-duro-prose]) > :where(:first-child) {
+    margin-block-start: 0;
+  }
+
+  /* Lists: markers back (the reset removes the indent they hang in). */
+  :where(.duro-prose, [data-duro-prose]) :where(ul, ol) {
+    padding-inline-start: var(--duro-spacing-lg);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(ul) {
+    list-style-type: disc;
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(ol) {
+    list-style-type: decimal;
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(li + li, li > ul, li > ol) {
+    margin-block-start: var(--duro-spacing-xs);
+  }
+
+  /* Links: the accent, underlined so they read as links in running text. */
+  :where(.duro-prose, [data-duro-prose]) :where(a) {
+    color: var(--duro-color-accent);
+    text-decoration-line: underline;
+    text-underline-offset: var(--duro-micro-spacing-px2);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(a:hover) {
+    color: var(--duro-color-accent-hover);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(a:focus-visible) {
+    outline: var(--duro-border-focus-ring) solid var(--duro-color-accent);
+    outline-offset: var(--duro-border-focus-offset);
+    border-radius: var(--duro-radius-xs);
+  }
+
+  :where(.duro-prose, [data-duro-prose]) :where(strong, b) {
+    font-weight: var(--duro-typography-font-weight-semibold);
+  }
+
+  :where(.duro-prose, [data-duro-prose]) :where(blockquote) {
+    padding-inline-start: var(--duro-spacing-md);
+    border-inline-start: var(--duro-border-accent) solid var(--duro-color-border);
+    color: var(--duro-color-text-muted);
+  }
+
+  /* Inline code; a heading keeps its own size around it. */
+  :where(.duro-prose, [data-duro-prose]) :where(code) {
+    font-family: var(--duro-typography-font-family-mono);
+    font-size: var(--duro-type-scale-font-size3);
+    padding-inline: var(--duro-spacing-xs);
+    background-color: var(--duro-color-bg-card);
+    border: var(--duro-border-hairline) solid var(--duro-color-border);
+    border-radius: var(--duro-radius-xs);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(h1, h2, h3, h4, h5, h6) :where(code) {
+    font-size: inherit;
+  }
+
+  /* A code block outside CodeBlock (CodeBlock styles its own). */
+  :where(.duro-prose, [data-duro-prose]) :where(pre) {
+    font-family: var(--duro-typography-font-family-mono);
+    font-size: var(--duro-type-scale-font-size3);
+    line-height: var(--duro-type-scale-line-height3);
+    padding: var(--duro-spacing-md);
+    overflow-x: auto;
+    background-color: var(--duro-color-bg-card);
+    border: var(--duro-border-hairline) solid var(--duro-color-border);
+    border-radius: var(--duro-radius-md);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(pre code) {
+    padding: 0;
+    font-size: inherit;
+    background-color: transparent;
+    border: 0;
+  }
+
+  /* Tables scroll sideways on their own rather than widening the page. */
+  :where(.duro-prose, [data-duro-prose]) :where(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: var(--duro-type-scale-font-size3);
+    line-height: var(--duro-type-scale-line-height3);
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(th, td) {
+    padding: var(--duro-spacing-sm) var(--duro-spacing-ms);
+    border: var(--duro-border-hairline) solid var(--duro-color-border);
+    text-align: start;
+    vertical-align: top;
+  }
+  :where(.duro-prose, [data-duro-prose]) :where(th) {
+    font-weight: var(--duro-typography-font-weight-semibold);
+    background-color: var(--duro-color-bg-card);
+  }
+
+  :where(.duro-prose, [data-duro-prose]) :where(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--duro-radius-sm);
+  }
+
+  :where(.duro-prose, [data-duro-prose]) :where(hr) {
+    border: 0;
+    border-block-start: var(--duro-border-hairline) solid var(--duro-color-border);
+    margin-block: var(--duro-spacing-xl);
+  }
+}
