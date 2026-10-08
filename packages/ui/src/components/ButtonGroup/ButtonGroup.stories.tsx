@@ -508,7 +508,7 @@ export const SmallTriggersRow: Story = {
 }
 
 /** The same row under a coarse pointer: Toggle and the three triggers reach
- *  touchTarget. Button has no touch size at any size, so the small Button stays
+ *  touchTarget, the ghost Menu too. Button has no touch size at any size, so the small Button stays
  *  controlSm (the 5.5 plan's addendum). */
 export const SmallTriggersRowCoarsePointer: Story = {
   render: () => <SmallControlsRow />,
@@ -519,6 +519,7 @@ export const SmallTriggersRowCoarsePointer: Story = {
       canvas.getByRole('combobox', {name: 'Block type'}),
       canvas.getByRole('button', {name: 'Insert'}),
       canvas.getByRole('button', {name: 'Text colour'}),
+      canvas.getByRole('button', {name: 'More'}),
     ]
     const button = canvas.getByRole('button', {name: 'Clear'})
     await withCoarsePointer(async () => {
