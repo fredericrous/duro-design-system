@@ -248,8 +248,8 @@ These components **must** be wrapped in their `.Root`:
 | **Text (diagrams)** | Free-floating text inside a Diagram | `x`, `y`, `variant` |
 | **TextLink** | Inline hyperlink for running text and standalone text links ("View all", "Edit profile") | `href`, `target`, `rel` |
 | **Textarea** | Multi-line text input with automatic Field/Form integration | `variant`, `name`, `placeholder` |
-| **Timeline** | Rows of date bars against a date axis (milestones, releases, sprints), with a progress fill per bar and a today marker | compound: Bar, Root, Row |
 | **Time** | A date or time in running text as a <time> element: the visible text comes from you, the exact instant goes in dateTime (an ISO string) and title | `dateTime`, `title` |
+| **Timeline** | Rows of date bars against a date axis (milestones, releases, sprints), with a progress fill per bar and a today marker | compound: Bar, Root, Row |
 | **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |
 | **ToggleGroup** | Container for Toggle buttons enabling single or multi selection | `value`, `defaultValue`, `onValueChange` |
 | **Toolbar** | A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends | `aria-label`, `orientation` |
