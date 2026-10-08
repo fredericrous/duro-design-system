@@ -45,6 +45,7 @@ export {
   type LinkButtonSize,
 } from './components/LinkButton/LinkButton'
 export {Menu} from './components/Menu/Menu'
+export {PageNav} from './components/PageNav/PageNav'
 export {Panel} from './components/Panel/Panel'
 export {RadioGroup} from './components/RadioGroup/RadioGroup'
 export {ScrollArea} from './components/ScrollArea/ScrollArea'
