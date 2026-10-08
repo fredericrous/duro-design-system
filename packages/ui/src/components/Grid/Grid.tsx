@@ -1,4 +1,4 @@
-import {Children, type ReactNode} from 'react'
+import {Children, type ReactNode, type Ref} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {isNative} from '../../platform'
@@ -6,7 +6,7 @@ import {cellBasis, cellPosition, columnWeights, gridTemplate, type GridColumns} 
 import type {SpacingToken} from '@duro-app/tokens/keys'
 import {resolveLength, resolveTrack, type GridTrack, type Length} from '../../shared/length'
 
-export type GridLayout = 'split' | 'split-wide'
+export type GridLayout = 'split' | 'split-wide' | 'content-aside'
 
 interface GridProps {
   gap?: SpacingToken
@@ -25,7 +25,9 @@ interface GridProps {
    * column on the width of its OWN container — `split` below `sm` (640px),
    * `split-wide` below `md` (768px) — so a split nested inside another
    * split, or beside an open DetailPanel, collapses when it runs out of room
-   * rather than when the window does. Wins over `columns` / `minColumnWidth`.
+   * rather than when the window does. `content-aside` is a reading column
+   * beside an `Aside` (`asideW`, 320px), one column below `md`. Wins over
+   * `columns` / `minColumnWidth`.
    */
   layout?: GridLayout
   /**
@@ -37,6 +39,13 @@ interface GridProps {
    * wins over it.
    */
   tracks?: readonly GridTrack[]
+  /**
+   * The Grid's outer element: with a `layout`, the wrapper its container
+   * query measures (hand it to `useContainerBelow` to follow the same
+   * collapse); otherwise the grid itself. Web only: on native the ref is not
+   * attached.
+   */
+  ref?: Ref<HTMLDivElement>
   children: ReactNode
 }
 
@@ -65,6 +74,7 @@ const columnsMap = {
 const layoutMap = {
   split: styles.split,
   'split-wide': styles.splitWide,
+  'content-aside': styles.contentAside,
 } as const satisfies Record<GridLayout, unknown>
 
 // On native the named layouts are their weights; there is no media query to
@@ -72,6 +82,7 @@ const layoutMap = {
 const layoutWeights = {
   split: [1, 2],
   'split-wide': [1, 3],
+  'content-aside': [2, 1],
 } as const satisfies Record<GridLayout, readonly number[]>
 
 const cellGapLeftMap = {
@@ -96,7 +107,15 @@ const cellGapTopMap = {
   xxxl: styles.cellGapTopXxxl,
 } as const satisfies Record<SpacingToken, unknown>
 
-export function Grid({gap = 'md', columns, minColumnWidth, layout, tracks, children}: GridProps) {
+export function Grid({
+  gap = 'md',
+  columns,
+  minColumnWidth,
+  layout,
+  tracks,
+  ref,
+  children,
+}: GridProps) {
   const hasTracks = tracks !== undefined && tracks.length > 0
   if (isNative) {
     return (
@@ -122,10 +141,20 @@ export function Grid({gap = 'md', columns, minColumnWidth, layout, tracks, child
             ? styles.template(gridTemplate(columnWeights(columns) ?? [1]))
             : undefined
 
-  const grid = <html.div style={[styles.base, gapMap[gap], columnStyle]}>{children}</html.div>
+  const grid = (
+    <html.div ref={layout ? undefined : ref} style={[styles.base, gapMap[gap], columnStyle]}>
+      {children}
+    </html.div>
+  )
   // A named layout answers its container query from a wrapper: an element
   // cannot query its own size.
-  return layout ? <html.div style={styles.splitContainer}>{grid}</html.div> : grid
+  return layout ? (
+    <html.div ref={ref} style={styles.splitContainer}>
+      {grid}
+    </html.div>
+  ) : (
+    grid
+  )
 }
 
 /**

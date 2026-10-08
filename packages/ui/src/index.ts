@@ -10,6 +10,7 @@ import './strict.css'
 export {ActionBar, type ActionBarProps} from './components/ActionBar/ActionBar'
 export {ActionBarProvider} from './components/ActionBar/ActionBarProvider'
 export {Alert, type AlertVariant} from './components/Alert/Alert'
+export {Aside} from './components/Aside/Aside'
 export {Icon, type IconName} from './components/Icon'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
 export {Breadcrumb} from './components/Breadcrumb/Breadcrumb'
@@ -127,7 +128,7 @@ export {Switch} from './components/Switch/Switch'
 export {Stack, type SpacingKey} from './components/Stack/Stack'
 export {Inline} from './components/Inline/Inline'
 export {Cluster} from './components/Cluster/Cluster'
-export {Grid} from './components/Grid/Grid'
+export {Grid, type GridLayout} from './components/Grid/Grid'
 export type {GridTrack} from './shared/length'
 export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'
 
@@ -136,6 +137,7 @@ export type {LinkClickEvent, OnNavigate} from './shared/navigate'
 
 // Hooks
 export {useContainerQuery, type ContainerSize} from './hooks/useContainerQuery'
+export {useContainerBelow} from './hooks/useContainerBelow'
 
 // Tokens — import directly from @duro-app/tokens with deep imports:
 //   import { colors } from '@duro-app/tokens/tokens/colors.css'

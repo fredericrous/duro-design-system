@@ -1,5 +1,6 @@
+import {useRef} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect} from 'storybook/test'
+import {expect, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Grid} from './Grid'
 import {Stack} from '../Stack/Stack'
@@ -8,6 +9,9 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {SIZES_PX, SPACING_KEYS} from '@duro-app/tokens/keys'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {useContainerQuery} from '../../hooks/useContainerQuery'
+import {useContainerBelow} from '../../hooks/useContainerBelow'
+import {Aside} from '../Aside/Aside'
+import {onThemeSurface} from '../../docs/themedSurface'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
 
@@ -25,7 +29,7 @@ const meta: Meta<typeof Grid> = {
       description: 'A count, or weights such as [1, 2] for a one-third / two-thirds split',
     },
     minColumnWidth: {control: 'text'},
-    layout: {control: 'select', options: [undefined, 'split', 'split-wide']},
+    layout: {control: 'select', options: [undefined, 'split', 'split-wide', 'content-aside']},
   },
 }
 
@@ -261,3 +265,137 @@ const trackStyles = css.create({
     backgroundColor: colors.bgCard,
   },
 })
+
+// --- content-aside --------------------------------------------------------
+
+const asideStyles = css.create({
+  // pageLg (1200px) and pageSm (600px): either side of md (768px)
+  wide: {width: sizes.pageLg},
+  narrow: {width: sizes.pageSm},
+  cell: {
+    padding: spacing.sm,
+    borderWidth: borders.hairline,
+    borderStyle: 'solid',
+    borderColor: colors.border,
+  },
+})
+
+// Each page's Grid ref, for the play functions to compare with the DOM.
+const gridRefs = new Map<string, {current: HTMLDivElement | null}>()
+
+/** Reports, beside the grid, what `useContainerBelow` sees on the Grid's ref. */
+function ReadingPage({name}: {name: string}) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  gridRefs.set(name, ref)
+  const below = useContainerBelow(ref, 'md')
+  return (
+    <html.div role="group" aria-label={name}>
+      <Grid ref={ref} layout="content-aside" gap="xl">
+        <html.div role="region" aria-label={`${name} content`} style={asideStyles.cell}>
+          {below ? 'below md' : 'md or wider'}
+        </html.div>
+        <Aside aria-label={`${name} outline`}>
+          <html.div style={asideStyles.cell}>On this page</html.div>
+        </Aside>
+      </Grid>
+    </html.div>
+  )
+}
+
+/** A reading column beside an Aside (asideW); one column below md, measured
+ *  on the Grid's own container. */
+export const ContentAside: Story = {
+  parameters: {a11y: {test: 'error'}},
+  decorators: [onThemeSurface],
+  render: () => (
+    <Stack gap="lg">
+      <html.div style={asideStyles.wide}>
+        <ReadingPage name="Wide" />
+      </html.div>
+      <html.div style={asideStyles.narrow}>
+        <ReadingPage name="Narrow" />
+      </html.div>
+    </Stack>
+  ),
+  play: async ({canvas}) => {
+    const wideContent = canvas.getByRole('region', {name: 'Wide content'})
+    const wideAside = canvas.getByRole('complementary', {name: 'Wide outline'})
+    await expect(wideAside.getBoundingClientRect().width).toBe(SIZES_PX.asideW)
+    await expect(wideAside.getBoundingClientRect().left).toBeGreaterThan(
+      wideContent.getBoundingClientRect().right,
+    )
+    const narrowContent = canvas.getByRole('region', {name: 'Narrow content'})
+    const narrowAside = canvas.getByRole('complementary', {name: 'Narrow outline'})
+    await expect(narrowAside.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+      narrowContent.getBoundingClientRect().bottom,
+    )
+  },
+}
+
+/**
+ * The collapse and `useContainerBelow` follow the Grid's container, not the
+ * window: in a 1440px viewport the 600px page stacks and reports "below md",
+ * the 1200px one does not. The forwarded ref is the container the query
+ * measures. Sizes the browser through Vitest, so it runs as a test only.
+ */
+export const ContentAsideFollowsItsContainer: Story = {
+  tags: ['!dev', '!autodocs'],
+  parameters: {a11y: {test: 'error'}},
+  decorators: [onThemeSurface],
+  render: () => (
+    <Stack gap="lg">
+      <html.div style={asideStyles.wide}>
+        <ReadingPage name="Wide" />
+      </html.div>
+      <html.div style={asideStyles.narrow}>
+        <ReadingPage name="Narrow" />
+      </html.div>
+    </Stack>
+  ),
+  play: async ({canvas}) => {
+    const {page} = await import('vitest/browser')
+    const before = {width: window.innerWidth, height: window.innerHeight}
+    await page.viewport(1440, 900)
+    try {
+      await waitFor(() => expect(window.innerWidth).toBe(1440))
+      const narrow = canvas.getByRole('group', {name: 'Narrow'})
+      const wide = canvas.getByRole('group', {name: 'Wide'})
+      // the ref resolves to the container element the query measures
+      const narrowContainer = narrow.firstElementChild as HTMLElement
+      await expect(gridRefs.get('Narrow')?.current).toBe(narrowContainer)
+      await expect(gridRefs.get('Wide')?.current).toBe(wide.firstElementChild)
+      await expect(getComputedStyle(narrowContainer).containerType).toBe('inline-size')
+      await expect(narrowContainer.getBoundingClientRect().width).toBe(SIZES_PX.pageSm)
+      await waitFor(() =>
+        expect(canvas.getByRole('region', {name: 'Narrow content'})).toHaveTextContent('below md'),
+      )
+      await expect(canvas.getByRole('region', {name: 'Wide content'})).toHaveTextContent(
+        'md or wider',
+      )
+      // and the CSS collapse agrees with it
+      const narrowAside = canvas.getByRole('complementary', {name: 'Narrow outline'})
+      await expect(narrowAside.getBoundingClientRect().width).toBe(SIZES_PX.pageSm)
+      const wideAside = canvas.getByRole('complementary', {name: 'Wide outline'})
+      await expect(wideAside.getBoundingClientRect().width).toBe(SIZES_PX.asideW)
+    } finally {
+      await page.viewport(before.width, before.height)
+    }
+  },
+}
+
+const plainGrid: {current: HTMLDivElement | null} = {current: null}
+
+/** `ref` reaches the grid element itself when there is no named layout. */
+export const RefWithoutLayout: Story = {
+  render: () => (
+    <Grid ref={plainGrid} columns={2} gap="sm">
+      <Cell>One</Cell>
+      <Cell>Two</Cell>
+    </Grid>
+  ),
+  play: async ({canvas}) => {
+    const grid = canvas.getByText('One').parentElement as HTMLElement
+    await expect(getComputedStyle(grid).display).toBe('grid')
+    await expect(plainGrid.current).toBe(grid)
+  },
+}
