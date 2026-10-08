@@ -25,9 +25,15 @@ export {ConfirmDialog} from './components/ConfirmDialog/ConfirmDialog'
 export {
   DragDrop,
   useDragDrop,
+  type DragDropAnnouncement,
   type DragDropEvent,
   type DragDropItemData,
+  type DragDropOverEvent,
+  type DragDropPlaceholderInfo,
+  type DragDropRefusal,
+  type DragDropRenderPlaceholder,
   type DragDropTarget,
+  type DragDropVerdict,
 } from './components/DragDrop/DragDrop'
 export {Dialog, type DialogSize} from './components/Dialog/Dialog'
 export {DetailPanel, type DetailPanelSize} from './components/DetailPanel/DetailPanel'
