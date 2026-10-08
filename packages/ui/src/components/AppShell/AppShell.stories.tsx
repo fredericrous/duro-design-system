@@ -1,10 +1,11 @@
 import {Component, useState, type ReactNode} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, spyOn, waitFor, within} from 'storybook/test'
+import {expect, fn, spyOn, waitFor, within} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {renderToString} from 'react-dom/server'
 import {hydrateRoot} from 'react-dom/client'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 import {SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
 import {breakpointsPx} from '@duro-app/tokens/tokens/breakpoints.css'
 import {AppShell, type AppShellCollapse} from './AppShell'
@@ -13,69 +14,103 @@ import {SideNav} from '../SideNav/SideNav'
 import {Heading} from '../Heading/Heading'
 import {Text} from '../Text/Text'
 import {Input} from '../Input/Input'
+import {Menu} from '../Menu/Menu'
 import {TextLink} from '../TextLink/TextLink'
 import {Aside} from '../Aside/Aside'
 import {Stack} from '../Stack/Stack'
 
-const meta: Meta = {
-  title: 'Layout/AppShell',
-  parameters: {
-    a11y: {
-      test: 'error',
-      // holds-until: https://github.com/fredericrous/duro-design-system/issues/79
-      // — the selected item's accent on bgCardHover is 6.76:1, under AAA's
-      // 7:1 (AA passes). Re-enable this rule when that pair reaches 7:1.
-      options: {rules: {'color-contrast-enhanced': {enabled: false}}},
-    },
-    layout: 'fullscreen',
-  },
-}
+// --- the story's frame -----------------------------------------------------
 
-export default meta
-type Story = StoryObj
+// The shell measures its own width, not the window's: the frame stands for a
+// phone, a tablet or a desktop window, whatever the browser's size.
+type FrameWidth = 'phone' | 'tablet' | 'desktop'
 
-const styles = css.create({
-  // The shell measures its own width: these frames stand for a desktop
-  // window and a phone, whatever the test browser's size.
-  desktop: {width: sizes.pageLg},
-  phone: {width: sizes.panelSm},
-  // Between sm and md: a rail at the default collapse point, a Menu at md.
-  tablet: {width: sizes.dialogLg},
-})
-
-// The widths the plan's checks name: a phone and a desktop window. The test
-// stories set them on the frame before measuring.
 const PHONE_PX = 375
 const DESKTOP_PX = breakpointsPx.xl
-
-const page = () => within(document.body)
-const setWidth = (element: HTMLElement, px: number) => {
-  element.style.width = `${px}px`
+const FRAME_PX: Record<FrameWidth, number> = {
+  phone: PHONE_PX,
+  tablet: breakpointsPx.md,
+  desktop: DESKTOP_PX,
 }
-const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(null)))
+
+const styles = css.create({
+  // An outline, not a border: it shows the frame's edge without taking any
+  // of its width.
+  frame: (width: number) => ({
+    width,
+    outlineWidth: borders.hairline,
+    outlineStyle: 'dashed',
+    outlineColor: colors.border,
+  }),
+})
+
+function Frame({px, children}: {px: number; children?: ReactNode}) {
+  return (
+    <html.div style={styles.frame(px)} data-frame="">
+      {children}
+    </html.div>
+  )
+}
+
+// --- the shell the stories render ------------------------------------------
+
+type HeaderContent = 'none' | 'search' | 'search-account'
+
+interface ShellArgs {
+  /** The story's frame: the width the shell measures. */
+  width: FrameWidth
+  /** What `AppShell.Header` holds; `none` leaves the Header out. */
+  header: HeaderContent
+  /** The brand link's text; empty for no brand. */
+  brand: string
+  /** The rail's footer text; empty for no footer. */
+  footer: string
+  collapseBelow: AppShellCollapse
+  menuLabel: string
+  closeLabel: string
+  skipLabel: string
+  /** A pick in the navigation (SideNav `onValueChange`). */
+  onNavigate: (path: string) => void
+  /** The search input's value, on every change. */
+  onSearchChange: (value: string) => void
+  /** The search input's value, on Enter. */
+  onSearchSubmit: (value: string) => void
+  /** An item of the account menu. */
+  onAccountAction: (action: string) => void
+}
 
 const BRAND = 'Duro docs'
-const brandLink = <TextLink href="/">{BRAND}</TextLink>
+const FOOTER = 'Signed in as Ada'
 
-interface ShellProps {
-  header?: boolean
-  brand?: ReactNode
-  footer?: ReactNode
-  collapseBelow?: AppShellCollapse
-  children?: ReactNode
-}
+const ACCOUNT_ACTIONS = ['Profile', 'Settings', 'Sign out'] as const
 
-function Shell({header = true, brand, footer, collapseBelow, children}: ShellProps) {
+function Shell({
+  header,
+  brand,
+  footer,
+  collapseBelow,
+  menuLabel,
+  closeLabel,
+  skipLabel,
+  onNavigate,
+  onSearchChange,
+  onSearchSubmit,
+  onAccountAction,
+  children,
+}: Omit<ShellArgs, 'width'> & {children?: ReactNode}) {
   const [path, setPath] = useState('/docs')
   return (
     <AppShell.Root
-      menuLabel="Menu"
-      closeLabel="Close navigation"
-      skipLabel="Skip to content"
-      brand={brand}
+      menuLabel={menuLabel}
+      closeLabel={closeLabel}
+      skipLabel={skipLabel}
+      brand={brand ? <TextLink href="/">{brand}</TextLink> : undefined}
       collapseBelow={collapseBelow}
     >
-      <AppShell.Rail aria-label="Navigation" footer={footer}>
+      <AppShell.Rail
+        aria-label="Navigation"
+        footer={footer ? <Text variant="bodySm">{footer}</Text> : undefined}
+      >
         {({close}) => (
           <SideNav.Root
             aria-label="Sections"
@@ -83,6 +118,7 @@ function Shell({header = true, brand, footer, collapseBelow, children}: ShellPro
             onValueChange={(value) => {
               close()
               setPath(value)
+              onNavigate(value)
             }}
           >
             <SideNav.Section label="Content">
@@ -93,9 +129,29 @@ function Shell({header = true, brand, footer, collapseBelow, children}: ShellPro
           </SideNav.Root>
         )}
       </AppShell.Rail>
-      {header && (
+      {header !== 'none' && (
         <AppShell.Header>
-          <Input type="search" aria-label="Search the docs" placeholder="Search the docs" />
+          <Input
+            type="search"
+            aria-label="Search the docs"
+            placeholder="Search the docs"
+            onChange={(event) => onSearchChange(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') onSearchSubmit(event.currentTarget.value)
+            }}
+          />
+          {header === 'search-account' && (
+            <Menu.Root>
+              <Menu.Trigger>Account</Menu.Trigger>
+              <Menu.Popup align="end">
+                {ACCOUNT_ACTIONS.map((action) => (
+                  <Menu.Item key={action} onClick={() => onAccountAction(action)}>
+                    {action}
+                  </Menu.Item>
+                ))}
+              </Menu.Popup>
+            </Menu.Root>
+          )}
         </AppShell.Header>
       )}
       <AppShell.Main id="main">
@@ -110,14 +166,137 @@ function Shell({header = true, brand, footer, collapseBelow, children}: ShellPro
   )
 }
 
-/** Desktop: the brand and the rail beside the header and the page; no Menu button. */
-export const Desktop: Story = {
-  render: () => (
-    <html.div style={styles.desktop}>
-      <Shell brand={brandLink} />
-    </html.div>
+const meta = {
+  title: 'Layout/AppShell',
+  render: ({width, ...args}) => (
+    <Frame px={FRAME_PX[width]}>
+      <Shell {...args} />
+    </Frame>
   ),
-  play: async ({canvas}) => {
+  args: {
+    width: 'desktop',
+    header: 'search',
+    brand: BRAND,
+    footer: '',
+    collapseBelow: 'sm',
+    menuLabel: 'Menu',
+    closeLabel: 'Close navigation',
+    skipLabel: 'Skip to content',
+    onNavigate: fn(),
+    onSearchChange: fn(),
+    onSearchSubmit: fn(),
+    onAccountAction: fn(),
+  },
+  argTypes: {
+    width: {
+      control: {
+        type: 'radio',
+        labels: {phone: 'phone 375', tablet: 'tablet 768', desktop: 'desktop 1280'},
+      },
+      options: ['phone', 'tablet', 'desktop'],
+    },
+    header: {
+      control: {
+        type: 'radio',
+        labels: {none: 'none', search: 'search', 'search-account': 'search + account menu'},
+      },
+      options: ['none', 'search', 'search-account'],
+    },
+    brand: {control: 'text'},
+    footer: {control: 'text'},
+    collapseBelow: {control: 'radio', options: ['sm', 'md', 'lg']},
+    menuLabel: {control: 'text'},
+    closeLabel: {control: 'text'},
+    skipLabel: {control: 'text'},
+  },
+  parameters: {
+    a11y: {
+      test: 'error',
+      // holds-until: https://github.com/fredericrous/duro-design-system/issues/79
+      // — the selected item's accent on bgCardHover is 6.76:1, under AAA's
+      // 7:1 (AA passes). Re-enable this rule when that pair reaches 7:1.
+      options: {rules: {'color-contrast-enhanced': {enabled: false}}},
+    },
+    layout: 'fullscreen',
+  },
+} satisfies Meta<ShellArgs>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+const page = () => within(document.body)
+const setWidth = (element: HTMLElement, px: number) => {
+  element.style.width = `${px}px`
+}
+const frameOf = (canvasElement: HTMLElement) =>
+  canvasElement.querySelector('[data-frame]') as HTMLElement
+const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(null)))
+
+// Test-only: runs under Vitest, hidden from the dev sidebar and the docs page.
+const TEST_ONLY = ['!dev', '!autodocs']
+
+// --- visible stories -------------------------------------------------------
+
+/**
+ * Every part of the shell, driven by Controls. Try: set `width` to phone and
+ * press Menu to open the rail in a drawer; set `collapseBelow` to lg at the
+ * tablet width; click in the canvas and press Tab for the skip link. A pick in
+ * the navigation, the search box and the account menu show up in Actions.
+ */
+export const Playground: Story = {
+  args: {header: 'search-account', footer: FOOTER},
+}
+
+/**
+ * Phone: the rail is hidden; one sticky bar holds the Menu button, the brand
+ * and the Header's content.
+ */
+export const Phone: Story = {
+  args: {width: 'phone'},
+  play: async ({args, canvas}) => {
+    await expect(canvas.queryByRole('navigation', {name: 'Navigation'})).toBeNull()
+    const menu = canvas.getByRole('button', {name: args.menuLabel})
+    await expect(menu).toHaveAttribute('aria-expanded', 'false')
+    const banner = canvas.getByRole('banner')
+    await expect(banner.contains(menu)).toBe(true)
+    await expect(banner.contains(canvas.getByRole('link', {name: args.brand}))).toBe(true)
+    await expect(banner.contains(canvas.getByRole('searchbox'))).toBe(true)
+    await expect(banner.getBoundingClientRect().height).toBe(SIZES_PX.appBarH)
+    await expect(getComputedStyle(banner).position).toBe('sticky')
+  },
+}
+
+/** No Header: the desktop shell is the rail and the page, nothing above Main. */
+export const NoHeader: Story = {
+  args: {header: 'none'},
+  play: async ({args, canvas}) => {
+    await expect(canvas.getByRole('navigation', {name: 'Navigation'})).toBeVisible()
+    await expect(canvas.queryByRole('banner')).toBeNull()
+    await expect(canvas.queryByRole('button', {name: args.menuLabel})).toBeNull()
+    await expect(canvas.getAllByRole('link', {name: args.brand})).toHaveLength(1)
+  },
+}
+
+/** `footer` sits at the rail's foot: the signed-in user, a licence line. */
+export const RailFooter: Story = {
+  args: {footer: FOOTER},
+  play: async ({args, canvas}) => {
+    const rail = canvas.getByRole('navigation', {name: 'Navigation'})
+    const footer = canvas.getByText(args.footer)
+    await expect(rail.contains(footer)).toBe(true)
+    // at the foot: its box ends within the rail's last spacing.md
+    const gap = rail.getBoundingClientRect().bottom - footer.getBoundingClientRect().bottom
+    await expect(gap).toBeGreaterThanOrEqual(0)
+    await expect(gap).toBeLessThanOrEqual(SPACING_PX.md)
+  },
+}
+
+// --- test-only stories -----------------------------------------------------
+
+/** Desktop: the brand and the rail beside the header and the page; no Menu button. */
+export const DesktopLandmarks: Story = {
+  tags: TEST_ONLY,
+  play: async ({args, canvas}) => {
     const rail = canvas.getByRole('navigation', {name: 'Navigation'})
     const banner = canvas.getByRole('banner')
     const main = canvas.getByRole('main')
@@ -137,50 +316,21 @@ export const Desktop: Story = {
     await expect(canvas.getAllByRole('banner')).toHaveLength(1)
     const names = canvas.getAllByRole('navigation').map((nav) => nav.getAttribute('aria-label'))
     await expect(new Set(names).size).toBe(names.length)
-    await expect(canvas.queryByRole('button', {name: 'Menu'})).toBeNull()
+    await expect(canvas.queryByRole('button', {name: args.menuLabel})).toBeNull()
     // the brand is the rail's copy
-    await expect(rail.contains(canvas.getByRole('link', {name: BRAND}))).toBe(true)
-  },
-}
-
-/**
- * Phone: the rail is hidden; one sticky bar holds the Menu button, the brand
- * and the Header's content. Nothing is clicked here — the drawer is
- * exercised by the test-only PhoneDrawer story.
- */
-export const Phone: Story = {
-  render: () => (
-    <html.div style={styles.phone}>
-      <Shell brand={brandLink} />
-    </html.div>
-  ),
-  play: async ({canvas}) => {
-    await expect(canvas.queryByRole('navigation', {name: 'Navigation'})).toBeNull()
-    const menu = canvas.getByRole('button', {name: 'Menu'})
-    await expect(menu).toHaveAttribute('aria-expanded', 'false')
-    const banner = canvas.getByRole('banner')
-    await expect(banner.contains(menu)).toBe(true)
-    await expect(banner.contains(canvas.getByRole('link', {name: BRAND}))).toBe(true)
-    await expect(banner.contains(canvas.getByRole('searchbox'))).toBe(true)
-    await expect(banner.getBoundingClientRect().height).toBe(SIZES_PX.appBarH)
-    await expect(getComputedStyle(banner).position).toBe('sticky')
+    await expect(rail.contains(canvas.getByRole('link', {name: args.brand}))).toBe(true)
   },
 }
 
 /**
  * The Menu button opens the rail in a Drawer. Focus moves into the drawer,
  * and back to the Menu button when it closes — by Escape, and after a pick.
- * Test-only, so opening the Phone story never flashes the drawer.
  */
 export const PhoneDrawer: Story = {
-  tags: ['!dev', '!autodocs'],
-  render: () => (
-    <html.div style={styles.phone}>
-      <Shell />
-    </html.div>
-  ),
-  play: async ({canvas, userEvent}) => {
-    const menu = canvas.getByRole('button', {name: 'Menu'})
+  tags: TEST_ONLY,
+  args: {width: 'phone', brand: ''},
+  play: async ({args, canvas, userEvent}) => {
+    const menu = canvas.getByRole('button', {name: args.menuLabel})
     await userEvent.click(menu)
     const dialog = await page().findByRole('dialog', {name: 'Navigation'})
     await expect(menu).toHaveAttribute('aria-expanded', 'true')
@@ -202,37 +352,42 @@ export const PhoneDrawer: Story = {
     await waitFor(() => expect(page().queryByRole('dialog')).toBeNull())
     await waitFor(() => expect(menu).toHaveFocus())
     await expect(canvas.getByText('Current page: /articles')).toBeInTheDocument()
+    await expect(args.onNavigate).toHaveBeenCalledWith('/articles')
   },
 }
 
-/** No Header: the desktop shell is the rail and the page, nothing above Main. */
-export const NoHeaderDesktop: Story = {
-  render: () => (
-    <html.div style={styles.desktop}>
-      <Shell header={false} brand={brandLink} />
-    </html.div>
-  ),
-  play: async ({canvas}) => {
-    await expect(canvas.getByRole('navigation', {name: 'Navigation'})).toBeVisible()
-    await expect(canvas.queryByRole('banner')).toBeNull()
-    await expect(canvas.queryByRole('button', {name: 'Menu'})).toBeNull()
-    await expect(canvas.getAllByRole('link', {name: BRAND})).toHaveLength(1)
+/**
+ * The Playground's actions reach their args: a pick in the navigation, the
+ * search input's changes and Enter, an account menu item.
+ */
+export const PlaygroundActions: Story = {
+  tags: TEST_ONLY,
+  args: {header: 'search-account'},
+  play: async ({args, canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Articles'}))
+    await expect(args.onNavigate).toHaveBeenCalledWith('/articles')
+
+    const search = canvas.getByRole('searchbox', {name: 'Search the docs'})
+    await userEvent.type(search, 'flux{Enter}')
+    await expect(args.onSearchChange).toHaveBeenLastCalledWith('flux')
+    await expect(args.onSearchSubmit).toHaveBeenCalledWith('flux')
+
+    await userEvent.click(canvas.getByRole('button', {name: 'Account'}))
+    await userEvent.click(await page().findByRole('menuitem', {name: 'Sign out'}))
+    await expect(args.onAccountAction).toHaveBeenCalledWith('Sign out')
   },
 }
 
 /** No Header on a phone still gives the bar: the Menu button and the brand. */
 export const NoHeaderPhone: Story = {
-  render: () => (
-    <html.div style={styles.phone}>
-      <Shell header={false} brand={brandLink} />
-    </html.div>
-  ),
-  play: async ({canvas}) => {
+  tags: TEST_ONLY,
+  args: {width: 'phone', header: 'none'},
+  play: async ({args, canvas}) => {
     const banner = canvas.getByRole('banner')
-    const menu = canvas.getByRole('button', {name: 'Menu'})
+    const menu = canvas.getByRole('button', {name: args.menuLabel})
     await expect(menu).toBeVisible()
     await expect(banner.contains(menu)).toBe(true)
-    await expect(banner.contains(canvas.getByRole('link', {name: BRAND}))).toBe(true)
+    await expect(banner.contains(canvas.getByRole('link', {name: args.brand}))).toBe(true)
     await expect(banner.getBoundingClientRect().height).toBe(SIZES_PX.appBarH)
   },
 }
@@ -243,60 +398,38 @@ export const NoHeaderPhone: Story = {
  * width and at a desktop's, and only that one takes focus.
  */
 export const Brand: Story = {
-  render: () => (
-    <html.div style={styles.desktop} data-frame="">
-      <Shell brand={brandLink} />
-    </html.div>
-  ),
-  play: async ({canvas, canvasElement}) => {
-    const frame = canvasElement.querySelector('[data-frame]') as HTMLElement
+  tags: TEST_ONLY,
+  play: async ({args, canvas, canvasElement}) => {
+    const frame = frameOf(canvasElement)
     const focusable = () =>
       [...canvasElement.querySelectorAll<HTMLAnchorElement>('a[href="/"]')].filter((a) =>
         a.checkVisibility(),
       )
     await expect(canvasElement.querySelectorAll('a[href="/"]')).toHaveLength(2)
-    for (const width of [PHONE_PX, DESKTOP_PX]) {
-      setWidth(frame, width)
-      await waitFor(() => expect(canvas.getAllByRole('link', {name: BRAND})).toHaveLength(1))
-      await expect(focusable()).toHaveLength(1)
+    try {
+      for (const width of [PHONE_PX, DESKTOP_PX]) {
+        setWidth(frame, width)
+        await waitFor(() => expect(canvas.getAllByRole('link', {name: args.brand})).toHaveLength(1))
+        await expect(focusable()).toHaveLength(1)
+      }
+      const link = canvas.getByRole('link', {name: args.brand})
+      await expect(canvas.getByRole('navigation', {name: 'Navigation'}).contains(link)).toBe(true)
+    } finally {
+      frame.style.width = ''
     }
-    const link = canvas.getByRole('link', {name: BRAND})
-    await expect(canvas.getByRole('navigation', {name: 'Navigation'}).contains(link)).toBe(true)
   },
 }
 
-/** `footer` sits at the rail's foot: the signed-in user, a licence line. */
-export const RailFooter: Story = {
-  render: () => (
-    <html.div style={styles.desktop}>
-      <Shell brand={brandLink} footer={<Text variant="bodySm">Signed in as Ada</Text>} />
-    </html.div>
-  ),
-  play: async ({canvas}) => {
-    const rail = canvas.getByRole('navigation', {name: 'Navigation'})
-    const footer = canvas.getByText('Signed in as Ada')
-    await expect(rail.contains(footer)).toBe(true)
-    // at the foot: its box ends within the rail's last spacing.md
-    const gap = rail.getBoundingClientRect().bottom - footer.getBoundingClientRect().bottom
-    await expect(gap).toBeGreaterThanOrEqual(0)
-    await expect(gap).toBeLessThanOrEqual(SPACING_PX.md)
-  },
-}
-
-/** The footer comes along into the drawer, after the navigation. Test-only. */
+/** The footer comes along into the drawer, after the navigation. */
 export const RailFooterInDrawer: Story = {
-  tags: ['!dev', '!autodocs'],
-  render: () => (
-    <html.div style={styles.phone}>
-      <Shell footer={<Text variant="bodySm">Signed in as Ada</Text>} />
-    </html.div>
-  ),
-  play: async ({canvas, userEvent}) => {
-    await userEvent.click(canvas.getByRole('button', {name: 'Menu'}))
+  tags: TEST_ONLY,
+  args: {width: 'phone', brand: '', footer: FOOTER},
+  play: async ({args, canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: args.menuLabel}))
     const dialog = await page().findByRole('dialog', {name: 'Navigation'})
-    await expect(within(dialog).getByText('Signed in as Ada')).toBeVisible()
+    await expect(within(dialog).getByText(args.footer)).toBeVisible()
     // rendered once, in the drawer while it is open
-    await expect(page().getAllByText('Signed in as Ada')).toHaveLength(1)
+    await expect(page().getAllByText(args.footer)).toHaveLength(1)
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(page().queryByRole('dialog')).toBeNull())
   },
@@ -307,16 +440,18 @@ export const RailFooterInDrawer: Story = {
  * the Menu button, on its own width — the window does not change.
  */
 export const CollapseBelowMd: Story = {
-  render: () => (
-    <html.div style={styles.tablet} data-frame="">
-      <Shell collapseBelow="md" />
-    </html.div>
+  tags: TEST_ONLY,
+  args: {brand: '', collapseBelow: 'md'},
+  render: ({width: _width, ...args}) => (
+    <Frame px={SIZES_PX.dialogLg}>
+      <Shell {...args} />
+    </Frame>
   ),
-  play: async ({canvas, canvasElement}) => {
-    const frame = canvasElement.querySelector('[data-frame]') as HTMLElement
+  play: async ({args, canvas, canvasElement}) => {
+    const frame = frameOf(canvasElement)
     const viewport = window.innerWidth
     await expect(canvas.queryByRole('navigation', {name: 'Navigation'})).toBeNull()
-    await expect(canvas.getByRole('button', {name: 'Menu'})).toBeVisible()
+    await expect(canvas.getByRole('button', {name: args.menuLabel})).toBeVisible()
     try {
       setWidth(frame, breakpointsPx.md - 1)
       await nextFrame()
@@ -325,7 +460,7 @@ export const CollapseBelowMd: Story = {
       await waitFor(() =>
         expect(canvas.getByRole('navigation', {name: 'Navigation'})).toBeVisible(),
       )
-      await expect(canvas.queryByRole('button', {name: 'Menu'})).toBeNull()
+      await expect(canvas.queryByRole('button', {name: args.menuLabel})).toBeNull()
       await expect(window.innerWidth).toBe(viewport)
     } finally {
       frame.style.width = ''
@@ -335,15 +470,11 @@ export const CollapseBelowMd: Story = {
 
 /** The skip link is the first tab stop and moves focus to Main. */
 export const SkipLink: Story = {
-  render: () => (
-    <html.div style={styles.desktop}>
-      <Shell brand={brandLink} />
-    </html.div>
-  ),
-  play: async ({canvas, userEvent}) => {
+  tags: TEST_ONLY,
+  play: async ({args, canvas, userEvent}) => {
     ;(document.activeElement as HTMLElement | null)?.blur()
     await userEvent.tab()
-    const skip = canvas.getByRole('link', {name: 'Skip to content'})
+    const skip = canvas.getByRole('link', {name: args.skipLabel})
     await expect(skip).toHaveFocus()
     await expect(skip).toBeVisible()
     await expect(skip).toHaveAttribute('href', '#main')
@@ -356,10 +487,14 @@ export const SkipLink: Story = {
 
 /** Without an id on Main, the skip link targets the one Root generates. */
 export const SkipLinkGeneratedId: Story = {
-  tags: ['!dev', '!autodocs'],
-  render: () => (
-    <html.div style={styles.desktop}>
-      <AppShell.Root menuLabel="Menu" closeLabel="Close navigation" skipLabel="Skip to content">
+  tags: TEST_ONLY,
+  render: (args) => (
+    <Frame px={FRAME_PX[args.width]}>
+      <AppShell.Root
+        menuLabel={args.menuLabel}
+        closeLabel={args.closeLabel}
+        skipLabel={args.skipLabel}
+      >
         <AppShell.Rail aria-label="Navigation">
           <Text>Links</Text>
         </AppShell.Rail>
@@ -367,16 +502,13 @@ export const SkipLinkGeneratedId: Story = {
           <Heading level={1}>Docs</Heading>
         </AppShell.Main>
       </AppShell.Root>
-    </html.div>
+    </Frame>
   ),
-  play: async ({canvas}) => {
+  play: async ({args, canvas}) => {
     const main = canvas.getByRole('main')
     const id = main.getAttribute('id')
     await expect(id).toBeTruthy()
-    await expect(canvas.getByRole('link', {name: 'Skip to content'})).toHaveAttribute(
-      'href',
-      `#${id}`,
-    )
+    await expect(canvas.getByRole('link', {name: args.skipLabel})).toHaveAttribute('href', `#${id}`)
   },
 }
 
@@ -392,13 +524,17 @@ class Caught extends Component<{children: ReactNode}, {error: string | null}> {
 
 /** A Header Root cannot see (inside a fragment) fails loudly, not silently. */
 export const WrappedHeaderThrows: Story = {
-  tags: ['!dev', '!autodocs'],
+  tags: TEST_ONLY,
   // What renders is the test's error fallback, not AppShell: nothing for axe
   // to judge about the component (every other AppShell story keeps it).
   parameters: {a11y: {test: 'off'}},
-  render: () => (
+  render: (args) => (
     <Caught>
-      <AppShell.Root menuLabel="Menu" closeLabel="Close navigation" skipLabel="Skip to content">
+      <AppShell.Root
+        menuLabel={args.menuLabel}
+        closeLabel={args.closeLabel}
+        skipLabel={args.skipLabel}
+      >
         <AppShell.Rail aria-label="Navigation">
           <Text>Links</Text>
         </AppShell.Rail>
@@ -428,14 +564,15 @@ const PARAGRAPHS = Array.from({length: 80}, (_, i) => `Paragraph ${i + 1} of a l
 
 /**
  * Below the collapse point an Aside inside Main sticks below the bar, not
- * under it; above, at its own offset: AppShell sets the bar's height on an element inside its query
- * container, and Aside's top adds it to its offset.
+ * under it; above, at its own offset: AppShell sets the bar's height on an
+ * element inside its query container, and Aside's top adds it to its offset.
  */
 export const AsideBelowBar: Story = {
-  tags: ['!dev', '!autodocs'],
-  render: () => (
-    <html.div style={styles.phone} data-frame="">
-      <Shell>
+  tags: TEST_ONLY,
+  args: {width: 'phone', brand: ''},
+  render: ({width, ...args}) => (
+    <Frame px={FRAME_PX[width]}>
+      <Shell {...args}>
         <Aside aria-label="Page outline">
           <Text>On this page</Text>
         </Aside>
@@ -445,10 +582,10 @@ export const AsideBelowBar: Story = {
           ))}
         </Stack>
       </Shell>
-    </html.div>
+    </Frame>
   ),
   play: async ({canvas, canvasElement}) => {
-    const frame = canvasElement.querySelector('[data-frame]') as HTMLElement
+    const frame = frameOf(canvasElement)
     setWidth(frame, PHONE_PX)
     const aside = canvas.getByRole('complementary', {name: 'Page outline'})
     const banner = canvas.getByRole('banner')
@@ -487,34 +624,40 @@ export const AsideBelowBar: Story = {
  * The server renders the shell once, for every width: CSS picks the rail or
  * the Menu button before any script runs, and hydration reports nothing. The
  * brand is in that HTML twice (rail and bar), one of them in the
- * accessibility tree.
+ * accessibility tree. It replaces the canvas's content with the server's
+ * HTML, then hydrates and unmounts it, so it runs as a test only.
  */
 export const ServerRender: Story = {
-  render: () => <html.div style={styles.desktop} data-ssr-host="" />,
-  play: async ({canvasElement}) => {
+  tags: TEST_ONLY,
+  render: ({width}) => (
+    <Frame px={FRAME_PX[width]}>
+      <html.div data-ssr-host="" />
+    </Frame>
+  ),
+  play: async ({args: {width: _width, ...args}, canvasElement}) => {
     const host = canvasElement.querySelector('[data-ssr-host]') as HTMLElement
-    const markup = renderToString(<Shell brand={brandLink} />)
-    await expect(markup.split(BRAND).length - 1).toBe(2)
+    const markup = renderToString(<Shell {...args} />)
+    await expect(markup.split(args.brand).length - 1).toBe(2)
     host.innerHTML = markup
     const shell = within(host)
     // before hydration: the desktop shell, from CSS alone
     await expect(shell.getByRole('navigation', {name: 'Navigation'})).toBeVisible()
-    await expect(shell.getByRole('button', {name: 'Menu', hidden: true})).not.toBeVisible()
-    await expect(shell.getAllByRole('link', {name: BRAND})).toHaveLength(1)
+    await expect(shell.getByRole('button', {name: args.menuLabel, hidden: true})).not.toBeVisible()
+    await expect(shell.getAllByRole('link', {name: args.brand})).toHaveLength(1)
 
     const errors: unknown[] = []
     const consoleError = console.error
-    console.error = (...args: unknown[]) => {
-      errors.push(args)
-      consoleError(...args)
+    console.error = (...rest: unknown[]) => {
+      errors.push(rest)
+      consoleError(...rest)
     }
-    const root = hydrateRoot(host, <Shell brand={brandLink} />, {
+    const root = hydrateRoot(host, <Shell {...args} />, {
       onRecoverableError: (error) => errors.push(error),
     })
     try {
       await new Promise((resolve) => setTimeout(resolve, 100))
       await expect(shell.getByRole('navigation', {name: 'Navigation'})).toBeVisible()
-      await expect(shell.getAllByRole('link', {name: BRAND})).toHaveLength(1)
+      await expect(shell.getAllByRole('link', {name: args.brand})).toHaveLength(1)
       await expect(errors).toEqual([])
     } finally {
       console.error = consoleError
@@ -559,14 +702,15 @@ async function layoutShift(host: HTMLElement, node: ReactNode): Promise<number> 
  * Header and without: the brand and the Menu button are in the server's HTML.
  */
 export const NoLayoutShift: Story = {
-  tags: ['!dev', '!autodocs'],
-  render: () => <html.div style={styles.phone} data-ssr-host="" />,
-  play: async ({canvasElement}) => {
-    const host = canvasElement.querySelector('[data-ssr-host]') as HTMLElement
+  tags: TEST_ONLY,
+  args: {width: 'phone'},
+  render: ({width}) => <Frame px={FRAME_PX[width]} />,
+  play: async ({args: {width: _width, ...args}, canvasElement}) => {
+    const host = frameOf(canvasElement)
     setWidth(host, PHONE_PX)
     await expect(PerformanceObserver.supportedEntryTypes).toContain('layout-shift')
-    await expect(await layoutShift(host, <Shell brand={brandLink} />)).toBe(0)
-    await expect(await layoutShift(host, <Shell header={false} brand={brandLink} />)).toBe(0)
+    await expect(await layoutShift(host, <Shell {...args} />)).toBe(0)
+    await expect(await layoutShift(host, <Shell {...args} header="none" />)).toBe(0)
   },
 }
 
@@ -577,14 +721,10 @@ export const NoLayoutShift: Story = {
  * as a test and stays out of the dev sidebar (there is no Vitest there).
  */
 export const MenuButtonTouchTarget: Story = {
-  tags: ['!dev', '!autodocs'],
-  render: () => (
-    <html.div style={styles.phone}>
-      <Shell />
-    </html.div>
-  ),
-  play: async ({canvas}) => {
-    const menu = () => canvas.getByRole('button', {name: 'Menu'})
+  tags: TEST_ONLY,
+  args: {width: 'phone', brand: ''},
+  play: async ({args, canvas}) => {
+    const menu = () => canvas.getByRole('button', {name: args.menuLabel})
     await withFinePointer()
     await expect(menu().getBoundingClientRect().height).toBeLessThan(SIZES_PX.touchTarget)
     await withCoarsePointer(async () => {
