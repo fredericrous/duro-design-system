@@ -57,6 +57,10 @@ export default defineConfig({
       ),
     },
   },
-  plugins: [react({babel: {configFile: true}}), babel(), dts({insertTypesEntry: true})],
+  plugins: [
+    react({babel: {configFile: true}}),
+    babel(),
+    dts({insertTypesEntry: true, exclude: ['src/**/*.typecheck.tsx']}),
+  ],
   publicDir: false,
 })
