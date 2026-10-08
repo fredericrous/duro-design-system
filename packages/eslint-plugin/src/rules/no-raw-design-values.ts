@@ -338,6 +338,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
       negative: boolean,
       display: string,
       fixable: boolean,
+      suggest: boolean,
     ) {
       if (px === 0) return
       const candidates = candidatesAt(measure, px)
@@ -363,22 +364,23 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         context.report({node, messageId: 'nearestMeasureRole', data: {...data, nearest: text}})
         return
       }
-      const suggest = fixable
-        ? candidates.flatMap((token) =>
-            suggestReplacement(
-              node,
-              `${measure.group}.${token}`,
-              measure.group,
-              `tokens/${measure.group}.css`,
-              negative ? (local) => `\`calc(-1 * \${${local}.${token}})\`` : undefined,
-            ),
-          )
-        : []
+      const suggestions =
+        fixable && suggest
+          ? candidates.flatMap((token) =>
+              suggestReplacement(
+                node,
+                `${measure.group}.${token}`,
+                measure.group,
+                `tokens/${measure.group}.css`,
+                negative ? (local) => `\`calc(-1 * \${${local}.${token}})\`` : undefined,
+              ),
+            )
+          : []
       context.report({
         node,
         messageId: candidates.length > 1 ? 'ambiguousMeasure' : 'rawMeasure',
         data,
-        suggest,
+        suggest: suggestions,
       })
     }
 
@@ -398,12 +400,13 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
       property: string,
       measure: Measure,
       value: string,
+      suggest: boolean,
     ) {
       const text = value.trim()
       const display = `'${value}'`
       const px = PX_RE.exec(text)
       if (px) {
-        checkMeasure(node, property, measure, Number(px[2]), px[1] === '-', display, true)
+        checkMeasure(node, property, measure, Number(px[2]), px[1] === '-', display, true, suggest)
         return
       }
       if (BORDER_SHORTHAND_PROPERTIES.has(property)) {
@@ -411,14 +414,14 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         const words = text.replace(/\([^)]*\)/g, ' ').split(/\s+/)
         const width = words.map((word) => PX_RE.exec(word)).find(Boolean)
         if (width) {
-          checkMeasure(node, property, measure, Number(width[2]), false, display, false)
+          checkMeasure(node, property, measure, Number(width[2]), false, display, false, suggest)
         }
         return
       }
       if (/\bcalc\(/.test(text)) checkStaticPx(node, property, text, display)
     }
 
-    function checkColorValue(node: TSESTree.Node, raw: string) {
+    function checkColorValue(node: TSESTree.Node, raw: string, suggest: boolean) {
       const match = HEX_RE.exec(raw) ?? FUNC_COLOR_RE.exec(raw)
       if (!match) return
       const literal = match[0]
@@ -433,16 +436,23 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           node,
           messageId: 'rawColorToken',
           data: {value: literal, token, pkg: TOKENS_PKG},
-          suggest: isWholeValue
-            ? suggestReplacement(node, `colors.${token}`, 'colors', 'tokens/colors.css')
-            : [],
+          suggest:
+            isWholeValue && suggest
+              ? suggestReplacement(node, `colors.${token}`, 'colors', 'tokens/colors.css')
+              : [],
         })
       } else {
         context.report({node, messageId: 'rawColor', data: {value: literal, pkg: TOKENS_PKG}})
       }
     }
 
-    function checkPxValue(node: TSESTree.Node, property: string, px: number, display: string) {
+    function checkPxValue(
+      node: TSESTree.Node,
+      property: string,
+      px: number,
+      display: string,
+      suggest: boolean,
+    ) {
       if (spacingProperties.has(property)) {
         const token = SPACING_TOKENS_BY_PX[px]
         const micro = MICRO_SPACING_TOKENS_BY_PX[px]
@@ -451,12 +461,14 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
             node,
             messageId: 'rawMicroSpacing',
             data: {value: display, property, token: micro, pkg: TOKENS_PKG},
-            suggest: suggestReplacement(
-              node,
-              `microSpacing.${micro}`,
-              'microSpacing',
-              'tokens/spacing.css',
-            ),
+            suggest: suggest
+              ? suggestReplacement(
+                  node,
+                  `microSpacing.${micro}`,
+                  'microSpacing',
+                  'tokens/spacing.css',
+                )
+              : [],
           })
           return
         }
@@ -472,7 +484,9 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           node,
           messageId: 'rawSpacing',
           data: {value: display, property, token, pkg: TOKENS_PKG},
-          suggest: suggestReplacement(node, `spacing.${token}`, 'spacing', 'tokens/spacing.css'),
+          suggest: suggest
+            ? suggestReplacement(node, `spacing.${token}`, 'spacing', 'tokens/spacing.css')
+            : [],
         })
       } else if (radiiProperties.has(property)) {
         const token = RADII_TOKENS_BY_PX[px]
@@ -488,61 +502,72 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           node,
           messageId: 'rawRadius',
           data: {value: display, property, token, pkg: TOKENS_PKG},
-          suggest: suggestReplacement(node, `radii.${token}`, 'radii', 'tokens/spacing.css'),
+          suggest: suggest
+            ? suggestReplacement(node, `radii.${token}`, 'radii', 'tokens/spacing.css')
+            : [],
         })
       } else if (FONT_SIZE_PROPERTIES.has(property)) {
-        checkFontSize(node, px / 16, display)
+        checkFontSize(node, px / 16, display, suggest)
       }
     }
 
-    function checkFontSize(node: TSESTree.Node, rem: number, display: string) {
+    function checkFontSize(node: TSESTree.Node, rem: number, display: string, suggest: boolean) {
       const hit = FONT_SIZE_TOKENS_BY_REM[rem]
       if (!hit) return
       context.report({
         node,
         messageId: 'rawFontSize',
         data: {value: display, group: hit.group, token: hit.token, pkg: TOKENS_PKG},
-        suggest: suggestReplacement(
-          node,
-          `${hit.group}.${hit.token}`,
-          hit.group,
-          'tokens/typography.css',
-        ),
+        suggest: suggest
+          ? suggestReplacement(
+              node,
+              `${hit.group}.${hit.token}`,
+              hit.group,
+              'tokens/typography.css',
+            )
+          : [],
       })
     }
 
-    function checkFontWeight(node: TSESTree.Node, weight: number, display: string) {
+    function checkFontWeight(
+      node: TSESTree.Node,
+      weight: number,
+      display: string,
+      suggest: boolean,
+    ) {
       const token = FONT_WEIGHT_TOKENS[weight]
       if (!token) return
       context.report({
         node,
         messageId: 'rawFontWeight',
         data: {value: display, token, pkg: TOKENS_PKG},
-        suggest: suggestReplacement(
-          node,
-          `typography.${token}`,
-          'typography',
-          'tokens/typography.css',
-        ),
+        suggest: suggest
+          ? suggestReplacement(node, `typography.${token}`, 'typography', 'tokens/typography.css')
+          : [],
       })
     }
 
-    function checkStringValue(node: TSESTree.Node, property: string, value: string) {
+    function checkStringValue(
+      node: TSESTree.Node,
+      property: string,
+      value: string,
+      suggest: boolean,
+    ) {
       const px = /^(\d+(?:\.\d+)?)px$/.exec(value)
       const rem = /^(\d+(?:\.\d+)?)rem$/.exec(value)
       const ms = /^(\d+(?:\.\d+)?)ms$/.exec(value)
       const display = `'${value}'`
 
       if (px) {
-        checkPxValue(node, property, Number(px[1]), display)
+        checkPxValue(node, property, Number(px[1]), display, suggest)
         return
       }
       if (rem && FONT_SIZE_PROPERTIES.has(property)) {
-        checkFontSize(node, Number(rem[1]), display)
+        checkFontSize(node, Number(rem[1]), display, suggest)
         return
       }
       if (FONT_WEIGHT_PROPERTIES.has(property) && /^\d{3}$/.test(value)) {
-        checkFontWeight(node, Number(value), display)
+        checkFontWeight(node, Number(value), display, suggest)
         return
       }
       if (SHADOW_PROPERTIES.has(property)) {
@@ -552,12 +577,13 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           node,
           messageId: 'rawShadow',
           data: {value, token: token ?? '*', pkg: TOKENS_PKG},
-          suggest: token
-            ? suggestReplacement(node, `shadows.${token}`, 'shadows', 'tokens/shadows.css')
-            : [],
+          suggest:
+            token && suggest
+              ? suggestReplacement(node, `shadows.${token}`, 'shadows', 'tokens/shadows.css')
+              : [],
         })
         // A palette shadow's own rgba() is the token, not a second finding.
-        if (!token) checkColorValue(node, value)
+        if (!token) checkColorValue(node, value, suggest)
         return
       }
       if (DURATION_PROPERTIES.has(property) && ms) {
@@ -566,9 +592,10 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           node,
           messageId: 'rawDuration',
           data: {value, property, token: token ?? '*', pkg: TOKENS_PKG},
-          suggest: token
-            ? suggestReplacement(node, `duration.${token}`, 'duration', 'tokens/motion.css')
-            : [],
+          suggest:
+            token && suggest
+              ? suggestReplacement(node, `duration.${token}`, 'duration', 'tokens/motion.css')
+              : [],
         })
         return
       }
@@ -578,14 +605,15 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           node,
           messageId: 'rawEasing',
           data: {value, property, token: token ?? '*', pkg: TOKENS_PKG},
-          suggest: token
-            ? suggestReplacement(node, `easing.${token}`, 'easing', 'tokens/motion.css')
-            : [],
+          suggest:
+            token && suggest
+              ? suggestReplacement(node, `easing.${token}`, 'easing', 'tokens/motion.css')
+              : [],
         })
       }
     }
 
-    function checkValue(node: TSESTree.Node, property: string | null) {
+    function checkValue(node: TSESTree.Node, property: string | null, suggest: boolean) {
       // Grid tracks: a px anywhere in the track list is a raw size, the same
       // as on width (`'minmax(240px, 1fr)'`). Fractions, % and tokens pass.
       if (property && TRACK_PROPERTIES.has(property)) {
@@ -618,7 +646,16 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
       const measure = property ? measureFor(property) : null
       if (property && measure) {
         if (node.type === 'Literal' && typeof node.value === 'number') {
-          checkMeasure(node, property, measure, node.value, false, String(node.value), true)
+          checkMeasure(
+            node,
+            property,
+            measure,
+            node.value,
+            false,
+            String(node.value),
+            true,
+            suggest,
+          )
           return
         }
         if (
@@ -629,7 +666,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           !BORDER_SHORTHAND_PROPERTIES.has(property)
         ) {
           const px = node.argument.value
-          checkMeasure(node, property, measure, px, true, `-${px}`, true)
+          checkMeasure(node, property, measure, px, true, `-${px}`, true, suggest)
           return
         }
         if (node.type === 'TemplateLiteral') {
@@ -638,37 +675,37 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
           return
         }
         if (node.type === 'Literal' && typeof node.value === 'string') {
-          checkColorValue(node, node.value)
-          checkMeasureString(node, property, measure, node.value)
+          checkColorValue(node, node.value, suggest)
+          checkMeasureString(node, property, measure, node.value, suggest)
           return
         }
       }
       if (node.type === 'Literal') {
         if (typeof node.value === 'string') {
           if (property && SHADOW_PROPERTIES.has(property)) {
-            checkStringValue(node, property, node.value)
+            checkStringValue(node, property, node.value, suggest)
           } else {
-            checkColorValue(node, node.value)
-            if (property) checkStringValue(node, property, node.value)
+            checkColorValue(node, node.value, suggest)
+            if (property) checkStringValue(node, property, node.value, suggest)
           }
         } else if (typeof node.value === 'number' && property && node.value > 0) {
           if (FONT_WEIGHT_PROPERTIES.has(property)) {
-            checkFontWeight(node, node.value, String(node.value))
+            checkFontWeight(node, node.value, String(node.value), suggest)
           } else {
-            checkPxValue(node, property, node.value, String(node.value))
+            checkPxValue(node, property, node.value, String(node.value), suggest)
           }
         }
         return
       }
       if (node.type === 'ObjectExpression') {
-        walkStyleObject(node, property)
+        walkStyleObject(node, property, suggest)
       }
       // Everything else (identifiers, member expressions, template literals,
       // calls, negatives via UnaryExpression) is deliberately skipped.
     }
 
     /** A `@media (min-width: 768px)` key: report, and offer the const key. */
-    function checkConditionKey(prop: TSESTree.Property, key: string) {
+    function checkConditionKey(prop: TSESTree.Property, key: string, suggest: boolean) {
       const match = BREAKPOINT_KEY_RE.exec(key)
       if (!match) return
       const px = Number(match[1])
@@ -691,20 +728,26 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         node: prop.key,
         messageId: 'rawBreakpoint',
         data,
-        suggest: suggestReplacement(
-          prop.key,
-          `breakpoints.${token}`,
-          'breakpoints',
-          'tokens/breakpoints.css',
-          (local) => {
-            const inner = '`' + template.replace('%LOCAL%', local) + '`'
-            return prop.computed ? inner : `[${inner}]`
-          },
-        ),
+        suggest: !suggest
+          ? []
+          : suggestReplacement(
+              prop.key,
+              `breakpoints.${token}`,
+              'breakpoints',
+              'tokens/breakpoints.css',
+              (local) => {
+                const inner = '`' + template.replace('%LOCAL%', local) + '`'
+                return prop.computed ? inner : `[${inner}]`
+              },
+            ),
       })
     }
 
-    function walkStyleObject(obj: TSESTree.ObjectExpression, property: string | null) {
+    function walkStyleObject(
+      obj: TSESTree.ObjectExpression,
+      property: string | null,
+      suggest: boolean,
+    ) {
       for (const prop of obj.properties) {
         if (prop.type !== 'Property') continue
         const key =
@@ -715,14 +758,14 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
               : null
         if (key === null) {
           // Computed key — can't attribute a property; still scan for colors.
-          checkValue(prop.value as TSESTree.Node, null)
+          checkValue(prop.value as TSESTree.Node, null, suggest)
           continue
         }
         // Condition keys (default, :hover, @media …) keep the enclosing
         // property; anything else IS the property.
         const isCondition = key === 'default' || /^[:@]/.test(key)
-        if (isCondition) checkConditionKey(prop, key)
-        checkValue(prop.value as TSESTree.Node, isCondition ? property : key)
+        if (isCondition) checkConditionKey(prop, key, suggest)
+        checkValue(prop.value as TSESTree.Node, isCondition ? property : key, suggest)
       }
     }
 
@@ -735,13 +778,13 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         for (const prop of arg.properties) {
           if (prop.type !== 'Property') continue
           const value = prop.value
-          if (value.type === 'ObjectExpression') walkStyleObject(value, null)
+          if (value.type === 'ObjectExpression') walkStyleObject(value, null, true)
           // Dynamic styles: css.create({x: (arg) => ({...})})
           if (
             (value.type === 'ArrowFunctionExpression' || value.type === 'FunctionExpression') &&
             value.body.type === 'ObjectExpression'
           ) {
-            walkStyleObject(value.body, null)
+            walkStyleObject(value.body, null, true)
           }
         }
       },
