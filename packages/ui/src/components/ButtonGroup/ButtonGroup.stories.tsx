@@ -430,6 +430,12 @@ function SmallControlsRow() {
       <Toggle size="small" aria-label="Bold">
         B
       </Toggle>
+      <Toggle size="small" aria-label="Search">
+        <Icon name="search" size="md" />
+      </Toggle>
+      <Button size="small" variant="secondary">
+        Clear
+      </Button>
       <Select.Root defaultValue="normal">
         <Select.Trigger size="small" aria-label="Block type">
           <Select.Value />
@@ -466,20 +472,27 @@ function SmallControlsRow() {
   )
 }
 
-/** A small Toggle and small Select, Menu and Popover triggers in a plain
- *  Inline (no attached group to stretch them): one height, Toggle's padding
- *  and font. The ghost Menu trigger is the small icon-button size. */
+/** Small Toggles (text and an 18px icon), a small Button and small Select,
+ *  Menu and Popover triggers in a plain Inline (no attached group to stretch
+ *  them): every one is controlSm tall whatever it holds, with Toggle's
+ *  padding and font. The ghost Menu trigger is the small icon-button size. */
 export const SmallTriggersRow: Story = {
   render: () => <SmallControlsRow />,
   play: async ({canvas}) => {
-    const toggle = canvas.getByRole('button', {name: 'Bold'})
+    const controls = [
+      canvas.getByRole('button', {name: 'Bold'}),
+      canvas.getByRole('button', {name: 'Search'}),
+      canvas.getByRole('button', {name: 'Clear'}),
+    ]
     const triggers = [
       canvas.getByRole('combobox', {name: 'Block type'}),
       canvas.getByRole('button', {name: 'Insert'}),
       canvas.getByRole('button', {name: 'Text colour'}),
     ]
+    for (const el of [...controls, ...triggers]) {
+      await expect(el.offsetHeight).toBe(SIZES_PX.controlSm)
+    }
     for (const el of triggers) {
-      await expect(el.offsetHeight).toBe(toggle.offsetHeight)
       const cs = getComputedStyle(el)
       await expect(cs.paddingTop).toBe(`${SPACING_PX.xs}px`)
       await expect(cs.paddingLeft).toBe(`${SPACING_PX.sm}px`)

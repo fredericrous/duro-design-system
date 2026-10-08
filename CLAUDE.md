@@ -735,7 +735,8 @@ stop.** An editor toolbar is a `Toolbar` holding attached groups and menus:
   and the toolbar: its buttons are round and in the normal tab order.
 - A compact toolbar uses `size="small"` on every control: `Toggle`, `Button`
   and the `Select`, `Menu` and `Popover` triggers share Toggle's small
-  padding and font, so they line up at one height (5.5). A small
+  padding and font, and every small control is at least `controlSm` (28px)
+  tall whatever it holds, so text and 18px icons line up (5.5). A small
   `Menu.Trigger variant="ghost"` is `iconButtonSm`.
 
 ### Links and client-side routing
