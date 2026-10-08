@@ -23,7 +23,7 @@ This repository carries Phase 1: `Breadcrumb`, `TableOfContents`, `PageNav`,
 | ----------------------------------------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `pnpm typecheck`                                                                    | pass                                   | pass                                                                                                           |
 | `pnpm lint`                                                                         | 0 errors                               | 0 errors, 16 warnings (all pre-existing)                                                                       |
-| storybook vitest (play + axe)                                                       | pass                                   | 64 files, 401 tests pass                                                                                       |
+| storybook vitest (play + axe)                                                       | pass                                   | 64 files, 401 tests pass on `d021c8bc`                                                                         |
 | unit vitest                                                                         | pass                                   | 24 files, 392 tests pass                                                                                       |
 | `pnpm duro:registry` / `duro:docs`                                                  | no diff                                | no diff                                                                                                        |
 | `shared/linkParts.typecheck.tsx` with an illegal `current` + `href` Breadcrumb item | type error                             | type error (falsified, then restored)                                                                          |
@@ -35,6 +35,7 @@ This repository carries Phase 1: `Breadcrumb`, `TableOfContents`, `PageNav`,
 | TOC list link with a mouse                                                          | `display: block` (artboard rail)       | block; flex only under `pointer: coarse` and in the menu variant                                               |
 | dev Storybook (`pnpm storybook`), the 18 new and link stories                       | each renders                           | each renders (before `9f588ff9` every Breadcrumb and TOC story crashed on a top-level `vitest/browser` import) |
 | storybook vitest after `9f588ff9`                                                   | TouchTargets still run                 | both run and pass (tagged `!dev`)                                                                              |
+| TouchTargets with touch emulation left on by an earlier story (simulated)           | resets to a mouse, passes              | passes; without `withFinePointer` it fails `expected 44 to be less than 44`, the pre-push failure              |
 | Tree/WithLinks axe `color-contrast` (AAA)                                           | disabled with a ceiling                | `holds-until` issue #79                                                                                        |
 
 Side effect for consumers: the CLI registry now merges union props, so
@@ -46,4 +47,5 @@ the PR and the release notes).
 - Round 1 approve-with-changes; fixed: pointer record, axe ceiling (#79), Item/TOC prop unions, OnlyPrev play.
 - Delta 1 approve-with-changes; fixed: TOC links block for a mouse, typecheck fixtures kept out of `dist`.
 - Delta 2 approve, after the dev-Storybook crash fix (`9f588ff9`); no open findings.
+- Delta 3 approve-with-changes after `86246b1f` (fine-pointer reset, from a pre-push failure); fixed: record wording, `holds-until` #81 on the reset. Delta 4 approve (comment-only change), no open findings.
 - Guided preview `83976f8ac77dfb` approved by the person; five Tree differences named deliberate in its guide.
