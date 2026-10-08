@@ -42,6 +42,7 @@ export {Drawer, type DrawerAnchor, type DrawerSize} from './components/Drawer/Dr
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Heading, type HeadingVariant} from './components/Heading/Heading'
 export {List, type ListSelectionMode} from './components/List/List'
+export {LiveRegion, type LiveRegionPoliteness} from './components/LiveRegion/LiveRegion'
 export {Field} from './components/Field/Field'
 export type {LabelPosition, NecessityIndicator} from './components/Form/FormContext'
 export {Fieldset, type FieldsetGap} from './components/Fieldset/Fieldset'
@@ -115,6 +116,8 @@ export {
   type ColorModePreference,
 } from './components/ColorMode'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
+export {Time} from './components/Time/Time'
+export {relative, type RelativeOptions} from './components/Time/relative'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
 export {ToggleGroup} from './components/ToggleGroup/ToggleGroup'
 export {Tooltip} from './components/Tooltip/Tooltip'

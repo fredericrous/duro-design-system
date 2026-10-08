@@ -14,7 +14,7 @@ export interface Registry {
   unions: Record<string, string[]>
 }
 
-export type ComponentKind = 'component' | 'compound' | 'provider' | 'hook'
+export type ComponentKind = 'component' | 'compound' | 'provider' | 'hook' | 'function'
 
 export interface ComponentEntry {
   name: string

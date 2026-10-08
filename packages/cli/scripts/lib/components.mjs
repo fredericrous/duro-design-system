@@ -8,6 +8,9 @@ import {relPath, repoRoot} from './project.mjs'
 function classifyName(name) {
   if (/^use[A-Z]/.test(name)) return 'hook'
   if (/Provider$/.test(name)) return 'provider'
+  // A lower-case export that is not a hook is a plain function (Time's
+  // `relative`), not something to render.
+  if (/^[a-z]/.test(name)) return 'function'
   return 'component'
 }
 
