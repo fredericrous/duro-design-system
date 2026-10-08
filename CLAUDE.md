@@ -112,7 +112,7 @@ Pick the right layout component:
 | Horizontal row, **wraps** to next line | `Cluster`   | flex-direction: row, wrap             |
 | Multi-column grid                      | `Grid`      | CSS grid, fixed or auto-fit columns   |
 | Full page layout with header           | `PageShell` | max-width + padding + optional header |
-| App frame: nav rail, header, main      | `AppShell`  | rail becomes a Drawer below `sm`      |
+| App frame: nav rail, header, main      | `AppShell`  | rail becomes a Drawer below `collapseBelow` (`sm`) |
 | Reading column + table of contents     | `Grid layout="content-aside"` + `Aside` | sticky aside, one column below `md` |
 
 ```tsx
@@ -165,7 +165,7 @@ These components **must** be wrapped in their `.Root`:
 | `TableOfContents` | `Root`, `Item`                                                                           |
 | `PageNav`         | `Root`, `Prev`, `Next`                                                                   |
 | `Timeline`        | `Root`, `Row`, `Bar`                                                                     |
-| `AppShell`        | `Root`, `Rail`, `Header`, `Main`                                                         |
+| `AppShell`        | `Root` (`brand`, `collapseBelow`, `menuLabel`/`closeLabel`/`skipLabel`), `Rail` (`aria-label`, `footer`), `Header` (optional), `Main` (`id`, `ref`) |
 
 ### Optional Root context (works standalone, gains features in context)
 
@@ -185,7 +185,7 @@ These components **must** be wrapped in their `.Root`:
 | --- | --- | --- |
 | **ActionBar** | Floating toolbar that appears at the bottom of the viewport when items are selected | `selectedItemCount`, `selectedLabel`, `isEmphasized` |
 | **Alert** | Inline status message with icon | `variant`, `icon` |
-| **AppShell** | An application's frame: a navigation rail (a labelled nav) beside a header (banner) and the main content (main) | compound: Header, Main, Rail, Root |
+| **AppShell** | An application's frame: a navigation rail (a labelled nav, the brand at its top, an optional footer at its foot) beside the main content (main), with an optional Header | compound: Header, Main, Rail, Root |
 | **Arrow** | Connector line between two points, with an arrowhead at the end | `from`, `to`, `bend` |
 | **Aside** | Content beside the main reading column — a table of contents, related pages: a labelled aside landmark that sticks within the viewport while the page scrolls and scrolls on its own when taller (offset from a spacing token, the raised layer) | `aria-label`, `offset`, `ref` |
 | **Badge** | Small label or tag for status indicators, counts, or categories | `variant`, `size` |
@@ -805,10 +805,17 @@ normal page load. Don't wrap a part in your router's `Link`, and don't put an
 pieces a reader page needs, each owning its accessibility:
 
 ```tsx
-<AppShell.Root menuLabel="Menu" closeLabel="Close navigation">
-  <AppShell.Rail aria-label="Navigation">{({close}) => <DocsNav onPick={close} />}</AppShell.Rail>
+<AppShell.Root
+  menuLabel="Menu"
+  closeLabel="Close navigation"
+  skipLabel="Skip to content"
+  brand={<TextLink href="/">kb-vision</TextLink>}
+>
+  <AppShell.Rail aria-label="Navigation" footer={<UserMenu />}>
+    {({close}) => <DocsNav onPick={close} />}
+  </AppShell.Rail>
   <AppShell.Header>{search}</AppShell.Header>
-  <AppShell.Main id="main">
+  <AppShell.Main>
     <Grid ref={pageRef} layout="content-aside" gap="xl">
       <Prose>
         <ReactMarkdown components={{pre: ({children}) => <CodeBlock copyLabel="Copy" copiedLabel="Copied">{children}</CodeBlock>}}>
@@ -821,6 +828,14 @@ pieces a reader page needs, each owning its accessibility:
 </AppShell.Root>
 ```
 
+- **`AppShell`** is generic: `Header` is optional (below `collapseBelow` the
+  shell's own sticky bar still holds the Menu button and `brand`, and the
+  Header's content joins them; above, the Header scrolls with the page), the
+  `brand` sits at the top of the rail, `footer` at its foot (the user, a
+  licence line). `collapseBelow` is `sm` (default), `md` or `lg`, on the
+  shell's own width. Keep `Header` a direct child of `Root`. The skip link
+  (`skipLabel`) is the first tab stop and focuses `Main`; an `Aside` inside
+  `Main` sticks below the bar (`appBarH`).
 - **`Prose`** styles HTML you do not write as JSX (headings, lists, tables,
   blockquotes, inline code, links, images) from tokens. Its rules are plain
   CSS in `dist/index.css`, in their own cascade layer (`duro-prose`, after
