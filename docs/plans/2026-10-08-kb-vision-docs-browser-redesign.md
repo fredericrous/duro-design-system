@@ -19,21 +19,23 @@ This repository carries Phase 1: `Breadcrumb`, `TableOfContents`, `PageNav`,
 
 ## Verification record
 
-| Input                                                                               | Expected                               | Actual                                                           |
-| ----------------------------------------------------------------------------------- | -------------------------------------- | ---------------------------------------------------------------- |
-| `pnpm typecheck`                                                                    | pass                                   | pass                                                             |
-| `pnpm lint`                                                                         | 0 errors                               | 0 errors, 16 warnings (all pre-existing)                         |
-| storybook vitest (play + axe)                                                       | pass                                   | 64 files, 401 tests pass                                         |
-| unit vitest                                                                         | pass                                   | 24 files, 392 tests pass                                         |
-| `pnpm duro:registry` / `duro:docs`                                                  | no diff                                | no diff                                                          |
-| `shared/linkParts.typecheck.tsx` with an illegal `current` + `href` Breadcrumb item | type error                             | type error (falsified, then restored)                            |
-| `TouchTargets` stories under CDP touch emulation, minHeight removed                 | fail                                   | fail (falsified, then restored); with it: links ≥ 44 px          |
-| Playwright trusted input on `Tree/WithLinks`: plain click, Enter                    | `onNavigate` once each                 | once each                                                        |
-| same: cmd-click, middle-click                                                       | default kept, new tab, no `onNavigate` | new tab, no call                                                 |
-| `PageNav/OnlyPrev`                                                                  | one link, Prev in the left half        | pass                                                             |
-| `pnpm build`                                                                        | no `*.typecheck.d.ts` in `dist`        | none (they shipped before `1b812d2f`)                            |
-| TOC list link with a mouse                                                          | `display: block` (artboard rail)       | block; flex only under `pointer: coarse` and in the menu variant |
-| Tree/WithLinks axe `color-contrast` (AAA)                                           | disabled with a ceiling                | `holds-until` issue #79                                          |
+| Input                                                                               | Expected                               | Actual                                                                                                         |
+| ----------------------------------------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `pnpm typecheck`                                                                    | pass                                   | pass                                                                                                           |
+| `pnpm lint`                                                                         | 0 errors                               | 0 errors, 16 warnings (all pre-existing)                                                                       |
+| storybook vitest (play + axe)                                                       | pass                                   | 64 files, 401 tests pass                                                                                       |
+| unit vitest                                                                         | pass                                   | 24 files, 392 tests pass                                                                                       |
+| `pnpm duro:registry` / `duro:docs`                                                  | no diff                                | no diff                                                                                                        |
+| `shared/linkParts.typecheck.tsx` with an illegal `current` + `href` Breadcrumb item | type error                             | type error (falsified, then restored)                                                                          |
+| `TouchTargets` stories under CDP touch emulation, minHeight removed                 | fail                                   | fail (falsified, then restored); with it: links ≥ 44 px                                                        |
+| Playwright trusted input on `Tree/WithLinks`: plain click, Enter                    | `onNavigate` once each                 | once each                                                                                                      |
+| same: cmd-click, middle-click                                                       | default kept, new tab, no `onNavigate` | new tab, no call                                                                                               |
+| `PageNav/OnlyPrev`                                                                  | one link, Prev in the left half        | pass                                                                                                           |
+| `pnpm build`                                                                        | no `*.typecheck.d.ts` in `dist`        | none (they shipped before `1b812d2f`)                                                                          |
+| TOC list link with a mouse                                                          | `display: block` (artboard rail)       | block; flex only under `pointer: coarse` and in the menu variant                                               |
+| dev Storybook (`pnpm storybook`), the 18 new and link stories                       | each renders                           | each renders (before `9f588ff9` every Breadcrumb and TOC story crashed on a top-level `vitest/browser` import) |
+| storybook vitest after `9f588ff9`                                                   | TouchTargets still run                 | both run and pass (tagged `!dev`)                                                                              |
+| Tree/WithLinks axe `color-contrast` (AAA)                                           | disabled with a ceiling                | `holds-until` issue #79                                                                                        |
 
 Side effect for consumers: the CLI registry now merges union props, so
 `ui/table` `FromTanstack` lists `onRowClick` and `rowAriaLabel` (named in
