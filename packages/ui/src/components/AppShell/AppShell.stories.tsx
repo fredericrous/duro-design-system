@@ -7,6 +7,7 @@ import {hydrateRoot} from 'react-dom/client'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 import {SIZES_PX} from '@duro-app/tokens/keys'
 import {AppShell} from './AppShell'
+import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 import {SideNav} from '../SideNav/SideNav'
 import {Heading} from '../Heading/Heading'
 import {Text} from '../Text/Text'
@@ -120,6 +121,10 @@ export const Phone: Story = {
     await expect(menu).toHaveAttribute('aria-expanded', 'true')
     const drawerNav = within(dialog).getByRole('navigation', {name: 'Navigation'})
     await waitFor(() => expect(drawerNav.contains(document.activeElement)).toBe(true))
+    // the rail's content is rendered once, in the drawer while it is open:
+    // counted in the DOM (a hidden copy would still duplicate a Tree's ids)
+    await expect(page().getAllByText('Articles')).toHaveLength(1)
+    await expect(document.querySelectorAll('[aria-label="Sections"]')).toHaveLength(1)
 
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(page().queryByRole('dialog')).toBeNull())
@@ -166,5 +171,33 @@ export const ServerRender: Story = {
       console.error = consoleError
       root.unmount()
     }
+  },
+}
+
+/**
+ * A touch screen gets a 44px Menu button (the small Button's coarse-pointer
+ * target); a mouse keeps the compact control.
+ * It drives Chrome's touch emulation through Vitest's CDP session, so it runs
+ * as a test and stays out of the dev sidebar (there is no Vitest there).
+ */
+export const MenuButtonTouchTarget: Story = {
+  tags: ['!dev', '!autodocs'],
+  render: () => (
+    <html.div style={styles.phone}>
+      <Shell />
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const menu = () => canvas.getByRole('button', {name: 'Menu'})
+    await withFinePointer()
+    await expect(menu().getBoundingClientRect().height).toBeLessThan(SIZES_PX.touchTarget)
+    await withCoarsePointer(async () => {
+      await waitFor(() =>
+        expect(menu().getBoundingClientRect().height).toBeGreaterThanOrEqual(SIZES_PX.touchTarget),
+      )
+      await expect(menu().getBoundingClientRect().width).toBeGreaterThanOrEqual(
+        SIZES_PX.touchTarget,
+      )
+    })
   },
 }

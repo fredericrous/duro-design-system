@@ -123,8 +123,11 @@ function Rail({'aria-label': ariaLabel, children}: RailProps) {
 
   return (
     <>
-      <html.nav aria-label={ariaLabel} style={styles.rail}>
-        {content}
+      {/* Rendered in one place at a time, so ids (a Tree's) and the landmark
+          name are never duplicated: the drawer only opens below `sm`, where
+          the rail is hidden. */}
+      <html.nav aria-label={ariaLabel} style={styles.rail} hidden={open || undefined}>
+        {open ? null : content}
       </html.nav>
       <Drawer.Root anchor="left" open={open} onOpenChange={setOpen}>
         <Drawer.Portal size="sm">
