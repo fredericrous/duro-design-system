@@ -77,6 +77,10 @@ export {TagGroup} from './components/TagGroup/TagGroup'
 // stays optional for apps that never render a data table. Importing Table
 // from there gives the same object with those attached.
 export {Table, type TableVariant, type TableSize} from './components/Table/Table'
+export {
+  TableOfContents,
+  type TableOfContentsVariant,
+} from './components/TableOfContents/TableOfContents'
 export {Tabs} from './components/Tabs/Tabs'
 export {Tree} from './components/Tree/Tree'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
