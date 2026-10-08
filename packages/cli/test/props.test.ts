@@ -57,6 +57,40 @@ describe('prop extraction goldens', () => {
     expect(prop('Grid', 'columns')).toBeDefined()
   })
 
+  it('discriminated unions merge their branches', () => {
+    // Breadcrumb.Item: {href; onNavigate?; current?: never} | {current: true; href?: never; …}
+    const item = registry.components.Breadcrumb.parts!.Item.props
+    expect(item.map((entry) => entry.name).sort()).toEqual([
+      'children',
+      'current',
+      'href',
+      'onNavigate',
+    ])
+    expect(item.find((entry) => entry.name === 'href')).toMatchObject({
+      type: 'string',
+      required: false,
+    })
+    expect(item.find((entry) => entry.name === 'current')).toMatchObject({type: 'true'})
+    expect(item.find((entry) => entry.name === 'children')).toMatchObject({required: true})
+    // TableOfContents.Root: the menu branch's disclosure props, never-typed in the list branch
+    const root = registry.components.TableOfContents.parts!.Root.props
+    expect(root.find((entry) => entry.name === 'variant')).toMatchObject({
+      type: "'list' | 'menu'",
+      default: "'list'",
+      required: false,
+    })
+    expect(root.find((entry) => entry.name === 'open')).toMatchObject({
+      type: 'boolean',
+      required: false,
+    })
+    // a both-or-neither pair: the `undefined` branch adds nothing
+    expect(
+      registry.components['Table (ui/table)'].parts!.FromTanstack.props.find(
+        (entry) => entry.name === 'onRowClick',
+      ),
+    ).toMatchObject({type: '(row: Row<TData>) => void', required: false})
+  })
+
   it('JSDoc descriptions survive extraction', () => {
     const withDocs = Object.values(registry.components)
       .flatMap((entry) => [

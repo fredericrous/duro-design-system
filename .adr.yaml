@@ -18,6 +18,8 @@ scopes: []
 keys:
   packaging.optional-peer-entry:
     description: Where a component that needs an optional peer dependency is exported from
+  components.link-navigation:
+    description: How a link part of a component hands a click to the app's client-side router
 
 # Which parts of this repository have which traits (aval 1.7, SEMANTICS
 # section 2.5), as `aval traits --detect` proposed and a reviewer accepted.

@@ -50,6 +50,12 @@ export const styles = css.create({
     transitionDuration: duration.fast,
     transitionTimingFunction: easing.standard,
   },
+  // the row of an item with href: a real link that looks like the others
+  rowLink: {
+    textDecorationLine: 'none',
+    outlineWidth: 0,
+    outlineStyle: 'none',
+  },
   // one indent step per level below the top
   indent: (level: number) => ({
     paddingLeft: `calc(${spacing.sm} + ${Math.max(0, level - 1)} * ${spacing.lg})`,

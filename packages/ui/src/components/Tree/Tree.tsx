@@ -12,13 +12,19 @@ import {
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {TreeContext, TreeLevelContext, useTree} from './TreeContext'
+import {isPlainClick, type LinkClickEvent, type OnNavigate} from '../../shared/navigate'
 
 /* Tree — a hierarchy of items (the WAI-ARIA tree pattern): single selection,
  * expandable branches, one tab stop (roving tabindex), and the keyboard of a
  * file explorer — ↑/↓ move between visible items, → opens a branch then goes
  * to its first child, ← closes it then goes to the parent, Home/End, Enter
  * or Space select, and typing jumps to the next item whose label starts with
- * the typed letters. */
+ * the typed letters.
+ *
+ * An item with `href` renders its row as a real link (cmd-click opens a tab,
+ * "Copy link" works) that stays out of the tab order: the treeitem keeps the
+ * single tab stop and the keyboard above, and Enter or Space on it follows
+ * the link, through `onNavigate` when given. */
 
 // --- Root ---
 
@@ -144,10 +150,15 @@ function Root({
           focusItem(list[list.length - 1])
           return
         case 'Enter':
-        case ' ':
+        case ' ': {
           e.preventDefault()
-          onSelect(val)
+          // an item with href: follow its link (the click selects it and
+          // runs onNavigate, or the browser navigates)
+          const link = current.querySelector<HTMLElement>(':scope > [data-tree-link]')
+          if (link) link.click()
+          else onSelect(val)
           return
+        }
       }
       // typeahead: a printable character, no modifier
       if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
@@ -237,9 +248,20 @@ interface ItemProps {
   children?: ReactNode
   /** trailing content on the row (a count, a status) */
   meta?: ReactNode
+  /**
+   * Makes the row a link to this URL. A plain click (or Enter / Space)
+   * selects the item and calls `onNavigate`; a modified click keeps the
+   * browser default (new tab, new window) and does not select.
+   */
+  href?: string
+  /**
+   * Client-side navigation for `href`: called for a plain primary click. Call
+   * `event.preventDefault()`, then your router's navigate.
+   */
+  onNavigate?: OnNavigate
 }
 
-function Item({value, label, textValue, children, meta}: ItemProps) {
+function Item({value, label, textValue, children, meta, href, onNavigate}: ItemProps) {
   const {selectedValue, onSelect, isExpanded, toggle, focusValue, keyboardFocus} = useTree()
   const level = useContext(TreeLevelContext)
   const hasChildren = Children.count(children) > 0
@@ -249,6 +271,32 @@ function Item({value, label, textValue, children, meta}: ItemProps) {
   // named by its own label only: a branch's content includes its children,
   // and a name computed from content would read the whole subtree
   const labelId = useId()
+  const rowStyles = [
+    styles.indent(level),
+    selected && styles.rowSelected,
+    keyboardFocus && focusValue === value && styles.rowFocused,
+  ]
+  const rowContent = (
+    <>
+      <html.span
+        aria-hidden
+        onClick={(e: {stopPropagation: () => void; preventDefault: () => void}) => {
+          if (!hasChildren) return
+          // the chevron only toggles: it never selects, nor follows a link
+          e.stopPropagation()
+          e.preventDefault()
+          toggle(value)
+        }}
+        style={[styles.chevron, open && styles.chevronOpen, !hasChildren && styles.chevronLeaf]}
+      >
+        ▸
+      </html.span>
+      <html.span id={labelId} style={styles.label}>
+        {label}
+      </html.span>
+      {meta != null ? <html.span style={styles.meta}>{meta}</html.span> : null}
+    </>
+  )
 
   return (
     <html.li
@@ -262,31 +310,25 @@ function Item({value, label, textValue, children, meta}: ItemProps) {
       data-tree-text={text}
       style={styles.item}
     >
-      <html.div
-        onClick={() => onSelect(value)}
-        style={[
-          styles.row,
-          styles.indent(level),
-          selected && styles.rowSelected,
-          keyboardFocus && focusValue === value && styles.rowFocused,
-        ]}
-      >
-        <html.span
-          aria-hidden
-          onClick={(e: {stopPropagation: () => void}) => {
-            if (!hasChildren) return
-            e.stopPropagation()
-            toggle(value)
+      {href !== undefined ? (
+        <html.a
+          href={href}
+          tabIndex={-1}
+          data-tree-link=""
+          onClick={(e: LinkClickEvent) => {
+            if (!isPlainClick(e)) return
+            onSelect(value)
+            onNavigate?.(href, e)
           }}
-          style={[styles.chevron, open && styles.chevronOpen, !hasChildren && styles.chevronLeaf]}
+          style={[styles.row, styles.rowLink, ...rowStyles]}
         >
-          ▸
-        </html.span>
-        <html.span id={labelId} style={styles.label}>
-          {label}
-        </html.span>
-        {meta != null ? <html.span style={styles.meta}>{meta}</html.span> : null}
-      </html.div>
+          {rowContent}
+        </html.a>
+      ) : (
+        <html.div onClick={() => onSelect(value)} style={[styles.row, ...rowStyles]}>
+          {rowContent}
+        </html.div>
+      )}
       {open ? (
         <TreeLevelContext.Provider value={level + 1}>
           <html.ul role="group" style={styles.group}>

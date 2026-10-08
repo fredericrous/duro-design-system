@@ -1,6 +1,7 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
+import {linkClickHandler, type OnNavigate} from '../../shared/navigate'
 
 export type TextLinkVariant = 'default' | 'subtle'
 
@@ -17,6 +18,12 @@ interface TextLinkProps {
   variant?: TextLinkVariant
   /** Accessible name, when the visible text alone does not say where it goes. */
   'aria-label'?: string
+  /**
+   * Client-side navigation: called for a plain primary click (no modifier
+   * key, no `target`); the browser default runs for every other click. Call
+   * `event.preventDefault()`, then your router's navigate.
+   */
+  onNavigate?: OnNavigate
   children: ReactNode
 }
 
@@ -30,6 +37,7 @@ export function TextLink({
   rel,
   variant = 'default',
   'aria-label': ariaLabel,
+  onNavigate,
   children,
 }: TextLinkProps) {
   return (
@@ -38,6 +46,7 @@ export function TextLink({
       target={target}
       rel={rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined)}
       aria-label={ariaLabel}
+      onClick={linkClickHandler(href, onNavigate, target)}
       style={[styles.base, styles[variant]]}
     >
       {children}

@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Inline hyperlink for running text and standalone text links ("View all", "Edit profile"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target="_blank" defaults rel to noopener noreferrer.',
+    'Inline hyperlink for running text and standalone text links ("View all", "Edit profile"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target="_blank" defaults rel to noopener noreferrer. onNavigate(href, event) hands a plain primary click to a client router (the app calls event.preventDefault(), then navigates); modified clicks keep the browser default.',
   whenToUse: [
     'A link inside a sentence or paragraph',
     'A standalone text link under a list or card ("View all requests")',

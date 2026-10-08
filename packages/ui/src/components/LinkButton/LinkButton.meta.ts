@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Button-styled hyperlink. Renders an <a> tag, not a <button>. Use for navigation, not actions.',
+    'Button-styled hyperlink. Renders an <a> tag, not a <button>. Use for navigation, not actions. onNavigate(href, event) hands a plain primary click to a client router (the app calls event.preventDefault(), then navigates); modified clicks keep the browser default.',
   whenToUse: [
     'Navigation that should look like a button (e.g., "Get started", "View all")',
     'Links to external pages with button styling',

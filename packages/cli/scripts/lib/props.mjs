@@ -44,12 +44,68 @@ function unwrapFunction(node) {
   return node
 }
 
+function memberName(member) {
+  const nameNode = member.getNameNode()
+  return Node.isStringLiteral(nameNode) ? nameNode.getLiteralValue() : nameNode.getText()
+}
+
+function memberType(member) {
+  return member.getTypeNode()?.getText().replace(/\s+/g, ' ') ?? 'unknown'
+}
+
+/** A prop as read from one member: the node (for JSDoc), name, type text, optional. */
+function describe(member) {
+  return {
+    member,
+    name: memberName(member),
+    type: memberType(member),
+    optional: member.hasQuestionToken(),
+  }
+}
+
+/**
+ * A discriminated union of prop sets (`{href: string; current?: never} |
+ * {current: true; href?: never}`) read as one list: a member typed `never`
+ * (or `undefined`) in a branch is that branch saying the prop is absent, so it
+ * contributes nothing; a prop is required only when every branch requires it; differing
+ * types are joined with `|`.
+ */
+function mergeUnionBranches(branches) {
+  const byName = new Map()
+  for (const branch of branches) {
+    for (const prop of branch) {
+      if (prop.type === 'never' || prop.type === 'undefined') continue
+      const seen = byName.get(prop.name)
+      if (!seen) {
+        byName.set(prop.name, {...prop, types: [prop.type], branches: 1})
+        continue
+      }
+      if (!seen.types.includes(prop.type)) seen.types.push(prop.type)
+      seen.optional = seen.optional || prop.optional
+      seen.branches += 1
+    }
+  }
+  return [...byName.values()].map(({types, branches: count, ...prop}) => ({
+    ...prop,
+    type: types.join(' | '),
+    optional: prop.optional || count < branches.length,
+  }))
+}
+
 function membersOfTypeNode(typeNode, context) {
-  if (Node.isTypeLiteral(typeNode)) return typeNode.getProperties()
+  if (Node.isTypeLiteral(typeNode)) return typeNode.getProperties().map(describe)
+  if (Node.isParenthesizedTypeNode(typeNode)) {
+    return membersOfTypeNode(typeNode.getTypeNode(), context)
+  }
+  if (Node.isUnionTypeNode(typeNode)) {
+    const branches = typeNode.getTypeNodes().map((part) => membersOfTypeNode(part, context))
+    if (branches.some((branch) => branch === null)) return null
+    return mergeUnionBranches(branches)
+  }
   if (Node.isIntersectionTypeNode(typeNode)) {
     // Collect the members of every resolvable part; a union part (e.g. a
-    // both-or-neither prop pair) contributes nothing here but doesn't make
-    // the whole type opaque.
+    // both-or-neither prop pair) contributes its merged members, each
+    // optional unless every branch requires it.
     const members = []
     let anyResolved = false
     for (const part of typeNode.getTypeNodes()) {
@@ -66,7 +122,7 @@ function membersOfTypeNode(typeNode, context) {
     const decl = symbol
       ?.getDeclarations()
       .find((d) => Node.isInterfaceDeclaration(d) || Node.isTypeAliasDeclaration(d))
-    if (Node.isInterfaceDeclaration(decl)) return decl.getProperties()
+    if (Node.isInterfaceDeclaration(decl)) return decl.getProperties().map(describe)
     if (Node.isTypeAliasDeclaration(decl)) {
       return membersOfTypeNode(decl.getTypeNode(), context)
     }
@@ -102,17 +158,12 @@ export function extractProps(fn, unions, context) {
   const members = membersOfTypeNode(typeNode, context)
   if (members === null) return null
 
-  return members.map((member) => {
-    const memberName = member.getNameNode()
-    const name = Node.isStringLiteral(memberName)
-      ? memberName.getLiteralValue()
-      : memberName.getText()
-    const rawType = member.getTypeNode()?.getText().replace(/\s+/g, ' ') ?? 'unknown'
+  return members.map(({member, name, type: rawType, optional}) => {
     const {description, deprecated} = jsDocOf(member)
     const entry = {
       name,
       type: rawType,
-      required: !member.hasQuestionToken(),
+      required: !optional,
     }
     const def = defaults.get(name)
     if (def !== undefined) entry.default = def

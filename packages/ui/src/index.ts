@@ -12,6 +12,7 @@ export {ActionBarProvider} from './components/ActionBar/ActionBarProvider'
 export {Alert, type AlertVariant} from './components/Alert/Alert'
 export {Icon, type IconName} from './components/Icon'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
+export {Breadcrumb} from './components/Breadcrumb/Breadcrumb'
 export {Button, type ButtonVariant, type ButtonSize} from './components/Button/Button'
 export {ButtonGroup, type ButtonGroupProps} from './components/ButtonGroup/ButtonGroup'
 export {Callout, type CalloutVariant} from './components/Callout/Callout'
@@ -44,6 +45,7 @@ export {
   type LinkButtonSize,
 } from './components/LinkButton/LinkButton'
 export {Menu} from './components/Menu/Menu'
+export {PageNav} from './components/PageNav/PageNav'
 export {Panel} from './components/Panel/Panel'
 export {RadioGroup} from './components/RadioGroup/RadioGroup'
 export {ScrollArea} from './components/ScrollArea/ScrollArea'
@@ -76,6 +78,10 @@ export {TagGroup} from './components/TagGroup/TagGroup'
 // stays optional for apps that never render a data table. Importing Table
 // from there gives the same object with those attached.
 export {Table, type TableVariant, type TableSize} from './components/Table/Table'
+export {
+  TableOfContents,
+  type TableOfContentsVariant,
+} from './components/TableOfContents/TableOfContents'
 export {Tabs} from './components/Tabs/Tabs'
 export {Tree} from './components/Tree/Tree'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
@@ -106,6 +112,9 @@ export {Cluster} from './components/Cluster/Cluster'
 export {Grid} from './components/Grid/Grid'
 export type {GridTrack} from './shared/length'
 export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'
+
+// Router-agnostic links: the onNavigate contract every link part shares
+export type {LinkClickEvent, OnNavigate} from './shared/navigate'
 
 // Hooks
 export {useContainerQuery, type ContainerSize} from './hooks/useContainerQuery'
