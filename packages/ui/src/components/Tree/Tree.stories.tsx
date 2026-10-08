@@ -193,9 +193,9 @@ export const WithLinks: StoryObj<{onNavigate: OnNavigate}> = {
   parameters: {
     a11y: {
       test: 'error',
-      // AA passes; the selected row's accent on bgCardHover is 6.76:1, under
-      // AAA's 7:1. That is Tree's existing selected style, not this story's
-      // business — left to a design-token decision.
+      // holds-until: https://github.com/fredericrous/duro-design-system/issues/79
+      // — the selected row's accent on bgCardHover is 6.76:1, under AAA's
+      // 7:1 (AA passes). Re-enable this rule when that pair reaches 7:1.
       options: {rules: {'color-contrast-enhanced': {enabled: false}}},
     },
   },
