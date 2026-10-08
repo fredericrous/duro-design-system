@@ -153,6 +153,7 @@ export const SIZE_KEYS = [
   'timeGutterW',
   'dayHeaderH',
   'timelineLabelW',
+  'appBarH',
 ] as const
 export type SizeToken = (typeof SIZE_KEYS)[number]
 
@@ -240,6 +241,7 @@ export const SIZES_PX = {
   timeGutterW: 64,
   dayHeaderH: 46,
   timelineLabelW: 180,
+  appBarH: 61,
 } as const
 
 export const BORDER_KEYS = [

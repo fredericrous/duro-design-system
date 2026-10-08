@@ -357,14 +357,31 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       ],
     },
     {
-      // timeGutterW names a width: a 64px height has no token.
+      // timeGutterW names a width: a 64px height is only near appBarH.
       code: wrap('height: 64'),
-      errors: [{messageId: 'missingMeasureToken', suggestions: []}],
+      errors: [{messageId: 'nearestMeasureRole', suggestions: []}],
     },
     {
       // dayHeaderH names a height: a 46px width is only near touchTarget/iconXxl.
       code: wrap('width: 46'),
       errors: [{messageId: 'nearestMeasureRole', suggestions: []}],
+    },
+    // AppShell's bar (5.6): offered for a height.
+    {
+      code: wrap('height: 61'),
+      errors: [
+        {
+          messageId: 'rawMeasure',
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('height: sizes.appBarH'),
+            },
+          ],
+        },
+      ],
     },
     {
       code: wrap('boxShadow: `inset 0 0 0 1px ${colors.border}`'),

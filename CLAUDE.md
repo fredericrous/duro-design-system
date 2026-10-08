@@ -455,6 +455,7 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `timeGutterW` | 64px |
 | `dayHeaderH` | 46px |
 | `timelineLabelW` | 180px |
+| `appBarH` | 61px |
 
 ### Borders
 

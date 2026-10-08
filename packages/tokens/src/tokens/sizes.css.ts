@@ -85,4 +85,7 @@ export const sizes = css.defineVars({
   dayHeaderH: '46px',
   // Timeline: the row-label column beside the date track.
   timelineLabelW: '180px',
+  // AppShell's bar below its collapse point: a touch-target Menu button
+  // between spacing.sm above and below, plus the hairline under it.
+  appBarH: '61px',
 })
