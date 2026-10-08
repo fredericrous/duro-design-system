@@ -9,18 +9,55 @@ import {Stack} from '../Stack/Stack'
 import {Text} from '../Text/Text'
 import {onThemeSurface} from '../../docs/themedSurface'
 
-const meta: Meta = {
-  title: 'Components/Time',
-  parameters: {a11y: {test: 'error'}},
-  decorators: [onThemeSurface],
-}
-
-export default meta
-type Story = StoryObj
-
 // A fixed instant, as a loader would pass it: never the clock during render.
 const NOW = Date.UTC(2026, 9, 8, 12, 0, 0)
 const COMMIT = '2026-10-05T09:30:00.000Z'
+const DAY_MS = 24 * 60 * 60 * 1000
+
+type Locale = 'en' | 'fr' | 'de'
+
+interface TimeArgs {
+  /** The instant shown, in days from `now` (negative: in the past). */
+  offsetDays: number
+  /** The locale `relative` and the title use. */
+  locale: Locale
+  /** `auto` says "yesterday" where the locale has a word; `always` keeps the number. */
+  numeric: 'auto' | 'always'
+  /** The text before the date. */
+  label: string
+}
+
+const meta = {
+  title: 'Components/Time',
+  args: {offsetDays: -3, locale: 'en', numeric: 'auto', label: 'Updated'},
+  argTypes: {
+    offsetDays: {control: {type: 'range', min: -400, max: 400, step: 1}},
+    locale: {
+      control: {type: 'select', labels: {en: 'English', fr: 'Français', de: 'Deutsch'}},
+      options: ['en', 'fr', 'de'],
+    },
+    numeric: {control: 'radio', options: ['auto', 'always']},
+    label: {control: 'text'},
+  },
+  parameters: {a11y: {test: 'error'}},
+  decorators: [onThemeSurface],
+  render: ({offsetDays, locale, numeric, label}) => {
+    const iso = new Date(NOW + offsetDays * DAY_MS).toISOString()
+    return (
+      <Text variant="bodySm" color="muted">
+        {label}{' '}
+        <Time dateTime={iso} title={full(iso, locale)}>
+          {relative(iso, {now: NOW, locale, numeric})}
+        </Time>
+      </Text>
+    )
+  },
+} satisfies Meta<TimeArgs>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+const TEST_ONLY = ['!dev', '!autodocs']
 
 function full(iso: string, locale: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -39,6 +76,21 @@ function Updated({locale, label}: {locale: string; label: string}) {
       </Time>
     </Text>
   )
+}
+
+/**
+ * A date relative to a fixed `now` (2026-10-08 12:00 UTC). Move `offsetDays`
+ * to walk through the units (days, weeks, months, years), switch `locale`, and
+ * `numeric` to always for "1 day ago" instead of "yesterday". Hover the date
+ * for the exact instant (title).
+ */
+export const Playground: Story = {
+  play: async ({args, canvasElement}) => {
+    const time = canvasElement.querySelector('time')!
+    const iso = new Date(NOW + args.offsetDays * DAY_MS).toISOString()
+    await expect(time).toHaveAttribute('datetime', iso)
+    await expect(time).toHaveAttribute('title', full(iso, args.locale))
+  },
 }
 
 /** The words come from the locale; the exact instant stays in dateTime and title. */
@@ -64,6 +116,7 @@ export const TwoLocales: Story = {
 
 /** A Date is written as its ISO string. */
 export const FromDate: Story = {
+  tags: TEST_ONLY,
   render: () => (
     <Text>
       <Time dateTime={new Date(NOW)}>{relative(NOW, {now: NOW, locale: 'en'})}</Time>
@@ -77,8 +130,9 @@ export const FromDate: Story = {
 }
 
 /** Server and client render the same text from the same `now`: hydration
- *  reports nothing. */
+ *  reports nothing. It replaces the canvas's content, so it runs as a test only. */
 export const ServerRender: Story = {
+  tags: TEST_ONLY,
   render: () => <html.div data-ssr-host="" />,
   play: async ({canvasElement}) => {
     const host = canvasElement.querySelector('[data-ssr-host]') as HTMLElement
