@@ -513,7 +513,6 @@ export const RefusalWithReason: Story = {
     await waitFor(() =>
       expect(status()).toHaveTextContent('In progress: Drop an activity on a task to attach it'),
     )
-    await expect(document.body.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThan(0)
     await expect(
       [...document.querySelectorAll('[aria-hidden="true"]')].some((el) =>
         el.textContent?.includes('Drop an activity on a task to attach it'),
@@ -638,6 +637,9 @@ export const Perf300: Story = {
     document.dispatchEvent(new PointerEvent('pointermove', pointerInit(start.x, start.y + 20)))
     await nextFrame()
     await nextFrame()
+    // The drag really started: the placeholder is up. Without this, a drag that
+    // never starts renders nothing and the budget below passes vacuously.
+    await waitFor(() => expect(canvas.getByText('→ Next')).toBeInTheDocument())
     const end = point(tenth)
     const perFrame: number[] = []
     const frameMs: number[] = []
@@ -655,6 +657,12 @@ export const Perf300: Story = {
     await nextFrame()
     const max = Math.max(...perFrame)
     ;(window as unknown as {__perf300?: unknown}).__perf300 = {perFrame, frameMs}
+    await expect(perFrame.some((n) => n > 0)).toBe(true)
     await expect(max).toBeLessThan(5)
+    // …and the drop landed: N-1 left the top of Next.
+    const next = canvas.getByRole('list', {name: 'Next'})
+    await waitFor(() =>
+      expect(next.querySelector('[role="listitem"]')?.textContent).not.toBe('N-1'),
+    )
   },
 }

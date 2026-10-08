@@ -252,6 +252,12 @@ function defaultAnnouncement(e: DragDropAnnouncement): string {
 // pointer/keyboard state machine. One per Root, created once.
 // ---------------------------------------------------------------------------
 
+/** setPointerCapture / releasePointerCapture throw these when there is no
+ *  active pointer to capture (a synthetic event, a pointer already gone) or
+ *  the capture is already released. Anything else is a real error. */
+const isPointerCaptureMiss = (err: unknown): boolean =>
+  err instanceof DOMException && (err.name === 'NotFoundError' || err.name === 'InvalidStateError')
+
 class Engine {
   props: LatestProps = {onDrop: () => {}}
   readonly zones = new Map<string, ZoneRecord>()
@@ -654,8 +660,8 @@ class Engine {
     // synthetic event) without an active pointer is not an error.
     try {
       source.setPointerCapture(e.pointerId)
-    } catch {
-      // no active pointer to capture
+    } catch (err) {
+      if (!isPointerCaptureMiss(err)) throw err
     }
     if (e.pointerType === 'touch') {
       s.holdTimer = setTimeout(() => {
@@ -677,8 +683,8 @@ class Engine {
     this.session = null
     try {
       if (s.source.hasPointerCapture(s.pointerId)) s.source.releasePointerCapture(s.pointerId)
-    } catch {
-      // already released
+    } catch (err) {
+      if (!isPointerCaptureMiss(err)) throw err
     }
     if (!s.active) return
     document.removeEventListener('scroll', this.onScroll, {capture: true})
