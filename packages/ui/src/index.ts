@@ -10,7 +10,11 @@ import './strict.css'
 export {ActionBar, type ActionBarProps} from './components/ActionBar/ActionBar'
 export {ActionBarProvider} from './components/ActionBar/ActionBarProvider'
 export {Alert, type AlertVariant} from './components/Alert/Alert'
-export {AppShell, type AppShellRailState} from './components/AppShell/AppShell'
+export {
+  AppShell,
+  type AppShellCollapse,
+  type AppShellRailState,
+} from './components/AppShell/AppShell'
 export {Aside} from './components/Aside/Aside'
 export {Icon, type IconName} from './components/Icon'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
