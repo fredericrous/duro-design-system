@@ -62,6 +62,7 @@ export const styles = css.create({
   success: {borderLeftColor: colors.successBorder},
   error: {borderLeftColor: colors.errorBorder},
   info: {borderLeftColor: colors.infoBorder},
+  warning: {borderLeftColor: colors.warningBorder},
 
   iconWrap: {
     flexShrink: 0,
@@ -73,6 +74,7 @@ export const styles = css.create({
   iconSuccess: {color: colors.successText},
   iconError: {color: colors.errorText},
   iconInfo: {color: colors.infoText},
+  iconWarning: {color: colors.warningText},
 
   content: {
     flex: 1,

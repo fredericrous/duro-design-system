@@ -197,6 +197,7 @@ export const SIZES_PX = {
   deviceBarW: 96,
   timeGutterW: 64,
   dayHeaderH: 46,
+  timelineLabelW: 180,
 } as const
 
 // Email-only measures: no CSS variable (mail clients cannot read them) and not

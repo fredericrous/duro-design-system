@@ -1,10 +1,11 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii} from '@duro-app/tokens/tokens/spacing.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
 import {layers} from '@duro-app/tokens/tokens/layers.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 
 export const styles = css.create({
   // The item is the drag handle: no browser panning starts on it, so a touch
@@ -26,11 +27,44 @@ export const styles = css.create({
     opacity: 0.4,
     cursor: 'grabbing',
   },
+  // The keyboard path: one focusable widget per item.
+  handle: {
+    borderRadius: radii.sm,
+    outlineStyle: {default: 'none', ':focus-visible': 'solid'},
+    outlineWidth: borders.focusRing,
+    outlineColor: colors.accent,
+    outlineOffset: borders.focusOffset,
+  },
+  // Picked up by keyboard: the ring stays on even without :focus-visible.
+  handlePicked: {
+    outlineStyle: 'dashed',
+  },
   zone: {
     borderRadius: radii.sm,
     transitionProperty: 'box-shadow, background-color',
     transitionDuration: duration.fast,
     transitionTimingFunction: easing.standard,
+  },
+  listVertical: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  listHorizontal: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  gapXs: {gap: spacing.xs},
+  gapSm: {gap: spacing.sm},
+  gapMs: {gap: spacing.ms},
+  gapMd: {gap: spacing.md},
+  gapLg: {gap: spacing.lg},
+  gapXl: {gap: spacing.xl},
+  gapXxl: {gap: spacing.xxl},
+  gapXxxl: {gap: spacing.xxxl},
+  fill: {
+    boxSizing: 'border-box',
+    width: '100%',
+    height: '100%',
   },
   // Every zone shows it can receive while something is in the air; the one
   // under the pointer lights up. Drop-target rings, not focus: keyboard focus
@@ -52,6 +86,18 @@ export const styles = css.create({
     outlineColor: 'transparent',
     outlineOffset: `calc(-1 * ${borders.strong})`,
   },
+  // Refused with a reason: the zone says no in the error tone, the ghost
+  // carries the reason.
+  zoneRefused: {
+    backgroundColor: colors.errorBg,
+    outlineStyle: 'dashed',
+    outlineWidth: borders.strong,
+    outlineColor: colors.errorBorder,
+    outlineOffset: `calc(-1 * ${borders.strong})`,
+  },
+  placeholder: {
+    flexShrink: 0,
+  },
   ghost: {
     position: 'fixed',
     top: 0,
@@ -63,9 +109,33 @@ export const styles = css.create({
     opacity: 0.9,
     cursor: 'grabbing',
   },
-  ghostAt: (x: number, y: number, width: number, height: number) => ({
+  // The lifted look: a slight tilt, dropped under reduced motion.
+  ghostTilt: {
+    transform: {
+      default: 'rotate(2deg)',
+      '@media (prefers-reduced-motion: reduce)': 'none',
+    },
+  },
+  refusal: {
+    marginTop: spacing.xs,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
+    borderRadius: radii.xs,
+    borderWidth: borders.hairline,
+    borderStyle: 'solid',
+    borderColor: colors.errorBorder,
+    backgroundColor: colors.bgCard,
+    color: colors.errorText,
+    fontSize: typography.fontSizeXs,
+    lineHeight: typography.lineHeight,
+    boxShadow: shadows.md,
+    width: 'max-content',
+    maxWidth: '100%',
+  },
+  ghostSize: (width: number, height: number) => ({
     width,
-    height,
-    transform: `translate3d(${x}px, ${y}px, 0)`,
+    minHeight: height,
   }),
 })

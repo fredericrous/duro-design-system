@@ -420,6 +420,7 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   4: ['barH'],
   64: ['timeGutterW'],
   46: ['dayHeaderH'],
+  180: ['timelineLabelW'],
 }
 
 /** px value → every borders token at that value, in key order. */

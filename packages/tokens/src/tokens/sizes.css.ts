@@ -83,4 +83,6 @@ export const sizes = css.defineVars({
   // Calendar grids: the time-label column and the day-header row.
   timeGutterW: '64px',
   dayHeaderH: '46px',
+  // Timeline: the row-label column beside the date track.
+  timelineLabelW: '180px',
 })

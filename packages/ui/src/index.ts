@@ -25,9 +25,15 @@ export {ConfirmDialog} from './components/ConfirmDialog/ConfirmDialog'
 export {
   DragDrop,
   useDragDrop,
+  type DragDropAnnouncement,
   type DragDropEvent,
   type DragDropItemData,
+  type DragDropOverEvent,
+  type DragDropPlaceholderInfo,
+  type DragDropRefusal,
+  type DragDropRenderPlaceholder,
   type DragDropTarget,
+  type DragDropVerdict,
 } from './components/DragDrop/DragDrop'
 export {Dialog, type DialogSize} from './components/Dialog/Dialog'
 export {DetailPanel, type DetailPanelSize} from './components/DetailPanel/DetailPanel'
@@ -46,6 +52,7 @@ export {
   type LinkButtonSize,
 } from './components/LinkButton/LinkButton'
 export {Menu} from './components/Menu/Menu'
+export {Meter, type MeterProps, type MeterTone} from './components/Meter/Meter'
 export {PageNav} from './components/PageNav/PageNav'
 export {Panel} from './components/Panel/Panel'
 export {RadioGroup} from './components/RadioGroup/RadioGroup'
@@ -65,6 +72,7 @@ export {
   type ToastOptions,
   type ToastAction,
   type ToastContextValue,
+  type ToastProviderProps,
 } from './components/Toast'
 export {
   StatusIcon,
@@ -84,6 +92,14 @@ export {
   type TableOfContentsVariant,
 } from './components/TableOfContents/TableOfContents'
 export {Tabs} from './components/Tabs/Tabs'
+export {
+  Timeline,
+  type TimelineBarDropZone,
+  type TimelineBarProps,
+  type TimelineDate,
+  type TimelineRootProps,
+  type TimelineRowProps,
+} from './components/Timeline/Timeline'
 export {Tree} from './components/Tree/Tree'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {

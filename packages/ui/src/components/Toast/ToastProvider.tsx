@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   useSyncExternalStore,
   type ReactNode,
 } from 'react'
@@ -14,7 +15,7 @@ import {Icon, type IconName} from '../Icon'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {styles} from './styles.css'
 
-export type ToastVariant = 'success' | 'error' | 'info'
+export type ToastVariant = 'success' | 'error' | 'info' | 'warning'
 
 export interface ToastAction {
   label: string
@@ -22,12 +23,14 @@ export interface ToastAction {
 }
 
 export interface ToastOptions {
-  /** Visual + semantic tone. Errors announce assertively and linger longer. */
+  /** Visual + semantic tone. Errors announce assertively; errors and
+   *  warnings linger longer. */
   variant?: ToastVariant
   message: ReactNode
   /** Optional single action, e.g. Undo. Runs, then dismisses the toast. */
   action?: ToastAction
-  /** Auto-dismiss delay in ms. `0` (or negative) keeps it until dismissed. */
+  /** Auto-dismiss delay in ms. `0` (or negative) keeps it until dismissed.
+   *  The countdown pauses while the toast is hovered or holds focus. */
   duration?: number
 }
 
@@ -56,6 +59,7 @@ const DEFAULT_DURATION: Record<ToastVariant, number> = {
   success: 5000,
   info: 5000,
   error: 8000,
+  warning: 8000,
 }
 
 function createToastStore(): ToastStore {
@@ -92,11 +96,13 @@ const variantIcon: Record<ToastVariant, IconName> = {
   success: 'check-circle-filled',
   error: 'x-circle-filled',
   info: 'info-circle-filled',
+  warning: 'alert-triangle-filled',
 }
 const variantIconStyle = {
   success: styles.iconSuccess,
   error: styles.iconError,
   info: styles.iconInfo,
+  warning: styles.iconWarning,
 } as const
 
 const ToastContext = createContext<ToastContextValue | null>(null)
@@ -107,20 +113,45 @@ export function useToast(): ToastContextValue {
   return ctx
 }
 
-function ToastItem({entry, onDismiss}: {entry: ToastEntry; onDismiss: (id: string) => void}) {
+function ToastItem({
+  entry,
+  onDismiss,
+  dismissLabel,
+}: {
+  entry: ToastEntry
+  onDismiss: (id: string) => void
+  dismissLabel: string
+}) {
   const {id, variant, message, action, duration} = entry
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const paused = hovered || focused
+  // What is left of the countdown; a pause keeps it, a resume restarts the
+  // timer with what was left (WCAG 2.2.1: the reader controls the timing).
+  const remaining = useRef(duration)
 
   useEffect(() => {
-    if (duration <= 0) return
-    const timer = setTimeout(() => onDismiss(id), duration)
-    return () => clearTimeout(timer)
-  }, [id, duration, onDismiss])
+    if (duration <= 0 || paused) return
+    const started = Date.now()
+    const timer = setTimeout(() => onDismiss(id), Math.max(remaining.current, 0))
+    return () => {
+      clearTimeout(timer)
+      remaining.current -= Date.now() - started
+    }
+  }, [id, duration, paused, onDismiss])
 
   return (
     <html.div
       role={variant === 'error' ? 'alert' : 'status'}
       aria-live={variant === 'error' ? 'assertive' : 'polite'}
       style={[styles.toast, styles[variant]]}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(e: {currentTarget: HTMLElement; relatedTarget: EventTarget | null}) => {
+        // Focus moving between the toast's own buttons keeps it paused.
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false)
+      }}
     >
       <html.div style={[styles.iconWrap, variantIconStyle[variant]]}>
         <Icon name={variantIcon[variant]} size="md" />
@@ -142,7 +173,7 @@ function ToastItem({entry, onDismiss}: {entry: ToastEntry; onDismiss: (id: strin
       </html.div>
       <html.button
         type="button"
-        aria-label="Dismiss"
+        aria-label={dismissLabel}
         style={styles.closeBtn}
         onClick={() => onDismiss(id)}
       >
@@ -152,7 +183,14 @@ function ToastItem({entry, onDismiss}: {entry: ToastEntry; onDismiss: (id: strin
   )
 }
 
-export function ToastProvider({children}: {children: ReactNode}) {
+export interface ToastProviderProps {
+  /** Accessible name of each toast's close button, e.g. from the app's
+   *  message catalog. */
+  dismissLabel?: string
+  children: ReactNode
+}
+
+export function ToastProvider({dismissLabel = 'Dismiss', children}: ToastProviderProps) {
   const storeRef = useRef<ToastStore>(null)
   if (storeRef.current === null) {
     storeRef.current = createToastStore()
@@ -175,7 +213,7 @@ export function ToastProvider({children}: {children: ReactNode}) {
   const region = (
     <html.div role="region" aria-label="Notifications" style={styles.region}>
       {entries.map((entry) => (
-        <ToastItem key={entry.id} entry={entry} onDismiss={dismiss} />
+        <ToastItem key={entry.id} entry={entry} onDismiss={dismiss} dismissLabel={dismissLabel} />
       ))}
     </html.div>
   )

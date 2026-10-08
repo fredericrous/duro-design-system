@@ -162,6 +162,7 @@ These components **must** be wrapped in their `.Root`:
 | `Breadcrumb`      | `Root`, `Item`                                                                           |
 | `TableOfContents` | `Root`, `Item`                                                                           |
 | `PageNav`         | `Root`, `Prev`, `Next`                                                                   |
+| `Timeline`        | `Root`, `Row`, `Bar`                                                                     |
 
 ### Optional Root context (works standalone, gains features in context)
 
@@ -198,7 +199,7 @@ These components **must** be wrapped in their `.Root`:
 | **DetailPanel** | Non-modal side panel for right-side inspection | compound: Body, Close, Content, Footer, Header, … |
 | **Diagram** | Root SVG canvas for a static diagram | `width`, `height`, `title` |
 | **Dialog** | Modal dialog with backdrop overlay | compound: Body, Close, Description, Footer, Header, … |
-| **DragDrop** | Move items between zones with one pointer — mouse, pen and touch through the same pointer-event path (touch holds briefly, then drags; a moving touch stays a scroll) | compound: Item, Root, Zone |
+| **DragDrop** | Move items between zones by pointer (mouse, pen and touch through one pointer-event path; touch holds briefly, then drags) or by keyboard (a Handle per item: Space picks up, arrows move, Space drops, Escape cancels) | compound: Handle, Item, Root, Zone |
 | **Drawer** | Modal sliding panel from a screen edge (right, left, or bottom) | compound: Body, Close, Description, Footer, Header, … |
 | **EmptyState** | Placeholder for empty content areas | `message`, `icon`, `action` |
 | **Field** | Compound form field with label, description, and error display | compound: Description, Error, Label, Root |
@@ -215,6 +216,7 @@ These components **must** be wrapped in their `.Root`:
 | **List** | Vertical list of interactive items | compound: Actions, Content, Description, Empty, Item, … |
 | **Listbox** | Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox | compound: Empty, Option, Root, getAnchorProps |
 | **Menu** | Dropdown action menu | compound: Item, LinkItem, Popup, Root, Separator, … |
+| **Meter** | A scalar inside a known range — WIP 2 of 3, a milestone 40% done — as role="meter" with a value text, drawn as a thin bar (the meterH token) | `value`, `min`, `max` |
 | **Node** | A rounded rectangle node with a title and optional subtitle | `x`, `y`, `w` |
 | **PageNav** | The previous and next pages in reading order, at the foot of a page: a labelled nav with up to two link cards (a direction label over the page title, both from props) | compound: Next, Prev, Root |
 | **PageShell** | Page-level layout wrapper | `maxWidth`, `padding`, `header` |
@@ -238,6 +240,7 @@ These components **must** be wrapped in their `.Root`:
 | **Text (diagrams)** | Free-floating text inside a Diagram | `x`, `y`, `variant` |
 | **TextLink** | Inline hyperlink for running text and standalone text links ("View all", "Edit profile") | `href`, `target`, `rel` |
 | **Textarea** | Multi-line text input with automatic Field/Form integration | `variant`, `name`, `placeholder` |
+| **Timeline** | Rows of date bars against a date axis (milestones, releases, sprints), with a progress fill per bar and a today marker | compound: Bar, Root, Row |
 | **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |
 | **ToggleGroup** | Container for Toggle buttons enabling single or multi selection | `value`, `defaultValue`, `onValueChange` |
 | **Toolbar** | A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends | `aria-label`, `orientation` |
@@ -442,6 +445,7 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `deviceBarW` | 96px |
 | `timeGutterW` | 64px |
 | `dayHeaderH` | 46px |
+| `timelineLabelW` | 180px |
 
 ### Borders
 
@@ -738,6 +742,25 @@ stop.** An editor toolbar is a `Toolbar` holding attached groups and menus:
   padding and font, and every small control is at least `controlSm` (28px)
   tall whatever it holds, so text and 18px icons line up (5.6). A small
   `Menu.Trigger variant="ghost"` is `iconButtonSm`.
+
+### Drag and drop on a board
+
+**A board is list zones, cards with a Handle, and an app-supplied
+`announce`.** A column is `<DragDrop.Zone list orientation="vertical">`
+(a labelled `role="list"`, its Items list items); each card puts its face in
+a `DragDrop.Handle`, the keyboard path: one tab stop per column, Space picks
+up, arrows move (Left/Right follow the zones' `order`), Space or Enter
+drops, Escape cancels. Pass `announce` so the live-region strings come from
+the app's catalog, and `renderPlaceholder` for the insertion slot.
+
+- A zone inside an Item (an attach target on a card) wins over its column
+  for what it accepts; `accepts` returning `false` lets the item fall
+  through to the column.
+- Refuse out loud with `{ok: false, reason}`: the reason rides on the ghost
+  and is announced. There is no async veto: decide from the item.
+- The keyboard path is not a click path: WCAG 2.5.7 still wants a button or
+  menu that moves the item for a single pointer.
+- `Timeline.Bar dropZone` makes a milestone bar a zone of the same Root.
 
 ### Links and client-side routing
 
