@@ -40,8 +40,10 @@
     letter-spacing: var(--duro-type-scale-letter-spacing-tight);
     margin-block-start: var(--duro-spacing-xl);
     margin-block-end: var(--duro-spacing-sm);
-    /* A table-of-contents jump lands with room above the heading. */
-    scroll-margin-top: var(--duro-spacing-lg);
+    /* A table-of-contents jump lands with room above the heading, and below
+       AppShell's sticky bar when there is one (it sets --duro-app-shell-bar
+       below its collapse point; elsewhere the fallback adds nothing). */
+    scroll-margin-top: calc(var(--duro-spacing-lg) + var(--duro-app-shell-bar, 0px));
   }
   :where(.duro-prose, [data-duro-prose]) :where(h1) {
     font-size: var(--duro-type-scale-font-size9);

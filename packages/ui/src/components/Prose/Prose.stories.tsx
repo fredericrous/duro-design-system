@@ -229,5 +229,12 @@ export const DuroComponentsInsideChecks: Story = {
     // headingLg is 30px; a Prose h2 would be 20px
     await expect(style(heading).fontSize).toBe('30px')
     await expect(canvas.getByRole('button', {name: 'Copy'})).toBeVisible()
+    // CodeBlock draws one block: Prose's own pre rule must not add a second
+    // border, background or rounded top inside it
+    const pre = canvas.getByText('pnpm add @duro-app/ui').closest('pre') as HTMLElement
+    await expect(style(pre).borderTopWidth).toBe('0px')
+    await expect(style(pre).borderLeftWidth).toBe('0px')
+    await expect(style(pre).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    await expect(style(pre).borderTopLeftRadius).toBe('0px')
   },
 }
