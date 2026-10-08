@@ -458,6 +458,8 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 
 The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@duro-app/tokens/keys`.
 
+A floating surface picks its layer by `useInModal()` from `@duro-app/ui`, as a Popover does: `floating` outside a modal, `popover` inside a Dialog or Drawer. `floatingRaised` / `popoverRaised` are the same pair for one floating surface that must cover a sibling floating one (a link editor over a selection format bar); a Popover takes it with `<Popover.Popup raised>`, and a Popover nested in a raised one is raised too. A raised surface never covers a modal: a Dialog opened later still covers it.
+
 | Token | Value |
 | --- | --- |
 | `raised` | 1 |
@@ -731,6 +733,10 @@ stop.** An editor toolbar is a `Toolbar` holding attached groups and menus:
   opens it), so a Menu can sit in a vertical toolbar.
 - What a popup holds (a Popover's form, a Menu's items) is outside the group
   and the toolbar: its buttons are round and in the normal tab order.
+- A compact toolbar uses `size="small"` on every control: `Toggle`, `Button`
+  and the `Select`, `Menu` and `Popover` triggers share Toggle's small
+  padding and font, so they line up at one height (5.5). A small
+  `Menu.Trigger variant="ghost"` is `iconButtonSm`.
 
 ### Links and client-side routing
 

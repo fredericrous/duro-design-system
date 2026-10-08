@@ -3744,7 +3744,7 @@
             "Item"
           ]
         },
-        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button; an icon-only trigger takes aria-label, and variant=\"ghost\" suits toolbars. The popup is portalled and placed against the trigger (never clipped by a sticky or overflow ancestor), capped at sizes.listMaxH with scrolling, and takes focus on open (WAI-ARIA menu button); Escape closes only the menu, not an enclosing Popover or Dialog.",
+        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button; an icon-only trigger takes aria-label, and variant=\"ghost\" suits toolbars; size=\"small\" matches small Toggles and Buttons (a small ghost trigger is iconButtonSm). The popup is portalled and placed against the trigger (never clipped by a sticky or overflow ancestor), capped at sizes.listMaxH with scrolling, and takes focus on open (WAI-ARIA menu button); Escape closes only the menu, not an enclosing Popover or Dialog.",
         "example": "<Menu.Root>\n  <Menu.Trigger>Actions</Menu.Trigger>\n  <Menu.Popup>\n    <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n    <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n    <Menu.Separator />\n    <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n  </Menu.Popup>\n</Menu.Root>",
         "relatedTo": [
           {
@@ -4284,7 +4284,7 @@
             "Popup"
           ]
         },
-        "description": "Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves.",
+        "description": "Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves. Popover.Trigger takes size=\"small\" beside small Toggles. Popover.Popup raised draws it over another floating surface (floatingRaised, popoverRaised in a modal), never over a modal.",
         "example": "const ref = useRef<PopoverHandle>(null)\nconst anchor = () => new DOMRect(point.x, point.y, 0, 0)\n\n<Popover.Root ref={ref} open={open} onOpenChange={setOpen} anchor={anchor} side=\"bottom\" align=\"start\">\n  <Popover.Popup label=\"Edit label\">\n    <Field.Root>\n      <Field.Label>Label</Field.Label>\n      <Input value={label} onChange={(e) => setLabel(e.target.value)} />\n    </Field.Root>\n    <Popover.Close>Done</Popover.Close>\n  </Popover.Popup>\n</Popover.Root>\n// after the anchor moves: ref.current?.reposition()",
         "relatedTo": [
           {
@@ -4333,6 +4333,7 @@
         "whenToUse": [
           "A small form or controls tied to one element that stay open while you work in them",
           "Anchoring to a spot that is not a button (a canvas point, a text selection) with a virtual anchor",
+          "One floating surface over another (a link editor over a selection format bar) — Popover.Popup raised",
           "Holding a Select or Combobox: their portalled list counts as inside the popover, so choosing an item keeps it open; Escape closes an open Select, Combobox or Menu before the popover"
         ]
       },
@@ -4705,7 +4706,7 @@
             "Item"
           ]
         },
-        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it).",
+        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size=\"small\" to match small Toggles and Buttons in a toolbar.",
         "example": "<Select.Root name=\"role\" defaultValue=\"viewer\">\n  <Select.Trigger>\n    <Select.Value placeholder=\"Select role\" />\n    <Select.Icon />\n  </Select.Trigger>\n  <Select.Popup>\n    <Select.Item value=\"admin\">Admin</Select.Item>\n    <Select.Item value=\"editor\">Editor</Select.Item>\n    <Select.Item value=\"viewer\">Viewer</Select.Item>\n  </Select.Popup>\n</Select.Root>",
         "relatedTo": [
           {

@@ -2,10 +2,11 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves.',
+    'Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves. Popover.Trigger takes size="small" beside small Toggles. Popover.Popup raised draws it over another floating surface (floatingRaised, popoverRaised in a modal), never over a modal.',
   whenToUse: [
     'A small form or controls tied to one element that stay open while you work in them',
     'Anchoring to a spot that is not a button (a canvas point, a text selection) with a virtual anchor',
+    'One floating surface over another (a link editor over a selection format bar) — Popover.Popup raised',
     'Holding a Select or Combobox: their portalled list counts as inside the popover, so choosing an item keeps it open; Escape closes an open Select, Combobox or Menu before the popover',
   ],
   whenNotToUse: [

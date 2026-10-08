@@ -74,6 +74,8 @@ function tokensRegion(registry) {
     '',
     'The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@duro-app/tokens/keys`.',
     '',
+    'A floating surface picks its layer by `useInModal()` from `@duro-app/ui`, as a Popover does: `floating` outside a modal, `popover` inside a Dialog or Drawer. `floatingRaised` / `popoverRaised` are the same pair for one floating surface that must cover a sibling floating one (a link editor over a selection format bar); a Popover takes it with `<Popover.Popup raised>`, and a Popover nested in a raised one is raised too. A raised surface never covers a modal: a Dialog opened later still covers it.',
+    '',
     table(registry.tokens.groups.layers),
     '',
     '### Effects',
