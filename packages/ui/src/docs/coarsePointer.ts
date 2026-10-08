@@ -28,3 +28,14 @@ export async function withCoarsePointer(check: () => Promise<void>) {
     await waitFor(() => expect(matchMedia('(pointer: coarse)').matches).toBe(false))
   }
 }
+
+/**
+ * Turns touch emulation off and waits for a mouse. A story that measures the
+ * fine-pointer layout calls it first: the browser is shared by every story
+ * file, and one that times out mid-emulation (DrawerScroll's, under load)
+ * leaves `(pointer: coarse)` on for whatever runs next.
+ */
+export async function withFinePointer() {
+  await cdpSend('Emulation.setTouchEmulationEnabled', {enabled: false})
+  await waitFor(() => expect(matchMedia('(pointer: coarse)').matches).toBe(false))
+}

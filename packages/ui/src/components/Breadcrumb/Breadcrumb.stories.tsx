@@ -3,7 +3,7 @@ import {expect, fn, waitFor} from 'storybook/test'
 import {Breadcrumb} from './Breadcrumb'
 import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'
-import {withCoarsePointer} from '../../docs/coarsePointer'
+import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 import {SIZES_PX} from '@duro-app/tokens/keys'
 import type {OnNavigate} from '../../shared/navigate'
 
@@ -94,6 +94,7 @@ export const TouchTargets: Story = {
   tags: ['!dev', '!autodocs'],
   render: () => <Trail />,
   play: async ({canvas}) => {
+    await withFinePointer()
     const links = () => canvas.getAllByRole('link')
     for (const link of links()) {
       await expect(link.getBoundingClientRect().height).toBeLessThan(SIZES_PX.touchTarget)
