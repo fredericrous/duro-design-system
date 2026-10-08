@@ -92,6 +92,14 @@ export {
   type TableOfContentsVariant,
 } from './components/TableOfContents/TableOfContents'
 export {Tabs} from './components/Tabs/Tabs'
+export {
+  Timeline,
+  type TimelineBarDropZone,
+  type TimelineBarProps,
+  type TimelineDate,
+  type TimelineRootProps,
+  type TimelineRowProps,
+} from './components/Timeline/Timeline'
 export {Tree} from './components/Tree/Tree'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {
