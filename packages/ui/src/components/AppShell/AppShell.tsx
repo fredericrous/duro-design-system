@@ -101,8 +101,8 @@ interface RailProps {
   /** Names the navigation landmark and the drawer ("Navigation"); required. */
   'aria-label': string
   /**
-   * The navigation (a SideNav, a Tree, a brand line). Rendered in the rail
-   * and, while it is open, in the drawer; a function receives `close`.
+   * The navigation (a SideNav, a Tree, a brand line). Rendered in the rail,
+   * or in the drawer while it is open (never both); a function receives `close`.
    */
   children: ReactNode | ((state: AppShellRailState) => ReactNode)
 }
