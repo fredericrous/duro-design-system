@@ -1,4 +1,4 @@
-// Compile-only checks that 5.5's additions are on the package root, where a
+// Compile-only checks that 5.6's additions are on the package root, where a
 // consumer imports them. `pnpm typecheck` fails if one is dropped from
 // index.ts or changes shape. Never imported at runtime.
 
