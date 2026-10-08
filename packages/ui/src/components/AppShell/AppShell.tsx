@@ -51,6 +51,11 @@ interface AppShellContextValue {
 
 const AppShellContext = createContext<AppShellContextValue | null>(null)
 
+// True only where Root placed a Header itself: Root finds Header among its
+// direct children, so a Header wrapped in a fragment or a component would
+// otherwise render as a stray grid item and never reach the bar.
+const HeaderSlotContext = createContext(false)
+
 function useAppShell(): AppShellContextValue {
   const ctx = useContext(AppShellContext)
   if (!ctx) throw new Error('AppShell compound components must be used within AppShell.Root')
@@ -195,7 +200,7 @@ function Root({
             {brand != null && (
               <html.div style={[styles.narrowItem, variant.narrow]}>{brand}</html.div>
             )}
-            {header}
+            <HeaderSlotContext.Provider value={true}>{header}</HeaderSlotContext.Provider>
           </html.header>
           {rest}
         </html.div>
@@ -293,6 +298,11 @@ interface HeaderProps {
 
 function Header({children}: HeaderProps) {
   useAppShell()
+  if (!useContext(HeaderSlotContext)) {
+    throw new Error(
+      'AppShell.Header must be a direct child of AppShell.Root (not inside a fragment or another component)',
+    )
+  }
   return <html.div style={styles.header}>{children}</html.div>
 }
 

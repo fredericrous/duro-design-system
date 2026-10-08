@@ -1,6 +1,6 @@
-import {useState, type ReactNode} from 'react'
+import {Component, useState, type ReactNode} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, waitFor, within} from 'storybook/test'
+import {expect, spyOn, waitFor, within} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {renderToString} from 'react-dom/server'
 import {hydrateRoot} from 'react-dom/client'
@@ -351,6 +351,76 @@ export const SkipLink: Story = {
     const main = canvas.getByRole('main')
     await waitFor(() => expect(main).toHaveFocus())
     await expect(main).toHaveAttribute('tabindex', '-1')
+  },
+}
+
+/** Without an id on Main, the skip link targets the one Root generates. */
+export const SkipLinkGeneratedId: Story = {
+  tags: ['!dev', '!autodocs'],
+  render: () => (
+    <html.div style={styles.desktop}>
+      <AppShell.Root menuLabel="Menu" closeLabel="Close navigation" skipLabel="Skip to content">
+        <AppShell.Rail aria-label="Navigation">
+          <Text>Links</Text>
+        </AppShell.Rail>
+        <AppShell.Main>
+          <Heading level={1}>Docs</Heading>
+        </AppShell.Main>
+      </AppShell.Root>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const main = canvas.getByRole('main')
+    const id = main.getAttribute('id')
+    await expect(id).toBeTruthy()
+    await expect(canvas.getByRole('link', {name: 'Skip to content'})).toHaveAttribute(
+      'href',
+      `#${id}`,
+    )
+  },
+}
+
+class Caught extends Component<{children: ReactNode}, {error: string | null}> {
+  state = {error: null as string | null}
+  static getDerivedStateFromError(error: Error) {
+    return {error: error.message}
+  }
+  render() {
+    return this.state.error ? <Text>{this.state.error}</Text> : this.props.children
+  }
+}
+
+/** A Header Root cannot see (inside a fragment) fails loudly, not silently. */
+export const WrappedHeaderThrows: Story = {
+  tags: ['!dev', '!autodocs'],
+  // What renders is the test's error fallback, not AppShell: nothing for axe
+  // to judge about the component (every other AppShell story keeps it).
+  parameters: {a11y: {test: 'off'}},
+  render: () => (
+    <Caught>
+      <AppShell.Root menuLabel="Menu" closeLabel="Close navigation" skipLabel="Skip to content">
+        <AppShell.Rail aria-label="Navigation">
+          <Text>Links</Text>
+        </AppShell.Rail>
+        <>
+          <AppShell.Header>
+            <Text>Search</Text>
+          </AppShell.Header>
+        </>
+        <AppShell.Main>
+          <Heading level={1}>Docs</Heading>
+        </AppShell.Main>
+      </AppShell.Root>
+    </Caught>
+  ),
+  beforeEach: () => {
+    const quiet = spyOn(console, 'error').mockImplementation(() => {})
+    return () => quiet.mockRestore()
+  },
+  play: async ({canvas}) => {
+    await expect(
+      canvas.getByText(/AppShell\.Header must be a direct child of AppShell\.Root/),
+    ).toBeInTheDocument()
   },
 }
 
