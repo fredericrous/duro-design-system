@@ -34,12 +34,24 @@ import {SideNavContext, useSideNav} from './SideNavContext'
 
 interface RootProps {
   children: ReactNode
+  /**
+   * Names the navigation landmark ("Main", "Settings"). Give one whenever
+   * the page has another nav (a breadcrumb, a pager): screen readers list
+   * landmarks by name.
+   */
+  'aria-label'?: string
   value?: string
   defaultValue?: string
   onValueChange?: (value: string) => void
 }
 
-function Root({children, value: controlledValue, defaultValue, onValueChange}: RootProps) {
+function Root({
+  children,
+  'aria-label': ariaLabel,
+  value: controlledValue,
+  defaultValue,
+  onValueChange,
+}: RootProps) {
   const [activeValue, onSelect] = useControllableValue<string | null>(
     controlledValue,
     defaultValue ?? null,
@@ -98,7 +110,7 @@ function Root({children, value: controlledValue, defaultValue, onValueChange}: R
         orderRef,
       }}
     >
-      <html.nav role="navigation" style={styles.root}>
+      <html.nav role="navigation" aria-label={ariaLabel} style={styles.root}>
         {children}
       </html.nav>
     </SideNavContext.Provider>

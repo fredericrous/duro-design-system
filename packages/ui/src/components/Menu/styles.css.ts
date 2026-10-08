@@ -32,6 +32,9 @@ export const styles = css.create({
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.sm,
+    // A touch screen gets the 44px target; a mouse keeps the compact control.
+    minWidth: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
+    minHeight: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
     cursor: 'pointer',
     transitionProperty: 'background-color, border-color',
     transitionDuration: duration.fast,
@@ -39,8 +42,8 @@ export const styles = css.create({
   // Toolbar trigger: no border or fill until hover, at least icon-button size.
   triggerGhost: {
     justifyContent: 'center',
-    minWidth: sizes.iconButton,
-    minHeight: sizes.iconButton,
+    minWidth: {default: sizes.iconButton, '@media (pointer: coarse)': sizes.touchTarget},
+    minHeight: {default: sizes.iconButton, '@media (pointer: coarse)': sizes.touchTarget},
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
     paddingLeft: spacing.xs,
@@ -62,7 +65,7 @@ export const styles = css.create({
   // A small ghost trigger keeps the ghost's xs padding at the small icon-button size.
   triggerGhostSmall: {
     fontSize: typography.fontSizeXs,
-    minWidth: sizes.iconButtonSm,
+    minWidth: {default: sizes.iconButtonSm, '@media (pointer: coarse)': sizes.touchTarget},
     minHeight: {default: sizes.iconButtonSm, '@media (pointer: coarse)': sizes.touchTarget},
   },
   popup: {
