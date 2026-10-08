@@ -114,12 +114,29 @@ strong / accent`; outline width → `borders.focusRing`; outline offset →
 Allowed: `0`, relative units (`%`, `vh`, `fr`, `em`, `rem`, `ch`…), keywords
 (`auto`, `max-content`…), identifiers and member expressions (tokens), a
 `calc()` of tokens. Skipped on purpose: negatives on spacing properties,
-spacing shorthands (`'8px 16px'`, `'opacity 150ms'`), and positions
-(`top`, `left`) and `lineHeight`. Since 3.0 it ships as `error`: a raw value is
-the drift the design system exists to stop.
+`'opacity 150ms'`-style transitions, and positions (`top`, `left`) and
+`lineHeight`. Since 3.0 it ships as `error`: a raw value is the drift the
+design system exists to stop.
 
-Options: `{factories?: string[], spacingProperties?: string[], radiiProperties?: string[], exemptFiles?: string[]}`
-(property lists replace the defaults, they don't merge). `exemptFiles` takes
+**Shorthands** (since 5.7). A spacing or radius string with several words
+(`padding: '4px 8px'`, `gap: '8px 16px'`) is split on whitespace and every
+nonzero px word is checked as a single value would be: `'4px 8px'` gives two
+reports, `'6px 14px'` gives `rawMicroSpacing` and `offScaleSpacing`. `0`,
+`auto`, `%`, `rem`, `em`, `var(...)` and `calc(...)` words pass. A shorthand
+report carries **no suggestion**, because swapping one word would rewrite the
+whole string; the message names the token for each word.
+
+**Inline styles** (since 5.7). A `style={{ ... }}` object literal on any JSX
+element is read like a `css.create` style, so a raw colour, font size, weight,
+measure or px in a shorthand is reported. These reports carry **no
+suggestion**, since plain-React code has no `.css.ts` token imports; the
+message still names the token. `style={styles.x}`, arrays, identifiers and
+spreads are ignored, and so are custom-property keys (`'--wb-vw': '12px'`) and
+computed keys. Set `inlineStyle: false` to turn this off.
+
+Options: `{factories?: string[], spacingProperties?: string[], radiiProperties?: string[], exemptFiles?: string[], inlineStyle?: boolean}`
+(property lists replace the defaults, they don't merge). `inlineStyle`
+defaults to `true`. `exemptFiles` takes
 globs (`**`, `*`, `?`, `{a,b}`), matched against the path relative to the
 working directory and the absolute path; a matching file is not checked. Name
 only a file whose literals are a technique, not a design value — Duro names

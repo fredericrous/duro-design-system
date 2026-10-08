@@ -213,13 +213,21 @@ const scale = (table: Record<number, string>) =>
  * - box-shadow in a template literal: a px length in its static text is a raw
  *   shadow (`inset 0 0 0 1px ${colors.border}`); use a `shadows.*` token.
  *
+ * - shorthands: on a spacing or radius property a multi-word string
+ *   ('4px 8px') is split on whitespace and each nonzero px word is checked
+ *   as a single value, without a suggestion (a swap would rewrite the whole
+ *   string). 0, auto, %, rem, em, var() and calc() words pass.
+ * - inline styles: a `style={{...}}` object literal on any JSX element is
+ *   walked like a css.create style, without suggestions (plain React has no
+ *   token imports). References, arrays, spreads, custom-property keys and
+ *   computed keys are ignored. Option `inlineStyle: false` turns it off.
+ *
  * Option `exemptFiles` (globs) silences the rule for whole files.
  *
- * Skipped on purpose: 0, negatives on the spacing properties, shorthands
- * ('8px 16px', 'opacity 150ms'), identifiers, member expressions, template
- * literals and calls — the rule reads literals, not expressions (the size,
- * border-width and box-shadow properties also read static px text in template
- * literals).
+ * Skipped on purpose: 0, negatives on the spacing properties, transitions
+ * ('opacity 150ms'), identifiers, member expressions, template literals and
+ * calls — the rule reads literals, not expressions (the size, border-width
+ * and box-shadow properties also read static px text in template literals).
  */
 export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
   defaultOptions: [{}],
