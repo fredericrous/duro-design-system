@@ -107,6 +107,9 @@ export {Grid} from './components/Grid/Grid'
 export type {GridTrack} from './shared/length'
 export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'
 
+// Router-agnostic links: the onNavigate contract every link part shares
+export type {LinkClickEvent, OnNavigate} from './shared/navigate'
+
 // Hooks
 export {useContainerQuery, type ContainerSize} from './hooks/useContainerQuery'
 

@@ -1,6 +1,9 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect} from 'storybook/test'
+import {expect, fn} from 'storybook/test'
 import {TextLink} from './TextLink'
+import {clickLink} from '../../docs/clickLink'
+import {onThemeSurface} from '../../docs/themedSurface'
+import type {OnNavigate} from '../../shared/navigate'
 import {Text} from '../Text/Text'
 import {Inline} from '../Inline/Inline'
 
@@ -59,5 +62,43 @@ export const KeyboardFocus: Story = {
     const link = canvas.getByRole('link', {name: 'Billing settings'})
     await expect(link).toHaveFocus()
     await expect(getComputedStyle(link).outlineStyle).toBe('solid')
+  },
+}
+
+/**
+ * Client-side navigation: `onNavigate` gets a plain primary click (the app
+ * calls `event.preventDefault()`, then its router's navigate); a modified
+ * click, or a link with `target`, keeps the browser default.
+ */
+export const ClientNavigation: StoryObj<{onNavigate: OnNavigate}> = {
+  parameters: {a11y: {test: 'error'}},
+  decorators: [onThemeSurface],
+  args: {onNavigate: fn()},
+  render: (args) => (
+    <>
+      <TextLink href="#billing" onNavigate={args.onNavigate}>
+        Billing settings
+      </TextLink>{' '}
+      <TextLink href="#help" target="_blank" onNavigate={args.onNavigate}>
+        Help
+      </TextLink>
+    </>
+  ),
+  play: async ({args, canvas}) => {
+    const onNavigate = args.onNavigate as unknown as ReturnType<typeof fn>
+    onNavigate.mockImplementation((_href: string, event: {preventDefault(): void}) =>
+      event.preventDefault(),
+    )
+    const link = canvas.getByRole('link', {name: 'Billing settings'})
+    await expect(clickLink(link).defaultPrevented).toBe(true)
+    await expect(onNavigate).toHaveBeenCalledTimes(1)
+    await expect(onNavigate.mock.calls[0][0]).toBe('#billing')
+    for (const init of [{metaKey: true}, {ctrlKey: true}, {shiftKey: true}, {altKey: true}]) {
+      await expect(clickLink(link, init).defaultPrevented).toBe(false)
+    }
+    // a target opens where it says, not through the router
+    const help = canvas.getByRole('link', {name: 'Help'})
+    await expect(clickLink(help).defaultPrevented).toBe(false)
+    await expect(onNavigate).toHaveBeenCalledTimes(1)
   },
 }
