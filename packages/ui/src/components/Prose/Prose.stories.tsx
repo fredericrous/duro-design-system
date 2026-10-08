@@ -6,15 +6,6 @@ import {Text} from '../Text/Text'
 import {CodeBlock} from '../CodeBlock/CodeBlock'
 import {onThemeSurface} from '../../docs/themedSurface'
 
-const meta: Meta = {
-  title: 'Components/Prose',
-  parameters: {a11y: {test: 'error'}},
-  decorators: [onThemeSurface],
-}
-
-export default meta
-type Story = StoryObj
-
 // What a Markdown renderer hands over: HTML that is never authored as JSX.
 const RENDERED_MARKDOWN = `
 <p>Flux reconciles every cluster from <code>kubernetes/</code>. Read the
@@ -45,17 +36,83 @@ const RENDERED_MARKDOWN = `
 <p><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'/%3E"></p>
 `
 
-function Markdown() {
+const RELEASE_NOTES = `
+<h2>5.6.0</h2>
+<p>Small controls line up: every <code>size="small"</code> control is at least
+<code>controlSm</code> tall, whatever it holds.</p>
+<h3>Fixed</h3>
+<ul>
+  <li>A small <code>Menu.Trigger</code> in a toolbar no longer shrinks.</li>
+  <li>Toggle and Button share one small padding.</li>
+</ul>
+<blockquote><p>Upgrade with <code>pnpm add @duro-app/ui@5.6.0</code>.</p></blockquote>
+`
+
+const REFERENCE = `
+<h2>relative(date, options)</h2>
+<p>Formats <code>date</code> against <code>options.now</code> with
+<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat">Intl.RelativeTimeFormat</a>.</p>
+<table>
+  <thead><tr><th>Option</th><th>Type</th><th>Default</th></tr></thead>
+  <tbody>
+    <tr><td><code>now</code></td><td>Date | number</td><td>required</td></tr>
+    <tr><td><code>locale</code></td><td>string</td><td>required</td></tr>
+    <tr><td><code>numeric</code></td><td>'auto' | 'always'</td><td>'auto'</td></tr>
+  </tbody>
+</table>
+<pre><code>relative(commit.date, {now, locale: 'fr'})</code></pre>
+`
+
+const DOCUMENTS = {
+  runbook: RENDERED_MARKDOWN,
+  'release-notes': RELEASE_NOTES,
+  reference: REFERENCE,
+} as const
+
+type DocumentName = keyof typeof DOCUMENTS
+
+interface ProseArgs {
+  /** A sample of what a Markdown renderer hands over. */
+  document: DocumentName
+  /** Your own HTML, in place of the sample; empty to show the sample. */
+  html: string
+}
+
+/** Sets the HTML on the element, as a Markdown renderer's output arrives. */
+function Markdown({html = RENDERED_MARKDOWN}: {html?: string}) {
   return (
     <Prose
       ref={(el) => {
-        if (el) el.innerHTML = RENDERED_MARKDOWN
+        if (el) el.innerHTML = html
       }}
     >
       {null}
     </Prose>
   )
 }
+
+const meta = {
+  title: 'Components/Prose',
+  args: {document: 'runbook', html: ''},
+  argTypes: {
+    document: {
+      control: {
+        type: 'select',
+        labels: {runbook: 'runbook', 'release-notes': 'release notes', reference: 'API reference'},
+      },
+      options: Object.keys(DOCUMENTS),
+    },
+    html: {control: 'text'},
+  },
+  parameters: {a11y: {test: 'error'}},
+  decorators: [onThemeSurface],
+  render: (args) => <Markdown html={args.html || DOCUMENTS[args.document]} />,
+} satisfies Meta<ProseArgs>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+const TEST_ONLY = ['!dev', '!autodocs']
 
 /** The computed value of a token, read the way the page resolves it. */
 function resolved(property: 'color' | 'fontSize', token: string, host: HTMLElement) {
@@ -69,8 +126,15 @@ function resolved(property: 'color' | 'fontSize', token: string, host: HTMLEleme
 
 const style = (el: Element) => getComputedStyle(el)
 
+/**
+ * Rendered Markdown styled by Prose. Pick another sample in `document`, or
+ * paste your own HTML in `html`.
+ */
+export const Playground: Story = {}
+
+/** The runbook sample, measured: flow, headings, lists, tables, code, links. */
 export const RenderedMarkdown: Story = {
-  render: () => <Markdown />,
+  tags: TEST_ONLY,
   play: async ({canvasElement}) => {
     const prose = canvasElement.querySelector('[data-duro-prose]') as HTMLElement
     await waitFor(() => expect(prose.querySelector('h2')).not.toBeNull())
@@ -118,7 +182,7 @@ export const RenderedMarkdown: Story = {
  * own cascade layer and weighs nothing (:where()).
  */
 export const AppCssWins: Story = {
-  render: () => <Markdown />,
+  tags: TEST_ONLY,
   play: async ({canvasElement}) => {
     const prose = canvasElement.querySelector('[data-duro-prose]') as HTMLElement
     await waitFor(() => expect(prose.querySelector('h2')).not.toBeNull())
