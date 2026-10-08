@@ -31,6 +31,12 @@ export const styles = css.create({
     paddingRight: spacing.md,
     overflowX: 'auto',
     color: colors.text,
+    // The root draws the block; inside Prose its pre rule would add a second
+    // border, background and rounded top, so this pre states its own.
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
     borderBottomLeftRadius: radii.md,
     borderBottomRightRadius: radii.md,
     whiteSpace: 'pre',
