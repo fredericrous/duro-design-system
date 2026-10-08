@@ -562,6 +562,25 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         checkPxValue(node, property, Number(px[1]), display, suggest)
         return
       }
+      // A shorthand ('4px 8px', '6px 14px'): every nonzero px word is a value of
+      // its own. 0, auto, %, rem, var() and calc() words are not px words and
+      // pass. No suggestion: swapping one word would rewrite the whole string.
+      if (
+        (spacingProperties.has(property) || radiiProperties.has(property)) &&
+        /\s/.test(value.trim())
+      ) {
+        const words = value
+          .replace(/\([^)]*\)/g, ' ')
+          .trim()
+          .split(/\s+/)
+        for (const word of words) {
+          const match = /^(\d+(?:\.\d+)?)px$/.exec(word)
+          if (match && Number(match[1]) > 0) {
+            checkPxValue(node, property, Number(match[1]), `'${word}'`, false)
+          }
+        }
+        return
+      }
       if (rem && FONT_SIZE_PROPERTIES.has(property)) {
         checkFontSize(node, Number(rem[1]), display, suggest)
         return

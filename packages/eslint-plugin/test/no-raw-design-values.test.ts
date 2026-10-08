@@ -15,7 +15,10 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     // Off the property allowlist — same numbers, different meaning
     wrap('top: 8, zIndex: 16, lineHeight: 1.5'),
     // No token equivalent: zero, negatives, shorthands
-    wrap("padding: 0, margin: -8, gap: '8px 16px', transition: 'opacity 150ms'"),
+    wrap("padding: 0, margin: -8, transition: 'opacity 150ms'"),
+    // Shorthand words that are not nonzero px: zero, auto, relative units, functions
+    wrap("margin: '0 auto', gap: '0px 0', paddingInline: '10% 2rem'"),
+    wrap("padding: '1rem 2em', paddingBlock: 'var(--x) calc(100% - 4px)'"),
     wrap('color: colors.text, fontSize: typography.fontSizeMd, boxShadow: shadows.sm'),
     // A font size off both scales, a bold keyword, no shadow
     wrap("fontSize: 11, fontWeight: 'bold', boxShadow: 'none'"),
@@ -905,6 +908,45 @@ tester.run('no-raw-design-values', noRawDesignValues, {
           ],
         },
         {messageId: 'rawColor', suggestions: []},
+      ],
+    },
+    {
+      // A shorthand reports each nonzero px word, with no suggestion
+      code: wrap("padding: '4px 8px'"),
+      errors: [
+        {
+          messageId: 'rawSpacing',
+          data: {value: "'4px'", property: 'padding', token: 'xs', pkg: '@duro-app/tokens'},
+          suggestions: [],
+        },
+        {
+          messageId: 'rawSpacing',
+          data: {value: "'8px'", property: 'padding', token: 'sm', pkg: '@duro-app/tokens'},
+          suggestions: [],
+        },
+      ],
+    },
+    {
+      code: wrap("padding: '6px 14px'"),
+      errors: [
+        {messageId: 'rawMicroSpacing', suggestions: []},
+        {messageId: 'offScaleSpacing', suggestions: []},
+      ],
+    },
+    {
+      code: wrap("gap: '8px 16px'"),
+      errors: [
+        {messageId: 'rawSpacing', suggestions: []},
+        {messageId: 'rawSpacing', suggestions: []},
+      ],
+    },
+    {
+      // Zero and auto words pass; the px word is the finding
+      code: wrap("margin: '0 4px', borderRadius: '8px 3px'"),
+      errors: [
+        {messageId: 'rawSpacing', suggestions: []},
+        {messageId: 'rawRadius', suggestions: []},
+        {messageId: 'offScaleRadius', suggestions: []},
       ],
     },
   ],
