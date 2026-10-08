@@ -64,6 +64,9 @@ export const StickyAndScrolling: Story = {
 
     const cs = getComputedStyle(aside)
     await expect(cs.position).toBe('sticky')
+    // outside AppShell there is no bar to clear: the bar's custom property is
+    // unset, its fallback is 0, and only the offset remains
+    await expect(cs.getPropertyValue('--duro-app-shell-bar')).toBe('')
     await expect(cs.top).toBe(`${SPACING_PX.lg}px`)
     await expect(cs.zIndex).toBe('1')
     // taller than the room it has: it scrolls on its own, inside the viewport
