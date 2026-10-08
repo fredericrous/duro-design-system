@@ -38,9 +38,13 @@ describe('prose.css', () => {
         (n) => !n.startsWith('--duro-breakpoint-'),
       ),
     )
-    const used = [...new Set(prose.match(/var\((--[\w-]+)\)/g) ?? [])].map((v) => v.slice(4, -1))
+    // AppShell sets this one itself (below its collapse point), not the token sheet.
+    const setByAppShell = new Set(['--duro-app-shell-bar'])
+    // var(--x) and var(--x, fallback) alike
+    const used = [...new Set([...prose.matchAll(/var\((--[\w-]+)[,)]/g)].map((m) => m[1]!))]
     expect(used.length).toBeGreaterThan(10)
-    expect(used.filter((name) => !published.has(name))).toEqual([])
+    expect(used).toContain('--duro-app-shell-bar')
+    expect(used.filter((name) => !published.has(name) && !setByAppShell.has(name))).toEqual([])
   })
 
   it('scopes every rule under :where() inside the duro-prose layer', () => {
