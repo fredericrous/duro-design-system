@@ -2,11 +2,12 @@ import type {ReactNode, Ref} from 'react'
 import {html} from 'react-strict-dom'
 import {isNative} from '../../platform'
 import {mergeRefs} from '../../shared/mergeRefs'
+import type {ControlSize} from '../../shared/types'
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {styles} from './styles.css'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'inverseSecondary' | 'link' | 'danger'
-export type ButtonSize = 'default' | 'small'
+export type ButtonSize = ControlSize
 
 interface ButtonProps {
   variant?: ButtonVariant
