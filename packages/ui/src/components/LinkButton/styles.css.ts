@@ -36,7 +36,7 @@ export const styles = css.create({
     paddingRight: spacing.sm,
     fontSize: typography.fontSizeXs,
 
-    // Matches Button: every small control is at least controlSm tall (5.5).
+    // Matches Button: every small control is at least controlSm tall (5.6).
     minHeight: sizes.controlSm,
   },
   primary: {

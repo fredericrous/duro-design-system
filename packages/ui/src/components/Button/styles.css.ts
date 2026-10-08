@@ -63,7 +63,7 @@ export const styles = css.create({
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
     fontSize: typography.fontSizeXs,
-    // Every small control is at least controlSm tall, whatever it holds (5.5).
+    // Every small control is at least controlSm tall, whatever it holds (5.6).
     minHeight: sizes.controlSm,
   },
   primary: {

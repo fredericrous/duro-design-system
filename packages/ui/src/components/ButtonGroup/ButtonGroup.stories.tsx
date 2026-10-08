@@ -397,7 +397,7 @@ export const BothPressedFocusSecond: Story = {
   },
 }
 
-// --- Small triggers (5.5) ---
+// --- Small triggers (5.6) ---
 
 /** fontSizeXs in px, from the root font size. */
 const smallFontPx = () =>
