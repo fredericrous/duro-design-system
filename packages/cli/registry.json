@@ -273,6 +273,94 @@
       ],
       "sourcePath": "packages/ui/src/components/Badge/Badge.tsx"
     },
+    "Breadcrumb": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "required": [
+            "Root",
+            "Item"
+          ]
+        },
+        "description": "Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first. The current page is text with aria-current=\"page\"; the › separators are aria-hidden. Links take href and an optional onNavigate(href, event) for a client router (plain clicks only). Compound component — Root is required.",
+        "example": "<Breadcrumb.Root aria-label=\"Breadcrumb\">\n  <Breadcrumb.Item href=\"/docs\" onNavigate={go}>Docs</Breadcrumb.Item>\n  <Breadcrumb.Item href=\"/docs/architecture\" onNavigate={go}>Architecture</Breadcrumb.Item>\n  <Breadcrumb.Item current>AI-ops platform</Breadcrumb.Item>\n</Breadcrumb.Root>\n\n// go = (href, event) => { event.preventDefault(); navigate(href) }",
+        "relatedTo": [
+          {
+            "component": "PageNav",
+            "kind": "contrast",
+            "relationship": "Breadcrumb goes up the hierarchy; PageNav goes along the reading order"
+          },
+          {
+            "component": "admin-detail-page",
+            "kind": "composition",
+            "relationship": "The admin-detail-page recipe heads the record with a Breadcrumb"
+          }
+        ],
+        "whenNotToUse": [
+          "The previous and next pages in reading order — use PageNav",
+          "The sections of the page being read — use TableOfContents",
+          "Primary app navigation — use SideNav"
+        ],
+        "whenToUse": [
+          "A page deep in a hierarchy — docs › section › page, admin › collection › record",
+          "A detail page whose way back to its collection should be one click"
+        ]
+      },
+      "name": "Breadcrumb",
+      "parts": {
+        "Item": {
+          "name": "Item",
+          "props": [
+            {
+              "description": "Where the item links to. Not rendered as a link when `current`.",
+              "name": "href",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": "false",
+              "description": "The page the user is on: rendered as text with `aria-current=\"page\"`.",
+              "name": "current",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "description": "Client-side navigation: called for a plain primary click (no modifier key). Call `event.preventDefault()`, then your router's navigate.",
+              "name": "onNavigate",
+              "required": false,
+              "type": "OnNavigate"
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Breadcrumb/Breadcrumb.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [
+            {
+              "description": "Names the landmark (\"Breadcrumb\"); required, from your text catalog.",
+              "name": "aria-label",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "`Breadcrumb.Item`s, outermost first.",
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Breadcrumb/Breadcrumb.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/Breadcrumb/Breadcrumb.tsx"
+    },
     "Button": {
       "importPath": "@duro-app/ui",
       "kind": "component",
@@ -2831,12 +2919,13 @@
         ],
         "whenNotToUse": [
           "Items that should wrap to the next line — use Cluster",
-          "Vertical stacking — use Stack"
+          "Vertical stacking — use Stack",
+          "A breadcrumb trail — use Breadcrumb (a nav landmark with aria-current)"
         ],
         "whenToUse": [
           "Toolbar or button group that must stay on one row",
           "Horizontal alignment of a known, small number of items",
-          "Icon + text pairs, breadcrumbs, action rows"
+          "Icon + text pairs, action rows"
         ]
       },
       "name": "Inline",
@@ -3200,7 +3289,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Button-styled hyperlink. Renders an <a> tag, not a <button>. Use for navigation, not actions.",
+        "description": "Button-styled hyperlink. Renders an <a> tag, not a <button>. Use for navigation, not actions. onNavigate(href, event) hands a plain primary click to a client router (the app calls event.preventDefault(), then navigates); modified clicks keep the browser default.",
         "example": "<LinkButton href=\"/signup\" variant=\"primary\">\n  Get started\n</LinkButton>\n\n<LinkButton href=\"https://docs.example.com\" target=\"_blank\" variant=\"secondary\">\n  Read the docs\n</LinkButton>",
         "relatedTo": [
           {
@@ -3260,6 +3349,12 @@
           "name": "rel",
           "required": false,
           "type": "string"
+        },
+        {
+          "description": "Client-side navigation: called for a plain primary click (no modifier key, no `target`); the browser default runs for every other click. Call `event.preventDefault()`, then your router's navigate.",
+          "name": "onNavigate",
+          "required": false,
+          "type": "OnNavigate"
         },
         {
           "name": "children",
@@ -3858,6 +3953,124 @@
         }
       ],
       "sourcePath": "packages/diagrams/src/components/Node/Node.tsx"
+    },
+    "PageNav": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "Prev",
+            "Next"
+          ],
+          "required": [
+            "Root"
+          ]
+        },
+        "description": "The previous and next pages in reading order, at the foot of a page: a labelled nav with up to two link cards (a direction label over the page title, both from props). A missing side keeps its slot, so Next stays right-aligned; the cards stack below the xs container width. Links take href and an optional onNavigate(href, event) (plain clicks only). Compound component — Root is required.",
+        "example": "<PageNav.Root aria-label=\"Pages\">\n  <PageNav.Prev href=\"/docs/architecture/clusters\" label=\"Previous\" title=\"Clusters and bootstrap\" onNavigate={go} />\n  <PageNav.Next href=\"/docs/architecture/secrets\" label=\"Next\" title=\"Secrets and Vault\" onNavigate={go} />\n</PageNav.Root>",
+        "relatedTo": [
+          {
+            "component": "Breadcrumb",
+            "kind": "contrast",
+            "relationship": "PageNav goes along the reading order; Breadcrumb goes up the hierarchy"
+          },
+          {
+            "component": "Card",
+            "kind": "contrast",
+            "relationship": "PageNav draws its own link cards; do not wrap a Card in a link to fake a prev/next pair"
+          }
+        ],
+        "whenNotToUse": [
+          "Numbered result pages of a table — use Pagination from @duro-app/ui/table",
+          "Going up the hierarchy — use Breadcrumb"
+        ],
+        "whenToUse": [
+          "Docs or a guide read in order — the foot of each page",
+          "A sequence of steps where each step is its own page"
+        ]
+      },
+      "name": "PageNav",
+      "parts": {
+        "Next": {
+          "name": "Next",
+          "props": [
+            {
+              "name": "href",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "The page's title.",
+              "name": "title",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "description": "The direction label above the title (\"Previous\", \"Next\"), from your text catalog.",
+              "name": "label",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "description": "Client-side navigation: called for a plain primary click (no modifier key). Call `event.preventDefault()`, then your router's navigate.",
+              "name": "onNavigate",
+              "required": false,
+              "type": "OnNavigate"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/PageNav/PageNav.tsx"
+        },
+        "Prev": {
+          "name": "Prev",
+          "props": [
+            {
+              "name": "href",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "The page's title.",
+              "name": "title",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "description": "The direction label above the title (\"Previous\", \"Next\"), from your text catalog.",
+              "name": "label",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "description": "Client-side navigation: called for a plain primary click (no modifier key). Call `event.preventDefault()`, then your router's navigate.",
+              "name": "onNavigate",
+              "required": false,
+              "type": "OnNavigate"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/PageNav/PageNav.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [
+            {
+              "description": "Names the landmark (\"Pages\"); required, from your text catalog.",
+              "name": "aria-label",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "description": "A `PageNav.Prev` and/or a `PageNav.Next`.",
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/PageNav/PageNav.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/PageNav/PageNav.tsx"
     },
     "PageShell": {
       "importPath": "@duro-app/ui",
@@ -5517,6 +5730,134 @@
       "props": null,
       "sourcePath": "packages/ui/src/table.ts"
     },
+    "TableOfContents": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "required": [
+            "Root",
+            "Item"
+          ]
+        },
+        "description": "The \"On this page\" list of a long page's sections: a labelled nav of in-page links (href=\"#id\", level 2 or 3). value is the id of the section being read; that item gets aria-current=\"location\", the nav marker bar and a heavier weight. variant=\"menu\" puts the list behind a disclosure button (aria-expanded) for narrow screens. No scroll-spy inside: the app computes value. Compound component — Root is required.",
+        "example": "<TableOfContents.Root aria-label=\"On this page\" label=\"On this page\" value={activeId}>\n  <TableOfContents.Item href=\"#components\">The components</TableOfContents.Item>\n  <TableOfContents.Item href=\"#wiring\">Wiring</TableOfContents.Item>\n  <TableOfContents.Item href=\"#webhooks\" level={3}>Webhooks</TableOfContents.Item>\n</TableOfContents.Root>\n\n// narrow screens\n<TableOfContents.Root aria-label=\"On this page\" variant=\"menu\" value={activeId}>\n  …\n</TableOfContents.Root>",
+        "relatedTo": [
+          {
+            "component": "Tabs",
+            "kind": "contrast",
+            "relationship": "Tabs swap the content in place; TableOfContents links to sections of one long page"
+          },
+          {
+            "component": "PageNav",
+            "kind": "contrast",
+            "relationship": "TableOfContents moves within the page; PageNav moves to the next page"
+          }
+        ],
+        "whenNotToUse": [
+          "Navigation between pages — use SideNav, Tree or Breadcrumb",
+          "Switching views of one record — use Tabs",
+          "A page with no H2/H3 — render nothing instead of an empty list"
+        ],
+        "whenToUse": [
+          "A long document page (docs, a runbook, an ADR) with H2/H3 sections",
+          "variant=\"menu\" for the same list on a narrow screen, above the body"
+        ]
+      },
+      "name": "TableOfContents",
+      "parts": {
+        "Item": {
+          "name": "Item",
+          "props": [
+            {
+              "description": "The section's anchor, `#<heading id>`.",
+              "name": "href",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": "2",
+              "description": "The heading's level: 2, or 3 (indented under the 2 before it).",
+              "name": "level",
+              "required": false,
+              "type": "2 | 3"
+            },
+            {
+              "description": "Client-side navigation: called for a plain primary click (no modifier key). Call `event.preventDefault()`, then scroll or navigate yourself.",
+              "name": "onNavigate",
+              "required": false,
+              "type": "OnNavigate"
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/TableOfContents/TableOfContents.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [
+            {
+              "description": "Names the landmark (\"On this page\"); required, from your text catalog.",
+              "name": "aria-label",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": "null",
+              "description": "The id of the section being read; the Item whose href is `#<value>` is active.",
+              "name": "value",
+              "required": false,
+              "type": "string | null"
+            },
+            {
+              "default": "'list'",
+              "description": "`list` (default) for a sidebar; `menu` for a narrow screen, behind a button.",
+              "name": "variant",
+              "required": false,
+              "type": "TableOfContentsVariant",
+              "union": [
+                "list",
+                "menu"
+              ]
+            },
+            {
+              "description": "Visible title: the caption above the list, or the menu button's text. The menu button falls back to `aria-label`; the list shows none without it.",
+              "name": "label",
+              "required": false,
+              "type": "ReactNode"
+            },
+            {
+              "description": "Menu variant: whether the list is shown (controlled).",
+              "name": "open",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "default": "false",
+              "name": "defaultOpen",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "onOpenChange",
+              "required": false,
+              "type": "(open: boolean) => void"
+            },
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/TableOfContents/TableOfContents.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/TableOfContents/TableOfContents.tsx"
+    },
     "Tabs": {
       "importPath": "@duro-app/ui",
       "kind": "compound",
@@ -5993,7 +6334,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Inline hyperlink for running text and standalone text links (\"View all\", \"Edit profile\"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target=\"_blank\" defaults rel to noopener noreferrer.",
+        "description": "Inline hyperlink for running text and standalone text links (\"View all\", \"Edit profile\"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target=\"_blank\" defaults rel to noopener noreferrer. onNavigate(href, event) hands a plain primary click to a client router (the app calls event.preventDefault(), then navigates); modified clicks keep the browser default.",
         "example": "<Text>\n  Read the <TextLink href=\"/docs/migrate\">migration guide</TextLink> before you change seats, or{' '}\n  <TextLink href=\"/plans\" variant=\"subtle\">compare plans</TextLink> first.\n</Text>",
         "relatedTo": [
           {
@@ -6052,6 +6393,12 @@
           "name": "aria-label",
           "required": false,
           "type": "string"
+        },
+        {
+          "description": "Client-side navigation: called for a plain primary click (no modifier key, no `target`); the browser default runs for every other click. Call `event.preventDefault()`, then your router's navigate.",
+          "name": "onNavigate",
+          "required": false,
+          "type": "OnNavigate"
         },
         {
           "name": "children",
@@ -6599,7 +6946,7 @@
             "Item"
           ]
         },
-        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. Compound component — Root is required.",
+        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required.",
         "example": "<Tree.Root aria-label=\"Blocs\" defaultExpanded={['energy']} onValueChange={setSelected}>\n  <Tree.Item value=\"energy\" label=\"Core business — Energy\">\n    <Tree.Item value=\"generation\" label=\"Generation\" meta=\"4 apps\" />\n    <Tree.Item value=\"network\" label=\"Network operations\">\n      <Tree.Item value=\"scada\" label=\"SCADA supervision\" />\n    </Tree.Item>\n  </Tree.Item>\n  <Tree.Item value=\"finance\" label=\"Finance & steering\" />\n</Tree.Root>",
         "relatedTo": [
           {
@@ -6620,7 +6967,8 @@
         ],
         "whenToUse": [
           "Browsing data that nests to any depth — a file tree, zones › services › capabilities, namespace › resource",
-          "Picking one node of a hierarchy to show its details beside the tree"
+          "Picking one node of a hierarchy to show its details beside the tree",
+          "A docs tree of sections and pages, each Item with href (and onNavigate for a client router)"
         ]
       },
       "name": "Tree",
@@ -6657,6 +7005,18 @@
               "name": "meta",
               "required": false,
               "type": "ReactNode"
+            },
+            {
+              "description": "Makes the row a link to this URL. A plain click (or Enter / Space) selects the item and calls `onNavigate`; a modified click keeps the browser default (new tab, new window) and does not select.",
+              "name": "href",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "Client-side navigation for `href`: called for a plain primary click. Call `event.preventDefault()`, then your router's navigate.",
+              "name": "onNavigate",
+              "required": false,
+              "type": "OnNavigate"
             }
           ],
           "sourcePath": "packages/ui/src/components/Tree/Tree.tsx"
@@ -7243,7 +7603,7 @@
     "admin-detail-page": {
       "export": "AdminDetailPageRecipe",
       "meta": {
-        "description": "Admin detail page for one record: breadcrumb link, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape).",
+        "description": "Admin detail page for one record: a Breadcrumb back to the collection, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape).",
         "example": "<AdminDetailPageRecipe />",
         "whenNotToUse": [
           "One facet only — a PageShell with a Card is enough",
@@ -7256,17 +7616,17 @@
       },
       "name": "admin-detail-page",
       "peerDeps": [],
-      "source": "import {PageShell, Tabs, Stack, Inline, Heading, Text, Badge, Button, LinkButton, Card, EmptyState} from '@duro-app/ui'\n\nfunction Header() {\n  return (\n    <Stack gap=\"sm\">\n      <LinkButton href=\"#applications\" variant=\"secondary\" size=\"small\">\n        ← Applications\n      </LinkButton>\n      <Inline gap=\"md\" align=\"center\" justify=\"between\">\n        <Inline gap=\"sm\" align=\"center\">\n          <Heading level={1}>Grafana</Heading>\n          <Badge variant=\"success\">active</Badge>\n        </Inline>\n        <Inline gap=\"sm\">\n          <Button variant=\"secondary\">Edit</Button>\n          <Button variant=\"danger\">Retire</Button>\n        </Inline>\n      </Inline>\n    </Stack>\n  )\n}\n\nexport function AdminDetailPageRecipe() {\n  return (\n    <PageShell maxWidth=\"lg\" padding=\"md\" header={<Header />}>\n      <Tabs.Root defaultValue=\"overview\">\n        <Tabs.List>\n          <Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n          <Tabs.Tab value=\"members\">Members</Tabs.Tab>\n          <Tabs.Tab value=\"approvals\">Approvals</Tabs.Tab>\n          <Tabs.Tab value=\"audit\">Audit</Tabs.Tab>\n        </Tabs.List>\n\n        <Tabs.Panel value=\"overview\">\n          <Stack gap=\"lg\">\n            <Card>\n              <Stack gap=\"sm\">\n                <Heading level={3}>About</Heading>\n                <Text color=\"muted\">\n                  Dashboards for the platform team. Owned by platform, reachable at grafana.example.\n                </Text>\n              </Stack>\n            </Card>\n            <Card>\n              <Stack gap=\"sm\">\n                <Heading level={3}>Access</Heading>\n                <Text>3 roles · 2 entitlements · 41 grants</Text>\n              </Stack>\n            </Card>\n          </Stack>\n        </Tabs.Panel>\n\n        <Tabs.Panel value=\"members\">\n          <EmptyState message=\"No members yet.\" action={<Button>Add member</Button>} />\n        </Tabs.Panel>\n        <Tabs.Panel value=\"approvals\">\n          <EmptyState message=\"Every grant is auto-approved. Add a gate to require a decision.\" />\n        </Tabs.Panel>\n        <Tabs.Panel value=\"audit\">\n          <EmptyState message=\"Nothing recorded for this application.\" />\n        </Tabs.Panel>\n      </Tabs.Root>\n    </PageShell>\n  )\n}\n",
+      "source": "import {PageShell, Tabs, Stack, Inline, Heading, Text, Badge, Button, Breadcrumb, Card, EmptyState} from '@duro-app/ui'\n\nfunction Header() {\n  return (\n    <Stack gap=\"sm\">\n      <Breadcrumb.Root aria-label=\"Breadcrumb\">\n        <Breadcrumb.Item href=\"#admin\">Admin</Breadcrumb.Item>\n        <Breadcrumb.Item href=\"#applications\">Applications</Breadcrumb.Item>\n        <Breadcrumb.Item current>Grafana</Breadcrumb.Item>\n      </Breadcrumb.Root>\n      <Inline gap=\"md\" align=\"center\" justify=\"between\">\n        <Inline gap=\"sm\" align=\"center\">\n          <Heading level={1}>Grafana</Heading>\n          <Badge variant=\"success\">active</Badge>\n        </Inline>\n        <Inline gap=\"sm\">\n          <Button variant=\"secondary\">Edit</Button>\n          <Button variant=\"danger\">Retire</Button>\n        </Inline>\n      </Inline>\n    </Stack>\n  )\n}\n\nexport function AdminDetailPageRecipe() {\n  return (\n    <PageShell maxWidth=\"lg\" padding=\"md\" header={<Header />}>\n      <Tabs.Root defaultValue=\"overview\">\n        <Tabs.List>\n          <Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n          <Tabs.Tab value=\"members\">Members</Tabs.Tab>\n          <Tabs.Tab value=\"approvals\">Approvals</Tabs.Tab>\n          <Tabs.Tab value=\"audit\">Audit</Tabs.Tab>\n        </Tabs.List>\n\n        <Tabs.Panel value=\"overview\">\n          <Stack gap=\"lg\">\n            <Card>\n              <Stack gap=\"sm\">\n                <Heading level={3}>About</Heading>\n                <Text color=\"muted\">\n                  Dashboards for the platform team. Owned by platform, reachable at grafana.example.\n                </Text>\n              </Stack>\n            </Card>\n            <Card>\n              <Stack gap=\"sm\">\n                <Heading level={3}>Access</Heading>\n                <Text>3 roles · 2 entitlements · 41 grants</Text>\n              </Stack>\n            </Card>\n          </Stack>\n        </Tabs.Panel>\n\n        <Tabs.Panel value=\"members\">\n          <EmptyState message=\"No members yet.\" action={<Button>Add member</Button>} />\n        </Tabs.Panel>\n        <Tabs.Panel value=\"approvals\">\n          <EmptyState message=\"Every grant is auto-approved. Add a gate to require a decision.\" />\n        </Tabs.Panel>\n        <Tabs.Panel value=\"audit\">\n          <EmptyState message=\"Nothing recorded for this application.\" />\n        </Tabs.Panel>\n      </Tabs.Root>\n    </PageShell>\n  )\n}\n",
       "sourcePath": "docs/ai/recipes/admin-detail-page.recipe.tsx",
       "title": "Admin Detail Page",
       "usesComponents": [
         "Badge",
+        "Breadcrumb",
         "Button",
         "Card",
         "EmptyState",
         "Heading",
         "Inline",
-        "LinkButton",
         "PageShell",
         "Stack",
         "Tabs",
@@ -8958,6 +9318,10 @@
       "warning",
       "info",
       "muted"
+    ],
+    "TableOfContentsVariant": [
+      "list",
+      "menu"
     ],
     "TableSize": [
       "sm",

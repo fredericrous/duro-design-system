@@ -146,19 +146,22 @@ Pick the right layout component:
 
 These components **must** be wrapped in their `.Root`:
 
-| Component     | Sub-components                                                                           |
-| ------------- | ---------------------------------------------------------------------------------------- |
-| `Select`      | `Root`, `Trigger`, `Value`, `Icon`, `Popup`, `Item`, `ItemText`                          |
-| `Menu`        | `Root`, `Trigger`, `Popup`, `Item`, `LinkItem`                                           |
-| `Tabs`        | `Root`, `List`, `Tab`, `Panel`                                                           |
-| `Dialog`      | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
-| `Drawer`      | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
-| `Table`       | `Root`, `Header`, `Body`, `Row`, `HeaderCell`, `Cell`                                    |
-| `Tooltip`     | `Root`, `Trigger`                                                                        |
-| `Popover`     | `Root`, `Trigger`, `Popup`, `Close`                                                      |
-| `SideNav`     | `Root`, `Section`, `Group`, `Item`                                                       |
-| `ScrollArea`  | `Root`, `Viewport`, `Content`, `Scrollbar`, `Thumb`                                      |
-| `DetailPanel` | `Root`, `Content`, `Header`, `Title`, `Body`, `Footer`, `Close`                          |
+| Component         | Sub-components                                                                           |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| `Select`          | `Root`, `Trigger`, `Value`, `Icon`, `Popup`, `Item`, `ItemText`                          |
+| `Menu`            | `Root`, `Trigger`, `Popup`, `Item`, `LinkItem`                                           |
+| `Tabs`            | `Root`, `List`, `Tab`, `Panel`                                                           |
+| `Dialog`          | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
+| `Drawer`          | `Root`, `Trigger`, `Portal`, `Header`, `Title`, `Description`, `Body`, `Footer`, `Close` |
+| `Table`           | `Root`, `Header`, `Body`, `Row`, `HeaderCell`, `Cell`                                    |
+| `Tooltip`         | `Root`, `Trigger`                                                                        |
+| `Popover`         | `Root`, `Trigger`, `Popup`, `Close`                                                      |
+| `SideNav`         | `Root`, `Section`, `Group`, `Item`                                                       |
+| `ScrollArea`      | `Root`, `Viewport`, `Content`, `Scrollbar`, `Thumb`                                      |
+| `DetailPanel`     | `Root`, `Content`, `Header`, `Title`, `Body`, `Footer`, `Close`                          |
+| `Breadcrumb`      | `Root`, `Item`                                                                           |
+| `TableOfContents` | `Root`, `Item`                                                                           |
+| `PageNav`         | `Root`, `Prev`, `Next`                                                                   |
 
 ### Optional Root context (works standalone, gains features in context)
 
@@ -180,6 +183,7 @@ These components **must** be wrapped in their `.Root`:
 | **Alert** | Inline status message with icon | `variant`, `icon` |
 | **Arrow** | Connector line between two points, with an arrowhead at the end | `from`, `to`, `bend` |
 | **Badge** | Small label or tag for status indicators, counts, or categories | `variant`, `size` |
+| **Breadcrumb** | Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first | compound: Item, Root |
 | **Button** | Standard interactive button | `variant`, `size`, `fullWidth` |
 | **ButtonGroup** | Groups related buttons together with consistent spacing and layout | `orientation`, `align`, `disabled` |
 | **Callout** | Block-level informational message with icon and colored background | `variant`, `icon`, `align` |
@@ -212,6 +216,7 @@ These components **must** be wrapped in their `.Root`:
 | **Listbox** | Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox | compound: Empty, Option, Root, getAnchorProps |
 | **Menu** | Dropdown action menu | compound: Item, LinkItem, Popup, Root, Separator, … |
 | **Node** | A rounded rectangle node with a title and optional subtitle | `x`, `y`, `w` |
+| **PageNav** | The previous and next pages in reading order, at the foot of a page: a labelled nav with up to two link cards (a direction label over the page title, both from props) | compound: Next, Prev, Root |
 | **PageShell** | Page-level layout wrapper | `maxWidth`, `padding`, `header` |
 | **Panel** | Structural primitive for grouping content with header, body, and footer slots | compound: Body, Footer, Header, Root |
 | **Popover** | Non-modal anchored overlay for small interactive content | compound: Close, Popup, Root, Trigger |
@@ -225,6 +230,7 @@ These components **must** be wrapped in their `.Root`:
 | **Switch** | Toggle switch for on/off settings | `checked`, `defaultChecked`, `onCheckedChange` |
 | **Table** | Data table with CSS grid layout | compound: Body, Cell, Container, Header, HeaderCell, … |
 | **Table (ui/table)** | Data table with CSS grid layout | compound: Body, Cell, ColumnFilter, Container, FromTanstack, … |
+| **TableOfContents** | The "On this page" list of a long page's sections: a labelled nav of in-page links (href="#id", level 2 or 3) | compound: Item, Root |
 | **Tabs** | Tabbed interface with keyboard navigation | compound: List, Panel, Root, Tab |
 | **Tag** | Interactive tag/chip with optional remove button | `value`, `variant`, `size` |
 | **TagGroup** | Compound component for managing a collection of tags | compound: Input, List, Root |
@@ -724,6 +730,30 @@ stop.** An editor toolbar is a `Toolbar` holding attached groups and menus:
 - What a popup holds (a Popover's form, a Menu's items) is outside the group
   and the toolbar: its buttons are round and in the normal tab order.
 
+### Links and client-side routing
+
+**Every link part renders a real `<a href>` and takes `onNavigate`** —
+`TextLink`, `LinkButton`, `Breadcrumb.Item`, `TableOfContents.Item`,
+`PageNav.Prev` / `Next`, and `Tree.Item` with `href` (ADR-0002 in
+`docs/adr/`). The part calls `onNavigate(href, event)` for a plain primary
+click only (no modifier key, no `target`); cmd-click, middle-click and "Copy
+link" keep the browser default. The part never prevents the default itself:
+
+```tsx
+const go: OnNavigate = (href, event) => {
+  event.preventDefault()
+  navigate(href) // your router's navigate
+}
+
+<Breadcrumb.Root aria-label="Breadcrumb">
+  <Breadcrumb.Item href="/docs" onNavigate={go}>Docs</Breadcrumb.Item>
+  <Breadcrumb.Item current>AI-ops platform</Breadcrumb.Item>
+</Breadcrumb.Root>
+```
+
+Without `onNavigate` a link does a normal page load. Don't wrap a part in your
+router's `Link`, and don't put an `onClick` on a wrapper to intercept it.
+
 ## Canonical Recipes
 
 <!-- duro:generated:recipes START -->
@@ -731,7 +761,7 @@ stop.** An editor toolbar is a `Toolbar` holding attached groups and menus:
 Complete, runnable compositions. Each emits consumer-ready source (imports already point at the published packages):
 
 - **action-menu** — Dropdown action menu with button trigger, action items, and a link item. `npx @duro-app/cli action-menu --source-only`
-- **admin-detail-page** — Admin detail page for one record: breadcrumb link, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape). `npx @duro-app/cli admin-detail-page --source-only`
+- **admin-detail-page** — Admin detail page for one record: a Breadcrumb back to the collection, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape). `npx @duro-app/cli admin-detail-page --source-only`
 - **data-table** — Striped data table with badge status column. `npx @duro-app/cli data-table --source-only`
 - **empty-state** — Empty state inside a card with icon and action button. `npx @duro-app/cli empty-state --source-only`
 - **filter-bar** — Filter bar with Select dropdowns, ToggleGroup for view switching, and reset button. `npx @duro-app/cli filter-bar --source-only`
