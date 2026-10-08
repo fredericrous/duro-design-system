@@ -85,12 +85,23 @@ export const OnlyNext: Story = {
   },
 }
 
+/** The last page of a section: no Next, and Prev keeps the left half. */
 export const OnlyPrev: Story = {
   render: () => (
     <html.div style={styles.column}>
       <Pages next={false} />
     </html.div>
   ),
+  play: async ({canvas}) => {
+    const navBox = canvas.getByRole('navigation', {name: 'Pages'}).getBoundingClientRect()
+    const prevBox = canvas
+      .getByRole('link', {name: 'Previous Clusters and bootstrap'})
+      .getBoundingClientRect()
+    await expect(canvas.getAllByRole('link')).toHaveLength(1)
+    await expect(canvas.queryByRole('link', {name: /Next/})).toBeNull()
+    await expect(Math.round(prevBox.left)).toBe(Math.round(navBox.left))
+    await expect(prevBox.right).toBeLessThan(navBox.left + navBox.width / 2)
+  },
 }
 
 /** Below the xs container width the cards stack, Prev first. */
