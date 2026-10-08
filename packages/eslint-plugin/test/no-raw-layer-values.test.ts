@@ -158,6 +158,36 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       ],
     },
     {
+      code: wrap('zIndex: 60'),
+      errors: [
+        {
+          messageId: 'rawZIndex',
+          data: {value: '60', token: 'floatingRaised', pkg: '@duro-app/tokens'},
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output: layersImport + wrap('zIndex: layers.floatingRaised'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: wrap('zIndex: 1041'),
+      errors: [
+        {
+          messageId: 'rawZIndex',
+          data: {value: '1041', token: 'popoverRaised', pkg: '@duro-app/tokens'},
+          suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output: layersImport + wrap('zIndex: layers.popoverRaised'),
+            },
+          ],
+        },
+      ],
+    },
+    {
       code: wrap('zIndex: 5000'),
       errors: [
         {

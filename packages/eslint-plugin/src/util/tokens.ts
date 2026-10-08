@@ -440,10 +440,12 @@ export const OUTLINE_OFFSET_TOKENS = ['focusOffset', 'focusOffsetSm']
 export const LAYERS_BY_VALUE: Record<number, string> = {
   1: 'raised',
   50: 'floating',
+  60: 'floatingRaised',
   1000: 'overlay',
   1001: 'modal',
   1002: 'modalRaised',
   1040: 'popover',
+  1041: 'popoverRaised',
   1049: 'popupBackdrop',
   1050: 'popup',
   1060: 'toast',

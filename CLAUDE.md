@@ -462,10 +462,12 @@ The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values o
 | --- | --- |
 | `raised` | 1 |
 | `floating` | 50 |
+| `floatingRaised` | 60 |
 | `overlay` | 1000 |
 | `modal` | 1001 |
 | `modalRaised` | 1002 |
 | `popover` | 1040 |
+| `popoverRaised` | 1041 |
 | `popupBackdrop` | 1049 |
 | `popup` | 1050 |
 | `toast` | 1060 |
