@@ -456,6 +456,8 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `dayHeaderH` | 46px |
 | `timelineLabelW` | 180px |
 | `appBarH` | 61px |
+| `dragThumbW` | 132px |
+| `dragThumbH` | 99px |
 
 ### Borders
 
@@ -606,6 +608,8 @@ is added.
 **Input / action glyphs:** `search`, `mic`
 
 **Color-mode glyphs:** `sun`, `moon`, `monitor`, `contrast`
+
+**Device status glyphs:** `signal`, `battery`
 
 **Filled variants (solid shape with cutout symbol):** `info-circle-filled`, `alert-triangle-filled`, `check-circle-filled`, `x-circle-filled`, `shield-filled`, `lock-filled`
 

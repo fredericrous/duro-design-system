@@ -199,6 +199,8 @@ export const SIZES_PX = {
   dayHeaderH: 46,
   timelineLabelW: 180,
   appBarH: 61,
+  dragThumbW: 132,
+  dragThumbH: 99,
 } as const
 
 // Email-only measures: no CSS variable (mail clients cannot read them) and not
