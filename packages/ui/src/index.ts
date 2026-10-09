@@ -20,6 +20,11 @@ export {Icon, type IconName} from './components/Icon'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
 export {Breadcrumb} from './components/Breadcrumb/Breadcrumb'
 export {Button, type ButtonVariant, type ButtonSize} from './components/Button/Button'
+export {
+  FileTrigger,
+  type FileTriggerProps,
+  type FileTriggerHandle,
+} from './components/FileTrigger/FileTrigger'
 export type {ControlSize} from './shared/types'
 export {ButtonGroup, type ButtonGroupProps} from './components/ButtonGroup/ButtonGroup'
 export {Callout, type CalloutVariant} from './components/Callout/Callout'

@@ -47,6 +47,7 @@ export type RawColors = {
   inverseBorder: string
   inverseBorderHover: string
   fixedLight: string
+  fixedDark: string
   overlayLight: string
   contrastSurface: string
   onContrastSurface: string
@@ -140,6 +141,10 @@ export const SIZES_PX = {
   iconLg: 24,
   iconXl: 36,
   iconXxl: 48,
+  thumbSm: 40,
+  mediaTileMinW: 108,
+  glyphClampMax: 160,
+  timeReadoutW: 74,
   navMarkerW: 3,
   navMarkerH: 18,
   divider: 1,
@@ -246,6 +251,7 @@ export const darkColors: RawColors = {
   inverseBorder: 'rgba(0, 0, 0, 0.55)',
   inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
   fixedLight: '#ffffff',
+  fixedDark: '#000000',
   overlayLight: 'rgba(255, 255, 255, 0.78)',
   contrastSurface: '#f5f5f5',
   onContrastSurface: '#1a1a1a',
@@ -291,6 +297,7 @@ export const lightColors: RawColors = {
   inverseBorder: 'rgba(0, 0, 0, 0.55)',
   inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
   fixedLight: '#ffffff',
+  fixedDark: '#000000',
   overlayLight: 'rgba(255, 255, 255, 0.78)',
   contrastSurface: '#1a1a1a',
   onContrastSurface: '#e5e5e5',
@@ -336,6 +343,7 @@ export const highContrastColors: RawColors = {
   inverseBorder: 'rgba(0, 0, 0, 0.55)',
   inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
   fixedLight: '#ffffff',
+  fixedDark: '#000000',
   overlayLight: 'rgba(255, 255, 255, 0.78)',
   contrastSurface: '#ffffff',
   onContrastSurface: '#000000',

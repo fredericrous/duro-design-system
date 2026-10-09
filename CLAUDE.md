@@ -210,6 +210,7 @@ These components **must** be wrapped in their `.Root`:
 | **EmptyState** | Placeholder for empty content areas | `message`, `icon`, `action` |
 | **Field** | Compound form field with label, description, and error display | compound: Description, Error, Label, Root |
 | **Fieldset** | Groups related form controls with consistent gap spacing and an optional legend | compound: Legend, Root |
+| **FileTrigger** | A Button that opens the OS file picker | `accept`, `multiple`, `onSelect` |
 | **Form** | Form wrapper with Effect Schema validation and react-hook-form integration | `schema`, `defaultValues`, `onSubmit` |
 | **Grid** | Grid layout | `gap`, `columns`, `minColumnWidth` |
 | **Heading** | Semantic heading element (h1-h6) with typography presets | `level`, `variant`, `color` |
@@ -397,6 +398,10 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `iconLg` | 24px |
 | `iconXl` | 36px |
 | `iconXxl` | 48px |
+| `thumbSm` | 40px |
+| `mediaTileMinW` | 108px |
+| `glyphClampMax` | 160px |
+| `timeReadoutW` | 74px |
 | `navMarkerW` | 3px |
 | `navMarkerH` | 18px |
 | `divider` | 1px |
@@ -610,6 +615,8 @@ is added.
 **Color-mode glyphs:** `sun`, `moon`, `monitor`, `contrast`
 
 **Device status glyphs:** `signal`, `battery`
+
+**Media glyphs:** `video`, `music`, `play`, `pause`
 
 **Filled variants (solid shape with cutout symbol):** `info-circle-filled`, `alert-triangle-filled`, `check-circle-filled`, `x-circle-filled`, `shield-filled`, `lock-filled`
 

@@ -59,6 +59,8 @@ export const colors = css.defineVars({
   inverseBorderHover: 'rgba(0, 0, 0, 0.70)',
   // A light that does not follow the theme (the Switch knob).
   fixedLight: '#ffffff',
+  // The fixed black, the same in every theme (video letterbox).
+  fixedDark: '#000000',
   // A fixed translucent white over content (the light counterpart of scrim).
   overlayLight: 'rgba(255, 255, 255, 0.78)',
   // The opposite tone of the theme: a surface that stands out from the page
