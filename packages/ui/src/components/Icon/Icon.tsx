@@ -45,6 +45,9 @@ export type IconName =
   | 'moon'
   | 'monitor'
   | 'contrast'
+  // Device status glyphs
+  | 'signal'
+  | 'battery'
   // Filled variants (solid shape with cutout symbol)
   | 'info-circle-filled'
   | 'alert-triangle-filled'
@@ -311,6 +314,23 @@ const strokeIcons: Partial<Record<IconName, ReactNode>> = {
     <>
       <circle cx="12" cy="12" r="10" />
       <path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor" stroke="none" />
+    </>
+  ),
+  // ---- device status ----
+  // Four ascending bars — cellular signal strength.
+  signal: (
+    <>
+      <line x1="4" y1="20" x2="4" y2="16" />
+      <line x1="9" y1="20" x2="9" y2="12" />
+      <line x1="14" y1="20" x2="14" y2="8" />
+      <line x1="19" y1="20" x2="19" y2="4" />
+    </>
+  ),
+  // Horizontal battery outline with a terminal nub — charge level.
+  battery: (
+    <>
+      <rect x="2" y="7" width="17" height="10" rx="2" />
+      <line x1="22" y1="11" x2="22" y2="13" />
     </>
   ),
 }

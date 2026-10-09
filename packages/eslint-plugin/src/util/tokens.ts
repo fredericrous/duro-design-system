@@ -422,6 +422,8 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   46: ['dayHeaderH'],
   180: ['timelineLabelW'],
   61: ['appBarH'],
+  132: ['dragThumbW'],
+  99: ['dragThumbH'],
 }
 
 /** px value → every borders token at that value, in key order. */

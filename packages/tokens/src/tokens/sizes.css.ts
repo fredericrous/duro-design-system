@@ -88,4 +88,7 @@ export const sizes = css.defineVars({
   // AppShell's bar below its collapse point: a touch-target Menu button
   // between spacing.sm above and below, plus the hairline under it.
   appBarH: '61px',
+  // Drag-ghost thumbnail: the small preview image that follows the pointer.
+  dragThumbW: '132px',
+  dragThumbH: '99px',
 })
