@@ -91,7 +91,7 @@ export const Vertical: Story = {
     // The top gridline is the scale's top (the largest stack, 297, rounds to 300).
     const max = Math.max(...days.map((d) => d.values.resolved! + d.values.escalated!))
     await expect(within(img).getByText(String(niceScale(max).top))).toBeVisible()
-    await expect(within(img).getByText('32 / 3')).toBeVisible()
+    await expect(canvas.getByText('8 Oct · 32 / 3')).toBeVisible()
     // The table holds every value.
     const rows = within(table).getAllByRole('row').slice(1)
     await expect(rows).toHaveLength(days.length)

@@ -20,6 +20,7 @@ export const styles = css.create({
   textStrong: {
     color: colors.text,
     fontWeight: typography.fontWeightSemibold,
+    whiteSpace: 'nowrap',
   },
 
   // Legend: a swatch and the series name in text (WCAG 1.4.1).
@@ -28,6 +29,9 @@ export const styles = css.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.md,
+  },
+  legendNote: {
+    marginLeft: 'auto',
   },
   legendItem: {
     display: 'inline-flex',

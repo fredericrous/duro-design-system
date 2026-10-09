@@ -79,6 +79,14 @@ export function BarChart({
   const every = Math.max(1, Math.floor(labelEvery))
   const lastIndex = data.length - 1
 
+  // Vertical bars are too narrow to carry their numbers at every width, so
+  // the emphasised last bar is named at the end of the legend row instead.
+  const last = data[lastIndex]
+  const lastNote =
+    orientation === 'vertical' && emphasis === 'last' && last && !last.missing
+      ? `${last.label} · ${numbersOf(last, series)}`
+      : null
+
   const legend = (
     <html.div style={styles.legend}>
       {series.map((s) => (
@@ -87,6 +95,11 @@ export function BarChart({
           <html.span style={styles.text}>{s.label}</html.span>
         </html.span>
       ))}
+      {lastNote ? (
+        <html.span style={[styles.text, styles.textStrong, styles.legendNote]}>
+          {lastNote}
+        </html.span>
+      ) : null}
     </html.div>
   )
 
@@ -171,14 +184,8 @@ export function BarChart({
           ))}
           <html.div style={styles.bars}>
             {data.map((d, i) => {
-              const emphasised = emphasis === 'last' && i === lastIndex
               return (
                 <html.div key={`${i}-${d.label}`} style={styles.slot}>
-                  {emphasised && !d.missing ? (
-                    <html.span style={[styles.text, styles.textStrong]}>
-                      {numbersOf(d, series)}
-                    </html.span>
-                  ) : null}
                   {d.missing ? (
                     <html.div style={styles.gap}>
                       <html.span style={styles.text}>{NO_REPORT}</html.span>
