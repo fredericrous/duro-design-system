@@ -1,8 +1,7 @@
 import {useEffect, useImperativeHandle, useRef} from 'react'
 import type {ReactNode, Ref} from 'react'
-import {html} from 'react-strict-dom'
+import {css, html} from 'react-strict-dom'
 import {Button, type ButtonSize, type ButtonVariant} from '../Button/Button'
-import {visuallyHidden} from '../../styles/visually-hidden.css'
 import {openPicker, takeFiles} from './pick'
 
 export interface FileTriggerHandle {
@@ -24,6 +23,13 @@ export interface FileTriggerProps {
   ref?: Ref<FileTriggerHandle>
   children: ReactNode
 }
+
+// display:none, not visually hidden: the input is only ever opened by click(),
+// which a hidden input still honours, and this keeps its "No file chosen" text
+// out of the accessibility tree (axe flagged its contrast).
+const styles = css.create({
+  input: {display: 'none'},
+})
 
 /** A Button that opens the OS file picker. Web only: native has no file input. */
 export function FileTrigger({
@@ -67,7 +73,7 @@ export function FileTrigger({
         tabIndex={-1}
         aria-hidden={true}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => takeFiles(e.target, onSelect)}
-        style={visuallyHidden.base}
+        style={styles.input}
       />
     </>
   )
