@@ -156,6 +156,26 @@ The consumer PRs (Phases 2–5) run one at a time. Nothing else is pushed while 
   - A shorthand's message names each word.
   - Inline walks skip computed and `--` keys, while css.create still scans computed keys for colours.
   - All three are pinned by tests.
+- 2026-10-09: **released as v5.9.0, not 5.7.0.** Another session had already published v5.7.0, v5.8.0 and v5.8.1 (2026-10-08). Every "5.7.0" / `^5.7.0` in this plan reads 5.9.0 / `^5.9.0`. The branch is based on v5.8.1 (9f5746b2).
+
+## Phase 1 record (observed before push)
+
+- eslint-plugin unit tests: 208 pass (10 files). `pnpm lint` passes with 0 `no-raw-design-values` hits in packages/ui. typecheck passes, and build leaves no diff. The full Storybook run's 2 DrawerScroll failures are the open #81 (touch emulation leak); the branch has no packages/ui diff.
+- **Fleet gate** on the candidate tarballs (packed from a507c789), each repo at origin/main, against both 5.6.0 and the published 5.8.1. Lint at 5.8.1 equals 5.6.0 everywhere, so the whole delta comes from the rule.
+
+  | Repo                  | New `no-raw-design-values` errors                |
+  | --------------------- | ------------------------------------------------ |
+  | website-builder       | 352 (25 files, all inline)                       |
+  | application-landscape | 122 (35 files)                                   |
+  | kb-vision             | 91 (12 files)                                    |
+  | duro-app              | 7 (6 shorthand in the dead ButtonLink, 1 inline) |
+  | duro-lexical-multi    | 6 (shorthand)                                    |
+  | the other four        | 0                                                |
+  - No other rule changed, and there are 0 new type errors.
+  - The counts differ from the probe's (323/105/99/3/3) because the gate counts one report per value of a two-value shorthand, and because the probe ran without each repo's ignores.
+  - The per-file lists become the baselines.
+
+- Implementation review: round 1 approve-with-changes (tests for negatives and inline conditions, a comment); delta approve.
 
 ## Full reviews (reference)
 
