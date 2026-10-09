@@ -798,6 +798,7 @@ export const noRawDesignValues: TSESLint.RuleModule<MessageIds, Options> = {
         if (inline && key !== null && key.startsWith('--')) continue
         if (key === null) {
           // Computed key — can't attribute a property; still scan for colors.
+          // (Deliberately css.create only: inline computed keys are skipped above.)
           checkValue(prop.value as TSESTree.Node, null, suggest, inline)
           continue
         }

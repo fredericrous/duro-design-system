@@ -151,6 +151,11 @@ The consumer PRs (Phases 2–5) run one at a time. Nothing else is pushed while 
 - Minor version 5.7.0, not major: lockfiles pin the plugin, and every affected repo is bumped and baselined here.
 - No suggestions for shorthand or inline hits: a whole-node token swap is wrong for shorthands, and plain-React consumers can't import `.css.ts` tokens.
 - Brand font loading is deferred to its own issue; this plan only removes the serif fallback.
+- 2026-10-09, Phase 1 build:
+  - A negative px word in a shorthand (`'-4px 8px'`) is skipped, as negatives on spacing are; only `8px` is reported.
+  - A shorthand's message names each word.
+  - Inline walks skip computed and `--` keys, while css.create still scans computed keys for colours.
+  - All three are pinned by tests.
 
 ## Full reviews (reference)
 

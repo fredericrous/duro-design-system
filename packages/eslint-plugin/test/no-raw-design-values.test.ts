@@ -19,6 +19,8 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     wrap("padding: 0, margin: -8, transition: 'opacity 150ms'"),
     // Shorthand words that are not nonzero px: zero, auto, relative units, functions
     wrap("margin: '0 auto', gap: '0px 0', paddingInline: '10% 2rem'"),
+    // A negative px word in a shorthand is skipped, as negatives on spacing are.
+    wrap("margin: '-4px 0'"),
     wrap("padding: '1rem 2em', paddingBlock: 'var(--x) calc(100% - 4px)'"),
     wrap('color: colors.text, fontSize: typography.fontSizeMd, boxShadow: shadows.sm'),
     // A font size off both scales, a bold keyword, no shadow
@@ -65,6 +67,10 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     'css.create({s: {[`@media (min-width: ${breakpoints.md})`]: {padding: spacing.xl}}})',
   ],
   invalid: [
+    // Only the positive word of a mixed-sign shorthand is reported.
+    {code: wrap("margin: '-4px 8px'"), errors: [{messageId: 'rawSpacing', suggestions: []}]},
+    // An inline object's condition keys are walked like css.create's.
+    {code: inline("':hover': {padding: 16}"), errors: [{messageId: 'rawSpacing', suggestions: []}]},
     {
       code: wrap("gridTemplateColumns: 'minmax(240px, 1fr) minmax(0, 2fr)'"),
       errors: [{messageId: 'rawTrack'}],
