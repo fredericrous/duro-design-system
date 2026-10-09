@@ -41,14 +41,17 @@ export const styles = css.create({
   },
 
   // Vertical drawing.
+  // The scale labels sit in a left gutter, centred on their gridline; the
+  // margin above lets the top label clear the legend.
   plot: {
     position: 'relative',
     height: sizes.chartH,
     width: '100%',
+    marginTop: spacing.sm,
   },
   gridline: {
     position: 'absolute',
-    left: 0,
+    left: sizes.readoutW,
     right: 0,
     height: borders.hairline,
     backgroundColor: colors.border,
@@ -58,14 +61,17 @@ export const styles = css.create({
   }),
   gridLabel: {
     position: 'absolute',
-    left: 0,
-    bottom: spacing.xs,
+    right: '100%',
+    bottom: 0,
+    paddingRight: spacing.xs,
+    transform: 'translateY(50%)',
+    whiteSpace: 'nowrap',
   },
   bars: {
     position: 'absolute',
     top: 0,
     bottom: 0,
-    left: 0,
+    left: sizes.readoutW,
     right: 0,
     display: 'flex',
     flexDirection: 'row',
@@ -109,6 +115,8 @@ export const styles = css.create({
     flexDirection: 'row',
     gap: spacing.xs,
     width: '100%',
+    paddingLeft: sizes.readoutW,
+    boxSizing: 'border-box',
   },
   axisCell: {
     flexGrow: 1,
