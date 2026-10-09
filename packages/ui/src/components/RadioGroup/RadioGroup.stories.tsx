@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
-import {css, html} from 'react-strict-dom'
+import {html} from 'react-strict-dom'
 import {RadioGroup} from './RadioGroup'
 
 const meta: Meta = {
@@ -79,5 +79,68 @@ export const Controlled: Story = {
     await userEvent.click(radios[2])
     await expect(radios[2]).toBeChecked()
     await expect(radios[0]).not.toBeChecked()
+  },
+}
+
+const onPick = fn()
+
+export const OneChangePerPick: Story = {
+  render: () => (
+    <RadioGroup.Root defaultValue="apple" onValueChange={onPick} aria-label="Fruit">
+      <RadioGroup.Item value="apple">Apple</RadioGroup.Item>
+      <RadioGroup.Item value="banana">Banana</RadioGroup.Item>
+      <RadioGroup.Item value="cherry">Cherry</RadioGroup.Item>
+    </RadioGroup.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    onPick.mockClear()
+    // Clicking the visible label text…
+    await userEvent.click(canvas.getByText('Banana'))
+    await expect(onPick).toHaveBeenCalledTimes(1)
+    await expect(onPick).toHaveBeenLastCalledWith('banana')
+    // …and clicking the radio itself each report the pick exactly once.
+    await userEvent.click(canvas.getByRole('radio', {name: 'Cherry'}))
+    await expect(onPick).toHaveBeenCalledTimes(2)
+    await expect(onPick).toHaveBeenLastCalledWith('cherry')
+    // Re-picking the selected item is not a change.
+    await userEvent.click(canvas.getByText('Cherry'))
+    await expect(onPick).toHaveBeenCalledTimes(2)
+  },
+}
+
+export const SubmitsWithForm: Story = {
+  render: () => (
+    <html.form aria-label="Order">
+      <RadioGroup.Root name="fruit" defaultValue="apple" aria-label="Fruit">
+        <RadioGroup.Item value="apple">Apple</RadioGroup.Item>
+        <RadioGroup.Item value="banana">Banana</RadioGroup.Item>
+      </RadioGroup.Root>
+    </html.form>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const form = canvas.getByRole('form', {name: 'Order'}) as HTMLFormElement
+    await expect(new FormData(form).get('fruit')).toBe('apple')
+    await userEvent.click(canvas.getByText('Banana'))
+    await expect(new FormData(form).get('fruit')).toBe('banana')
+  },
+}
+
+export const ArrowKeysMoveSelection: Story = {
+  render: () => (
+    <RadioGroup.Root defaultValue="sm" aria-label="Size">
+      <RadioGroup.Item value="sm">Small</RadioGroup.Item>
+      <RadioGroup.Item value="md">Medium</RadioGroup.Item>
+      <RadioGroup.Item value="lg">Large</RadioGroup.Item>
+    </RadioGroup.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const group = canvas.getByRole('radiogroup', {name: 'Size'})
+    await expect(group).toBeInTheDocument()
+    // Arrow keys move the selection within the group, as native radios do.
+    const [sm, md] = canvas.getAllByRole('radio')
+    sm.focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(md).toBeChecked()
+    await expect(md).toHaveFocus()
   },
 }

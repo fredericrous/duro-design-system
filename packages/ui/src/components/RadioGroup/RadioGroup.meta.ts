@@ -30,7 +30,7 @@ export const meta: ComponentMeta = {
         'RadioGroup for form single-select; ToggleGroup for segmented/toolbar single-select',
     },
   ],
-  example: `<RadioGroup.Root defaultValue="email" onValueChange={(v) => console.log(v)}>
+  example: `<RadioGroup.Root name="channel" defaultValue="email" onValueChange={(v) => console.log(v)}>
   <RadioGroup.Item value="email">Email</RadioGroup.Item>
   <RadioGroup.Item value="sms">SMS</RadioGroup.Item>
   <RadioGroup.Item value="push">Push notification</RadioGroup.Item>
