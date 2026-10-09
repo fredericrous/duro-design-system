@@ -62,7 +62,7 @@ function totalOf(datum: BarChartDatum, series: BarChartSeries[]): number {
 }
 
 function numbersOf(datum: BarChartDatum, series: BarChartSeries[]): string {
-  return series.map((s) => String(datum.values[s.key] ?? 0)).join(' / ')
+  return series.map((s) => String(valueOf(datum, s.key))).join(' / ')
 }
 
 export function BarChart({

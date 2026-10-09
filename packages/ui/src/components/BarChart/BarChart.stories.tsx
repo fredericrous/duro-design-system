@@ -1,7 +1,8 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect} from 'storybook/test'
+import {expect, within} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {BarChart, type BarChartDatum, type BarChartSeries} from './BarChart'
+import {niceScale} from './scale'
 import {onThemeSurface} from '../../docs/themedSurface'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
@@ -79,13 +80,27 @@ export const Vertical: Story = {
   },
   play: async ({canvas}) => {
     const img = canvas.getByRole('img', {name: /Resolved and escalated per day/})
-    await expect(canvas.getAllByText('Resolved').length).toBeGreaterThan(0)
-    await expect(canvas.getAllByText('Escalated').length).toBeGreaterThan(0)
     const table = canvas.getByRole('table')
     // The table sits beside the img, never inside it.
     await expect(img.contains(table)).toBe(false)
-    await expect(canvas.getAllByRole('row')).toHaveLength(15)
-    await expect(canvas.getByText('32 / 3')).toBeVisible()
+    // The visible legend names each series outside the hidden table.
+    for (const name of ['Resolved', 'Escalated']) {
+      const outside = canvas.getAllByText(name).filter((el) => !table.contains(el))
+      await expect(outside.length).toBeGreaterThan(0)
+    }
+    // The top gridline is the scale's top (the largest stack, 297, rounds to 300).
+    const max = Math.max(...days.map((d) => d.values.resolved! + d.values.escalated!))
+    await expect(within(img).getByText(String(niceScale(max).top))).toBeVisible()
+    await expect(within(img).getByText('32 / 3')).toBeVisible()
+    // The table holds every value.
+    const rows = within(table).getAllByRole('row').slice(1)
+    await expect(rows).toHaveLength(days.length)
+    rows.forEach((row, i) => {
+      const cells = within(row)
+        .getAllByRole('cell')
+        .map((c) => c.textContent)
+      expect(cells).toEqual([String(days[i]!.values.resolved), String(days[i]!.values.escalated)])
+    })
   },
 }
 
@@ -105,6 +120,10 @@ export const Row: Story = {
   play: async ({canvas}) => {
     const img = canvas.getByRole('img', {name: 'Resolved and escalated by queue'})
     await expect(img.contains(canvas.getByRole('table'))).toBe(false)
+    // A bar per item with its total, the last one with its numbers.
+    await expect(within(img).getByText('Billing')).toBeVisible()
+    await expect(within(img).getAllByText('52')).toHaveLength(2)
+    await expect(within(img).getByText('5 / 1')).toBeVisible()
   },
 }
 
@@ -117,6 +136,7 @@ export const MissingDay: Story = {
     labelEvery: 2,
   },
   play: async ({canvas}) => {
-    await expect(canvas.getAllByText('no report').length).toBeGreaterThan(0)
+    const img = canvas.getByRole('img', {name: /missing report/})
+    await expect(within(img).getByText('no report')).toBeVisible()
   },
 }

@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import {niceScale} from '../src/components/BarChart/scale'
-import {darkColors} from '@duro-app/tokens/raw'
+import {darkColors, highContrastColors, lightColors} from '@duro-app/tokens/raw'
 
 describe('niceScale', () => {
   it('rounds the top up to a nice step and returns three gridlines', () => {
@@ -38,17 +38,23 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05)
 }
 
-describe('BarChart segment contrast (dark theme, WCAG 1.4.11)', () => {
-  const tones = {
-    success: darkColors.success,
-    error: darkColors.error,
-    warning: darkColors.warning,
-    info: darkColors.info,
-    muted: darkColors.textMuted,
-  }
-  for (const [tone, value] of Object.entries(tones)) {
-    it(`${tone} holds 3:1 against bgCard`, () => {
-      expect(contrast(value, darkColors.bgCard)).toBeGreaterThanOrEqual(3)
-    })
-  }
-})
+for (const [theme, colors] of Object.entries({
+  dark: darkColors,
+  light: lightColors,
+  'high-contrast': highContrastColors,
+})) {
+  describe(`BarChart segment contrast (${theme} theme, WCAG 1.4.11)`, () => {
+    const tones = {
+      success: colors.success,
+      error: colors.error,
+      warning: colors.warning,
+      info: colors.info,
+      muted: colors.textMuted,
+    }
+    for (const [tone, value] of Object.entries(tones)) {
+      it(`${tone} holds 3:1 against bgCard`, () => {
+        expect(contrast(value, colors.bgCard)).toBeGreaterThanOrEqual(3)
+      })
+    }
+  })
+}

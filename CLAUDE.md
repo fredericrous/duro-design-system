@@ -218,7 +218,7 @@ These components **must** be wrapped in their `.Root`:
 | **Inline** | Horizontal flex layout with NO wrapping | `gap`, `align`, `justify` |
 | **Input** | Text input with automatic Field/Form integration | `variant`, `font`, `type` |
 | **InputGroup** | Wraps an Input with prefix and/or suffix addons (icons, text, buttons) | compound: Addon, Root |
-| **Kbd** | A key or chord hint: one inline <kbd> per key, spaced apart, styled with tokens only | `keys` |
+| **Kbd** | A key or chord hint: one inline <kbd> per key, spaced apart, styled with tokens only | `keys`, `aria-hidden` |
 | **Leader** | A dashed, thin line for callout/annotation leaders | `from`, `to` |
 | **LinkButton** | Button-styled hyperlink | `href`, `variant`, `size` |
 | **List** | Vertical list of interactive items | compound: Actions, Content, Description, Empty, Item, … |

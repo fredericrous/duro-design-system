@@ -30,3 +30,12 @@ export const Chord: Story = {
     await expect(keys.map((k) => k.textContent)).toEqual(['Cmd', 'Shift', 'K'])
   },
 }
+
+/** Beside a labelled button the hint is decorative: aria-hidden keeps it out of the accessible name. */
+export const Hidden: Story = {
+  args: {keys: ['R'], 'aria-hidden': true},
+  play: async ({canvasElement}) => {
+    const kbd = canvasElement.querySelector('kbd')!
+    await expect(kbd.closest('[aria-hidden="true"]')).not.toBeNull()
+  },
+}

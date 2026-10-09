@@ -3756,6 +3756,12 @@
           "name": "keys",
           "required": true,
           "type": "string[]"
+        },
+        {
+          "description": "Hide the hint from assistive tech when a labelled control beside it already says the key.",
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean"
         }
       ],
       "sourcePath": "packages/ui/src/components/Kbd/Kbd.tsx"

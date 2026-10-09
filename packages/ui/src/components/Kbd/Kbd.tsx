@@ -9,11 +9,13 @@ import {styles} from './styles.css'
 export interface KbdProps {
   /** One entry per key; a chord is several, e.g. ['Cmd', 'K']. */
   keys: string[]
+  /** Hide the hint from assistive tech when a labelled control beside it already says the key. */
+  'aria-hidden'?: boolean
 }
 
-export function Kbd({keys}: KbdProps) {
+export function Kbd({keys, 'aria-hidden': ariaHidden}: KbdProps) {
   return (
-    <html.span style={styles.group}>
+    <html.span style={styles.group} aria-hidden={ariaHidden}>
       {keys.map((key, index) => (
         <html.kbd key={`${index}-${key}`} style={styles.key}>
           {key}
