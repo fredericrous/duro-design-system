@@ -25,6 +25,14 @@ export const sizes = css.defineVars({
   iconLg: '24px',
   iconXl: '36px',
   iconXxl: '48px',
+  // A small square thumbnail (a file/media row preview).
+  thumbSm: '40px',
+  // Minimum width of a media grid tile.
+  mediaTileMinW: '108px',
+  // Upper bound a glyph scales up to inside its tile.
+  glyphClampMax: '160px',
+  // Width of a mm:ss time readout, so digits do not shift the layout.
+  timeReadoutW: '74px',
   navMarkerW: '3px',
   navMarkerH: '18px',
   divider: '1px',

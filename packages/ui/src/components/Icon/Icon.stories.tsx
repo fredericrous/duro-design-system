@@ -57,6 +57,7 @@ const groups: ReadonlyArray<{title: string; names: readonly IconName[]}> = [
   {title: 'Input / action', names: ['search', 'mic']},
   {title: 'Color mode', names: ['sun', 'moon', 'monitor', 'contrast']},
   {title: 'Device status', names: ['signal', 'battery']},
+  {title: 'Media', names: ['video', 'music', 'play', 'pause']},
   {
     title: 'Filled variants',
     names: [

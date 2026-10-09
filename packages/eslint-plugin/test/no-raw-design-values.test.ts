@@ -265,19 +265,26 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       ],
     },
     {
-      // Height axis: popupMinW and fieldMinW share 160 but name widths.
+      // Height axis: popupMinW and fieldMinW share 160 but name widths;
+      // glyphClampMax names no axis, so it stays a candidate.
       code: wrap('height: 160'),
       errors: [
         {
-          messageId: 'rawMeasure',
+          messageId: 'ambiguousMeasure',
           data: {
             value: '160',
             property: 'height',
             group: 'sizes',
-            tokens: 'sizes.editorMinH',
+            tokens: 'sizes.glyphClampMax, sizes.editorMinH',
             pkg: '@duro-app/tokens',
           },
           suggestions: [
+            {
+              messageId: 'replaceWithToken',
+              output:
+                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                wrap('height: sizes.glyphClampMax'),
+            },
             {
               messageId: 'replaceWithToken',
               output:

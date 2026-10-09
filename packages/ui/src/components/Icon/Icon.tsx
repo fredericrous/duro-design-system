@@ -48,6 +48,11 @@ export type IconName =
   // Device status glyphs
   | 'signal'
   | 'battery'
+  // Media glyphs
+  | 'video'
+  | 'music'
+  | 'play'
+  | 'pause'
   // Filled variants (solid shape with cutout symbol)
   | 'info-circle-filled'
   | 'alert-triangle-filled'
@@ -331,6 +336,31 @@ const strokeIcons: Partial<Record<IconName, ReactNode>> = {
     <>
       <rect x="2" y="7" width="17" height="10" rx="2" />
       <line x1="22" y1="11" x2="22" y2="13" />
+    </>
+  ),
+  // ---- media ----
+  // Camera body with a side lens — video file or clip.
+  video: (
+    <>
+      <rect x="2" y="6" width="14" height="12" rx="2" />
+      <path d="M16 10l6-3v10l-6-3z" />
+    </>
+  ),
+  // Beamed note — audio file or track.
+  music: (
+    <>
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </>
+  ),
+  // Right-pointing triangle — start playback.
+  play: <path d="M6 4l14 8-14 8z" />,
+  // Two vertical bars — pause playback.
+  pause: (
+    <>
+      <rect x="6" y="4" width="4" height="16" />
+      <rect x="14" y="4" width="4" height="16" />
     </>
   ),
 }
