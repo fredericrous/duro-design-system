@@ -3,11 +3,12 @@ import {noRawDesignValues} from '../src/rules/no-raw-design-values.js'
 
 const tester = new RuleTester({
   languageOptions: {
-    parserOptions: {ecmaVersion: 2022, sourceType: 'module'},
+    parserOptions: {ecmaVersion: 2022, sourceType: 'module', ecmaFeatures: {jsx: true}},
   },
 })
 
 const wrap = (body: string) => `css.create({s: {${body}}})`
+const inline = (body: string) => `const x = <div style={{${body}}} />`
 
 tester.run('no-raw-design-values', noRawDesignValues, {
   valid: [
@@ -15,10 +16,24 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     // Off the property allowlist — same numbers, different meaning
     wrap('top: 8, zIndex: 16, lineHeight: 1.5'),
     // No token equivalent: zero, negatives, shorthands
-    wrap("padding: 0, margin: -8, gap: '8px 16px', transition: 'opacity 150ms'"),
+    wrap("padding: 0, margin: -8, transition: 'opacity 150ms'"),
+    // Shorthand words that are not nonzero px: zero, auto, relative units, functions
+    wrap("margin: '0 auto', gap: '0px 0', paddingInline: '10% 2rem'"),
+    // A negative px word in a shorthand is skipped, as negatives on spacing are.
+    wrap("margin: '-4px 0'"),
+    wrap("padding: '1rem 2em', paddingBlock: 'var(--x) calc(100% - 4px)'"),
     wrap('color: colors.text, fontSize: typography.fontSizeMd, boxShadow: shadows.sm'),
     // A font size off both scales, a bold keyword, no shadow
     wrap("fontSize: 11, fontWeight: 'bold', boxShadow: 'none'"),
+    // Inline styles: references, arrays, spreads, custom properties, tokens
+    'const x = <div style={styles.x} />',
+    'const x = <div style={[a, b]} />',
+    'const x = <div style={{...base}} />',
+    inline("['--wb-x']: 1"),
+    inline("'--wb-vw': '12px'"),
+    inline('padding: spacing.md'),
+    {code: inline('padding: 16'), options: [{inlineStyle: false}]},
+    {code: inline("color: '#fff', fontWeight: 600"), options: [{inlineStyle: false}]},
     // Not a css.create argument
     'const styles = {s: {padding: 16}}',
     // Sizes and border widths: exemptions and tokens
@@ -52,6 +67,10 @@ tester.run('no-raw-design-values', noRawDesignValues, {
     'css.create({s: {[`@media (min-width: ${breakpoints.md})`]: {padding: spacing.xl}}})',
   ],
   invalid: [
+    // Only the positive word of a mixed-sign shorthand is reported.
+    {code: wrap("margin: '-4px 8px'"), errors: [{messageId: 'rawSpacing', suggestions: []}]},
+    // An inline object's condition keys are walked like css.create's.
+    {code: inline("':hover': {padding: 16}"), errors: [{messageId: 'rawSpacing', suggestions: []}]},
     {
       code: wrap("gridTemplateColumns: 'minmax(240px, 1fr) minmax(0, 2fr)'"),
       errors: [{messageId: 'rawTrack'}],
@@ -905,6 +924,70 @@ tester.run('no-raw-design-values', noRawDesignValues, {
           ],
         },
         {messageId: 'rawColor', suggestions: []},
+      ],
+    },
+    {
+      // A shorthand reports each nonzero px word, with no suggestion
+      code: wrap("padding: '4px 8px'"),
+      errors: [
+        {
+          messageId: 'rawSpacing',
+          data: {value: "'4px'", property: 'padding', token: 'xs', pkg: '@duro-app/tokens'},
+          suggestions: [],
+        },
+        {
+          messageId: 'rawSpacing',
+          data: {value: "'8px'", property: 'padding', token: 'sm', pkg: '@duro-app/tokens'},
+          suggestions: [],
+        },
+      ],
+    },
+    {
+      code: wrap("padding: '6px 14px'"),
+      errors: [
+        {messageId: 'rawMicroSpacing', suggestions: []},
+        {messageId: 'offScaleSpacing', suggestions: []},
+      ],
+    },
+    {
+      code: wrap("gap: '8px 16px'"),
+      errors: [
+        {messageId: 'rawSpacing', suggestions: []},
+        {messageId: 'rawSpacing', suggestions: []},
+      ],
+    },
+    {
+      // Zero and auto words pass; the px word is the finding
+      code: wrap("margin: '0 4px', borderRadius: '8px 3px'"),
+      errors: [
+        {messageId: 'rawSpacing', suggestions: []},
+        {messageId: 'rawRadius', suggestions: []},
+        {messageId: 'offScaleRadius', suggestions: []},
+      ],
+    },
+    {
+      // An inline style object is read like a css.create one, without suggestions
+      code: '<div style={{padding: 16}} />',
+      errors: [{messageId: 'rawSpacing', suggestions: []}],
+    },
+    {
+      code: '<Comp style={{fontSize: 14}} />',
+      errors: [{messageId: 'rawFontSize', suggestions: []}],
+    },
+    {
+      code: inline("color: '#fff'"),
+      errors: [{messageId: 'rawColorToken', suggestions: []}],
+    },
+    {
+      code: inline('fontWeight: 600'),
+      errors: [{messageId: 'rawFontWeight', suggestions: []}],
+    },
+    {
+      code: inline("padding: '4px 8px', width: 240"),
+      errors: [
+        {messageId: 'rawSpacing', suggestions: []},
+        {messageId: 'rawSpacing', suggestions: []},
+        {messageId: 'ambiguousMeasure', suggestions: []},
       ],
     },
   ],
