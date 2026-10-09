@@ -189,6 +189,7 @@ These components **must** be wrapped in their `.Root`:
 | **Arrow** | Connector line between two points, with an arrowhead at the end | `from`, `to`, `bend` |
 | **Aside** | Content beside the main reading column — a table of contents, related pages: a labelled aside landmark that sticks within the viewport while the page scrolls and scrolls on its own when taller (offset from a spacing token, the raised layer) | `aria-label`, `offset`, `ref` |
 | **Badge** | Small label or tag for status indicators, counts, or categories | `variant`, `size` |
+| **BarChart** | Stacked bars, vertical (a column per day) or row (a bar per item), with a visible legend naming each series, a gap labelled "no report" for missing data, and a visually hidden data table beside the role="img" drawing | `series`, `data`, `orientation` |
 | **Breadcrumb** | Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first | compound: Item, Root |
 | **Button** | Standard interactive button | `variant`, `size`, `fullWidth` |
 | **ButtonGroup** | Groups related buttons together with consistent spacing and layout | `orientation`, `align`, `disabled` |
@@ -217,6 +218,7 @@ These components **must** be wrapped in their `.Root`:
 | **Inline** | Horizontal flex layout with NO wrapping | `gap`, `align`, `justify` |
 | **Input** | Text input with automatic Field/Form integration | `variant`, `font`, `type` |
 | **InputGroup** | Wraps an Input with prefix and/or suffix addons (icons, text, buttons) | compound: Addon, Root |
+| **Kbd** | A key or chord hint: one inline <kbd> per key, spaced apart, styled with tokens only | `keys` |
 | **Leader** | A dashed, thin line for callout/annotation leaders | `from`, `to` |
 | **LinkButton** | Button-styled hyperlink | `href`, `variant`, `size` |
 | **List** | Vertical list of interactive items | compound: Actions, Content, Description, Empty, Item, … |
@@ -432,6 +434,7 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `popoverW` | 320px |
 | `popupMaxW` | 280px |
 | `meterH` | 6px |
+| `chartH` | 176px |
 | `skeletonChipW` | 96px |
 | `dropZoneMinH` | 128px |
 | `canvasMinH` | 480px |

@@ -411,6 +411,7 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   320: ['asideW', 'popoverW', 'previewMaxH'],
   80: ['fieldMinWSm', 'placeholderMinH'],
   6: ['meterH'],
+  176: ['chartH'],
   96: ['skeletonChipW', 'sliderW', 'paletteMinW', 'deviceBarW'],
   128: ['dropZoneMinH'],
   550: ['embedW'],

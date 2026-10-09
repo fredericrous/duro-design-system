@@ -175,6 +175,7 @@ export const SIZES_PX = {
   popoverW: 320,
   popupMaxW: 280,
   meterH: 6,
+  chartH: 176,
   skeletonChipW: 96,
   dropZoneMinH: 128,
   canvasMinH: 480,

@@ -60,6 +60,8 @@ export const sizes = css.defineVars({
   popoverW: '320px',
   popupMaxW: '280px',
   meterH: '6px',
+  // BarChart: the plot height of a vertical chart.
+  chartH: '176px',
   skeletonChipW: '96px',
   dropZoneMinH: '128px',
   canvasMinH: '480px',

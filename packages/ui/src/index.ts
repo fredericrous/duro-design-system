@@ -61,6 +61,15 @@ export {
 } from './components/LinkButton/LinkButton'
 export {Menu} from './components/Menu/Menu'
 export {Meter, type MeterProps, type MeterTone} from './components/Meter/Meter'
+export {Kbd, type KbdProps} from './components/Kbd/Kbd'
+export {
+  BarChart,
+  type BarChartProps,
+  type BarChartSeries,
+  type BarChartDatum,
+  type BarChartTone,
+} from './components/BarChart/BarChart'
+export {niceScale, type Scale as BarChartScale} from './components/BarChart/scale'
 export {PageNav} from './components/PageNav/PageNav'
 export {Panel} from './components/Panel/Panel'
 export {Prose} from './components/Prose/Prose'
