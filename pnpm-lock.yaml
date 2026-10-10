@@ -106,8 +106,8 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@vitest/browser@4.1.11)(vitest@4.1.11)
       amont:
-        specifier: ^1.47.0
-        version: 1.47.0
+        specifier: ^1.49.0
+        version: 1.49.0
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
@@ -359,36 +359,36 @@ packages:
   '@adobe/css-tools@4.4.4':
     resolution: {integrity: sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==}
 
-  '@amont-hooks/darwin-arm64@1.47.0':
-    resolution: {integrity: sha512-vOa/FM9aE/cqVK/B5ZstqmDseq/snXgoKlqyicYdUJQeyo4MfnDs8e+f1bjnlXT9wCk5tD71rA9LkvbbR+Vp0w==}
+  '@amont-hooks/darwin-arm64@1.49.0':
+    resolution: {integrity: sha512-LKIBmKauJsAh5wKOOrKw2BJbn684745n9gvuUpxNDKy2oarzG0apJpt/pRazvMbDpSXOgG0ZzCAmRws8raEA5w==}
     cpu: [arm64]
     os: [darwin]
 
-  '@amont-hooks/darwin-x64@1.47.0':
-    resolution: {integrity: sha512-bRlIyUgsk1z+T3Tp5CwstFrgN9klGaPaouXnNHwmWuEN5401x1hDKrFofqrM02w26fnCMSa5x+EJ9NGlXkHn9w==}
+  '@amont-hooks/darwin-x64@1.49.0':
+    resolution: {integrity: sha512-c2FSLRUkXsFTiYPOA919YFX5714A6Rg/DiECzBFePxfRBhKLvc5wNFFL48guIebKUVE1o7z5NHVwMnf3bYvD+Q==}
     cpu: [x64]
     os: [darwin]
 
-  '@amont-hooks/linux-arm64-gnu@1.47.0':
-    resolution: {integrity: sha512-BJthu3wFQO2IWlZxHO1mkq9vwFqLJN9pXdxa8GT0xCVQHhqjnLeSIhNgd9jPtodhn83Ksp3re+qqj/ulNRo1rQ==}
+  '@amont-hooks/linux-arm64-gnu@1.49.0':
+    resolution: {integrity: sha512-o0ybaXq4O54sXloWGVk3681QPSDODpvWIEz0xo/TN6R/nv3hJ4BhHnMnXHGKkpaNndD+KJLkINHoZJtCnMfSsg==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@amont-hooks/linux-x64-gnu@1.47.0':
-    resolution: {integrity: sha512-hntNej88nya6gc+Uc1WY7PGs3gAlApe1WIrb7WCxGqLKfKGUX2dx4FcYcgX1UAwN0k2CEL0gGvKWv9Fmkg7KZw==}
+  '@amont-hooks/linux-x64-gnu@1.49.0':
+    resolution: {integrity: sha512-5GrSp6F3Qa3NyVdhLeNIC25KoqJ6Oj4eE1UTcBb0GzPwTSIIjVySFw7JDFFBBuv5CgpOEgntoAjJ2DFNBXF3HA==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@amont-hooks/linux-x64-musl@1.47.0':
-    resolution: {integrity: sha512-i1VOZow+0REs1xlXJ6BilrBF/rCcoj4Gp9hGLyF6oUSf294qKO9V/vqtrrZWJjiRXM8oVJC1BHSa3bUI89t6vQ==}
+  '@amont-hooks/linux-x64-musl@1.49.0':
+    resolution: {integrity: sha512-akV3+VyZCs198c4e4YcBcTZDe6ph0x2eb9BphRnrmJPGFsY6IK7A3Dd6XHaFruLpNQckGLK+R6gXOq2bcQCV/w==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@amont-hooks/win32-x64@1.47.0':
-    resolution: {integrity: sha512-GH83EUbigonbLm2lSre1KwhcAy8Qu8Hmx8O1tw4YjyLnLgBhcu3dlQwsIVBhbKqH2rkXY8X1iFyThqEdA20/1w==}
+  '@amont-hooks/win32-x64@1.49.0':
+    resolution: {integrity: sha512-mu6NHWi6N44PaBKl8Sgq4H1jHA+bgCZvcWS7jYX9A3uVJ9gnCiZiFEjzJ0Dg4yGYOU4ziq8PdwbiRopW41rcjQ==}
     cpu: [x64]
     os: [win32]
 
@@ -1871,8 +1871,8 @@ packages:
   alien-signals@0.4.14:
     resolution: {integrity: sha512-itUAVzhczTmP2U5yX67xVpsbbOiquusbWVyA9N+sy6+r6YVbFkahXvNCeEPWEOMhwDYwbVbGHFkVL03N9I5g+Q==}
 
-  amont@1.47.0:
-    resolution: {integrity: sha512-G2zBD//wbXMNtCkKaZC0PYEX27sivV9kExekZInkXVXMQyU1XFznd/qMsclTpsJwV7qDZZcSgGm+xSRRmT/d2A==}
+  amont@1.49.0:
+    resolution: {integrity: sha512-AuB8364TYWt0zA25jdNnI19EJt/b64sq3OxQm8PTip1OvRD1VKOFM+xK7O7RnOdE7gE9Ta3Brg/OdKPA5Goqnw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -3965,22 +3965,22 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@amont-hooks/darwin-arm64@1.47.0':
+  '@amont-hooks/darwin-arm64@1.49.0':
     optional: true
 
-  '@amont-hooks/darwin-x64@1.47.0':
+  '@amont-hooks/darwin-x64@1.49.0':
     optional: true
 
-  '@amont-hooks/linux-arm64-gnu@1.47.0':
+  '@amont-hooks/linux-arm64-gnu@1.49.0':
     optional: true
 
-  '@amont-hooks/linux-x64-gnu@1.47.0':
+  '@amont-hooks/linux-x64-gnu@1.49.0':
     optional: true
 
-  '@amont-hooks/linux-x64-musl@1.47.0':
+  '@amont-hooks/linux-x64-musl@1.49.0':
     optional: true
 
-  '@amont-hooks/win32-x64@1.47.0':
+  '@amont-hooks/win32-x64@1.49.0':
     optional: true
 
   '@babel/code-frame@7.29.0':
@@ -5569,14 +5569,14 @@ snapshots:
 
   alien-signals@0.4.14: {}
 
-  amont@1.47.0:
+  amont@1.49.0:
     optionalDependencies:
-      '@amont-hooks/darwin-arm64': 1.47.0
-      '@amont-hooks/darwin-x64': 1.47.0
-      '@amont-hooks/linux-arm64-gnu': 1.47.0
-      '@amont-hooks/linux-x64-gnu': 1.47.0
-      '@amont-hooks/linux-x64-musl': 1.47.0
-      '@amont-hooks/win32-x64': 1.47.0
+      '@amont-hooks/darwin-arm64': 1.49.0
+      '@amont-hooks/darwin-x64': 1.49.0
+      '@amont-hooks/linux-arm64-gnu': 1.49.0
+      '@amont-hooks/linux-x64-gnu': 1.49.0
+      '@amont-hooks/linux-x64-musl': 1.49.0
+      '@amont-hooks/win32-x64': 1.49.0
 
   anser@1.4.10: {}
 
