@@ -570,7 +570,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 ## Phases
 
 - [x] A1 Native typecheck, the graph lint, the Vite alias plugin
-- [ ] A2 `examples/native` (expo-router modal route, native peers), the exports test, `native:export`, the CI `native` job
+- [x] A2 `examples/native` (expo-router modal route, native peers), the exports test, `native:export`, the CI `native` job
 - [ ] A3 Host registry and `PortalHost`, `OverlayModal`, resolved colours, safe area, `useOverlayOpenState` (with the web refactor), Button native ref
 - [ ] A4 Icon geometry and the SVG-vs-Skia benchmark, Dialog and ConfirmDialog native, Icon and StatusIcon, Spinner, barrel, device checkpoint A → **release v5.12.0**
 - [ ] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
@@ -715,5 +715,9 @@ Every entry records input → expected → actual in the slice's PR body before 
 - A1, falsification: `import {createPortal} from 'react-dom'` in `Badge.tsx` → `typecheck:native` and the graph lint fail → `TS2305` and `Badge.tsx:1:1 react-dom import — …`, exit 1; a raw `<svg />` → graph lint fails → `Badge.tsx:27:29 raw <svg> — …`, exit 1; probes reverted.
 - A1, web guard: `import 'react-native'` in `Badge.tsx`, `pnpm --filter @duro-app/ui build` → fails → `react-native reached from the web graph via packages/ui/src/components/Badge/Badge.tsx — move the import into a .native.tsx file`; reverted.
 - A1, suites: `pnpm typecheck`, `pnpm lint` (0 errors, 14 warnings), `pnpm test:unit -- --run` (29 files, 446 tests), `pnpm build`, `pnpm build-storybook`, prettier → all exit 0.
+- A2, install: `pnpm native:install` (example's own lockfile, `--ignore-workspace`) → Expo tree outside the root lock → 88 s on this laptop, root `pnpm-lock.yaml` has no `expo` entry.
+- A2, export: `pnpm native:export` → iOS and Android Hermes bundles plus the bundle check → `android: 1456 modules; react-strict-dom 1, react 1, react-native 1`, `ios: 1459 modules; react-strict-dom 1, react 1, react-native 1`, about 2 min.
+- A2, exports test: `scripts/test/native-example-exports.test.ts` → each of the 17 native value exports rendered by `AllExports.tsx` → 18 tests pass.
+- A2, deviations: the exports test lives in `scripts/test/` (Vitest would load the example's `tsconfig`, which extends `expo/tsconfig.base`, uninstalled in the unit job); the example has no Babel config (Expo's default preset suffices) and an ESM `metro.config.mjs` (keeps the repo's lint rules unloosened); `react-dom` 19.1.0 is pinned in the example (RSD's peer pulled 19.3 otherwise).
 
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,architect,po,react,ui-design,ux-research,game-ux,tui,unix body-sha=db57eb9f2046 -->

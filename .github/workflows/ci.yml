@@ -163,3 +163,58 @@ jobs:
         if: ${{ !contains(fromJSON(steps.attest.outputs.gates), 'pre-push-run-tests-js') }}
         timeout-minutes: 15
         run: pnpm test -- --run
+
+  # React Native: the native barrel typechecks against RN's types and
+  # examples/native (a standalone Expo app with its own lockfile) bundles it
+  # for iOS and Android. Build-as-check, so never attested away (ADR-0024).
+  native:
+    name: Native bundle
+    runs-on: duro-design-system
+    needs: validate
+    # holds-until: the cold-cache time is measured on this runner; then twice it.
+    timeout-minutes: 20
+    env:
+      CI: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Content-based skip: run only when a file that can change the native
+      # graph changed. Fails open — any error computing the diff runs the job —
+      # and a skipped job is green.
+      - name: Native-relevant changes
+        id: filter
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if ! changed="$(git diff --name-only "$base" HEAD 2>/dev/null)"; then
+            echo "run=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if printf '%s\n' "$changed" | grep -Eq '^(packages/ui/src/|packages/tokens/src/|examples/native/|packages/ui/package\.json$|packages/ui/tsconfig[^/]*\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|scripts/check-native-(graph|bundle)\.mjs$|\.github/workflows/ci\.yml$)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No native-relevant change; skipping."
+          fi
+      - uses: pnpm/action-setup@v4
+        if: steps.filter.outputs.run == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.filter.outputs.run == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install the workspace
+        if: steps.filter.outputs.run == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Install examples/native
+        if: steps.filter.outputs.run == 'true'
+        run: pnpm native:install
+      - name: Build tokens
+        if: steps.filter.outputs.run == 'true'
+        run: pnpm --filter @duro-app/tokens run build
+      - name: Native typecheck
+        if: steps.filter.outputs.run == 'true'
+        run: pnpm typecheck:native
+      # Also checks that the bundles hold one copy of each shared runtime.
+      - name: Export iOS and Android bundles
+        if: steps.filter.outputs.run == 'true'
+        run: pnpm native:export

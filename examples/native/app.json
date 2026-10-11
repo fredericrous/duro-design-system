@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Duro native example",
+    "slug": "duro-native-example",
+    "scheme": "duro-native-example",
+    "version": "0.0.0",
+    "newArchEnabled": true,
+    "ios": {"bundleIdentifier": "app.duro.example.native"},
+    "android": {"package": "app.duro.example.native", "edgeToEdgeEnabled": true},
+    "plugins": ["expo-router"]
+  }
+}
