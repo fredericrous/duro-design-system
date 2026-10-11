@@ -24,6 +24,14 @@ export const styles = css.create({
     color: colors.text,
     lineHeight: typography.lineHeight,
   },
+  // Native draws the item as a button: no button chrome, a flex row.
+  nativeItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    padding: 0,
+  },
   itemDisabled: {
     opacity: 0.5,
     cursor: 'not-allowed',

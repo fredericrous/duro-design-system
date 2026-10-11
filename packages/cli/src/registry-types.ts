@@ -27,6 +27,8 @@ export interface ComponentEntry {
   props: PropEntry[] | null
   parts?: Record<string, PartEntry>
   deprecated?: string
+  /** Root `@duro-app/ui` components only: exported on React Native (index.native.ts). */
+  native?: boolean
 }
 
 export interface PartEntry {

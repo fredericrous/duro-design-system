@@ -18,6 +18,25 @@ import {buildMockupCss} from '../../tokens/scripts/lib/mockup-css.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const tokensSrc = join(here, '..', '..', 'tokens', 'src')
+const nativeBarrel = join(here, '..', '..', 'ui', 'src', 'index.native.ts')
+
+/** Value names the React Native barrel exports (type-only exports left out). */
+function nativeExportNames(source) {
+  const names = new Set()
+  for (const match of source.matchAll(/export\s*\{([^}]*)\}\s*from/g)) {
+    for (const raw of match[1].split(',')) {
+      const name = raw.trim()
+      if (name && !name.startsWith('type '))
+        names.add(
+          name
+            .split(/\s+as\s+/)
+            .pop()
+            .trim(),
+        )
+    }
+  }
+  return names
+}
 const registryPath = join(here, '..', 'registry.json')
 
 function sortKeysDeep(value) {
@@ -55,6 +74,13 @@ export function buildRegistry() {
   extractSurface(project, 'packages/ui/src/table.ts', '@duro-app/ui/table', surface)
   extractSurface(project, 'packages/ui/src/form.ts', '@duro-app/ui/form', surface)
   extractSurface(project, 'packages/diagrams/src/index.ts', '@duro-app/diagrams', surface)
+
+  // Whether React Native can import it: the root's `react-native` export
+  // condition resolves to index.native.ts, which exports a subset.
+  const native = nativeExportNames(readFileSync(nativeBarrel, 'utf8'))
+  for (const entry of Object.values(surface.components)) {
+    if (entry.importPath === '@duro-app/ui') entry.native = native.has(entry.name)
+  }
 
   const registry = {
     schemaVersion: 1,

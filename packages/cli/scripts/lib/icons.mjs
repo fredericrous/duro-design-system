@@ -10,7 +10,7 @@ import {iconSizesValue} from './tokens.mjs'
  * usefully.
  */
 export function extractIcons(project) {
-  const iconFile = join(repoRoot, 'packages/ui/src/components/Icon/Icon.tsx')
+  const iconFile = join(repoRoot, 'packages/ui/src/components/Icon/types.ts')
   const text = readFileSync(iconFile, 'utf8')
   const unionMatch = /export type IconName =([\s\S]*?)\n\n/.exec(text)
   if (!unionMatch) throw new Error(`could not find the IconName union in ${iconFile}`)

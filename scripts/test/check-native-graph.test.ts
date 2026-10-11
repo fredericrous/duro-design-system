@@ -2,11 +2,7 @@ import {mkdtempSync, mkdirSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import path from 'node:path'
 import {afterAll, describe, expect, it} from 'vitest'
-// @ts-expect-error -- plain .mjs script, no declaration file
-import {lintNativeGraph} from '../check-native-graph.mjs'
-
-type Violation = {file: string; line: number; column: number; form: string}
-const lint = lintNativeGraph as (files: string[], root: string) => Promise<Violation[]>
+import {lintNativeGraph as lint} from '../check-native-graph.mjs'
 
 const root = mkdtempSync(path.join(tmpdir(), 'native-graph-'))
 mkdirSync(path.join(root, 'src'))
@@ -28,6 +24,18 @@ describe('check-native-graph', () => {
   it('reports css.keyframes', async () => {
     const code = "import {css} from 'react-strict-dom'\nexport const k = css.keyframes({})\n"
     expect(await formsIn('keyframes.ts', code)).toContain('css.keyframes')
+  })
+
+  it.each(['checkbox', 'radio', 'date'])('reports html.input type="%s"', async (type) => {
+    const code = `import {html} from 'react-strict-dom'\nexport const I = () => <html.input type="${type}" />\n`
+    expect(await formsIn(`input-${type}.tsx`, code)).toContain(
+      'html.input type checkbox, radio or date',
+    )
+  })
+
+  it('leaves a text html.input alone', async () => {
+    const code = `import {html} from 'react-strict-dom'\nexport const I = () => <html.input type="text" />\n`
+    expect(await formsIn('input-text.tsx', code)).toEqual([])
   })
 
   it('reports an animationName key', async () => {

@@ -214,7 +214,7 @@ These components **must** be wrapped in their `.Root`:
 | **Form** | Form wrapper with Effect Schema validation and react-hook-form integration | `schema`, `defaultValues`, `onSubmit` |
 | **Grid** | Grid layout | `gap`, `columns`, `minColumnWidth` |
 | **Heading** | Semantic heading element (h1-h6) with typography presets | `level`, `variant`, `color` |
-| **Icon** | SVG icon component | `name`, `size` |
+| **Icon** | SVG icon component | `name`, `size`, `color` |
 | **Inline** | Horizontal flex layout with NO wrapping | `gap`, `align`, `justify` |
 | **Input** | Text input with automatic Field/Form integration | `variant`, `font`, `type` |
 | **InputGroup** | Wraps an Input with prefix and/or suffix addons (icons, text, buttons) | compound: Addon, Root |
@@ -610,7 +610,7 @@ is added.
 
 **People / access / admin glyphs:** `users`, `user-plus`, `mail`, `file-text`, `plug`
 
-**Input / action glyphs:** `search`, `mic`
+**Input / action glyphs:** `search`, `mic`, `x`
 
 **Color-mode glyphs:** `sun`, `moon`, `monitor`, `contrast`
 

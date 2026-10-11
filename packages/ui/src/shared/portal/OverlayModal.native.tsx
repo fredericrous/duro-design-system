@@ -7,6 +7,8 @@ interface OverlayModalProps {
   visible: boolean
   /** Android back button: the dismissal Escape is on the web. */
   onRequestClose: () => void
+  /** The Modal has been presented: move accessibility focus in. */
+  onShow?: () => void
   /** iOS: the Modal has finished dismissing (presenting another one is safe). */
   onDismiss?: () => void
   children: ReactNode
@@ -22,7 +24,13 @@ interface OverlayModalProps {
  * separate window that the app's root view does not cover. A PortalHost on
  * top lets toasts raised while it is open draw above it.
  */
-export function OverlayModal({visible, onRequestClose, onDismiss, children}: OverlayModalProps) {
+export function OverlayModal({
+  visible,
+  onRequestClose,
+  onShow,
+  onDismiss,
+  children,
+}: OverlayModalProps) {
   return (
     <Modal
       visible={visible}
@@ -31,6 +39,7 @@ export function OverlayModal({visible, onRequestClose, onDismiss, children}: Ove
       navigationBarTranslucent
       animationType="none"
       onRequestClose={onRequestClose}
+      onShow={onShow}
       onDismiss={onDismiss}
     >
       <GestureHandlerRootView style={StyleSheet.absoluteFill}>

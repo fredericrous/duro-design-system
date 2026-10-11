@@ -7,7 +7,8 @@
  * TagGroup, ThemeProvider's portal) that use web-only DOM APIs — and Combobox
  * imports `react-dom`, so pulling the full barrel crashes on Metro. This barrel
  * re-exports ONLY the components whose source is RN-safe (pure react-strict-dom
- * `html` + `css`, audited 2026-06-02). The rest get RN variants in a later pass.
+ * `html` + `css`) or that have a `.native` variant; `pnpm typecheck:native` and
+ * `scripts/check-native-graph.mjs` hold the line (plan N0).
  *
  * Tokens resolve fine on native already: @duro-app/tokens's subpath exports
  * (`./tokens/*.css`, `./themes/*.css`) point straight at their `.css.ts`
@@ -29,7 +30,30 @@ export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {Field} from './components/Field/Field'
 export {InputGroup} from './components/InputGroup/InputGroup'
 
+// Status and feedback (5.12: Icon draws with react-native-svg on native)
+export {Alert, type AlertVariant} from './components/Alert/Alert'
+export {Callout, type CalloutVariant} from './components/Callout/Callout'
+export {EmptyState} from './components/EmptyState/EmptyState'
+export {Icon, type IconName} from './components/Icon'
+export {Meter, type MeterProps, type MeterTone} from './components/Meter/Meter'
+export {Spinner, type SpinnerSize} from './components/Spinner/Spinner'
+export {
+  StatusIcon,
+  type StatusIconName,
+  type StatusIconVariant,
+} from './components/StatusIcon/StatusIcon'
+
+// Choice and collection
+export {List, type ListSelectionMode} from './components/List/List'
+export {RadioGroup} from './components/RadioGroup/RadioGroup'
+export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
+
+// Overlays (5.12: rendered in an OverlayModal on native)
+export {ConfirmDialog} from './components/ConfirmDialog/ConfirmDialog'
+export {Dialog, type DialogSize} from './components/Dialog/Dialog'
+
 // Layout primitives
+export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'
 export {Stack, type SpacingKey} from './components/Stack/Stack'
 export {Inline} from './components/Inline/Inline'
 export {Cluster} from './components/Cluster/Cluster'

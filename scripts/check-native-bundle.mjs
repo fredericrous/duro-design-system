@@ -3,7 +3,8 @@
  * Count the copies of the shared runtime packages in examples/native's
  * exported bundles. Each must appear from exactly one package root: two
  * react-strict-dom copies split its theme context and css.defineVars
- * registry, two React copies break hooks.
+ * registry, two React copies break hooks, and two copies of a native peer
+ * (react-native-svg, Reanimated) register its native views twice.
  *
  * Reads the `sources` array of each source map with JSON.parse: a source map
  * is a single line, so a line count (`grep -c`) cannot see a second copy.
@@ -17,7 +18,13 @@ import {fileURLToPath} from 'node:url'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const distDir = path.join(repoRoot, 'examples/native/dist/_expo/static/js')
-const shared = ['react-strict-dom', 'react', 'react-native']
+const shared = [
+  'react-strict-dom',
+  'react',
+  'react-native',
+  'react-native-svg',
+  'react-native-reanimated',
+]
 
 function sourceMaps() {
   let platforms

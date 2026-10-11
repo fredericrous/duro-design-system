@@ -2,6 +2,8 @@ import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
 import {Icon} from '../Icon'
 import type {IconName} from '../Icon'
+import type {ColorToken} from '@duro-app/tokens/keys'
+import {isNative} from '../../platform'
 import {styles} from './styles.css'
 
 export type CalloutVariant = 'error' | 'success' | 'warning' | 'info'
@@ -12,6 +14,15 @@ const defaultIcons: Record<CalloutVariant, IconName> = {
   success: 'check-circle-filled',
   error: 'x-circle-filled',
 }
+
+// On native an Icon cannot inherit the variant's text colour, so it is passed
+// (the web keeps inheriting it).
+const iconColor = {
+  error: 'errorText',
+  success: 'successText',
+  warning: 'warningText',
+  info: 'infoText',
+} as const satisfies Record<CalloutVariant, ColorToken>
 
 interface CalloutProps {
   variant?: CalloutVariant
@@ -28,8 +39,9 @@ interface CalloutProps {
 
 function resolveIcon(icon: CalloutProps['icon'], variant: CalloutVariant): ReactNode | null {
   if (icon === false) return null
-  if (icon === undefined) return <Icon name={defaultIcons[variant]} size="xl" />
-  if (typeof icon === 'string') return <Icon name={icon as IconName} size="xl" />
+  const color = isNative ? iconColor[variant] : undefined
+  if (icon === undefined) return <Icon name={defaultIcons[variant]} size="xl" color={color} />
+  if (typeof icon === 'string') return <Icon name={icon as IconName} size="xl" color={color} />
   return icon
 }
 

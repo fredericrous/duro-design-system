@@ -15,8 +15,10 @@ const config = expoMetroConfig.getDefaultConfig(appRoot)
 
 config.watchFolders = [path.join(repoRoot, 'packages/ui'), path.join(repoRoot, 'packages/tokens')]
 
+// The native peers (react-native-*, Skia) also come from the app, which links
+// their native code: a copy resolved from packages/ui would be a second one.
 const pinned =
-  /^(react|react-dom|react-native|react-strict-dom|react-hook-form|@duro-app\/[^/]+)(?:\/|$)/u
+  /^(react|react-dom|react-native(?:-[a-z-]+)?|@shopify\/react-native-skia|react-strict-dom|react-hook-form|@duro-app\/[^/]+)(?:\/|$)/u
 const appEntry = path.join(appRoot, 'package.json')
 const defaultResolveRequest = config.resolver.resolveRequest
 

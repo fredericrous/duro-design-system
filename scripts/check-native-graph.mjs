@@ -41,6 +41,13 @@ const rules = {
     },
     {selector: "Property[key.name='animationName']", message: 'animationName'},
     {selector: "Property[key.value='animationName']", message: 'animationName'},
+    // RSD renders these as a text field on native; draw a role="checkbox" /
+    // role="radio" button in the .native file instead (Checkbox, RadioGroup).
+    {
+      selector:
+        "JSXOpeningElement[name.object.name='html'][name.property.name='input'] > JSXAttribute[name.name='type'][value.value=/^(checkbox|radio|date)$/]",
+      message: 'html.input type checkbox, radio or date',
+    },
   ],
   'no-restricted-imports': [
     'error',

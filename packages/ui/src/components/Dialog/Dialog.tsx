@@ -1,17 +1,19 @@
 import {createPortal} from 'react-dom'
-import {
-  type ReactNode,
-  type RefObject,
-  createContext,
-  useContext,
-  useEffect,
-  useCallback,
-  useId,
-  useRef,
-} from 'react'
+import {type ReactNode, type RefObject, useEffect, useCallback, useId, useRef} from 'react'
 import {html} from 'react-strict-dom'
 import type {DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
+import {partStyles} from './parts.css'
+import {
+  Body,
+  Description,
+  DialogContext,
+  Footer,
+  Header,
+  Title,
+  useDialog,
+  type DialogSize,
+} from './parts'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {ModalContext} from '../../shared/ModalContext'
@@ -20,10 +22,10 @@ import {useOverlayOpenState} from '../../shared/useOverlayOpenState'
 
 // --- Types ---
 
+export type {DialogSize}
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
-export type DialogSize = 'sm' | 'md' | 'lg'
 
 const closeDurationMap = {
   instant: styles.closeDurationInstant,
@@ -34,30 +36,6 @@ const closeDurationMap = {
   base: styles.closeDurationBase,
   slow: styles.closeDurationSlow,
 } as const satisfies Record<DurationToken, unknown>
-
-// --- Context ---
-
-interface DialogContextValue {
-  open: boolean
-  closing: boolean
-  closeDuration: DurationToken
-  dismissable: boolean
-  requestOpen: () => void
-  requestClose: () => void
-  titleId: string
-  descriptionId: string
-  popupRef: RefObject<HTMLDivElement | null>
-  /** Dialog.Close parts currently rendered (for the closeOnEscape dev warning). */
-  registerClose: () => () => void
-}
-
-const DialogContext = createContext<DialogContextValue | null>(null)
-
-function useDialog() {
-  const ctx = useContext(DialogContext)
-  if (!ctx) throw new Error('Dialog compound components must be used within Dialog.Root')
-  return ctx
-}
 
 // --- Root ---
 
@@ -202,7 +180,7 @@ function Trigger({children}: TriggerProps) {
   const {requestOpen} = useDialog()
 
   return (
-    <html.div onClick={requestOpen} style={styles.inlineWrapper}>
+    <html.div onClick={requestOpen} style={partStyles.inlineWrapper}>
       {children}
     </html.div>
   )
@@ -261,7 +239,7 @@ function Portal({children, size = 'md'}: PortalProps) {
           aria-describedby={descriptionId}
           style={[
             styles.popup,
-            styles[size],
+            partStyles[size],
             closing && styles.popupClosing,
             closing && closeDurationMap[closeDuration],
             !closing && styles.popupOpen,
@@ -283,46 +261,6 @@ function Portal({children, size = 'md'}: PortalProps) {
   return mount ? createPortal(node, mount) : node
 }
 
-// --- Header ---
-
-function Header({children}: {children: ReactNode}) {
-  return <html.div style={styles.header}>{children}</html.div>
-}
-
-// --- Title ---
-
-function Title({children}: {children: ReactNode}) {
-  const {titleId} = useDialog()
-  return (
-    <html.h2 id={titleId} style={styles.title}>
-      {children}
-    </html.h2>
-  )
-}
-
-// --- Description ---
-
-function Description({children}: {children: ReactNode}) {
-  const {descriptionId} = useDialog()
-  return (
-    <html.p id={descriptionId} style={styles.description}>
-      {children}
-    </html.p>
-  )
-}
-
-// --- Body ---
-
-function Body({children}: {children: ReactNode}) {
-  return <html.div style={styles.body}>{children}</html.div>
-}
-
-// --- Footer ---
-
-function Footer({children}: {children: ReactNode}) {
-  return <html.div style={styles.footer}>{children}</html.div>
-}
-
 // --- Close ---
 
 interface CloseProps {
@@ -336,14 +274,14 @@ function Close({children, 'aria-label': ariaLabel = 'Close'}: CloseProps) {
 
   if (children) {
     return (
-      <html.div onClick={requestClose} style={styles.inlineWrapper}>
+      <html.div onClick={requestClose} style={partStyles.inlineWrapper}>
         {children}
       </html.div>
     )
   }
 
   return (
-    <html.button onClick={requestClose} aria-label={ariaLabel} style={styles.closeButton}>
+    <html.button onClick={requestClose} aria-label={ariaLabel} style={partStyles.closeButton}>
       <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
         <path
           d="M4 4l8 8M12 4l-8 8"
