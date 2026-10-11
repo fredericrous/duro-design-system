@@ -1,10 +1,19 @@
-import {readFileSync} from 'node:fs'
+import {readdirSync, readFileSync} from 'node:fs'
 import path from 'node:path'
 import {describe, expect, it} from 'vitest'
 
 const here = path.dirname(new URL(import.meta.url).pathname)
 const barrel = readFileSync(path.resolve(here, '../../packages/ui/src/index.native.ts'), 'utf8')
-const screen = readFileSync(path.resolve(here, '../../examples/native/src/AllExports.tsx'), 'utf8')
+const example = path.resolve(here, '../../examples/native')
+// Every screen file of the example: an export may belong on one route (PortalHost
+// in the modal route), not in AllExports.
+const screen = ['app', 'src']
+  .flatMap((dir) =>
+    readdirSync(path.join(example, dir))
+      .filter((file) => file.endsWith('.tsx'))
+      .map((file) => readFileSync(path.join(example, dir, file), 'utf8')),
+  )
+  .join('\n')
 
 /** Value names exported by the native barrel (type-only exports excluded). */
 function valueExports(source: string): string[] {
@@ -31,7 +40,7 @@ describe('examples/native renders every native export', () => {
     expect(names).toContain('Button')
   })
 
-  it.each(names)('%s is rendered or called by AllExports.tsx', (name) => {
+  it.each(names)('%s is rendered or called by an example screen', (name) => {
     const used = new RegExp(`<${name}[\\s.>/]|\\b${name}\\(`).test(screen)
     expect(used).toBe(true)
   })

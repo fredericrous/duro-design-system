@@ -571,7 +571,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 
 - [x] A1 Native typecheck, the graph lint, the Vite alias plugin
 - [x] A2 `examples/native` (expo-router modal route, native peers), the exports test, `native:export`, the CI `native` job
-- [ ] A3 Host registry and `PortalHost`, `OverlayModal`, resolved colours, safe area, `useOverlayOpenState` (with the web refactor), Button native ref
+- [x] A3 Host registry and `PortalHost`, `OverlayModal`, resolved colours, safe area, `useOverlayOpenState` (with the web refactor), Button native ref
 - [ ] A4 Icon geometry and the SVG-vs-Skia benchmark, Dialog and ConfirmDialog native, Icon and StatusIcon, Spinner, barrel, device checkpoint A → **release v5.12.0**
 - [ ] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
 - [ ] B1 Drawer native and `snapPoints` (both platforms)
@@ -719,5 +719,9 @@ Every entry records input → expected → actual in the slice's PR body before 
 - A2, export: `pnpm native:export` → iOS and Android Hermes bundles plus the bundle check → `android: 1456 modules; react-strict-dom 1, react 1, react-native 1`, `ios: 1459 modules; react-strict-dom 1, react 1, react-native 1`, about 2 min.
 - A2, exports test: `scripts/test/native-example-exports.test.ts` → each of the 17 native value exports rendered by `AllExports.tsx` → 18 tests pass.
 - A2, deviations: the exports test lives in `scripts/test/` (Vitest would load the example's `tsconfig`, which extends `expo/tsconfig.base`, uninstalled in the unit job); the example has no Babel config (Expo's default preset suffices) and an ESM `metro.config.mjs` (keeps the repo's lint rules unloosened); `react-dom` 19.1.0 is pinned in the example (RSD's peer pulled 19.3 otherwise).
+- A3, open-state fixes: `Dialog.DoubleCloseReportsOnce` and `Dialog.ControlledCloseAnimates` stories on the old `Dialog.tsx` → both fail → `2 failed`; on the hook → pass → Dialog 17/17. Drawer, DetailPanel, ConfirmDialog stories → unchanged → 35/36 in one parallel run (`DrawerScroll › Drag Up At Top Scrolls` timed out), then 7/7 twice alone: flaky under load, not the refactor.
+- A3, host registry: `packages/ui/test/hostRegistry.test.ts` → root stays below hosts added before it; entries order by layer; one publish per change → 3 tests pass.
+- A3, native graph: `pnpm typecheck:native` and `pnpm native:export` with the registry, root host and `PortalHost` → green → `android: 1460 modules`, `ios: 1463 modules`, one copy of each runtime.
+- A3, naming: the plan's `ColorKey` is the existing `ColorToken` from `@duro-app/tokens/keys` (`change.reach-before-adding`). DetailPanel keeps its immediate `onOpenChange` (`closeNotice: 'at-once'`); Dialog and Drawer report after the exit (`'after-exit'`).
 
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,architect,po,react,ui-design,ux-research,game-ux,tui,unix body-sha=db57eb9f2046 -->

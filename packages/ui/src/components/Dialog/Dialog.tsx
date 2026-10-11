@@ -4,19 +4,19 @@ import {
   type RefObject,
   createContext,
   useContext,
-  useState,
   useEffect,
   useCallback,
   useId,
   useRef,
 } from 'react'
 import {html} from 'react-strict-dom'
-import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
+import type {DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {ModalContext} from '../../shared/ModalContext'
 import {devWarnOnce} from '../../shared/devWarnOnce'
+import {useOverlayOpenState} from '../../shared/useOverlayOpenState'
 
 // --- Types ---
 
@@ -93,55 +93,28 @@ function Root({
   initialFocus,
   closeAnimationDuration = 'fast',
 }: RootProps) {
-  const isControlled = controlledOpen !== undefined
-  const [internalOpen, setInternalOpen] = useState(defaultOpen)
-  const [closing, setClosing] = useState(false)
-  const closingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const {
+    open: isOpen,
+    present,
+    closing,
+    requestOpen,
+    requestClose,
+  } = useOverlayOpenState({
+    open: controlledOpen,
+    defaultOpen,
+    onOpenChange,
+    exitDuration: closeAnimationDuration,
+    closeNotice: 'after-exit',
+  })
   const popupRef = useRef<HTMLDivElement>(null)
-
-  const isOpen = isControlled ? controlledOpen : internalOpen
 
   const titleId = useId()
   const descriptionId = useId()
 
-  const requestOpen = useCallback(() => {
-    if (closingTimerRef.current) {
-      clearTimeout(closingTimerRef.current)
-      closingTimerRef.current = null
-    }
-    setClosing(false)
-    if (!isControlled) setInternalOpen(true)
-    onOpenChange?.(true)
-  }, [isControlled, onOpenChange])
-
-  const requestClose = useCallback(() => {
-    setClosing(true)
-    closingTimerRef.current = setTimeout(() => {
-      setClosing(false)
-      closingTimerRef.current = null
-      if (!isControlled) setInternalOpen(false)
-      onOpenChange?.(false)
-    }, DURATION_MS[closeAnimationDuration])
-  }, [isControlled, onOpenChange, closeAnimationDuration])
-
-  // If controlled open goes false externally, trigger close animation
-  useEffect(() => {
-    if (isControlled && !controlledOpen && !closing) {
-      // Already closed, nothing to animate
-    }
-  }, [isControlled, controlledOpen, closing])
-
-  // Clean up timer on unmount
-  useEffect(() => {
-    return () => {
-      if (closingTimerRef.current) clearTimeout(closingTimerRef.current)
-    }
-  }, [])
-
   // Handle Escape key. A layer inside the dialog (a Menu, a Select) that
   // already handled it marks the event, and the dialog stays open.
   useEffect(() => {
-    if (!isOpen && !closing) return
+    if (!present) return
     if (!closeOnEscape) return
 
     function onKeyDown(e: KeyboardEvent) {
@@ -151,7 +124,7 @@ function Root({
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [isOpen, closing, closeOnEscape, requestClose])
+  }, [present, closeOnEscape, requestClose])
 
   // Focus: into the dialog on open (initialFocus, else the first focusable
   // element, else the dialog itself), back to what had it on close. The
@@ -180,29 +153,29 @@ function Root({
           'Dialog.Root has closeOnEscape={false} and no Dialog.Close: a keyboard user cannot leave this dialog. Render a Dialog.Close, or keep Escape.',
         )
       }
-    } else if (!isOpen && !closing && wasOpenRef.current) {
+    } else if (!present && wasOpenRef.current) {
       const target = previousFocusRef.current
       previousFocusRef.current = null
       if (target?.isConnected) target.focus({preventScroll: true})
     }
-    wasOpenRef.current = isOpen || closing
-  }, [isOpen, closing, initialFocus, closeOnEscape])
+    wasOpenRef.current = present
+  }, [isOpen, present, initialFocus, closeOnEscape])
 
   // Lock body scroll when open
   useEffect(() => {
-    if (isOpen || closing) {
+    if (present) {
       const prev = document.body.style.overflow
       document.body.style.overflow = 'hidden'
       return () => {
         document.body.style.overflow = prev
       }
     }
-  }, [isOpen, closing])
+  }, [present])
 
   return (
     <DialogContext.Provider
       value={{
-        open: isOpen || closing,
+        open: present,
         closing,
         closeDuration: closeAnimationDuration,
         dismissable,

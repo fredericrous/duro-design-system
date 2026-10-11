@@ -10,7 +10,8 @@ import {
   useRef,
 } from 'react'
 import {html} from 'react-strict-dom'
-import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
+import type {DurationToken} from '@duro-app/tokens/keys'
+import {useOverlayOpenState} from '../../shared/useOverlayOpenState'
 import {styles} from './styles.css'
 
 // --- Types ---
@@ -71,33 +72,18 @@ function Root({
   onOpenChange,
   closeAnimationDuration = 'base',
 }: RootProps) {
-  const isControlled = controlledOpen !== undefined
-  const [internalOpen, setInternalOpen] = useState(defaultOpen)
-  const [present, setPresent] = useState(defaultOpen)
-  const [closing, setClosing] = useState(false)
-  const closingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const {present, closing, requestOpen, requestClose} = useOverlayOpenState({
+    open: controlledOpen,
+    defaultOpen,
+    onOpenChange,
+    exitDuration: closeAnimationDuration,
+    closeNotice: 'at-once',
+  })
   const panelRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<Element | null>(null)
 
   const titleId = useId()
   const [labelId, setLabelId] = useState<string | undefined>(undefined)
-
-  const isOpen = isControlled ? controlledOpen : internalOpen
-
-  // Sync presence with open state
-  useEffect(() => {
-    if (isOpen && !present) {
-      setPresent(true)
-      setClosing(false)
-    } else if (!isOpen && present && !closing) {
-      setClosing(true)
-      closingTimerRef.current = setTimeout(() => {
-        setClosing(false)
-        setPresent(false)
-        closingTimerRef.current = null
-      }, DURATION_MS[closeAnimationDuration])
-    }
-  }, [isOpen, present, closing, closeAnimationDuration])
 
   // Focus management: move focus on open, restore on close
   useEffect(() => {
@@ -130,28 +116,6 @@ function Root({
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [present, closing]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Clean up timer on unmount
-  useEffect(() => {
-    return () => {
-      if (closingTimerRef.current) clearTimeout(closingTimerRef.current)
-    }
-  }, [])
-
-  const requestOpen = useCallback(() => {
-    if (closingTimerRef.current) {
-      clearTimeout(closingTimerRef.current)
-      closingTimerRef.current = null
-      setClosing(false)
-    }
-    if (!isControlled) setInternalOpen(true)
-    onOpenChange?.(true)
-  }, [isControlled, onOpenChange])
-
-  const requestClose = useCallback(() => {
-    if (!isControlled) setInternalOpen(false)
-    onOpenChange?.(false)
-  }, [isControlled, onOpenChange])
 
   const registerTitle = useCallback((id: string) => {
     setLabelId(id)

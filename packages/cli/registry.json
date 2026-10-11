@@ -681,7 +681,7 @@
           "type": "string"
         },
         {
-          "description": "The underlying <button>, e.g. to anchor a Popover or return focus to it. Web only: on native the ref is not attached.",
+          "description": "The underlying <button>, e.g. to anchor a Popover or return focus to it. On native it is react-strict-dom's element (a Pressable host), which measures with `measureInWindow` and takes accessibility focus.",
           "name": "ref",
           "required": false,
           "type": "Ref<HTMLButtonElement>"

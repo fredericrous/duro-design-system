@@ -18,20 +18,23 @@ import {
   Textarea,
   ThemeProvider,
   usePortalMount,
+  useResolvedColors,
 } from '@duro-app/ui'
 
 /**
  * Renders every value export of the native barrel, so `expo export` bundles
- * each one. test/exports.test.ts fails when the barrel gains a name this file
- * does not render.
+ * each one. scripts/test/native-example-exports.test.ts fails when the barrel
+ * gains a name no example screen renders.
  */
 export function AllExports() {
   const [on, setOn] = useState(false)
   const portalMount = usePortalMount()
+  const resolved = useResolvedColors()
   return (
     <Stack gap="md">
       <Heading level={1}>Duro native</Heading>
       <Text>Portal mount on native: {portalMount === null ? 'none' : 'present'}</Text>
+      <Text>Resolved accent: {resolved.accent}</Text>
       <Cluster gap="xs">
         <Badge>Badge</Badge>
         <Badge variant="success">Success</Badge>

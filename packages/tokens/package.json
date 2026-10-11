@@ -30,6 +30,7 @@
       "default": "./dist/index.js"
     },
     "./raw": {
+      "react-native": "./src/raw.ts",
       "source": "./src/raw.ts",
       "import": "./dist/raw.js",
       "types": "./dist/raw.d.ts",

@@ -41,5 +41,8 @@ export type {GridTrack} from './shared/length'
 export {
   ThemeProvider,
   usePortalMount,
+  useResolvedColors,
   type ThemeName,
 } from './components/ThemeProvider/ThemeProvider'
+// Where toasts draw on native: mount one inside a natively presented route.
+export {PortalHost} from './shared/portal/PortalHost'
