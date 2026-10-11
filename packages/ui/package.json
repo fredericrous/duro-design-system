@@ -47,7 +47,7 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.native.json"
   },
   "peerDependencies": {
     "@hookform/resolvers": "^5.0.0",
@@ -81,6 +81,7 @@
     "@vitejs/plugin-react": "^4.0.0",
     "effect": "^3.0.0",
     "react-hook-form": "^7.55.0",
+    "react-native": "0.81.5",
     "typescript": "^5.7.0",
     "vite": "^6.0.0",
     "vite-plugin-babel": "^1.5.0",

@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import dts from 'vite-plugin-dts'
 import babel from 'vite-plugin-babel'
 import path from 'path'
+import {webGraphGuard} from './vite/web-graph-guard'
 
 export default defineConfig({
   build: {
@@ -50,7 +51,6 @@ export default defineConfig({
   resolve: {
     extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js'],
     alias: {
-      'react-native': path.resolve(__dirname, 'src/stubs/react-native.ts'),
       '@react-native/assets-registry/registry': path.resolve(
         __dirname,
         'src/stubs/assets-registry.ts',
@@ -58,6 +58,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    webGraphGuard(),
     react({babel: {configFile: true}}),
     babel(),
     dts({insertTypesEntry: true, exclude: ['src/**/*.typecheck.tsx']}),

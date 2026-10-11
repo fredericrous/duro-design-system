@@ -569,7 +569,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 
 ## Phases
 
-- [ ] A1 Native typecheck, the graph lint, the Vite alias plugin
+- [x] A1 Native typecheck, the graph lint, the Vite alias plugin
 - [ ] A2 `examples/native` (expo-router modal route, native peers), the exports test, `native:export`, the CI `native` job
 - [ ] A3 Host registry and `PortalHost`, `OverlayModal`, resolved colours, safe area, `useOverlayOpenState` (with the web refactor), Button native ref
 - [ ] A4 Icon geometry and the SVG-vs-Skia benchmark, Dialog and ConfirmDialog native, Icon and StatusIcon, Spinner, barrel, device checkpoint A → **release v5.12.0**
@@ -708,5 +708,12 @@ Every entry records input → expected → actual in the slice's PR body before 
 - After v5.14.0: close this plan (`status: done`, `landed:`), and close the slice
   in the happier pointer file.
 - Run the worktree-sweep skill over the task worktrees.
+
+## Slice A record (observed before push)
+
+- A1, react-native versions: `pnpm why react-native -r` → one version → `react-native@0.81.5` only, after a workspace override `react-native: 0.81.5` (RSD's peer from `@duro-app/tokens` had resolved 0.84.1).
+- A1, falsification: `import {createPortal} from 'react-dom'` in `Badge.tsx` → `typecheck:native` and the graph lint fail → `TS2305` and `Badge.tsx:1:1 react-dom import — …`, exit 1; a raw `<svg />` → graph lint fails → `Badge.tsx:27:29 raw <svg> — …`, exit 1; probes reverted.
+- A1, web guard: `import 'react-native'` in `Badge.tsx`, `pnpm --filter @duro-app/ui build` → fails → `react-native reached from the web graph via packages/ui/src/components/Badge/Badge.tsx — move the import into a .native.tsx file`; reverted.
+- A1, suites: `pnpm typecheck`, `pnpm lint` (0 errors, 14 warnings), `pnpm test:unit -- --run` (29 files, 446 tests), `pnpm build`, `pnpm build-storybook`, prettier → all exit 0.
 
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,architect,po,react,ui-design,ux-research,game-ux,tui,unix body-sha=db57eb9f2046 -->

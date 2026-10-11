@@ -20,9 +20,26 @@ tester.run('no-raw-html-element', noRawHtmlElement, {
     {code: 'const icon = <path d="M0 0" />', filename: 'x.tsx'},
     {code: '<div />', filename: 'x.tsx', options: [{allow: ['div']}]},
     {code: '<my-widget />', filename: 'x.tsx'},
+    {code: '<svg />', filename: 'x.tsx', options: [{svgExempt: true}]},
+    {code: '<html.div />', filename: 'x.tsx', options: [{svgExempt: false}]},
     {code: '<table />', filename: 'x.tsx', options: [{reportUnsupported: false}]},
   ],
   invalid: [
+    {
+      code: '<svg viewBox="0 0 1 1"><path d="M0 0" /></svg>',
+      filename: 'x.tsx',
+      options: [{svgExempt: false}],
+      errors: [
+        {messageId: 'noEquivalent', data: {tag: 'svg'}},
+        {messageId: 'noEquivalent', data: {tag: 'path'}},
+      ],
+    },
+    {
+      code: 'const icon = <path d="M0 0" />',
+      filename: 'x.tsx',
+      options: [{svgExempt: false}],
+      errors: [{messageId: 'noEquivalent', data: {tag: 'path'}}],
+    },
     {
       code: '<div><span>x</span></div>',
       filename: 'x.tsx',

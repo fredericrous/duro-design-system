@@ -8,5 +8,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "**/*.native.*"]
 }
