@@ -115,14 +115,32 @@ async function dragGrabber(dy: number) {
   await pause(400)
 }
 
-export const DragBetweenDetentsThenDismiss: Story = {
+// One drag per story: a test that drags three times can outlast the runner's
+// timeout on a loaded machine.
+export const DragUpGrowsToLarge: Story = {
   render: () => <Sheet />,
   play: async () => {
     await setup()
     await waitFor(() => near(sheetHeight(), MEDIUM))
     await dragGrabber(-300)
     await waitFor(() => near(sheetHeight(), LARGE))
+  },
+}
+
+export const DragDownShrinksToMedium: Story = {
+  render: () => <Sheet defaultSnapPoint="large" />,
+  play: async () => {
+    await setup()
+    await waitFor(() => near(sheetHeight(), LARGE))
     await dragGrabber(300)
+    await waitFor(() => near(sheetHeight(), MEDIUM))
+  },
+}
+
+export const DragDownBelowMediumDismisses: Story = {
+  render: () => <Sheet />,
+  play: async () => {
+    await setup()
     await waitFor(() => near(sheetHeight(), MEDIUM))
     await dragGrabber(300)
     await waitFor(() => expect(getDialog()).toBeNull())
@@ -134,8 +152,9 @@ export const SlowShortDragSnapsBack: Story = {
   play: async () => {
     await setup()
     const from = centre(getGrabber())
-    // 60px over 40 moves: well under the fling speed, well short of the next detent
-    await touchDrag(from, {x: from.x, y: from.y - 60}, 40)
+    // 60px over 20 moves (about 0.2 px/ms): well under the fling speed, well
+    // short of the next detent
+    await touchDrag(from, {x: from.x, y: from.y - 60}, 20)
     await pause(400)
     await waitFor(() => near(sheetHeight(), MEDIUM))
   },
