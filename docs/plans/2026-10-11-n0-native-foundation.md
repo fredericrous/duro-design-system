@@ -741,5 +741,6 @@ Every entry records input → expected → actual in the slice's PR body before 
 ## Implementation review
 
 approve-with-changes (round 1, 85k, 119 s). Fixed: release-build focus failures logged, not dropped (`errors.never-swallowed`); `noInlineConfig` in the graph lint plus a test (`general.no-disabled-safety`); an outside reopen cancels an outside-started exit; the Dialog trigger keeps the consumer's ref; missing measurements and deviations recorded above. Deliberate: no dev warning for a missing `GestureHandlerRootView` (reason above).
+Delta (round 2, 92k, 27 s): approve; all seven resolved, no new finding. Carried to slice B: Behaviour 6's "warns in development" line is revised when Drawer brings the first gesture; the CI install and `native` job times go in this PR's body, and `timeout-minutes` is set from the cold time; `mergeRefs` (pre-existing) calls a React 19 cleanup-returning callback ref with `null` instead of its cleanup, harmless today, noted for a later fix.
 
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,architect,po,react,ui-design,ux-research,game-ux,tui,unix body-sha=db57eb9f2046 -->
