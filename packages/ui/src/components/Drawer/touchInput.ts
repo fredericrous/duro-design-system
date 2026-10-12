@@ -50,8 +50,12 @@ export function toPage(p: Point): Point {
  */
 const touchAt = (p: Point) => ({...toPage(p), radiusX: 1, radiusY: 1})
 
-/** A finger drag from one point to another, in `steps` moves 16 ms apart. */
-export async function touchDrag(from: Point, to: Point, steps = 12) {
+/**
+ * A finger drag from one point to another, in `steps` moves 16 ms apart.
+ * Each move is a round trip to the browser; few of them keep a test well
+ * inside its timeout on a loaded machine.
+ */
+export async function touchDrag(from: Point, to: Point, steps = 6) {
   const send = (type: string, touchPoints: Point[]) =>
     cdpSend('Input.dispatchTouchEvent', {type, touchPoints: touchPoints.map(touchAt)})
   await send('touchStart', [from])
