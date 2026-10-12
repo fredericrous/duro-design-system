@@ -1,5 +1,3 @@
-import {cdp} from 'vitest/browser'
-
 /**
  * Real touch input for the Drawer's Storybook interaction tests, through
  * Chrome DevTools Protocol: synthetic pointer events neither scroll nor go
@@ -8,12 +6,22 @@ import {cdp} from 'vitest/browser'
 
 export type Point = {x: number; y: number}
 
-/** `CDPSession` is empty until the provider's typings load; `send` exists at runtime. */
-export const cdpSend = (method: string, params: object) =>
-  (cdp() as unknown as {send: (method: string, params: object) => Promise<unknown>}).send(
-    method,
-    params,
-  )
+/**
+ * A CDP command. `vitest/browser` loads only under the test runner, so it is
+ * imported here, at call time: a static import breaks the built Storybook.
+ * `CDPSession` is empty until the provider's typings load; `send` exists at runtime.
+ */
+export async function cdpSend(method: string, params: object) {
+  const {cdp} = await import('vitest/browser')
+  const session = cdp() as unknown as {send: (m: string, p: object) => Promise<unknown>}
+  return session.send(method, params)
+}
+
+/** Set the page's viewport (test runner only, like `cdpSend`). */
+export async function setViewport(width: number, height: number) {
+  const {page} = await import('vitest/browser')
+  await page.viewport(width, height)
+}
 
 export const pause = (ms: number) => new Promise((r) => setTimeout(r, ms))
 

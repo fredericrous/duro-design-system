@@ -1,10 +1,9 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, userEvent, waitFor} from 'storybook/test'
-import {page} from 'vitest/browser'
 import {Drawer} from './Drawer'
 import {Button} from '../Button/Button'
 import {List} from '../List/List'
-import {cdpSend, centre, pause, touchDrag, type Point} from './touchInput'
+import {cdpSend, centre, pause, setViewport, touchDrag, type Point} from './touchInput'
 
 const meta: Meta = {
   title: 'Components/Drawer/Snap points',
@@ -55,7 +54,7 @@ const MEDIUM = WINDOW_H / 2
 const LARGE = WINDOW_H // no top safe-area inset in a desktop browser
 
 async function setup() {
-  await page.viewport(390, WINDOW_H)
+  await setViewport(390, WINDOW_H)
   await cdpSend('Emulation.setTouchEmulationEnabled', {enabled: true, maxTouchPoints: 1})
   await waitFor(() => expect(getDialog()).not.toBeNull())
   // let the slide-in finish

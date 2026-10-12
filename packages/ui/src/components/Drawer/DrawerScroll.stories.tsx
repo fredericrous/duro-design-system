@@ -1,12 +1,11 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, waitFor} from 'storybook/test'
-import {page} from 'vitest/browser'
 import {Drawer} from './Drawer'
 import {ToggleGroup} from '../ToggleGroup/ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
 import {Icon, type IconName} from '../Icon'
 import {SIZES_PX} from '@duro-app/tokens/keys'
-import {cdpSend, pause, toPage, touchDrag, type Point} from './touchInput'
+import {cdpSend, pause, setViewport, toPage, touchDrag, type Point} from './touchInput'
 
 const meta: Meta = {
   title: 'Components/Drawer/Scroll',
@@ -109,7 +108,7 @@ function freePoint(el: HTMLElement, fy: number): Point {
 }
 
 async function setup() {
-  await page.viewport(390, 844)
+  await setViewport(390, 844)
   await cdpSend('Emulation.setTouchEmulationEnabled', {enabled: true, maxTouchPoints: 1})
   await waitFor(() => expect(getViewport()).toBeTruthy())
   const viewport = getViewport()
@@ -193,7 +192,7 @@ export const TapOnToggleStillPresses: Story = {
 export const MountKeepsTheDrawerStill: Story = {
   // size the page before the render: a drawer mounts at its final width
   beforeEach: async () => {
-    await page.viewport(390, 844)
+    await setViewport(390, 844)
   },
   render: () => <Scene pressed={ICON_NAMES[39]} />,
   play: async () => {
@@ -229,7 +228,7 @@ export const CoarsePointerRows: Story = {
   ),
   play: async () => {
     // phone width, so 42 icons overflow three rows
-    await page.viewport(390, 844)
+    await setViewport(390, 844)
     await cdpSend('Emulation.setTouchEmulationEnabled', {enabled: true, maxTouchPoints: 1})
     await waitFor(() => expect(matchMedia('(pointer: coarse)').matches).toBe(true))
     const viewport = getViewport()

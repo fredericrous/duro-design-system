@@ -1,8 +1,9 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, userEvent, waitFor} from 'storybook/test'
-import {page} from 'vitest/browser'
+import {css, html} from 'react-strict-dom'
 import {SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
 import {SplitPane} from './SplitPane'
+import {setViewport} from '../Drawer/touchInput'
 import {List} from '../List/List'
 import {Panel} from '../Panel/Panel'
 import {Heading} from '../Heading/Heading'
@@ -18,31 +19,36 @@ type Story = StoryObj
 
 const SESSIONS = ['Refactor auth', 'Flaky e2e', 'Release notes', 'Docs pass', 'Perf trace']
 
+// A SplitPane fills its parent: the story gives it the viewport's height.
+const frame = css.create({fill: {height: '100vh'}})
+
 /** The picked B0 direction (docs/mockups/split-pane/Hairline.dc.html). */
 function Split() {
   return (
-    <SplitPane.Root aria-label="Resize the session list" minSize="sidebarW" maxSize="panelLg">
-      <SplitPane.Pane>
-        <List.Root aria-label="Sessions">
-          {SESSIONS.map((s) => (
-            <List.Item key={s}>
-              <List.Text>{s}</List.Text>
-            </List.Item>
-          ))}
-        </List.Root>
-      </SplitPane.Pane>
-      <SplitPane.Handle />
-      <SplitPane.Pane>
-        <Panel.Root>
-          <Panel.Header>
-            <Heading level={2}>Refactor auth</Heading>
-          </Panel.Header>
-          <Panel.Body>
-            <Text>The transcript of the selected session.</Text>
-          </Panel.Body>
-        </Panel.Root>
-      </SplitPane.Pane>
-    </SplitPane.Root>
+    <html.div style={frame.fill}>
+      <SplitPane.Root aria-label="Resize the session list" minSize="sidebarW" maxSize="panelLg">
+        <SplitPane.Pane>
+          <List.Root aria-label="Sessions">
+            {SESSIONS.map((s) => (
+              <List.Item key={s}>
+                <List.Text>{s}</List.Text>
+              </List.Item>
+            ))}
+          </List.Root>
+        </SplitPane.Pane>
+        <SplitPane.Handle />
+        <SplitPane.Pane>
+          <Panel.Root>
+            <Panel.Header>
+              <Heading level={2}>Refactor auth</Heading>
+            </Panel.Header>
+            <Panel.Body>
+              <Text>The transcript of the selected session.</Text>
+            </Panel.Body>
+          </Panel.Root>
+        </SplitPane.Pane>
+      </SplitPane.Root>
+    </html.div>
   )
 }
 
@@ -55,7 +61,7 @@ const separator = () => document.querySelector<HTMLElement>('[role="separator"]'
 export const KeyboardMovesTheSeparator: Story = {
   render: () => <Split />,
   beforeEach: async () => {
-    await page.viewport(1200, 800)
+    await setViewport(1200, 800)
   },
   play: async () => {
     await waitFor(() => expect(separator()).not.toBeNull())
@@ -85,7 +91,7 @@ export const KeyboardMovesTheSeparator: Story = {
 export const NarrowStacksInOneColumn: Story = {
   render: () => <Split />,
   beforeEach: async () => {
-    await page.viewport(390, 844)
+    await setViewport(390, 844)
   },
   play: async ({canvas}) => {
     await waitFor(() => expect(separator()).toBeNull())
