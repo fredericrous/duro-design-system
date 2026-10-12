@@ -79,8 +79,13 @@ export const SnapSheet: StoryObj<SheetArgs> = {
       description: 'Drawer.Header: the title at the start, or centred with the close at the end',
     },
   },
+  // Keyed by the opening detent: it seeds state on mount, so a change remounts the sheet.
   render: (args) => (
-    <Sheet {...args} snapPoints={args.snapPoints.length > 0 ? args.snapPoints : ['medium']} />
+    <Sheet
+      key={args.defaultSnapPoint}
+      {...args}
+      snapPoints={args.snapPoints.length > 0 ? args.snapPoints : ['medium']}
+    />
   ),
 }
 

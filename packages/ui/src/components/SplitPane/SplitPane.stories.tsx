@@ -95,7 +95,8 @@ export const Default: StoryObj<SplitArgs> = {
       description: "Below this breakpoint (the split's own width) the panes stack",
     },
   },
-  render: (args) => <Split {...args} />,
+  // Keyed by the starting width: it seeds state on mount, so a change remounts the split.
+  render: (args) => <Split key={args.defaultSize} {...args} />,
 }
 
 const separator = () => document.querySelector<HTMLElement>('[role="separator"]')
