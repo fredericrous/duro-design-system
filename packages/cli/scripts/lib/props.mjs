@@ -118,7 +118,10 @@ function membersOfTypeNode(typeNode, context) {
     return anyResolved ? members : null
   }
   if (Node.isTypeReference(typeNode)) {
-    const symbol = typeNode.getTypeName().getSymbol()
+    const named = typeNode.getTypeName().getSymbol()
+    // An imported props type (`import type {SpinnerProps} from './Spinner.types'`)
+    // names the import; its declaration is on the aliased symbol.
+    const symbol = named?.isAlias() ? named.getAliasedSymbol() : named
     const decl = symbol
       ?.getDeclarations()
       .find((d) => Node.isInterfaceDeclaration(d) || Node.isTypeAliasDeclaration(d))

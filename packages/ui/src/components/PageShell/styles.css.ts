@@ -6,9 +6,13 @@ import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 export const styles = css.create({
   root: {
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
   },
   container: {
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     marginLeft: 'auto',
     marginRight: 'auto',
   },

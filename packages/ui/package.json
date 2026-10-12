@@ -47,7 +47,7 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.native.json"
   },
   "peerDependencies": {
     "@hookform/resolvers": "^5.0.0",
@@ -56,16 +56,40 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.55.0",
+    "react-native": ">=0.81.0",
+    "react-native-gesture-handler": "^2.28.0",
+    "react-native-reanimated": ">=4.1.0",
+    "react-native-safe-area-context": "^5.6.0",
+    "react-native-svg": "^15.12.0",
+    "react-native-worklets": ">=0.5.0",
     "react-strict-dom": "^0.0.55"
   },
   "peerDependenciesMeta": {
     "@hookform/resolvers": {
       "optional": true
     },
+    "@tanstack/react-table": {
+      "optional": true
+    },
     "effect": {
       "optional": true
     },
-    "@tanstack/react-table": {
+    "react-native": {
+      "optional": true
+    },
+    "react-native-gesture-handler": {
+      "optional": true
+    },
+    "react-native-reanimated": {
+      "optional": true
+    },
+    "react-native-safe-area-context": {
+      "optional": true
+    },
+    "react-native-svg": {
+      "optional": true
+    },
+    "react-native-worklets": {
       "optional": true
     }
   },
@@ -81,6 +105,12 @@
     "@vitejs/plugin-react": "^4.0.0",
     "effect": "^3.0.0",
     "react-hook-form": "^7.55.0",
+    "react-native": "0.81.5",
+    "react-native-gesture-handler": "2.28.0",
+    "react-native-reanimated": "4.3.0",
+    "react-native-safe-area-context": "5.6.2",
+    "react-native-svg": "15.12.1",
+    "react-native-worklets": "0.8.1",
     "typescript": "^5.7.0",
     "vite": "^6.0.0",
     "vite-plugin-babel": "^1.5.0",

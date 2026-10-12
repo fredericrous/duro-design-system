@@ -30,6 +30,7 @@
         ]
       },
       "name": "ActionBar",
+      "native": false,
       "props": [
         {
           "description": "Number of selected items, or 'all'. Hidden when 0.",
@@ -112,6 +113,7 @@
         ]
       },
       "name": "ActionBarProvider",
+      "native": false,
       "props": [
         {
           "name": "children",
@@ -146,6 +148,7 @@
         ]
       },
       "name": "Alert",
+      "native": true,
       "props": [
         {
           "default": "'info'",
@@ -222,6 +225,7 @@
         ]
       },
       "name": "AppShell",
+      "native": false,
       "parts": {
         "Header": {
           "name": "Header",
@@ -412,6 +416,7 @@
         ]
       },
       "name": "Aside",
+      "native": false,
       "props": [
         {
           "description": "Names the landmark (\"Page outline\"); required, from your text catalog.",
@@ -467,6 +472,7 @@
         ]
       },
       "name": "Badge",
+      "native": true,
       "props": [
         {
           "default": "'default'",
@@ -535,6 +541,7 @@
         ]
       },
       "name": "Breadcrumb",
+      "native": false,
       "parts": {
         "Item": {
           "name": "Item",
@@ -615,6 +622,7 @@
         ]
       },
       "name": "Button",
+      "native": true,
       "props": [
         {
           "default": "'primary'",
@@ -681,7 +689,7 @@
           "type": "string"
         },
         {
-          "description": "The underlying <button>, e.g. to anchor a Popover or return focus to it. Web only: on native the ref is not attached.",
+          "description": "The underlying <button>, e.g. to anchor a Popover or return focus to it. On native it is react-strict-dom's element (a Pressable host), which measures with `measureInWindow` and takes accessibility focus.",
           "name": "ref",
           "required": false,
           "type": "Ref<HTMLButtonElement>"
@@ -735,6 +743,7 @@
         ]
       },
       "name": "ButtonGroup",
+      "native": false,
       "props": [
         {
           "name": "children",
@@ -810,6 +819,7 @@
         ]
       },
       "name": "Callout",
+      "native": true,
       "props": [
         {
           "default": "'info'",
@@ -869,6 +879,7 @@
         ]
       },
       "name": "Card",
+      "native": true,
       "props": [
         {
           "default": "'outlined'",
@@ -939,6 +950,7 @@
         ]
       },
       "name": "Checkbox",
+      "native": true,
       "props": [
         {
           "name": "name",
@@ -1020,6 +1032,7 @@
         ]
       },
       "name": "CheckboxGroup",
+      "native": false,
       "parts": {
         "Item": {
           "name": "Item",
@@ -1127,6 +1140,7 @@
         ]
       },
       "name": "Cluster",
+      "native": true,
       "props": [
         {
           "default": "'sm'",
@@ -1192,6 +1206,7 @@
         ]
       },
       "name": "CodeBlock",
+      "native": false,
       "props": [
         {
           "description": "The code: text, or the `<code>` element a Markdown renderer produced (highlighted spans included). What is copied is its text content.",
@@ -1255,6 +1270,7 @@
         ]
       },
       "name": "ColorInput",
+      "native": false,
       "props": [
         {
           "description": "Hex color, controlled (e.g. \"#cfc8ba\").",
@@ -1350,6 +1366,7 @@
         ]
       },
       "name": "ColorModeProvider",
+      "native": false,
       "props": [
         {
           "name": "children",
@@ -1437,6 +1454,7 @@
         ]
       },
       "name": "ColorModeToggle",
+      "native": false,
       "props": [
         {
           "default": "'md'",
@@ -1512,6 +1530,7 @@
         ]
       },
       "name": "Combobox",
+      "native": false,
       "parts": {
         "Empty": {
           "name": "Empty",
@@ -1680,6 +1699,7 @@
         ]
       },
       "name": "ConfirmDialog",
+      "native": true,
       "props": [
         {
           "name": "open",
@@ -1805,6 +1825,7 @@
         ]
       },
       "name": "DetailPanel",
+      "native": false,
       "parts": {
         "Body": {
           "name": "Body",
@@ -2056,6 +2077,7 @@
         ]
       },
       "name": "Dialog",
+      "native": true,
       "parts": {
         "Body": {
           "name": "Body",
@@ -2066,7 +2088,7 @@
               "type": "ReactNode"
             }
           ],
-          "sourcePath": "packages/ui/src/components/Dialog/Dialog.tsx"
+          "sourcePath": "packages/ui/src/components/Dialog/parts.tsx"
         },
         "Close": {
           "name": "Close",
@@ -2094,7 +2116,7 @@
               "type": "ReactNode"
             }
           ],
-          "sourcePath": "packages/ui/src/components/Dialog/Dialog.tsx"
+          "sourcePath": "packages/ui/src/components/Dialog/parts.tsx"
         },
         "Footer": {
           "name": "Footer",
@@ -2105,7 +2127,7 @@
               "type": "ReactNode"
             }
           ],
-          "sourcePath": "packages/ui/src/components/Dialog/Dialog.tsx"
+          "sourcePath": "packages/ui/src/components/Dialog/parts.tsx"
         },
         "Header": {
           "name": "Header",
@@ -2116,7 +2138,7 @@
               "type": "ReactNode"
             }
           ],
-          "sourcePath": "packages/ui/src/components/Dialog/Dialog.tsx"
+          "sourcePath": "packages/ui/src/components/Dialog/parts.tsx"
         },
         "Portal": {
           "name": "Portal",
@@ -2215,7 +2237,7 @@
               "type": "ReactNode"
             }
           ],
-          "sourcePath": "packages/ui/src/components/Dialog/Dialog.tsx"
+          "sourcePath": "packages/ui/src/components/Dialog/parts.tsx"
         },
         "Trigger": {
           "name": "Trigger",
@@ -2272,6 +2294,7 @@
         ]
       },
       "name": "DragDrop",
+      "native": false,
       "parts": {
         "Handle": {
           "name": "Handle",
@@ -2513,6 +2536,7 @@
         ]
       },
       "name": "Drawer",
+      "native": false,
       "parts": {
         "Body": {
           "name": "Body",
@@ -2712,6 +2736,7 @@
         ]
       },
       "name": "EmptyState",
+      "native": true,
       "props": [
         {
           "name": "message",
@@ -2794,6 +2819,7 @@
         ]
       },
       "name": "Field",
+      "native": true,
       "parts": {
         "Description": {
           "name": "Description",
@@ -2918,6 +2944,7 @@
         ]
       },
       "name": "Fieldset",
+      "native": false,
       "parts": {
         "Legend": {
           "name": "Legend",
@@ -2990,6 +3017,7 @@
         ]
       },
       "name": "FileTrigger",
+      "native": false,
       "props": [
         {
           "description": "Accepted types, as the native `accept` attribute (e.g. `image/*,.pdf`).",
@@ -3163,6 +3191,7 @@
         ]
       },
       "name": "Grid",
+      "native": true,
       "props": [
         {
           "default": "'md'",
@@ -3248,6 +3277,7 @@
         ]
       },
       "name": "Heading",
+      "native": true,
       "props": [
         {
           "name": "level",
@@ -3317,6 +3347,7 @@
         ]
       },
       "name": "Icon",
+      "native": true,
       "props": [
         {
           "name": "name",
@@ -3355,6 +3386,7 @@
             "plug",
             "search",
             "mic",
+            "x",
             "sun",
             "moon",
             "monitor",
@@ -3386,6 +3418,12 @@
             "xl",
             "xxl"
           ]
+        },
+        {
+          "description": "Colour token. Default: the surrounding text colour on the web (`currentColor`), the `text` token on native, where an icon cannot inherit a colour.",
+          "name": "color",
+          "required": false,
+          "type": "ColorToken"
         }
       ],
       "sourcePath": "packages/ui/src/components/Icon/Icon.tsx"
@@ -3420,6 +3458,7 @@
         ]
       },
       "name": "Inline",
+      "native": true,
       "props": [
         {
           "default": "'sm'",
@@ -3491,6 +3530,7 @@
         ]
       },
       "name": "Input",
+      "native": true,
       "props": [
         {
           "default": "'default'",
@@ -3588,6 +3628,18 @@
           "name": "autoComplete",
           "required": false,
           "type": "| 'on' | 'off' | 'email' | 'username' | 'current-password' | 'new-password' | 'name' | 'tel' | 'url'"
+        },
+        {
+          "description": "Phone keyboards: how the typed text is capitalised.",
+          "name": "autoCapitalize",
+          "required": false,
+          "type": "'none' | 'sentences' | 'words' | 'characters'"
+        },
+        {
+          "description": "Whether the platform checks (and on phones, autocorrects) the spelling.",
+          "name": "spellCheck",
+          "required": false,
+          "type": "boolean"
         },
         {
           "name": "value",
@@ -3692,6 +3744,7 @@
         ]
       },
       "name": "InputGroup",
+      "native": true,
       "parts": {
         "Addon": {
           "name": "Addon",
@@ -3799,6 +3852,7 @@
         ]
       },
       "name": "LinkButton",
+      "native": false,
       "props": [
         {
           "name": "href",
@@ -3903,6 +3957,7 @@
         ]
       },
       "name": "List",
+      "native": true,
       "parts": {
         "Actions": {
           "name": "Actions",
@@ -4059,6 +4114,7 @@
         ]
       },
       "name": "Listbox",
+      "native": false,
       "parts": {
         "Empty": {
           "name": "Empty",
@@ -4241,6 +4297,7 @@
         ]
       },
       "name": "LiveRegion",
+      "native": false,
       "props": [
         {
           "description": "What to announce. Change it to announce; leave it empty when there is nothing to say — never unmount the region to clear it.",
@@ -4317,6 +4374,7 @@
         ]
       },
       "name": "Menu",
+      "native": false,
       "parts": {
         "Item": {
           "name": "Item",
@@ -4469,6 +4527,7 @@
         ]
       },
       "name": "Meter",
+      "native": true,
       "props": [
         {
           "name": "value",
@@ -4627,6 +4686,7 @@
         ]
       },
       "name": "PageNav",
+      "native": false,
       "parts": {
         "Next": {
           "name": "Next",
@@ -4746,6 +4806,7 @@
         ]
       },
       "name": "PageShell",
+      "native": true,
       "props": [
         {
           "default": "'lg'",
@@ -4825,6 +4886,7 @@
         ]
       },
       "name": "Panel",
+      "native": false,
       "parts": {
         "Body": {
           "name": "Body",
@@ -4956,6 +5018,7 @@
         ]
       },
       "name": "Popover",
+      "native": false,
       "parts": {
         "Close": {
           "name": "Close",
@@ -5113,6 +5176,7 @@
         ]
       },
       "name": "Prose",
+      "native": false,
       "props": [
         {
           "description": "HTML Duro does not author: the output of a Markdown renderer.",
@@ -5163,6 +5227,7 @@
         ]
       },
       "name": "RadioGroup",
+      "native": true,
       "parts": {
         "Item": {
           "name": "Item",
@@ -5241,7 +5306,7 @@
               "type": "ReactNode"
             }
           ],
-          "sourcePath": "packages/ui/src/components/RadioGroup/RadioGroup.tsx"
+          "sourcePath": "packages/ui/src/components/RadioGroup/group.tsx"
         }
       },
       "props": null,
@@ -5272,6 +5337,7 @@
         ]
       },
       "name": "ScrollArea",
+      "native": false,
       "parts": {
         "Content": {
           "name": "Content",
@@ -5404,6 +5470,7 @@
         ]
       },
       "name": "Select",
+      "native": false,
       "parts": {
         "Icon": {
           "name": "Icon",
@@ -5579,6 +5646,7 @@
         ]
       },
       "name": "SideNav",
+      "native": false,
       "parts": {
         "Group": {
           "name": "Group",
@@ -5697,6 +5765,7 @@
         ]
       },
       "name": "Spinner",
+      "native": true,
       "props": [
         {
           "default": "'md'",
@@ -5746,6 +5815,7 @@
         ]
       },
       "name": "Stack",
+      "native": true,
       "props": [
         {
           "default": "'md'",
@@ -5806,6 +5876,7 @@
         ]
       },
       "name": "StatusIcon",
+      "native": true,
       "props": [
         {
           "name": "name",
@@ -5876,6 +5947,7 @@
         ]
       },
       "name": "Switch",
+      "native": true,
       "props": [
         {
           "description": "Controlled checked state.",
@@ -5957,6 +6029,7 @@
         ]
       },
       "name": "Table",
+      "native": false,
       "parts": {
         "Body": {
           "name": "Body",
@@ -6504,6 +6577,7 @@
         ]
       },
       "name": "TableOfContents",
+      "native": false,
       "parts": {
         "Item": {
           "name": "Item",
@@ -6631,6 +6705,7 @@
         ]
       },
       "name": "Tabs",
+      "native": false,
       "parts": {
         "List": {
           "name": "List",
@@ -6746,6 +6821,7 @@
         ]
       },
       "name": "Tag",
+      "native": false,
       "props": [
         {
           "description": "Value identifier — required when used inside TagGroup",
@@ -6844,6 +6920,7 @@
         ]
       },
       "name": "TagGroup",
+      "native": false,
       "parts": {
         "Input": {
           "name": "Input",
@@ -6950,6 +7027,7 @@
         ]
       },
       "name": "Text",
+      "native": true,
       "props": [
         {
           "default": "'bodyMd'",
@@ -7096,6 +7174,7 @@
         ]
       },
       "name": "TextLink",
+      "native": false,
       "props": [
         {
           "name": "href",
@@ -7170,6 +7249,7 @@
         ]
       },
       "name": "Textarea",
+      "native": true,
       "props": [
         {
           "default": "'default'",
@@ -7271,6 +7351,7 @@
         ]
       },
       "name": "ThemeProvider",
+      "native": true,
       "props": [
         {
           "default": "'dark'",
@@ -7307,6 +7388,7 @@
         ]
       },
       "name": "Time",
+      "native": false,
       "props": [
         {
           "description": "The instant, machine-readable: a `Date` (written as its ISO string) or an ISO 8601 string, which is passed through unchanged.",
@@ -7365,6 +7447,7 @@
         ]
       },
       "name": "Timeline",
+      "native": false,
       "parts": {
         "Bar": {
           "name": "Bar",
@@ -7565,6 +7648,7 @@
         ]
       },
       "name": "ToastProvider",
+      "native": false,
       "props": [
         {
           "default": "'Dismiss'",
@@ -7615,6 +7699,7 @@
         ]
       },
       "name": "Toggle",
+      "native": true,
       "props": [
         {
           "description": "Controlled pressed state (standalone usage).",
@@ -7702,6 +7787,7 @@
         ]
       },
       "name": "ToggleGroup",
+      "native": false,
       "props": [
         {
           "description": "Controlled value — array of pressed item values.",
@@ -7835,6 +7921,7 @@
         ]
       },
       "name": "Toolbar",
+      "native": false,
       "props": [
         {
           "description": "Names the toolbar (\"Formatting\"). Required: a toolbar is a landmark-like widget.",
@@ -7879,6 +7966,7 @@
         ]
       },
       "name": "Tooltip",
+      "native": false,
       "parts": {
         "Root": {
           "name": "Root",
@@ -7959,6 +8047,7 @@
         ]
       },
       "name": "Tree",
+      "native": false,
       "parts": {
         "Item": {
           "name": "Item",
@@ -8228,6 +8317,7 @@
         ]
       },
       "name": "VisuallyHidden",
+      "native": false,
       "props": [
         {
           "name": "children",
@@ -8259,6 +8349,7 @@
         ]
       },
       "name": "relative",
+      "native": false,
       "props": [],
       "sourcePath": "packages/ui/src/components/Time/relative.ts"
     },
@@ -8300,6 +8391,7 @@
         ]
       },
       "name": "useColorMode",
+      "native": false,
       "props": [],
       "sourcePath": "packages/ui/src/components/ColorMode/ColorMode.tsx"
     },
@@ -8308,7 +8400,15 @@
       "kind": "hook",
       "meta": null,
       "name": "useContainerBelow",
-      "props": [],
+      "native": false,
+      "props": [
+        {
+          "description": "The current value of the ref.",
+          "name": "current",
+          "required": true,
+          "type": "T"
+        }
+      ],
       "sourcePath": "packages/ui/src/hooks/useContainerBelow.ts"
     },
     "useContainerQuery": {
@@ -8316,6 +8416,7 @@
       "kind": "hook",
       "meta": null,
       "name": "useContainerQuery",
+      "native": false,
       "props": [
         {
           "name": "compactBelow",
@@ -8406,6 +8507,7 @@
         ]
       },
       "name": "useDragDrop",
+      "native": false,
       "props": [],
       "sourcePath": "packages/ui/src/components/DragDrop/DragDrop.tsx"
     },
@@ -8414,6 +8516,7 @@
       "kind": "hook",
       "meta": null,
       "name": "useInModal",
+      "native": false,
       "props": [],
       "sourcePath": "packages/ui/src/shared/ModalContext.ts"
     },
@@ -8432,6 +8535,7 @@
         ]
       },
       "name": "usePortalMount",
+      "native": true,
       "props": [],
       "sourcePath": "packages/ui/src/components/ThemeProvider/ThemeProvider.tsx"
     },
@@ -8466,6 +8570,7 @@
         ]
       },
       "name": "useToast",
+      "native": false,
       "props": [],
       "sourcePath": "packages/ui/src/components/Toast/ToastProvider.tsx"
     }
@@ -8526,7 +8631,8 @@
         "label": "Input / action glyphs",
         "names": [
           "search",
-          "mic"
+          "mic",
+          "x"
         ]
       },
       {
@@ -8599,6 +8705,7 @@
       "plug",
       "search",
       "mic",
+      "x",
       "sun",
       "moon",
       "monitor",
@@ -10324,6 +10431,7 @@
       "plug",
       "search",
       "mic",
+      "x",
       "sun",
       "moon",
       "monitor",

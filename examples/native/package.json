@@ -1,0 +1,38 @@
+{
+  "name": "@duro-app/example-native",
+  "private": true,
+  "version": "0.0.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "export": "expo export --platform ios --platform android --output-dir dist --source-maps",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
+  },
+  "dependencies": {
+    "@duro-app/tokens": "link:../../packages/tokens",
+    "@duro-app/ui": "link:../../packages/ui",
+    "@shopify/react-native-skia": "2.2.12",
+    "expo": "54.0.32",
+    "expo-constants": "~18.0.9",
+    "expo-linking": "~8.0.8",
+    "expo-router": "6.0.22",
+    "expo-status-bar": "~3.0.8",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-hook-form": "^7.83.0",
+    "react-native": "0.81.5",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-reanimated": "4.3.0",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
+    "react-native-worklets": "0.8.1",
+    "react-strict-dom": "0.0.55"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/react": "~19.1.10",
+    "typescript": "5.9.3"
+  }
+}

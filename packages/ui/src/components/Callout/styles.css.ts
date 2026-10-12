@@ -55,4 +55,9 @@ export const styles = css.create({
     borderColor: colors.infoBorder,
     color: colors.infoText,
   },
+  // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
+  // native only.
+  nativeFlex: {
+    display: 'flex',
+  },
 })

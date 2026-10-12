@@ -2,7 +2,6 @@ import type {RelatedPair} from './disambiguation.js'
 import type {
   ComponentEntry,
   IconRegistry,
-  PartEntry,
   PropEntry,
   RecipeEntry,
   Registry,
@@ -82,6 +81,13 @@ export function renderComponent(
   const compound = entry.kind === 'compound' ? '   (compound)' : ''
   blocks.push(`${bold(key)} — import {${entry.name}} from '${entry.importPath}'${compound}`)
   if (entry.deprecated) blocks.push(`DEPRECATED: ${entry.deprecated}`)
+  if (entry.native !== undefined) {
+    blocks.push(
+      entry.native
+        ? 'React Native: yes'
+        : 'React Native: no — not in the native barrel yet; do not use it in a native screen',
+    )
+  }
 
   if (!options.propsOnly) blocks.push(...metaBlocks(entry))
 

@@ -1,29 +1,31 @@
 import {createPortal} from 'react-dom'
-import {
-  type ReactNode,
-  type RefObject,
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  useId,
-  useRef,
-} from 'react'
+import {type ReactNode, type RefObject, useEffect, useCallback, useId, useRef} from 'react'
 import {html} from 'react-strict-dom'
-import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
+import type {DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
+import {partStyles} from './parts.css'
+import {
+  Body,
+  Description,
+  DialogContext,
+  Footer,
+  Header,
+  Title,
+  useDialog,
+  type DialogSize,
+} from './parts'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {ModalContext} from '../../shared/ModalContext'
 import {devWarnOnce} from '../../shared/devWarnOnce'
+import {useOverlayOpenState} from '../../shared/useOverlayOpenState'
 
 // --- Types ---
 
+export type {DialogSize}
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
-export type DialogSize = 'sm' | 'md' | 'lg'
 
 const closeDurationMap = {
   instant: styles.closeDurationInstant,
@@ -34,30 +36,6 @@ const closeDurationMap = {
   base: styles.closeDurationBase,
   slow: styles.closeDurationSlow,
 } as const satisfies Record<DurationToken, unknown>
-
-// --- Context ---
-
-interface DialogContextValue {
-  open: boolean
-  closing: boolean
-  closeDuration: DurationToken
-  dismissable: boolean
-  requestOpen: () => void
-  requestClose: () => void
-  titleId: string
-  descriptionId: string
-  popupRef: RefObject<HTMLDivElement | null>
-  /** Dialog.Close parts currently rendered (for the closeOnEscape dev warning). */
-  registerClose: () => () => void
-}
-
-const DialogContext = createContext<DialogContextValue | null>(null)
-
-function useDialog() {
-  const ctx = useContext(DialogContext)
-  if (!ctx) throw new Error('Dialog compound components must be used within Dialog.Root')
-  return ctx
-}
 
 // --- Root ---
 
@@ -93,55 +71,28 @@ function Root({
   initialFocus,
   closeAnimationDuration = 'fast',
 }: RootProps) {
-  const isControlled = controlledOpen !== undefined
-  const [internalOpen, setInternalOpen] = useState(defaultOpen)
-  const [closing, setClosing] = useState(false)
-  const closingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const {
+    open: isOpen,
+    present,
+    closing,
+    requestOpen,
+    requestClose,
+  } = useOverlayOpenState({
+    open: controlledOpen,
+    defaultOpen,
+    onOpenChange,
+    exitDuration: closeAnimationDuration,
+    closeNotice: 'after-exit',
+  })
   const popupRef = useRef<HTMLDivElement>(null)
-
-  const isOpen = isControlled ? controlledOpen : internalOpen
 
   const titleId = useId()
   const descriptionId = useId()
 
-  const requestOpen = useCallback(() => {
-    if (closingTimerRef.current) {
-      clearTimeout(closingTimerRef.current)
-      closingTimerRef.current = null
-    }
-    setClosing(false)
-    if (!isControlled) setInternalOpen(true)
-    onOpenChange?.(true)
-  }, [isControlled, onOpenChange])
-
-  const requestClose = useCallback(() => {
-    setClosing(true)
-    closingTimerRef.current = setTimeout(() => {
-      setClosing(false)
-      closingTimerRef.current = null
-      if (!isControlled) setInternalOpen(false)
-      onOpenChange?.(false)
-    }, DURATION_MS[closeAnimationDuration])
-  }, [isControlled, onOpenChange, closeAnimationDuration])
-
-  // If controlled open goes false externally, trigger close animation
-  useEffect(() => {
-    if (isControlled && !controlledOpen && !closing) {
-      // Already closed, nothing to animate
-    }
-  }, [isControlled, controlledOpen, closing])
-
-  // Clean up timer on unmount
-  useEffect(() => {
-    return () => {
-      if (closingTimerRef.current) clearTimeout(closingTimerRef.current)
-    }
-  }, [])
-
   // Handle Escape key. A layer inside the dialog (a Menu, a Select) that
   // already handled it marks the event, and the dialog stays open.
   useEffect(() => {
-    if (!isOpen && !closing) return
+    if (!present) return
     if (!closeOnEscape) return
 
     function onKeyDown(e: KeyboardEvent) {
@@ -151,7 +102,7 @@ function Root({
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [isOpen, closing, closeOnEscape, requestClose])
+  }, [present, closeOnEscape, requestClose])
 
   // Focus: into the dialog on open (initialFocus, else the first focusable
   // element, else the dialog itself), back to what had it on close. The
@@ -180,29 +131,29 @@ function Root({
           'Dialog.Root has closeOnEscape={false} and no Dialog.Close: a keyboard user cannot leave this dialog. Render a Dialog.Close, or keep Escape.',
         )
       }
-    } else if (!isOpen && !closing && wasOpenRef.current) {
+    } else if (!present && wasOpenRef.current) {
       const target = previousFocusRef.current
       previousFocusRef.current = null
       if (target?.isConnected) target.focus({preventScroll: true})
     }
-    wasOpenRef.current = isOpen || closing
-  }, [isOpen, closing, initialFocus, closeOnEscape])
+    wasOpenRef.current = present
+  }, [isOpen, present, initialFocus, closeOnEscape])
 
   // Lock body scroll when open
   useEffect(() => {
-    if (isOpen || closing) {
+    if (present) {
       const prev = document.body.style.overflow
       document.body.style.overflow = 'hidden'
       return () => {
         document.body.style.overflow = prev
       }
     }
-  }, [isOpen, closing])
+  }, [present])
 
   return (
     <DialogContext.Provider
       value={{
-        open: isOpen || closing,
+        open: present,
         closing,
         closeDuration: closeAnimationDuration,
         dismissable,
@@ -229,7 +180,7 @@ function Trigger({children}: TriggerProps) {
   const {requestOpen} = useDialog()
 
   return (
-    <html.div onClick={requestOpen} style={styles.inlineWrapper}>
+    <html.div onClick={requestOpen} style={partStyles.inlineWrapper}>
       {children}
     </html.div>
   )
@@ -288,7 +239,7 @@ function Portal({children, size = 'md'}: PortalProps) {
           aria-describedby={descriptionId}
           style={[
             styles.popup,
-            styles[size],
+            partStyles[size],
             closing && styles.popupClosing,
             closing && closeDurationMap[closeDuration],
             !closing && styles.popupOpen,
@@ -310,46 +261,6 @@ function Portal({children, size = 'md'}: PortalProps) {
   return mount ? createPortal(node, mount) : node
 }
 
-// --- Header ---
-
-function Header({children}: {children: ReactNode}) {
-  return <html.div style={styles.header}>{children}</html.div>
-}
-
-// --- Title ---
-
-function Title({children}: {children: ReactNode}) {
-  const {titleId} = useDialog()
-  return (
-    <html.h2 id={titleId} style={styles.title}>
-      {children}
-    </html.h2>
-  )
-}
-
-// --- Description ---
-
-function Description({children}: {children: ReactNode}) {
-  const {descriptionId} = useDialog()
-  return (
-    <html.p id={descriptionId} style={styles.description}>
-      {children}
-    </html.p>
-  )
-}
-
-// --- Body ---
-
-function Body({children}: {children: ReactNode}) {
-  return <html.div style={styles.body}>{children}</html.div>
-}
-
-// --- Footer ---
-
-function Footer({children}: {children: ReactNode}) {
-  return <html.div style={styles.footer}>{children}</html.div>
-}
-
 // --- Close ---
 
 interface CloseProps {
@@ -363,14 +274,14 @@ function Close({children, 'aria-label': ariaLabel = 'Close'}: CloseProps) {
 
   if (children) {
     return (
-      <html.div onClick={requestClose} style={styles.inlineWrapper}>
+      <html.div onClick={requestClose} style={partStyles.inlineWrapper}>
         {children}
       </html.div>
     )
   }
 
   return (
-    <html.button onClick={requestClose} aria-label={ariaLabel} style={styles.closeButton}>
+    <html.button onClick={requestClose} aria-label={ariaLabel} style={partStyles.closeButton}>
       <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
         <path
           d="M4 4l8 8M12 4l-8 8"

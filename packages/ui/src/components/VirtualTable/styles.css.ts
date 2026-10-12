@@ -9,10 +9,14 @@ export const styles = css.create({
   wrap: {
     position: 'relative',
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
   },
   scroll: {
     position: 'relative',
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     borderWidth: borders.hairline,
     borderStyle: 'solid',
     borderColor: colors.border,
@@ -66,6 +70,8 @@ export const styles = css.create({
   bodyTotal: (height: number) => ({
     position: 'relative',
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     height,
   }),
   row: {
@@ -73,6 +79,8 @@ export const styles = css.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     borderBottomWidth: borders.hairline,
     borderBottomStyle: 'solid',
     borderBottomColor: colors.border,
@@ -113,6 +121,8 @@ export const styles = css.create({
   stackScroll: {
     position: 'relative',
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     backgroundColor: 'transparent',
   },
   stackBody: {
@@ -125,6 +135,8 @@ export const styles = css.create({
     flexDirection: 'column',
     gap: spacing.xs,
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     padding: spacing.sm,
     borderWidth: borders.hairline,
     borderStyle: 'solid',

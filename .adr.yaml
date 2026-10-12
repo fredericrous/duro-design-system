@@ -35,3 +35,5 @@ areas:
   packages/ui-email/**: [ui]
   # ui: packages/ui/package.json — `react` in dependencies
   packages/ui/**: [ui]
+  # ui: examples/native/package.json — the Expo app that bundles the native barrel
+  examples/native/**: [ui]

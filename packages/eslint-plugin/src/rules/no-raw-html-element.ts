@@ -8,6 +8,7 @@ type Options = [
     allow?: string[]
     reportUnsupported?: boolean
     htmlModule?: string
+    svgExempt?: boolean
   }?,
 ]
 
@@ -37,6 +38,7 @@ export const noRawHtmlElement: TSESLint.RuleModule<MessageIds, Options> = {
           allow: {type: 'array', items: {type: 'string'}, uniqueItems: true},
           reportUnsupported: {type: 'boolean'},
           htmlModule: {type: 'string'},
+          svgExempt: {type: 'boolean'},
         },
         additionalProperties: false,
       },
@@ -53,6 +55,9 @@ export const noRawHtmlElement: TSESLint.RuleModule<MessageIds, Options> = {
     const allow = new Set(options.allow ?? [])
     const reportUnsupported = options.reportUnsupported ?? true
     const htmlModule = options.htmlModule ?? 'react-strict-dom'
+    // false: <svg> and SVG-only tags are reported like any other intrinsic
+    // (the native graph has no SVG).
+    const svgExempt = options.svgExempt ?? true
     const sourceCode = context.sourceCode
 
     let svgDepth = 0
@@ -76,8 +81,8 @@ export const noRawHtmlElement: TSESLint.RuleModule<MessageIds, Options> = {
         const first = tag.charAt(0)
         if (first !== first.toLowerCase()) return // component
         if (tag.includes('-')) return // custom element
-        if (svgDepth > 0) return // inside an <svg> subtree
-        if (SVG_ONLY_TAGS.has(tag)) return // detached SVG fragment helpers
+        if (svgExempt && svgDepth > 0) return // inside an <svg> subtree
+        if (svgExempt && SVG_ONLY_TAGS.has(tag)) return // detached SVG fragment helpers
         if (allow.has(tag)) return
 
         if (!RSD_HTML_ELEMENTS.has(tag)) {

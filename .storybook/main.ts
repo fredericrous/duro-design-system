@@ -5,6 +5,7 @@ import type {UserConfig} from 'vite'
 import {withoutVitePlugins} from '@storybook/builder-vite'
 import react from '@vitejs/plugin-react'
 import babel from 'vite-plugin-babel'
+import {webGraphGuard} from '../packages/ui/vite/web-graph-guard'
 
 const config: StorybookConfig = {
   stories: [
@@ -30,7 +31,7 @@ const config: StorybookConfig = {
       'storybook:react-docgen-plugin',
     ])
 
-    config.plugins.push(react({babel: {configFile: true}}), babel())
+    config.plugins.push(webGraphGuard(), react({babel: {configFile: true}}), babel())
 
     config.resolve = {
       ...config.resolve,

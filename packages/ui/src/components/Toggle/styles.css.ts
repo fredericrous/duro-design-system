@@ -27,13 +27,20 @@ export const styles = css.create({
     minHeight: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
   },
   sizeDefault: {
-    padding: `${spacing.sm} ${spacing.md}`,
+    // Longhands: RSD-native rejects a multi-value shorthand.
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.md,
     fontSize: typography.fontSizeSm,
     borderRadius: radii.sm,
     gap: spacing.sm,
   },
   sizeSmall: {
-    padding: `${spacing.xs} ${spacing.sm}`,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
     fontSize: typography.fontSizeXs,
     borderRadius: radii.sm,
     gap: spacing.xs,
@@ -86,5 +93,10 @@ export const styles = css.create({
   disabled: {
     opacity: 0.5,
     cursor: 'not-allowed',
+  },
+  // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
+  // native only.
+  nativeFlex: {
+    display: 'flex',
   },
 })

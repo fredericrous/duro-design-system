@@ -11,8 +11,9 @@ import {
   useRef,
 } from 'react'
 import {html} from 'react-strict-dom'
-import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
+import type {DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
+import {useOverlayOpenState} from '../../shared/useOverlayOpenState'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {ModalContext} from '../../shared/ModalContext'
@@ -89,57 +90,27 @@ function Root({
   swipeDismiss = true,
   closeAnimationDuration = 'fast',
 }: RootProps) {
-  const isControlled = controlledOpen !== undefined
-  const [internalOpen, setInternalOpen] = useState(defaultOpen)
-  const [closing, setClosing] = useState(false)
-  const closingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const {
+    present,
+    closing,
+    requestOpen,
+    requestClose,
+    closeNow: requestCloseImmediate,
+  } = useOverlayOpenState({
+    open: controlledOpen,
+    defaultOpen,
+    onOpenChange,
+    exitDuration: closeAnimationDuration,
+    closeNotice: 'after-exit',
+  })
   const panelRef = useRef<HTMLDivElement>(null)
-
-  const isOpen = isControlled ? controlledOpen : internalOpen
 
   const titleId = useId()
   const descriptionId = useId()
 
-  const requestOpen = useCallback(() => {
-    if (closingTimerRef.current) {
-      clearTimeout(closingTimerRef.current)
-      closingTimerRef.current = null
-    }
-    setClosing(false)
-    if (!isControlled) setInternalOpen(true)
-    onOpenChange?.(true)
-  }, [isControlled, onOpenChange])
-
-  const requestClose = useCallback(() => {
-    setClosing(true)
-    closingTimerRef.current = setTimeout(() => {
-      setClosing(false)
-      closingTimerRef.current = null
-      if (!isControlled) setInternalOpen(false)
-      onOpenChange?.(false)
-    }, DURATION_MS[closeAnimationDuration])
-  }, [isControlled, onOpenChange, closeAnimationDuration])
-
-  const requestCloseImmediate = useCallback(() => {
-    if (closingTimerRef.current) {
-      clearTimeout(closingTimerRef.current)
-      closingTimerRef.current = null
-    }
-    setClosing(false)
-    if (!isControlled) setInternalOpen(false)
-    onOpenChange?.(false)
-  }, [isControlled, onOpenChange])
-
-  // Clean up timer on unmount
-  useEffect(() => {
-    return () => {
-      if (closingTimerRef.current) clearTimeout(closingTimerRef.current)
-    }
-  }, [])
-
   // Handle Escape key
   useEffect(() => {
-    if (!isOpen && !closing) return
+    if (!present) return
     if (!dismissable) return
 
     function onKeyDown(e: KeyboardEvent) {
@@ -150,23 +121,23 @@ function Root({
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [isOpen, closing, dismissable, requestClose])
+  }, [present, dismissable, requestClose])
 
   // Lock body scroll when open
   useEffect(() => {
-    if (isOpen || closing) {
+    if (present) {
       const prev = document.body.style.overflow
       document.body.style.overflow = 'hidden'
       return () => {
         document.body.style.overflow = prev
       }
     }
-  }, [isOpen, closing])
+  }, [present])
 
   return (
     <DrawerContext.Provider
       value={{
-        open: isOpen || closing,
+        open: present,
         closing,
         closeDuration: closeAnimationDuration,
         anchor,

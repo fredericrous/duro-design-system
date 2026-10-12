@@ -1,6 +1,5 @@
 import {type ReactNode, useState, useCallback} from 'react'
 import {html} from 'react-strict-dom'
-import {isNative} from '../../platform'
 import {styles} from './styles.css'
 import {visuallyHidden} from '../../styles/visually-hidden.css'
 
@@ -30,7 +29,7 @@ export function Checkbox({
   const [internalChecked, setInternalChecked] = useState(defaultChecked)
   const isChecked = isControlled ? controlledChecked : internalChecked
 
-  // Web: the real <input type=checkbox> drives toggling, a11y and form submit.
+  // The real <input type=checkbox> drives toggling, a11y and form submit.
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!isControlled) {
@@ -40,54 +39,6 @@ export function Checkbox({
     },
     [isControlled, onChange],
   )
-
-  // Native: RSD only makes <button> pressable and has no <input type=checkbox>,
-  // so the whole row is a button and we synthesize the change payload that
-  // consumers read (e.target.checked).
-  const handlePress = useCallback(() => {
-    if (disabled) return
-    const next = !isChecked
-    if (!isControlled) {
-      setInternalChecked(next)
-    }
-    onChange?.({
-      target: {checked: next, name, value},
-    } as unknown as React.ChangeEvent<HTMLInputElement>)
-  }, [disabled, isChecked, isControlled, onChange, name, value])
-
-  if (isNative) {
-    return (
-      <html.button
-        type="button"
-        onClick={handlePress}
-        disabled={disabled}
-        role="checkbox"
-        aria-checked={isChecked}
-        aria-label={!children ? ariaLabel : undefined}
-        style={[
-          styles.root,
-          styles.nativeFlex,
-          styles.nativeButton,
-          disabled && styles.rootDisabled,
-        ]}
-      >
-        <html.div
-          style={[
-            styles.box,
-            styles.nativeFlex,
-            isChecked ? styles.boxChecked : styles.boxUnchecked,
-          ]}
-        >
-          {/* CSS-border checkmark (rotated right+bottom borders) — no SVG, no
-              react-native-svg dep, so nothing is added to the web bundle. */}
-          <html.div
-            style={[styles.checkmark, isChecked ? styles.checkmarkVisible : styles.checkmarkHidden]}
-          />
-        </html.div>
-        {children && <html.span style={styles.labelText}>{children}</html.span>}
-      </html.button>
-    )
-  }
 
   return (
     <html.label style={[styles.root, disabled && styles.rootDisabled]}>

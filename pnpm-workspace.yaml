@@ -4,6 +4,9 @@ packages:
 approveBuilds: '@swc/core,esbuild'
 
 overrides:
+  # One React Native for every react-strict-dom peer: the version Happier ships,
+  # which @duro-app/ui's native typecheck reads (plan N0, Slice A item 1).
+  react-native: 0.81.5
   '@babel/core@<=7.29.0': '^7.29.6'
   '@modelcontextprotocol/sdk@>=1.12.0 <1.31.0': '^1.31.0'
   '@vitest/browser@>=4.0.0 <4.1.10': '^4.1.10'

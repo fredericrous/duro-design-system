@@ -74,6 +74,9 @@ export function ConfirmDialog({
                 value={typed}
                 onChange={(e) => setTyped(e.target.value)}
                 autoFocus
+                // The phrase must match exactly: no capitalising or correcting it.
+                autoCapitalize="none"
+                spellCheck={false}
                 aria-label="confirmation phrase"
               />
             </Field.Root>

@@ -13,6 +13,7 @@ import {Select} from '../Select/Select'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {DURATION_MS} from '@duro-app/tokens/keys'
 
 const meta: Meta = {
   title: 'Components/Dialog',
@@ -558,5 +559,75 @@ export const CloseOnEscapeOff: Story = {
     await screen.findByRole('dialog', {name: 'Required step'})
     await userEvent.keyboard('{Escape}')
     await expect(screen.getByRole('dialog', {name: 'Required step'})).toBeInTheDocument()
+  },
+}
+
+// --- Close semantics (useOverlayOpenState) ---
+
+function DoubleCloseDemo() {
+  const [closes, setCloses] = useState(0)
+  return (
+    <Stack gap="md">
+      <Text>Closes reported: {closes}</Text>
+      <Dialog.Root
+        defaultOpen
+        onOpenChange={(next) => {
+          if (!next) setCloses((count) => count + 1)
+        }}
+      >
+        <Dialog.Portal size="sm">
+          <Dialog.Header>
+            <Dialog.Title>Close twice</Dialog.Title>
+          </Dialog.Header>
+          <Dialog.Footer>
+            <Dialog.Close>
+              <Button>Done</Button>
+            </Dialog.Close>
+          </Dialog.Footer>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </Stack>
+  )
+}
+
+/** A second close while the exit animation plays reports the close once. */
+export const DoubleCloseReportsOnce: Story = {
+  render: () => <DoubleCloseDemo />,
+  play: async ({canvasElement}) => {
+    const doc = within(canvasElement.ownerDocument.body)
+    const done = await doc.findByRole('button', {name: 'Done'})
+    await userEvent.click(done)
+    await userEvent.click(done)
+    await waitFor(() => expect(doc.queryByRole('dialog')).toBeNull())
+    // Past every exit timer a second close could have started.
+    await new Promise((resolve) => setTimeout(resolve, DURATION_MS.fast * 2))
+    await expect(within(canvasElement).getByText('Closes reported: 1')).toBeInTheDocument()
+  },
+}
+
+function ControlledCloseDemo() {
+  const [open, setOpen] = useState(true)
+  return (
+    <Dialog.Root open={open} onOpenChange={setOpen} closeAnimationDuration="slow">
+      <Dialog.Portal size="sm">
+        <Dialog.Header>
+          <Dialog.Title>Closed by its owner</Dialog.Title>
+        </Dialog.Header>
+        <Dialog.Footer>
+          <Button onClick={() => setOpen(false)}>Save</Button>
+        </Dialog.Footer>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}
+
+/** A controlled `open` that turns false plays the exit animation before unmounting. */
+export const ControlledCloseAnimates: Story = {
+  render: () => <ControlledCloseDemo />,
+  play: async ({canvasElement}) => {
+    const doc = within(canvasElement.ownerDocument.body)
+    await userEvent.click(await doc.findByRole('button', {name: 'Save'}))
+    await expect(doc.getByRole('dialog')).toBeInTheDocument()
+    await waitFor(() => expect(doc.queryByRole('dialog')).toBeNull())
   },
 }

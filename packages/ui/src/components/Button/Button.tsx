@@ -24,7 +24,8 @@ interface ButtonProps {
   'aria-controls'?: string
   /**
    * The underlying <button>, e.g. to anchor a Popover or return focus to it.
-   * Web only: on native the ref is not attached.
+   * On native it is react-strict-dom's element (a Pressable host), which
+   * measures with `measureInWindow` and takes accessibility focus.
    */
   ref?: Ref<HTMLButtonElement>
   children: ReactNode
@@ -51,7 +52,7 @@ export function Button({
   const grouped = useGroupedControl<HTMLButtonElement>({disabled})
   return (
     <html.button
-      ref={isNative ? undefined : mergeRefs(ref, grouped.ref)}
+      ref={isNative ? ref : mergeRefs(ref, grouped.ref)}
       tabIndex={grouped.tabIndex}
       onFocus={grouped.onFocus}
       type={type}
