@@ -4400,7 +4400,7 @@
         ]
       },
       "name": "Menu",
-      "native": false,
+      "native": true,
       "parts": {
         "Item": {
           "name": "Item",
@@ -4425,6 +4425,12 @@
               "name": "href",
               "required": true,
               "type": "string"
+            },
+            {
+              "description": "Called for a plain primary click (ADR-0002): call `event.preventDefault()`, then your router's navigate. Without it the browser follows the link.",
+              "name": "onNavigate",
+              "required": false,
+              "type": "OnNavigate"
             },
             {
               "name": "children",
@@ -5044,7 +5050,7 @@
         ]
       },
       "name": "Popover",
-      "native": false,
+      "native": true,
       "parts": {
         "Close": {
           "name": "Close",
@@ -7674,7 +7680,7 @@
         ]
       },
       "name": "ToastProvider",
-      "native": false,
+      "native": true,
       "props": [
         {
           "default": "'Dismiss'",
@@ -7992,7 +7998,7 @@
         ]
       },
       "name": "Tooltip",
-      "native": false,
+      "native": true,
       "parts": {
         "Root": {
           "name": "Root",
@@ -8596,7 +8602,7 @@
         ]
       },
       "name": "useToast",
-      "native": false,
+      "native": true,
       "props": [],
       "sourcePath": "packages/ui/src/components/Toast/ToastProvider.tsx"
     }

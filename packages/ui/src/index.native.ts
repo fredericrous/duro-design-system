@@ -58,6 +58,20 @@ export {
   type DrawerSize,
   type SnapPoint,
 } from './components/Drawer/Drawer'
+export {Menu, type MenuTriggerVariant} from './components/Menu/Menu'
+export {Popover, type PopoverHandle} from './components/Popover/Popover'
+// Touch has no hover: a Tooltip's text is its trigger's accessibility hint.
+export {Tooltip} from './components/Tooltip/Tooltip'
+// Drawn through the portal host, above every open overlay and the keyboard.
+export {
+  ToastProvider,
+  useToast,
+  type ToastVariant,
+  type ToastOptions,
+  type ToastAction,
+  type ToastContextValue,
+  type ToastProviderProps,
+} from './components/Toast'
 
 // Layout primitives
 export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'

@@ -1,12 +1,9 @@
 import {useState, useCallback, useRef, useId, useEffect, useLayoutEffect} from 'react'
 import type {MenuContextValue} from './MenuContext'
 import {isOutsidePress} from '../Popover/outside'
+import {useMenuOpen, type MenuOpenOptions} from './useMenuOpen'
 
-export interface MenuRootOptions {
-  open?: boolean
-  defaultOpen?: boolean
-  onOpenChange?: (open: boolean) => void
-}
+export type MenuRootOptions = MenuOpenOptions
 
 /**
  * The menu-button pattern (WAI-ARIA APG): on open, focus moves to the
@@ -16,10 +13,8 @@ export interface MenuRootOptions {
  * elsewhere (an editor) are never intercepted, and Escape stops there so an
  * enclosing Popover or Dialog stays open.
  */
-export function useMenuRoot({open: openProp, defaultOpen = false, onOpenChange}: MenuRootOptions) {
-  const [inner, setInner] = useState(defaultOpen)
-  const controlled = openProp !== undefined
-  const open = controlled ? openProp : inner
+export function useMenuRoot(options: MenuRootOptions) {
+  const {open, openRef, setOpen} = useMenuOpen(options)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
   // Read by the keydown handler, so activating an item is not a side effect
   // inside a state updater (React may run updaters twice).
@@ -34,38 +29,24 @@ export function useMenuRoot({open: openProp, defaultOpen = false, onOpenChange}:
   const popupRef = useRef<HTMLDivElement | null>(null)
   const itemsRef = useRef(new Map<string, HTMLElement>())
   const orderRef = useRef<string[]>([])
-  const openRef = useRef(open)
-  openRef.current = open
-  const onOpenChangeRef = useRef(onOpenChange)
-  onOpenChangeRef.current = onOpenChange
-
-  const setOpen = useCallback(
-    (next: boolean) => {
-      if (next === openRef.current) return
-      if (!controlled) setInner(next)
-      onOpenChangeRef.current?.(next)
-    },
-    [controlled],
-  )
-
   // Closes and leaves focus where it is (a press elsewhere put it there).
   const dismiss = useCallback(() => {
     if (!openRef.current) return
     setOpen(false)
     setHighlightedId(null)
-  }, [setOpen])
+  }, [openRef, setOpen])
 
   // Closes and puts focus back on the trigger.
   const close = useCallback(() => {
     if (!openRef.current) return
     dismiss()
     triggerRef.current?.focus()
-  }, [dismiss])
+  }, [openRef, dismiss])
 
   const toggle = useCallback(() => {
     if (openRef.current) close()
     else setOpen(true)
-  }, [close, setOpen])
+  }, [openRef, close, setOpen])
 
   // On open: focus the menu and highlight the first item. Child effects (item
   // registration) run before this parent effect, so orderRef is populated.

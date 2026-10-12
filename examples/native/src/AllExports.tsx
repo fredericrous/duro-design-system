@@ -2,6 +2,8 @@ import {useState} from 'react'
 import {Link} from 'expo-router'
 import {DialogDemo} from './DialogDemo'
 import {SheetDemo} from './SheetDemo'
+import {OverlayDemo} from './OverlayDemo'
+import {ToastDemo} from './ToastDemo'
 import {
   Alert,
   Badge,
@@ -50,6 +52,8 @@ export function AllExports() {
         <Heading level={1}>Duro native</Heading>
         <DialogDemo label="Open a dialog" />
         <SheetDemo />
+        <OverlayDemo />
+        <ToastDemo />
         <Alert variant="success">Alert with its variant icon</Alert>
         <Callout variant="warning">Callout with its variant icon</Callout>
         <Inline gap="sm">

@@ -575,7 +575,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] A4 Icon geometry and the SVG-vs-Skia benchmark, Dialog and ConfirmDialog native, Icon and StatusIcon, Spinner, barrel, device checkpoint A → **release v5.12.0**
 - [x] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
 - [x] B1 Drawer native and `snapPoints` (both platforms)
-- [ ] B2 Menu, Popover, Tooltip, Toast native
+- [x] B2 Menu, Popover, Tooltip, Toast native
 - [ ] B3 Tag, SideNav, Tabs, Tree, AppShell native
 - [ ] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
 - [ ] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
@@ -684,6 +684,8 @@ Every entry records input → expected → actual in the slice's PR body before 
 - Faults sent back from Happier's native checkpoint are counted per slice; any web regression found after release gets a patch release before the next slice starts.
 
 ## Decision log
+
+- 2026-10-12, B2: the RSD gap is filed upstream as react/react-strict-dom#524 (`aria-description` → `accessibilityHint` on native). Until it ships, Button and Toggle render through `shared/ButtonHost`, which swaps in an RN `Pressable` only inside a Tooltip; Menu and Popover triggers are `Pressable` hosts on native. VoiceOver reads the hint (checked on the iOS simulator).
 
 - 2026-10-12, B0 (ADR-0016), the person's picks from the local review canvas (an Artifact could not be published from this session): native-sheet · direction B Done (`docs/mockups/native-sheet/Done.dc.html`: grabber, centred title, a text Done as the close; the non-drag detent path stays the grabber tap and its accessibility action, Decision 5); native-toast · direction B Tinted (`docs/mockups/native-toast/Tinted.dc.html`: card surface, status-coloured edge, an inline action before close); split-pane · direction A Hairline (`docs/mockups/split-pane/Hairline.dc.html`). The other directions' artboards stay committed beside them as the record of what was offered.
 

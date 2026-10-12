@@ -1,9 +1,9 @@
 import {type ReactNode, useCallback, useLayoutEffect, useRef} from 'react'
-import {html} from 'react-strict-dom'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {useToggleGroup} from '../ToggleGroup/ToggleGroupContext'
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {mergeRefs} from '../../shared/mergeRefs'
+import {ButtonHost} from '../../shared/ButtonHost'
 import type {ControlSize} from '../../shared/types'
 import {isNative} from '../../platform'
 import {styles} from './styles.css'
@@ -84,7 +84,7 @@ export function Toggle({
   }, [disabled, isGrouped, value, group, pressed, setStandalonePressed])
 
   return (
-    <html.button
+    <ButtonHost
       ref={mergeRefs(ref, grouped.ref)}
       type="button"
       tabIndex={
@@ -116,6 +116,6 @@ export function Toggle({
       ]}
     >
       {children}
-    </html.button>
+    </ButtonHost>
   )
 }
