@@ -453,6 +453,8 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `placeholderMinH` | 80px |
 | `previewMaxH` | 320px |
 | `barH` | 4px |
+| `sheetGrabberW` | 40px |
+| `sheetGrabberH` | 4px |
 | `readoutW` | 40px |
 | `sliderW` | 96px |
 | `paletteMinW` | 96px |

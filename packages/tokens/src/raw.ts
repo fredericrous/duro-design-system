@@ -196,6 +196,8 @@ export const SIZES_PX = {
   placeholderMinH: 80,
   previewMaxH: 320,
   barH: 4,
+  sheetGrabberW: 40,
+  sheetGrabberH: 4,
   readoutW: 40,
   sliderW: 96,
   paletteMinW: 96,

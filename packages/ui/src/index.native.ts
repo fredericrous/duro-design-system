@@ -51,6 +51,13 @@ export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
 // Overlays (5.12: rendered in an OverlayModal on native)
 export {ConfirmDialog} from './components/ConfirmDialog/ConfirmDialog'
 export {Dialog, type DialogSize} from './components/Dialog/Dialog'
+// 5.13: the panel follows the finger on the UI thread (Gesture Handler + Reanimated)
+export {
+  Drawer,
+  type DrawerAnchor,
+  type DrawerSize,
+  type SnapPoint,
+} from './components/Drawer/Drawer'
 
 // Layout primitives
 export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'

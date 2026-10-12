@@ -574,7 +574,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] A3 Host registry and `PortalHost`, `OverlayModal`, resolved colours, safe area, `useOverlayOpenState` (with the web refactor), Button native ref
 - [x] A4 Icon geometry and the SVG-vs-Skia benchmark, Dialog and ConfirmDialog native, Icon and StatusIcon, Spinner, barrel, device checkpoint A → **release v5.12.0**
 - [x] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
-- [ ] B1 Drawer native and `snapPoints` (both platforms)
+- [x] B1 Drawer native and `snapPoints` (both platforms)
 - [ ] B2 Menu, Popover, Tooltip, Toast native
 - [ ] B3 Tag, SideNav, Tabs, Tree, AppShell native
 - [ ] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**

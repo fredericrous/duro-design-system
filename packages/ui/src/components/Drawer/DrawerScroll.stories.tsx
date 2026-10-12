@@ -1,11 +1,12 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, waitFor} from 'storybook/test'
-import {cdp, page} from 'vitest/browser'
+import {page} from 'vitest/browser'
 import {Drawer} from './Drawer'
 import {ToggleGroup} from '../ToggleGroup/ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
 import {Icon, type IconName} from '../Icon'
 import {SIZES_PX} from '@duro-app/tokens/keys'
+import {cdpSend, pause, toPage, touchDrag, type Point} from './touchInput'
 
 const meta: Meta = {
   title: 'Components/Drawer/Scroll',
@@ -85,56 +86,6 @@ function Scene({pressed}: {pressed?: string} = {}) {
       </Drawer.Portal>
     </Drawer.Root>
   )
-}
-
-type Point = {x: number; y: number}
-
-/** `CDPSession` is empty until the provider's typings load; `send` exists at runtime. */
-const cdpSend = (method: string, params: object) =>
-  (cdp() as unknown as {send: (method: string, params: object) => Promise<unknown>}).send(
-    method,
-    params,
-  )
-
-const pause = (ms: number) => new Promise((r) => setTimeout(r, ms))
-
-/**
- * CDP input lands in top-level page coordinates; the story runs in an iframe
- * the test runner offsets and may scale to fit. Map a point up every frame.
- */
-function toPage(p: Point): Point {
-  let {x, y} = p
-  let win: Window = window
-  while (win.frameElement && win.parent !== win) {
-    const rect = win.frameElement.getBoundingClientRect()
-    const scale = rect.width / win.innerWidth
-    x = rect.left + x * scale
-    y = rect.top + y * scale
-    win = win.parent
-  }
-  return {x, y}
-}
-
-/**
- * A page-coordinate touch point with a 1px radius: Chrome's touch adjustment
- * snaps a fat default touch onto the nearest control, which would turn every
- * drag in the list into a drag on a toggle.
- */
-const touchAt = (p: Point) => ({...toPage(p), radiusX: 1, radiusY: 1})
-
-/** Real touch drag through CDP; synthetic pointer events don't scroll. */
-async function touchDrag(from: Point, to: Point) {
-  const steps = 12
-  const send = (type: string, touchPoints: Point[]) =>
-    cdpSend('Input.dispatchTouchEvent', {type, touchPoints: touchPoints.map(touchAt)})
-  await send('touchStart', [from])
-  for (let i = 1; i <= steps; i++) {
-    await send('touchMove', [
-      {x: from.x + ((to.x - from.x) * i) / steps, y: from.y + ((to.y - from.y) * i) / steps},
-    ])
-    await pause(16)
-  }
-  await send('touchEnd', [])
 }
 
 const getViewport = () => document.querySelector<HTMLElement>('[data-duro-scroll]')!

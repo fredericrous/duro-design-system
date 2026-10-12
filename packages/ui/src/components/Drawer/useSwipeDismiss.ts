@@ -1,14 +1,14 @@
 import {useRef, useCallback, useEffect} from 'react'
-import type {DrawerAnchor} from './Drawer'
-
-/** Threshold: fraction of panel size the user must drag to dismiss */
-const DISMISS_THRESHOLD = 0.3
-
-/** Minimum velocity (px/ms) to dismiss even below threshold */
-const VELOCITY_THRESHOLD = 0.5
-
-/** Duration for the dismiss slide-out animation (ms) */
-const DISMISS_DURATION = 160
+import type {DrawerAnchor} from './parts'
+import {
+  DISMISS_DURATION,
+  DRAG_SLOP,
+  SNAP_DURATION,
+  SNAP_MAX_OVERSHOOT,
+  rubberBand,
+  settleDetent,
+  shouldDismissEdge,
+} from './sheetPhysics'
 
 /**
  * Max pixels the panel visually "grows" when dragged in the opposite direction.
@@ -16,6 +16,16 @@ const DISMISS_DURATION = 160
  * Instead we show a subtle shadow/scale hint capped at this value.
  */
 const OPPOSITE_MAX_OVERSCROLL = 12
+
+/** A bottom sheet's detents: the drag moves between them before it dismisses. */
+export interface SwipeSnap {
+  /** Each detent's height in px, ascending */
+  heights: readonly number[]
+  /** The detent the sheet rests at */
+  index: number
+  /** A drag settled on another detent */
+  onSnap: (index: number) => void
+}
 
 interface UseSwipeDismissOptions {
   anchor: DrawerAnchor
@@ -27,6 +37,8 @@ interface UseSwipeDismissOptions {
    * exists, and listeners must follow the element that is actually shown.
    */
   panel: HTMLDivElement | null
+  /** Bottom anchor with snapPoints: drag between detents, dismiss below the lowest */
+  snap?: SwipeSnap | null
 }
 
 interface SwipeState {
@@ -39,6 +51,8 @@ interface SwipeState {
   panelSize: number
   /** Inner Duro scroll viewport the gesture started in; capture is deferred until the axis is decided */
   deferredScroll: HTMLElement | null
+  /** Started on a snap sheet's grabber: a tap stays its click, a drag moves the sheet */
+  fromGrabber: boolean
   pointerId: number
 }
 
@@ -49,7 +63,13 @@ interface SwipeState {
  * Opposite direction: iOS-style — panel stays anchored, shows subtle
  * overscroll feedback (box-shadow intensifies), then snaps back.
  */
-export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDismissOptions) {
+export function useSwipeDismiss({
+  anchor,
+  enabled,
+  onDismiss,
+  panel,
+  snap = null,
+}: UseSwipeDismissOptions) {
   const stateRef = useRef<SwipeState>({
     startX: 0,
     startY: 0,
@@ -59,8 +79,13 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
     swiping: false,
     panelSize: 0,
     deferredScroll: null,
+    fromGrabber: false,
     pointerId: 0,
   })
+  // Read at event time, so a settle that re-renders mid-gesture is never stale.
+  const snapRef = useRef(snap)
+  snapRef.current = snap
+  const snapping = snap !== null
 
   const isHorizontal = anchor === 'left' || anchor === 'right'
 
@@ -117,6 +142,8 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
   const resetStyles = useCallback((panelEl: HTMLDivElement) => {
     panelEl.style.transform = ''
     panelEl.style.boxShadow = ''
+    panelEl.style.height = ''
+    panelEl.style.transition = ''
 
     const backdrop = panelEl.closest('[data-drawer-viewport]')
       ?.previousElementSibling as HTMLElement | null
@@ -178,19 +205,79 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
     setTimeout(cleanup, 250)
   }, [])
 
+  /**
+   * Snap sheet drag: the visible height follows the finger. Between the lowest
+   * and the largest detent the panel resizes; past the largest it resists;
+   * below the lowest it slides down and the backdrop fades.
+   */
+  const applySnapDrag = useCallback((movement: number, panelEl: HTMLDivElement) => {
+    const current = snapRef.current
+    if (!current) return
+    const {heights, index} = current
+    const low = heights[0]
+    const high = heights[heights.length - 1]
+    const visible = heights[index] - movement
+    const backdrop = backdropOf(panelEl)
+    if (visible > high) {
+      panelEl.style.height = `${high + rubberBand(visible - high, SNAP_MAX_OVERSHOOT)}px`
+      panelEl.style.transform = ''
+    } else if (visible >= low) {
+      panelEl.style.height = `${visible}px`
+      panelEl.style.transform = ''
+    } else {
+      panelEl.style.height = `${low}px`
+      panelEl.style.transform = `translateY(${low - visible}px)`
+    }
+    if (backdrop) backdrop.style.opacity = String(Math.min(1, Math.max(0, visible / low)))
+  }, [])
+
+  /** Settle a snap sheet on a detent, then hand the height back to React */
+  const animateToDetent = useCallback((panelEl: HTMLDivElement, target: number) => {
+    const current = snapRef.current
+    if (!current) return
+    const ease = `${SNAP_DURATION}ms cubic-bezier(0.25, 1, 0.5, 1)`
+    panelEl.style.transition = `height ${ease}, transform ${ease}`
+    panelEl.style.height = `${current.heights[target]}px`
+    panelEl.style.transform = ''
+    const backdrop = backdropOf(panelEl)
+    if (backdrop) {
+      backdrop.style.transition = `opacity ${ease}`
+      backdrop.style.opacity = ''
+    }
+    let settled = false
+    const done = () => {
+      if (settled) return
+      settled = true
+      current.onSnap(target)
+      // React now sizes the panel at this detent: drop the inline copy.
+      requestAnimationFrame(() => {
+        panelEl.style.transition = ''
+        panelEl.style.height = ''
+        if (backdrop) backdrop.style.transition = ''
+      })
+    }
+    panelEl.addEventListener('transitionend', done, {once: true})
+    setTimeout(done, SNAP_DURATION + 50)
+  }, [])
+
   useEffect(() => {
     if (!enabled || !panel) return
 
     function handlePointerDown(e: PointerEvent) {
       if (e.button !== 0) return
       const target = e.target as HTMLElement
-      const scrollEl = target.closest<HTMLElement>('[data-duro-scroll]')
+      const fromGrabber = snapping && target.closest('[data-drawer-grabber]') !== null
+      const scrollEl = fromGrabber ? null : target.closest<HTMLElement>('[data-duro-scroll]')
       // Outside a ScrollArea a control keeps its press. Inside one the gesture
       // is decided on the first move even from a control: a list of toggles is
       // all buttons, and touch adjustment snaps a finger onto one. A tap
       // (under the 8px slop) still presses it; a drag never captures before
       // the decision, so the release lands on the panel, not the control.
-      if (!scrollEl && target.closest('button, a, input, textarea, select, [role="button"]')) {
+      if (
+        !fromGrabber &&
+        !scrollEl &&
+        target.closest('button, a, input, textarea, select, [role="button"]')
+      ) {
         return
       }
 
@@ -206,11 +293,13 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
 
       state.pointerId = e.pointerId
       state.deferredScroll = scrollEl
+      state.fromGrabber = fromGrabber
 
       panel!.dataset.panelSize = String(state.panelSize)
 
-      // Inside a Duro ScrollArea the scroll may own the gesture: wait for the first move.
-      if (!state.deferredScroll) beginCapture(e.pointerId)
+      // Inside a Duro ScrollArea the scroll may own the gesture, and a press on
+      // the grabber may be a tap: wait for the first move.
+      if (!state.deferredScroll && !fromGrabber) beginCapture(e.pointerId)
     }
 
     function beginCapture(pointerId: number) {
@@ -219,6 +308,14 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
       // Freeze CSS animation — we take over positioning.
       // Never restore it; the panel is already at its final resting position.
       panel!.style.animation = 'none'
+      // A snap sheet animates its height between detents; the finger drives it now.
+      if (snapping) panel!.style.transition = 'none'
+    }
+
+    /** A snap sheet below its largest detent grows when dragged up from its content */
+    function canGrow() {
+      const current = snapRef.current
+      return current !== null && current.index < current.heights.length - 1
     }
 
     /** True when the viewport can't scroll further against the dismiss direction */
@@ -240,7 +337,7 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
 
       if (!state.swiping) {
         const totalMovement = Math.sqrt(dx * dx + dy * dy)
-        if (totalMovement < 8) return
+        if (totalMovement < DRAG_SLOP) return
 
         if (isHorizontal && dx > dy) {
           state.swiping = true
@@ -250,13 +347,19 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
           // Wrong axis — abort gesture
           state.startTime = 0
           state.deferredScroll = null
+          state.fromGrabber = false
           return
         }
 
         const scrollEl = state.deferredScroll
-        if (scrollEl) {
+        if (state.fromGrabber) {
+          beginCapture(state.pointerId)
+        } else if (scrollEl) {
           state.deferredScroll = null
-          if (getMovement(state) <= 0 || !isAtDismissEdge(scrollEl)) {
+          const movement = getMovement(state)
+          const sheetOwns =
+            movement > 0 ? isAtDismissEdge(scrollEl) : snapping && movement < 0 && canGrow()
+          if (!sheetOwns) {
             // The scroll owns this gesture: no swiping, no capture, no preventDefault
             state.swiping = false
             state.startTime = 0
@@ -269,7 +372,8 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
       if (state.swiping) {
         e.preventDefault()
         const movement = getMovement(state)
-        applyTransform(movement, panel!)
+        if (snapping) applySnapDrag(movement, panel!)
+        else applyTransform(movement, panel!)
       }
     }
 
@@ -283,6 +387,7 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
 
       state.startTime = 0
       state.deferredScroll = null
+      state.fromGrabber = false
 
       if (!state.swiping) {
         return
@@ -290,16 +395,26 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
 
       state.swiping = false
 
+      const current = snapRef.current
+      if (current) {
+        const settled = settleDetent({
+          heights: current.heights,
+          from: current.index,
+          height: current.heights[current.index] - movement,
+          velocity,
+        })
+        if (settled === 'dismiss') animateDismiss(panel!)
+        else animateToDetent(panel!, settled)
+        return
+      }
+
       if (movement <= 0) {
         // Was dragging in opposite direction — just reset (no translate was applied)
         resetStyles(panel!)
         return
       }
 
-      const fraction = movement / state.panelSize
-      const shouldDismiss = fraction > DISMISS_THRESHOLD || velocity > VELOCITY_THRESHOLD
-
-      if (shouldDismiss) {
+      if (shouldDismissEdge(movement, state.panelSize, velocity)) {
         animateDismiss(panel!)
       } else {
         animateSnapBack(panel!)
@@ -311,6 +426,7 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
       state.startTime = 0
       state.swiping = false
       state.deferredScroll = null
+      state.fromGrabber = false
       resetStyles(panel!)
     }
 
@@ -340,8 +456,15 @@ export function useSwipeDismiss({anchor, enabled, onDismiss, panel}: UseSwipeDis
     isHorizontal,
     getMovement,
     applyTransform,
+    applySnapDrag,
+    animateToDetent,
     resetStyles,
     animateSnapBack,
     animateDismiss,
+    snapping,
   ])
+}
+
+function backdropOf(panelEl: HTMLDivElement) {
+  return panelEl.closest('[data-drawer-viewport]')?.previousElementSibling as HTMLElement | null
 }
