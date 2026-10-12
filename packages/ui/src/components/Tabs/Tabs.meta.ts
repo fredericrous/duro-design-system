@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Tabbed interface with keyboard navigation. Supports horizontal and vertical orientation. Compound component — Root is required.',
+    'Tabbed interface with keyboard navigation. Supports horizontal and vertical orientation. Compound component — Root is required. On React Native the indicator follows each tab layout; there is no arrow-key navigation there, each tab is its own screen-reader stop.',
   whenToUse: [
     'Switching between content panels in the same view',
     'Settings pages with multiple sections',

@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Vertical side navigation. `Section` is a labelled block that is always open — the default for primary navigation. `Group` is the same block behind a chevron (a disclosure) — reach for it only for a rare/advanced region, an unbounded data-driven list, or a rail long enough that flat stops reading as an overview; mixing the two in one rail is the healthy shape. `Item`s take an optional `icon` and show an active left-marker. Supports controlled and uncontrolled active item. Compound component — Root is required.',
+    'Vertical side navigation. `Section` is a labelled block that is always open — the default for primary navigation. `Group` is the same block behind a chevron (a disclosure) — reach for it only for a rare/advanced region, an unbounded data-driven list, or a rail long enough that flat stops reading as an overview; mixing the two in one rail is the healthy shape. `Item`s take an optional `icon` and show an active left-marker. Supports controlled and uncontrolled active item. Compound component — Root is required. On React Native the same parts render, and a Group knows whether it holds the active item from its Items, not from the DOM.',
   whenToUse: [
     'App-level sidebar navigation — flat `Section`s, every destination visible',
     'Settings navigation with labelled regions',

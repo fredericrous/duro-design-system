@@ -1,5 +1,6 @@
 /**
- * Real touch input for the Drawer's Storybook interaction tests, through
+ * Real touch input and viewport control for Storybook interaction tests
+ * (the Drawer's, SplitPane's), through
  * Chrome DevTools Protocol: synthetic pointer events neither scroll nor go
  * through touch adjustment the way a finger does.
  */

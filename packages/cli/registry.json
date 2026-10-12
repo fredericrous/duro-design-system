@@ -190,7 +190,7 @@
             "Main"
           ]
         },
-        "description": "An application's frame: a navigation rail (a labelled nav, the brand at its top, an optional footer at its foot) beside the main content (main), with an optional Header. Below collapseBelow (sm default, md or lg), measured on the shell's own width, the rail is hidden and one sticky bar (a banner, appBarH tall) holds a Menu button that opens the same navigation in a left Drawer, the brand, and the Header's content when there is one — a shell without a Header still has its navigation on a phone. Above it the Header is a row that scrolls with the page and the rail stays sticky. CSS makes the switch: the server renders one HTML for every width with the brand in both places, and display: none hides the inactive copy, so nothing moves after hydration. A skip link (the first tab stop) focuses Main; an Aside inside Main sticks below the bar. Labels come from props. Compound component — Root is required.",
+        "description": "An application's frame: a navigation rail (a labelled nav, the brand at its top, an optional footer at its foot) beside the main content (main), with an optional Header. Below collapseBelow (sm default, md or lg), measured on the shell's own width, the rail is hidden and one sticky bar (a banner, appBarH tall) holds a Menu button that opens the same navigation in a left Drawer, the brand, and the Header's content when there is one — a shell without a Header still has its navigation on a phone. Above it the Header is a row that scrolls with the page and the rail stays sticky. CSS makes the switch: the server renders one HTML for every width with the brand in both places, and display: none hides the inactive copy, so nothing moves after hydration. A skip link (the first tab stop) focuses Main; an Aside inside Main sticks below the bar. Labels come from props. Compound component — Root is required. On React Native it is always the narrow shape: the bar below the status bar, Main under it, and the Rail in a left Drawer; there is no skip link.",
         "example": "<AppShell.Root\n  menuLabel=\"Menu\"\n  closeLabel=\"Close navigation\"\n  skipLabel=\"Skip to content\"\n  brand={<TextLink href=\"/\">Acme</TextLink>}\n  collapseBelow=\"md\"\n>\n  <AppShell.Rail aria-label=\"Navigation\" footer={<Text variant=\"bodySm\">{user.name}</Text>}>\n    {({close}) => (\n      <SideNav.Root value={pathname} onValueChange={(v) => { close(); navigate(v) }}>\n        <SideNav.Item value=\"/docs\">Docs</SideNav.Item>\n      </SideNav.Root>\n    )}\n  </AppShell.Rail>\n  <AppShell.Header>{search}</AppShell.Header>\n  <AppShell.Main>{children}</AppShell.Main>\n</AppShell.Root>",
         "relatedTo": [
           {
@@ -4373,7 +4373,7 @@
             "Item"
           ]
         },
-        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button; an icon-only trigger takes aria-label, and variant=\"ghost\" suits toolbars; size=\"small\" matches small Toggles and Buttons (a small ghost trigger is iconButtonSm). The popup is portalled and placed against the trigger (never clipped by a sticky or overflow ancestor), capped at sizes.listMaxH with scrolling, and takes focus on open (WAI-ARIA menu button); Escape closes only the menu, not an enclosing Popover or Dialog.",
+        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button; an icon-only trigger takes aria-label, and variant=\"ghost\" suits toolbars; size=\"small\" matches small Toggles and Buttons (a small ghost trigger is iconButtonSm). The popup is portalled and placed against the trigger (never clipped by a sticky or overflow ancestor), capped at sizes.listMaxH with scrolling, and takes focus on open (WAI-ARIA menu button); Escape closes only the menu, not an enclosing Popover or Dialog. On React Native the popup is placed against the trigger in a modal overlay; a press outside or the Android back button closes it, and an item runs its onClick after the menu has gone (so an item can open a Dialog). Menu.LinkItem takes onNavigate(href, event) on both platforms (ADR-0002); on native, without it or without preventDefault, the link opens with the system. Native has no arrow keys: each item is its own screen-reader stop.",
         "example": "<Menu.Root>\n  <Menu.Trigger>Actions</Menu.Trigger>\n  <Menu.Popup>\n    <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n    <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n    <Menu.Separator />\n    <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n  </Menu.Popup>\n</Menu.Root>",
         "relatedTo": [
           {
@@ -4996,7 +4996,7 @@
             "Popup"
           ]
         },
-        "description": "Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves. Popover.Trigger takes size=\"small\" beside small Toggles. Popover.Popup raised draws it over another floating surface (floatingRaised, popoverRaised in a modal), never over a modal.",
+        "description": "Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves. Popover.Trigger takes size=\"small\" beside small Toggles. Popover.Popup raised draws it over another floating surface (floatingRaised, popoverRaised in a modal), never over a modal. On React Native the popup is modal: it is placed against Popover.Trigger in an overlay, a press outside or the Android back button closes it, and screen-reader focus moves in on open and back to the trigger on close; anchor, ignore and raised are web only.",
         "example": "const ref = useRef<PopoverHandle>(null)\nconst anchor = () => new DOMRect(point.x, point.y, 0, 0)\n\n<Popover.Root ref={ref} open={open} onOpenChange={setOpen} anchor={anchor} side=\"bottom\" align=\"start\">\n  <Popover.Popup label=\"Edit label\">\n    <Field.Root>\n      <Field.Label>Label</Field.Label>\n      <Input value={label} onChange={(e) => setLabel(e.target.value)} />\n    </Field.Root>\n    <Popover.Close>Done</Popover.Close>\n  </Popover.Popup>\n</Popover.Root>\n// after the anchor moves: ref.current?.reposition()",
         "relatedTo": [
           {
@@ -5645,7 +5645,7 @@
             "Item"
           ]
         },
-        "description": "Vertical side navigation. `Section` is a labelled block that is always open — the default for primary navigation. `Group` is the same block behind a chevron (a disclosure) — reach for it only for a rare/advanced region, an unbounded data-driven list, or a rail long enough that flat stops reading as an overview; mixing the two in one rail is the healthy shape. `Item`s take an optional `icon` and show an active left-marker. Supports controlled and uncontrolled active item. Compound component — Root is required.",
+        "description": "Vertical side navigation. `Section` is a labelled block that is always open — the default for primary navigation. `Group` is the same block behind a chevron (a disclosure) — reach for it only for a rare/advanced region, an unbounded data-driven list, or a rail long enough that flat stops reading as an overview; mixing the two in one rail is the healthy shape. `Item`s take an optional `icon` and show an active left-marker. Supports controlled and uncontrolled active item. Compound component — Root is required. On React Native the same parts render, and a Group knows whether it holds the active item from its Items, not from the DOM.",
         "example": "<SideNav.Root defaultValue=\"identities\">\n  {/* Default: always-open sections. Nothing is a click away from being seen. */}\n  <SideNav.Section label=\"People & access\">\n    <SideNav.Item value=\"identities\" icon={<Icon name=\"users\" size=\"md\" />}>Identities</SideNav.Item>\n    <SideNav.Item value=\"grants\" icon={<Icon name=\"key\" size=\"md\" />}>Grants</SideNav.Item>\n  </SideNav.Section>\n  {/* Disclosure, earned: rarely visited, so it starts collapsed. */}\n  <SideNav.Group label=\"Advanced\" defaultExpanded={false}>\n    <SideNav.Item value=\"plugins\" icon={<Icon name=\"plug\" size=\"md\" />}>Plugins</SideNav.Item>\n  </SideNav.Group>\n</SideNav.Root>",
         "relatedTo": [
           {
@@ -6836,7 +6836,7 @@
             "Panel"
           ]
         },
-        "description": "Tabbed interface with keyboard navigation. Supports horizontal and vertical orientation. Compound component — Root is required.",
+        "description": "Tabbed interface with keyboard navigation. Supports horizontal and vertical orientation. Compound component — Root is required. On React Native the indicator follows each tab layout; there is no arrow-key navigation there, each tab is its own screen-reader stop.",
         "example": "<Tabs.Root defaultValue=\"general\">\n  <Tabs.List>\n    <Tabs.Tab value=\"general\">General</Tabs.Tab>\n    <Tabs.Tab value=\"security\">Security</Tabs.Tab>\n    <Tabs.Tab value=\"billing\" disabled>Billing</Tabs.Tab>\n  </Tabs.List>\n  <Tabs.Panel value=\"general\">General settings content</Tabs.Panel>\n  <Tabs.Panel value=\"security\">Security settings content</Tabs.Panel>\n  <Tabs.Panel value=\"billing\">Billing content</Tabs.Panel>\n</Tabs.Root>",
         "relatedTo": [
           {
@@ -6952,7 +6952,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Interactive tag/chip with optional remove button. Works standalone or inside TagGroup for collection management. Visually similar to Badge but supports interaction.",
+        "description": "Interactive tag/chip with optional remove button. Works standalone or inside TagGroup for collection management. Visually similar to Badge but supports interaction. On React Native a Tag stands alone (TagGroup is web only): the label and, when removable, a remove button named from a string label.",
         "example": "<Tag removable onRemove={() => console.log('removed')}>\n  user@example.com\n</Tag>",
         "relatedTo": [
           {
@@ -7777,7 +7777,7 @@
       "importPath": "@duro-app/ui",
       "kind": "provider",
       "meta": {
-        "description": "Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it).",
+        "description": "Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it). On React Native the same API draws through the portal host above every open overlay and the keyboard, as a card with a status-coloured edge, its action and its close in one row; a sideways swipe dismisses, a press holds the countdown, and so does an active screen reader (WCAG 2.2.1).",
         "example": "function Example() {\n  const {toast} = useToast()\n  return (\n    <Button onClick={() => toast({variant: 'success', message: 'Grant revoked', action: {label: 'Undo', onClick: restore}})}>\n      Revoke\n    </Button>\n  )\n}",
         "relatedTo": [
           {
@@ -8110,7 +8110,7 @@
             "Trigger"
           ]
         },
-        "description": "Hover/focus tooltip that shows supplementary content. Compound component — Root is required (throws without it).",
+        "description": "Hover/focus tooltip that shows supplementary content. Compound component — Root is required (throws without it). On touch (React Native) no bubble is drawn: a string content becomes the accessibility hint of the Duro trigger inside (Button, Toggle, Menu.Trigger, Popover.Trigger), read after its name. Keep tooltip text non-essential, and keep aria-label on icon-only triggers.",
         "example": "<Tooltip.Root content=\"Delete this item permanently\" placement=\"top\">\n  <Tooltip.Trigger>\n    <Button variant=\"danger\">Delete</Button>\n  </Tooltip.Trigger>\n</Tooltip.Root>",
         "whenNotToUse": [
           "Critical information that must always be visible — use Text or Callout",
@@ -8177,7 +8177,7 @@
             "Item"
           ]
         },
-        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required.",
+        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required. On React Native selection, expansion and aria-level are the same; the keyboard model (arrows, Home/End, typeahead) is web only.",
         "example": "<Tree.Root aria-label=\"Blocs\" defaultExpanded={['energy']} onValueChange={setSelected}>\n  <Tree.Item value=\"energy\" label=\"Core business — Energy\">\n    <Tree.Item value=\"generation\" label=\"Generation\" meta=\"4 apps\" />\n    <Tree.Item value=\"network\" label=\"Network operations\">\n      <Tree.Item value=\"scada\" label=\"SCADA supervision\" />\n    </Tree.Item>\n  </Tree.Item>\n  <Tree.Item value=\"finance\" label=\"Finance & steering\" />\n</Tree.Root>",
         "relatedTo": [
           {
@@ -8785,7 +8785,7 @@
       "importPath": "@duro-app/ui",
       "kind": "hook",
       "meta": {
-        "description": "Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it).",
+        "description": "Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it). On React Native the same API draws through the portal host above every open overlay and the keyboard, as a card with a status-coloured edge, its action and its close in one row; a sideways swipe dismisses, a press holds the countdown, and so does an active screen reader (WCAG 2.2.1).",
         "example": "function Example() {\n  const {toast} = useToast()\n  return (\n    <Button onClick={() => toast({variant: 'success', message: 'Grant revoked', action: {label: 'Undo', onClick: restore}})}>\n      Revoke\n    </Button>\n  )\n}",
         "relatedTo": [
           {

@@ -1,7 +1,8 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, userEvent, waitFor} from 'storybook/test'
+import {expect, fn, userEvent, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
-import {SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX, SPACING_PX, type SizeToken} from '@duro-app/tokens/keys'
+import type {Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
 import {SplitPane} from './SplitPane'
 import {setViewport} from '../Drawer/touchInput'
 import {List} from '../List/List'
@@ -22,11 +23,37 @@ const SESSIONS = ['Refactor auth', 'Flaky e2e', 'Release notes', 'Docs pass', 'P
 // A SplitPane fills its parent: the story gives it the viewport's height.
 const frame = css.create({fill: {height: '100vh'}})
 
+interface SplitArgs {
+  defaultSize: SizeToken
+  minSize: SizeToken
+  maxSize: SizeToken
+  collapseBelow: Breakpoint
+  onSizeChange?: (px: number) => void
+}
+
+const DEFAULT_ARGS: SplitArgs = {
+  defaultSize: 'sidebarW',
+  minSize: 'sidebarW',
+  maxSize: 'panelLg',
+  collapseBelow: 'sm',
+}
+
+// Width tokens that make sense for a pane, smallest first.
+const PANE_SIZES: SizeToken[] = ['sidebarW', 'panelSm', 'panelMd', 'panelLg']
+
 /** The picked B0 direction (docs/mockups/split-pane/Hairline.dc.html). */
-function Split() {
+function Split(props: Partial<SplitArgs>) {
+  const {defaultSize, minSize, maxSize, collapseBelow, onSizeChange} = {...DEFAULT_ARGS, ...props}
   return (
     <html.div style={frame.fill}>
-      <SplitPane.Root aria-label="Resize the session list" minSize="sidebarW" maxSize="panelLg">
+      <SplitPane.Root
+        aria-label="Resize the session list"
+        defaultSize={defaultSize}
+        minSize={minSize}
+        maxSize={maxSize}
+        collapseBelow={collapseBelow}
+        onSizeChange={onSizeChange}
+      >
         <SplitPane.Pane>
           <List.Root aria-label="Sessions">
             {SESSIONS.map((s) => (
@@ -52,8 +79,23 @@ function Split() {
   )
 }
 
-export const Default: Story = {
-  render: () => <Split />,
+export const Default: StoryObj<SplitArgs> = {
+  args: {...DEFAULT_ARGS, onSizeChange: fn()},
+  argTypes: {
+    defaultSize: {
+      control: 'select',
+      options: PANE_SIZES,
+      description: 'Starting width of the first pane',
+    },
+    minSize: {control: 'select', options: PANE_SIZES, description: 'Narrowest the first pane goes'},
+    maxSize: {control: 'select', options: PANE_SIZES, description: 'Widest the first pane goes'},
+    collapseBelow: {
+      control: 'select',
+      options: ['xs', 'sm', 'md', 'lg', 'xl'],
+      description: "Below this breakpoint (the split's own width) the panes stack",
+    },
+  },
+  render: (args) => <Split {...args} />,
 }
 
 const separator = () => document.querySelector<HTMLElement>('[role="separator"]')

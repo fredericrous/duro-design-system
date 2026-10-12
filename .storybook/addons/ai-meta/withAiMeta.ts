@@ -22,9 +22,16 @@ for (const [path, mod] of Object.entries(metaModules)) {
   }
 }
 
+/**
+ * The deepest title segment that names a component with meta:
+ * `Components/Drawer/Snap points` is the Drawer, not "Snap points".
+ */
 function componentNameFromTitle(title?: string): string | null {
   if (!title) return null
   const parts = title.split('/')
+  for (let i = parts.length - 1; i >= 0; i--) {
+    if (metaByComponent[parts[i]]) return parts[i]
+  }
   return parts[parts.length - 1] || null
 }
 
@@ -51,7 +58,7 @@ export function withAiMeta(storyFn: any, context: any) {
   const registryStale =
     meta !== null &&
     registryEntry !== null &&
-    JSON.stringify(meta) !== JSON.stringify(registryEntry.meta)
+    stableStringify(meta) !== stableStringify(registryEntry.meta)
 
   try {
     const channel = addons.getChannel()
@@ -61,4 +68,17 @@ export function withAiMeta(storyFn: any, context: any) {
   }
 
   return storyFn()
+}
+
+/**
+ * JSON with object keys sorted at every depth: the registry writes meta with
+ * sorted keys, the live meta keeps its source order, and a plain stringify
+ * would call every component stale.
+ */
+function stableStringify(value: unknown): string {
+  return JSON.stringify(value, (_key, v: unknown) =>
+    v && typeof v === 'object' && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : v,
+  )
 }

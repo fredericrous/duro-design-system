@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, userEvent, waitFor} from 'storybook/test'
-import {Drawer} from './Drawer'
+import {expect, fn, userEvent, waitFor} from 'storybook/test'
+import {Drawer, type SnapPoint} from './Drawer'
 import {Button} from '../Button/Button'
 import {List} from '../List/List'
 import {cdpSend, centre, pause, setViewport, touchDrag, type Point} from './touchInput'
@@ -15,12 +15,32 @@ type Story = StoryObj
 
 const SESSIONS = Array.from({length: 40}, (_, i) => `Session ${i + 1}`)
 
+interface SheetArgs {
+  snapPoints: SnapPoint[]
+  defaultSnapPoint: SnapPoint
+  titleAlign: 'start' | 'center'
+  onOpenChange?: (open: boolean) => void
+}
+
+const DEFAULT_ARGS: SheetArgs = {
+  snapPoints: ['medium', 'large'],
+  defaultSnapPoint: 'medium',
+  titleAlign: 'center',
+}
+
 /** The picked B0 direction (docs/mockups/native-sheet/Done.dc.html): grabber, centred title, a text Done. */
-function Sheet() {
+function Sheet(props: Partial<SheetArgs>) {
+  const {snapPoints, defaultSnapPoint, titleAlign, onOpenChange} = {...DEFAULT_ARGS, ...props}
   return (
-    <Drawer.Root anchor="bottom" snapPoints={['medium', 'large']} defaultOpen>
+    <Drawer.Root
+      anchor="bottom"
+      snapPoints={snapPoints}
+      defaultSnapPoint={defaultSnapPoint}
+      onOpenChange={onOpenChange}
+      defaultOpen
+    >
       <Drawer.Portal>
-        <Drawer.Header titleAlign="center">
+        <Drawer.Header titleAlign={titleAlign}>
           <Drawer.Title>Move to project</Drawer.Title>
           <Drawer.Close>
             <Button variant="link">Done</Button>
@@ -40,8 +60,28 @@ function Sheet() {
   )
 }
 
-export const SnapSheet: Story = {
-  render: () => <Sheet />,
+export const SnapSheet: StoryObj<SheetArgs> = {
+  args: {...DEFAULT_ARGS, onOpenChange: fn()},
+  argTypes: {
+    snapPoints: {
+      control: 'check',
+      options: ['medium', 'large'],
+      description: "The detents: 'medium' half the window, 'large' the window less its top inset",
+    },
+    defaultSnapPoint: {
+      control: 'inline-radio',
+      options: ['medium', 'large'],
+      description: 'The detent the sheet opens at',
+    },
+    titleAlign: {
+      control: 'inline-radio',
+      options: ['start', 'center'],
+      description: 'Drawer.Header: the title at the start, or centred with the close at the end',
+    },
+  },
+  render: (args) => (
+    <Sheet {...args} snapPoints={args.snapPoints.length > 0 ? args.snapPoints : ['medium']} />
+  ),
 }
 
 const getDialog = () => document.querySelector<HTMLElement>('[role="dialog"]')
