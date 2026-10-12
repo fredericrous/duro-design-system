@@ -573,7 +573,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] A2 `examples/native` (expo-router modal route, native peers), the exports test, `native:export`, the CI `native` job
 - [x] A3 Host registry and `PortalHost`, `OverlayModal`, resolved colours, safe area, `useOverlayOpenState` (with the web refactor), Button native ref
 - [x] A4 Icon geometry and the SVG-vs-Skia benchmark, Dialog and ConfirmDialog native, Icon and StatusIcon, Spinner, barrel, device checkpoint A → **release v5.12.0**
-- [ ] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
+- [x] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
 - [ ] B1 Drawer native and `snapPoints` (both platforms)
 - [ ] B2 Menu, Popover, Tooltip, Toast native
 - [ ] B3 Tag, SideNav, Tabs, Tree, AppShell native
@@ -684,6 +684,8 @@ Every entry records input → expected → actual in the slice's PR body before 
 - Faults sent back from Happier's native checkpoint are counted per slice; any web regression found after release gets a patch release before the next slice starts.
 
 ## Decision log
+
+- 2026-10-12, B0 (ADR-0016), the person's picks from the local review canvas (an Artifact could not be published from this session): native-sheet · direction B Done (`docs/mockups/native-sheet/Done.dc.html`: grabber, centred title, a text Done as the close; the non-drag detent path stays the grabber tap and its accessibility action, Decision 5); native-toast · direction B Tinted (`docs/mockups/native-toast/Tinted.dc.html`: card surface, status-coloured edge, an inline action before close); split-pane · direction A Hairline (`docs/mockups/split-pane/Hairline.dc.html`). The other directions' artboards stay committed beside them as the record of what was offered.
 
 - 2026-10-12: the icon renderer stays `react-native-svg` for 5.12 under Decision 9's rule. Frames, the deciding measure, cannot be measured on this host (software-rendered emulator, no hitches on the simulator); Skia leads on Android mount and iOS memory, not on iOS mount. The benchmark screen stays in `examples/native` and reruns on physical devices before slice B; a Skia win there swaps the renderer in B.
 
