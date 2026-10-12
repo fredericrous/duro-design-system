@@ -52,6 +52,10 @@ export const nativeStyles = css.create({
     paddingRight: spacing.lg,
     paddingBottom: spacing.lg,
   },
+  bodyFlush: {
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
   // A snap sheet resting below its largest detent: its lower part is off
   // screen, so the list scrolls that far further to show its end.
   hiddenBelow: (height: number) => ({paddingBottom: height}),

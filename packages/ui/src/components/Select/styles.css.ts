@@ -124,4 +124,15 @@ export const styles = css.create({
   hidden: {
     display: 'none',
   },
+  // Popup's `empty`: no items to choose from.
+  empty: {
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.md,
+    fontFamily: typography.fontFamily,
+    fontSize: typography.fontSizeSm,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
 })

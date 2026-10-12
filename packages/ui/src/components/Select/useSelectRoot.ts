@@ -1,27 +1,13 @@
 import {useState, useCallback, useMemo, useRef, useId, useEffect} from 'react'
-import {useControllableValue} from '../../hooks/useControllableValue'
 import type {SelectContextValue} from './SelectContext'
+import {useSelectState, type SelectStateOptions} from './selectState'
 
-interface UseSelectRootOptions {
-  defaultValue?: string
-  value?: string
-  onValueChange?: (value: string | null) => void
-  initialLabels?: Record<string, string>
-}
-
-export function useSelectRoot({
-  defaultValue,
-  value: controlledValue,
-  onValueChange,
-  initialLabels,
-}: UseSelectRootOptions) {
-  const [value, setValue] = useControllableValue<string | null>(
-    controlledValue,
-    defaultValue ?? null,
-    onValueChange,
-  )
-  const [open, setOpen] = useState(false)
-  const [labels, setLabels] = useState<Record<string, string>>(initialLabels ?? {})
+/**
+ * The web adapter over the shared Select state: the highlighted option,
+ * document order, keys and DOM focus (the WAI-ARIA select-only combobox).
+ */
+export function useSelectRoot(options: SelectStateOptions) {
+  const {value, setValue, open, setOpen, labels, registerLabel} = useSelectState(options)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
   const listboxId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
@@ -33,7 +19,7 @@ export function useSelectRoot({
     setOpen(false)
     setHighlightedId(null)
     triggerRef.current?.focus()
-  }, [])
+  }, [setOpen])
 
   const toggle = useCallback(() => {
     setOpen((prev) => {
@@ -54,14 +40,7 @@ export function useSelectRoot({
       }
       return !prev
     })
-  }, [value])
-
-  const registerLabel = useCallback((v: string, label: string) => {
-    setLabels((prev) => {
-      if (prev[v] === label) return prev
-      return {...prev, [v]: label}
-    })
-  }, [])
+  }, [value, setOpen])
 
   const registerItem = useCallback((id: string, itemValue: string, element: HTMLElement) => {
     itemsRef.current.set(id, {value: itemValue, element})

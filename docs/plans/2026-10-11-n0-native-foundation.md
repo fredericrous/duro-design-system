@@ -579,7 +579,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] B3 Tag, SideNav, Tabs, Tree, AppShell native
 - [x] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
 - [x] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
-- [ ] C1 Listbox, Select, Combobox native sheets
+- [x] C1 Listbox, Select, Combobox native sheets
 - [ ] C2 ScrollArea native, the `./form` native entry and submit context
 - [ ] C3 Theme overrides (both platforms), ColorMode native, the token additions sized in C0, device checkpoint C → **release v5.14.0**
 
@@ -684,6 +684,21 @@ Every entry records input → expected → actual in the slice's PR body before 
 - Faults sent back from Happier's native checkpoint are counted per slice; any web regression found after release gets a patch release before the next slice starts.
 
 ## Decision log
+
+- 2026-10-13, C1: the pickers follow direction A Check. Shared state lives in `Select/selectState.ts` and `Combobox/comboboxState.ts` (Decision 10); the web adapters keep highlight, document order, keys and focus, and the native files keep registration and presses. Four API additions, on both platforms so one call site serves both:
+  - `Select.Popup` takes `label`, `cancelLabel` and `empty`, and `Combobox.Popup` takes `label` and `cancelLabel`. `label` is the list's accessible name and, on native, the sheet's title. `cancelLabel` is native only. `empty` replaces the list when it has no items.
+  - `Drawer.Body flush` drops the side padding, so a picker's rows run to the edges as the artboard draws them.
+
+  Native-only behaviour:
+  - The Combobox sheet's search text is its own and starts empty each time it opens. It does not drive `inputValue`/`onInputChange`, which follow the field's label, so a Cancel never clears the value.
+  - The search field takes focus `DURATION_MS.base` after the sheet opens, through `shared/focusInput` (`getNativeRef().focus()`, #506). `autoFocus` fires before iOS presents the Modal.
+  - The sheet's ScrollView sets `keyboardShouldPersistTaps="handled"`, so with the keyboard up a press on a row picks it.
+  - `name` (the web's hidden input) does nothing on native.
+
+  Observed on the iOS simulator (iPhone 17 Pro, iOS 26.5):
+  - A Select pick closes the sheet and the trigger shows the label. The empty Select shows its `empty`.
+  - The Combobox opens at large with the field focused. Typing filters the list, and no match shows `Combobox.Empty`.
+  - With the software keyboard up, a single tap picked a row once (its press logged), and once was swallowed. The simulator's keyboard toggle is flaky, so this is a row for device checkpoint C on the physical iPhone.
 
 - 2026-10-13, C0 picker mockups (ADR-0016), the person's pick from the local review: native-picker · direction A Check (`docs/mockups/native-picker/Check.dc.html`): a tap picks the option and closes the sheet; the current value carries a trailing check and the selected fill; the header's text button is Cancel; Select empty shows a List empty state, Combobox pins its search Input and shows Combobox.Empty with no match. Direction B Confirm (leading radios, Done confirms) stays committed as the record of what was offered.
 

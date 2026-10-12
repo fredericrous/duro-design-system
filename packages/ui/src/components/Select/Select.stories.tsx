@@ -1,5 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, screen} from 'storybook/test'
+import {expect, fn, screen} from 'storybook/test'
 import {Dialog} from '../Dialog/Dialog'
 import {Select} from './Select'
 
@@ -211,5 +211,53 @@ export const ArrowKeysOpen: Story = {
     await userEvent.keyboard('{ArrowUp}')
     await expect(trigger).toHaveAttribute('aria-expanded', 'true')
     await userEvent.keyboard('{Escape}')
+  },
+}
+
+const MODELS = ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5', 'gpt-6', 'gemini-3-pro']
+
+interface LabelledArgs {
+  label: string
+  empty: string
+  itemCount: number
+  onValueChange?: (value: string | null) => void
+}
+
+/**
+ * Popup's label names the list (and titles the native sheet); empty replaces
+ * the list when there are no items. Set itemCount to 0 for the empty state.
+ */
+export const LabelledAndEmpty: StoryObj<LabelledArgs> = {
+  args: {
+    label: 'Model',
+    empty: 'No models. Connect a provider to choose a model.',
+    itemCount: 0,
+    onValueChange: fn(),
+  },
+  argTypes: {
+    label: {control: 'text', description: "Select.Popup: the list's accessible name"},
+    empty: {control: 'text', description: 'Select.Popup: shown when there are no items'},
+    itemCount: {control: {type: 'range', min: 0, max: MODELS.length, step: 1}},
+  },
+  render: ({label, empty, itemCount, onValueChange}) => (
+    <Select.Root onValueChange={onValueChange}>
+      <Select.Trigger aria-label={label}>
+        <Select.Value placeholder="Choose a model" />
+        <Select.Icon />
+      </Select.Trigger>
+      <Select.Popup label={label} empty={empty}>
+        {MODELS.slice(0, itemCount).map((m) => (
+          <Select.Item key={m} value={m}>
+            {m}
+          </Select.Item>
+        ))}
+      </Select.Popup>
+    </Select.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('combobox'))
+    const list = screen.getByRole('listbox', {name: 'Model'})
+    await expect(list).toHaveTextContent(/No models/)
+    await expect(screen.queryAllByRole('option')).toHaveLength(0)
   },
 }

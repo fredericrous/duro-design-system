@@ -33,6 +33,7 @@ import {ModalContext} from '../../shared/ModalContext'
 import {OverlayModal} from '../../shared/portal/OverlayModal'
 import {focusForAccessibility} from '../../shared/accessibilityFocus'
 import {useSafeAreaInsets} from '../../shared/safeArea'
+import {useKeyboardHeight} from '../../shared/useKeyboardHeight'
 import {withPress} from '../../shared/pressableChild'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {Icon} from '../Icon/Icon'
@@ -145,12 +146,17 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
   } = useDrawer()
   const window = useWindowDimensions()
   const insets = useSafeAreaInsets()
+  // A bottom drawer rides above the on-screen keyboard: its detents measure
+  // from the keyboard's top edge, so a search field and its results stay seen.
+  const keyboard = useKeyboardHeight()
+  const lift = anchor === 'bottom' ? keyboard : 0
+  const availableHeight = window.height - lift
   const bottom = anchor === 'bottom'
   const snapping = snapPoints.length > 0
 
   const heights = useMemo(
-    () => snapPoints.map((p) => detentHeight(p, window.height, insets.top)),
-    [snapPoints, window.height, insets.top],
+    () => snapPoints.map((p) => detentHeight(p, availableHeight, insets.top)),
+    [snapPoints, availableHeight, insets.top],
   )
   const high = heights.length > 0 ? heights[heights.length - 1] : 0
   // Where the panel rests at its detent: its offset below its own full height.
@@ -316,11 +322,11 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
 
   const placement = bottom
     ? snapping
-      ? [layout.bottom, {height: high + SNAP_MAX_OVERSHOOT, bottom: -SNAP_MAX_OVERSHOOT}]
-      : [layout.bottom, {maxHeight: window.height * CONTENT_SHEET_CAP}]
+      ? [layout.bottom, {height: high + SNAP_MAX_OVERSHOOT, bottom: lift - SNAP_MAX_OVERSHOOT}]
+      : [layout.bottom, {bottom: lift, maxHeight: availableHeight * CONTENT_SHEET_CAP}]
     : [layout.side, anchor === 'left' ? layout.left : layout.right, {maxWidth: PANEL_WIDTH[size]}]
   const padTop = bottom ? 0 : insets.top
-  const padBottom = insets.bottom + (snapping ? SNAP_MAX_OVERSHOOT : 0)
+  const padBottom = (lift > 0 ? 0 : insets.bottom) + (snapping ? SNAP_MAX_OVERSHOOT : 0)
 
   const nextIndex = cycleDetent(snapIndex, snapPoints.length)
   const onGrabberAction = (e: AccessibilityActionEvent) => {
@@ -420,7 +426,13 @@ const layout = StyleSheet.create({
  * overflow. In a bottom sheet the drag defers to it: the list scrolls, and
  * moves the sheet only from its top.
  */
-function Body({children}: {children: ReactNode}) {
+interface BodyProps {
+  children: ReactNode
+  /** No side padding: rows that run to the panel's edges, as a picker's list. */
+  flush?: boolean
+}
+
+function Body({children, flush = false}: BodyProps) {
   const sheet = useContext(SheetScrollContext)
   const {snapPoints} = useDrawer()
   if (!sheet) return null
@@ -431,9 +443,17 @@ function Body({children}: {children: ReactNode}) {
         onScroll={sheet.onScroll}
         scrollEventThrottle={16}
         bounces={false}
+        // A row press with the keyboard up picks it, not only dismisses the keyboard.
+        keyboardShouldPersistTaps="handled"
         style={snapPoints.length > 0 ? layout.bodyFill : layout.body}
       >
-        <html.div style={[nativeStyles.bodyContent, nativeStyles.hiddenBelow(sheet.hiddenBelow)]}>
+        <html.div
+          style={[
+            nativeStyles.bodyContent,
+            flush && nativeStyles.bodyFlush,
+            nativeStyles.hiddenBelow(sheet.hiddenBelow),
+          ]}
+        >
           {children}
         </html.div>
       </Animated.ScrollView>

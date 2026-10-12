@@ -1494,7 +1494,7 @@
             "Item"
           ]
         },
-        "description": "Searchable dropdown for selecting a value from a filterable list. Combines a text input with a popup listbox. Compound component — Root is required.",
+        "description": "Searchable dropdown for selecting a value from a filterable list. Combines a text input with a popup listbox. Compound component — Root is required. Combobox.Popup takes label (the list's accessible name). On React Native the field opens a bottom sheet at its large detent, above the keyboard, titled by label with a Cancel text button (cancelLabel): a search field is pinned under the header and focused, the list below filters as you type, Combobox.Empty shows when nothing matches, and a press picks an option and closes the sheet. The sheet's search text starts empty each time; Combobox.Trigger renders nothing on native.",
         "example": "<Combobox.Root name=\"country\" defaultValue=\"us\" initialLabels={{us: 'United States'}}>\n  <Combobox.Input placeholder=\"Search countries…\" />\n  <Combobox.Popup>\n    <Combobox.Item value=\"us\">United States</Combobox.Item>\n    <Combobox.Item value=\"gb\">United Kingdom</Combobox.Item>\n    <Combobox.Item value=\"fr\">France</Combobox.Item>\n    <Combobox.Item value=\"de\">Germany</Combobox.Item>\n    <Combobox.Empty>No countries found</Combobox.Empty>\n  </Combobox.Popup>\n</Combobox.Root>",
         "relatedTo": [
           {
@@ -1530,7 +1530,7 @@
         ]
       },
       "name": "Combobox",
-      "native": false,
+      "native": true,
       "parts": {
         "Empty": {
           "name": "Empty",
@@ -1593,6 +1593,18 @@
               "name": "children",
               "required": true,
               "type": "ReactNode"
+            },
+            {
+              "description": "The list's accessible name; on native also the sheet's title.",
+              "name": "label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "Native only: the sheet header's text button that closes it unchanged. Default: 'Cancel'",
+              "name": "cancelLabel",
+              "required": false,
+              "type": "string"
             }
           ],
           "sourcePath": "packages/ui/src/components/Combobox/Combobox.tsx"
@@ -2503,7 +2515,7 @@
             "Portal"
           ]
         },
-        "description": "Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). A bottom drawer with snapPoints (medium and large) is a phone sheet: it rests at its detents, a grabber steps through them on a tap, a drag moves between them and dismisses below the lowest; its Body is the scroll the drag defers to. Header titleAlign=\"center\" centres the title with a text close at the end. Use for secondary workflows, settings panels, or mobile-friendly detail views.",
+        "description": "Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). A bottom drawer with snapPoints (medium and large) is a phone sheet: it rests at its detents, a grabber steps through them on a tap, a drag moves between them and dismisses below the lowest; its Body is the scroll the drag defers to. Header titleAlign=\"center\" centres the title with a text close at the end. Body flush drops its side padding, so rows run to the panel's edges (a picker's list); on React Native a bottom drawer rides above the on-screen keyboard. Use for secondary workflows, settings panels, or mobile-friendly detail views.",
         "example": "<Drawer.Root anchor=\"right\" open={open} onOpenChange={setOpen}>\n  <Drawer.Trigger>\n    <Button>Open drawer</Button>\n  </Drawer.Trigger>\n  <Drawer.Portal size=\"md\">\n    <Drawer.Header>\n      <Drawer.Title>Settings</Drawer.Title>\n      <Drawer.Close />\n    </Drawer.Header>\n    <Drawer.Body>\n      <Stack gap=\"md\">\n        <Text>Drawer content goes here.</Text>\n      </Stack>\n    </Drawer.Body>\n    <Drawer.Footer>\n      <Button variant=\"secondary\" onClick={() => setOpen(false)}>Done</Button>\n    </Drawer.Footer>\n  </Drawer.Portal>\n</Drawer.Root>",
         "relatedTo": [
           {
@@ -2546,6 +2558,13 @@
               "name": "children",
               "required": true,
               "type": "ReactNode"
+            },
+            {
+              "default": "false",
+              "description": "No side padding: rows that run to the panel's edges, as a picker's list.",
+              "name": "flush",
+              "required": false,
+              "type": "boolean"
             }
           ],
           "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"
@@ -4115,7 +4134,7 @@
             "Option"
           ]
         },
-        "description": "Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox. The anchor owns focus and the keyboard: it sets the controlled highlightedId and spreads Listbox.getAnchorProps() for aria-controls / aria-expanded / aria-activedescendant. A press on an option never takes focus from the anchor. Portalled and placed against anchor() (an input rect or a caret rect), capped at a size-token maxHeight (default listMaxH).",
+        "description": "Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox. The anchor owns focus and the keyboard: it sets the controlled highlightedId and spreads Listbox.getAnchorProps() for aria-controls / aria-expanded / aria-activedescendant. A press on an option never takes focus from the anchor. Portalled and placed against anchor() (an input rect or a caret rect), capped at a size-token maxHeight (default listMaxH). On React Native it is a plain list laid out where it is rendered (inside a Select or Combobox sheet): nothing is anchored or highlighted, the selected option is filled with a trailing check, and a press calls onSelect.",
         "example": "const id = useId()\nconst [highlightedId, setHighlightedId] = useState<string | null>(null)\nconst optionId = (value: string) => `${id}-${value}`\n// On the editor root: Object.entries(Listbox.getAnchorProps({id, open, highlightedId}))\n<Listbox.Root\n  id={id}\n  open={open}\n  anchor={() => caretRect()}\n  highlightedId={highlightedId}\n  onHighlight={setHighlightedId}\n  onSelect={(value) => insertMention(value)}\n  getOptionId={optionId}\n  aria-label=\"Mentions\"\n>\n  {people.map((p) => (\n    <Listbox.Option key={p.id} value={p.id}>{p.name}</Listbox.Option>\n  ))}\n  {people.length === 0 && <Listbox.Empty>No match</Listbox.Empty>}\n</Listbox.Root>",
         "relatedTo": [
           {
@@ -4140,7 +4159,7 @@
         ]
       },
       "name": "Listbox",
-      "native": false,
+      "native": true,
       "parts": {
         "Empty": {
           "name": "Empty",
@@ -5472,7 +5491,7 @@
             "Item"
           ]
         },
-        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size=\"small\" to match small Toggles and Buttons in a toolbar.",
+        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size=\"small\" to match small Toggles and Buttons in a toolbar. Select.Popup takes label (the list's accessible name) and empty (shown in place of the list when it has no items). On React Native the trigger opens a bottom sheet (a Drawer at the medium and large detents) titled by label, with a Cancel text button (cancelLabel); the chosen option is filled with a trailing check, and a press picks an option and closes the sheet. Native has no arrow keys: each option is its own screen-reader stop.",
         "example": "<Select.Root name=\"role\" defaultValue=\"viewer\">\n  <Select.Trigger>\n    <Select.Value placeholder=\"Select role\" />\n    <Select.Icon />\n  </Select.Trigger>\n  <Select.Popup>\n    <Select.Item value=\"admin\">Admin</Select.Item>\n    <Select.Item value=\"editor\">Editor</Select.Item>\n    <Select.Item value=\"viewer\">Viewer</Select.Item>\n  </Select.Popup>\n</Select.Root>",
         "relatedTo": [
           {
@@ -5502,7 +5521,7 @@
         ]
       },
       "name": "Select",
-      "native": false,
+      "native": true,
       "parts": {
         "Icon": {
           "name": "Icon",
@@ -5548,6 +5567,24 @@
             {
               "name": "children",
               "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "description": "The list's accessible name; on native also the sheet's title.",
+              "name": "label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "Native only: the sheet header's text button that closes it unchanged. Default: 'Cancel'",
+              "name": "cancelLabel",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "Shown in place of the list when there are no items.",
+              "name": "empty",
+              "required": false,
               "type": "ReactNode"
             }
           ],
