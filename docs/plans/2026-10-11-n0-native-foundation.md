@@ -577,7 +577,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] B1 Drawer native and `snapPoints` (both platforms)
 - [x] B2 Menu, Popover, Tooltip, Toast native
 - [x] B3 Tag, SideNav, Tabs, Tree, AppShell native
-- [ ] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
+- [x] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
 - [ ] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
 - [ ] C1 Listbox, Select, Combobox native sheets
 - [ ] C2 ScrollArea native, the `./form` native entry and submit context
@@ -684,6 +684,8 @@ Every entry records input → expected → actual in the slice's PR body before 
 - Faults sent back from Happier's native checkpoint are counted per slice; any web regression found after release gets a patch release before the next slice starts.
 
 ## Decision log
+
+- 2026-10-13, device checkpoint B (the person's iPhone 13 Pro Max with VoiceOver; the Android 16 emulator with TalkBack): sheet open, slow drag to large, flings to medium and closed, content drag grows then scrolls; left drawer swipe; Menu item → Dialog (iOS and Android); Popover outside press; Toast swipe and above an open Dialog, surviving its close; app shell drawer, SideNav, Tree, Tabs, Tag remove; Tooltip hints read by VoiceOver and TalkBack; grabber as an adjustable control; focus back to the trigger; Tabs read as tabs on the device (the simulator's generic-element reading was the simulator's) → all pass.
 
 - 2026-10-12, B implementation review: three plan wordings narrowed. The native `useContainerBelow` measures its view after layout and on every window resize (a hook cannot wire `onLayout` into a view it does not render); a parent resizing in a fixed window is missed until the next window change. A toast's press-pause is the toast's own state (it lasts as long as the press); the remaining time is in the store, so a host move keeps the countdown. Native toast colours come from RSD token styles, which the Portal re-themes; `useResolvedColors` is only for raw hosts.
 
