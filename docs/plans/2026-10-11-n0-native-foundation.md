@@ -685,6 +685,8 @@ Every entry records input → expected → actual in the slice's PR body before 
 
 ## Decision log
 
+- 2026-10-12: the icon renderer stays `react-native-svg` for 5.12 under Decision 9's rule. Frames, the deciding measure, cannot be measured on this host (software-rendered emulator, no hitches on the simulator); Skia leads on Android mount and iOS memory, not on iOS mount. The benchmark screen stays in `examples/native` and reruns on physical devices before slice B; a Skia win there swaps the renderer in B.
+
 - 2026-10-11: three PRs and three releases, one per Happier gate, instead of one
   PR (`work.one-implementation-pr-per-repo-per-plan` exception). The milestones
   wait on each gate, so a single PR would hold N1 hostage to M2's pickers.
@@ -723,5 +725,14 @@ Every entry records input → expected → actual in the slice's PR body before 
 - A3, host registry: `packages/ui/test/hostRegistry.test.ts` → root stays below hosts added before it; entries order by layer; one publish per change → 3 tests pass.
 - A3, native graph: `pnpm typecheck:native` and `pnpm native:export` with the registry, root host and `PortalHost` → green → `android: 1460 modules`, `ios: 1463 modules`, one copy of each runtime.
 - A3, naming: the plan's `ColorKey` is the existing `ColorToken` from `@duro-app/tokens/keys` (`change.reach-before-adding`). DetailPanel keeps its immediate `onOpenChange` (`closeNotice: 'at-once'`); Dialog and Drawer report after the exit (`'after-exit'`).
+- A4, device checkpoint A, iOS 26.5 simulator (iPhone 17 Pro) and Android 16 emulator (Google Play image), screenshots in `attestations/n0-slice-a/`:
+  - Dialog from the index route → opens over a scrim; backdrop, `Close` and `Done` each close it (accessibility tree before and after); Android back closes it and the app stays open (`and-after-back.png`).
+  - Dialog from the expo-router `presentation: 'modal'` route → draws above the route (`a4-dialog-over-route.png`).
+  - ConfirmDialog phrase with the on-screen keyboard → the panel rises; input and Footer stay visible; the phrase is typed lower-case and enables Delete (`a3-confirm-keyboard-2.png`).
+  - Nested light ThemeProvider inside a dark Dialog → the Card and the `sun` icon draw the light palette on both OSes (`a1-dialog-open.png`, `and-dialog.png`).
+  - Faults the first run found, fixed in `8965a396`: no canvas; content-box overflow on `width: 100%`; Dialog parts collapsing under a percentage max-height; `inline-flex` and a multi-value padding ignored by RSD-native; the radio dot as a span; ConfirmDialog autocapitalising its phrase; native `createTheme` breaking the web style extraction; presence one commit late on a controlled open (AppShell's Phone Drawer story).
+  - Not yet run: the VoiceOver rows (no iPhone visible to this Mac yet) and the TalkBack rows (adb's injected taps do not drive TalkBack's focus; run by hand with the person). The Toast row moves to slice B, which ships Toast.
+- A4, icon benchmark, Android emulator (release build, 3 interleaved runs, `bench-android.txt`): mount SVG 2,326 / 2,469 / 2,610 ms, Skia 1,186 / 1,221 / 5,187 ms; janky frames 100 % for both (the emulator renders in software on this host, so frames cannot decide); theme switch logged for Skia only. Inconclusive on frames.
+- A4, icon benchmark, iOS simulator (release build, 3 interleaved runs, `ios-bench/`): mount SVG 658 / 481 / 397 ms, Skia 440 / 594 / 341 ms (8.5 % better at the median, inside SVG's range); RSS SVG 449 / 443 / 462 MB, Skia 356 / 370 / 331 MB (about 20 % less, outside the range). Instruments refuses Animation Hitches on the simulator ("Hitches is not supported on this platform"), and the theme-switch tap did not register reliably.
 
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,architect,po,react,ui-design,ux-research,game-ux,tui,unix body-sha=db57eb9f2046 -->
