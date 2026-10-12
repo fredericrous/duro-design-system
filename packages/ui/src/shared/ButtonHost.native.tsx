@@ -1,4 +1,4 @@
-import type {ComponentProps, Ref} from 'react'
+import {Children, type ComponentProps, type ReactNode, type Ref} from 'react'
 import {Pressable} from 'react-native'
 import {html} from 'react-strict-dom'
 import {useTooltipHint} from '../components/Tooltip/TooltipHint'
@@ -17,11 +17,17 @@ export type ButtonHostProps = ComponentProps<typeof html.button>
  */
 export function ButtonHost(props: ButtonHostProps) {
   const hint = useTooltipHint()
-  if (!hint) return <html.button {...props} style={props.style} />
+  const content = textInSpans(props.children)
+  if (!hint) {
+    return (
+      <html.button {...props} style={props.style}>
+        {content}
+      </html.button>
+    )
+  }
   const {
     ref,
     style,
-    children,
     disabled,
     onClick,
     'aria-label': label,
@@ -42,7 +48,23 @@ export function ButtonHost(props: ButtonHostProps) {
         ...(expanded !== undefined ? {expanded: !!expanded} : {}),
       }}
     >
-      <html.div style={style}>{children}</html.div>
+      <html.div style={style}>{content}</html.div>
     </Pressable>
+  )
+}
+
+/**
+ * A label beside an icon (`<Icon/> Menu`): RSD wraps a button's text only
+ * when it is the sole child, and React Native refuses bare text in a view.
+ */
+function textInSpans(children: ReactNode): ReactNode {
+  const items = Children.toArray(children)
+  if (items.length < 2) return children
+  return items.map((child, i) =>
+    typeof child === 'string' || typeof child === 'number' ? (
+      <html.span key={i}>{child}</html.span>
+    ) : (
+      child
+    ),
   )
 }

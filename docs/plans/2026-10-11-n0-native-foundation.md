@@ -576,7 +576,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
 - [x] B1 Drawer native and `snapPoints` (both platforms)
 - [x] B2 Menu, Popover, Tooltip, Toast native
-- [ ] B3 Tag, SideNav, Tabs, Tree, AppShell native
+- [x] B3 Tag, SideNav, Tabs, Tree, AppShell native
 - [ ] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
 - [ ] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
 - [ ] C1 Listbox, Select, Combobox native sheets
@@ -684,6 +684,8 @@ Every entry records input → expected → actual in the slice's PR body before 
 - Faults sent back from Happier's native checkpoint are counted per slice; any web regression found after release gets a patch release before the next slice starts.
 
 ## Decision log
+
+- 2026-10-12, B3: Tag's remove cross and SideNav's chevron stay their own glyphs (a web SVG / a react-native-svg twin), not Icon: Icon's smallest size (16, stroke 2) would change the web look the plan keeps. On native, RSD's Animated colour transition ends on a near-black colour, so native Tabs transition nothing that changes; a mixed icon-and-text button needs its text in a span on native (ButtonHost does it for Button and Toggle). Found on the iOS simulator: Tabs' `role="tab"` reaches VoiceOver as a generic element; it is a row for B's device checkpoint.
 
 - 2026-10-12, B2: the RSD gap is filed upstream as react/react-strict-dom#524 (`aria-description` → `accessibilityHint` on native). Until it ships, Button and Toggle render through `shared/ButtonHost`, which swaps in an RN `Pressable` only inside a Tooltip; Menu and Popover triggers are `Pressable` hosts on native. VoiceOver reads the hint (checked on the iOS simulator).
 

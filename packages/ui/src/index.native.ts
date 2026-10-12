@@ -47,6 +47,16 @@ export {
 export {List, type ListSelectionMode} from './components/List/List'
 export {RadioGroup} from './components/RadioGroup/RadioGroup'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
+export {Tag, type TagVariant} from './components/Tag/Tag'
+export {SideNav} from './components/SideNav/SideNav'
+export {Tabs} from './components/Tabs/Tabs'
+export {Tree} from './components/Tree/Tree'
+// Always the phone shape on native: the bar on top, the rail in a left Drawer.
+export {
+  AppShell,
+  type AppShellCollapse,
+  type AppShellRailState,
+} from './components/AppShell/AppShell'
 
 // Overlays (5.12: rendered in an OverlayModal on native)
 export {ConfirmDialog} from './components/ConfirmDialog/ConfirmDialog'

@@ -32,6 +32,13 @@ export const styles = css.create({
     borderRightColor: colors.border,
     gap: 0,
   },
+  // RSD on native lays out only display: flex, not the web's inline-flex,
+  // and its Animated colour transition ends on a near-black colour: native
+  // tabs transition nothing that changes (colour and underline switch at once).
+  nativeFlex: {
+    display: 'flex',
+    transitionProperty: 'opacity',
+  },
   tab: {
     display: 'inline-flex',
     alignItems: 'center',

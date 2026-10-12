@@ -14,6 +14,7 @@ function ThemedStack() {
       <Stack.Screen name="index" options={{title: 'Duro native'}} />
       <Stack.Screen name="modal" options={{presentation: 'modal', title: 'Modal route'}} />
       <Stack.Screen name="bench" options={{title: 'Icon benchmark'}} />
+      <Stack.Screen name="shell" options={{headerShown: false}} />
     </Stack>
   )
 }

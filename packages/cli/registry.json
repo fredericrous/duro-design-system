@@ -225,7 +225,7 @@
         ]
       },
       "name": "AppShell",
-      "native": false,
+      "native": true,
       "parts": {
         "Header": {
           "name": "Header",
@@ -5678,7 +5678,7 @@
         ]
       },
       "name": "SideNav",
-      "native": false,
+      "native": true,
       "parts": {
         "Group": {
           "name": "Group",
@@ -6737,7 +6737,7 @@
         ]
       },
       "name": "Tabs",
-      "native": false,
+      "native": true,
       "parts": {
         "List": {
           "name": "List",
@@ -6853,7 +6853,7 @@
         ]
       },
       "name": "Tag",
-      "native": false,
+      "native": true,
       "props": [
         {
           "description": "Value identifier — required when used inside TagGroup",
@@ -8079,7 +8079,7 @@
         ]
       },
       "name": "Tree",
-      "native": false,
+      "native": true,
       "parts": {
         "Item": {
           "name": "Item",

@@ -84,6 +84,7 @@ export function AllExports() {
         <Inline gap="sm">
           <Button onClick={() => setOn((value) => !value)}>Toggle</Button>
           <Link href="/modal">Open the modal route</Link>
+          <Link href="/shell">Open the app shell</Link>
         </Inline>
         <Card>
           <Text>Card</Text>

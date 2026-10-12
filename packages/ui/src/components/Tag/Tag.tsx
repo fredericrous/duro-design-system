@@ -1,31 +1,12 @@
-import {type ReactNode, useCallback, useRef} from 'react'
+import {useCallback, useRef} from 'react'
 import {html} from 'react-strict-dom'
+import {SIZES_PX} from '@duro-app/tokens/keys'
 import {useTagGroup} from '../TagGroup/TagGroupContext'
 import {styles} from './styles.css'
+import {RemoveGlyph} from './RemoveGlyph'
+import {variantText, type TagProps} from './types'
 
-export type TagVariant = 'default' | 'success' | 'warning' | 'error' | 'info'
-export type TagSize = 'sm' | 'md'
-
-interface TagProps {
-  /** Value identifier — required when used inside TagGroup */
-  value?: string
-  variant?: TagVariant
-  size?: TagSize
-  /** Show remove button. Auto-derived from TagGroup context when inside one. */
-  removable?: boolean
-  /** Called when remove button is clicked. Auto-wired to TagGroup when inside one. */
-  onRemove?: () => void
-  disabled?: boolean
-  /**
-   * Allow the label to wrap / break instead of staying on one line. Tags are
-   * `white-space: nowrap` by default (they read as pills); set this for long
-   * identifier-style values (e.g. `lldap.group.member.remove`) sitting in a
-   * constrained column, so they break within their cell instead of leaking
-   * into the next one.
-   */
-  wrap?: boolean
-  children: ReactNode
-}
+export type {TagProps, TagSize, TagVariant} from './types'
 
 const sizeMap = {
   sm: styles.sizeSm,
@@ -112,19 +93,10 @@ export function Tag({
             tabIndex={-1}
             style={[styles.removeButton, disabled && styles.removeButtonDisabled]}
           >
-            <svg
-              width={size === 'sm' ? 10 : 12}
-              height={size === 'sm' ? 10 : 12}
-              viewBox="0 0 12 12"
-              fill="none"
-            >
-              <path
-                d="M3 3l6 6M9 3l-6 6"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                strokeLinecap="round"
-              />
-            </svg>
+            <RemoveGlyph
+              size={size === 'sm' ? SIZES_PX.glyphXs : SIZES_PX.glyphSm}
+              color={variantText[variant]}
+            />
           </html.button>
         </html.span>
       )}
