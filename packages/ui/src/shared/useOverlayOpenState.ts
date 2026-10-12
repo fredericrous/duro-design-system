@@ -53,22 +53,28 @@ export function useOverlayOpenState({
   const [present, setPresent] = useState(open)
   const [closing, setClosing] = useState(false)
   const closingRef = useRef(false)
+  // The playing exit was started by the owner's `open` turning false (not by
+  // requestClose), so an `open` turning true again cancels it.
+  const outsideExitRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const cancelExit = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = null
     closingRef.current = false
+    outsideExitRef.current = false
     setClosing(false)
   }, [])
 
   const playExit = useCallback(
     (afterExit?: () => void) => {
       closingRef.current = true
+      outsideExitRef.current = afterExit === undefined
       setClosing(true)
       timerRef.current = setTimeout(() => {
         timerRef.current = null
         closingRef.current = false
+        outsideExitRef.current = false
         setClosing(false)
         setPresent(false)
         afterExit?.()
@@ -104,9 +110,10 @@ export function useOverlayOpenState({
   // Presence follows the logical state: an open from outside shows the
   // overlay, a close from outside (or an `at-once` close) animates it out.
   useEffect(() => {
-    if (open && !present && !closingRef.current) setPresent(true)
+    if (open && outsideExitRef.current) cancelExit()
+    else if (open && !present && !closingRef.current) setPresent(true)
     else if (!open && present && !closingRef.current) playExit()
-  }, [open, present, playExit])
+  }, [open, present, playExit, cancelExit])
 
   useEffect(
     () => () => {

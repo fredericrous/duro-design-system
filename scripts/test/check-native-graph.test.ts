@@ -42,6 +42,12 @@ describe('check-native-graph', () => {
     )
   })
 
+  it('ignores an eslint-disable comment', async () => {
+    const code =
+      "// eslint-disable-next-line\nimport {createPortal} from 'react-dom'\nexport const p = createPortal\n"
+    expect(await formsIn('disabled.ts', code)).toContain('react-dom import')
+  })
+
   it('leaves a single-value shorthand alone', async () => {
     expect(await formsIn('shorthand-one.ts', 'const a = 1\nconst s = {padding: a}\n')).toEqual([])
   })

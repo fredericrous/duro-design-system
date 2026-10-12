@@ -99,7 +99,8 @@ export async function lintNativeGraph(files, root = repoRoot) {
           parser: tsParser,
           parserOptions: {sourceType: 'module', ecmaFeatures: {jsx: true}},
         },
-        linterOptions: {reportUnusedDisableDirectives: 'off'},
+        // No eslint-disable comment can exempt a native-graph file.
+        linterOptions: {noInlineConfig: true, reportUnusedDisableDirectives: 'off'},
         rules,
       },
     ],

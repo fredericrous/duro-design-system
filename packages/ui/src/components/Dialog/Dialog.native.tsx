@@ -5,6 +5,7 @@ import {
   isValidElement,
   type ReactElement,
   type ReactNode,
+  type Ref,
   type RefObject,
   useCallback,
   useContext,
@@ -23,6 +24,7 @@ import {
 } from 'react-native'
 import {html} from 'react-strict-dom'
 import type {DurationToken} from '@duro-app/tokens/keys'
+import {mergeRefs} from '../../shared/mergeRefs'
 import {ModalContext} from '../../shared/ModalContext'
 import {OverlayModal} from '../../shared/portal/OverlayModal'
 import {focusForAccessibility} from '../../shared/accessibilityFocus'
@@ -142,7 +144,7 @@ function Root({
 
 interface PressableChildProps {
   onClick?: () => void
-  ref?: unknown
+  ref?: Ref<unknown>
 }
 
 /**
@@ -157,7 +159,7 @@ function Trigger({children}: {children: ReactNode}) {
   if (!isValidElement<PressableChildProps>(child)) return null
   const own = child.props.onClick
   return cloneElement(child as ReactElement<PressableChildProps>, {
-    ref: triggerRef,
+    ref: mergeRefs(child.props.ref, triggerRef),
     onClick: () => {
       own?.()
       requestOpen()
