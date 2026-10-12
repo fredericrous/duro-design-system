@@ -56,6 +56,8 @@ export const styles = css.create({
     outlineWidth: 0,
     outlineStyle: 'none',
   },
+  // Native has no calc(): the same steps, in px from the spacing scale.
+  indentPx: (px: number) => ({paddingLeft: px}),
   // one indent step per level below the top
   indent: (level: number) => ({
     paddingLeft: `calc(${spacing.sm} + ${Math.max(0, level - 1)} * ${spacing.lg})`,
@@ -70,6 +72,10 @@ export const styles = css.create({
     color: colors.accent,
     fontWeight: typography.fontWeightMedium,
     backgroundColor: colors.bgCardHover,
+  },
+  // RSD on native lays out only display: flex, not the web's inline-flex.
+  nativeFlex: {
+    display: 'flex',
   },
   chevron: {
     display: 'inline-flex',

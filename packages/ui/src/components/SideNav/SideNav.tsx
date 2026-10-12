@@ -1,8 +1,22 @@
-import {type ReactNode, useState, useCallback, useRef, useEffect, useId} from 'react'
+import {
+  type ReactNode,
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  useId,
+} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {SideNavContext, useSideNav} from './SideNavContext'
+import {isNative} from '../../platform'
+import {Chevron} from './Chevron'
+
+/** A Group's own items: each Item inside it registers its value here. */
+const GroupItemsContext = createContext<((value: string) => () => void) | null>(null)
 
 /**
  * SideNav has two ways to chunk a rail, and they are NOT interchangeable.
@@ -130,39 +144,40 @@ function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
   const key = groupKey ?? label
   const {expandedGroups, toggleGroup, expandGroup, activeValue} = useSideNav()
   const isExpanded = expandedGroups.has(key)
-  const groupRef = useRef<HTMLDivElement>(null)
   const triggerId = useId()
   const panelId = useId()
+  // The values of the Items inside, from props and state rather than a DOM
+  // query, so both platforms know whether the active item is in here.
+  const [values, setValues] = useState<ReadonlySet<string>>(() => new Set())
+  const registerValue = useCallback((value: string) => {
+    setValues((prev) => (prev.has(value) ? prev : new Set(prev).add(value)))
+    return () =>
+      setValues((prev) => {
+        if (!prev.has(value)) return prev
+        const next = new Set(prev)
+        next.delete(value)
+        return next
+      })
+  }, [])
+  const hasActiveChild = activeValue !== null && values.has(activeValue)
 
   // Auto-expand if this group contains the active item. Uses expandGroup (not
   // toggleGroup) so it never races the defaultExpanded effect into a closed
   // state when the active item lives in a defaultExpanded group.
   useEffect(() => {
-    if (!activeValue || expandedGroups.has(key)) return
-    const el = groupRef.current
-    if (!el) return
-    const activeBtn = el.querySelector(`[data-nav-value="${activeValue}"]`)
-    if (activeBtn) {
-      expandGroup(key)
-    }
-  }, [activeValue, key, expandedGroups, expandGroup])
+    if (hasActiveChild && !expandedGroups.has(key)) expandGroup(key)
+  }, [hasActiveChild, key, expandedGroups, expandGroup])
 
-  // Expand on first render if defaultExpanded (idempotent add, not a toggle).
+  // Expand once, on mount, if defaultExpanded (idempotent add, not a toggle).
+  const appliedDefault = useRef(false)
   useEffect(() => {
-    if (defaultExpanded) {
-      expandGroup(key)
-    }
-    // Only run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const hasActiveChild = (() => {
-    if (!activeValue || !groupRef.current) return false
-    return !!groupRef.current.querySelector(`[data-nav-value="${activeValue}"]`)
-  })()
+    if (appliedDefault.current) return
+    appliedDefault.current = true
+    if (defaultExpanded) expandGroup(key)
+  }, [defaultExpanded, expandGroup, key])
 
   return (
-    <html.div ref={groupRef} style={styles.group}>
+    <html.div style={styles.group}>
       <html.button
         type="button"
         id={triggerId}
@@ -171,27 +186,26 @@ function Group({children, label, groupKey, defaultExpanded}: GroupProps) {
         aria-expanded={isExpanded}
         aria-controls={isExpanded ? panelId : undefined}
       >
-        <html.span style={[styles.chevron, isExpanded && styles.chevronOpen]}>
-          <svg
-            width={10}
-            height={10}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M9 18l6-6-6-6" />
-          </svg>
+        <html.span
+          style={[styles.chevron, isNative && styles.nativeFlex, isExpanded && styles.chevronOpen]}
+        >
+          <Chevron color={hasActiveChild ? 'text' : 'textMuted'} />
         </html.span>
-        {label}
+        {/* Native refuses bare text beside the chevron's view; the web keeps it bare. */}
+        {isNative ? <html.span>{label}</html.span> : label}
       </html.button>
-      {isExpanded ? (
-        <html.div id={panelId} role="group" aria-labelledby={triggerId} style={styles.items}>
+      {/* Kept mounted while collapsed, so its Items stay registered with the group. */}
+      <GroupItemsContext.Provider value={registerValue}>
+        <html.div
+          id={panelId}
+          role="group"
+          aria-labelledby={triggerId}
+          hidden={isExpanded ? undefined : true}
+          style={[styles.items, !isExpanded && styles.itemsHidden]}
+        >
           {children}
         </html.div>
-      ) : null}
+      </GroupItemsContext.Provider>
     </html.div>
   )
 }
@@ -239,11 +253,13 @@ interface ItemProps {
 
 function Item({value, children, icon}: ItemProps) {
   const {activeValue, onSelect, registerItem} = useSideNav()
+  const registerInGroup = useContext(GroupItemsContext)
   const isActive = activeValue === value
 
   useEffect(() => {
     return registerItem(value)
   }, [value, registerItem])
+  useEffect(() => registerInGroup?.(value), [value, registerInGroup])
 
   return (
     <html.button
@@ -255,7 +271,7 @@ function Item({value, children, icon}: ItemProps) {
     >
       <html.span aria-hidden style={[styles.marker, isActive && styles.markerActive]} />
       {icon ? (
-        <html.span aria-hidden style={styles.itemIcon}>
+        <html.span aria-hidden style={[styles.itemIcon, isNative && styles.nativeFlex]}>
           {icon}
         </html.span>
       ) : null}

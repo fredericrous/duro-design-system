@@ -137,6 +137,14 @@ export const styles = css.create({
     transitionDuration: duration.fast,
     transitionTimingFunction: easing.standard,
   },
+  // A collapsed group's items stay mounted (they tell the group what it holds), unseen.
+  itemsHidden: {
+    display: 'none',
+  },
+  // RSD on native lays out only display: flex, not the web's inline-flex.
+  nativeFlex: {
+    display: 'flex',
+  },
   markerActive: {
     height: sizes.navMarkerH,
   },

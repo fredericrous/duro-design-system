@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Interactive tag/chip with optional remove button. Works standalone or inside TagGroup for collection management. Visually similar to Badge but supports interaction.',
+    'Interactive tag/chip with optional remove button. Works standalone or inside TagGroup for collection management. Visually similar to Badge but supports interaction. On React Native a Tag stands alone (TagGroup is web only): the label and, when removable, a remove button named from a string label.',
   whenToUse: [
     'Removable items in a list (emails, categories)',
     'Inside TagGroup for editable tag collections',

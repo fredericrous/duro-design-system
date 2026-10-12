@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it).',
+    'Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it). On React Native the same API draws through the portal host above every open overlay and the keyboard, as a card with a status-coloured edge, its action and its close in one row; a sideways swipe dismisses, a press holds the countdown, and so does an active screen reader (WCAG 2.2.1).',
   whenToUse: [
     'Confirming an action succeeded (e.g. "Grant revoked")',
     'Reporting an action failed, with the reason',

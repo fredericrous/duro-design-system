@@ -84,6 +84,9 @@ export const sizes = css.defineVars({
   placeholderMinH: '80px',
   previewMaxH: '320px',
   barH: '4px',
+  // Bottom-sheet grabber (Drawer snapPoints).
+  sheetGrabberW: '40px',
+  sheetGrabberH: '4px',
   readoutW: '40px',
   sliderW: '96px',
   paletteMinW: '96px',

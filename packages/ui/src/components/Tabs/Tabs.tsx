@@ -1,8 +1,13 @@
-import {type ReactNode, useRef, useId, useEffect, useLayoutEffect, useState} from 'react'
+import {type ReactNode, useRef, useId, useEffect} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
+import {isNative} from '../../platform'
 import {TabsContext, useTabs} from './TabsContext'
 import {useTabsRoot} from './useTabsRoot'
+import {useTabIndicator} from './useTabIndicator'
+import {useTabKeys} from './useTabKeys'
+import {TabLayoutContext} from './indicator'
+import {TabLayout} from './TabLayout'
 
 // --- Root ---
 
@@ -41,120 +46,14 @@ interface ListProps {
 function List({children}: ListProps) {
   const {orientation, activeValue, onSelect, tabsRef, orderRef, setIndicatorActive} = useTabs()
   const listRef = useRef<HTMLDivElement>(null)
-  const [indicator, setIndicator] = useState<{offset: number; size: number} | null>(null)
 
-  // Measure the active tab and drive the sliding indicator. useLayoutEffect so
-  // the first position is set before paint (the indicator element mounts already
-  // in place — no slide-in from zero; only later tab changes animate). Observes
-  // the active tab (its own size, e.g. a changing "(3)" count) and the list
-  // (container resize / reflow). A non-active sibling resizing while you're on
-  // another tab is the one case not caught; it self-corrects on the next
-  // selection or resize.
-  useLayoutEffect(() => {
-    const list = listRef.current
-    if (!list || !activeValue) {
-      setIndicator(null)
-      setIndicatorActive(false)
-      return
-    }
-    const el = list.querySelector<HTMLElement>(`[data-tab-value="${CSS.escape(activeValue)}"]`)
-    if (!el) {
-      setIndicator(null)
-      setIndicatorActive(false)
-      return
-    }
-    const measure = () => {
-      setIndicator(
-        orientation === 'horizontal'
-          ? {offset: el.offsetLeft, size: el.offsetWidth}
-          : {offset: el.offsetTop, size: el.offsetHeight},
-      )
-      setIndicatorActive(true)
-    }
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    ro.observe(list)
-    return () => ro.disconnect()
-  }, [activeValue, orientation, setIndicatorActive])
-
-  useEffect(() => {
-    const el = listRef.current
-    if (!el) return
-    const listEl = el
-
-    function handleKeyDown(e: KeyboardEvent) {
-      const order = orderRef.current
-      const tabs = tabsRef.current
-      if (order.length === 0) return
-
-      const prevKey = orientation === 'horizontal' ? 'ArrowLeft' : 'ArrowUp'
-      const nextKey = orientation === 'horizontal' ? 'ArrowRight' : 'ArrowDown'
-
-      let targetValue: string | null = null
-
-      switch (e.key) {
-        case nextKey: {
-          e.preventDefault()
-          const currentIdx = activeValue ? order.indexOf(activeValue) : -1
-          for (let i = 1; i <= order.length; i++) {
-            const idx = (currentIdx + i) % order.length
-            const val = order[idx]
-            if (!tabs.get(val)) {
-              targetValue = val
-              break
-            }
-          }
-          break
-        }
-        case prevKey: {
-          e.preventDefault()
-          const currentIdx = activeValue ? order.indexOf(activeValue) : 0
-          for (let i = 1; i <= order.length; i++) {
-            const idx = (currentIdx - i + order.length) % order.length
-            const val = order[idx]
-            if (!tabs.get(val)) {
-              targetValue = val
-              break
-            }
-          }
-          break
-        }
-        case 'Home': {
-          e.preventDefault()
-          for (const val of order) {
-            if (!tabs.get(val)) {
-              targetValue = val
-              break
-            }
-          }
-          break
-        }
-        case 'End': {
-          e.preventDefault()
-          for (let i = order.length - 1; i >= 0; i--) {
-            if (!tabs.get(order[i])) {
-              targetValue = order[i]
-              break
-            }
-          }
-          break
-        }
-      }
-
-      if (targetValue) {
-        onSelect(targetValue)
-        // Focus the newly activated tab button
-        const tabEl = listEl.querySelector(
-          `[data-tab-value="${targetValue}"]`,
-        ) as HTMLElement | null
-        tabEl?.focus()
-      }
-    }
-
-    el.addEventListener('keydown', handleKeyDown)
-    return () => el.removeEventListener('keydown', handleKeyDown)
-  }, [orientation, activeValue, onSelect, tabsRef, orderRef])
+  const {indicator, reportTabLayout} = useTabIndicator({
+    listRef,
+    activeValue,
+    orientation,
+    setIndicatorActive,
+  })
+  useTabKeys({listRef, orientation, activeValue, onSelect, tabsRef, orderRef})
 
   return (
     <html.div
@@ -163,7 +62,7 @@ function List({children}: ListProps) {
       aria-orientation={orientation}
       style={[styles.list, orientation === 'vertical' && styles.listVertical]}
     >
-      {children}
+      <TabLayoutContext.Provider value={reportTabLayout}>{children}</TabLayoutContext.Provider>
       {indicator && (
         <html.div
           aria-hidden
@@ -205,27 +104,30 @@ function Tab({value, disabled = false, children}: TabProps) {
   }
 
   return (
-    <html.button
-      type="button"
-      role="tab"
-      id={tabId}
-      aria-selected={isActive}
-      aria-controls={panelId}
-      aria-disabled={disabled || undefined}
-      data-tab-value={value}
-      tabIndex={isActive ? 0 : -1}
-      onClick={handleClick}
-      style={[
-        styles.tab,
-        orientation === 'vertical' && styles.tabVertical,
-        isActive &&
-          (orientation === 'vertical' ? styles.tabActiveVertical : styles.tabActiveHorizontal),
-        isActive && indicatorActive && styles.tabIndicatorActive,
-        disabled && styles.tabDisabled,
-      ]}
-    >
-      {children}
-    </html.button>
+    <TabLayout value={value}>
+      <html.button
+        type="button"
+        role="tab"
+        id={tabId}
+        aria-selected={isActive}
+        aria-controls={panelId}
+        aria-disabled={disabled || undefined}
+        data-tab-value={value}
+        tabIndex={isActive ? 0 : -1}
+        onClick={handleClick}
+        style={[
+          styles.tab,
+          isNative && styles.nativeFlex,
+          orientation === 'vertical' && styles.tabVertical,
+          isActive &&
+            (orientation === 'vertical' ? styles.tabActiveVertical : styles.tabActiveHorizontal),
+          isActive && indicatorActive && styles.tabIndicatorActive,
+          disabled && styles.tabDisabled,
+        ]}
+      >
+        {children}
+      </html.button>
+    </TabLayout>
   )
 }
 

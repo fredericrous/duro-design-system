@@ -2,10 +2,11 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). Use for secondary workflows, settings panels, or mobile-friendly detail views.',
+    'Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). A bottom drawer with snapPoints (medium and large) is a phone sheet: it rests at its detents, a grabber steps through them on a tap, a drag moves between them and dismisses below the lowest; its Body is the scroll the drag defers to. Header titleAlign="center" centres the title with a text close at the end. Use for secondary workflows, settings panels, or mobile-friendly detail views.',
   whenToUse: [
     'Settings or configuration panels that slide in from the side',
     'Mobile-friendly detail views (bottom sheet pattern)',
+    'Phone pickers and lists that need more room on demand (snapPoints)',
     'Secondary workflows that need more space than a dialog',
     'Filters, navigation drawers, or form panels',
   ],

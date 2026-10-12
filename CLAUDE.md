@@ -236,6 +236,7 @@ These components **must** be wrapped in their `.Root`:
 | **Select** | Dropdown select for choosing one value from a list | compound: Icon, Item, ItemText, Popup, Root, … |
 | **SideNav** | Vertical side navigation | compound: Group, Item, Root, Section |
 | **Spinner** | Animated loading indicator | `size`, `label` |
+| **SplitPane** | Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest | compound: Handle, Pane, Root |
 | **Stack** | Vertical flex layout | `gap`, `align` |
 | **StatusIcon** | Icon with a colored background circle | `name`, `size`, `variant` |
 | **Switch** | Toggle switch for on/off settings | `checked`, `defaultChecked`, `onCheckedChange` |
@@ -256,6 +257,7 @@ These components **must** be wrapped in their `.Root`:
 | **Toolbar** | A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends | `aria-label`, `orientation` |
 | **Tooltip** | Hover/focus tooltip that shows supplementary content | compound: Root, Trigger |
 | **Tree** | Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead | compound: Item, Root |
+| **VirtualList** | A windowed list on @tanstack/react-virtual: only the rows in view (plus overscan) are mounted, and rows are measured so they may differ in height | `items`, `estimateSize`, `renderItem` |
 | **VirtualTable** | Sortable data table that windows its rows above a threshold (default 150) with @tanstack/react-virtual, shows a floating position indicator, and reports the visible page so the caller can mirror it in the URL | `data`, `columns`, `sorting` |
 | **VisuallyHidden** | Text for assistive tech only: kept in the accessibility tree, clipped off screen | `id` |
 
@@ -453,6 +455,8 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `placeholderMinH` | 80px |
 | `previewMaxH` | 320px |
 | `barH` | 4px |
+| `sheetGrabberW` | 40px |
+| `sheetGrabberH` | 4px |
 | `readoutW` | 40px |
 | `sliderW` | 96px |
 | `paletteMinW` | 96px |
@@ -875,7 +879,7 @@ Complete, runnable compositions. Each emits consumer-ready source (imports alrea
 - **login-form** — Login form with username/password fields and Effect Schema validation. `npx @duro-app/cli login-form --source-only`
 - **page-with-sidenav** — Page with a side navigation rail: SideNav in the narrow column of Grid layout="split-wide", the routed content in the wide one; the rail stacks above the content when the page is narrower than md. `npx @duro-app/cli page-with-sidenav --source-only`
 - **settings-page** — Full settings page with tabbed navigation, profile form, notification switches, and page shell. `npx @duro-app/cli settings-page --source-only`
-- **split-pane** — List/detail split: a selectable List beside a Panel showing the selection, on Grid layout="split" (list ≥ 240px, one column when the board is narrower than sm). `npx @duro-app/cli split-pane --source-only`
+- **split-pane** — List/detail split: a selectable List beside a Panel showing the selection, in a SplitPane (the list starts at sidebarW, resizes up to panelLg with the handle, and the panes stack when the split is narrower than sm). `npx @duro-app/cli split-pane --source-only`
 
 One inline exemplar (the others follow the same shape — fetch them with the CLI):
 

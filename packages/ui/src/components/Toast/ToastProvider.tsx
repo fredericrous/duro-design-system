@@ -14,83 +14,15 @@ import {html} from 'react-strict-dom'
 import {Icon, type IconName} from '../Icon'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {styles} from './styles.css'
+import {
+  createToastStore,
+  type ToastContextValue,
+  type ToastEntry,
+  type ToastStore,
+  type ToastVariant,
+} from './store'
 
-export type ToastVariant = 'success' | 'error' | 'info' | 'warning'
-
-export interface ToastAction {
-  label: string
-  onClick: () => void
-}
-
-export interface ToastOptions {
-  /** Visual + semantic tone. Errors announce assertively; errors and
-   *  warnings linger longer. */
-  variant?: ToastVariant
-  message: ReactNode
-  /** Optional single action, e.g. Undo. Runs, then dismisses the toast. */
-  action?: ToastAction
-  /** Auto-dismiss delay in ms. `0` (or negative) keeps it until dismissed.
-   *  The countdown pauses while the toast is hovered or holds focus. */
-  duration?: number
-}
-
-export interface ToastContextValue {
-  /** Show a toast; returns its id so it can be dismissed programmatically. */
-  toast: (opts: ToastOptions) => string
-  dismiss: (id: string) => void
-}
-
-interface ToastEntry {
-  id: string
-  variant: ToastVariant
-  message: ReactNode
-  action?: ToastAction
-  duration: number
-}
-
-interface ToastStore {
-  subscribe: (cb: () => void) => () => void
-  getSnapshot: () => readonly ToastEntry[]
-  add: (opts: ToastOptions) => string
-  remove: (id: string) => void
-}
-
-const DEFAULT_DURATION: Record<ToastVariant, number> = {
-  success: 5000,
-  info: 5000,
-  error: 8000,
-  warning: 8000,
-}
-
-function createToastStore(): ToastStore {
-  let entries: ToastEntry[] = []
-  let seq = 0
-  const listeners = new Set<() => void>()
-  const notify = () => listeners.forEach((l) => l())
-
-  return {
-    subscribe: (cb) => {
-      listeners.add(cb)
-      return () => listeners.delete(cb)
-    },
-    getSnapshot: () => entries,
-    add: (opts) => {
-      const variant = opts.variant ?? 'info'
-      const id = `toast-${++seq}`
-      const duration = opts.duration ?? DEFAULT_DURATION[variant]
-      entries = [...entries, {id, variant, message: opts.message, action: opts.action, duration}]
-      notify()
-      return id
-    },
-    remove: (id) => {
-      const next = entries.filter((e) => e.id !== id)
-      if (next.length !== entries.length) {
-        entries = next
-        notify()
-      }
-    },
-  }
-}
+export type {ToastAction, ToastContextValue, ToastOptions, ToastVariant} from './store'
 
 const variantIcon: Record<ToastVariant, IconName> = {
   success: 'check-circle-filled',
@@ -115,10 +47,12 @@ export function useToast(): ToastContextValue {
 
 function ToastItem({
   entry,
+  store,
   onDismiss,
   dismissLabel,
 }: {
   entry: ToastEntry
+  store: ToastStore
   onDismiss: (id: string) => void
   dismissLabel: string
 }) {
@@ -126,19 +60,17 @@ function ToastItem({
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
   const paused = hovered || focused
-  // What is left of the countdown; a pause keeps it, a resume restarts the
-  // timer with what was left (WCAG 2.2.1: the reader controls the timing).
-  const remaining = useRef(duration)
-
+  // The store keeps what is left of the countdown; a pause keeps it, a resume
+  // restarts the timer with what was left (WCAG 2.2.1: the reader controls the timing).
   useEffect(() => {
     if (duration <= 0 || paused) return
     const started = Date.now()
-    const timer = setTimeout(() => onDismiss(id), Math.max(remaining.current, 0))
+    const timer = setTimeout(() => onDismiss(id), Math.max(store.remaining(id), 0))
     return () => {
       clearTimeout(timer)
-      remaining.current -= Date.now() - started
+      store.spend(id, Date.now() - started)
     }
-  }, [id, duration, paused, onDismiss])
+  }, [id, duration, paused, onDismiss, store])
 
   return (
     <html.div
@@ -213,7 +145,13 @@ export function ToastProvider({dismissLabel = 'Dismiss', children}: ToastProvide
   const region = (
     <html.div role="region" aria-label="Notifications" style={styles.region}>
       {entries.map((entry) => (
-        <ToastItem key={entry.id} entry={entry} onDismiss={dismiss} dismissLabel={dismissLabel} />
+        <ToastItem
+          key={entry.id}
+          entry={entry}
+          store={store}
+          onDismiss={dismiss}
+          dismissLabel={dismissLabel}
+        />
       ))}
     </html.div>
   )

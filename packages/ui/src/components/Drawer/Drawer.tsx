@@ -1,28 +1,29 @@
 import {createPortal} from 'react-dom'
-import {
-  type ReactNode,
-  type RefObject,
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  useId,
-  useRef,
-} from 'react'
+import {type ReactNode, useState, useEffect, useCallback} from 'react'
 import {html} from 'react-strict-dom'
 import type {DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
-import {useOverlayOpenState} from '../../shared/useOverlayOpenState'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {ModalContext} from '../../shared/ModalContext'
 import {useSwipeDismiss} from './useSwipeDismiss'
+import {useSheetHeights} from './useSheetHeights'
+import {cycleDetent} from './sheetPhysics'
+import {partStyles} from './parts.css'
+import {
+  DEFAULT_GRABBER_LABELS,
+  Description,
+  DrawerContext,
+  Footer,
+  Header,
+  Title,
+  useDrawer,
+  type DrawerSize,
+  type GrabberLabels,
+} from './parts'
+import {useDrawerRoot, type DrawerRootProps} from './useDrawerRoot'
 
-// --- Types ---
-
-export type DrawerAnchor = 'right' | 'left' | 'bottom'
-export type DrawerSize = 'sm' | 'md' | 'lg'
+export type {DrawerAnchor, DrawerSize, SnapPoint} from './parts'
 
 const closeDurationMap = {
   instant: styles.closeDurationInstant,
@@ -34,79 +35,11 @@ const closeDurationMap = {
   slow: styles.closeDurationSlow,
 } as const satisfies Record<DurationToken, unknown>
 
-// --- Context ---
-
-interface DrawerContextValue {
-  open: boolean
-  closing: boolean
-  closeDuration: DurationToken
-  anchor: DrawerAnchor
-  dismissable: boolean
-  swipeDismiss: boolean
-  requestOpen: () => void
-  requestClose: () => void
-  /** Close immediately without CSS animation (used by swipe dismiss which handles its own exit animation) */
-  requestCloseImmediate: () => void
-  titleId: string
-  descriptionId: string
-  panelRef: RefObject<HTMLDivElement | null>
-}
-
-const DrawerContext = createContext<DrawerContextValue | null>(null)
-
-function useDrawer() {
-  const ctx = useContext(DrawerContext)
-  if (!ctx) throw new Error('Drawer compound components must be used within Drawer.Root')
-  return ctx
-}
-
 // --- Root ---
 
-interface RootProps {
-  children: ReactNode
-  /** Controlled open state */
-  open?: boolean
-  /** Default open state (uncontrolled) */
-  defaultOpen?: boolean
-  /** Called when drawer open state changes */
-  onOpenChange?: (open: boolean) => void
-  /** Which edge the drawer slides from. Default: 'right' */
-  anchor?: DrawerAnchor
-  /** Whether clicking backdrop or pressing Escape closes the drawer. Default: true */
-  dismissable?: boolean
-  /** Whether swipe gesture dismisses the drawer. Default: true */
-  swipeDismiss?: boolean
-  /** Motion token for the close animation. Default: 'fast' (150ms) */
-  closeAnimationDuration?: DurationToken
-}
-
-function Root({
-  children,
-  open: controlledOpen,
-  defaultOpen = false,
-  onOpenChange,
-  anchor = 'right',
-  dismissable = true,
-  swipeDismiss = true,
-  closeAnimationDuration = 'fast',
-}: RootProps) {
-  const {
-    present,
-    closing,
-    requestOpen,
-    requestClose,
-    closeNow: requestCloseImmediate,
-  } = useOverlayOpenState({
-    open: controlledOpen,
-    defaultOpen,
-    onOpenChange,
-    exitDuration: closeAnimationDuration,
-    closeNotice: 'after-exit',
-  })
-  const panelRef = useRef<HTMLDivElement>(null)
-
-  const titleId = useId()
-  const descriptionId = useId()
+function Root({children, ...props}: DrawerRootProps) {
+  const ctx = useDrawerRoot(props)
+  const {open: present, dismissable, requestClose} = ctx
 
   // Handle Escape key
   useEffect(() => {
@@ -134,26 +67,7 @@ function Root({
     }
   }, [present])
 
-  return (
-    <DrawerContext.Provider
-      value={{
-        open: present,
-        closing,
-        closeDuration: closeAnimationDuration,
-        anchor,
-        dismissable,
-        swipeDismiss,
-        requestOpen,
-        requestClose,
-        requestCloseImmediate,
-        titleId,
-        descriptionId,
-        panelRef,
-      }}
-    >
-      {children}
-    </DrawerContext.Provider>
-  )
+  return <DrawerContext.Provider value={ctx}>{children}</DrawerContext.Provider>
 }
 
 // --- Trigger ---
@@ -162,7 +76,7 @@ function Trigger({children}: {children: ReactNode}) {
   const {requestOpen} = useDrawer()
 
   return (
-    <html.div onClick={requestOpen} style={styles.inlineWrapper}>
+    <html.div onClick={requestOpen} style={partStyles.inlineWrapper}>
       {children}
     </html.div>
   )
@@ -173,6 +87,8 @@ function Trigger({children}: {children: ReactNode}) {
 interface PortalProps {
   children: ReactNode
   size?: DrawerSize
+  /** The grabber's accessible names, by what a press does next. Snap sheets only */
+  grabberLabels?: GrabberLabels
 }
 
 // Slide animation maps
@@ -194,7 +110,7 @@ const viewportAnchorMap = {
   bottom: styles.viewportBottom,
 } as const
 
-function Portal({children, size = 'md'}: PortalProps) {
+function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}: PortalProps) {
   const {
     open,
     closing,
@@ -207,8 +123,14 @@ function Portal({children, size = 'md'}: PortalProps) {
     titleId,
     descriptionId,
     panelRef,
+    snapPoints,
+    snapIndex,
+    setSnapIndex,
   } = useDrawer()
   const mount = usePortalMount()
+  const snapping = snapPoints.length > 0
+  const heights = useSheetHeights(snapPoints, snapping && open)
+  const sized = snapping && heights.length === snapPoints.length
   // The shown panel element, tracked as state so swipe listeners follow it
   // when the portal mount arrives and the panel is remounted into it.
   const [panel, setPanel] = useState<HTMLDivElement | null>(null)
@@ -232,6 +154,7 @@ function Portal({children, size = 'md'}: PortalProps) {
     enabled: swipeEnabled && open && !closing,
     onDismiss: requestCloseImmediate,
     panel,
+    snap: sized ? {heights, index: snapIndex, onSnap: setSnapIndex} : null,
   })
 
   if (!open) return null
@@ -265,12 +188,29 @@ function Portal({children, size = 'md'}: PortalProps) {
             isHorizontal && styles.panelHorizontal,
             isHorizontal && styles[size],
             !isHorizontal && styles.panelVertical,
+            sized && styles.panelSnap,
+            sized && styles.sheetHeight(heights[snapIndex]),
             anchor === 'left' && styles.panelLeftBorder,
             closing && slideOutMap[anchor],
             closing && closeDurationMap[closeDuration],
             !closing && slideInMap[anchor],
           ]}
         >
+          {snapping && (
+            <html.button
+              type="button"
+              data-drawer-grabber=""
+              aria-label={
+                cycleDetent(snapIndex, snapPoints.length) > snapIndex
+                  ? grabberLabels.expand
+                  : grabberLabels.collapse
+              }
+              onClick={() => setSnapIndex(cycleDetent(snapIndex, snapPoints.length))}
+              style={[partStyles.grabberHit, styles.grabberHitWeb]}
+            >
+              <html.span style={partStyles.grabber} />
+            </html.button>
+          )}
           <ModalContext.Provider value={true}>
             <ControlContextBoundary>{children}</ControlContextBoundary>
           </ModalContext.Provider>
@@ -287,44 +227,17 @@ function Portal({children, size = 'md'}: PortalProps) {
   return mount ? createPortal(node, mount) : node
 }
 
-// --- Header ---
-
-function Header({children}: {children: ReactNode}) {
-  return <html.div style={styles.header}>{children}</html.div>
-}
-
-// --- Title ---
-
-function Title({children}: {children: ReactNode}) {
-  const {titleId} = useDrawer()
-  return (
-    <html.h2 id={titleId} style={styles.title}>
-      {children}
-    </html.h2>
-  )
-}
-
-// --- Description ---
-
-function Description({children}: {children: ReactNode}) {
-  const {descriptionId} = useDrawer()
-  return (
-    <html.p id={descriptionId} style={styles.description}>
-      {children}
-    </html.p>
-  )
-}
-
 // --- Body ---
 
 function Body({children}: {children: ReactNode}) {
-  return <html.div style={styles.body}>{children}</html.div>
-}
-
-// --- Footer ---
-
-function Footer({children}: {children: ReactNode}) {
-  return <html.div style={styles.footer}>{children}</html.div>
+  const {snapPoints} = useDrawer()
+  // A snap sheet's Body is its scroll viewport: a drag there scrolls it, and
+  // moves the sheet only from the top edge (or upward, below the largest detent).
+  return (
+    <html.div style={styles.body} data-duro-scroll={snapPoints.length > 0 ? '' : undefined}>
+      {children}
+    </html.div>
+  )
 }
 
 // --- Close ---
@@ -339,14 +252,14 @@ function Close({children, 'aria-label': ariaLabel = 'Close'}: CloseProps) {
 
   if (children) {
     return (
-      <html.div onClick={requestClose} style={styles.inlineWrapper}>
+      <html.div onClick={requestClose} style={partStyles.inlineWrapper}>
         {children}
       </html.div>
     )
   }
 
   return (
-    <html.button onClick={requestClose} aria-label={ariaLabel} style={styles.closeButton}>
+    <html.button onClick={requestClose} aria-label={ariaLabel} style={partStyles.closeButton}>
       <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
         <path
           d="M4 4l8 8M12 4l-8 8"

@@ -190,7 +190,7 @@
             "Main"
           ]
         },
-        "description": "An application's frame: a navigation rail (a labelled nav, the brand at its top, an optional footer at its foot) beside the main content (main), with an optional Header. Below collapseBelow (sm default, md or lg), measured on the shell's own width, the rail is hidden and one sticky bar (a banner, appBarH tall) holds a Menu button that opens the same navigation in a left Drawer, the brand, and the Header's content when there is one — a shell without a Header still has its navigation on a phone. Above it the Header is a row that scrolls with the page and the rail stays sticky. CSS makes the switch: the server renders one HTML for every width with the brand in both places, and display: none hides the inactive copy, so nothing moves after hydration. A skip link (the first tab stop) focuses Main; an Aside inside Main sticks below the bar. Labels come from props. Compound component — Root is required.",
+        "description": "An application's frame: a navigation rail (a labelled nav, the brand at its top, an optional footer at its foot) beside the main content (main), with an optional Header. Below collapseBelow (sm default, md or lg), measured on the shell's own width, the rail is hidden and one sticky bar (a banner, appBarH tall) holds a Menu button that opens the same navigation in a left Drawer, the brand, and the Header's content when there is one — a shell without a Header still has its navigation on a phone. Above it the Header is a row that scrolls with the page and the rail stays sticky. CSS makes the switch: the server renders one HTML for every width with the brand in both places, and display: none hides the inactive copy, so nothing moves after hydration. A skip link (the first tab stop) focuses Main; an Aside inside Main sticks below the bar. Labels come from props. Compound component — Root is required. On React Native it is always the narrow shape: the bar below the status bar, Main under it, and the Rail in a left Drawer; there is no skip link.",
         "example": "<AppShell.Root\n  menuLabel=\"Menu\"\n  closeLabel=\"Close navigation\"\n  skipLabel=\"Skip to content\"\n  brand={<TextLink href=\"/\">Acme</TextLink>}\n  collapseBelow=\"md\"\n>\n  <AppShell.Rail aria-label=\"Navigation\" footer={<Text variant=\"bodySm\">{user.name}</Text>}>\n    {({close}) => (\n      <SideNav.Root value={pathname} onValueChange={(v) => { close(); navigate(v) }}>\n        <SideNav.Item value=\"/docs\">Docs</SideNav.Item>\n      </SideNav.Root>\n    )}\n  </AppShell.Rail>\n  <AppShell.Header>{search}</AppShell.Header>\n  <AppShell.Main>{children}</AppShell.Main>\n</AppShell.Root>",
         "relatedTo": [
           {
@@ -225,7 +225,7 @@
         ]
       },
       "name": "AppShell",
-      "native": false,
+      "native": true,
       "parts": {
         "Header": {
           "name": "Header",
@@ -2503,7 +2503,7 @@
             "Portal"
           ]
         },
-        "description": "Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). Use for secondary workflows, settings panels, or mobile-friendly detail views.",
+        "description": "Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). A bottom drawer with snapPoints (medium and large) is a phone sheet: it rests at its detents, a grabber steps through them on a tap, a drag moves between them and dismisses below the lowest; its Body is the scroll the drag defers to. Header titleAlign=\"center\" centres the title with a text close at the end. Use for secondary workflows, settings panels, or mobile-friendly detail views.",
         "example": "<Drawer.Root anchor=\"right\" open={open} onOpenChange={setOpen}>\n  <Drawer.Trigger>\n    <Button>Open drawer</Button>\n  </Drawer.Trigger>\n  <Drawer.Portal size=\"md\">\n    <Drawer.Header>\n      <Drawer.Title>Settings</Drawer.Title>\n      <Drawer.Close />\n    </Drawer.Header>\n    <Drawer.Body>\n      <Stack gap=\"md\">\n        <Text>Drawer content goes here.</Text>\n      </Stack>\n    </Drawer.Body>\n    <Drawer.Footer>\n      <Button variant=\"secondary\" onClick={() => setOpen(false)}>Done</Button>\n    </Drawer.Footer>\n  </Drawer.Portal>\n</Drawer.Root>",
         "relatedTo": [
           {
@@ -2531,12 +2531,13 @@
         "whenToUse": [
           "Settings or configuration panels that slide in from the side",
           "Mobile-friendly detail views (bottom sheet pattern)",
+          "Phone pickers and lists that need more room on demand (snapPoints)",
           "Secondary workflows that need more space than a dialog",
           "Filters, navigation drawers, or form panels"
         ]
       },
       "name": "Drawer",
-      "native": false,
+      "native": true,
       "parts": {
         "Body": {
           "name": "Body",
@@ -2575,7 +2576,7 @@
               "type": "ReactNode"
             }
           ],
-          "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"
+          "sourcePath": "packages/ui/src/components/Drawer/parts.tsx"
         },
         "Footer": {
           "name": "Footer",
@@ -2586,7 +2587,7 @@
               "type": "ReactNode"
             }
           ],
-          "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"
+          "sourcePath": "packages/ui/src/components/Drawer/parts.tsx"
         },
         "Header": {
           "name": "Header",
@@ -2595,9 +2596,16 @@
               "name": "children",
               "required": true,
               "type": "ReactNode"
+            },
+            {
+              "default": "'start'",
+              "description": "'center' puts the Title in the middle and the other children at the end, as a phone sheet does (a text close button on the right). Default: 'start'",
+              "name": "titleAlign",
+              "required": false,
+              "type": "'start' | 'center'"
             }
           ],
-          "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"
+          "sourcePath": "packages/ui/src/components/Drawer/parts.tsx"
         },
         "Portal": {
           "name": "Portal",
@@ -2617,6 +2625,13 @@
                 "md",
                 "lg"
               ]
+            },
+            {
+              "default": "DEFAULT_GRABBER_LABELS",
+              "description": "The grabber's accessible names, by what a press does next. Snap sheets only",
+              "name": "grabberLabels",
+              "required": false,
+              "type": "GrabberLabels"
             }
           ],
           "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"
@@ -2636,7 +2651,6 @@
               "type": "boolean"
             },
             {
-              "default": "false",
               "description": "Default open state (uncontrolled)",
               "name": "defaultOpen",
               "required": false,
@@ -2649,7 +2663,6 @@
               "type": "(open: boolean) => void"
             },
             {
-              "default": "'right'",
               "description": "Which edge the drawer slides from. Default: 'right'",
               "name": "anchor",
               "required": false,
@@ -2661,21 +2674,18 @@
               ]
             },
             {
-              "default": "true",
-              "description": "Whether clicking backdrop or pressing Escape closes the drawer. Default: true",
+              "description": "Whether clicking backdrop or pressing Escape (Android's back button on native) closes the drawer. Default: true",
               "name": "dismissable",
               "required": false,
               "type": "boolean"
             },
             {
-              "default": "true",
               "description": "Whether swipe gesture dismisses the drawer. Default: true",
               "name": "swipeDismiss",
               "required": false,
               "type": "boolean"
             },
             {
-              "default": "'fast'",
               "description": "Motion token for the close animation. Default: 'fast' (150ms)",
               "name": "closeAnimationDuration",
               "required": false,
@@ -2688,6 +2698,22 @@
                 "brisk",
                 "base",
                 "slow"
+              ]
+            },
+            {
+              "description": "Bottom anchor only: the heights the sheet rests at. 'medium' is half the window, 'large' the window less its top safe-area inset. A drag moves between them and dismisses below the lowest; the grabber steps through them on a tap. Without it, a bottom drawer is as tall as its content.",
+              "name": "snapPoints",
+              "required": false,
+              "type": "readonly SnapPoint[]"
+            },
+            {
+              "description": "The detent the sheet opens at. Default: the lowest of snapPoints",
+              "name": "defaultSnapPoint",
+              "required": false,
+              "type": "SnapPoint",
+              "union": [
+                "medium",
+                "large"
               ]
             }
           ],
@@ -2702,7 +2728,7 @@
               "type": "ReactNode"
             }
           ],
-          "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"
+          "sourcePath": "packages/ui/src/components/Drawer/parts.tsx"
         },
         "Trigger": {
           "name": "Trigger",
@@ -4347,7 +4373,7 @@
             "Item"
           ]
         },
-        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button; an icon-only trigger takes aria-label, and variant=\"ghost\" suits toolbars; size=\"small\" matches small Toggles and Buttons (a small ghost trigger is iconButtonSm). The popup is portalled and placed against the trigger (never clipped by a sticky or overflow ancestor), capped at sizes.listMaxH with scrolling, and takes focus on open (WAI-ARIA menu button); Escape closes only the menu, not an enclosing Popover or Dialog.",
+        "description": "Dropdown action menu. Triggers actions (not value selection). Compound component — Root is required (throws without it). Menu.Trigger renders the button itself: give it the label (text, an Icon), never a Button; an icon-only trigger takes aria-label, and variant=\"ghost\" suits toolbars; size=\"small\" matches small Toggles and Buttons (a small ghost trigger is iconButtonSm). The popup is portalled and placed against the trigger (never clipped by a sticky or overflow ancestor), capped at sizes.listMaxH with scrolling, and takes focus on open (WAI-ARIA menu button); Escape closes only the menu, not an enclosing Popover or Dialog. On React Native the popup is placed against the trigger in a modal overlay; a press outside or the Android back button closes it, and an item runs its onClick after the menu has gone (so an item can open a Dialog). Menu.LinkItem takes onNavigate(href, event) on both platforms (ADR-0002); on native, without it or without preventDefault, the link opens with the system. Native has no arrow keys: each item is its own screen-reader stop.",
         "example": "<Menu.Root>\n  <Menu.Trigger>Actions</Menu.Trigger>\n  <Menu.Popup>\n    <Menu.Item onClick={() => console.log('edit')}>Edit</Menu.Item>\n    <Menu.Item onClick={() => console.log('duplicate')}>Duplicate</Menu.Item>\n    <Menu.Separator />\n    <Menu.LinkItem href=\"/settings\">Settings</Menu.LinkItem>\n  </Menu.Popup>\n</Menu.Root>",
         "relatedTo": [
           {
@@ -4374,7 +4400,7 @@
         ]
       },
       "name": "Menu",
-      "native": false,
+      "native": true,
       "parts": {
         "Item": {
           "name": "Item",
@@ -4399,6 +4425,12 @@
               "name": "href",
               "required": true,
               "type": "string"
+            },
+            {
+              "description": "Called for a plain primary click (ADR-0002): call `event.preventDefault()`, then your router's navigate. Without it the browser follows the link.",
+              "name": "onNavigate",
+              "required": false,
+              "type": "OnNavigate"
             },
             {
               "name": "children",
@@ -4964,7 +4996,7 @@
             "Popup"
           ]
         },
-        "description": "Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves. Popover.Trigger takes size=\"small\" beside small Toggles. Popover.Popup raised draws it over another floating surface (floatingRaised, popoverRaised in a modal), never over a modal.",
+        "description": "Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves. Popover.Trigger takes size=\"small\" beside small Toggles. Popover.Popup raised draws it over another floating surface (floatingRaised, popoverRaised in a modal), never over a modal. On React Native the popup is modal: it is placed against Popover.Trigger in an overlay, a press outside or the Android back button closes it, and screen-reader focus moves in on open and back to the trigger on close; anchor, ignore and raised are web only.",
         "example": "const ref = useRef<PopoverHandle>(null)\nconst anchor = () => new DOMRect(point.x, point.y, 0, 0)\n\n<Popover.Root ref={ref} open={open} onOpenChange={setOpen} anchor={anchor} side=\"bottom\" align=\"start\">\n  <Popover.Popup label=\"Edit label\">\n    <Field.Root>\n      <Field.Label>Label</Field.Label>\n      <Input value={label} onChange={(e) => setLabel(e.target.value)} />\n    </Field.Root>\n    <Popover.Close>Done</Popover.Close>\n  </Popover.Popup>\n</Popover.Root>\n// after the anchor moves: ref.current?.reposition()",
         "relatedTo": [
           {
@@ -5018,7 +5050,7 @@
         ]
       },
       "name": "Popover",
-      "native": false,
+      "native": true,
       "parts": {
         "Close": {
           "name": "Close",
@@ -5613,7 +5645,7 @@
             "Item"
           ]
         },
-        "description": "Vertical side navigation. `Section` is a labelled block that is always open — the default for primary navigation. `Group` is the same block behind a chevron (a disclosure) — reach for it only for a rare/advanced region, an unbounded data-driven list, or a rail long enough that flat stops reading as an overview; mixing the two in one rail is the healthy shape. `Item`s take an optional `icon` and show an active left-marker. Supports controlled and uncontrolled active item. Compound component — Root is required.",
+        "description": "Vertical side navigation. `Section` is a labelled block that is always open — the default for primary navigation. `Group` is the same block behind a chevron (a disclosure) — reach for it only for a rare/advanced region, an unbounded data-driven list, or a rail long enough that flat stops reading as an overview; mixing the two in one rail is the healthy shape. `Item`s take an optional `icon` and show an active left-marker. Supports controlled and uncontrolled active item. Compound component — Root is required. On React Native the same parts render, and a Group knows whether it holds the active item from its Items, not from the DOM.",
         "example": "<SideNav.Root defaultValue=\"identities\">\n  {/* Default: always-open sections. Nothing is a click away from being seen. */}\n  <SideNav.Section label=\"People & access\">\n    <SideNav.Item value=\"identities\" icon={<Icon name=\"users\" size=\"md\" />}>Identities</SideNav.Item>\n    <SideNav.Item value=\"grants\" icon={<Icon name=\"key\" size=\"md\" />}>Grants</SideNav.Item>\n  </SideNav.Section>\n  {/* Disclosure, earned: rarely visited, so it starts collapsed. */}\n  <SideNav.Group label=\"Advanced\" defaultExpanded={false}>\n    <SideNav.Item value=\"plugins\" icon={<Icon name=\"plug\" size=\"md\" />}>Plugins</SideNav.Item>\n  </SideNav.Group>\n</SideNav.Root>",
         "relatedTo": [
           {
@@ -5646,7 +5678,7 @@
         ]
       },
       "name": "SideNav",
-      "native": false,
+      "native": true,
       "parts": {
         "Group": {
           "name": "Group",
@@ -5786,6 +5818,130 @@
         }
       ],
       "sourcePath": "packages/ui/src/components/Spinner/Spinner.tsx"
+    },
+    "SplitPane": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "Handle"
+          ],
+          "required": [
+            "Root",
+            "Pane"
+          ]
+        },
+        "description": "Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.",
+        "example": "<SplitPane.Root aria-label=\"Resize the session list\" minSize=\"sidebarW\" maxSize=\"panelLg\">\n  <SplitPane.Pane>\n    <List.Root aria-label=\"Sessions\">…</List.Root>\n  </SplitPane.Pane>\n  <SplitPane.Handle />\n  <SplitPane.Pane>\n    <Panel.Root>…</Panel.Root>\n  </SplitPane.Pane>\n</SplitPane.Root>",
+        "relatedTo": [
+          {
+            "component": "Grid",
+            "kind": "contrast",
+            "relationship": "Grid layout=\"split\" is a fixed split; SplitPane lets people resize it"
+          },
+          {
+            "component": "DetailPanel",
+            "kind": "contrast",
+            "relationship": "DetailPanel overlays the list; SplitPane keeps both side by side"
+          }
+        ],
+        "whenNotToUse": [
+          "A fixed list/detail layout nobody resizes — use Grid layout=\"split\"",
+          "Navigation beside content — use AppShell or the page-with-sidenav recipe",
+          "A short-lived inspection over a list — use DetailPanel"
+        ],
+        "whenToUse": [
+          "A list beside its detail where people need more room on either side (a session list and its transcript)",
+          "An editor beside its preview"
+        ]
+      },
+      "name": "SplitPane",
+      "native": true,
+      "parts": {
+        "Handle": {
+          "name": "Handle",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/SplitPane/SplitPane.tsx"
+        },
+        "Pane": {
+          "name": "Pane",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/SplitPane/SplitPane.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "default": "'sidebarW'",
+              "description": "The primary (first) pane's starting width, a size token. Default: `sidebarW`",
+              "name": "defaultSize",
+              "required": false,
+              "type": "SizeToken"
+            },
+            {
+              "description": "Controlled width of the primary pane, in px (from `onSizeChange`)",
+              "name": "size",
+              "required": false,
+              "type": "number"
+            },
+            {
+              "description": "Called with the primary pane's new width while the handle moves",
+              "name": "onSizeChange",
+              "required": false,
+              "type": "(px: number) => void"
+            },
+            {
+              "default": "'sidebarW'",
+              "description": "The primary pane's narrowest width, a size token. Default: `sidebarW`",
+              "name": "minSize",
+              "required": false,
+              "type": "SizeToken"
+            },
+            {
+              "default": "'panelLg'",
+              "description": "The primary pane's widest width, a size token. Default: `panelLg`",
+              "name": "maxSize",
+              "required": false,
+              "type": "SizeToken"
+            },
+            {
+              "default": "'sm'",
+              "description": "Below this breakpoint, measured on the split's own width, the panes stack. Default: `sm`",
+              "name": "collapseBelow",
+              "required": false,
+              "type": "Breakpoint",
+              "union": [
+                "xs",
+                "sm",
+                "md",
+                "lg",
+                "xl"
+              ]
+            },
+            {
+              "description": "The handle's accessible name (\"Resize list\").",
+              "name": "aria-label",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/SplitPane/SplitPane.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/SplitPane/SplitPane.tsx"
     },
     "Stack": {
       "importPath": "@duro-app/ui",
@@ -6680,7 +6836,7 @@
             "Panel"
           ]
         },
-        "description": "Tabbed interface with keyboard navigation. Supports horizontal and vertical orientation. Compound component — Root is required.",
+        "description": "Tabbed interface with keyboard navigation. Supports horizontal and vertical orientation. Compound component — Root is required. On React Native the indicator follows each tab layout; there is no arrow-key navigation there, each tab is its own screen-reader stop.",
         "example": "<Tabs.Root defaultValue=\"general\">\n  <Tabs.List>\n    <Tabs.Tab value=\"general\">General</Tabs.Tab>\n    <Tabs.Tab value=\"security\">Security</Tabs.Tab>\n    <Tabs.Tab value=\"billing\" disabled>Billing</Tabs.Tab>\n  </Tabs.List>\n  <Tabs.Panel value=\"general\">General settings content</Tabs.Panel>\n  <Tabs.Panel value=\"security\">Security settings content</Tabs.Panel>\n  <Tabs.Panel value=\"billing\">Billing content</Tabs.Panel>\n</Tabs.Root>",
         "relatedTo": [
           {
@@ -6705,7 +6861,7 @@
         ]
       },
       "name": "Tabs",
-      "native": false,
+      "native": true,
       "parts": {
         "List": {
           "name": "List",
@@ -6796,7 +6952,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Interactive tag/chip with optional remove button. Works standalone or inside TagGroup for collection management. Visually similar to Badge but supports interaction.",
+        "description": "Interactive tag/chip with optional remove button. Works standalone or inside TagGroup for collection management. Visually similar to Badge but supports interaction. On React Native a Tag stands alone (TagGroup is web only): the label and, when removable, a remove button named from a string label.",
         "example": "<Tag removable onRemove={() => console.log('removed')}>\n  user@example.com\n</Tag>",
         "relatedTo": [
           {
@@ -6821,7 +6977,7 @@
         ]
       },
       "name": "Tag",
-      "native": false,
+      "native": true,
       "props": [
         {
           "description": "Value identifier — required when used inside TagGroup",
@@ -7621,7 +7777,7 @@
       "importPath": "@duro-app/ui",
       "kind": "provider",
       "meta": {
-        "description": "Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it).",
+        "description": "Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it). On React Native the same API draws through the portal host above every open overlay and the keyboard, as a card with a status-coloured edge, its action and its close in one row; a sideways swipe dismisses, a press holds the countdown, and so does an active screen reader (WCAG 2.2.1).",
         "example": "function Example() {\n  const {toast} = useToast()\n  return (\n    <Button onClick={() => toast({variant: 'success', message: 'Grant revoked', action: {label: 'Undo', onClick: restore}})}>\n      Revoke\n    </Button>\n  )\n}",
         "relatedTo": [
           {
@@ -7648,7 +7804,7 @@
         ]
       },
       "name": "ToastProvider",
-      "native": false,
+      "native": true,
       "props": [
         {
           "default": "'Dismiss'",
@@ -7954,7 +8110,7 @@
             "Trigger"
           ]
         },
-        "description": "Hover/focus tooltip that shows supplementary content. Compound component — Root is required (throws without it).",
+        "description": "Hover/focus tooltip that shows supplementary content. Compound component — Root is required (throws without it). On touch (React Native) no bubble is drawn: a string content becomes the accessibility hint of the Duro trigger inside (Button, Toggle, Menu.Trigger, Popover.Trigger), read after its name. Keep tooltip text non-essential, and keep aria-label on icon-only triggers.",
         "example": "<Tooltip.Root content=\"Delete this item permanently\" placement=\"top\">\n  <Tooltip.Trigger>\n    <Button variant=\"danger\">Delete</Button>\n  </Tooltip.Trigger>\n</Tooltip.Root>",
         "whenNotToUse": [
           "Critical information that must always be visible — use Text or Callout",
@@ -7966,7 +8122,7 @@
         ]
       },
       "name": "Tooltip",
-      "native": false,
+      "native": true,
       "parts": {
         "Root": {
           "name": "Root",
@@ -8021,7 +8177,7 @@
             "Item"
           ]
         },
-        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required.",
+        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required. On React Native selection, expansion and aria-level are the same; the keyboard model (arrows, Home/End, typeahead) is web only.",
         "example": "<Tree.Root aria-label=\"Blocs\" defaultExpanded={['energy']} onValueChange={setSelected}>\n  <Tree.Item value=\"energy\" label=\"Core business — Energy\">\n    <Tree.Item value=\"generation\" label=\"Generation\" meta=\"4 apps\" />\n    <Tree.Item value=\"network\" label=\"Network operations\">\n      <Tree.Item value=\"scada\" label=\"SCADA supervision\" />\n    </Tree.Item>\n  </Tree.Item>\n  <Tree.Item value=\"finance\" label=\"Finance & steering\" />\n</Tree.Root>",
         "relatedTo": [
           {
@@ -8047,7 +8203,7 @@
         ]
       },
       "name": "Tree",
-      "native": false,
+      "native": true,
       "parts": {
         "Item": {
           "name": "Item",
@@ -8156,6 +8312,92 @@
       },
       "props": null,
       "sourcePath": "packages/ui/src/components/Tree/Tree.tsx"
+    },
+    "VirtualList": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "anatomy": {
+          "optional": [],
+          "required": []
+        },
+        "description": "A windowed list on @tanstack/react-virtual: only the rows in view (plus overscan) are mounted, and rows are measured so they may differ in height. role=\"list\" with listitem rows carrying aria-setsize and aria-posinset. anchor=\"end\" opens at the last item and stays pinned to the bottom while new items arrive and the reader is at the bottom (a transcript, a log). It fills its parent, or stops at maxHeight. Web only: on native, host FlashList or Legend List behind your own .native.tsx leaf.",
+        "example": "<VirtualList\n  aria-label=\"Transcript\"\n  items={messages}\n  getKey={(m) => m.id}\n  estimateSize=\"controlLg\"\n  anchor=\"end\"\n  renderItem={(m) => <Text>{m.text}</Text>}\n/>",
+        "relatedTo": [
+          {
+            "component": "VirtualTable",
+            "kind": "contrast",
+            "relationship": "VirtualTable windows table rows with columns; VirtualList windows any row"
+          },
+          {
+            "component": "List",
+            "kind": "composition",
+            "relationship": "Render a List.Item-like row in renderItem for the list look"
+          }
+        ],
+        "whenNotToUse": [
+          "Tabular data with columns and sorting — use VirtualTable",
+          "A few dozen rows — use List; windowing only adds cost there",
+          "Selectable options in a picker — use Listbox"
+        ],
+        "whenToUse": [
+          "Hundreds to tens of thousands of rows: sessions, a chat transcript, log lines",
+          "A list that grows at the bottom while the reader follows it (anchor=\"end\")"
+        ]
+      },
+      "name": "VirtualList",
+      "native": false,
+      "props": [
+        {
+          "name": "items",
+          "required": true,
+          "type": "readonly T[]"
+        },
+        {
+          "description": "Each row's starting height estimate, a size token; rows are then measured.",
+          "name": "estimateSize",
+          "required": true,
+          "type": "SizeToken"
+        },
+        {
+          "name": "renderItem",
+          "required": true,
+          "type": "(item: T, index: number) => ReactNode"
+        },
+        {
+          "description": "A stable key per item (an id), so rows keep their measurement as items change.",
+          "name": "getKey",
+          "required": true,
+          "type": "(item: T, index: number) => string | number"
+        },
+        {
+          "default": "5",
+          "description": "Rows rendered beyond each edge of the view. Default 5",
+          "name": "overscan",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "default": "'start'",
+          "description": "`end` starts at the last item and stays pinned to the bottom while new items arrive, as long as the reader is at the bottom (a transcript, a log). Default `start`.",
+          "name": "anchor",
+          "required": false,
+          "type": "'start' | 'end'"
+        },
+        {
+          "description": "Cap the list's height; without it, it fills its parent.",
+          "name": "maxHeight",
+          "required": false,
+          "type": "Length"
+        },
+        {
+          "description": "The list's accessible name.",
+          "name": "aria-label",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/VirtualList/VirtualList.tsx"
     },
     "VirtualTable": {
       "importPath": "@duro-app/ui/table",
@@ -8543,7 +8785,7 @@
       "importPath": "@duro-app/ui",
       "kind": "hook",
       "meta": {
-        "description": "Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it).",
+        "description": "Transient, self-dismissing notification for the RESULT of an action (saved, sent, revoked, failed). Mount <ToastProvider> once at the app root and call useToast().toast() from anywhere. Toasts stack and portal above dialogs. Variants: success, info, warning, error. The countdown pauses while a toast is hovered or holds focus, and every toast has a close button (`dismissLabel` on the provider names it). On React Native the same API draws through the portal host above every open overlay and the keyboard, as a card with a status-coloured edge, its action and its close in one row; a sideways swipe dismisses, a press holds the countdown, and so does an active screen reader (WCAG 2.2.1).",
         "example": "function Example() {\n  const {toast} = useToast()\n  return (\n    <Button onClick={() => toast({variant: 'success', message: 'Grant revoked', action: {label: 'Undo', onClick: restore}})}>\n      Revoke\n    </Button>\n  )\n}",
         "relatedTo": [
           {
@@ -8570,7 +8812,7 @@
         ]
       },
       "name": "useToast",
-      "native": false,
+      "native": true,
       "props": [],
       "sourcePath": "packages/ui/src/components/Toast/ToastProvider.tsx"
     }
@@ -8963,7 +9205,7 @@
     "split-pane": {
       "export": "SplitPaneRecipe",
       "meta": {
-        "description": "List/detail split: a selectable List beside a Panel showing the selection, on Grid layout=\"split\" (list ≥ 240px, one column when the board is narrower than sm).",
+        "description": "List/detail split: a selectable List beside a Panel showing the selection, in a SplitPane (the list starts at sidebarW, resizes up to panelLg with the handle, and the panes stack when the split is narrower than sm).",
         "example": "<SplitPaneRecipe />",
         "whenNotToUse": [
           "The detail is a short-lived inspection — use DetailPanel over the list instead",
@@ -8976,18 +9218,18 @@
       },
       "name": "split-pane",
       "peerDeps": [],
-      "source": "import {useState} from 'react'\nimport {Grid, List, Panel, Stack, Inline, Heading, Text, Badge, Button, EmptyState} from '@duro-app/ui'\n\nconst ITEMS = [\n  {id: 'grafana', name: 'Grafana', owner: 'platform', status: 'active'},\n  {id: 'vault', name: 'Vault', owner: 'security', status: 'active'},\n  {id: 'legacy-crm', name: 'Legacy CRM', owner: 'sales', status: 'retiring'},\n] as const\n\nexport function SplitPaneRecipe() {\n  const [selected, setSelected] = useState<string | null>(ITEMS[0].id)\n  const item = ITEMS.find((candidate) => candidate.id === selected)\n\n  return (\n    <Grid layout=\"split\" gap=\"lg\">\n      <List.Root selectionMode=\"single\" aria-label=\"Applications\">\n        {ITEMS.map((candidate) => (\n          <List.Item\n            key={candidate.id}\n            selected={candidate.id === selected}\n            onClick={() => setSelected(candidate.id)}\n          >\n            <List.Content>\n              <List.Text>{candidate.name}</List.Text>\n              <List.Description>Owned by {candidate.owner}</List.Description>\n            </List.Content>\n            <List.Actions>\n              <Badge variant={candidate.status === 'active' ? 'success' : 'warning'}>\n                {candidate.status}\n              </Badge>\n            </List.Actions>\n          </List.Item>\n        ))}\n        <List.Empty>No applications.</List.Empty>\n      </List.Root>\n\n      <Panel.Root bordered>\n        {item ? (\n          <>\n            <Panel.Header>\n              <Heading level={2}>{item.name}</Heading>\n              <Inline gap=\"sm\">\n                <Button variant=\"secondary\" size=\"small\">\n                  Edit\n                </Button>\n                <Button variant=\"danger\" size=\"small\">\n                  Retire\n                </Button>\n              </Inline>\n            </Panel.Header>\n            <Panel.Body>\n              <Stack gap=\"md\">\n                <Text>\n                  Owner: <Text weight=\"medium\">{item.owner}</Text>\n                </Text>\n                <Text color=\"muted\">\n                  Everything about the selection lives here: fields, history, related records.\n                </Text>\n              </Stack>\n            </Panel.Body>\n          </>\n        ) : (\n          <Panel.Body>\n            <EmptyState message=\"Select an application to see its details.\" />\n          </Panel.Body>\n        )}\n      </Panel.Root>\n    </Grid>\n  )\n}\n",
+      "source": "import {useState} from 'react'\nimport {SplitPane, List, Panel, Stack, Inline, Heading, Text, Badge, Button, EmptyState} from '@duro-app/ui'\n\nconst ITEMS = [\n  {id: 'grafana', name: 'Grafana', owner: 'platform', status: 'active'},\n  {id: 'vault', name: 'Vault', owner: 'security', status: 'active'},\n  {id: 'legacy-crm', name: 'Legacy CRM', owner: 'sales', status: 'retiring'},\n] as const\n\nexport function SplitPaneRecipe() {\n  const [selected, setSelected] = useState<string | null>(ITEMS[0].id)\n  const item = ITEMS.find((candidate) => candidate.id === selected)\n\n  return (\n    <SplitPane.Root aria-label=\"Resize the application list\" minSize=\"sidebarW\" maxSize=\"panelLg\">\n      <SplitPane.Pane>\n        <List.Root selectionMode=\"single\" aria-label=\"Applications\">\n          {ITEMS.map((candidate) => (\n            <List.Item\n              key={candidate.id}\n              selected={candidate.id === selected}\n              onClick={() => setSelected(candidate.id)}\n            >\n              <List.Content>\n                <List.Text>{candidate.name}</List.Text>\n                <List.Description>Owned by {candidate.owner}</List.Description>\n              </List.Content>\n              <List.Actions>\n                <Badge variant={candidate.status === 'active' ? 'success' : 'warning'}>\n                  {candidate.status}\n                </Badge>\n              </List.Actions>\n            </List.Item>\n          ))}\n          <List.Empty>No applications.</List.Empty>\n        </List.Root>\n      </SplitPane.Pane>\n      <SplitPane.Handle />\n      <SplitPane.Pane>\n        <Panel.Root bordered>\n          {item ? (\n            <>\n              <Panel.Header>\n                <Heading level={2}>{item.name}</Heading>\n                <Inline gap=\"sm\">\n                  <Button variant=\"secondary\" size=\"small\">\n                    Edit\n                  </Button>\n                  <Button variant=\"danger\" size=\"small\">\n                    Retire\n                  </Button>\n                </Inline>\n              </Panel.Header>\n              <Panel.Body>\n                <Stack gap=\"md\">\n                  <Text>\n                    Owner: <Text weight=\"medium\">{item.owner}</Text>\n                  </Text>\n                  <Text color=\"muted\">\n                    Everything about the selection lives here: fields, history, related records.\n                  </Text>\n                </Stack>\n              </Panel.Body>\n            </>\n          ) : (\n            <Panel.Body>\n              <EmptyState message=\"Select an application to see its details.\" />\n            </Panel.Body>\n          )}\n        </Panel.Root>\n      </SplitPane.Pane>\n    </SplitPane.Root>\n  )\n}\n",
       "sourcePath": "docs/ai/recipes/split-pane.recipe.tsx",
       "title": "Split Pane",
       "usesComponents": [
         "Badge",
         "Button",
         "EmptyState",
-        "Grid",
         "Heading",
         "Inline",
         "List",
         "Panel",
+        "SplitPane",
         "Stack",
         "Text"
       ]
@@ -10090,6 +10332,14 @@
             "value": "4px"
           },
           {
+            "key": "sheetGrabberW",
+            "value": "40px"
+          },
+          {
+            "key": "sheetGrabberH",
+            "value": "4px"
+          },
+          {
             "key": "readoutW",
             "value": "40px"
           },
@@ -10278,7 +10528,7 @@
         "importPath": "@duro-app/tokens/tokens/typography.css"
       }
     },
-    "mockupCss": "/*\n * GENERATED by scripts/generate-mockup-css.mjs — do not edit.\n *\n * The design tokens as resolved values, for HTML that loads no stylesheet\n * (mockup artboards, static previews). Same names as vars.css; where vars.css\n * follows the live theme, this file carries every theme and switches on\n * <html data-theme=\"light|high-contrast\">.\n *\n * Inside the component library and the apps, never use this: go through\n * css.create() and the token imports, or vars.css from plain CSS.\n */\n:root {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #6aaffc;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #0f0f0f;\n  --duro-color-bg-card: #1a1a1a;\n  --duro-color-bg-card-hover: #242424;\n  --duro-color-border: #333333;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #f5f5f5;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.1);\n  --duro-color-error-border: rgba(248, 113, 113, 0.3);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-dark: #000000;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-highlight: #c084fc;\n  --duro-color-highlight-bg: rgba(192, 132, 252, 0.1);\n  --duro-color-highlight-border: rgba(192, 132, 252, 0.3);\n  --duro-color-highlight-text: #d8b4fe;\n  --duro-color-info: #6aaffc;\n  --duro-color-info-bg: rgba(106, 175, 252, 0.1);\n  --duro-color-info-border: rgba(106, 175, 252, 0.3);\n  --duro-color-info-text: #93c5fd;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #1a1a1a;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #22c55e;\n  --duro-color-success-bg: rgba(34, 197, 94, 0.1);\n  --duro-color-success-border: rgba(34, 197, 94, 0.3);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #e5e5e5;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fbbf24;\n  --duro-color-warning-bg: rgba(251, 191, 36, 0.1);\n  --duro-color-warning-border: rgba(251, 191, 36, 0.3);\n  --duro-color-warning-text: #fde68a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #6aaffc;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #333333;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);\n  /* spacing */\n  --duro-spacing-lg: 24px;\n  --duro-spacing-md: 16px;\n  --duro-spacing-ms: 12px;\n  --duro-spacing-sm: 8px;\n  --duro-spacing-xl: 32px;\n  --duro-spacing-xs: 4px;\n  --duro-spacing-xxl: 48px;\n  --duro-spacing-xxxl: 64px;\n  /* microSpacing */\n  --duro-micro-spacing-px1: 1px;\n  --duro-micro-spacing-px2: 2px;\n  --duro-micro-spacing-px3: 3px;\n  --duro-micro-spacing-px5: 5px;\n  --duro-micro-spacing-px6: 6px;\n  /* radii */\n  --duro-radius-full: 9999px;\n  --duro-radius-lg: 16px;\n  --duro-radius-md: 12px;\n  --duro-radius-px6: 6px;\n  --duro-radius-sm: 8px;\n  --duro-radius-xs: 4px;\n  /* sizes */\n  --duro-size-app-bar-h: 61px;\n  --duro-size-aside-w: 320px;\n  --duro-size-bar-h: 4px;\n  --duro-size-canvas-min-h: 480px;\n  --duro-size-check-mark-h: 9px;\n  --duro-size-check-mark-w: 5px;\n  --duro-size-chip: 24px;\n  --duro-size-color-area-h: 150px;\n  --duro-size-color-picker-w: 196px;\n  --duro-size-color-preview-h: 22px;\n  --duro-size-color-swatch: 20px;\n  --duro-size-color-track-h: 12px;\n  --duro-size-control-lg: 40px;\n  --duro-size-control-md: 39px;\n  --duro-size-control-sm: 28px;\n  --duro-size-day-header-h: 46px;\n  --duro-size-device-bar-w: 96px;\n  --duro-size-dialog-lg: 680px;\n  --duro-size-dialog-md: 520px;\n  --duro-size-dialog-sm: 400px;\n  --duro-size-divider: 1px;\n  --duro-size-drag-thumb-h: 99px;\n  --duro-size-drag-thumb-w: 132px;\n  --duro-size-drop-zone-min-h: 128px;\n  --duro-size-edge-fade: 32px;\n  --duro-size-editor-min-h: 160px;\n  --duro-size-embed-w: 550px;\n  --duro-size-field-min-w: 160px;\n  --duro-size-field-min-w-sm: 80px;\n  --duro-size-glyph-clamp-max: 160px;\n  --duro-size-glyph-md: 16px;\n  --duro-size-glyph-sm: 12px;\n  --duro-size-glyph-xs: 10px;\n  --duro-size-grid-col-md: 280px;\n  --duro-size-grid-col-sm: 240px;\n  --duro-size-grid-col-xs: 200px;\n  --duro-size-handle: 16px;\n  --duro-size-icon-button: 32px;\n  --duro-size-icon-button-sm: 28px;\n  --duro-size-icon-lg: 24px;\n  --duro-size-icon-md: 18px;\n  --duro-size-icon-sm: 16px;\n  --duro-size-icon-xl: 36px;\n  --duro-size-icon-xxl: 48px;\n  --duro-size-indicator: 18px;\n  --duro-size-indicator-dot: 8px;\n  --duro-size-label-min-w: 120px;\n  --duro-size-list-max-h: 280px;\n  --duro-size-list-max-h-sm: 200px;\n  --duro-size-media-tile-min-w: 108px;\n  --duro-size-meter-h: 6px;\n  --duro-size-nav-marker-h: 18px;\n  --duro-size-nav-marker-w: 3px;\n  --duro-size-page-lg: 1200px;\n  --duro-size-page-md: 800px;\n  --duro-size-page-sm: 600px;\n  --duro-size-page-xl: 1440px;\n  --duro-size-page-xs: 480px;\n  --duro-size-palette-min-w: 96px;\n  --duro-size-panel-lg: 640px;\n  --duro-size-panel-md: 480px;\n  --duro-size-panel-sm: 360px;\n  --duro-size-placeholder-min-h: 80px;\n  --duro-size-popover-w: 320px;\n  --duro-size-popover-w-sm: 240px;\n  --duro-size-popup-max-w: 280px;\n  --duro-size-popup-min-w: 160px;\n  --duro-size-preview-max-h: 320px;\n  --duro-size-readout-w: 40px;\n  --duro-size-scrollbar: 8px;\n  --duro-size-sidebar-w: 240px;\n  --duro-size-skeleton-chip-w: 96px;\n  --duro-size-slider-w: 96px;\n  --duro-size-spinner-lg: 40px;\n  --duro-size-spinner-md: 24px;\n  --duro-size-spinner-sm: 16px;\n  --duro-size-swatch-h: 34px;\n  --duro-size-swatch-w: 44px;\n  --duro-size-switch-thumb: 16px;\n  --duro-size-switch-track-h: 20px;\n  --duro-size-switch-track-w: 36px;\n  --duro-size-tab-indicator: 2px;\n  --duro-size-thumb-sm: 40px;\n  --duro-size-time-gutter-w: 64px;\n  --duro-size-timeline-label-w: 180px;\n  --duro-size-time-readout-w: 74px;\n  --duro-size-toast-max-w: 440px;\n  --duro-size-toolbar-h: 36px;\n  --duro-size-touch-target: 44px;\n  /* borders */\n  --duro-border-accent: 3px;\n  --duro-border-focus-offset: 2px;\n  --duro-border-focus-offset-sm: 1px;\n  --duro-border-focus-ring: 2px;\n  --duro-border-hairline: 1px;\n  --duro-border-strong: 2px;\n  /* layers */\n  --duro-layer-floating: 50;\n  --duro-layer-floating-raised: 60;\n  --duro-layer-modal: 1001;\n  --duro-layer-modal-raised: 1002;\n  --duro-layer-overlay: 1000;\n  --duro-layer-popover: 1040;\n  --duro-layer-popover-raised: 1041;\n  --duro-layer-popup: 1050;\n  --duro-layer-popup-backdrop: 1049;\n  --duro-layer-portal: 1100;\n  --duro-layer-raised: 1;\n  --duro-layer-toast: 1060;\n  /* effects */\n  --duro-effect-overlay-blur: blur(2px);\n  --duro-effect-surface-blur: blur(6px);\n  /* layoutSpacing */\n  --duro-layout-spacing-container-lg: 32px;\n  --duro-layout-spacing-container-md: 24px;\n  --duro-layout-spacing-container-sm: 16px;\n  --duro-layout-spacing-inline-lg: 24px;\n  --duro-layout-spacing-inline-md: 16px;\n  --duro-layout-spacing-inline-sm: 8px;\n  --duro-layout-spacing-inline-xs: 4px;\n  --duro-layout-spacing-stack-lg: 24px;\n  --duro-layout-spacing-stack-md: 16px;\n  --duro-layout-spacing-stack-sm: 8px;\n  --duro-layout-spacing-stack-xl: 48px;\n  --duro-layout-spacing-stack-xs: 4px;\n  /* typography */\n  --duro-typography-font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n  --duro-typography-font-family-mono: \"SF Mono\", \"Fira Code\", \"Fira Mono\", \"Roboto Mono\", \"Courier New\", monospace;\n  --duro-typography-font-size-heading: 1.5rem;\n  --duro-typography-font-size-lg: 1.125rem;\n  --duro-typography-font-size-md: 1rem;\n  --duro-typography-font-size-sm: 0.875rem;\n  --duro-typography-font-size-xl: 1.25rem;\n  --duro-typography-font-size-xs: 0.75rem;\n  --duro-typography-font-weight-bold: 700;\n  --duro-typography-font-weight-medium: 500;\n  --duro-typography-font-weight-normal: 400;\n  --duro-typography-font-weight-semibold: 600;\n  --duro-typography-line-height: 1.5;\n  /* typeScale */\n  --duro-type-scale-display-lg: clamp(3.5rem, 2rem + 3.5vw, 4.5rem);\n  --duro-type-scale-display-md: clamp(2.75rem, 1.75rem + 2.5vw, 3.75rem);\n  --duro-type-scale-display-sm: clamp(2.25rem, 1.5rem + 2vw, 3rem);\n  --duro-type-scale-font-size1: 0.75rem;\n  --duro-type-scale-font-size2: 0.8125rem;\n  --duro-type-scale-font-size3: 0.875rem;\n  --duro-type-scale-font-size4: 1rem;\n  --duro-type-scale-font-size5: 1.125rem;\n  --duro-type-scale-font-size6: 1.25rem;\n  --duro-type-scale-font-size7: 1.5rem;\n  --duro-type-scale-font-size8: 1.875rem;\n  --duro-type-scale-font-size9: 2.25rem;\n  --duro-type-scale-letter-spacing-normal: 0;\n  --duro-type-scale-letter-spacing-tight: -0.02em;\n  --duro-type-scale-letter-spacing-wide: 0.04em;\n  --duro-type-scale-line-height1: 1rem;\n  --duro-type-scale-line-height2: 1.25rem;\n  --duro-type-scale-line-height3: 1.25rem;\n  --duro-type-scale-line-height4: 1.5rem;\n  --duro-type-scale-line-height5: 1.5rem;\n  --duro-type-scale-line-height6: 1.75rem;\n  --duro-type-scale-line-height7: 2rem;\n  --duro-type-scale-line-height8: 2.25rem;\n  --duro-type-scale-line-height9: 2.75rem;\n  /* duration */\n  --duro-duration-base: 200ms;\n  --duro-duration-brisk: 160ms;\n  --duro-duration-fast: 150ms;\n  --duro-duration-instant: 0ms;\n  --duro-duration-minimal: 1ms;\n  --duro-duration-quick: 120ms;\n  --duro-duration-slow: 280ms;\n  /* easing */\n  --duro-easing-ease-in: cubic-bezier(0.72, 0, 0.68, 0.28);\n  --duro-easing-ease-out: cubic-bezier(0.32, 0.72, 0, 1);\n  --duro-easing-linear: linear;\n  --duro-easing-standard: ease;\n  /* breakpoints */\n  --duro-breakpoint-lg: 1024px;\n  --duro-breakpoint-md: 768px;\n  --duro-breakpoint-sm: 640px;\n  --duro-breakpoint-xl: 1280px;\n  --duro-breakpoint-xs: 480px;\n}\n\n:root[data-theme=\"light\"] {\n  color-scheme: light;\n  /* colors */\n  --duro-color-accent: #1e40af;\n  --duro-color-accent-contrast: #ffffff;\n  --duro-color-accent-hover: #1a3799;\n  --duro-color-bg: #ffffff;\n  --duro-color-bg-card: #f5f5f5;\n  --duro-color-bg-card-hover: #ebebeb;\n  --duro-color-border: #d4d4d4;\n  --duro-color-contrast-border: rgba(255, 255, 255, 0.33);\n  --duro-color-contrast-surface: #1a1a1a;\n  --duro-color-error: #991b1b;\n  --duro-color-error-bg: rgba(153, 27, 27, 0.08);\n  --duro-color-error-border: rgba(153, 27, 27, 0.3);\n  --duro-color-error-contrast: #ffffff;\n  --duro-color-error-hover: #7f1d1d;\n  --duro-color-error-text: #7f1d1d;\n  --duro-color-fixed-dark: #000000;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-highlight: #6b21a8;\n  --duro-color-highlight-bg: rgba(107, 33, 168, 0.08);\n  --duro-color-highlight-border: rgba(107, 33, 168, 0.3);\n  --duro-color-highlight-text: #581c87;\n  --duro-color-info: #1e40af;\n  --duro-color-info-bg: rgba(30, 64, 175, 0.08);\n  --duro-color-info-border: rgba(30, 64, 175, 0.3);\n  --duro-color-info-text: #1e40af;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #e5e5e5;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #166534;\n  --duro-color-success-bg: rgba(22, 101, 52, 0.08);\n  --duro-color-success-border: rgba(22, 101, 52, 0.3);\n  --duro-color-success-text: #14532d;\n  --duro-color-text: #1a1a1a;\n  --duro-color-text-muted: #4a4a4a;\n  --duro-color-warning: #92400e;\n  --duro-color-warning-bg: rgba(146, 64, 14, 0.08);\n  --duro-color-warning-border: rgba(146, 64, 14, 0.3);\n  --duro-color-warning-text: #78350f;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #1e40af;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #d4d4d4;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);\n}\n\n:root[data-theme=\"high-contrast\"] {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #60a5fa;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #000000;\n  --duro-color-bg-card: #111111;\n  --duro-color-bg-card-hover: #1a1a1a;\n  --duro-color-border: #555555;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #ffffff;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.15);\n  --duro-color-error-border: rgba(248, 113, 113, 0.5);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-dark: #000000;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-highlight: #d8b4fe;\n  --duro-color-highlight-bg: rgba(216, 180, 254, 0.15);\n  --duro-color-highlight-border: rgba(216, 180, 254, 0.5);\n  --duro-color-highlight-text: #e9d5ff;\n  --duro-color-info: #60a5fa;\n  --duro-color-info-bg: rgba(96, 165, 250, 0.15);\n  --duro-color-info-border: rgba(96, 165, 250, 0.5);\n  --duro-color-info-text: #bfdbfe;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #000000;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #4ade80;\n  --duro-color-success-bg: rgba(74, 222, 128, 0.15);\n  --duro-color-success-border: rgba(74, 222, 128, 0.5);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #ffffff;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fcd34d;\n  --duro-color-warning-bg: rgba(252, 211, 77, 0.15);\n  --duro-color-warning-border: rgba(252, 211, 77, 0.5);\n  --duro-color-warning-text: #fef08a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #60a5fa;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #555555;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6);\n}\n"
+    "mockupCss": "/*\n * GENERATED by scripts/generate-mockup-css.mjs — do not edit.\n *\n * The design tokens as resolved values, for HTML that loads no stylesheet\n * (mockup artboards, static previews). Same names as vars.css; where vars.css\n * follows the live theme, this file carries every theme and switches on\n * <html data-theme=\"light|high-contrast\">.\n *\n * Inside the component library and the apps, never use this: go through\n * css.create() and the token imports, or vars.css from plain CSS.\n */\n:root {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #6aaffc;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #0f0f0f;\n  --duro-color-bg-card: #1a1a1a;\n  --duro-color-bg-card-hover: #242424;\n  --duro-color-border: #333333;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #f5f5f5;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.1);\n  --duro-color-error-border: rgba(248, 113, 113, 0.3);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-dark: #000000;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-highlight: #c084fc;\n  --duro-color-highlight-bg: rgba(192, 132, 252, 0.1);\n  --duro-color-highlight-border: rgba(192, 132, 252, 0.3);\n  --duro-color-highlight-text: #d8b4fe;\n  --duro-color-info: #6aaffc;\n  --duro-color-info-bg: rgba(106, 175, 252, 0.1);\n  --duro-color-info-border: rgba(106, 175, 252, 0.3);\n  --duro-color-info-text: #93c5fd;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #1a1a1a;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #22c55e;\n  --duro-color-success-bg: rgba(34, 197, 94, 0.1);\n  --duro-color-success-border: rgba(34, 197, 94, 0.3);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #e5e5e5;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fbbf24;\n  --duro-color-warning-bg: rgba(251, 191, 36, 0.1);\n  --duro-color-warning-border: rgba(251, 191, 36, 0.3);\n  --duro-color-warning-text: #fde68a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #6aaffc;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #333333;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);\n  /* spacing */\n  --duro-spacing-lg: 24px;\n  --duro-spacing-md: 16px;\n  --duro-spacing-ms: 12px;\n  --duro-spacing-sm: 8px;\n  --duro-spacing-xl: 32px;\n  --duro-spacing-xs: 4px;\n  --duro-spacing-xxl: 48px;\n  --duro-spacing-xxxl: 64px;\n  /* microSpacing */\n  --duro-micro-spacing-px1: 1px;\n  --duro-micro-spacing-px2: 2px;\n  --duro-micro-spacing-px3: 3px;\n  --duro-micro-spacing-px5: 5px;\n  --duro-micro-spacing-px6: 6px;\n  /* radii */\n  --duro-radius-full: 9999px;\n  --duro-radius-lg: 16px;\n  --duro-radius-md: 12px;\n  --duro-radius-px6: 6px;\n  --duro-radius-sm: 8px;\n  --duro-radius-xs: 4px;\n  /* sizes */\n  --duro-size-app-bar-h: 61px;\n  --duro-size-aside-w: 320px;\n  --duro-size-bar-h: 4px;\n  --duro-size-canvas-min-h: 480px;\n  --duro-size-check-mark-h: 9px;\n  --duro-size-check-mark-w: 5px;\n  --duro-size-chip: 24px;\n  --duro-size-color-area-h: 150px;\n  --duro-size-color-picker-w: 196px;\n  --duro-size-color-preview-h: 22px;\n  --duro-size-color-swatch: 20px;\n  --duro-size-color-track-h: 12px;\n  --duro-size-control-lg: 40px;\n  --duro-size-control-md: 39px;\n  --duro-size-control-sm: 28px;\n  --duro-size-day-header-h: 46px;\n  --duro-size-device-bar-w: 96px;\n  --duro-size-dialog-lg: 680px;\n  --duro-size-dialog-md: 520px;\n  --duro-size-dialog-sm: 400px;\n  --duro-size-divider: 1px;\n  --duro-size-drag-thumb-h: 99px;\n  --duro-size-drag-thumb-w: 132px;\n  --duro-size-drop-zone-min-h: 128px;\n  --duro-size-edge-fade: 32px;\n  --duro-size-editor-min-h: 160px;\n  --duro-size-embed-w: 550px;\n  --duro-size-field-min-w: 160px;\n  --duro-size-field-min-w-sm: 80px;\n  --duro-size-glyph-clamp-max: 160px;\n  --duro-size-glyph-md: 16px;\n  --duro-size-glyph-sm: 12px;\n  --duro-size-glyph-xs: 10px;\n  --duro-size-grid-col-md: 280px;\n  --duro-size-grid-col-sm: 240px;\n  --duro-size-grid-col-xs: 200px;\n  --duro-size-handle: 16px;\n  --duro-size-icon-button: 32px;\n  --duro-size-icon-button-sm: 28px;\n  --duro-size-icon-lg: 24px;\n  --duro-size-icon-md: 18px;\n  --duro-size-icon-sm: 16px;\n  --duro-size-icon-xl: 36px;\n  --duro-size-icon-xxl: 48px;\n  --duro-size-indicator: 18px;\n  --duro-size-indicator-dot: 8px;\n  --duro-size-label-min-w: 120px;\n  --duro-size-list-max-h: 280px;\n  --duro-size-list-max-h-sm: 200px;\n  --duro-size-media-tile-min-w: 108px;\n  --duro-size-meter-h: 6px;\n  --duro-size-nav-marker-h: 18px;\n  --duro-size-nav-marker-w: 3px;\n  --duro-size-page-lg: 1200px;\n  --duro-size-page-md: 800px;\n  --duro-size-page-sm: 600px;\n  --duro-size-page-xl: 1440px;\n  --duro-size-page-xs: 480px;\n  --duro-size-palette-min-w: 96px;\n  --duro-size-panel-lg: 640px;\n  --duro-size-panel-md: 480px;\n  --duro-size-panel-sm: 360px;\n  --duro-size-placeholder-min-h: 80px;\n  --duro-size-popover-w: 320px;\n  --duro-size-popover-w-sm: 240px;\n  --duro-size-popup-max-w: 280px;\n  --duro-size-popup-min-w: 160px;\n  --duro-size-preview-max-h: 320px;\n  --duro-size-readout-w: 40px;\n  --duro-size-scrollbar: 8px;\n  --duro-size-sheet-grabber-h: 4px;\n  --duro-size-sheet-grabber-w: 40px;\n  --duro-size-sidebar-w: 240px;\n  --duro-size-skeleton-chip-w: 96px;\n  --duro-size-slider-w: 96px;\n  --duro-size-spinner-lg: 40px;\n  --duro-size-spinner-md: 24px;\n  --duro-size-spinner-sm: 16px;\n  --duro-size-swatch-h: 34px;\n  --duro-size-swatch-w: 44px;\n  --duro-size-switch-thumb: 16px;\n  --duro-size-switch-track-h: 20px;\n  --duro-size-switch-track-w: 36px;\n  --duro-size-tab-indicator: 2px;\n  --duro-size-thumb-sm: 40px;\n  --duro-size-time-gutter-w: 64px;\n  --duro-size-timeline-label-w: 180px;\n  --duro-size-time-readout-w: 74px;\n  --duro-size-toast-max-w: 440px;\n  --duro-size-toolbar-h: 36px;\n  --duro-size-touch-target: 44px;\n  /* borders */\n  --duro-border-accent: 3px;\n  --duro-border-focus-offset: 2px;\n  --duro-border-focus-offset-sm: 1px;\n  --duro-border-focus-ring: 2px;\n  --duro-border-hairline: 1px;\n  --duro-border-strong: 2px;\n  /* layers */\n  --duro-layer-floating: 50;\n  --duro-layer-floating-raised: 60;\n  --duro-layer-modal: 1001;\n  --duro-layer-modal-raised: 1002;\n  --duro-layer-overlay: 1000;\n  --duro-layer-popover: 1040;\n  --duro-layer-popover-raised: 1041;\n  --duro-layer-popup: 1050;\n  --duro-layer-popup-backdrop: 1049;\n  --duro-layer-portal: 1100;\n  --duro-layer-raised: 1;\n  --duro-layer-toast: 1060;\n  /* effects */\n  --duro-effect-overlay-blur: blur(2px);\n  --duro-effect-surface-blur: blur(6px);\n  /* layoutSpacing */\n  --duro-layout-spacing-container-lg: 32px;\n  --duro-layout-spacing-container-md: 24px;\n  --duro-layout-spacing-container-sm: 16px;\n  --duro-layout-spacing-inline-lg: 24px;\n  --duro-layout-spacing-inline-md: 16px;\n  --duro-layout-spacing-inline-sm: 8px;\n  --duro-layout-spacing-inline-xs: 4px;\n  --duro-layout-spacing-stack-lg: 24px;\n  --duro-layout-spacing-stack-md: 16px;\n  --duro-layout-spacing-stack-sm: 8px;\n  --duro-layout-spacing-stack-xl: 48px;\n  --duro-layout-spacing-stack-xs: 4px;\n  /* typography */\n  --duro-typography-font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n  --duro-typography-font-family-mono: \"SF Mono\", \"Fira Code\", \"Fira Mono\", \"Roboto Mono\", \"Courier New\", monospace;\n  --duro-typography-font-size-heading: 1.5rem;\n  --duro-typography-font-size-lg: 1.125rem;\n  --duro-typography-font-size-md: 1rem;\n  --duro-typography-font-size-sm: 0.875rem;\n  --duro-typography-font-size-xl: 1.25rem;\n  --duro-typography-font-size-xs: 0.75rem;\n  --duro-typography-font-weight-bold: 700;\n  --duro-typography-font-weight-medium: 500;\n  --duro-typography-font-weight-normal: 400;\n  --duro-typography-font-weight-semibold: 600;\n  --duro-typography-line-height: 1.5;\n  /* typeScale */\n  --duro-type-scale-display-lg: clamp(3.5rem, 2rem + 3.5vw, 4.5rem);\n  --duro-type-scale-display-md: clamp(2.75rem, 1.75rem + 2.5vw, 3.75rem);\n  --duro-type-scale-display-sm: clamp(2.25rem, 1.5rem + 2vw, 3rem);\n  --duro-type-scale-font-size1: 0.75rem;\n  --duro-type-scale-font-size2: 0.8125rem;\n  --duro-type-scale-font-size3: 0.875rem;\n  --duro-type-scale-font-size4: 1rem;\n  --duro-type-scale-font-size5: 1.125rem;\n  --duro-type-scale-font-size6: 1.25rem;\n  --duro-type-scale-font-size7: 1.5rem;\n  --duro-type-scale-font-size8: 1.875rem;\n  --duro-type-scale-font-size9: 2.25rem;\n  --duro-type-scale-letter-spacing-normal: 0;\n  --duro-type-scale-letter-spacing-tight: -0.02em;\n  --duro-type-scale-letter-spacing-wide: 0.04em;\n  --duro-type-scale-line-height1: 1rem;\n  --duro-type-scale-line-height2: 1.25rem;\n  --duro-type-scale-line-height3: 1.25rem;\n  --duro-type-scale-line-height4: 1.5rem;\n  --duro-type-scale-line-height5: 1.5rem;\n  --duro-type-scale-line-height6: 1.75rem;\n  --duro-type-scale-line-height7: 2rem;\n  --duro-type-scale-line-height8: 2.25rem;\n  --duro-type-scale-line-height9: 2.75rem;\n  /* duration */\n  --duro-duration-base: 200ms;\n  --duro-duration-brisk: 160ms;\n  --duro-duration-fast: 150ms;\n  --duro-duration-instant: 0ms;\n  --duro-duration-minimal: 1ms;\n  --duro-duration-quick: 120ms;\n  --duro-duration-slow: 280ms;\n  /* easing */\n  --duro-easing-ease-in: cubic-bezier(0.72, 0, 0.68, 0.28);\n  --duro-easing-ease-out: cubic-bezier(0.32, 0.72, 0, 1);\n  --duro-easing-linear: linear;\n  --duro-easing-standard: ease;\n  /* breakpoints */\n  --duro-breakpoint-lg: 1024px;\n  --duro-breakpoint-md: 768px;\n  --duro-breakpoint-sm: 640px;\n  --duro-breakpoint-xl: 1280px;\n  --duro-breakpoint-xs: 480px;\n}\n\n:root[data-theme=\"light\"] {\n  color-scheme: light;\n  /* colors */\n  --duro-color-accent: #1e40af;\n  --duro-color-accent-contrast: #ffffff;\n  --duro-color-accent-hover: #1a3799;\n  --duro-color-bg: #ffffff;\n  --duro-color-bg-card: #f5f5f5;\n  --duro-color-bg-card-hover: #ebebeb;\n  --duro-color-border: #d4d4d4;\n  --duro-color-contrast-border: rgba(255, 255, 255, 0.33);\n  --duro-color-contrast-surface: #1a1a1a;\n  --duro-color-error: #991b1b;\n  --duro-color-error-bg: rgba(153, 27, 27, 0.08);\n  --duro-color-error-border: rgba(153, 27, 27, 0.3);\n  --duro-color-error-contrast: #ffffff;\n  --duro-color-error-hover: #7f1d1d;\n  --duro-color-error-text: #7f1d1d;\n  --duro-color-fixed-dark: #000000;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-highlight: #6b21a8;\n  --duro-color-highlight-bg: rgba(107, 33, 168, 0.08);\n  --duro-color-highlight-border: rgba(107, 33, 168, 0.3);\n  --duro-color-highlight-text: #581c87;\n  --duro-color-info: #1e40af;\n  --duro-color-info-bg: rgba(30, 64, 175, 0.08);\n  --duro-color-info-border: rgba(30, 64, 175, 0.3);\n  --duro-color-info-text: #1e40af;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #e5e5e5;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #166534;\n  --duro-color-success-bg: rgba(22, 101, 52, 0.08);\n  --duro-color-success-border: rgba(22, 101, 52, 0.3);\n  --duro-color-success-text: #14532d;\n  --duro-color-text: #1a1a1a;\n  --duro-color-text-muted: #4a4a4a;\n  --duro-color-warning: #92400e;\n  --duro-color-warning-bg: rgba(146, 64, 14, 0.08);\n  --duro-color-warning-border: rgba(146, 64, 14, 0.3);\n  --duro-color-warning-text: #78350f;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #1e40af;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #d4d4d4;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);\n}\n\n:root[data-theme=\"high-contrast\"] {\n  color-scheme: dark;\n  /* colors */\n  --duro-color-accent: #60a5fa;\n  --duro-color-accent-contrast: #000000;\n  --duro-color-accent-hover: #93c5fd;\n  --duro-color-bg: #000000;\n  --duro-color-bg-card: #111111;\n  --duro-color-bg-card-hover: #1a1a1a;\n  --duro-color-border: #555555;\n  --duro-color-contrast-border: rgba(0, 0, 0, 0.42);\n  --duro-color-contrast-surface: #ffffff;\n  --duro-color-error: #f87171;\n  --duro-color-error-bg: rgba(248, 113, 113, 0.15);\n  --duro-color-error-border: rgba(248, 113, 113, 0.5);\n  --duro-color-error-contrast: #000000;\n  --duro-color-error-hover: #fca5a5;\n  --duro-color-error-text: #fca5a5;\n  --duro-color-fixed-dark: #000000;\n  --duro-color-fixed-light: #ffffff;\n  --duro-color-highlight: #d8b4fe;\n  --duro-color-highlight-bg: rgba(216, 180, 254, 0.15);\n  --duro-color-highlight-border: rgba(216, 180, 254, 0.5);\n  --duro-color-highlight-text: #e9d5ff;\n  --duro-color-info: #60a5fa;\n  --duro-color-info-bg: rgba(96, 165, 250, 0.15);\n  --duro-color-info-border: rgba(96, 165, 250, 0.5);\n  --duro-color-info-text: #bfdbfe;\n  --duro-color-inverse-border: rgba(0, 0, 0, 0.55);\n  --duro-color-inverse-border-hover: rgba(0, 0, 0, 0.70);\n  --duro-color-inverse-fill: rgba(0, 0, 0, 0.10);\n  --duro-color-inverse-fill-hover: rgba(0, 0, 0, 0.18);\n  --duro-color-on-contrast-surface: #000000;\n  --duro-color-overlay-light: rgba(255, 255, 255, 0.78);\n  --duro-color-scrim: rgba(0, 0, 0, 0.4);\n  --duro-color-success: #4ade80;\n  --duro-color-success-bg: rgba(74, 222, 128, 0.15);\n  --duro-color-success-border: rgba(74, 222, 128, 0.5);\n  --duro-color-success-text: #86efac;\n  --duro-color-text: #ffffff;\n  --duro-color-text-muted: #b0b0b0;\n  --duro-color-warning: #fcd34d;\n  --duro-color-warning-bg: rgba(252, 211, 77, 0.15);\n  --duro-color-warning-border: rgba(252, 211, 77, 0.5);\n  --duro-color-warning-text: #fef08a;\n  /* shadows */\n  --duro-shadow-drop-over: inset 0 0 0 2px #60a5fa;\n  --duro-shadow-drop-ready: inset 0 0 0 1px #555555;\n  --duro-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);\n  --duro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);\n  --duro-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6);\n}\n"
   },
   "unions": {
     "AlertVariant": [
@@ -10528,6 +10778,10 @@
       "lg",
       "dropReady",
       "dropOver"
+    ],
+    "SnapPoint": [
+      "medium",
+      "large"
     ],
     "SpacingKey": [
       "xs",

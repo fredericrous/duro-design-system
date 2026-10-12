@@ -49,7 +49,12 @@ export {
 } from './components/DragDrop/DragDrop'
 export {Dialog, type DialogSize} from './components/Dialog/Dialog'
 export {DetailPanel, type DetailPanelSize} from './components/DetailPanel/DetailPanel'
-export {Drawer, type DrawerAnchor, type DrawerSize} from './components/Drawer/Drawer'
+export {
+  Drawer,
+  type DrawerAnchor,
+  type DrawerSize,
+  type SnapPoint,
+} from './components/Drawer/Drawer'
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Heading, type HeadingVariant} from './components/Heading/Heading'
 export {List, type ListSelectionMode} from './components/List/List'
@@ -115,6 +120,8 @@ export {
   type TimelineRowProps,
 } from './components/Timeline/Timeline'
 export {Tree} from './components/Tree/Tree'
+export {SplitPane} from './components/SplitPane/SplitPane'
+export {VirtualList, type VirtualListProps} from './components/VirtualList/VirtualList'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {
   ThemeProvider,

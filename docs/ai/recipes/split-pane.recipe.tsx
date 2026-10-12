@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {Grid} from '../../../packages/ui/src/components/Grid/Grid'
+import {SplitPane} from '../../../packages/ui/src/components/SplitPane/SplitPane'
 import {List} from '../../../packages/ui/src/components/List/List'
 import {Panel} from '../../../packages/ui/src/components/Panel/Panel'
 import {Stack} from '../../../packages/ui/src/components/Stack/Stack'
@@ -13,7 +13,7 @@ import type {ComponentMeta} from '../types'
 
 export const recipeMeta: ComponentMeta = {
   description:
-    'List/detail split: a selectable List beside a Panel showing the selection, on Grid layout="split" (list ≥ 240px, one column when the board is narrower than sm).',
+    'List/detail split: a selectable List beside a Panel showing the selection, in a SplitPane (the list starts at sidebarW, resizes up to panelLg with the handle, and the panes stack when the split is narrower than sm).',
   whenToUse: [
     'A screen that browses a collection and inspects one item at a time (applications, identities, certificates)',
     'Anywhere a hand-rolled gridTemplateColumns with its own @media is about to be written',
@@ -36,59 +36,63 @@ export function SplitPaneRecipe() {
   const item = ITEMS.find((candidate) => candidate.id === selected)
 
   return (
-    <Grid layout="split" gap="lg">
-      <List.Root selectionMode="single" aria-label="Applications">
-        {ITEMS.map((candidate) => (
-          <List.Item
-            key={candidate.id}
-            selected={candidate.id === selected}
-            onClick={() => setSelected(candidate.id)}
-          >
-            <List.Content>
-              <List.Text>{candidate.name}</List.Text>
-              <List.Description>Owned by {candidate.owner}</List.Description>
-            </List.Content>
-            <List.Actions>
-              <Badge variant={candidate.status === 'active' ? 'success' : 'warning'}>
-                {candidate.status}
-              </Badge>
-            </List.Actions>
-          </List.Item>
-        ))}
-        <List.Empty>No applications.</List.Empty>
-      </List.Root>
-
-      <Panel.Root bordered>
-        {item ? (
-          <>
-            <Panel.Header>
-              <Heading level={2}>{item.name}</Heading>
-              <Inline gap="sm">
-                <Button variant="secondary" size="small">
-                  Edit
-                </Button>
-                <Button variant="danger" size="small">
-                  Retire
-                </Button>
-              </Inline>
-            </Panel.Header>
+    <SplitPane.Root aria-label="Resize the application list" minSize="sidebarW" maxSize="panelLg">
+      <SplitPane.Pane>
+        <List.Root selectionMode="single" aria-label="Applications">
+          {ITEMS.map((candidate) => (
+            <List.Item
+              key={candidate.id}
+              selected={candidate.id === selected}
+              onClick={() => setSelected(candidate.id)}
+            >
+              <List.Content>
+                <List.Text>{candidate.name}</List.Text>
+                <List.Description>Owned by {candidate.owner}</List.Description>
+              </List.Content>
+              <List.Actions>
+                <Badge variant={candidate.status === 'active' ? 'success' : 'warning'}>
+                  {candidate.status}
+                </Badge>
+              </List.Actions>
+            </List.Item>
+          ))}
+          <List.Empty>No applications.</List.Empty>
+        </List.Root>
+      </SplitPane.Pane>
+      <SplitPane.Handle />
+      <SplitPane.Pane>
+        <Panel.Root bordered>
+          {item ? (
+            <>
+              <Panel.Header>
+                <Heading level={2}>{item.name}</Heading>
+                <Inline gap="sm">
+                  <Button variant="secondary" size="small">
+                    Edit
+                  </Button>
+                  <Button variant="danger" size="small">
+                    Retire
+                  </Button>
+                </Inline>
+              </Panel.Header>
+              <Panel.Body>
+                <Stack gap="md">
+                  <Text>
+                    Owner: <Text weight="medium">{item.owner}</Text>
+                  </Text>
+                  <Text color="muted">
+                    Everything about the selection lives here: fields, history, related records.
+                  </Text>
+                </Stack>
+              </Panel.Body>
+            </>
+          ) : (
             <Panel.Body>
-              <Stack gap="md">
-                <Text>
-                  Owner: <Text weight="medium">{item.owner}</Text>
-                </Text>
-                <Text color="muted">
-                  Everything about the selection lives here: fields, history, related records.
-                </Text>
-              </Stack>
+              <EmptyState message="Select an application to see its details." />
             </Panel.Body>
-          </>
-        ) : (
-          <Panel.Body>
-            <EmptyState message="Select an application to see its details." />
-          </Panel.Body>
-        )}
-      </Panel.Root>
-    </Grid>
+          )}
+        </Panel.Root>
+      </SplitPane.Pane>
+    </SplitPane.Root>
   )
 }

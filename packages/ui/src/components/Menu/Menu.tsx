@@ -15,6 +15,7 @@ import {styles} from './styles.css'
 import {MenuContext, useMenu} from './MenuContext'
 import {useMenuRoot} from './useMenuRoot'
 import {devWarnOnce} from '../../shared/devWarnOnce'
+import {isPlainClick, type LinkClickEvent, type OnNavigate} from '../../shared/navigate'
 import type {ControlSize} from '../../shared/types'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {computePopoverPosition} from '../Popover/position'
@@ -222,10 +223,15 @@ function Item({onClick, children}: ItemProps) {
 // --- LinkItem ---
 interface LinkItemProps {
   href: string
+  /**
+   * Called for a plain primary click (ADR-0002): call `event.preventDefault()`,
+   * then your router's navigate. Without it the browser follows the link.
+   */
+  onNavigate?: OnNavigate
   children: ReactNode
 }
 
-function LinkItem({href, children}: LinkItemProps) {
+function LinkItem({href, onNavigate, children}: LinkItemProps) {
   const {close, highlightedId, setHighlightedId, registerItem} = useMenu()
   const id = useId()
   const ref = useRef<HTMLAnchorElement>(null)
@@ -242,7 +248,10 @@ function LinkItem({href, children}: LinkItemProps) {
       ref={ref}
       id={id}
       href={href}
-      onClick={() => close()}
+      onClick={(event: LinkClickEvent) => {
+        if (onNavigate && isPlainClick(event)) onNavigate(href, event)
+        close()
+      }}
       role="menuitem"
       onPointerEnter={() => setHighlightedId(id)}
       style={[styles.item, styles.linkItem, isHighlighted && styles.itemHighlighted]}

@@ -47,10 +47,43 @@ export {
 export {List, type ListSelectionMode} from './components/List/List'
 export {RadioGroup} from './components/RadioGroup/RadioGroup'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
+export {Tag, type TagVariant} from './components/Tag/Tag'
+export {SideNav} from './components/SideNav/SideNav'
+export {Tabs} from './components/Tabs/Tabs'
+export {Tree} from './components/Tree/Tree'
+// Always stacked on native: a phone is below every collapseBelow.
+export {SplitPane} from './components/SplitPane/SplitPane'
+// Always the phone shape on native: the bar on top, the rail in a left Drawer.
+export {
+  AppShell,
+  type AppShellCollapse,
+  type AppShellRailState,
+} from './components/AppShell/AppShell'
 
 // Overlays (5.12: rendered in an OverlayModal on native)
 export {ConfirmDialog} from './components/ConfirmDialog/ConfirmDialog'
 export {Dialog, type DialogSize} from './components/Dialog/Dialog'
+// 5.13: the panel follows the finger on the UI thread (Gesture Handler + Reanimated)
+export {
+  Drawer,
+  type DrawerAnchor,
+  type DrawerSize,
+  type SnapPoint,
+} from './components/Drawer/Drawer'
+export {Menu, type MenuTriggerVariant} from './components/Menu/Menu'
+export {Popover, type PopoverHandle} from './components/Popover/Popover'
+// Touch has no hover: a Tooltip's text is its trigger's accessibility hint.
+export {Tooltip} from './components/Tooltip/Tooltip'
+// Drawn through the portal host, above every open overlay and the keyboard.
+export {
+  ToastProvider,
+  useToast,
+  type ToastVariant,
+  type ToastOptions,
+  type ToastAction,
+  type ToastContextValue,
+  type ToastProviderProps,
+} from './components/Toast'
 
 // Layout primitives
 export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'

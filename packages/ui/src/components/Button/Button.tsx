@@ -1,7 +1,7 @@
 import type {ReactNode, Ref} from 'react'
-import {html} from 'react-strict-dom'
 import {isNative} from '../../platform'
 import {mergeRefs} from '../../shared/mergeRefs'
+import {ButtonHost} from '../../shared/ButtonHost'
 import type {ControlSize} from '../../shared/types'
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {styles} from './styles.css'
@@ -51,7 +51,7 @@ export function Button({
 }: ButtonProps) {
   const grouped = useGroupedControl<HTMLButtonElement>({disabled})
   return (
-    <html.button
+    <ButtonHost
       ref={isNative ? ref : mergeRefs(ref, grouped.ref)}
       tabIndex={grouped.tabIndex}
       onFocus={grouped.onFocus}
@@ -72,6 +72,6 @@ export function Button({
       ]}
     >
       {children}
-    </html.button>
+    </ButtonHost>
   )
 }

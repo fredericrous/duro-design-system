@@ -1,7 +1,6 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {sizes} from '@duro-app/tokens/tokens/sizes.css'
@@ -97,6 +96,21 @@ export const styles = css.create({
     borderTopRightRadius: radii.lg,
     maxHeight: '85vh',
   },
+  // A snap sheet: as tall as its detent, which replaces the 85vh cap.
+  panelSnap: {
+    maxHeight: 'none',
+    transitionProperty: 'height',
+    transitionDuration: duration.base,
+    transitionTimingFunction: easing.easeOut,
+  },
+  sheetHeight: (height: number) => ({height}),
+
+  // The grabber's web-only additions: a grab cursor, and the browser leaves the drag to us.
+  grabberHitWeb: {
+    cursor: 'grab',
+    touchAction: 'none',
+  },
+
   panelLeftBorder: {
     borderLeftWidth: 0,
     borderRightWidth: borders.hairline,
@@ -180,38 +194,6 @@ export const styles = css.create({
   closeDurationBase: {animationDuration: duration.base},
   closeDurationSlow: {animationDuration: duration.slow},
 
-  // --- Header ---
-  header: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    paddingTop: spacing.lg,
-    paddingLeft: spacing.lg,
-    paddingRight: spacing.lg,
-    paddingBottom: spacing.md,
-    gap: spacing.md,
-  },
-
-  // --- Title ---
-  title: {
-    fontSize: typography.fontSizeLg,
-    fontWeight: typography.fontWeightSemibold,
-    lineHeight: typography.lineHeight,
-    color: colors.text,
-    margin: 0,
-  },
-
-  // --- Description ---
-  description: {
-    fontSize: typography.fontSizeSm,
-    lineHeight: typography.lineHeight,
-    color: colors.textMuted,
-    margin: 0,
-    paddingLeft: spacing.lg,
-    paddingRight: spacing.lg,
-    paddingBottom: spacing.md,
-  },
-
   // --- Body ---
   body: {
     paddingLeft: spacing.lg,
@@ -219,46 +201,5 @@ export const styles = css.create({
     paddingBottom: spacing.lg,
     overflowY: 'auto',
     flex: 1,
-  },
-
-  // --- Footer ---
-  footer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: spacing.sm,
-    paddingTop: spacing.md,
-    paddingLeft: spacing.lg,
-    paddingRight: spacing.lg,
-    paddingBottom: spacing.lg,
-    borderTopWidth: borders.hairline,
-    borderTopStyle: 'solid',
-    borderTopColor: colors.border,
-  },
-
-  // --- Close button ---
-  closeButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: sizes.iconButton,
-    height: sizes.iconButton,
-    borderRadius: radii.sm,
-    borderWidth: 0,
-    backgroundColor: {
-      default: 'transparent',
-      ':hover': colors.bgCardHover,
-    },
-    color: colors.textMuted,
-    cursor: 'pointer',
-    padding: 0,
-    flexShrink: 0,
-    transitionProperty: 'background-color',
-    transitionDuration: duration.fast,
-  },
-
-  // --- Inline wrapper ---
-  inlineWrapper: {
-    display: 'inline-flex',
   },
 })

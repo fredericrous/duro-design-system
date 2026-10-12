@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves. Popover.Trigger takes size="small" beside small Toggles. Popover.Popup raised draws it over another floating surface (floatingRaised, popoverRaised in a modal), never over a modal.',
+    'Non-modal anchored overlay for small interactive content. Compound component — Root is required (throws without it). Anchored to Popover.Trigger, or to a virtual anchor (a () => DOMRect) when there is no Trigger; call reposition() through a ref when the anchor moves. Popover.Trigger takes size="small" beside small Toggles. Popover.Popup raised draws it over another floating surface (floatingRaised, popoverRaised in a modal), never over a modal. On React Native the popup is modal: it is placed against Popover.Trigger in an overlay, a press outside or the Android back button closes it, and screen-reader focus moves in on open and back to the trigger on close; anchor, ignore and raised are web only.',
   whenToUse: [
     'A small form or controls tied to one element that stay open while you work in them',
     'Anchoring to a spot that is not a button (a canvas point, a text selection) with a virtual anchor',

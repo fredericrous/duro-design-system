@@ -110,6 +110,15 @@ export const styles = css.create({
     },
     outlineWidth: 0,
   },
+  // RSD on native lays out only display: flex, not the web's inline-flex.
+  nativeFlex: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignSelf: 'flex-start',
+  },
+  nativeButtonFlex: {
+    display: 'flex',
+  },
   removeButtonDisabled: {
     cursor: 'not-allowed',
     opacity: 0.4,

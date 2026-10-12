@@ -573,11 +573,11 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] A2 `examples/native` (expo-router modal route, native peers), the exports test, `native:export`, the CI `native` job
 - [x] A3 Host registry and `PortalHost`, `OverlayModal`, resolved colours, safe area, `useOverlayOpenState` (with the web refactor), Button native ref
 - [x] A4 Icon geometry and the SVG-vs-Skia benchmark, Dialog and ConfirmDialog native, Icon and StatusIcon, Spinner, barrel, device checkpoint A → **release v5.12.0**
-- [ ] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
-- [ ] B1 Drawer native and `snapPoints` (both platforms)
-- [ ] B2 Menu, Popover, Tooltip, Toast native
-- [ ] B3 Tag, SideNav, Tabs, Tree, AppShell native
-- [ ] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
+- [x] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
+- [x] B1 Drawer native and `snapPoints` (both platforms)
+- [x] B2 Menu, Popover, Tooltip, Toast native
+- [x] B3 Tag, SideNav, Tabs, Tree, AppShell native
+- [x] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
 - [ ] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
 - [ ] C1 Listbox, Select, Combobox native sheets
 - [ ] C2 ScrollArea native, the `./form` native entry and submit context
@@ -684,6 +684,16 @@ Every entry records input → expected → actual in the slice's PR body before 
 - Faults sent back from Happier's native checkpoint are counted per slice; any web regression found after release gets a patch release before the next slice starts.
 
 ## Decision log
+
+- 2026-10-13, device checkpoint B (the person's iPhone 13 Pro Max with VoiceOver; the Android 16 emulator with TalkBack): sheet open, slow drag to large, flings to medium and closed, content drag grows then scrolls; left drawer swipe; Menu item → Dialog (iOS and Android); Popover outside press; Toast swipe and above an open Dialog, surviving its close; app shell drawer, SideNav, Tree, Tabs, Tag remove; Tooltip hints read by VoiceOver and TalkBack; grabber as an adjustable control; focus back to the trigger; Tabs read as tabs on the device (the simulator's generic-element reading was the simulator's) → all pass.
+
+- 2026-10-12, B implementation review: three plan wordings narrowed. The native `useContainerBelow` measures its view after layout and on every window resize (a hook cannot wire `onLayout` into a view it does not render); a parent resizing in a fixed window is missed until the next window change. A toast's press-pause is the toast's own state (it lasts as long as the press); the remaining time is in the store, so a host move keeps the countdown. Native toast colours come from RSD token styles, which the Portal re-themes; `useResolvedColors` is only for raw hosts.
+
+- 2026-10-12, B3: Tag's remove cross and SideNav's chevron stay their own glyphs (a web SVG / a react-native-svg twin), not Icon: Icon's smallest size (16, stroke 2) would change the web look the plan keeps. On native, RSD's Animated colour transition ends on a near-black colour, so native Tabs transition nothing that changes; a mixed icon-and-text button needs its text in a span on native (ButtonHost does it for Button and Toggle). Found on the iOS simulator: Tabs' `role="tab"` reaches VoiceOver as a generic element; it is a row for B's device checkpoint.
+
+- 2026-10-12, B2: the RSD gap is filed upstream as react/react-strict-dom#524 (`aria-description` → `accessibilityHint` on native). Until it ships, Button and Toggle render through `shared/ButtonHost`, which swaps in an RN `Pressable` only inside a Tooltip; Menu and Popover triggers are `Pressable` hosts on native. VoiceOver reads the hint (checked on the iOS simulator).
+
+- 2026-10-12, B0 (ADR-0016), the person's picks from the local review canvas (an Artifact could not be published from this session): native-sheet · direction B Done (`docs/mockups/native-sheet/Done.dc.html`: grabber, centred title, a text Done as the close; the non-drag detent path stays the grabber tap and its accessibility action, Decision 5); native-toast · direction B Tinted (`docs/mockups/native-toast/Tinted.dc.html`: card surface, status-coloured edge, an inline action before close); split-pane · direction A Hairline (`docs/mockups/split-pane/Hairline.dc.html`). The other directions' artboards stay committed beside them as the record of what was offered.
 
 - 2026-10-12: the icon renderer stays `react-native-svg` for 5.12 under Decision 9's rule. Frames, the deciding measure, cannot be measured on this host (software-rendered emulator, no hitches on the simulator); Skia leads on Android mount and iOS memory, not on iOS mount. The benchmark screen stays in `examples/native` and reruns on physical devices before slice B; a Skia win there swaps the renderer in B.
 
