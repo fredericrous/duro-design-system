@@ -121,6 +121,9 @@ interface TriggerProps {
 /**
  * The trigger is an RN Pressable host, so it carries an enclosing Tooltip's
  * text as its own accessibility hint (RSD drops `accessibilityHint` on html.*).
+ *
+ * holds-until: react-strict-dom maps aria-description to accessibilityHint
+ * (https://github.com/react/react-strict-dom/issues/524).
  */
 function Trigger({
   children,
@@ -236,7 +239,11 @@ function LinkItem({href, onNavigate, children}: LinkItemProps) {
       },
     }
     onNavigate?.(href, event)
-    if (!prevented) void Linking.openURL(href)
+    if (!prevented) {
+      Linking.openURL(href).catch((error: unknown) => {
+        console.warn(`[duro] Menu.LinkItem: could not open ${href}: ${String(error)}`)
+      })
+    }
   }
   return (
     <Pressable accessibilityRole="link" onPress={() => closeThen(follow)}>

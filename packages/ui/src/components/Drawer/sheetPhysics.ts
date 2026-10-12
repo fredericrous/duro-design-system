@@ -6,7 +6,7 @@
  * is an inert string.
  */
 
-import {SPACING_PX} from '@duro-app/tokens/keys'
+import {DURATION_MS, SPACING_PX} from '@duro-app/tokens/keys'
 
 /** A bottom-sheet detent (plan N0, Decision 5). */
 export type SnapPoint = 'medium' | 'large'
@@ -18,13 +18,16 @@ export const DISMISS_THRESHOLD = 0.3
 export const VELOCITY_THRESHOLD = 0.5
 
 /** Duration of the slide-out once a drag dismisses (ms) */
-export const DISMISS_DURATION = 160
+export const DISMISS_DURATION = DURATION_MS.brisk
 
 /** Duration of the settle onto a detent, or the snap back (ms) */
-export const SNAP_DURATION = 200
+export const SNAP_DURATION = DURATION_MS.base
 
 /** Movement (px) before a press becomes a drag; under it a tap stays a tap */
 export const DRAG_SLOP = 8
+
+/** Movement (px) across the drag's axis that hands the gesture to a scroll instead */
+export const CROSS_SLOP = 16
 
 /** 'medium' is half the window */
 export const MEDIUM_FRACTION = 0.5

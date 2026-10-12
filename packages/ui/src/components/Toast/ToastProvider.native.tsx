@@ -9,7 +9,13 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react'
-import {AccessibilityInfo, type LayoutChangeEvent, Pressable, StyleSheet} from 'react-native'
+import {
+  AccessibilityInfo,
+  type LayoutChangeEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+} from 'react-native'
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {
   Easing,
@@ -25,7 +31,7 @@ import {Portal} from '../../shared/portal/PortalHost'
 import {useSafeAreaInsets} from '../../shared/safeArea'
 import {useKeyboardHeight} from '../../shared/useKeyboardHeight'
 import {useScreenReaderEnabled} from '../../shared/useScreenReaderEnabled'
-import {DISMISS_DURATION, SNAP_DURATION, shouldDismissEdge} from '../Drawer/sheetPhysics'
+import {DISMISS_DURATION, DRAG_SLOP, SNAP_DURATION, shouldDismissEdge} from '../Drawer/sheetPhysics'
 import {nativeStyles} from './native.css'
 import {createToastStore, type ToastContextValue, type ToastEntry, type ToastStore} from './store'
 
@@ -72,10 +78,11 @@ function ToastItem({
     }
   }, [id, duration, paused, onDismiss, store])
 
-  // iOS has no live regions: announce the message once.
+  // iOS has no live regions: announce the message once. Android reads the
+  // live region itself, so announcing there too would read it twice.
   const announced = useRef(false)
   useEffect(() => {
-    if (announced.current || typeof message !== 'string') return
+    if (Platform.OS !== 'ios' || announced.current || typeof message !== 'string') return
     announced.current = true
     AccessibilityInfo.announceForAccessibility(message)
   }, [message])
@@ -90,8 +97,8 @@ function ToastItem({
   const pan = useMemo(
     () =>
       Gesture.Pan()
-        .activeOffsetX([-8, 8])
-        .failOffsetY([-8, 8])
+        .activeOffsetX([-DRAG_SLOP, DRAG_SLOP])
+        .failOffsetY([-DRAG_SLOP, DRAG_SLOP])
         .onUpdate((e) => {
           x.value = e.translationX
         })

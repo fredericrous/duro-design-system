@@ -50,7 +50,9 @@ import {
   type GrabberLabels,
 } from './parts'
 import {
+  CROSS_SLOP,
   DISMISS_DURATION,
+  DRAG_SLOP,
   SNAP_DURATION,
   SNAP_MAX_OVERSHOOT,
   cycleDetent,
@@ -270,8 +272,8 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
       })
       .simultaneousWithExternalGesture(scrollGesture)
     return bottom
-      ? gesture.activeOffsetY([-8, 8]).failOffsetX([-16, 16])
-      : gesture.activeOffsetX([-8, 8]).failOffsetY([-16, 16])
+      ? gesture.activeOffsetY([-DRAG_SLOP, DRAG_SLOP]).failOffsetX([-CROSS_SLOP, CROSS_SLOP])
+      : gesture.activeOffsetX([-DRAG_SLOP, DRAG_SLOP]).failOffsetY([-CROSS_SLOP, CROSS_SLOP])
   }, [
     bottom,
     horizontalSign,

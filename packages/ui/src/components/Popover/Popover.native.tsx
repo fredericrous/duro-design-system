@@ -119,7 +119,12 @@ interface TriggerProps {
   ref?: Ref<unknown>
 }
 
-/** An RN Pressable host, so it carries an enclosing Tooltip's text as its hint. */
+/**
+ * An RN Pressable host, so it carries an enclosing Tooltip's text as its hint.
+ *
+ * holds-until: react-strict-dom maps aria-description to accessibilityHint
+ * (https://github.com/react/react-strict-dom/issues/524).
+ */
 function Trigger({children, 'aria-label': ariaLabel, size = 'default', ref}: TriggerProps) {
   const {open, setOpen, triggerRef} = usePopover('Trigger')
   const hint = useTooltipHint()

@@ -685,6 +685,8 @@ Every entry records input → expected → actual in the slice's PR body before 
 
 ## Decision log
 
+- 2026-10-12, B implementation review: three plan wordings narrowed. The native `useContainerBelow` measures its view after layout and on every window resize (a hook cannot wire `onLayout` into a view it does not render); a parent resizing in a fixed window is missed until the next window change. A toast's press-pause is the toast's own state (it lasts as long as the press); the remaining time is in the store, so a host move keeps the countdown. Native toast colours come from RSD token styles, which the Portal re-themes; `useResolvedColors` is only for raw hosts.
+
 - 2026-10-12, B3: Tag's remove cross and SideNav's chevron stay their own glyphs (a web SVG / a react-native-svg twin), not Icon: Icon's smallest size (16, stroke 2) would change the web look the plan keeps. On native, RSD's Animated colour transition ends on a near-black colour, so native Tabs transition nothing that changes; a mixed icon-and-text button needs its text in a span on native (ButtonHost does it for Button and Toggle). Found on the iOS simulator: Tabs' `role="tab"` reaches VoiceOver as a generic element; it is a row for B's device checkpoint.
 
 - 2026-10-12, B2: the RSD gap is filed upstream as react/react-strict-dom#524 (`aria-description` → `accessibilityHint` on native). Until it ships, Button and Toggle render through `shared/ButtonHost`, which swaps in an RN `Pressable` only inside a Tooltip; Menu and Popover triggers are `Pressable` hosts on native. VoiceOver reads the hint (checked on the iOS simulator).
