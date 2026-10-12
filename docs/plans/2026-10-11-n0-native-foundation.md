@@ -572,7 +572,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] A1 Native typecheck, the graph lint, the Vite alias plugin
 - [x] A2 `examples/native` (expo-router modal route, native peers), the exports test, `native:export`, the CI `native` job
 - [x] A3 Host registry and `PortalHost`, `OverlayModal`, resolved colours, safe area, `useOverlayOpenState` (with the web refactor), Button native ref
-- [ ] A4 Icon geometry and the SVG-vs-Skia benchmark, Dialog and ConfirmDialog native, Icon and StatusIcon, Spinner, barrel, device checkpoint A → **release v5.12.0**
+- [x] A4 Icon geometry and the SVG-vs-Skia benchmark, Dialog and ConfirmDialog native, Icon and StatusIcon, Spinner, barrel, device checkpoint A → **release v5.12.0**
 - [ ] B0 Mockups (ADR-0016): `duro mockup seed` 2–4 directions each for the snap sheet (grabber, detents, close button), the native Toast and the SplitPane handle; the person picks, and the picks go in the Decision log
 - [ ] B1 Drawer native and `snapPoints` (both platforms)
 - [ ] B2 Menu, Popover, Tooltip, Toast native
@@ -731,7 +731,7 @@ Every entry records input → expected → actual in the slice's PR body before 
   - ConfirmDialog phrase with the on-screen keyboard → the panel rises; input and Footer stay visible; the phrase is typed lower-case and enables Delete (`a3-confirm-keyboard-2.png`).
   - Nested light ThemeProvider inside a dark Dialog → the Card and the `sun` icon draw the light palette on both OSes (`a1-dialog-open.png`, `and-dialog.png`).
   - Faults the first run found, fixed in `8965a396`: no canvas; content-box overflow on `width: 100%`; Dialog parts collapsing under a percentage max-height; `inline-flex` and a multi-value padding ignored by RSD-native; the radio dot as a span; ConfirmDialog autocapitalising its phrase; native `createTheme` breaking the web style extraction; presence one commit late on a controlled open (AppShell's Phone Drawer story).
-  - Not yet run: the VoiceOver rows (no iPhone visible to this Mac yet) and the TalkBack rows (adb's injected taps do not drive TalkBack's focus; run by hand with the person). The Toast row moves to slice B, which ships Toast.
+  - Screen-reader rows, run by the person on a physical iPhone 13 Pro Max (VoiceOver, release build signed for the device) and on the Android emulator (TalkBack): focus into the Dialog on open, back to "Open a dialog" on close, ConfirmDialog's phrase typed lower-case → the person: "everything looks good. pass". The Toast row moves to slice B, which ships Toast.
 - A4, icon benchmark, Android emulator (release build, 3 interleaved runs, `bench-android.txt`): mount SVG 2,326 / 2,469 / 2,610 ms, Skia 1,186 / 1,221 / 5,187 ms; janky frames 100 % for both (the emulator renders in software on this host, so frames cannot decide); theme switch logged for Skia only. Inconclusive on frames.
 - A4, icon benchmark, iOS simulator (release build, 3 interleaved runs, `ios-bench/`): mount SVG 658 / 481 / 397 ms, Skia 440 / 594 / 341 ms (8.5 % better at the median, inside SVG's range); RSS SVG 449 / 443 / 462 MB, Skia 356 / 370 / 331 MB (about 20 % less, outside the range). Instruments refuses Animation Hitches on the simulator ("Hitches is not supported on this platform"), and the theme-switch tap did not register reliably.
 
