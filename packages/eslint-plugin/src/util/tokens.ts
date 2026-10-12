@@ -375,7 +375,7 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   44: ['touchTarget', 'swatchW'],
   28: ['controlSm', 'iconButtonSm'],
   39: ['controlMd'],
-  40: ['controlLg', 'spinnerLg', 'thumbSm', 'readoutW', 'sheetGrabberW'],
+  40: ['controlLg', 'spinnerLg', 'thumbSm', 'sheetGrabberW', 'readoutW'],
   18: ['indicator', 'iconMd', 'navMarkerH'],
   8: ['indicatorDot', 'scrollbar'],
   5: ['checkMarkW'],

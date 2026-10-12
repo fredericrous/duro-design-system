@@ -1,5 +1,16 @@
 import {useState} from 'react'
-import {AppShell, Heading, Inline, SideNav, Stack, Tabs, Tag, Text, Tree} from '@duro-app/ui'
+import {
+  AppShell,
+  Heading,
+  Inline,
+  SideNav,
+  SplitPane,
+  Stack,
+  Tabs,
+  Tag,
+  Text,
+  Tree,
+} from '@duro-app/ui'
 
 /**
  * Checkpoint B for the navigation parts: the AppShell's phone shape (bar,
@@ -64,6 +75,15 @@ export default function Shell() {
               <Text>All sessions</Text>
             </Tabs.Panel>
           </Tabs.Root>
+          <SplitPane.Root aria-label="Resize">
+            <SplitPane.Pane>
+              <Text>A SplitPane stacks on a phone: this pane first…</Text>
+            </SplitPane.Pane>
+            <SplitPane.Handle />
+            <SplitPane.Pane>
+              <Text>…then this one, with no handle.</Text>
+            </SplitPane.Pane>
+          </SplitPane.Root>
           <Inline gap="xs">
             {tags.map((t) => (
               <Tag

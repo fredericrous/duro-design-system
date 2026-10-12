@@ -5819,6 +5819,130 @@
       ],
       "sourcePath": "packages/ui/src/components/Spinner/Spinner.tsx"
     },
+    "SplitPane": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "Handle"
+          ],
+          "required": [
+            "Root",
+            "Pane"
+          ]
+        },
+        "description": "Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.",
+        "example": "<SplitPane.Root aria-label=\"Resize the session list\" minSize=\"sidebarW\" maxSize=\"panelLg\">\n  <SplitPane.Pane>\n    <List.Root aria-label=\"Sessions\">…</List.Root>\n  </SplitPane.Pane>\n  <SplitPane.Handle />\n  <SplitPane.Pane>\n    <Panel.Root>…</Panel.Root>\n  </SplitPane.Pane>\n</SplitPane.Root>",
+        "relatedTo": [
+          {
+            "component": "Grid",
+            "kind": "contrast",
+            "relationship": "Grid layout=\"split\" is a fixed split; SplitPane lets people resize it"
+          },
+          {
+            "component": "DetailPanel",
+            "kind": "contrast",
+            "relationship": "DetailPanel overlays the list; SplitPane keeps both side by side"
+          }
+        ],
+        "whenNotToUse": [
+          "A fixed list/detail layout nobody resizes — use Grid layout=\"split\"",
+          "Navigation beside content — use AppShell or the page-with-sidenav recipe",
+          "A short-lived inspection over a list — use DetailPanel"
+        ],
+        "whenToUse": [
+          "A list beside its detail where people need more room on either side (a session list and its transcript)",
+          "An editor beside its preview"
+        ]
+      },
+      "name": "SplitPane",
+      "native": true,
+      "parts": {
+        "Handle": {
+          "name": "Handle",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/SplitPane/SplitPane.tsx"
+        },
+        "Pane": {
+          "name": "Pane",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/SplitPane/SplitPane.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "default": "'sidebarW'",
+              "description": "The primary (first) pane's starting width, a size token. Default: `sidebarW`",
+              "name": "defaultSize",
+              "required": false,
+              "type": "SizeToken"
+            },
+            {
+              "description": "Controlled width of the primary pane, in px (from `onSizeChange`)",
+              "name": "size",
+              "required": false,
+              "type": "number"
+            },
+            {
+              "description": "Called with the primary pane's new width while the handle moves",
+              "name": "onSizeChange",
+              "required": false,
+              "type": "(px: number) => void"
+            },
+            {
+              "default": "'sidebarW'",
+              "description": "The primary pane's narrowest width, a size token. Default: `sidebarW`",
+              "name": "minSize",
+              "required": false,
+              "type": "SizeToken"
+            },
+            {
+              "default": "'panelLg'",
+              "description": "The primary pane's widest width, a size token. Default: `panelLg`",
+              "name": "maxSize",
+              "required": false,
+              "type": "SizeToken"
+            },
+            {
+              "default": "'sm'",
+              "description": "Below this breakpoint, measured on the split's own width, the panes stack. Default: `sm`",
+              "name": "collapseBelow",
+              "required": false,
+              "type": "Breakpoint",
+              "union": [
+                "xs",
+                "sm",
+                "md",
+                "lg",
+                "xl"
+              ]
+            },
+            {
+              "description": "The handle's accessible name (\"Resize list\").",
+              "name": "aria-label",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/SplitPane/SplitPane.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/SplitPane/SplitPane.tsx"
+    },
     "Stack": {
       "importPath": "@duro-app/ui",
       "kind": "component",
@@ -8189,6 +8313,92 @@
       "props": null,
       "sourcePath": "packages/ui/src/components/Tree/Tree.tsx"
     },
+    "VirtualList": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "anatomy": {
+          "optional": [],
+          "required": []
+        },
+        "description": "A windowed list on @tanstack/react-virtual: only the rows in view (plus overscan) are mounted, and rows are measured so they may differ in height. role=\"list\" with listitem rows carrying aria-setsize and aria-posinset. anchor=\"end\" opens at the last item and stays pinned to the bottom while new items arrive and the reader is at the bottom (a transcript, a log). It fills its parent, or stops at maxHeight. Web only: on native, host FlashList or Legend List behind your own .native.tsx leaf.",
+        "example": "<VirtualList\n  aria-label=\"Transcript\"\n  items={messages}\n  getKey={(m) => m.id}\n  estimateSize=\"controlLg\"\n  anchor=\"end\"\n  renderItem={(m) => <Text>{m.text}</Text>}\n/>",
+        "relatedTo": [
+          {
+            "component": "VirtualTable",
+            "kind": "contrast",
+            "relationship": "VirtualTable windows table rows with columns; VirtualList windows any row"
+          },
+          {
+            "component": "List",
+            "kind": "composition",
+            "relationship": "Render a List.Item-like row in renderItem for the list look"
+          }
+        ],
+        "whenNotToUse": [
+          "Tabular data with columns and sorting — use VirtualTable",
+          "A few dozen rows — use List; windowing only adds cost there",
+          "Selectable options in a picker — use Listbox"
+        ],
+        "whenToUse": [
+          "Hundreds to tens of thousands of rows: sessions, a chat transcript, log lines",
+          "A list that grows at the bottom while the reader follows it (anchor=\"end\")"
+        ]
+      },
+      "name": "VirtualList",
+      "native": false,
+      "props": [
+        {
+          "name": "items",
+          "required": true,
+          "type": "readonly T[]"
+        },
+        {
+          "description": "Each row's starting height estimate, a size token; rows are then measured.",
+          "name": "estimateSize",
+          "required": true,
+          "type": "SizeToken"
+        },
+        {
+          "name": "renderItem",
+          "required": true,
+          "type": "(item: T, index: number) => ReactNode"
+        },
+        {
+          "description": "A stable key per item (an id), so rows keep their measurement as items change.",
+          "name": "getKey",
+          "required": true,
+          "type": "(item: T, index: number) => string | number"
+        },
+        {
+          "default": "5",
+          "description": "Rows rendered beyond each edge of the view. Default 5",
+          "name": "overscan",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "default": "'start'",
+          "description": "`end` starts at the last item and stays pinned to the bottom while new items arrive, as long as the reader is at the bottom (a transcript, a log). Default `start`.",
+          "name": "anchor",
+          "required": false,
+          "type": "'start' | 'end'"
+        },
+        {
+          "description": "Cap the list's height; without it, it fills its parent.",
+          "name": "maxHeight",
+          "required": false,
+          "type": "Length"
+        },
+        {
+          "description": "The list's accessible name.",
+          "name": "aria-label",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/VirtualList/VirtualList.tsx"
+    },
     "VirtualTable": {
       "importPath": "@duro-app/ui/table",
       "kind": "component",
@@ -8995,7 +9205,7 @@
     "split-pane": {
       "export": "SplitPaneRecipe",
       "meta": {
-        "description": "List/detail split: a selectable List beside a Panel showing the selection, on Grid layout=\"split\" (list ≥ 240px, one column when the board is narrower than sm).",
+        "description": "List/detail split: a selectable List beside a Panel showing the selection, in a SplitPane (the list starts at sidebarW, resizes up to panelLg with the handle, and the panes stack when the split is narrower than sm).",
         "example": "<SplitPaneRecipe />",
         "whenNotToUse": [
           "The detail is a short-lived inspection — use DetailPanel over the list instead",
@@ -9008,18 +9218,18 @@
       },
       "name": "split-pane",
       "peerDeps": [],
-      "source": "import {useState} from 'react'\nimport {Grid, List, Panel, Stack, Inline, Heading, Text, Badge, Button, EmptyState} from '@duro-app/ui'\n\nconst ITEMS = [\n  {id: 'grafana', name: 'Grafana', owner: 'platform', status: 'active'},\n  {id: 'vault', name: 'Vault', owner: 'security', status: 'active'},\n  {id: 'legacy-crm', name: 'Legacy CRM', owner: 'sales', status: 'retiring'},\n] as const\n\nexport function SplitPaneRecipe() {\n  const [selected, setSelected] = useState<string | null>(ITEMS[0].id)\n  const item = ITEMS.find((candidate) => candidate.id === selected)\n\n  return (\n    <Grid layout=\"split\" gap=\"lg\">\n      <List.Root selectionMode=\"single\" aria-label=\"Applications\">\n        {ITEMS.map((candidate) => (\n          <List.Item\n            key={candidate.id}\n            selected={candidate.id === selected}\n            onClick={() => setSelected(candidate.id)}\n          >\n            <List.Content>\n              <List.Text>{candidate.name}</List.Text>\n              <List.Description>Owned by {candidate.owner}</List.Description>\n            </List.Content>\n            <List.Actions>\n              <Badge variant={candidate.status === 'active' ? 'success' : 'warning'}>\n                {candidate.status}\n              </Badge>\n            </List.Actions>\n          </List.Item>\n        ))}\n        <List.Empty>No applications.</List.Empty>\n      </List.Root>\n\n      <Panel.Root bordered>\n        {item ? (\n          <>\n            <Panel.Header>\n              <Heading level={2}>{item.name}</Heading>\n              <Inline gap=\"sm\">\n                <Button variant=\"secondary\" size=\"small\">\n                  Edit\n                </Button>\n                <Button variant=\"danger\" size=\"small\">\n                  Retire\n                </Button>\n              </Inline>\n            </Panel.Header>\n            <Panel.Body>\n              <Stack gap=\"md\">\n                <Text>\n                  Owner: <Text weight=\"medium\">{item.owner}</Text>\n                </Text>\n                <Text color=\"muted\">\n                  Everything about the selection lives here: fields, history, related records.\n                </Text>\n              </Stack>\n            </Panel.Body>\n          </>\n        ) : (\n          <Panel.Body>\n            <EmptyState message=\"Select an application to see its details.\" />\n          </Panel.Body>\n        )}\n      </Panel.Root>\n    </Grid>\n  )\n}\n",
+      "source": "import {useState} from 'react'\nimport {SplitPane, List, Panel, Stack, Inline, Heading, Text, Badge, Button, EmptyState} from '@duro-app/ui'\n\nconst ITEMS = [\n  {id: 'grafana', name: 'Grafana', owner: 'platform', status: 'active'},\n  {id: 'vault', name: 'Vault', owner: 'security', status: 'active'},\n  {id: 'legacy-crm', name: 'Legacy CRM', owner: 'sales', status: 'retiring'},\n] as const\n\nexport function SplitPaneRecipe() {\n  const [selected, setSelected] = useState<string | null>(ITEMS[0].id)\n  const item = ITEMS.find((candidate) => candidate.id === selected)\n\n  return (\n    <SplitPane.Root aria-label=\"Resize the application list\" minSize=\"sidebarW\" maxSize=\"panelLg\">\n      <SplitPane.Pane>\n        <List.Root selectionMode=\"single\" aria-label=\"Applications\">\n          {ITEMS.map((candidate) => (\n            <List.Item\n              key={candidate.id}\n              selected={candidate.id === selected}\n              onClick={() => setSelected(candidate.id)}\n            >\n              <List.Content>\n                <List.Text>{candidate.name}</List.Text>\n                <List.Description>Owned by {candidate.owner}</List.Description>\n              </List.Content>\n              <List.Actions>\n                <Badge variant={candidate.status === 'active' ? 'success' : 'warning'}>\n                  {candidate.status}\n                </Badge>\n              </List.Actions>\n            </List.Item>\n          ))}\n          <List.Empty>No applications.</List.Empty>\n        </List.Root>\n      </SplitPane.Pane>\n      <SplitPane.Handle />\n      <SplitPane.Pane>\n        <Panel.Root bordered>\n          {item ? (\n            <>\n              <Panel.Header>\n                <Heading level={2}>{item.name}</Heading>\n                <Inline gap=\"sm\">\n                  <Button variant=\"secondary\" size=\"small\">\n                    Edit\n                  </Button>\n                  <Button variant=\"danger\" size=\"small\">\n                    Retire\n                  </Button>\n                </Inline>\n              </Panel.Header>\n              <Panel.Body>\n                <Stack gap=\"md\">\n                  <Text>\n                    Owner: <Text weight=\"medium\">{item.owner}</Text>\n                  </Text>\n                  <Text color=\"muted\">\n                    Everything about the selection lives here: fields, history, related records.\n                  </Text>\n                </Stack>\n              </Panel.Body>\n            </>\n          ) : (\n            <Panel.Body>\n              <EmptyState message=\"Select an application to see its details.\" />\n            </Panel.Body>\n          )}\n        </Panel.Root>\n      </SplitPane.Pane>\n    </SplitPane.Root>\n  )\n}\n",
       "sourcePath": "docs/ai/recipes/split-pane.recipe.tsx",
       "title": "Split Pane",
       "usesComponents": [
         "Badge",
         "Button",
         "EmptyState",
-        "Grid",
         "Heading",
         "Inline",
         "List",
         "Panel",
+        "SplitPane",
         "Stack",
         "Text"
       ]

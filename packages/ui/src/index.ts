@@ -120,6 +120,8 @@ export {
   type TimelineRowProps,
 } from './components/Timeline/Timeline'
 export {Tree} from './components/Tree/Tree'
+export {SplitPane} from './components/SplitPane/SplitPane'
+export {VirtualList, type VirtualListProps} from './components/VirtualList/VirtualList'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {
   ThemeProvider,

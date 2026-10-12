@@ -51,6 +51,8 @@ export {Tag, type TagVariant} from './components/Tag/Tag'
 export {SideNav} from './components/SideNav/SideNav'
 export {Tabs} from './components/Tabs/Tabs'
 export {Tree} from './components/Tree/Tree'
+// Always stacked on native: a phone is below every collapseBelow.
+export {SplitPane} from './components/SplitPane/SplitPane'
 // Always the phone shape on native: the bar on top, the rail in a left Drawer.
 export {
   AppShell,
