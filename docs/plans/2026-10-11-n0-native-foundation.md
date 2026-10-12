@@ -578,7 +578,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] B2 Menu, Popover, Tooltip, Toast native
 - [x] B3 Tag, SideNav, Tabs, Tree, AppShell native
 - [x] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
-- [ ] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
+- [x] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
 - [ ] C1 Listbox, Select, Combobox native sheets
 - [ ] C2 ScrollArea native, the `./form` native entry and submit context
 - [ ] C3 Theme overrides (both platforms), ColorMode native, the token additions sized in C0, device checkpoint C → **release v5.14.0**
@@ -684,6 +684,10 @@ Every entry records input → expected → actual in the slice's PR body before 
 - Faults sent back from Happier's native checkpoint are counted per slice; any web regression found after release gets a patch release before the next slice starts.
 
 ## Decision log
+
+- 2026-10-13, C0 picker mockups (ADR-0016), the person's pick from the local review: native-picker · direction A Check (`docs/mockups/native-picker/Check.dc.html`): a tap picks the option and closes the sheet; the current value carries a trailing check and the selected fill; the header's text button is Cancel; Select empty shows a List empty state, Combobox pins its search Input and shows Combobox.Empty with no match. Direction B Confirm (leading radios, Done confirms) stays committed as the record of what was offered.
+
+- 2026-10-13, C0 token inventory (`docs/plans/2026-10-11-n0-native-foundation.tokens.md`): Happier's 120 editable colour tokens → 49 map to an existing Duro key (the role Duro's own components already give it), 25 are generic gaps, 46 are Happier-specific. The person's decisions: the 46 Happier-specific tokens (permission modes and buttons, messages, composer, syntax, diff, version control, the wizard scrim) stay in Happier's theme layer over Duro's ThemeProvider overrides, so C3 adds only the 25 generic keys; their values are derived from Duro's own palette (dark, light, high contrast), and Happier adjusts through overrides. This narrows Slice C item 4's "each missing one is added" to the generic gaps.
 
 - 2026-10-13, device checkpoint B (the person's iPhone 13 Pro Max with VoiceOver; the Android 16 emulator with TalkBack): sheet open, slow drag to large, flings to medium and closed, content drag grows then scrolls; left drawer swipe; Menu item → Dialog (iOS and Android); Popover outside press; Toast swipe and above an open Dialog, surviving its close; app shell drawer, SideNav, Tree, Tabs, Tag remove; Tooltip hints read by VoiceOver and TalkBack; grabber as an adjustable control; focus back to the trigger; Tabs read as tabs on the device (the simulator's generic-element reading was the simulator's) → all pass.
 
