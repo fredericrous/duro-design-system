@@ -5,6 +5,7 @@ import {useToggleGroup} from '../ToggleGroup/ToggleGroupContext'
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {mergeRefs} from '../../shared/mergeRefs'
 import type {ControlSize} from '../../shared/types'
+import {isNative} from '../../platform'
 import {styles} from './styles.css'
 
 export type ToggleSize = ControlSize
@@ -103,6 +104,7 @@ export function Toggle({
       data-pressed={pressed ? '' : undefined}
       style={[
         styles.base,
+        isNative && styles.nativeFlex,
         sizeMap[size],
         pressed ? styles.pressed : styles.unpressed,
         wrap && wrappedSizeMap[size],

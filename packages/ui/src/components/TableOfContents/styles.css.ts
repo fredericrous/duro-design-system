@@ -94,6 +94,8 @@ export const styles = css.create({
     justifyContent: 'space-between',
     gap: spacing.sm,
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     minHeight: sizes.touchTarget,
     paddingTop: spacing.sm,
     paddingBottom: spacing.sm,

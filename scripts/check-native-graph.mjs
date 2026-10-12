@@ -41,6 +41,16 @@ const rules = {
     },
     {selector: "Property[key.name='animationName']", message: 'animationName'},
     {selector: "Property[key.value='animationName']", message: 'animationName'},
+    // RSD-native rejects a multi-value shorthand: write the longhands.
+    {
+      selector:
+        'Property[key.name=/^(padding|margin|inset|gap)$/] > TemplateLiteral[expressions.length>1]',
+      message: 'multi-value shorthand',
+    },
+    {
+      selector: 'Property[key.name=/^(padding|margin|inset|gap)$/] > Literal[value=/\\S\\s+\\S/]',
+      message: 'multi-value shorthand',
+    },
     // RSD renders these as a text field on native; draw a role="checkbox" /
     // role="radio" button in the .native file instead (Checkbox, RadioGroup).
     {

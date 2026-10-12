@@ -79,6 +79,8 @@ export const styles = css.create({
   // Panel sizing per anchor
   panelHorizontal: {
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     height: '100%',
     borderLeftWidth: borders.hairline,
     borderLeftStyle: 'solid',
@@ -86,6 +88,8 @@ export const styles = css.create({
   },
   panelVertical: {
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     borderTopWidth: borders.hairline,
     borderTopStyle: 'solid',
     borderTopColor: colors.border,

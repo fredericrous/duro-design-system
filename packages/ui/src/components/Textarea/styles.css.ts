@@ -8,6 +8,8 @@ import {borders} from '@duro-app/tokens/tokens/borders.css'
 export const styles = css.create({
   base: {
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     paddingTop: spacing.sm,
     paddingBottom: spacing.sm,
     paddingLeft: spacing.md,

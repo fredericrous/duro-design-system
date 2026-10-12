@@ -13,7 +13,14 @@ import {
   useRef,
   useState,
 } from 'react'
-import {KeyboardAvoidingView, Platform, StyleSheet, View} from 'react-native'
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native'
 import {html} from 'react-strict-dom'
 import type {DurationToken} from '@duro-app/tokens/keys'
 import {ModalContext} from '../../shared/ModalContext'
@@ -25,7 +32,6 @@ import {Icon} from '../Icon/Icon'
 import {nativeStyles} from './native.css'
 import {partStyles} from './parts.css'
 import {
-  Body,
   Description,
   DialogContext,
   Footer,
@@ -178,6 +184,8 @@ function Portal({children, size = 'md'}: PortalProps) {
     return () => cancelAnimationFrame(frame)
   }, [open])
 
+  // 85% of the window, as the web caps the panel at 85vh.
+  const maxPanelHeight = useWindowDimensions().height * 0.85
   const shown = entered && !closing
   const visibility = shown ? nativeStyles.shown : nativeStyles.hidden
   return (
@@ -212,6 +220,7 @@ function Portal({children, size = 'md'}: PortalProps) {
                 aria-labelledby={titleId}
                 style={[
                   nativeStyles.popup,
+                  nativeStyles.maxHeight(maxPanelHeight),
                   partStyles[size],
                   visibility,
                   closing && exitDurationMap[closeDuration],
@@ -235,7 +244,17 @@ function Portal({children, size = 'md'}: PortalProps) {
 const localStyles = StyleSheet.create({
   viewport: {flex: 1, alignItems: 'center', justifyContent: 'center'},
   panelHost: {width: '100%', alignItems: 'center'},
+  body: {flexGrow: 0, flexShrink: 1},
 })
+
+/** Native Body: a ScrollView, since a native div does not scroll its overflow. */
+function Body({children}: {children: ReactNode}) {
+  return (
+    <ScrollView style={localStyles.body}>
+      <html.div style={nativeStyles.bodyContent}>{children}</html.div>
+    </ScrollView>
+  )
+}
 
 interface CloseProps {
   children?: ReactNode

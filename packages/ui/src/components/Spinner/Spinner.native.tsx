@@ -27,7 +27,7 @@ export function Spinner({size = 'md', label = 'Loading'}: SpinnerProps) {
   const turning = useAnimatedStyle(() => ({transform: [{rotate: `${turn.value}deg`}]}))
 
   return (
-    <html.div role="status" style={ring.root}>
+    <html.div role="status" style={[ring.root, ring.nativeRoot]}>
       <Animated.View style={turning}>
         <html.div style={[ring.ring, ring[size]]} aria-hidden />
       </Animated.View>

@@ -71,4 +71,9 @@ export const styles = css.create({
   input: {
     opacity: 0,
   },
+  // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
+  // native only.
+  nativeFlex: {
+    display: 'flex',
+  },
 })

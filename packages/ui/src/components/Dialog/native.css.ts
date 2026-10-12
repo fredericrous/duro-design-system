@@ -26,8 +26,11 @@ export const nativeStyles = css.create({
   },
   // Padding around the panel inside the RN viewport view.
   inset: {
+    display: 'flex',
     padding: spacing.lg,
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     alignItems: 'center',
   },
   popup: {
@@ -35,7 +38,8 @@ export const nativeStyles = css.create({
     borderRadius: radii.lg,
     boxShadow: shadows.lg,
     width: '100%',
-    maxHeight: '85%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
@@ -46,6 +50,16 @@ export const nativeStyles = css.create({
     transitionDuration: duration.base,
     transitionTimingFunction: easing.easeOut,
   },
+  // The Body's padding inside its ScrollView (no flex: it sizes to content).
+  bodyContent: {
+    paddingLeft: spacing.lg,
+    paddingRight: spacing.lg,
+    paddingBottom: spacing.lg,
+  },
+  // 85% of the window, as the web caps the panel at 85vh: a percentage
+  // max-height has no definite parent to resolve against here. The Body
+  // (a ScrollView) yields.
+  maxHeight: (height: number) => ({maxHeight: height}),
   shown: {
     opacity: 1,
     transform: 'scale(1)',

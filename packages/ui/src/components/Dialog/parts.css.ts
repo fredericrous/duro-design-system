@@ -15,6 +15,8 @@ export const partStyles = css.create({
 
   // --- Header ---
   header: {
+    // Header, Description and Footer keep their size; only the Body yields.
+    flexShrink: 0,
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
@@ -36,6 +38,7 @@ export const partStyles = css.create({
 
   // --- Description ---
   description: {
+    flexShrink: 0,
     fontSize: typography.fontSizeSm,
     lineHeight: typography.lineHeight,
     color: colors.textMuted,
@@ -56,6 +59,7 @@ export const partStyles = css.create({
 
   // --- Footer ---
   footer: {
+    flexShrink: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',

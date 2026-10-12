@@ -46,6 +46,10 @@ interface InputProps {
     | 'name'
     | 'tel'
     | 'url'
+  /** Phone keyboards: how the typed text is capitalised. */
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters'
+  /** Whether the platform checks (and on phones, autocorrects) the spelling. */
+  spellCheck?: boolean
   value?: string
   defaultValue?: string
   disabled?: boolean
@@ -82,6 +86,8 @@ export function Input({
   list,
   pattern,
   autoComplete,
+  autoCapitalize,
+  spellCheck,
   value,
   defaultValue,
   disabled,
@@ -137,6 +143,8 @@ export function Input({
       required={required}
       minLength={minLength}
       autoComplete={autoComplete}
+      autoCapitalize={autoCapitalize}
+      spellCheck={spellCheck}
       value={effectiveValue}
       defaultValue={defaultValue}
       disabled={effectiveDisabled}

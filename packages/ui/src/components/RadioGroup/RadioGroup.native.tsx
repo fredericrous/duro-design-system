@@ -26,12 +26,17 @@ function Item({value, disabled: itemDisabled = false, children}: ItemProps) {
       onClick={() => onSelect(value)}
       style={[styles.item, styles.nativeItem, isDisabled && styles.itemDisabled]}
     >
-      <html.span
-        style={[styles.circle, isChecked ? styles.circleChecked : styles.circleUnchecked]}
+      {/* div, not span: a native span is a Text, which draws no sized box. */}
+      <html.div
+        style={[
+          styles.circle,
+          styles.nativeFlex,
+          isChecked ? styles.circleChecked : styles.circleUnchecked,
+        ]}
         aria-hidden
       >
-        {isChecked && <html.span style={styles.dot} />}
-      </html.span>
+        {isChecked && <html.div style={styles.dot} />}
+      </html.div>
       {children && <html.span>{children}</html.span>}
     </html.button>
   )

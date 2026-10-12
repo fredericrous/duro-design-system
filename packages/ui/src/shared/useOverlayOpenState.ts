@@ -115,5 +115,7 @@ export function useOverlayOpenState({
     [],
   )
 
-  return {open, present, closing, requestOpen, requestClose, closeNow}
+  // An open is rendered in the same commit (a consumer's effect on `open` can
+  // already reach the overlay's content); the state catches up in the effect.
+  return {open, present: open || present, closing, requestOpen, requestClose, closeNow}
 }

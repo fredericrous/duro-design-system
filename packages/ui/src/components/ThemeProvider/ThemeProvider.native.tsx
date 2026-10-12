@@ -46,12 +46,18 @@ const palettes: Record<ThemeName, RawColors> = {
 
 const styles = css.create({
   // No `display:contents` on RN. RSD uses web flex semantics on native, so
-  // declare flex + column explicitly; flex:1 lets a root provider fill.
+  // declare flex + column explicitly.
   root: {
     display: 'flex',
     flexDirection: 'column',
-    flex: 1,
     color: colors.text,
+  },
+  // The app canvas: the web paints it on body from vars.css; native has no
+  // body, so the outermost provider paints it and fills its host (height,
+  // not flex: the host is an RN view, which RSD does not know is flex).
+  canvas: {
+    backgroundColor: colors.bg,
+    height: '100%',
   },
 })
 
@@ -92,7 +98,7 @@ export function ThemeProvider({theme = 'dark', children}: ThemeProviderProps) {
     <HostRegistryContext.Provider value={registry}>
       <ThemeScopeContext.Provider value={scope}>
         <ResolvedColorsContext.Provider value={palettes[theme]}>
-          <html.div style={[...themeStyles, styles.root] as DivStyle}>
+          <html.div style={[...themeStyles, styles.root, ownRegistry && styles.canvas] as DivStyle}>
             {children}
             {ownRegistry ? <PortalHost placement="base" /> : null}
           </html.div>

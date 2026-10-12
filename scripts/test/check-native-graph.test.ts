@@ -33,6 +33,19 @@ describe('check-native-graph', () => {
     )
   })
 
+  it.each([
+    ['template', 'const s = {padding: `${a} ${b}`}\n'],
+    ['string', "const s = {margin: '4px 8px'}\n"],
+  ])('reports a multi-value %s shorthand', async (kind, code) => {
+    expect(await formsIn(`shorthand-${kind}.ts`, `const a = 1, b = 2\n${code}`)).toContain(
+      'multi-value shorthand',
+    )
+  })
+
+  it('leaves a single-value shorthand alone', async () => {
+    expect(await formsIn('shorthand-one.ts', 'const a = 1\nconst s = {padding: a}\n')).toEqual([])
+  })
+
   it('leaves a text html.input alone', async () => {
     const code = `import {html} from 'react-strict-dom'\nexport const I = () => <html.input type="text" />\n`
     expect(await formsIn('input-text.tsx', code)).toEqual([])

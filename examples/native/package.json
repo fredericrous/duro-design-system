@@ -5,7 +5,9 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "export": "expo export --platform ios --platform android --output-dir dist --source-maps"
+    "export": "expo export --platform ios --platform android --output-dir dist --source-maps",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@duro-app/tokens": "link:../../packages/tokens",

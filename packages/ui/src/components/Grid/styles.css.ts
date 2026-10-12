@@ -86,6 +86,8 @@ export const styles = css.create({
     // against an auto width the line breaks come out wrong and the container
     // under-reports its height (verified on the iOS simulator).
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
   },
   // border-box is explicit: react-strict-dom mirrors the web default
   // (content-box) on native, which adds the gap padding on top of the basis

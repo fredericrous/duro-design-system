@@ -24,4 +24,9 @@ export const styles = css.create({
   muted: {
     color: colors.textMuted,
   },
+  // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
+  // native only.
+  nativeFlex: {
+    display: 'flex',
+  },
 })

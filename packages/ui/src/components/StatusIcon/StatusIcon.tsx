@@ -28,7 +28,7 @@ interface StatusIconProps {
 
 export function StatusIcon({name, size = 'xxl', variant = 'muted'}: StatusIconProps) {
   return (
-    <html.div style={[styles.root, styles[variant]]}>
+    <html.div style={[styles.root, isNative && styles.nativeFlex, styles[variant]]}>
       <Icon name={name} size={size} color={isNative ? iconColor[variant] : undefined} />
     </html.div>
   )

@@ -62,5 +62,7 @@ export const styles = css.create({
   },
   fullWidth: {
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
   },
 })

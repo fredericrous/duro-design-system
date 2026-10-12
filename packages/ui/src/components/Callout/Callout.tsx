@@ -57,7 +57,9 @@ export function Callout({variant = 'info', icon, align = 'center', children}: Ca
         align === 'center' ? styles.alignCenter : styles.alignStart,
       ]}
     >
-      {resolvedIcon && <html.span style={styles.icon}>{resolvedIcon}</html.span>}
+      {resolvedIcon && (
+        <html.span style={[styles.icon, isNative && styles.nativeFlex]}>{resolvedIcon}</html.span>
+      )}
       <html.div style={styles.content}>{children}</html.div>
     </html.div>
   )

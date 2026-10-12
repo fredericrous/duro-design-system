@@ -10,6 +10,10 @@ export const ring = css.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // RSD-native only honors display:'flex' (not 'inline-flex').
+  nativeRoot: {
+    display: 'flex',
+  },
   ring: {
     borderRadius: '50%',
     borderStyle: 'solid',

@@ -8,6 +8,8 @@ export const styles = css.create({
   track: {
     position: 'relative',
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     height: sizes.meterH,
     borderRadius: radii.full,
     backgroundColor: colors.border,

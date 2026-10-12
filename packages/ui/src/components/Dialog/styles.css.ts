@@ -58,6 +58,8 @@ export const styles = css.create({
     borderRadius: radii.lg,
     boxShadow: shadows.lg,
     width: '100%',
+    // Native has no border-box reset (the web's global-reset.css); declare it.
+    boxSizing: 'border-box',
     maxHeight: '85vh',
     display: 'flex',
     flexDirection: 'column',

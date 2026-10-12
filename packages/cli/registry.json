@@ -3630,6 +3630,18 @@
           "type": "| 'on' | 'off' | 'email' | 'username' | 'current-password' | 'new-password' | 'name' | 'tel' | 'url'"
         },
         {
+          "description": "Phone keyboards: how the typed text is capitalised.",
+          "name": "autoCapitalize",
+          "required": false,
+          "type": "'none' | 'sentences' | 'words' | 'characters'"
+        },
+        {
+          "description": "Whether the platform checks (and on phones, autocorrects) the spelling.",
+          "name": "spellCheck",
+          "required": false,
+          "type": "boolean"
+        },
+        {
           "name": "value",
           "required": false,
           "type": "string"
