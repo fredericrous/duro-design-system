@@ -18,11 +18,19 @@ import {
   ThemeScopeContext,
   type ThemeScope,
 } from '../../shared/portal/themeScope'
+import {mergeOverrides, OverridesContext, type ColorOverrides} from './overrides'
 
 export type ThemeName = 'dark' | 'light' | 'high-contrast'
+export type {ColorOverrides}
 
 interface ThemeProviderProps {
   theme?: ThemeName
+  /**
+   * Colours that replace the theme's own, by token key (`{accent: '#ff5a1f'}`).
+   * They update in place, without a re-mount. A nested provider on the same
+   * theme keeps these and lays its own over them.
+   */
+  overrides?: ColorOverrides
   children: ReactNode
 }
 
@@ -80,7 +88,7 @@ export function useResolvedColors(): Record<ColorToken, string> {
   return useContext(ResolvedColorsContext)
 }
 
-export function ThemeProvider({theme = 'dark', children}: ThemeProviderProps) {
+export function ThemeProvider({theme = 'dark', overrides, children}: ThemeProviderProps) {
   const outerRegistry = useContext(HostRegistryContext)
   const outerScope = useContext(ThemeScopeContext)
   // The outermost provider owns the registry and draws the root host.
@@ -88,7 +96,24 @@ export function ThemeProvider({theme = 'dark', children}: ThemeProviderProps) {
     outerRegistry ? null : createHostRegistry(),
   )
   const registry = outerRegistry ?? ownRegistry
-  const themeStyles = themeMap[theme]
+  const outerOverrides = useContext(OverridesContext)
+  const effective = useMemo(
+    () => mergeOverrides(outerOverrides, theme, overrides),
+    [outerOverrides, theme, overrides],
+  )
+  // A runtime theme on native, applied after the base one so RSD styles
+  // cascade it; rebuilt only when the colours change.
+  const overrideKey = JSON.stringify(effective.colors)
+  const themeStyles = useMemo(() => {
+    const base = themeMap[theme]
+    return overrideKey === '{}'
+      ? base
+      : [...base, css.createTheme(colors, JSON.parse(overrideKey) as ColorOverrides)]
+  }, [theme, overrideKey])
+  const resolved = useMemo(
+    () => ({...palettes[theme], ...(JSON.parse(overrideKey) as ColorOverrides)}),
+    [theme, overrideKey],
+  )
   const scope = useMemo<ThemeScope>(
     () => ({styles: [...outerScope.styles, ...themeStyles]}),
     [outerScope, themeStyles],
@@ -97,11 +122,15 @@ export function ThemeProvider({theme = 'dark', children}: ThemeProviderProps) {
   return (
     <HostRegistryContext.Provider value={registry}>
       <ThemeScopeContext.Provider value={scope}>
-        <ResolvedColorsContext.Provider value={palettes[theme]}>
-          <html.div style={[...themeStyles, styles.root, ownRegistry && styles.canvas] as DivStyle}>
-            {children}
-            {ownRegistry ? <PortalHost placement="base" /> : null}
-          </html.div>
+        <ResolvedColorsContext.Provider value={resolved}>
+          <OverridesContext.Provider value={effective}>
+            <html.div
+              style={[...themeStyles, styles.root, ownRegistry && styles.canvas] as DivStyle}
+            >
+              {children}
+              {ownRegistry ? <PortalHost placement="base" /> : null}
+            </html.div>
+          </OverridesContext.Provider>
         </ResolvedColorsContext.Provider>
       </ThemeScopeContext.Provider>
     </HostRegistryContext.Provider>

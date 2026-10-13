@@ -583,6 +583,17 @@ is added.
 | `contrastSurface` / `onContrastSurface` | Opposite-tone surface (toasts, coach marks) and its text |
 | `contrastBorder`                        | Border on `contrastSurface` (≥ 3:1 against it)            |
 | `overlayLight`                          | Fixed translucent white over content (light counterpart of `scrim`) |
+| `bgInset` / `bgElevated` / `bgSelected` | A recessed well; a lifted surface; a selected row or container |
+| `bgSectionTint`                         | A hair of tint that separates grouped sections |
+| `borderSubtle` / `borderStrong`         | Hairlines below and above `border` |
+| `surfaceHighlight`                      | The top-edge highlight on a bounded surface |
+| `textSubtle` / `textDisabled`           | Lowest-emphasis readable text (≥ 4.5:1); disabled control text |
+| `neutral` / `neutralBg` / `neutralBorder` / `neutralText` | A status without a status meaning (inactive, unknown) |
+| `active` / `activeBg` / `activeBorder` / `activeText` | The active choice: chips, toolbar pills, segmented options |
+| `accentDisabled`                        | A disabled primary fill, where opacity would show what is behind |
+| `pressOverlay` / `ripple`               | Over a pressed surface; a touch ripple |
+| `segmentTrack` / `segmentActive`        | A segmented control's track and raised active segment |
+| `scrimSoft` / `scrimStrong` / `onScrimMuted` | Lighter and heavier scrims beside `scrim`; secondary text on one |
 
 ### Shadows
 

@@ -104,9 +104,17 @@ export type {GridTrack} from './shared/length'
 // no display:contents / portal mount; applies the theme to a flex container).
 export {
   ThemeProvider,
+  type ColorOverrides,
   usePortalMount,
   useResolvedColors,
   type ThemeName,
 } from './components/ThemeProvider/ThemeProvider'
+// 'system' follows RN Appearance; persistence is the app's (preference + onPreferenceChange).
+export {
+  ColorModeProvider,
+  ColorModeToggle,
+  useColorMode,
+  type ColorModePreference,
+} from './components/ColorMode'
 // Where toasts draw on native: mount one inside a natively presented route.
 export {PortalHost} from './shared/portal/PortalHost'
