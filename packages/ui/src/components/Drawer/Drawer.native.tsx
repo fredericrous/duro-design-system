@@ -443,7 +443,9 @@ function Body({children, flush = false}: BodyProps) {
         onScroll={sheet.onScroll}
         scrollEventThrottle={16}
         bounces={false}
-        // A row press with the keyboard up picks it, not only dismisses the keyboard.
+        // Presses inside the sheet keep the keyboard up. A ScrollView above the
+        // sheet's Modal can still take the first touch, which is why picker
+        // rows use Gesture Handler's Pressable (Listbox.native).
         keyboardShouldPersistTaps="handled"
         style={snapPoints.length > 0 ? layout.bodyFill : layout.body}
       >

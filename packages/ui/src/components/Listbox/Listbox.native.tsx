@@ -1,7 +1,9 @@
 import {createContext, type ReactNode, type Ref, useContext} from 'react'
+import {View} from 'react-native'
 import {Pressable} from 'react-native-gesture-handler'
 import {html} from 'react-strict-dom'
 import {sheetStyles} from './native.css'
+import {textOf} from '../../shared/textOf'
 
 /**
  * Native Listbox (plan N0, Slice C): a plain list of options, laid out where
@@ -97,33 +99,46 @@ interface OptionProps {
 
 function Option({value, selected = false, disabled = false, children, ref}: OptionProps) {
   const {onSelect} = useListbox('Option')
-  // Gesture Handler's Pressable recognises the tap natively: an RN Pressable
-  // loses the first tap with the keyboard up to any ScrollView above the
-  // sheet's Modal in the app (keyboardShouldPersistTaps 'never', the default).
+  const choose = () => {
+    if (!disabled) onSelect?.(value)
+  }
+  // Two hosts, one job each. The View is what a screen reader reads: a
+  // selected button named by its text alone, activated by a double-tap.
+  // Gesture Handler's Pressable takes the touch natively, since an RN
+  // Pressable loses the first tap with the keyboard up to any ScrollView
+  // above the sheet's Modal (keyboardShouldPersistTaps 'never', the default);
+  // its native button does not expose a role or state, so it is hidden.
   return (
-    <Pressable
+    <View
       ref={ref as Ref<never>}
-      role="option"
-      aria-selected={selected}
-      aria-disabled={disabled || undefined}
-      disabled={disabled}
-      onPress={() => onSelect?.(value)}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={textOf(children) || undefined}
+      accessibilityState={{selected, disabled}}
+      accessibilityActions={ACTIVATE}
+      onAccessibilityAction={(e) => {
+        if (e.nativeEvent.actionName === 'activate') choose()
+      }}
     >
-      {({pressed}) => (
-        <html.div style={[sheetStyles.option, (selected || pressed) && sheetStyles.optionFilled]}>
-          <html.span style={[sheetStyles.label, disabled && sheetStyles.labelDisabled]}>
-            {children}
-          </html.span>
-          {selected && (
-            <html.span aria-hidden style={sheetStyles.check}>
-              ✓
+      <Pressable accessible={false} disabled={disabled} onPress={choose}>
+        {({pressed}) => (
+          <html.div style={[sheetStyles.option, (selected || pressed) && sheetStyles.optionFilled]}>
+            <html.span style={[sheetStyles.label, disabled && sheetStyles.labelDisabled]}>
+              {children}
             </html.span>
-          )}
-        </html.div>
-      )}
-    </Pressable>
+            {selected && (
+              <html.span aria-hidden style={sheetStyles.check}>
+                ✓
+              </html.span>
+            )}
+          </html.div>
+        )}
+      </Pressable>
+    </View>
   )
 }
+
+const ACTIVATE = [{name: 'activate'}] as const
 
 /** Shown in place of options when there are none, or none match. */
 function Empty({children}: {children: ReactNode}) {
