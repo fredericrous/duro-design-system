@@ -580,7 +580,7 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
 - [x] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
 - [x] C1 Listbox, Select, Combobox native sheets
-- [ ] C2 ScrollArea native, the `./form` native entry and submit context
+- [x] C2 ScrollArea native, the `./form` native entry and submit context
 - [ ] C3 Theme overrides (both platforms), ColorMode native, the token additions sized in C0, device checkpoint C → **release v5.14.0**
 
 Before each tag, a guided Storybook preview of the slice's web-visible changes (steps, expected result, screenshots) is shown to the person (`work.preview-before-publish`); no tag before their go. Each release goes through the `tag-release` skill (`v*` tag → `release.yml`
@@ -684,6 +684,8 @@ Every entry records input → expected → actual in the slice's PR body before 
 - Faults sent back from Happier's native checkpoint are counted per slice; any web regression found after release gets a patch release before the next slice starts.
 
 ## Decision log
+
+- 2026-10-13, C2: ScrollArea's native Viewport is an RN ScrollView inside an RSD view carrying the `maxHeight` token, so react-strict-dom resolves the token and the ScrollView shrinks to it; Scrollbar and Thumb render nothing. `./form` resolves `react-native` to `src/form.native.ts`, whose Form renders a view and provides `FormSubmitContext`; Button with `type="submit"` calls it after its own `onClick`. The web Form provides none, so the browser's submit event stays the only path there. The plan's "README's React Native section" had no README to live in: `packages/ui/README.md` is new, listing the native peers and the one-copy Metro resolution, which needs `@hookform/resolvers` and `effect` too (found when the example failed to bundle `@duro-app/ui/form`). Observed on the iOS simulator: an empty submit moved focus to the invalid field and did not submit; a valid one fired `onSubmit`; the ScrollArea capped at `listMaxHSm` scrolled inside its cap while the page stayed.
 
 - 2026-10-13, C1: the pickers follow direction A Check. Shared state lives in `Select/selectState.ts` and `Combobox/comboboxState.ts` (Decision 10); the web adapters keep highlight, document order, keys and focus, and the native files keep registration and presses. Four API additions, on both platforms so one call site serves both:
   - `Select.Popup` takes `label`, `cancelLabel` and `empty`, and `Combobox.Popup` takes `label` and `cancelLabel`. `label` is the list's accessible name and, on native, the sheet's title. `cancelLabel` is native only. `empty` replaces the list when it has no items.

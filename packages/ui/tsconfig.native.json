@@ -15,6 +15,6 @@
       "@duro-app/tokens": ["../tokens/dist/index.d.ts"]
     }
   },
-  "include": ["src/index.native.ts", "src/native-guard/globals.d.ts"],
+  "include": ["src/index.native.ts", "src/form.native.ts", "src/native-guard/globals.d.ts"],
   "exclude": ["dist", "node_modules"]
 }

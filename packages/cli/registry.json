@@ -3131,7 +3131,7 @@
       "importPath": "@duro-app/ui/form",
       "kind": "component",
       "meta": {
-        "description": "Form wrapper with Effect Schema validation and react-hook-form integration. Provides FormContext to child Field components.",
+        "description": "Form wrapper with Effect Schema validation and react-hook-form integration. Provides FormContext to child Field components. On React Native, @duro-app/ui/form resolves to a native Form (a view, not a <form>): a Button type=\"submit\" inside it runs the validated submit, since there is no DOM submit event.",
         "example": "import {Schema} from 'effect'\n\nconst MySchema = Schema.Struct({\n  email: Schema.String.pipe(\n    Schema.pattern(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, {message: () => 'Invalid email'}),\n  ),\n})\n\n<Form schema={MySchema} defaultValues={{email: ''}} onSubmit={handleSubmit}>\n  {({formState}) => (\n    <Fieldset.Root gap=\"md\">\n      <Field.Root name=\"email\">\n        <Field.Label>Email</Field.Label>\n        <Input type=\"email\" />\n        <Field.Error />\n      </Field.Root>\n      <Button type=\"submit\" disabled={!formState.isValid}>Submit</Button>\n    </Fieldset.Root>\n  )}\n</Form>",
         "relatedTo": [
           {
@@ -5376,7 +5376,7 @@
             "Thumb"
           ]
         },
-        "description": "Custom scrollbar region with draggable thumb. Supports vertical and horizontal scrolling. Compound component — Root is required. Inside a Drawer, a drag in the viewport scrolls it; the drawer only takes a drag toward its edge from the scroll start.",
+        "description": "Custom scrollbar region with draggable thumb. Supports vertical and horizontal scrolling. Compound component — Root is required. Inside a Drawer, a drag in the viewport scrolls it; the drawer only takes a drag toward its edge from the scroll start. On React Native the Viewport is an RN ScrollView with the platform scroll indicator, capped by the same maxHeight token key; Scrollbar and Thumb render nothing.",
         "example": "<ScrollArea.Root>\n  <ScrollArea.Viewport maxHeight=\"listMaxH\">\n    <ScrollArea.Content>\n      {/* Long content here */}\n    </ScrollArea.Content>\n  </ScrollArea.Viewport>\n  <ScrollArea.Scrollbar orientation=\"vertical\">\n    <ScrollArea.Thumb orientation=\"vertical\" />\n  </ScrollArea.Scrollbar>\n</ScrollArea.Root>",
         "whenNotToUse": [
           "Simple page-level scrolling — browser scroll is fine",
@@ -5388,7 +5388,7 @@
         ]
       },
       "name": "ScrollArea",
-      "native": false,
+      "native": true,
       "parts": {
         "Content": {
           "name": "Content",

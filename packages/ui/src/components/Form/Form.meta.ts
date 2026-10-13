@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Form wrapper with Effect Schema validation and react-hook-form integration. Provides FormContext to child Field components.',
+    'Form wrapper with Effect Schema validation and react-hook-form integration. Provides FormContext to child Field components. On React Native, @duro-app/ui/form resolves to a native Form (a view, not a <form>): a Button type="submit" inside it runs the validated submit, since there is no DOM submit event.',
   whenToUse: ['Any form that needs validation', 'Multi-field forms with submit handling'],
   whenNotToUse: [
     'Single standalone field without validation — use Field.Root directly',

@@ -39,6 +39,7 @@
       "types": "./dist/table.d.ts"
     },
     "./form": {
+      "react-native": "./src/form.native.ts",
       "source": "./src/form.ts",
       "import": "./dist/form.js",
       "types": "./dist/form.d.ts"

@@ -3,6 +3,7 @@ import {Link} from 'expo-router'
 import {DialogDemo} from './DialogDemo'
 import {SheetDemo} from './SheetDemo'
 import {PickerDemo} from './PickerDemo'
+import {FormDemo} from './FormDemo'
 import {OverlayDemo} from './OverlayDemo'
 import {ToastDemo} from './ToastDemo'
 import {
@@ -54,6 +55,7 @@ export function AllExports() {
         <DialogDemo label="Open a dialog" />
         <SheetDemo />
         <PickerDemo />
+        <FormDemo />
         <OverlayDemo />
         <ToastDemo />
         <Alert variant="success">Alert with its variant icon</Alert>
