@@ -83,6 +83,7 @@ export {TextLink, type TextLinkVariant} from './components/TextLink/TextLink'
 export type {ListboxAnchorProps, ListboxMaxHeight} from './components/Listbox/Listbox'
 export {Select} from './components/Select/Select'
 export {SideNav} from './components/SideNav/SideNav'
+export {QrCode, type QrCodeProps} from './components/QrCode/QrCode'
 export {Spinner, type SpinnerSize} from './components/Spinner/Spinner'
 export {
   ToastProvider,

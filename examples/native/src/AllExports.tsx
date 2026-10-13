@@ -26,6 +26,7 @@ import {
   List,
   Meter,
   PageShell,
+  QrCode,
   RadioGroup,
   Spinner,
   Stack,
@@ -68,6 +69,7 @@ export function AllExports() {
           <Spinner label="Loading" />
         </Inline>
         <Meter value={2} max={3} label="Work in progress" valueText="2 of 3" />
+        <QrCode value="https://example.com/pair?key=abc" label="Scan to pair" />
         <RadioGroup.Root value={plan} onValueChange={setPlan} aria-label="Plan">
           <RadioGroup.Item value="solo">Solo</RadioGroup.Item>
           <RadioGroup.Item value="team">Team</RadioGroup.Item>

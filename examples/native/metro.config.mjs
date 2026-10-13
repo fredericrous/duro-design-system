@@ -18,7 +18,7 @@ config.watchFolders = [path.join(repoRoot, 'packages/ui'), path.join(repoRoot, '
 // The native peers (react-native-*, Skia) also come from the app, which links
 // their native code: a copy resolved from packages/ui would be a second one.
 const pinned =
-  /^(react|react-dom|react-native(?:-[a-z-]+)?|@shopify\/react-native-skia|react-strict-dom|react-hook-form|@hookform\/resolvers|effect|@duro-app\/[^/]+)(?:\/|$)/u
+  /^(react|react-dom|react-native(?:-[a-z-]+)?|@shopify\/react-native-skia|react-strict-dom|react-hook-form|@hookform\/resolvers|effect|qrcode|@duro-app\/[^/]+)(?:\/|$)/u
 const appEntry = path.join(appRoot, 'package.json')
 const defaultResolveRequest = config.resolver.resolveRequest
 
