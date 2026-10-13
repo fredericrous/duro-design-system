@@ -20,6 +20,7 @@
     "expo-linking": "~8.0.8",
     "expo-router": "6.0.22",
     "expo-status-bar": "~3.0.8",
+    "qrcode": "^1.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.83.0",
