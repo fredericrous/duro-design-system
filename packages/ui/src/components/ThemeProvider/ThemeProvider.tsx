@@ -6,6 +6,7 @@ import {lightTheme, lightShadows} from '@duro-app/tokens/themes/light.css'
 import {highContrastTheme, highContrastShadows} from '@duro-app/tokens/themes/high-contrast.css'
 import {layers} from '@duro-app/tokens/tokens/layers.css'
 import {mergeOverrides, OverridesContext, type ColorOverrides} from './overrides'
+import {overrideRule} from './overrideRule'
 
 export type ThemeName = 'dark' | 'light' | 'high-contrast'
 export type {ColorOverrides}
@@ -65,27 +66,6 @@ function variableOf(key: ColorToken): string | null {
   return match ? match[1] : null
 }
 
-/** A value that is a colour and nothing else, so it cannot leave its rule. */
-function isSafeColor(value: string): boolean {
-  if (/[;{}<>\\]/.test(value)) return false
-  return typeof CSS === 'undefined' || CSS.supports('color', value)
-}
-
-/** The scoped rule for a provider's overrides, or null when it has none. */
-function overrideRule(scope: string, overrides: ColorOverrides): string | null {
-  const declarations = Object.entries(overrides).flatMap(([key, value]) => {
-    const variable = variableOf(key as ColorToken)
-    return variable && typeof value === 'string' && isSafeColor(value)
-      ? [`${variable}: ${value};`]
-      : []
-  })
-  if (declarations.length === 0) return null
-  // Doubled, so it outranks the theme classes (one class each) wherever the
-  // stylesheets land.
-  const selector = `[data-duro-theme="${CSS.escape(scope)}"]`
-  return `${selector}${selector} { ${declarations.join(' ')} }`
-}
-
 export function ThemeProvider({theme = 'dark', overrides, children}: ThemeProviderProps) {
   const themeStyles = themeMap[theme]
   const style = [themeStyles?.[0], themeStyles?.[1], styles.root] as DivStyle
@@ -97,7 +77,10 @@ export function ThemeProvider({theme = 'dark', overrides, children}: ThemeProvid
     [outer, theme, overrides],
   )
   const rule = useMemo(
-    () => (Object.keys(effective.colors).length > 0 ? overrideRule(scope, effective.colors) : null),
+    () =>
+      Object.keys(effective.colors).length > 0
+        ? overrideRule(scope, effective.colors, variableOf)
+        : null,
     [scope, effective],
   )
 

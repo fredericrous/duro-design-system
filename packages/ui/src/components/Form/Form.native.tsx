@@ -91,7 +91,14 @@ export function Form<T extends FieldValues>({
 
   // Native has no submit event: a type="submit" Button calls this instead.
   const submit = useCallback(() => {
-    void methods.handleSubmit(onSubmit, onInvalid)()
+    // A rejected onSubmit reaches the app's global error handler, not silence.
+    methods
+      .handleSubmit(onSubmit, onInvalid)()
+      .catch((error: unknown) => {
+        setTimeout(() => {
+          throw error
+        })
+      })
   }, [methods, onSubmit, onInvalid])
 
   const formCtx = useMemo(

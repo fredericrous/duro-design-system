@@ -581,7 +581,8 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
 - [x] C1 Listbox, Select, Combobox native sheets
 - [x] C2 ScrollArea native, the `./form` native entry and submit context
-- [ ] C3 Theme overrides (both platforms), ColorMode native, the token additions sized in C0, device checkpoint C → **release v5.14.0**
+- [x] C3 Theme overrides (both platforms), ColorMode native, the token additions sized in C0
+- [ ] C4 Device checkpoint C → **release v5.14.0**
 
 Before each tag, a guided Storybook preview of the slice's web-visible changes (steps, expected result, screenshots) is shown to the person (`work.preview-before-publish`); no tag before their go. Each release goes through the `tag-release` skill (`v*` tag → `release.yml`
 publishes all packages), then is verified on npm (`npm view @duro-app/ui@5.1x.0

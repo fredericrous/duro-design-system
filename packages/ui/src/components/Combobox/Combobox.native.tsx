@@ -3,6 +3,7 @@ import {
   type ReactNode,
   type Ref,
   type RefObject,
+  useCallback,
   useContext,
   useEffect,
   useId,
@@ -35,6 +36,9 @@ interface NativeComboboxContextValue {
   choose: (value: string) => void
   labels: Record<string, string>
   registerLabel: (value: string, label: string) => void
+  /** The labels of the Items rendered now, by value: what Empty matches against */
+  items: ReadonlyMap<string, string>
+  registerItem: (value: string, label: string) => () => void
   /** What is typed in the sheet's search field */
   query: string
   setQuery: (query: string) => void
@@ -95,6 +99,16 @@ function Root({
   })
   const {open, setOpen, chooseValue} = state
   const [query, setQuery] = useState('')
+  const [items, setItems] = useState<ReadonlyMap<string, string>>(new Map())
+  const registerItem = useCallback((itemValue: string, label: string) => {
+    setItems((prev) => new Map(prev).set(itemValue, label))
+    return () =>
+      setItems((prev) => {
+        const next = new Map(prev)
+        next.delete(itemValue)
+        return next
+      })
+  }, [])
   const [placeholder, setPlaceholder] = useState<string | undefined>(undefined)
   const listboxId = useId()
   const triggerRef = useRef<unknown>(null)
@@ -113,6 +127,8 @@ function Root({
     choose: chooseValue,
     labels: state.labels,
     registerLabel: state.registerLabel,
+    items,
+    registerItem,
     query,
     setQuery,
     placeholder,
@@ -236,11 +252,14 @@ interface ItemProps {
 
 function Item({value: itemValue, children}: ItemProps) {
   const collecting = useContext(CollectContext)
-  const {value, labels, query, registerLabel} = useCombobox()
+  const {value, labels, query, registerLabel, registerItem} = useCombobox()
   const label = textOf(children)
   useEffect(() => {
     if (collecting && label) registerLabel(itemValue, label)
   }, [collecting, itemValue, label, registerLabel])
+  useEffect(() => {
+    if (collecting) return registerItem(itemValue, label || itemValue)
+  }, [collecting, itemValue, label, registerItem])
   if (collecting || !matchesQuery(labels[itemValue] ?? label, query)) return null
   return (
     <Listbox.Option value={itemValue} selected={value === itemValue}>
@@ -256,9 +275,11 @@ function ItemText({children}: {children: ReactNode}) {
 /** Shown under the search field when nothing matches what is typed. */
 function Empty({children}: {children: ReactNode}) {
   const collecting = useContext(CollectContext)
-  const {query, labels} = useCombobox()
+  const {query, items} = useCombobox()
   if (collecting) return null
-  const anyMatch = Object.values(labels).some((label) => matchesQuery(label, query))
+  // Only the Items rendered now count: an initialLabels entry with no Item
+  // would otherwise hide Empty while the list shows nothing.
+  const anyMatch = [...items.values()].some((label) => matchesQuery(label, query))
   if (anyMatch) return null
   return <Listbox.Empty>{children}</Listbox.Empty>
 }

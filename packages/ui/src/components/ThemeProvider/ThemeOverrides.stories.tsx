@@ -82,6 +82,11 @@ export const OverridesUpdateInPlace: StoryObj = {
     const inner = canvas.getByTestId('inner')
     const next = canvas.getByRole('button', {name: 'Next'})
 
+    // The outer provider's scope while it has overrides.
+    const provider = outer.parentElement!
+    await waitFor(() => expect(provider.getAttribute('data-duro-theme')).toBeTruthy())
+    const scope = provider.getAttribute('data-duro-theme')!
+
     for (const step of [A, B, A]) {
       await waitFor(() => expect(bgOf(outer)).toBe(step.bg))
       // Button's fill eases between colours: wait for it to settle.
@@ -99,7 +104,8 @@ export const OverridesUpdateInPlace: StoryObj = {
     // No overrides: the theme's own colours, and no outer rule left.
     await waitFor(() => expect(bgOf(outer)).toBe('rgb(15, 15, 15)'))
     const rules = [...document.querySelectorAll('style')].map((s) => s.textContent ?? '')
-    await expect(rules.filter((r) => r.includes('rgb(255, 90, 31)'))).toHaveLength(0)
+    await expect(provider.hasAttribute('data-duro-theme')).toBe(false)
+    await expect(rules.filter((r) => r.includes(`"${scope}"`))).toHaveLength(0)
     // The invalid value never reaches a rule, and nothing leaked onto body.
     await expect(rules.some((r) => r.includes('body{'))).toBe(false)
     await expect(getComputedStyle(document.body).backgroundColor).not.toBe('rgb(255, 0, 0)')
