@@ -1,5 +1,5 @@
 import {createContext, type ReactNode, type Ref, useContext} from 'react'
-import {Pressable} from 'react-native'
+import {Pressable} from 'react-native-gesture-handler'
 import {html} from 'react-strict-dom'
 import {sheetStyles} from './native.css'
 
@@ -97,6 +97,9 @@ interface OptionProps {
 
 function Option({value, selected = false, disabled = false, children, ref}: OptionProps) {
   const {onSelect} = useListbox('Option')
+  // Gesture Handler's Pressable recognises the tap natively: an RN Pressable
+  // loses the first tap with the keyboard up to any ScrollView above the
+  // sheet's Modal in the app (keyboardShouldPersistTaps 'never', the default).
   return (
     <Pressable
       ref={ref as Ref<never>}
