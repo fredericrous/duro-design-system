@@ -19,6 +19,7 @@ interface SheetArgs {
   snapPoints: SnapPoint[]
   defaultSnapPoint: SnapPoint
   titleAlign: 'start' | 'center'
+  flush: boolean
   onOpenChange?: (open: boolean) => void
 }
 
@@ -26,11 +27,15 @@ const DEFAULT_ARGS: SheetArgs = {
   snapPoints: ['medium', 'large'],
   defaultSnapPoint: 'medium',
   titleAlign: 'center',
+  flush: false,
 }
 
 /** The picked B0 direction (docs/mockups/native-sheet/Done.dc.html): grabber, centred title, a text Done. */
 function Sheet(props: Partial<SheetArgs>) {
-  const {snapPoints, defaultSnapPoint, titleAlign, onOpenChange} = {...DEFAULT_ARGS, ...props}
+  const {snapPoints, defaultSnapPoint, titleAlign, flush, onOpenChange} = {
+    ...DEFAULT_ARGS,
+    ...props,
+  }
   return (
     <Drawer.Root
       anchor="bottom"
@@ -46,7 +51,7 @@ function Sheet(props: Partial<SheetArgs>) {
             <Button variant="link">Done</Button>
           </Drawer.Close>
         </Drawer.Header>
-        <Drawer.Body>
+        <Drawer.Body flush={flush}>
           <List.Root aria-label="Sessions">
             {SESSIONS.map((s) => (
               <List.Item key={s}>
@@ -77,6 +82,11 @@ export const SnapSheet: StoryObj<SheetArgs> = {
       control: 'inline-radio',
       options: ['start', 'center'],
       description: 'Drawer.Header: the title at the start, or centred with the close at the end',
+    },
+    flush: {
+      control: 'boolean',
+      description:
+        "Drawer.Body: no side padding, so rows run to the panel's edges (a picker's list)",
     },
   },
   // Keyed by the opening detent: it seeds state on mount, so a change remounts the sheet.
@@ -201,5 +211,15 @@ export const DoneCloses: Story = {
       document.querySelector('[role="dialog"] button:not([data-drawer-grabber])')!,
     )
     await waitFor(() => expect(getDialog()).toBeNull())
+  },
+}
+
+export const FlushBody: Story = {
+  render: () => <Sheet flush />,
+  play: async () => {
+    await waitFor(() => expect(getDialog()).not.toBeNull())
+    const body = getBody()
+    await expect(getComputedStyle(body).paddingLeft).toBe('0px')
+    await expect(getComputedStyle(body).paddingRight).toBe('0px')
   },
 }

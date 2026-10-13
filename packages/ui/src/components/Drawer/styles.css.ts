@@ -202,4 +202,8 @@ export const styles = css.create({
     overflowY: 'auto',
     flex: 1,
   },
+  bodyFlush: {
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
 })

@@ -69,3 +69,25 @@ describe('highlight', () => {
     })
   }
 })
+
+describe('gap tokens (5.14)', () => {
+  const themes = {dark: darkColors, light: lightColors, highContrast: highContrastColors}
+
+  for (const [name, palette] of Object.entries(themes)) {
+    it(`${name}: textSubtle reads at 4.5:1 or better on bg and bgCard`, () => {
+      expect(contrast(palette.textSubtle, palette.bg)).toBeGreaterThanOrEqual(4.5)
+      expect(contrast(palette.textSubtle, palette.bgCard)).toBeGreaterThanOrEqual(4.5)
+    })
+
+    // The status-family shape: text on its tint, the mark on the page.
+    for (const family of ['neutral', 'active'] as const) {
+      it(`${name}: ${family}Text reads at 4.5:1 or better on ${family}Bg`, () => {
+        const tint = composite(palette[`${family}Bg`], palette.bg)
+        expect(contrast(palette[`${family}Text`], tint)).toBeGreaterThanOrEqual(4.5)
+      })
+      it(`${name}: ${family} stands 3:1 or better on bg`, () => {
+        expect(contrast(palette[family], palette.bg)).toBeGreaterThanOrEqual(3)
+      })
+    }
+  }
+})

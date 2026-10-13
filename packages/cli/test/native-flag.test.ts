@@ -10,7 +10,9 @@ describe('registry native flag', () => {
   it('marks what the native barrel exports, and only that', () => {
     expect(registry.components.Dialog.native).toBe(true)
     expect(registry.components.Spinner.native).toBe(true)
-    expect(registry.components.Select.native).toBe(false)
+    expect(registry.components.Select.native).toBe(true)
+    // Not ported in N0 (the plan's Non-goals).
+    expect(registry.components.DragDrop.native).toBe(false)
   })
 
   it('leaves subpath and diagram entries without a flag', () => {

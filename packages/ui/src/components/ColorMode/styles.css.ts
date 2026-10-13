@@ -31,4 +31,10 @@ export const styles = css.create({
     outlineColor: colors.accent,
     outlineOffset: borders.focusOffset,
   },
+  // RSD on native lays out only display: flex (not inline-flex), and a colour
+  // transition there ends near-black: keep the layout, drop the colour easing.
+  buttonNative: {
+    display: 'flex',
+    transitionProperty: 'opacity',
+  },
 })

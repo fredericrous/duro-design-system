@@ -229,12 +229,21 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
 
 // --- Body ---
 
-function Body({children}: {children: ReactNode}) {
+interface BodyProps {
+  children: ReactNode
+  /** No side padding: rows that run to the panel's edges, as a picker's list. */
+  flush?: boolean
+}
+
+function Body({children, flush = false}: BodyProps) {
   const {snapPoints} = useDrawer()
   // A snap sheet's Body is its scroll viewport: a drag there scrolls it, and
   // moves the sheet only from the top edge (or upward, below the largest detent).
   return (
-    <html.div style={styles.body} data-duro-scroll={snapPoints.length > 0 ? '' : undefined}>
+    <html.div
+      style={[styles.body, flush && styles.bodyFlush]}
+      data-duro-scroll={snapPoints.length > 0 ? '' : undefined}
+    >
       {children}
     </html.div>
   )

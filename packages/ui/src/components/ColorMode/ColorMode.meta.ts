@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Color-mode controller + toggle. ColorModeProvider owns the preference (system/light/dark/high-contrast), resolves "system" against the OS scheme, persists it to localStorage, and applies the resolved theme via ThemeProvider. ColorModeToggle is an icon button that cycles the preference; useColorMode() reads it.',
+    'Color-mode controller + toggle. ColorModeProvider owns the preference (system/light/dark/high-contrast), resolves "system" against the OS scheme, persists it to localStorage, and applies the resolved theme via ThemeProvider. ColorModeToggle is an icon button that cycles the preference; useColorMode() reads it. On React Native "system" follows the OS appearance (useColorScheme) and nothing is stored: persist the preference yourself through preference and onPreferenceChange.',
   whenToUse: [
     'App-level light/dark (and high-contrast) switching that persists across reloads',
     'Respecting the OS prefers-color-scheme with a user override',

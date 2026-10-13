@@ -2,6 +2,9 @@ import {useState} from 'react'
 import {Link} from 'expo-router'
 import {DialogDemo} from './DialogDemo'
 import {SheetDemo} from './SheetDemo'
+import {PickerDemo} from './PickerDemo'
+import {FormDemo} from './FormDemo'
+import {ThemeDemo} from './ThemeDemo'
 import {OverlayDemo} from './OverlayDemo'
 import {ToastDemo} from './ToastDemo'
 import {
@@ -50,8 +53,11 @@ export function AllExports() {
     <PageShell>
       <Stack gap="md">
         <Heading level={1}>Duro native</Heading>
+        <ThemeDemo />
         <DialogDemo label="Open a dialog" />
         <SheetDemo />
+        <PickerDemo />
+        <FormDemo />
         <OverlayDemo />
         <ToastDemo />
         <Alert variant="success">Alert with its variant icon</Alert>

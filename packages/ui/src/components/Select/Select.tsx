@@ -1,4 +1,4 @@
-import {type ReactNode, useRef, useId, useEffect, useLayoutEffect, useState} from 'react'
+import {Children, type ReactNode, useRef, useId, useEffect, useLayoutEffect, useState} from 'react'
 import {createPortal} from 'react-dom'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
@@ -126,7 +126,17 @@ function Icon({children}: {children?: ReactNode}) {
 // `overflow: hidden` / `transform` containing blocks (notably Dialog/Drawer).
 // The listbox stays mounted while closed (display: none) so Items can register
 // their labels from DOM text before the popup is ever opened.
-function Popup({children}: {children: ReactNode}) {
+interface PopupProps {
+  children: ReactNode
+  /** The list's accessible name; on native also the sheet's title. */
+  label?: string
+  /** Native only: the sheet header's text button that closes it unchanged. Default: 'Cancel' */
+  cancelLabel?: string
+  /** Shown in place of the list when there are no items. */
+  empty?: ReactNode
+}
+
+function Popup({children, label, empty}: PopupProps) {
   const {open, close, listboxId, triggerRef} = useSelect()
   const mount = usePortalMount()
   const [coords, setCoords] = useState<{top: number; left: number; width: number} | null>(null)
@@ -164,6 +174,7 @@ function Popup({children}: {children: ReactNode}) {
         ref={listboxRef}
         id={listboxId}
         role="listbox"
+        aria-label={label}
         aria-hidden={!open}
         style={[
           styles.popup,
@@ -171,7 +182,13 @@ function Popup({children}: {children: ReactNode}) {
           coords && styles.popupPosition(coords.top, coords.left, coords.width),
         ]}
       >
-        <ControlContextBoundary>{children}</ControlContextBoundary>
+        <ControlContextBoundary>
+          {empty != null && Children.toArray(children).length === 0 ? (
+            <html.div style={styles.empty}>{empty}</html.div>
+          ) : (
+            children
+          )}
+        </ControlContextBoundary>
       </html.div>
     </>
   )

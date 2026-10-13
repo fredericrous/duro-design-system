@@ -12,7 +12,9 @@
   "dependencies": {
     "@duro-app/tokens": "link:../../packages/tokens",
     "@duro-app/ui": "link:../../packages/ui",
+    "@hookform/resolvers": "5.2.2",
     "@shopify/react-native-skia": "2.2.12",
+    "effect": "3.20.0",
     "expo": "54.0.32",
     "expo-constants": "~18.0.9",
     "expo-linking": "~8.0.8",

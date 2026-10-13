@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox. The anchor owns focus and the keyboard: it sets the controlled highlightedId and spreads Listbox.getAnchorProps() for aria-controls / aria-expanded / aria-activedescendant. A press on an option never takes focus from the anchor. Portalled and placed against anchor() (an input rect or a caret rect), capped at a size-token maxHeight (default listMaxH).',
+    'Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox. The anchor owns focus and the keyboard: it sets the controlled highlightedId and spreads Listbox.getAnchorProps() for aria-controls / aria-expanded / aria-activedescendant. A press on an option never takes focus from the anchor. Portalled and placed against anchor() (an input rect or a caret rect), capped at a size-token maxHeight (default listMaxH). On React Native it is a plain list laid out where it is rendered (inside a Select or Combobox sheet): nothing is anchored or highlighted, the selected option is filled with a trailing check, and a press calls onSelect.',
   whenToUse: [
     'Typeahead inside a rich-text editor, where focus must stay in the editor',
     'A custom combobox whose input is not Combobox.Input',

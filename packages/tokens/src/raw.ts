@@ -52,6 +52,31 @@ export type RawColors = {
   contrastSurface: string
   onContrastSurface: string
   contrastBorder: string
+  bgInset: string
+  bgElevated: string
+  bgSelected: string
+  pressOverlay: string
+  ripple: string
+  bgSectionTint: string
+  borderSubtle: string
+  borderStrong: string
+  surfaceHighlight: string
+  textSubtle: string
+  textDisabled: string
+  neutral: string
+  neutralBg: string
+  neutralBorder: string
+  neutralText: string
+  active: string
+  activeBg: string
+  activeBorder: string
+  activeText: string
+  accentDisabled: string
+  segmentTrack: string
+  segmentActive: string
+  scrimSoft: string
+  scrimStrong: string
+  onScrimMuted: string
 }
 
 // Numeric maps for consumers that load only the compiled `/raw` entry (e.g.
@@ -258,6 +283,31 @@ export const darkColors: RawColors = {
   contrastSurface: '#f5f5f5',
   onContrastSurface: '#1a1a1a',
   contrastBorder: 'rgba(0, 0, 0, 0.42)',
+  bgInset: '#0a0a0a',
+  bgElevated: '#242424',
+  bgSelected: 'rgba(106, 175, 252, 0.15)',
+  pressOverlay: 'rgba(255, 255, 255, 0.08)',
+  ripple: 'rgba(255, 255, 255, 0.12)',
+  bgSectionTint: 'rgba(255, 255, 255, 0.03)',
+  borderSubtle: '#242424',
+  borderStrong: '#555555',
+  surfaceHighlight: 'rgba(255, 255, 255, 0.06)',
+  textSubtle: '#8a8a8a',
+  textDisabled: '#6b6b6b',
+  neutral: '#a3a3a3',
+  neutralBg: 'rgba(163, 163, 163, 0.1)',
+  neutralBorder: 'rgba(163, 163, 163, 0.3)',
+  neutralText: '#d4d4d4',
+  active: '#6aaffc',
+  activeBg: 'rgba(106, 175, 252, 0.1)',
+  activeBorder: 'rgba(106, 175, 252, 0.3)',
+  activeText: '#93c5fd',
+  accentDisabled: 'rgba(106, 175, 252, 0.4)',
+  segmentTrack: 'rgba(255, 255, 255, 0.06)',
+  segmentActive: '#333333',
+  scrimSoft: 'rgba(0, 0, 0, 0.2)',
+  scrimStrong: 'rgba(0, 0, 0, 0.6)',
+  onScrimMuted: 'rgba(255, 255, 255, 0.72)',
 }
 
 // Light theme — matches the overrides in `themes/light.css.ts`.
@@ -304,6 +354,31 @@ export const lightColors: RawColors = {
   contrastSurface: '#1a1a1a',
   onContrastSurface: '#e5e5e5',
   contrastBorder: 'rgba(255, 255, 255, 0.33)',
+  bgInset: '#f0f0f0',
+  bgElevated: '#ffffff',
+  bgSelected: 'rgba(30, 64, 175, 0.12)',
+  pressOverlay: 'rgba(0, 0, 0, 0.08)',
+  ripple: 'rgba(0, 0, 0, 0.12)',
+  bgSectionTint: 'rgba(0, 0, 0, 0.03)',
+  borderSubtle: '#ebebeb',
+  borderStrong: '#a3a3a3',
+  surfaceHighlight: 'rgba(255, 255, 255, 0.7)',
+  textSubtle: '#6b6b6b',
+  textDisabled: '#a3a3a3',
+  neutral: '#525252',
+  neutralBg: 'rgba(82, 82, 82, 0.08)',
+  neutralBorder: 'rgba(82, 82, 82, 0.3)',
+  neutralText: '#404040',
+  active: '#1e40af',
+  activeBg: 'rgba(30, 64, 175, 0.08)',
+  activeBorder: 'rgba(30, 64, 175, 0.3)',
+  activeText: '#1e40af',
+  accentDisabled: 'rgba(30, 64, 175, 0.4)',
+  segmentTrack: 'rgba(0, 0, 0, 0.06)',
+  segmentActive: '#ffffff',
+  scrimSoft: 'rgba(0, 0, 0, 0.2)',
+  scrimStrong: 'rgba(0, 0, 0, 0.6)',
+  onScrimMuted: 'rgba(255, 255, 255, 0.72)',
 }
 
 // High-contrast theme — matches the overrides in `themes/high-contrast.css.ts`.
@@ -350,4 +425,29 @@ export const highContrastColors: RawColors = {
   contrastSurface: '#ffffff',
   onContrastSurface: '#000000',
   contrastBorder: 'rgba(0, 0, 0, 0.42)',
+  bgInset: '#0a0a0a',
+  bgElevated: '#1a1a1a',
+  bgSelected: 'rgba(96, 165, 250, 0.25)',
+  pressOverlay: 'rgba(255, 255, 255, 0.15)',
+  ripple: 'rgba(255, 255, 255, 0.2)',
+  bgSectionTint: 'rgba(255, 255, 255, 0.06)',
+  borderSubtle: '#333333',
+  borderStrong: '#888888',
+  surfaceHighlight: 'rgba(255, 255, 255, 0.15)',
+  textSubtle: '#a3a3a3',
+  textDisabled: '#808080',
+  neutral: '#d4d4d4',
+  neutralBg: 'rgba(212, 212, 212, 0.15)',
+  neutralBorder: 'rgba(212, 212, 212, 0.5)',
+  neutralText: '#e5e5e5',
+  active: '#60a5fa',
+  activeBg: 'rgba(96, 165, 250, 0.15)',
+  activeBorder: 'rgba(96, 165, 250, 0.5)',
+  activeText: '#bfdbfe',
+  accentDisabled: 'rgba(96, 165, 250, 0.5)',
+  segmentTrack: 'rgba(255, 255, 255, 0.12)',
+  segmentActive: '#333333',
+  scrimSoft: 'rgba(0, 0, 0, 0.3)',
+  scrimStrong: 'rgba(0, 0, 0, 0.7)',
+  onScrimMuted: 'rgba(255, 255, 255, 0.72)',
 }

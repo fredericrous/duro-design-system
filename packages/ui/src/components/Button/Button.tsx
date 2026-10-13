@@ -4,6 +4,7 @@ import {mergeRefs} from '../../shared/mergeRefs'
 import {ButtonHost} from '../../shared/ButtonHost'
 import type {ControlSize} from '../../shared/types'
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
+import {useFormSubmit} from '../Form/FormSubmitContext'
 import {styles} from './styles.css'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'inverseSecondary' | 'link' | 'danger'
@@ -50,6 +51,9 @@ export function Button({
   children,
 }: ButtonProps) {
   const grouped = useGroupedControl<HTMLButtonElement>({disabled})
+  // Native Form only (no DOM submit event); the web Form provides none.
+  const formSubmit = useFormSubmit()
+  const submit = type === 'submit' ? formSubmit : null
   return (
     <ButtonHost
       ref={isNative ? ref : mergeRefs(ref, grouped.ref)}
@@ -57,7 +61,14 @@ export function Button({
       onFocus={grouped.onFocus}
       type={type}
       disabled={disabled}
-      onClick={onClick}
+      onClick={
+        submit
+          ? () => {
+              onClick?.()
+              submit()
+            }
+          : onClick
+      }
       aria-label={ariaLabel}
       aria-expanded={ariaExpanded}
       aria-controls={ariaControls}

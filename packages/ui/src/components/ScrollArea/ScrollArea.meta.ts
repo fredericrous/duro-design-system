@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Custom scrollbar region with draggable thumb. Supports vertical and horizontal scrolling. Compound component — Root is required. Inside a Drawer, a drag in the viewport scrolls it; the drawer only takes a drag toward its edge from the scroll start.',
+    'Custom scrollbar region with draggable thumb. Supports vertical and horizontal scrolling. Compound component — Root is required. Inside a Drawer, a drag in the viewport scrolls it; the drawer only takes a drag toward its edge from the scroll start. On React Native the Viewport is an RN ScrollView with the platform scroll indicator, capped by the same maxHeight token key; Scrollbar and Thumb render nothing.',
   whenToUse: [
     'Custom-styled scrollbars for content overflow areas',
     'Chat logs, code blocks, or long lists with constrained height',

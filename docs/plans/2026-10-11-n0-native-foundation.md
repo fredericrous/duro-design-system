@@ -1,5 +1,6 @@
 ---
-status: active
+status: done
+landed: 2026-10-13
 branch: feat/n0-native-checks
 repos: [duro-design-system, happier]
 adrs: [ADR-0016, ADR-0027]
@@ -578,10 +579,11 @@ graph via <importer> — move the import into a .native.tsx file`, with the
 - [x] B2 Menu, Popover, Tooltip, Toast native
 - [x] B3 Tag, SideNav, Tabs, Tree, AppShell native
 - [x] B4 SplitPane and VirtualList (web), barrel, device checkpoint B → **release v5.13.0**
-- [ ] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
-- [ ] C1 Listbox, Select, Combobox native sheets
-- [ ] C2 ScrollArea native, the `./form` native entry and submit context
-- [ ] C3 Theme overrides (both platforms), ColorMode native, the token additions sized in C0, device checkpoint C → **release v5.14.0**
+- [x] C0 Mockups and token inventory: Select and Combobox sheet directions (empty and long lists), the person picks; Happier's colour tokens mapped to `ColorKey`s (doc only), gaps counted, the person supplies the gap values
+- [x] C1 Listbox, Select, Combobox native sheets
+- [x] C2 ScrollArea native, the `./form` native entry and submit context
+- [x] C3 Theme overrides (both platforms), ColorMode native, the token additions sized in C0
+- [x] C4 Device checkpoint C → **release v5.14.0**
 
 Before each tag, a guided Storybook preview of the slice's web-visible changes (steps, expected result, screenshots) is shown to the person (`work.preview-before-publish`); no tag before their go. Each release goes through the `tag-release` skill (`v*` tag → `release.yml`
 publishes all packages), then is verified on npm (`npm view @duro-app/ui@5.1x.0
@@ -685,6 +687,39 @@ Every entry records input → expected → actual in the slice's PR body before 
 
 ## Decision log
 
+- 2026-10-13, device checkpoint C (iOS simulator iPhone 17 Pro, iOS 26.5, on-screen keyboard; Android emulator Medium_Phone_API_36, edge-to-edge; development builds; input → expected → actual):
+  - Overrides none → A → B → none → A, then dark → light, on a mounted screen → RSD styles and the icon follow every step, no re-mount → passed on both; the mount counter held its launch value (1 on iOS, 2 on Android, where development effects run twice).
+  - Select sheet → opens at medium with the current value checked; a tap picks and closes → passed on both. Empty Select → its `empty` shows → passed on iOS.
+  - Combobox sheet → opens at large, search focused, keyboard up, results visible above it; no match shows `Combobox.Empty`; Android back and Cancel close it → passed on both.
+  - One tap on a row with the keyboard up → picks → **failed** first: the tap was taken by the app's page ScrollView, an ancestor of the sheet's Modal whose `keyboardShouldPersistTaps` defaults to `'never'` (confirmed by setting `'handled'` on it). Fixed in Duro, not the app: rows take the touch through Gesture Handler's `Pressable`. Re-run with the page ScrollView on its default → passed (iOS three rows, Android two).
+  - Row accessibility → each row is a button named by its text, selected when chosen → **failed** with Gesture Handler's `Pressable` alone (a generic element labelled "repository-02 ✓"). Fixed: an RN View carries the role, label, state and an `activate` action around the touch host. Re-run → iOS reads AXButton named by the text; Android reads `android.widget.Button` with `selected="true"` on the chosen row only. Rows read as "button, selected", not as listbox options: React Native has no option role on both platforms. A VoiceOver/TalkBack double-tap was not run (C has no screen-reader rows).
+  - Form submit from `Button type="submit"` → `onSubmit` fires → passed on both (an empty submit focused the field instead).
+
+- 2026-10-13, implementation review (round 1, high): `CSS.supports` answered differently on the server (no `CSS` global, every value passed, and `CSS.escape` threw) and in the browser, so a server-rendered override rule could throw or fail to hydrate. Override values are now checked by an allow-list that answers the same in both: a hex, a colour function (`rgb[a]`, `hsl[a]`, `hwb`, `lab`, `lch`, `oklab`, `oklch`, `color`) without nested parentheses, or a one-word keyword, and nothing containing `; { } < > " ' \`. This replaces Slice C item 4's `CSS.supports('color', v)`; the guarantee that no override leaves its rule holds, and a unit test runs the builder in Node. deliberate: `color-mix()`, `var()` and relative colours (`rgb(from …)`) are dropped without a warning; an app passes resolved colours.
+
+- 2026-10-13, C3 build (device checkpoint C still to run): `ThemeProvider overrides` on both platforms through one rule in `ThemeProvider/overrides.ts`: a provider on the same theme as the one above keeps its overrides and lays its own over them; on another theme it starts from that theme's colours (the final-body review's carried finding). Web renders a plain `<style>` (react-strict-dom has no `html.style`; the `no-raw-html-element` rule does not flag it, so there is no suppression) scoped by a doubled `[data-duro-theme]` selector that outranks the theme classes; native builds a runtime `css.createTheme` keyed by the colours, and `useResolvedColors` merges the same overrides. ColorMode's two DOM reads moved into pairs (`useSystemScheme`, `storage`): `'system'` follows RN `useColorScheme`, and native stores nothing. The plan's `mode`/`onModeChange` are ColorMode's existing `preference`/`onPreferenceChange`; no rename. The 25 gap keys take values derived from Duro's palette per the person's C0 answer: the status families' alpha pattern for `neutral*` and `active*` (0.1/0.08/0.15 tints, 0.3/0.3/0.5 borders), the accent hue for `active`, `bgSelected` and `accentDisabled`, the existing greys for surfaces and borders. A unit test holds `textSubtle` at 4.5:1 on `bg` and `bgCard`, `neutralText`/`activeText` at 4.5:1 on their tints, and `neutral`/`active` at 3:1 on `bg`, in every theme. The ESLint suggestion table now suggests `neutralText` for `#d4d4d4` and `borderStrong` for `#555555` (first palette entry wins), where it suggested `border`. Observed: the web override story passes A → B → A, removal, nesting, inheritance and an invalid value; on the iOS simulator, overrides A → B → none → A and a dark → light switch repaint RSD styles and the icon with a mount counter staying at 1.
+
+- 2026-10-13, C2: ScrollArea's native Viewport is an RN ScrollView inside an RSD view carrying the `maxHeight` token, so react-strict-dom resolves the token and the ScrollView shrinks to it; Scrollbar and Thumb render nothing. `./form` resolves `react-native` to `src/form.native.ts`, whose Form renders a view and provides `FormSubmitContext`; Button with `type="submit"` calls it after its own `onClick`. The web Form provides none, so the browser's submit event stays the only path there. The plan's "README's React Native section" had no README to live in: `packages/ui/README.md` is new, listing the native peers and the one-copy Metro resolution, which needs `@hookform/resolvers` and `effect` too (found when the example failed to bundle `@duro-app/ui/form`). Observed on the iOS simulator: an empty submit moved focus to the invalid field and did not submit; a valid one fired `onSubmit`; the ScrollArea capped at `listMaxHSm` scrolled inside its cap while the page stayed.
+
+- 2026-10-13, C1: the pickers follow direction A Check. Shared state lives in `Select/selectState.ts` and `Combobox/comboboxState.ts` (Decision 10); the web adapters keep highlight, document order, keys and focus, and the native files keep registration and presses. Four API additions, on both platforms so one call site serves both:
+  - `Select.Popup` takes `label`, `cancelLabel` and `empty`, and `Combobox.Popup` takes `label` and `cancelLabel`. `label` is the list's accessible name and, on native, the sheet's title. `cancelLabel` is native only. `empty` replaces the list when it has no items.
+  - `Drawer.Body flush` drops the side padding, so a picker's rows run to the edges as the artboard draws them.
+
+  Native-only behaviour:
+  - The Combobox sheet's search text is its own and starts empty each time it opens. It does not drive `inputValue`/`onInputChange`, which follow the field's label, so a Cancel never clears the value.
+  - The search field takes focus `DURATION_MS.base` after the sheet opens, through `shared/focusInput` (`getNativeRef().focus()`, #506). `autoFocus` fires before iOS presents the Modal.
+  - The sheet's ScrollView sets `keyboardShouldPersistTaps="handled"`, which keeps the keyboard for presses inside the sheet. It cannot stop a ScrollView above the sheet's Modal from taking the first touch; picker rows are Gesture Handler's `Pressable` for that (device checkpoint C, below).
+  - `name` (the web's hidden input) does nothing on native.
+
+  Observed on the iOS simulator (iPhone 17 Pro, iOS 26.5):
+  - A Select pick closes the sheet and the trigger shows the label. The empty Select shows its `empty`.
+  - The Combobox opens at large with the field focused. Typing filters the list, and no match shows `Combobox.Empty`.
+  - With the software keyboard up, a single tap picked a row once (its press logged), and once was swallowed. The simulator's keyboard toggle is flaky, so this is a row for device checkpoint C on the physical iPhone.
+
+- 2026-10-13, C0 picker mockups (ADR-0016), the person's pick from the local review: native-picker · direction A Check (`docs/mockups/native-picker/Check.dc.html`): a tap picks the option and closes the sheet; the current value carries a trailing check and the selected fill; the header's text button is Cancel; Select empty shows a List empty state, Combobox pins its search Input and shows Combobox.Empty with no match. Direction B Confirm (leading radios, Done confirms) stays committed as the record of what was offered.
+
+- 2026-10-13, C0 token inventory (`docs/plans/2026-10-11-n0-native-foundation.tokens.md`): Happier's 120 editable colour tokens → 49 map to an existing Duro key (the role Duro's own components already give it), 25 are generic gaps, 46 are Happier-specific. The person's decisions: the 46 Happier-specific tokens (permission modes and buttons, messages, composer, syntax, diff, version control, the wizard scrim) stay in Happier's theme layer over Duro's ThemeProvider overrides, so C3 adds only the 25 generic keys; their values are derived from Duro's own palette (dark, light, high contrast), and Happier adjusts through overrides. This narrows Slice C item 4's "each missing one is added" to the generic gaps.
+
 - 2026-10-13, device checkpoint B (the person's iPhone 13 Pro Max with VoiceOver; the Android 16 emulator with TalkBack): sheet open, slow drag to large, flings to medium and closed, content drag grows then scrolls; left drawer swipe; Menu item → Dialog (iOS and Android); Popover outside press; Toast swipe and above an open Dialog, surviving its close; app shell drawer, SideNav, Tree, Tabs, Tag remove; Tooltip hints read by VoiceOver and TalkBack; grabber as an adjustable control; focus back to the trigger; Tabs read as tabs on the device (the simulator's generic-element reading was the simulator's) → all pass.
 
 - 2026-10-12, B implementation review: three plan wordings narrowed. The native `useContainerBelow` measures its view after layout and on every window resize (a hook cannot wire `onLayout` into a view it does not render); a parent resizing in a fixed window is missed until the next window change. A toast's press-pause is the toast's own state (it lasts as long as the press); the remaining time is in the store, so a host move keeps the countdown. Native toast colours come from RSD token styles, which the Portal re-themes; `useResolvedColors` is only for raw hosts.
@@ -752,5 +787,8 @@ Every entry records input → expected → actual in the slice's PR body before 
 
 approve-with-changes (round 1, 85k, 119 s). Fixed: release-build focus failures logged, not dropped (`errors.never-swallowed`); `noInlineConfig` in the graph lint plus a test (`general.no-disabled-safety`); an outside reopen cancels an outside-started exit; the Dialog trigger keeps the consumer's ref; missing measurements and deviations recorded above. Deliberate: no dev warning for a missing `GestureHandlerRootView` (reason above).
 Delta (round 2, 92k, 27 s): approve; all seven resolved, no new finding. Carried to slice B: Behaviour 6's "warns in development" line is revised when Drawer brings the first gesture; the CI install and `native` job times go in this PR's body, and `timeout-minutes` is set from the cold time; `mergeRefs` (pre-existing) calls a React 19 cleanup-returning callback ref with `null` instead of its cleanup, harmless today, noted for a later fix.
+
+Slice C: approve-with-changes (round 1, 92k, 78 s). Fixed: the web override rule no longer touches the `CSS` global (a server render threw) and validates colours by an allow-list that answers the same on server and client, with a Node test; a rejected native `onSubmit` reaches the global error handler; `Combobox.Empty` matches only rendered Items; the override story checks the removed rule; C3 split from the checkpoint.
+Delta (round 2, 101k, 29 s): approve-with-changes; all six resolved, one new: record the allow-list in the Decision log (done). Delta (round 3, 104k, 21 s, the checkpoint's first-tap fix): approve-with-changes, a comment overstated `'handled'` (reworded). Delta (round 4, 107k, 21 s, the row accessibility fix): approve; every finding resolved. Not observed: a screen-reader double-tap on a row.
 
 <!-- panel: repos=duro-design-system reviewers=backend,lang:typescript,architect,po,react,ui-design,ux-research,game-ux,tui,unix body-sha=db57eb9f2046 -->

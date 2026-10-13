@@ -12,6 +12,8 @@ import {isNative} from '../../platform'
 import {Icon, type IconName, type IconSize} from '../Icon/Icon'
 import {ThemeProvider, type ThemeName} from '../ThemeProvider/ThemeProvider'
 import {styles} from './styles.css'
+import {useSystemScheme} from './useSystemScheme'
+import {readStoredRaw, writeStoredRaw} from './storage'
 
 /**
  * The user's *preference*. `'system'` follows the OS `prefers-color-scheme`;
@@ -62,31 +64,13 @@ export function useColorMode(): ColorModeContextValue {
   return ctx
 }
 
-const canUseDom =
-  !isNative && typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-
 function isPreference(value: unknown): value is ColorModePreference {
   return typeof value === 'string' && (PREFERENCES as readonly string[]).includes(value)
 }
 
 function readStored(key: string | null): ColorModePreference | null {
-  if (!key || isNative || typeof window === 'undefined') return null
-  try {
-    const raw = window.localStorage.getItem(key)
-    return isPreference(raw) ? raw : null
-  } catch {
-    // Private mode / blocked storage — degrade to no persistence.
-    return null
-  }
-}
-
-function writeStored(key: string | null, value: ColorModePreference): void {
-  if (!key || isNative || typeof window === 'undefined') return
-  try {
-    window.localStorage.setItem(key, value)
-  } catch {
-    /* ignore */
-  }
+  const raw = readStoredRaw(key)
+  return isPreference(raw) ? raw : null
 }
 
 interface ColorModeProviderProps {
@@ -100,7 +84,8 @@ interface ColorModeProviderProps {
   onPreferenceChange?: (preference: ColorModePreference) => void
   /** Cycle order for `cycle()` / `<ColorModeToggle>`. Default `['light', 'dark']`. */
   modes?: readonly ColorModePreference[]
-  /** localStorage key for persistence; `null` disables it. Default `'duro-color-mode'`. */
+  /** localStorage key for persistence; `null` disables it. Default `'duro-color-mode'`.
+   * Native has no localStorage: persist through `preference` and `onPreferenceChange`. */
   storageKey?: string | null
   /** Wrap children in the DS `ThemeProvider` with the resolved theme. Default `true`.
    * Set `false` to drive your own ThemeProvider from `useColorMode().theme`. */
@@ -136,26 +121,15 @@ export function ColorModeProvider({
   const setPreference = useCallback(
     (next: ColorModePreference) => {
       if (controlled === undefined) setInternal(next)
-      writeStored(storageKey, next)
+      writeStoredRaw(storageKey, next)
       onPreferenceChange?.(next)
     },
     [controlled, storageKey, onPreferenceChange],
   )
 
-  // Track the OS scheme so `'system'` stays live. The initial value MUST be the
-  // SSR-stable default ('dark', what the server renders without a DOM) so the
-  // first client render matches the server — reading matchMedia in the
-  // initializer would diverge (server 'dark' vs client's real scheme) and trip
-  // a hydration mismatch. The effect reconciles to the real scheme after mount.
-  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('dark')
-  useEffect(() => {
-    if (!canUseDom) return
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => setSystemTheme(mq.matches ? 'dark' : 'light')
-    onChange()
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
+  // Track the OS scheme so `'system'` stays live (web: prefers-color-scheme,
+  // after mount so hydration matches; native: RN Appearance).
+  const systemTheme = useSystemScheme()
 
   const theme: ThemeName = preference === 'system' ? systemTheme : preference
 
@@ -196,7 +170,12 @@ export function ColorModeToggle({size = 'md', 'aria-label': ariaLabel}: ColorMod
   const label = ariaLabel ?? `Color mode: ${LABEL[preference]}. Switch to ${LABEL[next]}.`
 
   return (
-    <html.button type="button" aria-label={label} onClick={cycle} style={styles.button}>
+    <html.button
+      type="button"
+      aria-label={label}
+      onClick={cycle}
+      style={[styles.button, isNative && styles.buttonNative]}
+    >
       <Icon name={ICON[preference]} size={size} />
     </html.button>
   )

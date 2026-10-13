@@ -51,6 +51,13 @@ export {Tag, type TagVariant} from './components/Tag/Tag'
 export {SideNav} from './components/SideNav/SideNav'
 export {Tabs} from './components/Tabs/Tabs'
 export {Tree} from './components/Tree/Tree'
+// 5.14: pickers open a bottom sheet (a Drawer at the medium and large detents)
+export {Select} from './components/Select/Select'
+export {Combobox} from './components/Combobox/Combobox'
+export {Listbox} from './components/Listbox/Listbox'
+// The platform's own scroll indicator: Scrollbar and Thumb draw nothing.
+export {ScrollArea} from './components/ScrollArea/ScrollArea'
+export type {ListboxAnchorProps, ListboxMaxHeight} from './components/Listbox/Listbox'
 // Always stacked on native: a phone is below every collapseBelow.
 export {SplitPane} from './components/SplitPane/SplitPane'
 // Always the phone shape on native: the bar on top, the rail in a left Drawer.
@@ -97,9 +104,17 @@ export type {GridTrack} from './shared/length'
 // no display:contents / portal mount; applies the theme to a flex container).
 export {
   ThemeProvider,
+  type ColorOverrides,
   usePortalMount,
   useResolvedColors,
   type ThemeName,
 } from './components/ThemeProvider/ThemeProvider'
+// 'system' follows RN Appearance; persistence is the app's (preference + onPreferenceChange).
+export {
+  ColorModeProvider,
+  ColorModeToggle,
+  useColorMode,
+  type ColorModePreference,
+} from './components/ColorMode'
 // Where toasts draw on native: mount one inside a natively presented route.
 export {PortalHost} from './shared/portal/PortalHost'

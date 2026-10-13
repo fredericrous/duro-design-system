@@ -3,6 +3,7 @@ import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {ComboboxContext, useCombobox} from './ComboboxContext'
 import {useComboboxRoot} from './useComboboxRoot'
+import {matchesQuery} from './comboboxState'
 import {Listbox, getAnchorProps} from '../Listbox/Listbox'
 
 // --- Root ---
@@ -134,7 +135,15 @@ function Trigger({children}: {children?: ReactNode}) {
 // A Listbox placed under the input, as wide as the field: rendered into the
 // ThemeProvider portal mount so it escapes ancestor `overflow: hidden` /
 // `transform` containing blocks (notably Dialog and Drawer).
-function Popup({children}: {children: ReactNode}) {
+interface PopupProps {
+  children: ReactNode
+  /** The list's accessible name; on native also the sheet's title. */
+  label?: string
+  /** Native only: the sheet header's text button that closes it unchanged. Default: 'Cancel' */
+  cancelLabel?: string
+}
+
+function Popup({children, label}: PopupProps) {
   const {open, listboxId, rootRef, highlightedId, setHighlightedId, setValue} = useCombobox()
   const anchor = useCallback(() => rootRef.current?.getBoundingClientRect(), [rootRef])
 
@@ -147,6 +156,7 @@ function Popup({children}: {children: ReactNode}) {
       highlightedId={highlightedId}
       onHighlight={setHighlightedId}
       onSelect={setValue}
+      aria-label={label}
       maxHeight="listMaxHSm"
     >
       {children}
@@ -167,9 +177,7 @@ function Item({value: itemValue, children}: ItemProps) {
   const isSelected = selectedValue === itemValue
 
   // Filter: check if this item matches the input
-  const label = labels[itemValue] ?? itemValue
-  const query = inputValue.toLowerCase()
-  const isVisible = !query || label.toLowerCase().includes(query)
+  const isVisible = matchesQuery(labels[itemValue] ?? itemValue, inputValue)
 
   useEffect(() => {
     const el = ref.current
@@ -205,10 +213,8 @@ function Empty({children}: {children: ReactNode}) {
   if (!open) return null
 
   // Check if any items are visible
-  const query = inputValue.toLowerCase()
-  const hasVisibleItems = query
-    ? Object.values(labels).some((label) => label.toLowerCase().includes(query))
-    : true
+  const hasVisibleItems =
+    !inputValue || Object.values(labels).some((label) => matchesQuery(label, inputValue))
 
   if (hasVisibleItems) return null
 

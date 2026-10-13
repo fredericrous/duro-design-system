@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Searchable dropdown for selecting a value from a filterable list. Combines a text input with a popup listbox. Compound component — Root is required.',
+    "Searchable dropdown for selecting a value from a filterable list. Combines a text input with a popup listbox. Compound component — Root is required. Combobox.Popup takes label (the list's accessible name). On React Native the field opens a bottom sheet at its large detent, above the keyboard, titled by label with a Cancel text button (cancelLabel): a search field is pinned under the header and focused, the list below filters as you type, Combobox.Empty shows when nothing matches, and a press picks an option and closes the sheet. The sheet's search text starts empty each time; Combobox.Trigger renders nothing on native.",
   whenToUse: [
     'Large option lists where users benefit from typing to filter (e.g. country, city, user picker)',
     'Autocomplete or typeahead scenarios',

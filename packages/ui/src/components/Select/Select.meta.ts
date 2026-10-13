@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size="small" to match small Toggles and Buttons in a toolbar.',
+    'Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size="small" to match small Toggles and Buttons in a toolbar. Select.Popup takes label (the list\'s accessible name) and empty (shown in place of the list when it has no items). On React Native the trigger opens a bottom sheet (a Drawer at the medium and large detents) titled by label, with a Cancel text button (cancelLabel); the chosen option is filled with a trailing check, and a press picks an option and closes the sheet. Native has no arrow keys: each option is its own screen-reader stop.',
   whenToUse: [
     'User must pick one option from a predefined list',
     'Form field for country, category, role selection',

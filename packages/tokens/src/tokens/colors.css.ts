@@ -70,4 +70,45 @@ export const colors = css.defineVars({
   onContrastSurface: '#1a1a1a',
   // A border on contrastSurface, at least 3:1 against it (non-text).
   contrastBorder: 'rgba(0, 0, 0, 0.42)',
+  // Gap tokens (5.14, plan N0 C0 inventory). A recessed well below its surface: code, editor, input-like insets.
+  bgInset: '#0a0a0a',
+  // A surface lifted above its parent (a selected or floating card).
+  bgElevated: '#242424',
+  // Selected rows and selectable containers: the accent hue, stronger than activeBg.
+  bgSelected: 'rgba(106, 175, 252, 0.15)',
+  // Drawn over a pressed surface (not inverseFill, which sits on an accent fill).
+  pressOverlay: 'rgba(255, 255, 255, 0.08)',
+  // A touch ripple.
+  ripple: 'rgba(255, 255, 255, 0.12)',
+  // A hair of tint that separates grouped sections.
+  bgSectionTint: 'rgba(255, 255, 255, 0.03)',
+  // Low-emphasis hairlines, below border.
+  borderSubtle: '#242424',
+  // Higher-emphasis outlines, above border.
+  borderStrong: '#555555',
+  // The top-edge highlight on a bounded surface.
+  surfaceHighlight: 'rgba(255, 255, 255, 0.06)',
+  // The lowest-emphasis readable text, below textMuted (at least 4.5:1 on bg).
+  textSubtle: '#8a8a8a',
+  // Text of a disabled control (not required to meet contrast).
+  textDisabled: '#6b6b6b',
+  // A neutral status (inactive, unknown): the status family without a status meaning.
+  neutral: '#a3a3a3',
+  neutralBg: 'rgba(163, 163, 163, 0.1)',
+  neutralBorder: 'rgba(163, 163, 163, 0.3)',
+  neutralText: '#d4d4d4',
+  // The active choice: chips, toolbar pills, segmented options (the accent family).
+  active: '#6aaffc',
+  activeBg: 'rgba(106, 175, 252, 0.1)',
+  activeBorder: 'rgba(106, 175, 252, 0.3)',
+  activeText: '#93c5fd',
+  // A disabled primary fill, where opacity would show what is behind it.
+  accentDisabled: 'rgba(106, 175, 252, 0.4)',
+  // A segmented control's track, and its raised active segment.
+  segmentTrack: 'rgba(255, 255, 255, 0.06)',
+  segmentActive: '#333333',
+  // Lighter and heavier scrims beside scrim, and secondary text on one.
+  scrimSoft: 'rgba(0, 0, 0, 0.2)',
+  scrimStrong: 'rgba(0, 0, 0, 0.6)',
+  onScrimMuted: 'rgba(255, 255, 255, 0.72)',
 })

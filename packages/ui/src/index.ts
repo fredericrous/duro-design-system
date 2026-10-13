@@ -125,6 +125,7 @@ export {VirtualList, type VirtualListProps} from './components/VirtualList/Virtu
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {
   ThemeProvider,
+  type ColorOverrides,
   usePortalMount,
   type ThemeName,
 } from './components/ThemeProvider/ThemeProvider'
