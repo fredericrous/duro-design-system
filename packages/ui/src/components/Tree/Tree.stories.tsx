@@ -1,11 +1,11 @@
 import {Profiler, useEffect, useLayoutEffect, useRef, useState} from 'react'
+import {flushSync} from 'react-dom'
 import {html} from 'react-strict-dom'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {Tree} from './Tree'
 import {Badge} from '../Badge/Badge'
 import {Inline} from '../Inline/Inline'
-import {ScrollArea} from '../ScrollArea/ScrollArea'
 import {Text} from '../Text/Text'
 import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'
@@ -282,42 +282,36 @@ function countCommit() {
 
 function PerfTree() {
   let leaf = 0
+  // the default virtualizeThreshold (150) applies: the tree has 320 items
   return (
-    <ScrollArea.Root>
-      <ScrollArea.Viewport maxHeight="listMaxH" rovingOwner>
-        <ScrollArea.Content>
-          <Tree.Root aria-label="Sessions" defaultExpanded={BRANCH_VALUES}>
-            {BRANCH_VALUES.map((branch, b) => (
-              <Profiler key={branch} id={branch} onRender={countCommit}>
-                <Tree.Item value={branch} label={`Project ${b}`}>
-                  {Array.from({length: LEAVES_PER_BRANCH}, () => {
-                    const i = leaf++
-                    return (
-                      <Profiler key={i} id={`leaf-${i}`} onRender={countCommit}>
-                        <Tree.Item
-                          value={`leaf-${i}`}
-                          label={`Session ${i}`}
-                          href={`/s/${i}`}
-                          onNavigate={(_href, event) => event.preventDefault()}
-                          meta={
-                            <Inline gap="sm">
-                              <Text variant="caption" color="muted">
-                                {`${i}m ago`}
-                              </Text>
-                              <Badge size="sm">Running</Badge>
-                            </Inline>
-                          }
-                        />
-                      </Profiler>
-                    )
-                  })}
-                </Tree.Item>
-              </Profiler>
-            ))}
-          </Tree.Root>
-        </ScrollArea.Content>
-      </ScrollArea.Viewport>
-    </ScrollArea.Root>
+    <Profiler id="tree" onRender={countCommit}>
+      <Tree.Root aria-label="Sessions" defaultExpanded={BRANCH_VALUES} maxHeight="listMaxH">
+        {BRANCH_VALUES.map((branch, b) => (
+          <Tree.Item key={branch} value={branch} label={`Project ${b}`}>
+            {Array.from({length: LEAVES_PER_BRANCH}, () => {
+              const i = leaf++
+              return (
+                <Tree.Item
+                  key={i}
+                  value={`leaf-${i}`}
+                  label={`Session ${i}`}
+                  href={`/s/${i}`}
+                  onNavigate={(_href, event) => event.preventDefault()}
+                  meta={
+                    <Inline gap="sm">
+                      <Text variant="caption" color="muted">
+                        {`${i}m ago`}
+                      </Text>
+                      <Badge size="sm">Running</Badge>
+                    </Inline>
+                  }
+                />
+              )
+            })}
+          </Tree.Item>
+        ))}
+      </Tree.Root>
+    </Profiler>
   )
 }
 
@@ -361,7 +355,9 @@ function PerfHarness() {
       remount: async (n) => {
         const times: number[] = []
         for (let k = 0; k < n; k++) {
-          setMounted(false)
+          // commit the unmount before the frame: batched with the mount below, the
+          // two updates would cancel out and no commit would follow
+          flushSync(() => setMounted(false))
           await nextFrame()
           const started = performance.now()
           const done = new Promise<void>((resolve) => {
@@ -380,7 +376,7 @@ function PerfHarness() {
         return times
       },
       scroll: async () => {
-        const viewport = host.querySelector<HTMLElement>('[data-duro-scroll]')
+        const viewport = host.querySelector<HTMLElement>('[role="tree"]')
         if (viewport === null) return {worstFrameGap: 0, longTasks: 0}
         const before = longTaskTimes.length
         const distance = viewport.scrollHeight - viewport.clientHeight
@@ -451,13 +447,131 @@ export const Perf300: Story = {
   name: 'Perf: 300 leaves',
   render: () => <PerfHarness />,
   play: async ({canvas}) => {
-    await expect(canvas.getAllByRole('treeitem')).toHaveLength(
-      BRANCHES + BRANCHES * LEAVES_PER_BRANCH,
-    )
+    // windowed: the 320 rows are not all in the DOM
+    const mounted = canvas.getAllByRole('treeitem').length
+    await expect(mounted).toBeGreaterThan(0)
+    await expect(mounted).toBeLessThan(BRANCHES + BRANCHES * LEAVES_PER_BRANCH)
     const perf = window.__treePerf
     await expect(perf).toBeDefined()
     const times = (await perf?.remount(5)) ?? []
     await expect(times).toHaveLength(5)
     for (const time of times) await expect(time).toBeLessThan(PERF_REMOUNT_CEILING_MS)
+  },
+}
+
+// --- Windowing above the threshold ---
+
+const WINDOW_BRANCHES = 10
+const WINDOW_LEAVES = 30
+const WINDOW_ROWS = WINDOW_BRANCHES * (1 + WINDOW_LEAVES)
+const windowBranchValues = Array.from({length: WINDOW_BRANCHES}, (_, b) => `group-${b}`)
+
+function WindowedTree() {
+  return (
+    <Tree.Root
+      aria-label="Files"
+      defaultExpanded={windowBranchValues}
+      virtualizeThreshold={100}
+      maxHeight="listMaxH"
+    >
+      {windowBranchValues.map((group, b) => (
+        <Tree.Item key={group} value={group} label={`Folder${String(b).padStart(2, '0')}`}>
+          {Array.from({length: WINDOW_LEAVES}, (_, l) => (
+            <Tree.Item
+              key={l}
+              value={`${group}-file-${l}`}
+              label={`File-${String(b).padStart(2, '0')}-${String(l).padStart(2, '0')}`}
+            />
+          ))}
+        </Tree.Item>
+      ))}
+    </Tree.Root>
+  )
+}
+
+/** Above virtualizeThreshold only the rows in view mount, as flat treeitems. */
+export const Windowed: Story = {
+  decorators: [onThemeSurface],
+  render: () => <WindowedTree />,
+  parameters: {a11y: {test: 'error'}},
+  play: async ({canvas, userEvent}) => {
+    const tree = canvas.getByRole('tree', {name: 'Files'})
+    const mounted = canvas.getAllByRole('treeitem')
+    await expect(mounted.length).toBeGreaterThan(0)
+    await expect(mounted.length).toBeLessThan(WINDOW_ROWS)
+
+    // the first rows: a branch, then its first leaves, with level, size and position
+    const first = canvas.getByRole('treeitem', {name: 'Folder00'})
+    await expect(first).toHaveAttribute('aria-level', '1')
+    await expect(first).toHaveAttribute('aria-setsize', String(WINDOW_BRANCHES))
+    await expect(first).toHaveAttribute('aria-posinset', '1')
+    await expect(first).toHaveAttribute('aria-expanded', 'true')
+    const leaf = canvas.getByRole('treeitem', {name: 'File-00-02'})
+    await expect(leaf).toHaveAttribute('aria-level', '2')
+    await expect(leaf).toHaveAttribute('aria-setsize', String(WINDOW_LEAVES))
+    await expect(leaf).toHaveAttribute('aria-posinset', '3')
+    await expect(leaf).not.toHaveAttribute('aria-expanded')
+    await expect(leaf).toHaveAttribute('aria-selected', 'false')
+
+    // one tab stop
+    await expect(tree.querySelectorAll('[role="treeitem"][tabindex="0"]')).toHaveLength(1)
+    await userEvent.tab()
+    await expect(first).toHaveFocus()
+
+    // End reaches the last row, which is not mounted yet
+    await expect(canvas.queryByRole('treeitem', {name: 'File-09-29'})).toBeNull()
+    await userEvent.keyboard('{End}')
+    const last = await canvas.findByRole('treeitem', {name: 'File-09-29'})
+    await expect(last).toHaveFocus()
+    await expect(last).toHaveAttribute('aria-posinset', String(WINDOW_LEAVES))
+    await expect(canvas.getAllByRole('treeitem').length).toBeLessThan(WINDOW_ROWS)
+
+    // Home goes back to the first row
+    await userEvent.keyboard('{Home}')
+    await expect(await canvas.findByRole('treeitem', {name: 'Folder00'})).toHaveFocus()
+
+    // typeahead reaches an off-screen row
+    await expect(canvas.queryByRole('treeitem', {name: 'Folder08'})).toBeNull()
+    await userEvent.keyboard('Folder08')
+    const folder = await canvas.findByRole('treeitem', {name: 'Folder08'})
+    await expect(folder).toHaveFocus()
+    await expect(folder).toHaveAttribute('aria-posinset', '9')
+
+    // Left closes the branch, and the rows below shift up
+    await userEvent.keyboard('{ArrowLeft}')
+    await expect(folder).toHaveAttribute('aria-expanded', 'false')
+  },
+}
+
+/** A branch whose rows come from a component: the collect pass cannot see them. */
+function WrappedRows({branch}: {branch: number}) {
+  return Array.from({length: 40}, (_, i) => (
+    <Tree.Item key={i} value={`w-${branch}-${i}`} label={`Wrapped ${branch}-${i}`} />
+  ))
+}
+
+/**
+ * Past the threshold, but one branch's rows sit inside a component: the tree
+ * falls back to rendering every row, so none of them vanish.
+ */
+export const WindowedFallback: Story = {
+  name: 'Windowed: wrapped rows fall back',
+  render: () => (
+    <Tree.Root
+      aria-label="Fallback"
+      defaultExpanded={Array.from({length: 5}, (_, b) => `wb-${b}`)}
+      virtualizeThreshold={3}
+    >
+      {Array.from({length: 5}, (_, b) => (
+        <Tree.Item key={b} value={`wb-${b}`} label={`Wrapped branch ${b}`}>
+          <WrappedRows branch={b} />
+        </Tree.Item>
+      ))}
+    </Tree.Root>
+  ),
+  play: async ({canvas}) => {
+    // 5 branches + 5 x 40 wrapped rows, all mounted: no row lost to the window
+    await expect(canvas.getAllByRole('treeitem')).toHaveLength(205)
+    await expect(canvas.getByRole('treeitem', {name: 'Wrapped 4-39'})).toBeInTheDocument()
   },
 }

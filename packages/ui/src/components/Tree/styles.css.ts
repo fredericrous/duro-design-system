@@ -30,6 +30,37 @@ export const styles = css.create({
     outlineWidth: 0,
     outlineStyle: 'none',
   },
+  // the scroll container of a windowed tree (role="tree"): fills its parent,
+  // or stops at `maxHeight`
+  windowScroller: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    minHeight: 0,
+    margin: 0,
+    padding: 0,
+    listStyleType: 'none',
+    overflowY: 'auto',
+    overscrollBehavior: 'contain',
+  },
+  windowScrollerMax: (maxHeight: number | string) => ({
+    height: 'auto',
+    maxHeight,
+  }),
+  // the full virtual height, so the scrollbar is the tree's real length
+  windowTotal: (height: number) => ({
+    position: 'relative',
+    width: '100%',
+    height,
+  }),
+  // a windowed row: flat, placed by the window
+  windowRow: (top: number) => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    transform: `translateY(${top}px)`,
+  }),
   row: {
     display: 'flex',
     alignItems: 'center',

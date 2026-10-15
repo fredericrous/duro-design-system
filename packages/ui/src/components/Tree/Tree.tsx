@@ -1,10 +1,14 @@
-import {Children, type ReactNode, useCallback, useContext, useId, useRef, useState} from 'react'
+import {Children, type ReactNode, useCallback, useContext, useRef, useState} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
-import {TreeRow} from './TreeRow'
 import {TreeContext, TreeLevelContext, useTree} from './TreeContext'
+import {createTreeFocusStore} from './TreeFocusStore'
+import {TreeItemRow} from './TreeItemRow'
+import {devWarnOnce} from '../../shared/devWarnOnce'
+import {collectRows, itemText, type TreeItemProps, type TreeRowModel} from './TreeRows'
+import {CAN_WINDOW, TreeWindow} from './TreeWindow'
 import {useTreeKeyboard} from './useTreeKeyboard'
-import type {OnNavigate} from '../../shared/navigate'
+import type {Length} from '../../shared/length'
 
 /* Tree — a hierarchy of items (the WAI-ARIA tree pattern): single selection,
  * expandable branches, one tab stop (roving tabindex), and the keyboard of a
@@ -16,7 +20,11 @@ import type {OnNavigate} from '../../shared/navigate'
  * An item with `href` renders its row as a real link (cmd-click opens a tab,
  * "Copy link" works) that stays out of the tab order: the treeitem keeps the
  * single tab stop and the keyboard above, and Enter or Space on it follows
- * the link, through `onNavigate` when given. */
+ * the link, through `onNavigate` when given.
+ *
+ * Past `virtualizeThreshold` items (web) the tree is windowed: a collect pass
+ * reads the items' props into rows, and only the rows in view are mounted, as
+ * flat treeitems with aria-level, aria-setsize and aria-posinset. */
 
 // --- Root ---
 
@@ -38,7 +46,17 @@ interface RootProps {
    * text (its `textValue`, else a string `label`). Defaults to that text.
    */
   expandLabel?: (label: string) => string
+  /**
+   * Web: with more items than this (open or not) the tree mounts only the rows
+   * in view. At or below it, every row is mounted. Default 150.
+   */
+  virtualizeThreshold?: number
+  /** Web, windowed: caps the scroll viewport's height; without it, it fills its parent. */
+  maxHeight?: Length
 }
+
+/** Rows of a tree that is not collected (native renders every item itself). */
+const NO_ROWS: TreeRowModel[] = []
 
 function Root({
   children,
@@ -51,17 +69,20 @@ function Root({
   defaultExpanded = [],
   onExpandedChange,
   expandLabel,
+  virtualizeThreshold = 150,
+  maxHeight,
 }: RootProps) {
   const [selectedInner, setSelectedInner] = useState<string | null>(defaultValue)
   const selectedValue = value !== undefined ? value : selectedInner
   const [expandedInner, setExpandedInner] = useState<ReadonlyArray<string>>(defaultExpanded)
   const open = expanded ?? expandedInner
-  const [focusValue, setFocusValue] = useState<string | null>(selectedValue)
-  // the ring shows on the focused ROW (the item wraps its children, so a
-  // ring on it would circle the whole branch), only for keyboard focus —
-  // the tree's own :focus-visible
-  const [keyboardFocus, setKeyboardFocus] = useState(false)
-  const rootRef = useRef<HTMLUListElement>(null)
+  // the tab stop and the ring (on the focused ROW: the item wraps its
+  // children, so a ring on it would circle the whole branch; only for keyboard
+  // focus) live in a store the rows subscribe to: a focus move re-renders the
+  // old and the new row, not the tree
+  const [focus] = useState(() => createTreeFocusStore(selectedValue))
+  const listRef = useRef<HTMLUListElement>(null)
+  const windowRef = useRef<HTMLDivElement>(null)
 
   const onSelect = useCallback(
     (v: string) => {
@@ -82,13 +103,24 @@ function Root({
   const isExpanded = useCallback((v: string) => open.includes(v), [open])
   const toggle = useCallback((v: string) => setExpanded(v, !open.includes(v)), [open, setExpanded])
 
+  const {rows, total, complete} = CAN_WINDOW
+    ? collectRows(children, (el) => el.type === Item, isExpanded)
+    : {rows: NO_ROWS, total: 0, complete: true}
+  const windowed = CAN_WINDOW && complete && total > virtualizeThreshold
+  if (CAN_WINDOW && !complete && total > virtualizeThreshold) {
+    devWarnOnce(
+      'Tree',
+      'window-needs-items',
+      'Tree is past virtualizeThreshold but some rows come from a component wrapping Tree.Item, which the collect pass cannot see: it renders every row unwindowed. Render Tree.Item directly (map over data) to window it.',
+    )
+  }
+
   useTreeKeyboard({
-    rootRef,
-    focusValue,
-    setFocusValue,
-    setKeyboardFocus,
-    open,
+    rootRef: windowed ? windowRef : listRef,
+    focus,
+    windowedRows: windowed ? rows : null,
     children,
+    open,
     onSelect,
     setExpanded,
   })
@@ -101,22 +133,30 @@ function Root({
         isExpanded,
         toggle,
         setExpanded,
-        focusValue,
-        setFocusValue,
-        keyboardFocus,
+        focus,
         expandLabel,
       }}
     >
       <TreeLevelContext.Provider value={1}>
-        <html.ul
-          ref={rootRef}
-          role="tree"
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledBy}
-          style={styles.root}
-        >
-          {children}
-        </html.ul>
+        {windowed ? (
+          <TreeWindow
+            rows={rows}
+            maxHeight={maxHeight}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
+            scrollRef={windowRef}
+          />
+        ) : (
+          <html.ul
+            ref={listRef}
+            role="tree"
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
+            style={styles.root}
+          >
+            {children}
+          </html.ul>
+        )}
       </TreeLevelContext.Provider>
     </TreeContext.Provider>
   )
@@ -124,62 +164,22 @@ function Root({
 
 // --- Item ---
 
-interface ItemProps {
-  /** unique within the tree */
-  value: string
-  /** what the row shows */
-  label: ReactNode
-  /** plain text for typeahead when `label` isn't a string */
-  textValue?: string
-  /** nested items: the branch's children (none = a leaf) */
-  children?: ReactNode
-  /** trailing content on the row (a count, a status) */
-  meta?: ReactNode
-  /**
-   * Makes the row a link to this URL. A plain click (or Enter / Space)
-   * selects the item and calls `onNavigate`; a modified click keeps the
-   * browser default (new tab, new window) and does not select.
-   */
-  href?: string
-  /**
-   * Client-side navigation for `href`: called for a plain primary click. Call
-   * `event.preventDefault()`, then your router's navigate.
-   */
-  onNavigate?: OnNavigate
-}
-
-function Item({value, label, textValue, children, meta, href, onNavigate}: ItemProps) {
-  const {selectedValue, onSelect, isExpanded, toggle, focusValue, keyboardFocus, expandLabel} =
-    useTree()
+function Item({value, label, textValue, children, meta, href, onNavigate}: TreeItemProps) {
+  const {isExpanded} = useTree()
   const level = useContext(TreeLevelContext)
   const hasChildren = Children.count(children) > 0
-  const open = hasChildren && isExpanded(value)
-  const selected = selectedValue === value
-  const text = textValue ?? (typeof label === 'string' ? label : '')
-  // named by its own label (and meta) only: a branch's content includes its
-  // children, and a name computed from content would read the whole subtree
-  const labelId = useId()
-  const metaId = useId()
 
   return (
-    <TreeRow
+    <TreeItemRow
       value={value}
       level={level}
       label={label}
       meta={meta}
-      text={text}
+      text={itemText(label, textValue)}
       href={href}
       onNavigate={onNavigate}
       hasChildren={hasChildren}
-      open={open}
-      selected={selected}
-      tabStop={focusValue === value}
-      ringed={keyboardFocus && focusValue === value}
-      labelId={labelId}
-      metaId={metaId}
-      onSelect={() => onSelect(value)}
-      onToggle={() => toggle(value)}
-      expandLabel={expandLabel}
+      open={hasChildren && isExpanded(value)}
       branch={<TreeLevelContext.Provider value={level + 1}>{children}</TreeLevelContext.Provider>}
     />
   )

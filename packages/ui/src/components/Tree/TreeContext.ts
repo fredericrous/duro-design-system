@@ -1,4 +1,5 @@
 import {createContext, useContext} from 'react'
+import type {TreeFocusStore} from './TreeFocusStore'
 
 export interface TreeContextValue {
   /** the selected item's value (single selection), or null */
@@ -7,11 +8,8 @@ export interface TreeContextValue {
   isExpanded: (value: string) => boolean
   toggle: (value: string) => void
   setExpanded: (value: string, expanded: boolean) => void
-  /** the item holding the tree's single tab stop (roving tabindex) */
-  focusValue: string | null
-  setFocusValue: (value: string) => void
-  /** the focus holder is focused from the keyboard (draws its ring) */
-  keyboardFocus: boolean
+  /** the tab stop and the focus ring: rows subscribe, the tree does not re-render */
+  focus: TreeFocusStore
   /** native: names a branch's chevron control from the item's text */
   expandLabel?: (label: string) => string
 }

@@ -26,4 +26,17 @@ export interface TreeRowProps {
   expandLabel?: (label: string) => string
   /** the open branch's children, already inside their level context */
   branch: ReactNode
+  /** web, windowed tree: the row is flat, placed by the window, and sets its own set size */
+  windowed?: WindowedRow
+}
+
+/** What a row of a windowed tree adds: the window places and measures it. */
+export interface WindowedRow {
+  /** the row's index among the visible rows (the virtualizer's `data-index`) */
+  index: number
+  setSize: number
+  posInSet: number
+  /** distance from the top of the scrolled content, in px */
+  top: number
+  measureRef: (el: HTMLElement | null) => void
 }

@@ -24,6 +24,7 @@ export function TreeRow({
   onSelect,
   onToggle,
   branch,
+  windowed,
 }: TreeRowProps) {
   const rowStyles = [
     styles.indent(level),
@@ -66,10 +67,14 @@ export function TreeRow({
       aria-level={level}
       aria-expanded={hasChildren ? open : undefined}
       aria-selected={selected}
+      aria-setsize={windowed?.setSize}
+      aria-posinset={windowed?.posInSet}
+      data-index={windowed?.index}
+      ref={windowed?.measureRef}
       tabIndex={tabStop ? 0 : -1}
       data-tree-value={value}
       data-tree-text={text}
-      style={styles.item}
+      style={[styles.item, windowed && styles.windowRow(windowed.top)]}
     >
       {href !== undefined ? (
         <html.a
@@ -90,7 +95,7 @@ export function TreeRow({
           {rowContent}
         </html.div>
       )}
-      {open ? (
+      {open && !windowed ? (
         <html.ul role="group" style={styles.group}>
           {branch}
         </html.ul>
