@@ -1,6 +1,8 @@
 import type {Registry} from './registry-types.js'
 import {lookupNames} from './registry.js'
-import {MOCKUP_SUBCOMMANDS} from './commands/mockup.js'
+
+/** `duro mockup <sub>`: the spec owns the names, the command dispatches on them. */
+export const MOCKUP_SUBCOMMANDS = ['seed', 'check', 'canvas']
 
 /**
  * The single command spec. CLI dispatch, --help text, and MCP tool

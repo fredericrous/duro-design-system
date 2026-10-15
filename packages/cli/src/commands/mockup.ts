@@ -5,6 +5,7 @@ import type {CommandResult} from './lookup.js'
 import {lookup} from '../registry.js'
 import {suggestions} from '../search.js'
 import {lineOf} from '../scan.js'
+import {MOCKUP_SUBCOMMANDS} from '../manifest.js'
 import {uiVersionSkew} from './doctor.js'
 
 /*
@@ -722,7 +723,7 @@ export function runMockupCanvas(
   }
 }
 
-export const MOCKUP_SUBCOMMANDS = ['seed', 'check', 'canvas']
+export {MOCKUP_SUBCOMMANDS}
 
 export function runMockup(
   registry: Registry,
