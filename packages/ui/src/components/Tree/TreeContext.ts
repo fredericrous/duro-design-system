@@ -12,6 +12,8 @@ export interface TreeContextValue {
   setFocusValue: (value: string) => void
   /** the focus holder is focused from the keyboard (draws its ring) */
   keyboardFocus: boolean
+  /** native: names a branch's chevron control from the item's text */
+  expandLabel?: (label: string) => string
 }
 
 export const TreeContext = createContext<TreeContextValue | null>(null)

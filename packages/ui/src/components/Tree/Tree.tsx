@@ -1,11 +1,10 @@
 import {Children, type ReactNode, useCallback, useContext, useId, useRef, useState} from 'react'
 import {html} from 'react-strict-dom'
-import {SPACING_PX} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
-import {isNative} from '../../platform'
+import {TreeRow} from './TreeRow'
 import {TreeContext, TreeLevelContext, useTree} from './TreeContext'
 import {useTreeKeyboard} from './useTreeKeyboard'
-import {isPlainClick, type LinkClickEvent, type OnNavigate} from '../../shared/navigate'
+import type {OnNavigate} from '../../shared/navigate'
 
 /* Tree — a hierarchy of items (the WAI-ARIA tree pattern): single selection,
  * expandable branches, one tab stop (roving tabindex), and the keyboard of a
@@ -34,6 +33,11 @@ interface RootProps {
   expanded?: ReadonlyArray<string>
   defaultExpanded?: ReadonlyArray<string>
   onExpandedChange?: (expanded: string[]) => void
+  /**
+   * Native: the accessible name of a branch's chevron control, from the item's
+   * text (its `textValue`, else a string `label`). Defaults to that text.
+   */
+  expandLabel?: (label: string) => string
 }
 
 function Root({
@@ -46,6 +50,7 @@ function Root({
   expanded,
   defaultExpanded = [],
   onExpandedChange,
+  expandLabel,
 }: RootProps) {
   const [selectedInner, setSelectedInner] = useState<string | null>(defaultValue)
   const selectedValue = value !== undefined ? value : selectedInner
@@ -99,6 +104,7 @@ function Root({
         focusValue,
         setFocusValue,
         keyboardFocus,
+        expandLabel,
       }}
     >
       <TreeLevelContext.Provider value={1}>
@@ -143,88 +149,39 @@ interface ItemProps {
 }
 
 function Item({value, label, textValue, children, meta, href, onNavigate}: ItemProps) {
-  const {selectedValue, onSelect, isExpanded, toggle, focusValue, keyboardFocus} = useTree()
+  const {selectedValue, onSelect, isExpanded, toggle, focusValue, keyboardFocus, expandLabel} =
+    useTree()
   const level = useContext(TreeLevelContext)
   const hasChildren = Children.count(children) > 0
   const open = hasChildren && isExpanded(value)
   const selected = selectedValue === value
   const text = textValue ?? (typeof label === 'string' ? label : '')
-  // named by its own label only: a branch's content includes its children,
-  // and a name computed from content would read the whole subtree
+  // named by its own label (and meta) only: a branch's content includes its
+  // children, and a name computed from content would read the whole subtree
   const labelId = useId()
-  const rowStyles = [
-    isNative
-      ? styles.indentPx(SPACING_PX.sm + Math.max(0, level - 1) * SPACING_PX.lg)
-      : styles.indent(level),
-    selected && styles.rowSelected,
-    keyboardFocus && focusValue === value && styles.rowFocused,
-  ]
-  const rowContent = (
-    <>
-      <html.span
-        aria-hidden
-        onClick={(e: {stopPropagation: () => void; preventDefault: () => void}) => {
-          if (!hasChildren) return
-          // the chevron only toggles: it never selects, nor follows a link
-          e.stopPropagation()
-          e.preventDefault()
-          toggle(value)
-        }}
-        style={[
-          styles.chevron,
-          isNative && styles.nativeFlex,
-          open && styles.chevronOpen,
-          !hasChildren && styles.chevronLeaf,
-        ]}
-      >
-        ▸
-      </html.span>
-      <html.span id={labelId} style={styles.label}>
-        {label}
-      </html.span>
-      {meta != null ? <html.span style={styles.meta}>{meta}</html.span> : null}
-    </>
-  )
+  const metaId = useId()
 
   return (
-    <html.li
-      role="treeitem"
-      aria-labelledby={labelId}
-      aria-level={level}
-      aria-expanded={hasChildren ? open : undefined}
-      aria-selected={selected}
-      tabIndex={focusValue === value ? 0 : -1}
-      data-tree-value={value}
-      data-tree-text={text}
-      style={styles.item}
-    >
-      {href !== undefined ? (
-        <html.a
-          href={href}
-          tabIndex={-1}
-          data-tree-link=""
-          onClick={(e: LinkClickEvent) => {
-            if (!isPlainClick(e)) return
-            onSelect(value)
-            onNavigate?.(href, e)
-          }}
-          style={[styles.row, styles.rowLink, ...rowStyles]}
-        >
-          {rowContent}
-        </html.a>
-      ) : (
-        <html.div onClick={() => onSelect(value)} style={[styles.row, ...rowStyles]}>
-          {rowContent}
-        </html.div>
-      )}
-      {open ? (
-        <TreeLevelContext.Provider value={level + 1}>
-          <html.ul role="group" style={styles.group}>
-            {children}
-          </html.ul>
-        </TreeLevelContext.Provider>
-      ) : null}
-    </html.li>
+    <TreeRow
+      value={value}
+      level={level}
+      label={label}
+      meta={meta}
+      text={text}
+      href={href}
+      onNavigate={onNavigate}
+      hasChildren={hasChildren}
+      open={open}
+      selected={selected}
+      tabStop={focusValue === value}
+      ringed={keyboardFocus && focusValue === value}
+      labelId={labelId}
+      metaId={metaId}
+      onSelect={() => onSelect(value)}
+      onToggle={() => toggle(value)}
+      expandLabel={expandLabel}
+      branch={<TreeLevelContext.Provider value={level + 1}>{children}</TreeLevelContext.Provider>}
+    />
   )
 }
 

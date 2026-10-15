@@ -73,9 +73,57 @@ export const styles = css.create({
     fontWeight: typography.fontWeightMedium,
     backgroundColor: colors.bgCardHover,
   },
-  // RSD on native lays out only display: flex, not the web's inline-flex.
-  nativeFlex: {
+  // Native: the outer row View, holding the chevron control and the press
+  // target as siblings (the level indent is added by the row).
+  nativeRow: {
     display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: spacing.sm,
+    borderRadius: radii.sm,
+  },
+  // Native: the pressable part of the row.
+  pressTarget: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexGrow: 1,
+    flexShrink: 1,
+    gap: spacing.xs,
+    paddingTop: microSpacing.px5,
+    paddingBottom: microSpacing.px5,
+    borderRadius: radii.sm,
+    backgroundColor: {
+      default: 'transparent',
+      ':active': colors.bgCardHover,
+    },
+  },
+  // Native: the branch's chevron control, at least the WCAG 2.5.8 minimum.
+  chevronControl: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: sizes.chip,
+    minHeight: sizes.chip,
+    flexShrink: 0,
+  },
+  chevronGlyph: {
+    color: colors.textMuted,
+  },
+  // Native: a leaf's gutter, as wide as the chevron control, inside the press target.
+  chevronSpacer: {
+    width: sizes.chip,
+    flexShrink: 0,
+  },
+  labelBox: {
+    display: 'flex',
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  metaBox: {
+    display: 'flex',
+    flexShrink: 0,
   },
   chevron: {
     display: 'inline-flex',

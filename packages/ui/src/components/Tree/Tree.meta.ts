@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required. On React Native selection, expansion and aria-level are the same; the keyboard model (arrows, Home/End, typeahead) is web only.',
+    'Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required. On React Native each row is a pressable link (href) or button, and a branch has its own chevron control that expands it (named by the optional Root prop expandLabel(text), default the item text); selection, expansion and aria-level are the same, the keyboard model (arrows, Home/End, typeahead) is web only. On native onNavigate is required for in-app routes: without it a relative href goes to the system (Linking.openURL).',
   whenToUse: [
     'Browsing data that nests to any depth — a file tree, zones › services › capabilities, namespace › resource',
     'Picking one node of a hierarchy to show its details beside the tree',

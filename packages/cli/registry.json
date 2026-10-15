@@ -8253,7 +8253,7 @@
             "Item"
           ]
         },
-        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required. On React Native selection, expansion and aria-level are the same; the keyboard model (arrows, Home/End, typeahead) is web only.",
+        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required. On React Native each row is a pressable link (href) or button, and a branch has its own chevron control that expands it (named by the optional Root prop expandLabel(text), default the item text); selection, expansion and aria-level are the same, the keyboard model (arrows, Home/End, typeahead) is web only. On native onNavigate is required for in-app routes: without it a relative href goes to the system (Linking.openURL).",
         "example": "<Tree.Root aria-label=\"Blocs\" defaultExpanded={['energy']} onValueChange={setSelected}>\n  <Tree.Item value=\"energy\" label=\"Core business — Energy\">\n    <Tree.Item value=\"generation\" label=\"Generation\" meta=\"4 apps\" />\n    <Tree.Item value=\"network\" label=\"Network operations\">\n      <Tree.Item value=\"scada\" label=\"SCADA supervision\" />\n    </Tree.Item>\n  </Tree.Item>\n  <Tree.Item value=\"finance\" label=\"Finance & steering\" />\n</Tree.Root>",
         "relatedTo": [
           {
@@ -8381,6 +8381,12 @@
               "name": "onExpandedChange",
               "required": false,
               "type": "(expanded: string[]) => void"
+            },
+            {
+              "description": "Native: the accessible name of a branch's chevron control, from the item's text (its `textValue`, else a string `label`). Defaults to that text.",
+              "name": "expandLabel",
+              "required": false,
+              "type": "(label: string) => string"
             }
           ],
           "sourcePath": "packages/ui/src/components/Tree/Tree.tsx"

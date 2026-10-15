@@ -209,6 +209,10 @@ export const WithLinks: StoryObj<{onNavigate: OnNavigate}> = {
     )
     const item = (name: RegExp) => canvas.getByRole('treeitem', {name})
 
+    // the name is the label then the meta; a leaf without meta is its label
+    await expect(canvas.getByRole('treeitem', {name: 'Operations 31'})).toBeInTheDocument()
+    await expect(canvas.getByRole('treeitem', {name: 'Start here'})).toBeInTheDocument()
+
     // a real link, outside the tab order
     const link = canvas.getByRole('link', {name: /Clusters and bootstrap/})
     await expect(link).toHaveAttribute('href', '#clusters')
