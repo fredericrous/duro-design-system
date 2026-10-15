@@ -18,6 +18,7 @@ npx @duro-app/cli hook install       # wire the Claude Code session + plan-mode 
 npx @duro-app/cli skill install      # wire the /duro-mockup workflow skill
 npx @duro-app/cli mockup seed --out docs/mockups/approvals   # token-seeded artboard
 npx @duro-app/cli mockup check docs/mockups/approvals/*.dc.html
+npx @duro-app/cli mockup canvas docs/mockups/approvals               # one review page
 ```
 
 Install for the short bin: `pnpm add -D @duro-app/cli` → `duro Button`.
@@ -33,7 +34,8 @@ claude mcp add duro-ds -- npx -y -p @duro-app/cli -p @modelcontextprotocol/sdk d
 
 Tools: `duro_ds_lookup` (same fallback-to-search behavior as the CLI),
 `duro_ds_list`, `duro_ds_manifest`, `duro_ds_mockup_check` (an artboard's HTML
-in, findings out — see below). Resources: `duro://component/<Name>`,
+in, findings out — see below), `duro_ds_mockup_canvas` (artboards' HTML in, the
+review page out). Resources: `duro://component/<Name>`,
 `duro://recipe/<name>`. Prompt: `duro/build-ui` primes a session with the
 critical rules and the component index. The SDK is an optional peer — plain
 CLI use never loads it.
@@ -201,17 +203,17 @@ pre-commit  duro-doctor  *.css,package.json,root.tsx,main.tsx,vite.config.ts,vit
 A mockup drawn outside the token system has to be translated when it is
 implemented, and the translation drifts — one four-direction canvas used
 485 distinct colours, 15 of them in the palette, and the implementation
-carried `marginTop: 23` and a raw `768px` query past every lint rule. Two
+carried `marginTop: 23` and a raw `768px` query past every lint rule. Three
 commands and one skill make the artboard the contract instead.
 
 ```
 npx -y @duro-app/cli mockup seed --out docs/mockups/<screen> --name Main
 npx -y @duro-app/cli mockup check docs/mockups/<screen>/*.dc.html   # exit 1 on findings
+npx -y @duro-app/cli mockup canvas docs/mockups/<screen>            # the page to pick from
 npx -y @duro-app/cli skill install                                   # /duro-mockup
 ```
 
-`seed` writes a `.dc.html` in the shape Claude Code's `design` skill expects,
-whose `<style>` opens with the tokens as **resolved** custom properties for
+`seed` writes a `.dc.html` whose `<style>` opens with the tokens as **resolved** custom properties for
 every theme (`--duro-color-bg`, `--duro-spacing-md`, … — the same names as
 `@duro-app/tokens/vars.css`, generated from the same sources). `--theme
 light|high-contrast` stamps `<html data-theme>` so the block switches.
@@ -227,12 +229,24 @@ light|high-contrast` stamps `<html data-theme>` so the block switches.
 | `no-component-map`    | No `data-duro` anywhere. An artboard names the component behind every control or it cannot be implemented from.                                                                                                                                                                                                                                        |
 | `unannotated-control` | An element that draws like a control but names none. Canvas artboards draw controls as `div`/`span`, so the tag is not the signal: a class is a control when the union of every rule that mentions it has a pointer cursor, a `:hover`/`:active`/`:focus` state, or a padded rounded fill. A named parent covers only a bare native control inside it. |
 
+When the app's installed `@duro-app/ui` differs from the CLI, `check` and
+`canvas` say so under their findings (doctor's `version-skew`): npx reuses any
+cached CLI that satisfies a range, and a checker older than the app reports a
+newer component as `unknown-component`.
+
+`canvas <dir>` writes `<dir>/canvas.html` (`--out`, `--title`): one
+self-contained page with every `*.dc.html` in the directory, grouped into
+lettered directions by file stem (`Tree.dc.html` and `Tree-Phone.dc.html` are
+direction `Tree`, `Main` first), each artboard inlined by `srcdoc` and scaled
+to its frame. It refuses, writing nothing, while any artboard fails `check`.
+Publish it as the Artifact the person picks from, or open it from disk.
+
 `skill install` writes `.claude/skills/duro-mockup/SKILL.md` (byte-compared
 by `--check`, like the hook). The skill runs the whole path — seed directions,
 check, publish the canvas, implement the picked direction from its
 `data-duro` map, screenshot the built route and put artboard and screenshot
-side by side in the PR — and it explicitly overrides the `design` skill's
-"lift resolved values" step. Repo notes go in `.claude/duro-mockup.local.md`.
+side by side in the PR — with nothing outside the CLI, and it explicitly
+overrides the `design` skill's "lift resolved values" step. Repo notes go in `.claude/duro-mockup.local.md`.
 Its description triggers on a request for a screen, page or mockups, and also
 while planning (plan mode) a new screen or a material layout, hierarchy or
 interaction change — the moment the [plan-mode nudge](#plan-mode-nudge) points

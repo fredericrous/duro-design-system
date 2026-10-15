@@ -1,6 +1,5 @@
-import {existsSync, readdirSync, readFileSync, statSync} from 'node:fs'
-import {createRequire} from 'node:module'
-import {basename, dirname, join, relative, resolve} from 'node:path'
+import {existsSync, readdirSync, readFileSync, realpathSync, statSync} from 'node:fs'
+import {basename, dirname, join, relative, resolve, sep} from 'node:path'
 import type {CommandResult} from './lookup.js'
 import {cliVersion} from './manifest.js'
 import {lineOf, maskComments} from '../scan.js'
@@ -341,15 +340,27 @@ function isLibrary(pkg: PackageJson): boolean {
   return pkg.exports !== undefined || pkg.main !== undefined || pkg.module !== undefined
 }
 
-/** The installed @duro-app/ui version when it differs from this CLI's. */
+/**
+ * The installed @duro-app/ui version when it differs from this CLI's. The
+ * package's exports map does not expose ./package.json, so require() cannot
+ * read it: walk up node_modules the way resolution does and read the file.
+ * A workspace link (the design system's own checkout) resolves outside any
+ * node_modules: its version is the source's, with no release to skew against.
+ */
 export function uiVersionSkew(cwd: string): {own: string; installed: string} | null {
-  try {
-    const require = createRequire(join(cwd, 'package.json'))
-    const installed = (require('@duro-app/ui/package.json') as {version?: string}).version
-    const own = cliVersion()
-    return installed && own !== '0.0.0' && installed !== own ? {own, installed} : null
-  } catch {
-    return null
+  const own = cliVersion()
+  for (let dir = resolve(cwd); ; dir = dirname(dir)) {
+    const manifest = join(dir, 'node_modules', '@duro-app', 'ui', 'package.json')
+    if (existsSync(manifest)) {
+      try {
+        if (!realpathSync(manifest).includes(`${sep}node_modules${sep}`)) return null
+        const installed = (JSON.parse(readFileSync(manifest, 'utf8')) as {version?: string}).version
+        return installed && own !== '0.0.0' && installed !== own ? {own, installed} : null
+      } catch {
+        return null
+      }
+    }
+    if (dirname(dir) === dir) return null
   }
 }
 

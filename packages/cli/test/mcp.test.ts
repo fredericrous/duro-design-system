@@ -11,7 +11,36 @@ describe('mcp tools', () => {
       'duro_ds_list',
       'duro_ds_manifest',
       'duro_ds_mockup_check',
+      'duro_ds_mockup_canvas',
     ])
+  })
+
+  it('duro_ds_mockup_canvas returns one page for the artboards, or the findings that stop it', () => {
+    const good =
+      '<style>.a{color:var(--duro-color-text)}</style><button class="a" data-duro="Button">Go</button>'
+    const page = callTool(registry, 'duro_ds_mockup_canvas', {
+      artboards: [
+        {file: 'Main.dc.html', html: good},
+        {file: 'Main-Phone.dc.html', html: good},
+      ],
+      title: 'Directions',
+    })
+    expect(page.isError).toBe(false)
+    const data = page.data as {ok: boolean; html: string; findings: unknown[]}
+    expect(data.ok).toBe(true)
+    expect(data.findings).toEqual([])
+    expect(data.html).toContain('<title>Directions</title>')
+    expect(page.text).toBe(data.html)
+
+    const refused = callTool(registry, 'duro_ds_mockup_canvas', {
+      artboards: [{file: 'Raw.dc.html', html: '<div style="color:#fff"></div>'}],
+    })
+    expect((refused.data as {ok: boolean; html: null}).ok).toBe(false)
+    expect((refused.data as {html: null}).html).toBeNull()
+    expect(refused.text).toContain('Raw.dc.html:1')
+
+    const empty = callTool(registry, 'duro_ds_mockup_canvas', {artboards: []})
+    expect(empty.isError).toBe(true)
   })
 
   it('duro_ds_mockup_check reports findings for a raw artboard and none for a token one', () => {

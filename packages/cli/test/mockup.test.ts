@@ -1,11 +1,22 @@
-import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {loadRegistry} from '../src/registry.js'
 import {
+  buildCanvas,
   checkArtboard,
+  MOCKUP_SUBCOMMANDS,
   runMockup,
+  runMockupCanvas,
   runMockupCheck,
   runMockupSeed,
   seedArtboard,
@@ -289,5 +300,124 @@ describe('runMockup seed + check on disk', () => {
     expect(runMockup(registry, 'nope', [], {cwd: root}).exitCode).toBe(2)
     expect(runMockup(registry, 'seed', ['extra'], {cwd: root}).exitCode).toBe(2)
     expect(runMockup(registry, 'seed', [], {cwd: root, out: 'x'}).exitCode).toBeUndefined()
+  })
+})
+
+describe('buildCanvas', () => {
+  const art = (file: string) => ({file, html: clean})
+
+  it('groups artboards into lettered directions by stem, Main first, each inlined', () => {
+    const {html, findings} = buildCanvas(
+      registry,
+      [art('Tree-Phone.dc.html'), art('Rail.dc.html'), art('Tree.dc.html'), art('Main.dc.html')],
+      {title: 'Shell directions'},
+    )
+    expect(findings).toEqual([])
+    expect(html).not.toBeNull()
+    const headings = [...html!.matchAll(/<h2>([^<]*)<\/h2>/g)].map((m) => m[1])
+    expect(headings).toEqual(['A · Main', 'B · Rail', 'C · Tree'])
+    // Tree before Tree-Phone inside direction C.
+    expect(html!.indexOf('title="Tree.dc.html"')).toBeLessThan(
+      html!.indexOf('title="Tree-Phone.dc.html"'),
+    )
+    expect(html).toContain('<title>Shell directions</title>')
+    // srcdoc carries the whole artboard, attribute-escaped: one page, no supporting files.
+    expect(html).toContain('srcdoc="')
+    expect(html).toContain('data-duro=&quot;Button variant=primary&quot;')
+    expect(html).not.toMatch(/<iframe[^>]* src=/)
+  })
+
+  it("drops the seed's relative support.js, which a srcdoc frame cannot load", () => {
+    const seeded = {file: 'Main.dc.html', html: `<script src="./support.js"></script>\n${clean}`}
+    const {html} = buildCanvas(registry, [seeded], {})
+    expect(html).not.toContain('support.js')
+  })
+
+  it('refuses to build a page from an artboard that fails the check', () => {
+    const bad = {file: 'Bad.dc.html', html: clean.replace('cursor: pointer', 'color: #fff')}
+    const {html, findings} = buildCanvas(registry, [art('Good.dc.html'), bad], {})
+    expect(html).toBeNull()
+    expect(findings.map((f) => [f.file, f.rule])).toEqual([['Bad.dc.html', 'raw-color']])
+  })
+})
+
+describe('runMockup canvas on disk', () => {
+  let root: string
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'duro-canvas-'))
+  })
+  afterEach(() => {
+    rmSync(root, {recursive: true, force: true})
+  })
+
+  it('writes <dir>/canvas.html from every *.dc.html there, and honours --out and --title', () => {
+    mkdirSync(join(root, 'shell'))
+    writeFileSync(join(root, 'shell', 'Tree.dc.html'), clean)
+    writeFileSync(join(root, 'shell', 'Rail-Phone.dc.html'), clean)
+    writeFileSync(join(root, 'shell', 'notes.md'), 'not an artboard')
+    const result = runMockupCanvas(registry, 'shell', {cwd: root})
+    expect(result.exitCode).toBeUndefined()
+    expect(result.data).toMatchObject({ok: true, path: 'shell/canvas.html', artboards: 2})
+    const page = readFileSync(join(root, 'shell', 'canvas.html'), 'utf8')
+    expect(page).toContain('title="Rail-Phone.dc.html"')
+    expect(page).not.toContain('notes.md')
+
+    // A second run does not read its own output back as an artboard.
+    expect(runMockupCanvas(registry, 'shell', {cwd: root}).data).toMatchObject({artboards: 2})
+
+    runMockupCanvas(registry, 'shell', {cwd: root, out: 'review.html', title: 'Pick one'})
+    expect(readFileSync(join(root, 'review.html'), 'utf8')).toContain('<title>Pick one</title>')
+  })
+
+  it('refuses with exit 1 and writes nothing when an artboard fails; 2 on bad input', () => {
+    mkdirSync(join(root, 'bad'))
+    writeFileSync(
+      join(root, 'bad', 'Main.dc.html'),
+      clean.replace('cursor: pointer', 'color: #fff'),
+    )
+    const refused = runMockupCanvas(registry, 'bad', {cwd: root})
+    expect(refused.exitCode).toBe(1)
+    expect(refused.text).toMatch(/Main\.dc\.html:\d+ raw-color/)
+    expect(existsSync(join(root, 'bad', 'canvas.html'))).toBe(false)
+
+    expect(runMockupCanvas(registry, undefined, {cwd: root}).exitCode).toBe(2)
+    expect(runMockupCanvas(registry, 'missing', {cwd: root}).exitCode).toBe(2)
+    mkdirSync(join(root, 'empty'))
+    expect(runMockupCanvas(registry, 'empty', {cwd: root}).exitCode).toBe(2)
+  })
+
+  it('is a mockup subcommand', () => {
+    expect(MOCKUP_SUBCOMMANDS).toEqual(['seed', 'check', 'canvas'])
+    mkdirSync(join(root, 'one'))
+    writeFileSync(join(root, 'one', 'Main.dc.html'), clean)
+    expect(runMockup(registry, 'canvas', ['one'], {cwd: root}).exitCode).toBeUndefined()
+    expect(runMockup(registry, 'canvas', ['one', 'two'], {cwd: root}).exitCode).toBe(2)
+  })
+
+  it('says when the app installs a different @duro-app/ui than the checker knows', () => {
+    writeFileSync(join(root, 'package.json'), '{"name":"app"}')
+    mkdirSync(join(root, 'node_modules', '@duro-app', 'ui'), {recursive: true})
+    writeFileSync(
+      join(root, 'node_modules', '@duro-app', 'ui', 'package.json'),
+      // As published: an exports map without ./package.json, so require() cannot read it.
+      '{"name":"@duro-app/ui","version":"0.0.1","exports":{".":"./index.js"}}',
+    )
+    writeFileSync(join(root, 'Main.dc.html'), clean)
+    const result = runMockupCheck(registry, ['Main.dc.html'], {cwd: root})
+    expect(result.text).toContain('@duro-app/ui is 0.0.1')
+    expect(result.text).toContain('npx -y @duro-app/cli@0.0.1 mockup check')
+    expect(result.data).toMatchObject({skew: {installed: '0.0.1'}})
+  })
+
+  it('stays quiet for a workspace-linked @duro-app/ui: a source checkout has no release to skew', () => {
+    writeFileSync(join(root, 'package.json'), '{"name":"app"}')
+    mkdirSync(join(root, 'ui'))
+    writeFileSync(join(root, 'ui', 'package.json'), '{"name":"@duro-app/ui","version":"0.0.1"}')
+    mkdirSync(join(root, 'node_modules', '@duro-app'), {recursive: true})
+    symlinkSync(join(root, 'ui'), join(root, 'node_modules', '@duro-app', 'ui'))
+    writeFileSync(join(root, 'Main.dc.html'), clean)
+    const result = runMockupCheck(registry, ['Main.dc.html'], {cwd: root})
+    expect(result.text).not.toContain('note:')
+    expect(result.data).not.toHaveProperty('skew')
   })
 })
