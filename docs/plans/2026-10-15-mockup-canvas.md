@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/mockup-canvas
 repos: [duro-design-system]
 adrs: []
@@ -43,16 +43,27 @@ unknown component with nothing saying the checker was older than the app.
 
 ## Verification
 
-| Check          | Input                                                 | Expected                                                                        |
-| -------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------- |
-| canvas on disk | the Happier M1 shell artboards (`Tree`, `Rail-Phone`) | `canvas.html` written; opens in Chrome showing both artboards in two directions |
-| canvas refuses | a directory holding a failing artboard                | exit 1, no file, findings listed                                                |
-| MCP tool       | `duro_ds_mockup_canvas` via `callTool`                | `{ok, html, findings}`                                                          |
-| skew note      | `mockup check` in a dir whose `@duro-app/ui` differs  | the note names both versions                                                    |
-| skill drift    | the rendered skill                                    | names only real subcommands, no `seed-canvas`                                   |
-| repo gate      | `pnpm --filter @duro-app/cli test`, typecheck, lint   | green                                                                           |
+| Check          | Input                                                 | Expected                                                | Observed                                                                                                               |
+| -------------- | ----------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| canvas on disk | the Happier M1 shell artboards (`Tree`, `Rail-Phone`) | `canvas.html` written; both artboards in two directions | written (2 artboards); Chrome shows A · Rail and B · Tree, scaled to fit, no horizontal scroll at 390px, console clean |
+| canvas refuses | a directory holding a failing artboard                | exit 1, no file, findings listed                        | unit test: exit 1, no `canvas.html`, `Main.dc.html:N raw-color`                                                        |
+| MCP tool       | `duro_ds_mockup_canvas` via `callTool`                | `{ok, html, findings}`                                  | unit test, and a stdio SDK client: tool listed, page returned (`ok: true`)                                             |
+| skew note      | `mockup check` in a dir whose `@duro-app/ui` differs  | the note names both versions                            | Happier (Yarn, 5.15.0) and duro-app (pnpm, 5.9.0) both print the note; this repo's workspace link stays quiet          |
+| skill drift    | the rendered skill                                    | names only real subcommands, no `seed-canvas`           | unit test passes                                                                                                       |
+| repo gate      | CLI tests, typecheck, lint                            | green                                                   | 174/174 tests; pre-commit gate 29/29 on `e4621dca`                                                                     |
 
 ## Decision log
 
 - 2026-10-15: plan written from the person's chat approval; no review panel
   ran (a one-line CLI addition beside `seed`/`check`, scope set by the person).
+- 2026-10-15: `uiVersionSkew` fixed in place (it `require`d a path the
+  exports map refuses, so doctor's `version-skew` never fired); the bin's
+  generic skew line skips `mockup`, which prints its own note.
+
+## Implementation review
+
+- approve (round 2, delta), after approve-with-changes in round 1.
+- Fixed: srcdoc frames sandboxed; `--out` creates its directory; `skew` in
+  the `--json` shape; a comment on the page's own chrome CSS.
+- 58k + 62k tokens, 29 s + 11 s. Published-Artifact render not checked here
+  (Artifacts refused under this session's API-key login).
