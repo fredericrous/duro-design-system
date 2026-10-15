@@ -4911,7 +4911,7 @@
           ],
           "required": []
         },
-        "description": "Structural primitive for grouping content with header, body, and footer slots. A \"workspace surface\" for forms, settings sections, and inspectors. Sub-components are purely structural — no context required.",
+        "description": "Structural primitive for grouping content with header, body, and footer slots. A \"workspace surface\" for forms, settings sections, and inspectors. Sub-components are purely structural — no context required. On native the Body does not scroll (unlike the web Body): wrap long content in ScrollArea. A TextLink inside needs onNavigate for in-app routes on native.",
         "example": "<Panel.Root bordered>\n  <Panel.Header>\n    <Heading level={3}>Section Title</Heading>\n    <Button variant=\"secondary\" size=\"small\">Action</Button>\n  </Panel.Header>\n  <Panel.Body>\n    {/* Content */}\n  </Panel.Body>\n  <Panel.Footer>\n    <Button>Save</Button>\n  </Panel.Footer>\n</Panel.Root>",
         "relatedTo": [
           {
@@ -4937,7 +4937,7 @@
         ]
       },
       "name": "Panel",
-      "native": false,
+      "native": true,
       "parts": {
         "Body": {
           "name": "Body",
@@ -7374,7 +7374,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Inline hyperlink for running text and standalone text links (\"View all\", \"Edit profile\"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target=\"_blank\" defaults rel to noopener noreferrer. onNavigate(href, event) hands a plain primary click to a client router (the app calls event.preventDefault(), then navigates); modified clicks keep the browser default.",
+        "description": "Inline hyperlink for running text and standalone text links (\"View all\", \"Edit profile\"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target=\"_blank\" defaults rel to noopener noreferrer. onNavigate(href, event) hands a plain primary click to a client router (the app calls event.preventDefault(), then navigates); modified clicks keep the browser default. On native the link renders no href and a press goes through onNavigate, then the system (Linking.openURL): onNavigate is required for in-app routes on native, and a target set skips it.",
         "example": "<Text>\n  Read the <TextLink href=\"/docs/migrate\">migration guide</TextLink> before you change seats, or{' '}\n  <TextLink href=\"/plans\" variant=\"subtle\">compare plans</TextLink> first.\n</Text>",
         "relatedTo": [
           {
@@ -7400,7 +7400,7 @@
         ]
       },
       "name": "TextLink",
-      "native": false,
+      "native": true,
       "props": [
         {
           "name": "href",

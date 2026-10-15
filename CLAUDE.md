@@ -828,6 +828,12 @@ const go: OnNavigate = (href, event) => {
 normal page load. Don't wrap a part in your router's `Link`, and don't put an
 `onClick` on a wrapper to intercept it.
 
+On native (`TextLink`, `Tree.Item` with `href`, `Menu.LinkItem`) a part renders
+no `href` and a press goes through `followLink`: `onNavigate`, then the system
+(`Linking.openURL`) unless you called `preventDefault()`. An in-app route
+**needs** `onNavigate` there: without it a relative href goes to the system
+(ADR-0002, native addendum).
+
 ### Docs pages and rendered Markdown
 
 **A docs page is `AppShell` + `Grid layout="content-aside"` + `Prose`.** The

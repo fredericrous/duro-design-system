@@ -24,6 +24,7 @@ export {Heading, type HeadingVariant} from './components/Heading/Heading'
 export {Input, type InputVariant} from './components/Input/Input'
 export {Switch} from './components/Switch/Switch'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
+export {TextLink, type TextLinkVariant} from './components/TextLink/TextLink'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 
 // Form field wrappers (RN-safe — used by Input/Textarea/Checkbox)
@@ -95,11 +96,14 @@ export {
 
 // Layout primitives
 export {PageShell, type PageShellMaxWidth, type PageShellPadding} from './components/PageShell'
+export {Panel} from './components/Panel/Panel'
 export {Stack, type SpacingKey} from './components/Stack/Stack'
 export {Inline} from './components/Inline/Inline'
 export {Cluster} from './components/Cluster/Cluster'
 export {Grid} from './components/Grid/Grid'
 export type {GridTrack} from './shared/length'
+// ADR-0002: the shape a link part's onNavigate receives (native: followLink)
+export type {LinkClickEvent, OnNavigate} from './shared/navigate'
 
 // Theming — resolves to ThemeProvider.native.tsx on Metro (RN-safe variant:
 // no display:contents / portal mount; applies the theme to a flex container).

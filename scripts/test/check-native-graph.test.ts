@@ -42,6 +42,16 @@ describe('check-native-graph', () => {
     )
   })
 
+  it('reports html.a with an href', async () => {
+    const code = `import {html} from 'react-strict-dom'\nexport const L = () => <html.a href="/x" />\n`
+    expect(await formsIn('anchor-href.tsx', code)).toContain('html.a with href')
+  })
+
+  it('leaves an html.a without href alone', async () => {
+    const code = `import {html} from 'react-strict-dom'\nexport const L = () => <html.a />\n`
+    expect(await formsIn('anchor.tsx', code)).toEqual([])
+  })
+
   it('ignores an eslint-disable comment', async () => {
     const code =
       "// eslint-disable-next-line\nimport {createPortal} from 'react-dom'\nexport const p = createPortal\n"

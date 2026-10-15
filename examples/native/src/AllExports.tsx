@@ -26,6 +26,7 @@ import {
   List,
   Meter,
   PageShell,
+  Panel,
   QrCode,
   RadioGroup,
   Spinner,
@@ -34,6 +35,7 @@ import {
   Switch,
   Text,
   Textarea,
+  TextLink,
   ThemeProvider,
   Toggle,
   usePortalMount,
@@ -97,6 +99,16 @@ export function AllExports() {
         <Card>
           <Text>Card</Text>
         </Card>
+        <Panel.Root bordered>
+          <Panel.Header>
+            <Heading level={3}>Panel</Heading>
+          </Panel.Header>
+          <Panel.Body>
+            <Text>
+              Panel body with a <TextLink href="https://example.com">text link</TextLink>
+            </Text>
+          </Panel.Body>
+        </Panel.Root>
         <Checkbox checked={on} onChange={() => setOn((value) => !value)}>
           Checkbox
         </Checkbox>
