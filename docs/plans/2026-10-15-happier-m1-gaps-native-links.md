@@ -265,6 +265,14 @@ checks are done in the same branch. Otherwise they follow in 5.18.0.
   React Compiler (`babel-plugin-react-compiler`): no hand-written `memo`/`useMemo`, and the collect
   pass must be compiler-safe (no render-phase mutation that the compiler would reject).
 
+- 2026-10-15 — The windowed scroll jank came from `@tanstack/react-virtual` 3.14.6, which calls
+  `flushSync` from `measureElement`'s ref callback during commit (TanStack/virtual#1281, fixed in
+  3.14.13 by #1282). The person asked what TanStack recommends, so these were measured at 4×:
+  - fixed-height rows: rejected, because rows would stop wrapping;
+  - `useFlushSync: false` with overscan 12: rejected, 16 long tasks and a 283 ms worst frame;
+  - the bump to 3.14.13 (lockfile pinned to 3.14.13, range `^3.14.13`; 3.14.20 was one day old):
+    kept. Keydown max 184 → 72 ms, scroll long tasks 3 → 1, rows still measured.
+
 ### Phase 2b — Tree windowing (web), decided 2026-10-15
 
 - `Tree.Root` gains `virtualizeThreshold?: number` (default 150, the same as VirtualTable) and
@@ -379,6 +387,33 @@ Each row records input → expected → actual. "Tests pass" alone is not a chec
 - **After release:** if Happier's native session-row tap does not reach `onNavigate`, deprecate 5.17.0 on npm and ship a patch.
 - **After the release:** `npm view @duro-app/ui@5.17.0 version` resolves, and the published native
   types export `Panel`, `TextLink` and `OnNavigate`. Raising the dependency is Happier's own work.
+
+### Observed (2026-10-15)
+
+| Check                                                           | Expected                                | Observed                                                                                                                                                                  |
+| --------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm run typecheck` (web + native)                             | exit 0                                  | exit 0                                                                                                                                                                    |
+| `pnpm lint`                                                     | 0 errors                                | 0 errors, 13 warnings, all in files this branch does not touch                                                                                                            |
+| `vitest --project=unit`                                         | pass                                    | pass, including followLink, TextLink.native, TreeRow.native (9), check-native-graph, native-flag                                                                          |
+| `vitest --project=storybook` (all)                              | pass                                    | 527/528. The one failure, ToggleGroup Keyboard Roving, passed 10/10 when rerun alone; this branch does not touch it; load average 50–60 at the time                       |
+| Tree stories (9)                                                | pass                                    | 9/9                                                                                                                                                                       |
+| WindowedFallback without the completeness guard                 | fails                                   | fails (proves RED), passes with the guard                                                                                                                                 |
+| tree-row-native branch-toggle assertion without the toggle line | fails                                   | 1 failed / 8 passed, then 9/9 with the line                                                                                                                               |
+| `build-registry --check --check-docs`, `check-native-graph`     | exit 0                                  | exit 0, with no exemption left                                                                                                                                            |
+| `pnpm native:export`                                            | bundles                                 | iOS 3148 and Android 3145 modules, one copy each of react-strict-dom and react-native                                                                                     |
+| iOS simulator, checkpoint screen: Tree rows                     | name = label, meta                      | "Ship 5.17, 5m, Needs approval" (link), "happier, 2m, 3" (button)                                                                                                         |
+| iOS: branch chevron                                             | its own button, expanded state          | separate AXButton named after the branch, AXValue "expanded" when open                                                                                                    |
+| iOS: tap on a folder row with no href                           | selects and expands                     | expanded, children shown, row highlighted                                                                                                                                 |
+| iOS: tap on a Tree.Item with href                               | onNavigate                              | "onNavigate /session/1" (this tap did nothing on origin/main)                                                                                                             |
+| iOS: tap on the chevron of a link branch                        | toggles only                            | collapsed, no onNavigate                                                                                                                                                  |
+| iOS: inline TextLink                                            | reachable, routed                       | "3 links found", each its own AXLink; tap logs "onNavigate /docs"                                                                                                         |
+| iOS: TextLink without onNavigate                                | system opens it                         | Safari at example.com, nothing logged                                                                                                                                     |
+| iOS: TextLink with target=\_blank                               | system, no onNavigate                   | Safari new tab, nothing logged                                                                                                                                            |
+| iOS: Menu.LinkItem after the refactor                           | onNavigate                              | menu closed, "onNavigate /settings"                                                                                                                                       |
+| iOS: Panel with a 50-row Body                                   | last row reachable                      | Rows 1–50 and the footer in the accessibility tree, reached by page scroll                                                                                                |
+| iOS: href without onNavigate warns                              | dev warning                             | toast shown; its text is covered by the unit test, not read on device                                                                                                     |
+| Perf300 4× after react-virtual 3.14.13 (load 15–33)             | mount ≤ 50, no long task, keydown ≤ 100 | mount 58.5 ms (49.7–68.3; baseline 1491); scroll 1 long task, worst frame 66 ms (unwindowed baseline: 0, 64.5 ms); key to paint max 36 ms; Event Timing keydown max 72 ms |
+| Perf300 1×                                                      | —                                       | mount 17.2 ms, 0 long tasks, keydown max 56 ms                                                                                                                            |
 
 ## Outcome
 
