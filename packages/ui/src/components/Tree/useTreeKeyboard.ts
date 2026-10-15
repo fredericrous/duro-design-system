@@ -138,7 +138,12 @@ export function useTreeKeyboard({
           // runs onNavigate, or the browser navigates)
           const link = current.querySelector<HTMLElement>(':scope > [data-tree-link]')
           if (link) link.click()
-          else onSelect(val)
+          else {
+            onSelect(val)
+            // a branch with no link toggles too, as a click on its row does
+            const expanded = current.getAttribute('aria-expanded')
+            if (expanded !== null) setExpanded(val, expanded !== 'true')
+          }
           return
         }
       }

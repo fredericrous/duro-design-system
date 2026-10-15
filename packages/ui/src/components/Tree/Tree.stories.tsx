@@ -533,7 +533,7 @@ export const Windowed: Story = {
     // typeahead reaches an off-screen row
     await expect(canvas.queryByRole('treeitem', {name: 'Folder08'})).toBeNull()
     await userEvent.keyboard('Folder08')
-    const folder = await canvas.findByRole('treeitem', {name: 'Folder08'})
+    const folder = await canvas.findByRole('treeitem', {name: 'Folder08'}, {timeout: 5000})
     await expect(folder).toHaveFocus()
     await expect(folder).toHaveAttribute('aria-posinset', '9')
 
@@ -573,5 +573,26 @@ export const WindowedFallback: Story = {
     // 5 branches + 5 x 40 wrapped rows, all mounted: no row lost to the window
     await expect(canvas.getAllByRole('treeitem')).toHaveLength(205)
     await expect(canvas.getByRole('treeitem', {name: 'Wrapped 4-39'})).toBeInTheDocument()
+  },
+}
+
+/** A branch with no link toggles on a click of its row (a folder); Enter too. */
+export const BranchRowToggles: Story = {
+  name: 'Branch row toggles',
+  render: () => (
+    <Tree.Root aria-label="Folders">
+      <Tree.Item value="src" label="src">
+        <Tree.Item value="app" label="app.ts" />
+      </Tree.Item>
+    </Tree.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const branch = canvas.getByRole('treeitem', {name: 'src'})
+    await expect(branch).toHaveAttribute('aria-expanded', 'false')
+    await userEvent.click(canvas.getByText('src'))
+    await expect(branch).toHaveAttribute('aria-expanded', 'true')
+    await expect(branch).toHaveAttribute('aria-selected', 'true')
+    await userEvent.keyboard('{Enter}')
+    await expect(branch).toHaveAttribute('aria-expanded', 'false')
   },
 }

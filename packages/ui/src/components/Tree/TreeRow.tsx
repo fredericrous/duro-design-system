@@ -91,7 +91,14 @@ export function TreeRow({
           {rowContent}
         </html.a>
       ) : (
-        <html.div onClick={onSelect} style={[styles.row, ...rowStyles]}>
+        <html.div
+          onClick={() => {
+            onSelect()
+            // a branch with no link toggles on its row (a folder); with a link the row navigates
+            if (hasChildren) onToggle()
+          }}
+          style={[styles.row, ...rowStyles]}
+        >
           {rowContent}
         </html.div>
       )}

@@ -48,6 +48,8 @@ export function TreeRow({
   const press = () => {
     onSelect()
     if (href !== undefined) followLink(href, onNavigate, 'Tree.Item')
+    // a branch with no link toggles on its row (a folder), as on the web
+    else if (hasChildren) onToggle()
   }
 
   return (
