@@ -96,7 +96,7 @@
   },
   "dependencies": {
     "@duro-app/tokens": "workspace:^",
-    "@tanstack/react-virtual": "^3.14.6",
+    "@tanstack/react-virtual": "^3.14.13",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
