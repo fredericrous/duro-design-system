@@ -846,7 +846,7 @@ pieces a reader page needs, each owning its accessibility:
   skipLabel="Skip to content"
   brand={<TextLink href="/">kb-vision</TextLink>}
 >
-  <AppShell.Rail aria-label="Navigation" footer={<UserMenu />}>
+  <AppShell.Rail aria-label="Main" footer={<UserMenu />}>
     {({close}) => <DocsNav onPick={close} />}
   </AppShell.Rail>
   <AppShell.Header>{search}</AppShell.Header>

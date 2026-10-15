@@ -5741,6 +5741,7 @@
           "Top-level horizontal nav — use Inline with LinkButton"
         ],
         "whenToUse": [
+          "Inside `AppShell.Rail`: the Rail is the navigation landmark, so Root renders a plain block, or `role=\"group\"` with its `aria-label` when it has one. Name the Rail \"Main\", not \"Navigation\" (screen readers would announce \"Navigation navigation\"). Outside a Rail, Root is a `nav` landmark.",
           "App-level sidebar navigation — flat `Section`s, every destination visible",
           "Settings navigation with labelled regions",
           "`Group` for a rare or advanced region tucked below the flat sections",
@@ -5807,7 +5808,7 @@
               "type": "ReactNode"
             },
             {
-              "description": "Names the navigation landmark (\"Main\", \"Settings\"). Give one whenever the page has another nav (a breadcrumb, a pager): screen readers list landmarks by name.",
+              "description": "Names the navigation landmark (\"Main\", \"Settings\"). Give one whenever the page has another nav (a breadcrumb, a pager): screen readers list landmarks by name. Inside `AppShell.Rail` it is not a landmark (the Rail is): the name then labels a `role=\"group\"`.",
               "name": "aria-label",
               "required": false,
               "type": "string"
