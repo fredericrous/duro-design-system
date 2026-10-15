@@ -1,8 +1,12 @@
-import {useState} from 'react'
+import {Profiler, useEffect, useLayoutEffect, useRef, useState} from 'react'
 import {html} from 'react-strict-dom'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
 import {Tree} from './Tree'
+import {Badge} from '../Badge/Badge'
+import {Inline} from '../Inline/Inline'
+import {ScrollArea} from '../ScrollArea/ScrollArea'
+import {Text} from '../Text/Text'
 import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'
 import type {OnNavigate} from '../../shared/navigate'
@@ -243,5 +247,217 @@ export const WithLinks: StoryObj<{onNavigate: OnNavigate}> = {
     await expect(clickLink(runbooks, {metaKey: true}).defaultPrevented).toBe(false)
     await expect(onNavigate).toHaveBeenCalledTimes(2)
     await expect(item(/Runbooks/)).toHaveAttribute('aria-selected', 'false')
+  },
+}
+
+// --- Perf: 300 leaves (measurement harness, plan 2026-10-15 section 3) ---
+
+const BRANCHES = 20
+const LEAVES_PER_BRANCH = 15
+const BRANCH_VALUES = Array.from({length: BRANCHES}, (_, b) => `branch-${b}`)
+const PERF_REMOUNT_CEILING_MS = 2000
+
+interface TreePerf {
+  mountTimes: number[]
+  keyTimes: number[]
+  eventEntries: number[]
+  renders: number
+  resetRenders: () => void
+  remount: (n: number) => Promise<number[]>
+  scroll: () => Promise<{worstFrameGap: number; longTasks: number}>
+}
+
+declare global {
+  interface Window {
+    __treeRenders?: number
+    __treePerf?: TreePerf
+  }
+}
+
+const nextFrame = () => new Promise<number>((resolve) => requestAnimationFrame(resolve))
+
+function countCommit() {
+  window.__treeRenders = (window.__treeRenders ?? 0) + 1
+}
+
+function PerfTree() {
+  let leaf = 0
+  return (
+    <ScrollArea.Root>
+      <ScrollArea.Viewport maxHeight="listMaxH" rovingOwner>
+        <ScrollArea.Content>
+          <Tree.Root aria-label="Sessions" defaultExpanded={BRANCH_VALUES}>
+            {BRANCH_VALUES.map((branch, b) => (
+              <Profiler key={branch} id={branch} onRender={countCommit}>
+                <Tree.Item value={branch} label={`Project ${b}`}>
+                  {Array.from({length: LEAVES_PER_BRANCH}, () => {
+                    const i = leaf++
+                    return (
+                      <Profiler key={i} id={`leaf-${i}`} onRender={countCommit}>
+                        <Tree.Item
+                          value={`leaf-${i}`}
+                          label={`Session ${i}`}
+                          href={`/s/${i}`}
+                          onNavigate={(_href, event) => event.preventDefault()}
+                          meta={
+                            <Inline gap="sm">
+                              <Text variant="caption" color="muted">
+                                {`${i}m ago`}
+                              </Text>
+                              <Badge size="sm">Running</Badge>
+                            </Inline>
+                          }
+                        />
+                      </Profiler>
+                    )
+                  })}
+                </Tree.Item>
+              </Profiler>
+            ))}
+          </Tree.Root>
+        </ScrollArea.Content>
+      </ScrollArea.Viewport>
+    </ScrollArea.Root>
+  )
+}
+
+function CommitProbe({onCommit}: {onCommit: () => void}) {
+  useLayoutEffect(() => {
+    onCommit()
+  })
+  return null
+}
+
+function PerfHarness() {
+  const [mounted, setMounted] = useState(true)
+  const hostRef = useRef<HTMLDivElement>(null)
+  const commitRef = useRef<(() => void) | null>(null)
+
+  useEffect(() => {
+    const host = hostRef.current
+    if (host === null) return
+    const longTaskTimes: number[] = []
+    const observers: PerformanceObserver[] = []
+    const observe = (
+      init: PerformanceObserverInit,
+      onEntries: (e: PerformanceEntryList) => void,
+    ) => {
+      try {
+        const observer = new PerformanceObserver((list) => onEntries(list.getEntries()))
+        observer.observe(init)
+        observers.push(observer)
+      } catch {
+        // an entry type this browser lacks: that measure stays empty
+      }
+    }
+    const perf: TreePerf = {
+      mountTimes: [],
+      keyTimes: [],
+      eventEntries: [],
+      renders: 0,
+      resetRenders: () => {
+        window.__treeRenders = 0
+      },
+      remount: async (n) => {
+        const times: number[] = []
+        for (let k = 0; k < n; k++) {
+          setMounted(false)
+          await nextFrame()
+          const started = performance.now()
+          const done = new Promise<void>((resolve) => {
+            commitRef.current = () => {
+              commitRef.current = null
+              requestAnimationFrame(() => {
+                times.push(performance.now() - started)
+                resolve()
+              })
+            }
+          })
+          setMounted(true)
+          await done
+        }
+        perf.mountTimes.push(...times)
+        return times
+      },
+      scroll: async () => {
+        const viewport = host.querySelector<HTMLElement>('[data-duro-scroll]')
+        if (viewport === null) return {worstFrameGap: 0, longTasks: 0}
+        const before = longTaskTimes.length
+        const distance = viewport.scrollHeight - viewport.clientHeight
+        let worst = 0
+        let last = await nextFrame()
+        for (let frame = 1; frame <= 60; frame++) {
+          viewport.scrollTop = (distance * frame) / 60
+          const now = await nextFrame()
+          worst = Math.max(worst, now - last)
+          last = now
+        }
+        return {worstFrameGap: worst, longTasks: longTaskTimes.length - before}
+      },
+    }
+    Object.defineProperty(perf, 'renders', {get: () => window.__treeRenders ?? 0})
+    window.__treePerf = perf
+
+    observe({type: 'longtask'}, (entries) => longTaskTimes.push(...entries.map((e) => e.startTime)))
+    observe(
+      {type: 'event', durationThreshold: 16, buffered: false} as PerformanceObserverInit,
+      (entries) => {
+        for (const entry of entries)
+          if (entry.name === 'keydown') perf.eventEntries.push(entry.duration)
+      },
+    )
+
+    // keydown dispatch to the next frame after a row's tabindex flips
+    let pending: number | null = null
+    const onKeyDown = () => {
+      pending = performance.now()
+    }
+    const flips = new MutationObserver((records) => {
+      if (pending === null) return
+      if (!records.some((r) => (r.target as Element).getAttribute('tabindex') === '0')) return
+      const started = pending
+      pending = null
+      requestAnimationFrame(() => perf.keyTimes.push(performance.now() - started))
+    })
+    host.addEventListener('keydown', onKeyDown, true)
+    flips.observe(host, {subtree: true, attributes: true, attributeFilter: ['tabindex']})
+
+    return () => {
+      host.removeEventListener('keydown', onKeyDown, true)
+      flips.disconnect()
+      for (const observer of observers) observer.disconnect()
+      delete window.__treePerf
+    }
+  }, [])
+
+  return (
+    <html.div ref={hostRef}>
+      {mounted ? (
+        <>
+          <PerfTree />
+          <CommitProbe onCommit={() => commitRef.current?.()} />
+        </>
+      ) : null}
+    </html.div>
+  )
+}
+
+/**
+ * Measurement harness for the cost of a 300-leaf tree (20 branches of 15 links,
+ * Happier-shaped meta). Read `window.__treePerf` from a benchmark run; the play
+ * function only proves the harness works, with a generous ceiling.
+ */
+export const Perf300: Story = {
+  name: 'Perf: 300 leaves',
+  render: () => <PerfHarness />,
+  play: async ({canvas}) => {
+    await expect(canvas.getAllByRole('treeitem')).toHaveLength(
+      BRANCHES + BRANCHES * LEAVES_PER_BRANCH,
+    )
+    const perf = window.__treePerf
+    await expect(perf).toBeDefined()
+    const times = (await perf?.remount(5)) ?? []
+    await expect(times).toHaveLength(5)
+    for (const time of times) await expect(time).toBeLessThan(PERF_REMOUNT_CEILING_MS)
   },
 }
