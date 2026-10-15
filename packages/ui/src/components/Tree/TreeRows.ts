@@ -75,6 +75,11 @@ function itemsOf(children: ReactNode, isItem: (el: ReactElement) => boolean): It
 }
 
 /**
+ * holds-until: a consumer needs to window a tree whose Items sit inside its own
+ * components. The pass reads JSX props only, so it cannot see an Item that a
+ * component renders; `complete` turns false and Tree renders unwindowed with a
+ * dev warning. Then: collect by rendering Items in a register-only mode.
+ *
  * The collect pass: walks the `Tree.Item` elements of the tree and returns its
  * visible rows, with each row's level and its set size and position among its
  * siblings. It reads props only: no DOM, no render, no mutation of anything

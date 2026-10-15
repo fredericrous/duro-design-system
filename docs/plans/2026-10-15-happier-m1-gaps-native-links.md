@@ -112,7 +112,7 @@ avoids the problem: it builds a tracked `LinkClickEvent`, calls `onNavigate`, an
   - with `href`, `role="link"`; a press calls `onSelect(value)`, then
     `followLink(href, onNavigate, 'Tree.Item')`;
   - without `href`, `role="button"`; a press calls `onSelect(value)`;
-  - both carry `aria-selected` and an `:active` pressed style; `aria-expanded` sits only on the branch's chevron control, because pressing the row does not toggle;
+  - both carry `aria-selected` and an `:active` pressed style; `aria-expanded` sits only on the branch's chevron control (the one control that always toggles, link or not);
   - both take their name from their own text (label, then meta), with no `aria-labelledby`;
   - the native `li` and group `ul` pass `role="none"` (RSD defaults them to `listitem`/`list`, `index.js:2870-2873`) and no aria, so nothing is announced twice.
     On web, role and state stay on the `li` (`Tree.tsx:190-196`).
@@ -124,7 +124,7 @@ avoids the problem: it builds a tracked `LinkClickEvent`, calls `onNavigate`, an
     `Tree.Root` prop, `expandLabel?: (label: string) => string`. It receives the Item's text (`textValue`, else a string `label`); an empty text warns in dev. It defaults to the branch's text,
     so VoiceOver reads "Operations, collapsed, button" right after the row.
   - The chevron's hit area is at least `sizes.chip` (24 px, WCAG 2.5.8 minimum).
-  - The chevron press toggles only. It is a sibling of the press target, so no `stopPropagation` is needed.
+  - The chevron press toggles only. It is a sibling of the press target, so no `stopPropagation` is needed. A press on the row of a branch with no `href` also toggles (decided 2026-10-15, see Decision log).
   - A leaf has no chevron control at all. Today `Tree.tsx:166-167` attaches `onClick` to leaves
     too, which on native would leave a dead gutter.
   - The level indent sits on the outer row View. A leaf's chevron-width spacer sits inside its press target, so tapping the gutter selects. A `TreeRow.native` unit test asserts the spacer is a descendant of the press target.
@@ -298,6 +298,27 @@ checks are done in the same branch. Otherwise they follow in 5.18.0.
   - A new story above the threshold asserts the window mounts fewer rows than exist, the level,
     setsize and posinset values on the rows, Home/End and typeahead reaching off-screen rows, and an
     axe pass.
+- 2026-10-15 — The person decided that a click or Enter on a branch row with no `href` selects
+  and toggles it, like a folder, on web and native. A branch with `href` navigates, and its chevron
+  toggles. Commit `96734ed3`, story `BranchRowToggles`, plus native unit assertions.
+- 2026-10-15 — The collect pass is a static walk of the `Tree.Item` JSX props, not a render-mode
+  pass. It cannot see Items rendered by a component, so a branch holding non-Item children makes
+  the collection incomplete. Tree then renders unwindowed, with a dev warning. The
+  `WindowedFallback` story fails without the guard and passes with it. The limit has a
+  `holds-until:` comment in `TreeRows.ts`. Deliberate: the pass runs on every web render, even
+  below the threshold, because it is a props-only O(n) walk that renders nothing.
+- 2026-10-15 — The RSD issue was not filed. react/react-strict-dom#58 already reports this stub
+  ("href handling is not implemented"), so ADR-0002's addendum and the `holds-until` link to it
+  instead of adding a duplicate.
+- 2026-10-15 — Perf300 was re-measured after windowing, with the same script, build and 320 rows.
+  - The load was much heavier than for the baseline: load average 28–36, against 7–13.
+  - **1×:** mount median 17.1 ms (baseline 82.5); scroll worst frame 17.6 ms, 0 long tasks; key
+    to paint max 18.8 ms; Event Timing keydown max 56 ms. All four pass.
+  - **4×:** mount median 57.8 ms (baseline 1491; rule ≤ 50); scroll worst frame 132.5 ms, 4 long
+    tasks; key to paint max 87 ms (rule ≤ 100, passes); Event Timing keydown max 168 ms (rule
+    ≤ 100).
+  - Not judged at 4×, given the load difference. It is re-measured under comparable load before
+    the tag.
 
 ## Verification
 

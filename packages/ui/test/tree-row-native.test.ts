@@ -63,7 +63,12 @@ describe('TreeRow.native', () => {
       const name = `${hasChildren ? 'branch' : 'leaf'} ${href ? 'with' : 'without'} href`
       it(`${name}: role, selection state, press`, () => {
         const onNavigate = vi.fn()
-        const {press, onSelect, root} = render({hasChildren, href, onNavigate, selected: true})
+        const {press, onSelect, onToggle, root} = render({
+          hasChildren,
+          href,
+          onNavigate,
+          selected: true,
+        })
         expect(press.props.role).toBe(href ? 'link' : 'button')
         expect(press.props['aria-selected']).toBe(true)
         expect('aria-expanded' in press.props).toBe(false)
@@ -77,6 +82,8 @@ describe('TreeRow.native', () => {
         } else {
           expect(followLink).not.toHaveBeenCalled()
         }
+        // a branch with no link toggles on its row (a folder); a link only navigates
+        expect(onToggle).toHaveBeenCalledTimes(hasChildren && !href ? 1 : 0)
       })
     }
   }
