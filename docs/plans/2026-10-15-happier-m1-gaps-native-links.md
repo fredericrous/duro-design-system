@@ -243,6 +243,61 @@ checks are done in the same branch. Otherwise they follow in 5.18.0.
   - The keystroke gate is dispatch to the next paint, at 100 ms.
   - The remedy for focus broadcasts is to split focus out of the context, since memoising the value
     cannot stop them.
+- 2026-10-15 — Item 4: "demote always" confirmed by the person after the consumer grep.
+  - kb-vision's `app/routes/layout.test.tsx:57-60,91` asserts a named "Sections" navigation inside
+    the Rail, so it must change when kb-vision raises `@duro-app/ui`. The release notes name it.
+  - duro-app and application-landscape use their own navs and are unaffected.
+- 2026-10-15 — Item 3 measured. The rule fails, and the person chose **windowing inside Tree now**
+  (Phase 2b), in this release.
+  - Setup: the production `build-storybook` output, headed Chromium 1228 through Playwright, trusted
+    keys, CDP CPU throttling, 320 rows. The machine was under load (load average 7–13), which
+    inflates the 4× figures.
+  - **1×:** mount median 82.5 ms (77.1–83.6); scroll worst frame 17.6 ms, 0 long tasks; key to paint
+    (rAF) median 15.6 ms, max 69.7 ms; Event Timing keydown max 112 ms.
+  - **4×:** mount median 1491 ms (1260–1837); scroll worst frame 64.5 ms, 0 long tasks; key to paint
+    median 56.1 ms, max 74.6 ms; Event Timing keydown max 120 ms.
+  - Failed: mount (≤ 50 ms) and the Event Timing keydown (≤ 100 ms).
+  - Item re-renders per keystroke stay unmeasured. The story's Profiler counts 320 commits on mount
+    but 0 on a focus move, although `focusValue` is context state (`Tree.tsx:59,104`): it does not
+    fire when it bails out and only its descendants update, so it cannot see the broadcast.
+- 2026-10-15 — Windowing API: the person chose a collect pass over the JSX children, so `Tree.Item`
+  stays the API. The design follows what is right for Duro, not Happier's wrappers. Duro builds with
+  React Compiler (`babel-plugin-react-compiler`): no hand-written `memo`/`useMemo`, and the collect
+  pass must be compiler-safe (no render-phase mutation that the compiler would reject).
+
+### Phase 2b — Tree windowing (web), decided 2026-10-15
+
+- `Tree.Root` gains `virtualizeThreshold?: number` (default 150, the same as VirtualTable) and
+  `maxHeight?: Length` (the scroll viewport cap once virtualized, as VirtualList).
+- **Collect pass.** Root renders its children in a collect mode. Each `Tree.Item` registers its
+  value, level, text (`textValue` or string label), `hasChildren`, expanded state, `href` and
+  `onNavigate`, and its label and meta nodes. It renders no DOM, and recurses into its children only
+  while open. The result is a flat, ordered list of visible rows, plus `aria-setsize` and
+  `aria-posinset` per level.
+- **At or below the threshold:** today's nested `ul`/`li` markup, unchanged, with every Story and
+  test as they are now.
+- **Above it:** a scroll container, `role="tree"` with its name, that mounts only the window
+  (`@tanstack/react-virtual`, rows measured, overscan) as flat `role="treeitem"` rows. Each row has
+  `aria-level`, `aria-setsize`, `aria-posinset`, `aria-expanded` (branch) and `aria-selected`,
+  rendered through the same web `TreeRow`. Links, chevron and meta naming (#96) work as they do
+  unwindowed.
+- **Keyboard and typeahead** run on the row model, not on `querySelectorAll`: Up/Down, Left/Right
+  (collapse, parent, expand, first child), Home/End, typeahead. A move to an off-screen row calls
+  `scrollToIndex`, then focuses the row once it mounts. There is one tab stop (roving tabindex), the
+  same as unwindowed.
+- **Focus is split out of `TreeContext`** into a small store read with `useSyncExternalStore`. Each
+  row subscribes to "am I the tab stop / ringed", so a focus move re-renders only the old and the new
+  row, windowed or not.
+- **Native unchanged:** `useTreeKeyboard.native` and `TreeRow.native` render every row, as today.
+  Native windowing (a FlashList leaf) is Happier's, per N0.
+- **Verification:**
+  - Perf300 re-measured with the same script, setup and rows.
+  - Expected: a 4× mount far below the 1491 ms baseline (target ≤ 50 ms) and Event Timing keydown
+    ≤ 100 ms.
+  - Existing Tree stories pass unchanged below the threshold.
+  - A new story above the threshold asserts the window mounts fewer rows than exist, the level,
+    setsize and posinset values on the rows, Home/End and typeahead reaching off-screen rows, and an
+    axe pass.
 
 ## Verification
 
