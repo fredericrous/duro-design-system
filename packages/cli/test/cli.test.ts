@@ -439,3 +439,16 @@ describe('skill install', () => {
     expect(description).toContain('plan mode')
   })
 })
+
+describe('the /duro-mockup skill names only what the CLI ships', () => {
+  it('every `duro mockup <sub>` it runs is a real subcommand', async () => {
+    const {MOCKUP_SUBCOMMANDS} = await import('../src/commands/mockup.js')
+    const subs = [...SKILL.matchAll(/@duro-app\/cli@\S+ mockup ([a-z-]+)/g)].map((m) => m[1])
+    expect(subs).toEqual(expect.arrayContaining(['seed', 'check', 'canvas']))
+    for (const sub of subs) expect(MOCKUP_SUBCOMMANDS).toContain(sub)
+  })
+
+  it('sends the agent to no helper Duro does not ship', () => {
+    expect(SKILL).not.toMatch(/seed-canvas|bundled-skills/)
+  })
+})

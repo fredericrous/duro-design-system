@@ -1,10 +1,12 @@
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs'
-import {join, resolve} from 'node:path'
+import {existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync} from 'node:fs'
+import {dirname, join, relative, resolve} from 'node:path'
 import type {Registry} from '../registry-types.js'
 import type {CommandResult} from './lookup.js'
 import {lookup} from '../registry.js'
 import {suggestions} from '../search.js'
 import {lineOf} from '../scan.js'
+import {MOCKUP_SUBCOMMANDS} from '../manifest.js'
+import {uiVersionSkew} from './doctor.js'
 
 /*
  * duro mockup — token-seeded artboards, and the check that makes one a
@@ -16,7 +18,9 @@ import {lineOf} from '../scan.js'
  * palette). `seed` writes an artboard whose only design vocabulary is the
  * resolved token block, so the artboard is written in token names from the
  * first line; `check` refuses an artboard that reaches past them, and refuses
- * one that does not say which design-system component each control is.
+ * one that does not say which design-system component each control is;
+ * `canvas` puts the directions side by side on one page for the person to
+ * pick from, and builds it only from artboards that pass `check`.
  *
  * What binds when a direction is chosen: layout, hierarchy, states, the
  * data-duro component map and the token names — sizes and border widths
@@ -27,7 +31,7 @@ import {lineOf} from '../scan.js'
 export const TOKENS_START = '/* duro:tokens start */'
 export const TOKENS_END = '/* duro:tokens end */'
 
-/** The artboard size the design canvas expects on the root element. */
+/** The artboard size, on the root element and in the review canvas's frames. */
 export const ARTBOARD_WIDTH = 1120
 export const ARTBOARD_HEIGHT = 840
 
@@ -37,7 +41,7 @@ export type MockupTheme = (typeof MOCKUP_THEMES)[number]
 export interface SeedOptions {
   /** Directory to write into. Defaults to docs/mockups/<name>. */
   out?: string
-  /** Artboard file stem. The design canvas needs one called Main. */
+  /** Artboard file stem (default Main). */
   name?: string
   theme?: string
   cwd?: string
@@ -45,6 +49,20 @@ export interface SeedOptions {
 
 export interface CheckOptions {
   cwd?: string
+}
+
+export interface CanvasOptions {
+  /** Where to write the page. Defaults to <dir>/canvas.html. */
+  out?: string
+  /** The page title. Defaults to "<dir name> directions". */
+  title?: string
+  cwd?: string
+}
+
+/** One artboard handed to the canvas: its file name and its HTML. */
+export interface CanvasArtboard {
+  file: string
+  html: string
 }
 
 export interface Finding {
@@ -64,8 +82,8 @@ export interface Finding {
 // seed
 
 /**
- * The artboard skeleton, in the shape the `design` skill's canvas expects:
- * support.js verbatim, one <x-dc>, one <helmet><style>. Everything a
+ * The artboard skeleton: support.js verbatim, one <x-dc>, one
+ * <helmet><style>. Everything a
  * finished artboard adds goes inside the same style block and the root div.
  */
 export function seedArtboard(registry: Registry, name: string, theme: MockupTheme): string {
@@ -532,34 +550,200 @@ export function runMockupCheck(
     }
     all.push(...checkArtboard(registry, file, source))
   }
-  const lines = all.map((f) => `${f.file}:${f.line} ${f.rule}: ${f.message}`)
+  const lines = all.map(findingLine)
+  const skew = uiVersionSkew(cwd)
+  const note = skew ? `\n${skewNote(skew, `mockup check ${files.join(' ')}`)}` : ''
   if (all.length === 0) {
     return {
-      text: `duro mockup check: ${files.length} artboard(s) speak tokens and name their components`,
-      data: {ok: true, files, findings: []},
+      text: `duro mockup check: ${files.length} artboard(s) speak tokens and name their components${note}`,
+      data: {ok: true, files, findings: [], ...(skew && {skew})},
     }
   }
   return {
-    text: `duro mockup check: ${all.length} finding(s)\n${lines.join('\n')}`,
-    data: {ok: false, files, findings: all},
+    text: `duro mockup check: ${all.length} finding(s)\n${lines.join('\n')}${note}`,
+    data: {ok: false, files, findings: all, ...(skew && {skew})},
     exitCode: 1,
   }
 }
 
-const SUBCOMMANDS = ['seed', 'check']
+const findingLine = (f: Finding) => `${f.file}:${f.line} ${f.rule}: ${f.message}`
+
+/**
+ * doctor's version-skew finding, said where it explains a finding: a checker
+ * older than the app reports a component it has not heard of as unknown. npx
+ * keeps a cached CLI that satisfies a range, so this is not hypothetical.
+ */
+function skewNote(skew: {own: string; installed: string}, command: string): string {
+  return `note: @duro-app/ui is ${skew.installed}, but this checker knows ${skew.own} — a component newer than the checker reads as unknown. Run: npx -y @duro-app/cli@${skew.installed} ${command}`
+}
+
+// ---------------------------------------------------------------------------
+// canvas
+
+const ARTBOARD_SUFFIX = '.dc.html'
+
+/** The artboard's own canvas size, from the seeded custom properties. */
+function artboardSize(html: string): {width: number; height: number} {
+  const width = /--duro-mockup-canvas-width:\s*(\d+)px/.exec(html)
+  const height = /--duro-mockup-canvas-height:\s*(\d+)px/.exec(html)
+  return {
+    width: width ? Number(width[1]) : ARTBOARD_WIDTH,
+    height: height ? Number(height[1]) : ARTBOARD_HEIGHT,
+  }
+}
+
+const escapeHtml = (text: string) =>
+  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+/**
+ * An artboard as the page inlines it: without the seed's relative support.js,
+ * which a srcdoc frame cannot load and the page does not need.
+ */
+const inlineable = (html: string) =>
+  html.replace(/<script src="\.\/support\.js"><\/script>\n?/g, '')
+
+/** `Tree-Phone.dc.html` is direction `Tree`; `Main` sorts first, then by name. */
+function directions(artboards: CanvasArtboard[]): [string, CanvasArtboard[]][] {
+  const stem = (a: CanvasArtboard) => a.file.split('/').pop()!.replace(ARTBOARD_SUFFIX, '')
+  const groups = new Map<string, CanvasArtboard[]>()
+  for (const artboard of artboards) {
+    const key = stem(artboard).split('-')[0]!
+    groups.set(key, [...(groups.get(key) ?? []), artboard])
+  }
+  const rank = (key: string) => (key === 'Main' ? '' : key)
+  return [...groups.entries()]
+    .sort(([a], [b]) => rank(a).localeCompare(rank(b)))
+    .map(([key, group]) => [key, group.sort((a, b) => stem(a).localeCompare(stem(b)))])
+}
+
+/**
+ * The review page: every direction side by side, each artboard inlined by
+ * srcdoc so the page is one file (an Artifact needs no supporting files, and
+ * a local copy opens from disk). The frames are sandboxed: an artboard is
+ * untrusted HTML (the MCP tool takes it from the caller) and needs no script. Nothing is built while an artboard fails the
+ * check: the person picks from contracts, not from sketches that drift.
+ */
+export function buildCanvas(
+  registry: Registry,
+  artboards: CanvasArtboard[],
+  options: {title?: string},
+): {html: string | null; findings: Finding[]} {
+  const findings = artboards.flatMap((a) => checkArtboard(registry, a.file, a.html))
+  if (findings.length > 0) return {html: null, findings}
+  const title = escapeHtml(options.title ?? 'Mockup directions')
+  const sections = directions(artboards).map(([key, group], index) => {
+    const letter = String.fromCharCode(65 + (index % 26))
+    const figures = group.map((artboard) => {
+      const {width, height} = artboardSize(artboard.html)
+      const name = escapeHtml(artboard.file.split('/').pop()!)
+      return `<figure>
+<div class="frame" style="aspect-ratio: ${width} / ${height}"><iframe title="${name}" width="${width}" height="${height}" data-width="${width}" style="transform: scale(0.5)" sandbox="" srcdoc="${escapeHtml(inlineable(artboard.html))}"></iframe></div>
+<figcaption>${name} · ${width}×${height}</figcaption>
+</figure>`
+    })
+    return `<section>\n<h2>${letter} · ${escapeHtml(key)}</h2>\n<div class="grid">\n${figures.join('\n')}\n</div>\n</section>`
+  })
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<!-- GENERATED by duro mockup canvas: regenerate it, never edit it. -->
+<style>
+/* The page's own chrome, not a Duro surface: self-contained, themed by system colours. */
+:root { color-scheme: light dark; --gap: 16px; }
+body { margin: 0; padding: var(--gap); background: Canvas; color: CanvasText; font: 14px/1.5 system-ui, sans-serif; }
+h1 { font-size: 20px; margin: 0 0 4px; }
+h2 { font-size: 14px; margin: 32px 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+p { margin: 0; opacity: 0.75; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: var(--gap); }
+figure { margin: 0; min-width: 0; }
+.frame { position: relative; width: 100%; overflow: hidden; border: 1px solid GrayText; border-radius: 8px; }
+.frame iframe { position: absolute; inset: 0 auto auto 0; border: 0; transform-origin: 0 0; }
+figcaption { margin-top: 4px; font-size: 12px; opacity: 0.75; }
+</style>
+</head>
+<body>
+<h1>${title}</h1>
+<p>Pick one direction by its letter. Sizes, colours and the component map are the contract; positions are a sketch.</p>
+${sections.join('\n')}
+<script>
+// Scale each artboard to its frame's width; 0.5 stands until this runs.
+const fit = () => document.querySelectorAll('.frame iframe').forEach((f) => {
+  f.style.transform = 'scale(' + f.parentElement.clientWidth / Number(f.dataset.width) + ')'
+})
+new ResizeObserver(fit).observe(document.body)
+fit()
+</script>
+</body>
+</html>
+`
+  return {html, findings: []}
+}
+
+export function runMockupCanvas(
+  registry: Registry,
+  dir: string | undefined,
+  options: CanvasOptions = {},
+): CommandResult {
+  if (!dir) return usage('duro mockup canvas: give the directory holding the *.dc.html artboards')
+  const cwd = options.cwd ?? process.cwd()
+  const abs = resolve(cwd, dir)
+  if (!existsSync(abs) || !statSync(abs).isDirectory()) {
+    return usage(`duro mockup canvas: ${dir} is not a directory`)
+  }
+  const files = readdirSync(abs)
+    .filter((name) => name.endsWith(ARTBOARD_SUFFIX))
+    .sort()
+  if (files.length === 0) return usage(`duro mockup canvas: no *${ARTBOARD_SUFFIX} in ${dir}`)
+  const artboards = files.map((name) => ({
+    file: join(dir, name),
+    html: readFileSync(join(abs, name), 'utf8'),
+  }))
+  const title = options.title ?? `${abs.split('/').pop()} directions`
+  const {html, findings} = buildCanvas(registry, artboards, {title})
+  const skew = uiVersionSkew(cwd)
+  const note = skew ? `\n${skewNote(skew, `mockup canvas ${dir}`)}` : ''
+  if (html === null) {
+    return {
+      text: `duro mockup canvas: ${findings.length} finding(s) — fix them, then build the page\n${findings.map(findingLine).join('\n')}${note}`,
+      data: {ok: false, findings, ...(skew && {skew})},
+      exitCode: 1,
+    }
+  }
+  const out = options.out ?? join(dir, 'canvas.html')
+  mkdirSync(dirname(resolve(cwd, out)), {recursive: true})
+  writeFileSync(resolve(cwd, out), html, 'utf8')
+  return {
+    text: `duro mockup canvas: ${relative(cwd, resolve(cwd, out))} — ${files.length} artboard(s). Publish it as the Artifact, or open it locally.${note}`,
+    data: {
+      ok: true,
+      path: relative(cwd, resolve(cwd, out)),
+      artboards: files.length,
+      ...(skew && {skew}),
+    },
+  }
+}
+
+export {MOCKUP_SUBCOMMANDS}
 
 export function runMockup(
   registry: Registry,
   sub: string | undefined,
   rest: string[],
-  options: SeedOptions & CheckOptions,
+  options: SeedOptions & CheckOptions & CanvasOptions,
 ): CommandResult {
   if (sub === 'seed') {
     if (rest.length > 0) return usage('duro mockup seed takes flags only (--out, --name, --theme)')
     return runMockupSeed(registry, options)
   }
   if (sub === 'check') return runMockupCheck(registry, rest, options)
+  if (sub === 'canvas') {
+    if (rest.length > 1) return usage('duro mockup canvas takes one directory')
+    return runMockupCanvas(registry, rest[0], options)
+  }
   return usage(
-    `duro mockup: unknown subcommand "${sub ?? ''}" — expected ${SUBCOMMANDS.join(' | ')}`,
+    `duro mockup: unknown subcommand "${sub ?? ''}" — expected ${MOCKUP_SUBCOMMANDS.join(' | ')}`,
   )
 }

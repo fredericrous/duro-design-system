@@ -6,14 +6,15 @@
 > every recipe's source, tokens and rules follow from it (`npx @duro-app/cli Button`,
 > `npx @duro-app/cli login-form --source-only`, `npx @duro-app/cli "tags that wrap"`).
 > As an MCP server: `duro mcp` (tools `duro_ds_lookup` / `duro_ds_list` / `duro_ds_manifest` /
-> `duro_ds_mockup_check`).
+> `duro_ds_mockup_check` / `duro_ds_mockup_canvas`).
 >
 > **Consuming apps:** run `npx -y @duro-app/cli hook install` once in the repo root. It wires a
 > Claude Code `SessionStart` hook that puts this catalog in every agent session automatically, and
 > a `UserPromptSubmit` hook that, in plan mode only, nudges a plan with a new screen or a material
 > UI choice to start from mockup directions — `--check` in CI keeps both from drifting.
 > `npx -y @duro-app/cli skill install` adds the `/duro-mockup` skill: token-seeded artboards (`duro mockup seed`), a checker that refuses raw
-> values and unnamed controls (`duro mockup check`), and the implement-and-prove steps that follow
+> values and unnamed controls (`duro mockup check`), the review page of every direction
+> (`duro mockup canvas`), and the implement-and-prove steps that follow
 > the picked direction. `npx -y @duro-app/cli doctor` checks the app's build wiring
 > (`runtimeInjection`, layered extraction, stylesheet import and layer order) — the ways an app
 > flattens component spacing while this package's CSS is fine — and whether the build compiles

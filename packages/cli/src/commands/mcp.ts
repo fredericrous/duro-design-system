@@ -4,7 +4,7 @@ import {runLookup} from './lookup.js'
 import {runList} from './list.js'
 import {cliVersion} from './manifest.js'
 import {renderComponent, renderRecipe} from '../format.js'
-import {checkArtboard} from './mockup.js'
+import {buildCanvas, checkArtboard} from './mockup.js'
 
 const INSTALL_HINT = `duro mcp needs @modelcontextprotocol/sdk (an optional peer).
   npm i -D @modelcontextprotocol/sdk
@@ -63,6 +63,30 @@ export function toolDefinitions(registry: Registry) {
         required: ['html'],
       },
     },
+    {
+      name: 'duro_ds_mockup_canvas',
+      description:
+        'One self-contained HTML review page for a set of mockup artboards: each direction (Tree.dc.html and Tree-Phone.dc.html are direction Tree) under a letter, every artboard inlined and scaled to its frame. Publish the page for the person to pick a direction. Nothing is built while an artboard fails duro_ds_mockup_check: the findings come back instead.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          artboards: {
+            type: 'array',
+            description: 'The artboards, each with its file name and full HTML',
+            items: {
+              type: 'object',
+              properties: {
+                file: {type: 'string', description: 'e.g. Tree-Phone.dc.html'},
+                html: {type: 'string', description: 'The full artboard HTML'},
+              },
+              required: ['file', 'html'],
+            },
+          },
+          title: {type: 'string', description: 'The page title'},
+        },
+        required: ['artboards'],
+      },
+    },
   ]
 }
 
@@ -104,6 +128,19 @@ export function callTool(registry: Registry, name: string, args: Record<string, 
           ? `${file}: speaks tokens and names its components`
           : findings.map((f) => `${f.file}:${f.line} ${f.rule}: ${f.message}`).join('\n')
       return {text, data: {ok: findings.length === 0, findings}, isError: false}
+    }
+    case 'duro_ds_mockup_canvas': {
+      const artboards = (Array.isArray(args.artboards) ? args.artboards : [])
+        .filter((a): a is {file: unknown; html: unknown} => typeof a === 'object' && a !== null)
+        .map((a) => ({file: String(a.file ?? 'artboard.dc.html'), html: String(a.html ?? '')}))
+      if (artboards.length === 0) {
+        return {text: 'give at least one artboard', data: {ok: false}, isError: true}
+      }
+      const title = typeof args.title === 'string' ? args.title : undefined
+      const {html, findings} = buildCanvas(registry, artboards, {title})
+      const text =
+        html ?? findings.map((f) => `${f.file}:${f.line} ${f.rule}: ${f.message}`).join('\n')
+      return {text, data: {ok: html !== null, html, findings}, isError: false}
     }
     default:
       throw new Error(`unknown tool ${name}`)

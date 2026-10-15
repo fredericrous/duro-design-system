@@ -1,6 +1,9 @@
 import type {Registry} from './registry-types.js'
 import {lookupNames} from './registry.js'
 
+/** `duro mockup <sub>`: the spec owns the names, the command dispatches on them. */
+export const MOCKUP_SUBCOMMANDS = ['seed', 'check', 'canvas']
+
 /**
  * The single command spec. CLI dispatch, --help text, and MCP tool
  * registration all derive from this object — one place to add a command.
@@ -127,26 +130,38 @@ export const COMMANDS: CommandSpec[] = [
   {
     name: 'mockup',
     summary:
-      'Token-seeded mockup artboards: seed writes a .dc.html whose only design vocabulary is the resolved token block; check refuses raw colours/values and controls that name no component',
+      'Token-seeded mockup artboards: seed writes a .dc.html whose only design vocabulary is the resolved token block; check refuses raw colours/values and controls that name no component; canvas writes one review page of every direction in a directory, refusing any artboard that fails check',
     args: [
       {
         name: 'action',
         required: true,
-        description: 'seed (write <Name>.dc.html) | check <file.dc.html>... (exit 1 on findings)',
+        description:
+          'seed (write <Name>.dc.html) | check <file.dc.html>... (exit 1 on findings) | canvas <dir> (write the review page; exit 1 on findings)',
         valuesFrom: 'mockupActions',
       },
     ],
     flags: [
-      {name: 'out', type: 'string', description: 'seed: directory (default docs/mockups/<name>)'},
+      {
+        name: 'out',
+        type: 'string',
+        description:
+          'seed: directory (default docs/mockups/<name>); canvas: the page (default <dir>/canvas.html)',
+      },
       {name: 'name', type: 'string', description: 'seed: artboard stem (default Main)'},
       {
         name: 'theme',
         type: 'string',
         description: 'seed: dark (default) | light | high-contrast — sets <html data-theme>',
       },
+      {
+        name: 'title',
+        type: 'string',
+        description: 'canvas: the page title (default "<dir> directions")',
+      },
     ],
     returns: {
-      shape: '{ok: boolean, path: string} | {ok: boolean, findings: Finding[]}',
+      shape:
+        '{ok: boolean, path: string} | {ok: boolean, findings: Finding[], skew?: {own, installed}} | {ok: boolean, path: string, artboards: number, skew?: {own, installed}}',
       description:
         'seed: where it wrote. check: {file, line, rule, message} per finding — raw-color, raw-length, raw-breakpoint, unknown-component, no-component-map, unannotated-control',
     },
@@ -154,6 +169,7 @@ export const COMMANDS: CommandSpec[] = [
       'duro mockup seed --name Main --out docs/mockups/approvals',
       'duro mockup check docs/mockups/approvals/*.dc.html',
       'duro mockup check Main.dc.html --json',
+      'duro mockup canvas docs/mockups/approvals',
     ],
     mcpTool: 'duro_ds_mockup_check',
   },
@@ -180,7 +196,7 @@ export const COMMANDS: CommandSpec[] = [
   {
     name: 'mcp',
     summary:
-      'Run a stdio MCP server exposing duro_ds_lookup / duro_ds_list / duro_ds_manifest / duro_ds_mockup_check',
+      'Run a stdio MCP server exposing duro_ds_lookup / duro_ds_list / duro_ds_manifest / duro_ds_mockup_check / duro_ds_mockup_canvas',
     args: [],
     flags: [],
     returns: {shape: 'never', description: 'Serves until stdin closes'},
@@ -207,7 +223,7 @@ export function buildManifest(registry: Registry, version: string) {
       names: lookupNames(registry),
       kinds: ['components', 'recipes', 'tokens'],
       events: ['session-start', 'install'],
-      mockupActions: ['seed', 'check'],
+      mockupActions: MOCKUP_SUBCOMMANDS,
       skillActions: ['install'],
     },
   }

@@ -41,6 +41,7 @@ async function main(): Promise<void> {
         out: {type: 'string'},
         name: {type: 'string'},
         theme: {type: 'string'},
+        title: {type: 'string'},
         help: {type: 'boolean', short: 'h', default: false},
         version: {type: 'boolean', short: 'v', default: false},
       },
@@ -61,8 +62,9 @@ async function main(): Promise<void> {
 
   // Version-skew guard: the registry documents the lockstep-released ui
   // version; warn (stderr only) when a locally installed ui differs. doctor
-  // reports the same skew as one of its findings instead.
-  if (!values.json && first !== 'doctor') {
+  // reports the same skew as one of its findings instead, and mockup under the
+  // findings it may explain (an unknown-component newer than the checker).
+  if (!values.json && first !== 'doctor' && first !== 'mockup') {
     const skew = uiVersionSkew(process.cwd())
     if (skew) {
       process.stderr.write(
@@ -92,7 +94,12 @@ async function main(): Promise<void> {
   if (first === 'mockup') {
     const [sub, ...files] = rest
     emit(
-      runMockup(registry, sub, files, {out: values.out, name: values.name, theme: values.theme}),
+      runMockup(registry, sub, files, {
+        out: values.out,
+        name: values.name,
+        theme: values.theme,
+        title: values.title,
+      }),
       values.json,
     )
   }

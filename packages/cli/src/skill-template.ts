@@ -46,8 +46,9 @@ does not bind: positions (top, left, inset, transform).
 resolved values from the real stylesheets. Here you never write a resolved
 value: every colour, spacing, radius, font, shadow and duration is a
 \`var(--duro-*)\` from the seeded token block, and every element a person can
-act on carries \`data-duro="<Component>"\`. The rest of the \`design\` skill
-(artboard shape, \`seed-canvas.mjs\`, the canvas Artifact) still applies.
+act on carries \`data-duro="<Component>"\`. Everything this workflow needs ships
+with the CLI: \`mockup seed\` writes the artboard, \`mockup check\` gates it and
+\`mockup canvas\` builds the page the person picks from.
 
 ## Args
 
@@ -87,15 +88,25 @@ ${DURO} mockup check docs/mockups/<screen>/*.dc.html
 \`\`\`
 
   Exit 1 lists \`file:line rule: message\`. Fix every finding; do not publish
-  an artboard that fails. Then seed the canvas with the \`design\` skill's
-  helper (it lives under the current Claude Code version's bundled-skills
-  directory — locate it, never hardcode the path) and publish the Artifact.
+  an artboard that fails. A note that \`@duro-app/ui\` differs from the
+  checker means an \`unknown-component\` may only be newer than the checker:
+  rerun with the version the note names before changing the artboard.
+- Build the review page, one self-contained file with every direction under a
+  letter (it refuses while any artboard fails the check):
+
+\`\`\`bash
+${DURO} mockup canvas docs/mockups/<screen>
+\`\`\`
+
+  Publish \`docs/mockups/<screen>/canvas.html\` as the Artifact (the
+  \`duro_ds_mockup_canvas\` MCP tool returns the same page from the artboards'
+  HTML). Where Artifacts are unavailable, open it locally in the browser and
+  say so; the pick does not wait on publishing.
 - Ask the user to pick a direction. Record the answer as
   \`<canvas URL> · direction <X>\` — it goes in the PR.
-- If the user edits an artboard in the canvas editor, its property panel
-  writes literals back over \`var()\` by design. Re-extract and run
-  \`mockup check\` again, but treat those findings as advisory: the authored
-  file in \`docs/mockups/\` is the contract, the canvas is the review surface.
+- Delete the directions that were not picked, rebuild the canvas, and commit
+  the picked artboards: the files in \`docs/mockups/\` are the contract, the
+  canvas is the review surface.
 
 ## implement
 
