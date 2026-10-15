@@ -161,7 +161,7 @@ export const COMMANDS: CommandSpec[] = [
     ],
     returns: {
       shape:
-        '{ok: boolean, path: string} | {ok: boolean, findings: Finding[]} | {ok: boolean, path: string, artboards: number}',
+        '{ok: boolean, path: string} | {ok: boolean, findings: Finding[], skew?: {own, installed}} | {ok: boolean, path: string, artboards: number, skew?: {own, installed}}',
       description:
         'seed: where it wrote. check: {file, line, rule, message} per finding — raw-color, raw-length, raw-breakpoint, unknown-component, no-component-map, unannotated-control',
     },

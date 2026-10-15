@@ -325,6 +325,8 @@ describe('buildCanvas', () => {
     expect(html).toContain('srcdoc="')
     expect(html).toContain('data-duro=&quot;Button variant=primary&quot;')
     expect(html).not.toMatch(/<iframe[^>]* src=/)
+    // Untrusted HTML: every frame is sandboxed, scripts off.
+    expect(html!.match(/<iframe /g)).toHaveLength(html!.match(/ sandbox="" /g)!.length)
   })
 
   it("drops the seed's relative support.js, which a srcdoc frame cannot load", () => {
@@ -365,8 +367,10 @@ describe('runMockup canvas on disk', () => {
     // A second run does not read its own output back as an artboard.
     expect(runMockupCanvas(registry, 'shell', {cwd: root}).data).toMatchObject({artboards: 2})
 
-    runMockupCanvas(registry, 'shell', {cwd: root, out: 'review.html', title: 'Pick one'})
-    expect(readFileSync(join(root, 'review.html'), 'utf8')).toContain('<title>Pick one</title>')
+    runMockupCanvas(registry, 'shell', {cwd: root, out: 'review/page.html', title: 'Pick one'})
+    expect(readFileSync(join(root, 'review', 'page.html'), 'utf8')).toContain(
+      '<title>Pick one</title>',
+    )
   })
 
   it('refuses with exit 1 and writes nothing when an artboard fails; 2 on bad input', () => {
