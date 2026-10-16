@@ -446,6 +446,14 @@ Each row records input → expected → actual. "Tests pass" alone is not a chec
 | Perf300 4× after react-virtual 3.14.13 (load 15–33)                                                       | mount ≤ 50, no long task, keydown ≤ 100              | mount 58.5 ms (49.7–68.3; baseline 1491); scroll 1 long task, worst frame 66 ms (unwindowed baseline: 0, 64.5 ms); key to paint max 36 ms; Event Timing keydown max 72 ms                                                                                                                                    |
 | Perf300 1×                                                                                                | —                                                    | mount 17.2 ms, 0 long tasks, keydown max 56 ms                                                                                                                                                                                                                                                               |
 
+## Implementation review
+
+- Verdict: approve-with-changes after a Delta; every finding fixed, none kept as deliberate.
+- Fixed: Popover's string `zIndex` (and the `.css.ts` import that broke `vite build`), the expand-label warning, the missing Observed rows, the unticked phases.
+- Open and blocking Phase 5, by the reviewer's own words: VoiceOver and TalkBack expand and collapse of a branch, run by a person.
+- Left for the person: file "Tree on native: windowing" for Happier (tree-bench printed 9074 ms on a dev build).
+- Tokens and time: round 1 72k, 509 s; Delta 72k, 18 s (one reviewer, resumed).
+
 ## Outcome
 
 (filled at close)
