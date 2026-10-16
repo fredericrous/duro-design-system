@@ -1,5 +1,4 @@
 import {css} from 'react-strict-dom'
-import {LAYERS} from '@duro-app/tokens/keys'
 
 /** Native Popover additions to the shared styles. */
 export const nativeStyles = css.create({
@@ -8,11 +7,11 @@ export const nativeStyles = css.create({
   nativeFlex: {
     display: 'flex',
   },
-  // The shared popup's `zIndex: layers.floating` is the CSS string '50',
-  // which Android's view manager refuses (iOS ignores it): React Native reads
-  // the number from LAYERS.
+  // The shared popup's `zIndex: layers.floating` is the CSS string '50', which Android's
+  // view manager refuses (iOS ignores it). The popup sits alone in an OverlayModal
+  // window, where web layering has no job: a number is all it needs.
   popupInPlace: {
     position: 'relative',
-    zIndex: LAYERS.floating,
+    zIndex: 0,
   },
 })

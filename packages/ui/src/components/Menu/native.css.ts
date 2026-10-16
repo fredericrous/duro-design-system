@@ -1,6 +1,5 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {LAYERS} from '@duro-app/tokens/keys'
 
 /** Native Menu additions to the shared styles. */
 export const nativeStyles = css.create({
@@ -9,12 +8,12 @@ export const nativeStyles = css.create({
   nativeFlex: {
     display: 'flex',
   },
-  // The shared popup's `zIndex: layers.popup` is the CSS string '1050', which
-  // Android's view manager refuses (iOS ignores it): React Native reads the
-  // number from LAYERS.
+  // The shared popup's `zIndex: layers.popup` is the CSS string '1050', which Android's
+  // view manager refuses (iOS ignores it). The popup sits alone in an OverlayModal
+  // window, where web layering has no job: a number is all it needs.
   popupInPlace: {
     position: 'relative',
-    zIndex: LAYERS.popup,
+    zIndex: 0,
   },
   // A press shows the highlight that hover and the arrow keys show on the web.
   itemPressed: {
