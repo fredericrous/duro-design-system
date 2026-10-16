@@ -6,6 +6,7 @@ import {
   Inline,
   Menu,
   Panel,
+  Popover,
   Stack,
   Text,
   TextLink,
@@ -17,7 +18,8 @@ import {
  * Device checkpoint for the 5.17.0 native links (plan
  * 2026-10-15-happier-m1-gaps-native-links): a Tree with Happier-shaped rows
  * (caption + Badge meta) as leaf and branch, each with and without href;
- * TextLinks routed, unrouted and with a target; a Menu.LinkItem; a Panel whose
+ * TextLinks routed, unrouted and with a target; a Menu.LinkItem; a Popover
+ * (Android refuses a string zIndex on its popup); a Panel whose
  * Body holds 50 rows. Every navigation lands in the log at the top.
  */
 export default function Checkpoint() {
@@ -100,6 +102,13 @@ export default function Checkpoint() {
             </Menu.LinkItem>
           </Menu.Popup>
         </Menu.Root>
+
+        <Popover.Root>
+          <Popover.Trigger>Filters</Popover.Trigger>
+          <Popover.Popup label="Filters">
+            <Text>Popover content</Text>
+          </Popover.Popup>
+        </Popover.Root>
 
         <Panel.Root bordered>
           <Panel.Header>

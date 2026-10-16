@@ -37,7 +37,8 @@ export function TreeRow({
       'Tree.Item has an href but no onNavigate: on native a relative href goes to the system (Linking.openURL) and leaves the app. Pass onNavigate to route in-app.',
     )
   }
-  if (hasChildren && text === '') {
+  const chevronLabel = expandLabel ? expandLabel(text) : text
+  if (hasChildren && chevronLabel === '') {
     devWarnOnce(
       'Tree',
       'empty-expand-label',
@@ -65,7 +66,7 @@ export function TreeRow({
           <html.div
             role="button"
             aria-expanded={open}
-            aria-label={expandLabel ? expandLabel(text) : text}
+            aria-label={chevronLabel}
             onClick={onToggle}
             style={styles.chevronControl}
           >

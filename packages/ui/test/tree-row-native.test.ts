@@ -131,4 +131,15 @@ describe('TreeRow.native', () => {
     expect(warn.mock.calls.filter((c) => String(c[0]).includes('onNavigate'))).toHaveLength(1)
     warn.mockRestore()
   })
+
+  it('warns about an empty expand label only when expandLabel does not supply one', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const expandWarnings = () =>
+      warn.mock.calls.filter((c) => String(c[0]).includes('expand control'))
+    render({hasChildren: true, text: '', expandLabel: () => 'Expand row'})
+    expect(expandWarnings()).toHaveLength(0)
+    render({hasChildren: true, text: ''})
+    expect(expandWarnings()).toHaveLength(1)
+    warn.mockRestore()
+  })
 })
