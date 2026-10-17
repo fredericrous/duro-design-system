@@ -536,14 +536,24 @@ export const Windowed: Story = {
     // scrolls and mounts rows: on a loaded runner one stall mid-word resets it. Retype
     // once the window has passed rather than fail on timing.
     let folder: HTMLElement | null = null
+    let lastError: unknown
     for (let attempt = 0; attempt < 3 && folder === null; attempt++) {
-      if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 600))
+      if (attempt > 0) {
+        console.warn(`Tree Windowed: typeahead needed attempt ${attempt + 1} to reach Folder08`)
+        await new Promise((resolve) => setTimeout(resolve, 600))
+      }
       await userEvent.keyboard('Folder08')
-      folder = await canvas
-        .findByRole('treeitem', {name: 'Folder08'}, {timeout: 3000})
-        .catch(() => null)
+      try {
+        folder = await canvas.findByRole('treeitem', {name: 'Folder08'}, {timeout: 3000})
+      } catch (error) {
+        lastError = error
+      }
     }
-    if (folder === null) throw new Error('typeahead did not reach Folder08 in 3 attempts')
+    if (folder === null) {
+      throw Object.assign(new Error('typeahead did not reach Folder08 in 3 attempts'), {
+        cause: lastError,
+      })
+    }
     await expect(folder).toHaveFocus()
     await expect(folder).toHaveAttribute('aria-posinset', '9')
 
