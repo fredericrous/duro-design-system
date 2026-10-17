@@ -24,3 +24,8 @@ docs/mockups/
 # (heads-fresh); prettier escapes `*` in decision text, which the gate then
 # reads as a stale projection.
 docs/adr/HEADS.md
+
+# Forked interface skills: the markdown is kept upstream-shaped so a diff
+# against the pinned upstream commit shows only local edits; a prettier
+# reflow would break that diff.
+packages/cli/skills/
