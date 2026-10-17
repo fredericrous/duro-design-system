@@ -12,7 +12,8 @@
 > Claude Code `SessionStart` hook that puts this catalog in every agent session automatically, and
 > a `UserPromptSubmit` hook that, in plan mode only, nudges a plan with a new screen or a material
 > UI choice to start from mockup directions — `--check` in CI keeps both from drifting.
-> `npx -y @duro-app/cli skill install` adds the `/duro-mockup` skill: token-seeded artboards (`duro mockup seed`), a checker that refuses raw
+> `npx -y @duro-app/cli skill install` adds the colors, typography and ui interface skills (also served
+> as `duro_ds_lookup guide:<name>`; `--force` overwrites a directory of your own) and the `/duro-mockup` skill: token-seeded artboards (`duro mockup seed`), a checker that refuses raw
 > values and unnamed controls (`duro mockup check`), the review page of every direction
 > (`duro mockup canvas`), and the implement-and-prove steps that follow
 > the picked direction. `npx -y @duro-app/cli doctor` checks the app's build wiring

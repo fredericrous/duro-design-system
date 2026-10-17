@@ -25,6 +25,7 @@ describe('registry completeness', () => {
     expect(registry.schemaVersion).toBe(1)
     expect(Object.keys(registry).sort()).toEqual([
       'components',
+      'guides',
       'icons',
       'recipes',
       'rules',

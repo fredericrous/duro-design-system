@@ -136,7 +136,7 @@ export const PLAN_HOOK_COMMAND = `sh ${PLAN_HOOK_SCRIPT_PATH}`
 /** Printed into the planner's context, and only while in plan mode. */
 export const PLAN_NUDGE = `Planning in a Duro consumer. If this plan adds a new screen, or makes a material choice in
 layout, hierarchy or interaction (handoff.fresh-directions-trigger), its first 🧑 decision is
-picking a direction: load the duro-mockup skill now (duro skill install if this repo lacks it)
+picking a direction: load the duro-mockup skill now (duro skill install if this repo lacks it; it installs the colors, typography and ui skills too)
 and draw 2–4 directions with \`duro mockup\` before ExitPlanMode. A fix that restores an existing
 design reuses the picked artboard instead; any other UI change needs no mockup.
 `

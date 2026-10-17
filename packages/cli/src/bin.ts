@@ -13,7 +13,7 @@ function emit(result: CommandResult, json: boolean): never {
   if (json) {
     process.stdout.write(JSON.stringify(result.data, null, 2) + '\n')
   } else {
-    process.stdout.write(result.text + '\n')
+    process.stdout.write(result.text.endsWith('\n') ? result.text : result.text + '\n')
   }
   process.exit(result.exitCode ?? 0)
 }
@@ -37,6 +37,7 @@ async function main(): Promise<void> {
         'source-only': {type: 'boolean', default: false},
         'no-color': {type: 'boolean', default: false},
         check: {type: 'boolean', default: false},
+        force: {type: 'boolean', default: false},
         session: {type: 'boolean', default: false},
         out: {type: 'string'},
         name: {type: 'string'},
@@ -89,7 +90,7 @@ async function main(): Promise<void> {
   }
   if (first === 'skill') {
     if (rest.length > 1) usageError('duro skill takes exactly one action')
-    emit(runSkill(rest[0], {check: values.check}), values.json)
+    emit(runSkill(rest[0], {check: values.check, force: values.force}), values.json)
   }
   if (first === 'mockup') {
     const [sub, ...files] = rest

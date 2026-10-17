@@ -105,12 +105,12 @@ export const COMMANDS: CommandSpec[] = [
   {
     name: 'skill',
     summary:
-      'Claude Code skill /duro-mockup — the mockup → implementation → proof workflow; install writes it into the current repo',
+      'Claude Code skills — /duro-mockup (the mockup → implementation → proof workflow) plus the colors, typography and ui interface skills; install writes all four into the current repo',
     args: [
       {
         name: 'action',
         required: true,
-        description: 'install (write .claude/skills/duro-mockup/SKILL.md)',
+        description: 'install (write .claude/skills/{duro-mockup,colors,typography,ui}/)',
         valuesFrom: 'skillActions',
       },
     ],
@@ -120,10 +120,16 @@ export const COMMANDS: CommandSpec[] = [
         type: 'boolean',
         description: 'install: report drift and exit 1 instead of writing (for CI)',
       },
+      {
+        name: 'force',
+        type: 'boolean',
+        description:
+          'install: with --force, write into an existing colors, typography or ui skill directory that lacks the shipped NOTICE.md (a skill of your own); without --force install refuses',
+      },
     ],
     returns: {
       shape: '{ok: boolean, changes: FileChange[]}',
-      description: 'What the wired file did',
+      description: 'What each wired file did: written, unchanged, stale or removed',
     },
     examples: ['duro skill install', 'duro skill install --check'],
   },
@@ -220,7 +226,8 @@ export function buildManifest(registry: Registry, version: string) {
     ],
     commands: COMMANDS,
     enums: {
-      names: lookupNames(registry),
+      // Guides are fetched by name (guide:<skill>) and stay out of the manifest.
+      names: lookupNames(registry).filter((name) => !name.startsWith('guide:')),
       kinds: ['components', 'recipes', 'tokens'],
       events: ['session-start', 'install'],
       mockupActions: MOCKUP_SUBCOMMANDS,

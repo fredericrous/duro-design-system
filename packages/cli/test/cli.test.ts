@@ -1,14 +1,22 @@
 import {execFileSync} from 'node:child_process'
-import {mkdtempSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs'
+import {
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
-import {fileURLToPath} from 'node:url'
+import {fileURLToPath, pathToFileURL} from 'node:url'
 import {describe, expect, it} from 'vitest'
 import {loadRegistry, lookup} from '../src/registry.js'
 import {runLookup} from '../src/commands/lookup.js'
 import {runList} from '../src/commands/list.js'
 import {runManifest} from '../src/commands/manifest.js'
-import {runSkill} from '../src/commands/skill.js'
+import {listFiles, runSkill} from '../src/commands/skill.js'
 import {SKILL, SKILL_MIN_CLI, SKILL_PATH} from '../src/skill-template.js'
 import {runHook} from '../src/commands/hook.js'
 import {relatedPairs} from '../src/disambiguation.js'
@@ -28,6 +36,7 @@ import {
 
 const registry = loadRegistry()
 const bin = fileURLToPath(new URL('../dist/bin.js', import.meta.url))
+const skillsDir = fileURLToPath(new URL('../skills/', import.meta.url))
 
 function duro(...args: string[]): {stdout: string; code: number} {
   try {
@@ -400,27 +409,177 @@ describe('skill install', () => {
   const repo = () => mkdtempSync(join(tmpdir(), 'duro-skill-'))
   const install = (root: string, check = false) => runSkill('install', {cwd: root, check})
 
-  it('writes the skill file and nothing else', () => {
+  const SKILLS = ['colors', 'typography', 'ui']
+  const shipped = (name: string) => join(skillsDir, name)
+  const installed = (root: string, ...parts: string[]) => join(root, '.claude', 'skills', ...parts)
+
+  it('writes duro-mockup and every packaged file, nested ones included, and nothing else', () => {
     const root = repo()
     const result = install(root)
     expect(result.exitCode).toBeUndefined()
     expect(readFileSync(join(root, SKILL_PATH), 'utf8')).toBe(SKILL)
+    for (const name of SKILLS) {
+      const files = listFiles(shipped(name))
+      expect(files).toContain('SKILL.md')
+      for (const rel of files) {
+        expect(readFileSync(installed(root, name, rel))).toEqual(
+          readFileSync(join(shipped(name), rel)),
+        )
+      }
+    }
     expect(result.text).toContain('/duro-mockup')
+    expect(result.text).toContain('duro-mockup, colors, typography, ui')
+    expect(result.text.trimEnd().split('\n').pop()).toContain('skill install --check')
     expect(() => readFileSync(join(root, '.claude', 'settings.json'), 'utf8')).toThrow()
+    expect(readdirSync(installed(root, 'ui')).some((file) => file.endsWith('.tmp'))).toBe(false)
   })
 
-  it('is idempotent, --check passes when wired and exits 1 when not or when edited', () => {
+  it('writes a nested file at its relative path and exits 2 on a missing or empty skills directory', () => {
+    const scratch = mkdtempSync(join(tmpdir(), 'duro-skills-src-'))
+    mkdirSync(join(scratch, 'ui', 'refs', 'deep'), {recursive: true})
+    writeFileSync(join(scratch, 'ui', 'SKILL.md'), 'skill\n')
+    writeFileSync(join(scratch, 'ui', 'NOTICE.md'), 'notice\n')
+    writeFileSync(join(scratch, 'ui', 'refs', 'deep', 'a.md'), 'nested\n')
+    const root = repo()
+    const result = runSkill('install', {cwd: root, skillsDir: pathToFileURL(`${scratch}/`)})
+    expect(result.exitCode).toBeUndefined()
+    expect(readFileSync(installed(root, 'ui', 'refs', 'deep', 'a.md'), 'utf8')).toBe('nested\n')
+    expect(listFiles(scratch)).toEqual(['ui/NOTICE.md', 'ui/SKILL.md', 'ui/refs/deep/a.md'])
+
+    const empty = mkdtempSync(join(tmpdir(), 'duro-skills-empty-'))
+    expect(runSkill('install', {cwd: repo(), skillsDir: pathToFileURL(`${empty}/`)}).exitCode).toBe(
+      2,
+    )
+    expect(
+      runSkill('install', {cwd: repo(), skillsDir: pathToFileURL(`${empty}/nope/`)}).exitCode,
+    ).toBe(2)
+  })
+
+  it('is idempotent with one line per unchanged skill, and --check passes when wired', () => {
     const root = repo()
     expect(install(root, true).exitCode).toBe(1)
     install(root)
-    expect(install(root).data).toMatchObject({changes: [{status: 'unchanged'}]})
+    const again = install(root)
+    expect(again.exitCode).toBeUndefined()
+    const changes = (again.data as {changes: {status: string}[]}).changes
+    expect(changes.length).toBeGreaterThan(4)
+    expect(changes.every((change) => change.status === 'unchanged')).toBe(true)
+    const lines = again.text.split('\n').filter((line) => line.startsWith('  unchanged'))
+    expect(lines).toHaveLength(4)
     expect(install(root, true).exitCode).toBeUndefined()
-    writeFileSync(join(root, SKILL_PATH), '# tampered\n')
-    const stale = install(root, true)
-    expect(stale.exitCode).toBe(1)
-    expect(stale.text).toContain('differs')
-    expect(readFileSync(join(root, SKILL_PATH), 'utf8')).toBe('# tampered\n')
   })
+
+  it('--check reports a hand edit, a missing file and an orphan file as stale (exit 1)', () => {
+    const root = repo()
+    install(root)
+    writeFileSync(join(root, SKILL_PATH), '# tampered\n')
+    const edited = install(root, true)
+    expect(edited.exitCode).toBe(1)
+    expect(edited.text).toContain('differs')
+    expect(readFileSync(join(root, SKILL_PATH), 'utf8')).toBe('# tampered\n')
+    install(root)
+
+    writeFileSync(installed(root, 'colors', 'SKILL.md'), 'edited\n')
+    const colorsEdit = install(root, true)
+    expect(colorsEdit.exitCode).toBe(1)
+    expect(colorsEdit.text).toContain('.claude/skills/colors/SKILL.md')
+    install(root)
+
+    rmSync(installed(root, 'typography', 'SKILL.md'))
+    const missing = install(root, true)
+    expect(missing.exitCode).toBe(1)
+    expect(missing.text).toContain('missing')
+    install(root)
+
+    writeFileSync(installed(root, 'ui', 'orphan.md'), 'left behind\n')
+    const orphan = install(root, true)
+    expect(orphan.exitCode).toBe(1)
+    expect(orphan.text).toContain('.claude/skills/ui/orphan.md')
+    expect(existsSync(installed(root, 'ui', 'orphan.md'))).toBe(true)
+  })
+
+  it('install removes an orphan only where the directory carries NOTICE.md', () => {
+    const root = repo()
+    install(root)
+    writeFileSync(installed(root, 'ui', 'orphan.md'), 'x\n')
+    const result = install(root)
+    expect(result.text).toContain('removed')
+    expect(existsSync(installed(root, 'ui', 'orphan.md'))).toBe(false)
+    expect(install(root, true).exitCode).toBeUndefined()
+
+    // Without the shipped NOTICE.md and with --force: written over, orphan only listed.
+    const foreign = repo()
+    mkdirSync(installed(foreign, 'ui'), {recursive: true})
+    writeFileSync(installed(foreign, 'ui', 'mine.md'), 'mine\n')
+    const forced = runSkill('install', {cwd: foreign, force: true})
+    expect(forced.exitCode).toBeUndefined()
+    expect(forced.text).toContain('removed')
+    expect(forced.text).toContain('.claude/skills/ui/mine.md')
+    expect(existsSync(installed(foreign, 'ui', 'mine.md'))).toBe(false)
+
+    // A second plain install after --force changes nothing.
+    const again = install(foreign)
+    expect(again.exitCode).toBeUndefined()
+    expect(again.text).not.toContain('removed')
+    expect(again.text).not.toContain('regenerated')
+    expect(again.text).not.toContain('created')
+  })
+
+  it('exits 2 with the error message when the skills directory cannot be read', () => {
+    const root = repo()
+    const notADirectory = pathToFileURL(join(root, 'plain-file'))
+    writeFileSync(join(root, 'plain-file'), 'x\n')
+    const result = runSkill('install', {cwd: root, skillsDir: notADirectory})
+    expect(result.exitCode).toBe(2)
+    expect(result.text).toContain('ENOTDIR')
+    expect(result.text).not.toContain('missing or empty')
+  })
+
+  it('warns for each skill when an allowlisted .claude would not ship them', () => {
+    const root = repo()
+    execFileSync('git', ['init', '-q'], {cwd: root})
+    writeFileSync(join(root, '.gitignore'), '.claude/*\n')
+    const result = install(root)
+    for (const name of ['duro-mockup', ...SKILLS]) {
+      expect(result.text).toContain(`!.claude/skills/${name}/SKILL.md`)
+    }
+  })
+
+  it('refuses a foreign ui directory (exit 1) and overwrites it with --force', () => {
+    const root = repo()
+    mkdirSync(installed(root, 'ui'), {recursive: true})
+    writeFileSync(installed(root, 'ui', 'SKILL.md'), 'my own ui skill\n')
+    const refused = install(root)
+    expect(refused.exitCode).toBe(1)
+    expect(refused.text).toContain('--force')
+    expect(readFileSync(installed(root, 'ui', 'SKILL.md'), 'utf8')).toBe('my own ui skill\n')
+    expect(existsSync(join(root, SKILL_PATH))).toBe(false)
+
+    const forced = runSkill('install', {cwd: root, force: true})
+    expect(forced.exitCode).toBeUndefined()
+    expect(readFileSync(installed(root, 'ui', 'SKILL.md'))).toEqual(
+      readFileSync(join(shipped('ui'), 'SKILL.md')),
+    )
+  })
+
+  it('names --force in the command help', () => {
+    const skill = COMMANDS.find((command) => command.name === 'skill')
+    expect(skill?.flags.find((flag) => flag.name === 'force')?.description).toContain('--force')
+    const help = duro('skill', '--help')
+    expect(help.code).toBe(0)
+    expect(help.stdout).toContain('--force')
+  })
+
+  it('packs skills/{colors,typography,ui}/SKILL.md', () => {
+    const out = execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
+      cwd: fileURLToPath(new URL('..', import.meta.url)),
+      encoding: 'utf8',
+    })
+    const packed = (JSON.parse(out) as {files: {path: string}[]}[])[0].files.map(
+      (file) => file.path,
+    )
+    for (const name of SKILLS) expect(packed).toContain(`skills/${name}/SKILL.md`)
+  }, 60_000)
 
   it('refuses an unknown action', () => {
     expect(runSkill('uninstall', {cwd: repo()}).exitCode).toBe(2)

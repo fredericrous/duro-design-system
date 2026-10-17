@@ -13,6 +13,7 @@ import {extractTokens, extractTokenUnions} from './lib/tokens.mjs'
 import {extractIcons} from './lib/icons.mjs'
 import {extractRecipes} from './lib/recipes.mjs'
 import {extractRules} from './lib/rules.mjs'
+import {extractGuides} from './lib/guides.mjs'
 import {spliceDocs} from './lib/docs.mjs'
 import {buildMockupCss} from '../../tokens/scripts/lib/mockup-css.mjs'
 
@@ -38,6 +39,7 @@ function nativeExportNames(source) {
   return names
 }
 const registryPath = join(here, '..', 'registry.json')
+const skillsDir = join(here, '..', 'skills')
 
 function sortKeysDeep(value) {
   if (Array.isArray(value)) return value.map(sortKeysDeep)
@@ -96,6 +98,7 @@ export function buildRegistry() {
     },
     icons: extractIcons(project),
     rules: extractRules(project),
+    guides: extractGuides(skillsDir),
     unions: surface.unions,
   }
   return sortKeysDeep(registry)
