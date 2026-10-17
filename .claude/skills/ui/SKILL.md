@@ -1,6 +1,6 @@
 ---
 name: ui
-description: Polishes the surfaces, icons and motion in your project with exact values for border radius, optical alignment, shadows, icon states and animation.
+description: Polishes the surfaces, icons and motion in your project with exact values for border radius, optical alignment, shadows, icon states and animation. Use when adding or tuning a UI animation or transition, such as a menu or dialog enter and exit, staggered list items, hover and press feedback or an icon swap.
 ---
 
 # UI polish

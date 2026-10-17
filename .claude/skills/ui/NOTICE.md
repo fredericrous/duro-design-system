@@ -8,6 +8,7 @@ Local edits:
 - Dropped `agents/openai.yaml`.
 - Added the precedence block after the introduction of `SKILL.md`.
 - Reconciled the clause in `ui/SKILL.md` that limited project tokens, so a project token always wins.
+- Extended the `description:` with animation triggers (menu or dialog enter and exit, staggered items, hover and press feedback, icon swaps), so `ui` wins those prompts over `motion-design`: 18/18 should, 0/12 near-miss on 2026-10-17, against 12/18 before.
 
 Updating: diff upstream from the pinned commit, have a frontier model port the changes over the local edits, then bump the pin.
 
