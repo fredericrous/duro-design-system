@@ -30,6 +30,37 @@ export const styles = css.create({
     outlineWidth: 0,
     outlineStyle: 'none',
   },
+  // the scroll container of a windowed tree (role="tree"): fills its parent,
+  // or stops at `maxHeight`
+  windowScroller: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    minHeight: 0,
+    margin: 0,
+    padding: 0,
+    listStyleType: 'none',
+    overflowY: 'auto',
+    overscrollBehavior: 'contain',
+  },
+  windowScrollerMax: (maxHeight: number | string) => ({
+    height: 'auto',
+    maxHeight,
+  }),
+  // the full virtual height, so the scrollbar is the tree's real length
+  windowTotal: (height: number) => ({
+    position: 'relative',
+    width: '100%',
+    height,
+  }),
+  // a windowed row: flat, placed by the window
+  windowRow: (top: number) => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    transform: `translateY(${top}px)`,
+  }),
   row: {
     display: 'flex',
     alignItems: 'center',
@@ -73,9 +104,57 @@ export const styles = css.create({
     fontWeight: typography.fontWeightMedium,
     backgroundColor: colors.bgCardHover,
   },
-  // RSD on native lays out only display: flex, not the web's inline-flex.
-  nativeFlex: {
+  // Native: the outer row View, holding the chevron control and the press
+  // target as siblings (the level indent is added by the row).
+  nativeRow: {
     display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: spacing.sm,
+    borderRadius: radii.sm,
+  },
+  // Native: the pressable part of the row.
+  pressTarget: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexGrow: 1,
+    flexShrink: 1,
+    gap: spacing.xs,
+    paddingTop: microSpacing.px5,
+    paddingBottom: microSpacing.px5,
+    borderRadius: radii.sm,
+    backgroundColor: {
+      default: 'transparent',
+      ':active': colors.bgCardHover,
+    },
+  },
+  // Native: the branch's chevron control, at least the WCAG 2.5.8 minimum.
+  chevronControl: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: sizes.chip,
+    minHeight: sizes.chip,
+    flexShrink: 0,
+  },
+  chevronGlyph: {
+    color: colors.textMuted,
+  },
+  // Native: a leaf's gutter, as wide as the chevron control, inside the press target.
+  chevronSpacer: {
+    width: sizes.chip,
+    flexShrink: 0,
+  },
+  labelBox: {
+    display: 'flex',
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  metaBox: {
+    display: 'flex',
+    flexShrink: 0,
   },
   chevron: {
     display: 'inline-flex',

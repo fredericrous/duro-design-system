@@ -10,6 +10,7 @@
  *     with `svgExempt: false`);
  *   - a `css.keyframes` call (unsupported by react-strict-dom on native);
  *   - an `animationName` key;
+ *   - an html.a with an href prop (react-strict-dom drops its press handler);
  *   - any react-dom import (named, namespace or side-effect).
  *
  * Exit 0 and no output on a clean graph; 1 with one line per violation on
@@ -57,6 +58,13 @@ const rules = {
       selector:
         "JSXOpeningElement[name.object.name='html'][name.property.name='input'] > JSXAttribute[name.name='type'][value.value=/^(checkbox|radio|date)$/]",
       message: 'html.input type checkbox, radio or date',
+    },
+    // RSD-native replaces the onPress of an html.a that has an href with a
+    // dev-only stub, so a tap does nothing: use followLink (TextLink.native).
+    {
+      selector:
+        "JSXOpeningElement[name.object.name='html'][name.property.name='a'] > JSXAttribute[name.name='href']",
+      message: 'html.a with href',
     },
   ],
   'no-restricted-imports': [

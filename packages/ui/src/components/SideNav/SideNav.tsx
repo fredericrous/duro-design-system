@@ -13,6 +13,7 @@ import {styles} from './styles.css'
 import {useControllableValue} from '../../hooks/useControllableValue'
 import {SideNavContext, useSideNav} from './SideNavContext'
 import {isNative} from '../../platform'
+import {InLandmarkContext} from '../../shared/InLandmarkContext'
 import {Chevron} from './Chevron'
 
 /** A Group's own items: each Item inside it registers its value here. */
@@ -51,7 +52,8 @@ interface RootProps {
   /**
    * Names the navigation landmark ("Main", "Settings"). Give one whenever
    * the page has another nav (a breadcrumb, a pager): screen readers list
-   * landmarks by name.
+   * landmarks by name. Inside `AppShell.Rail` it is not a landmark (the Rail
+   * is): the name then labels a `role="group"`.
    */
   'aria-label'?: string
   value?: string
@@ -75,6 +77,7 @@ function Root({
         }
       : undefined,
   )
+  const inLandmark = useContext(InLandmarkContext)
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const orderRef = useRef<string[]>([])
 
@@ -124,9 +127,20 @@ function Root({
         orderRef,
       }}
     >
-      <html.nav role="navigation" aria-label={ariaLabel} style={styles.root}>
-        {children}
-      </html.nav>
+      {inLandmark ? (
+        // AppShell.Rail is already the navigation landmark: keep the name as a group.
+        <html.div
+          role={ariaLabel != null ? 'group' : undefined}
+          aria-label={ariaLabel}
+          style={styles.root}
+        >
+          {children}
+        </html.div>
+      ) : (
+        <html.nav role="navigation" aria-label={ariaLabel} style={styles.root}>
+          {children}
+        </html.nav>
+      )}
     </SideNavContext.Provider>
   )
 }

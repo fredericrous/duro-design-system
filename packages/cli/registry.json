@@ -4911,7 +4911,7 @@
           ],
           "required": []
         },
-        "description": "Structural primitive for grouping content with header, body, and footer slots. A \"workspace surface\" for forms, settings sections, and inspectors. Sub-components are purely structural — no context required.",
+        "description": "Structural primitive for grouping content with header, body, and footer slots. A \"workspace surface\" for forms, settings sections, and inspectors. Sub-components are purely structural — no context required. On native the Body does not scroll (unlike the web Body): wrap long content in ScrollArea. A TextLink inside needs onNavigate for in-app routes on native.",
         "example": "<Panel.Root bordered>\n  <Panel.Header>\n    <Heading level={3}>Section Title</Heading>\n    <Button variant=\"secondary\" size=\"small\">Action</Button>\n  </Panel.Header>\n  <Panel.Body>\n    {/* Content */}\n  </Panel.Body>\n  <Panel.Footer>\n    <Button>Save</Button>\n  </Panel.Footer>\n</Panel.Root>",
         "relatedTo": [
           {
@@ -4937,7 +4937,7 @@
         ]
       },
       "name": "Panel",
-      "native": false,
+      "native": true,
       "parts": {
         "Body": {
           "name": "Body",
@@ -5741,6 +5741,7 @@
           "Top-level horizontal nav — use Inline with LinkButton"
         ],
         "whenToUse": [
+          "Inside `AppShell.Rail`: the Rail is the navigation landmark, so Root renders a plain block, or `role=\"group\"` with its `aria-label` when it has one. Name the Rail \"Main\", not \"Navigation\" (screen readers would announce \"Navigation navigation\"). Outside a Rail, Root is a `nav` landmark.",
           "App-level sidebar navigation — flat `Section`s, every destination visible",
           "Settings navigation with labelled regions",
           "`Group` for a rare or advanced region tucked below the flat sections",
@@ -5807,7 +5808,7 @@
               "type": "ReactNode"
             },
             {
-              "description": "Names the navigation landmark (\"Main\", \"Settings\"). Give one whenever the page has another nav (a breadcrumb, a pager): screen readers list landmarks by name.",
+              "description": "Names the navigation landmark (\"Main\", \"Settings\"). Give one whenever the page has another nav (a breadcrumb, a pager): screen readers list landmarks by name. Inside `AppShell.Rail` it is not a landmark (the Rail is): the name then labels a `role=\"group\"`.",
               "name": "aria-label",
               "required": false,
               "type": "string"
@@ -7374,7 +7375,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Inline hyperlink for running text and standalone text links (\"View all\", \"Edit profile\"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target=\"_blank\" defaults rel to noopener noreferrer. onNavigate(href, event) hands a plain primary click to a client router (the app calls event.preventDefault(), then navigates); modified clicks keep the browser default.",
+        "description": "Inline hyperlink for running text and standalone text links (\"View all\", \"Edit profile\"). Always underlined, so colour is never the only cue: default is accent text with an accent underline; subtle keeps the surrounding text colour with a muted underline and turns accent on hover. target=\"_blank\" defaults rel to noopener noreferrer. onNavigate(href, event) hands a plain primary click to a client router (the app calls event.preventDefault(), then navigates); modified clicks keep the browser default. On native the link renders no href and a press goes through onNavigate, then the system (Linking.openURL): onNavigate is required for in-app routes on native, and a target set skips it.",
         "example": "<Text>\n  Read the <TextLink href=\"/docs/migrate\">migration guide</TextLink> before you change seats, or{' '}\n  <TextLink href=\"/plans\" variant=\"subtle\">compare plans</TextLink> first.\n</Text>",
         "relatedTo": [
           {
@@ -7400,7 +7401,7 @@
         ]
       },
       "name": "TextLink",
-      "native": false,
+      "native": true,
       "props": [
         {
           "name": "href",
@@ -8253,7 +8254,7 @@
             "Item"
           ]
         },
-        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required. On React Native selection, expansion and aria-level are the same; the keyboard model (arrows, Home/End, typeahead) is web only.",
+        "description": "Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead. A click or Enter on a branch row with no href selects it and toggles it open or closed (a folder); a branch with href navigates, and its chevron toggles. An Item with href renders its row as a real link (cmd-click opens a tab) outside the tab order; Enter/Space follows it, through onNavigate(href, event) when given. Compound component — Root is required. On React Native each row is a pressable link (href) or button, and a branch has its own chevron control that expands it (named by the optional Root prop expandLabel(text), default the item text); selection, expansion and aria-level are the same, the keyboard model (arrows, Home/End, typeahead) is web only. On native onNavigate is required for in-app routes: without it a relative href goes to the system (Linking.openURL). On web a tree with more items than Root virtualizeThreshold (default 150, open or not) is windowed: only the rows in view mount, as flat treeitems with aria-level, aria-setsize and aria-posinset; maxHeight caps its scroll viewport. Items must be JSX descendants of Root (fragments and arrays are fine, an Item hidden inside another component is not seen by the window). Native renders every row.",
         "example": "<Tree.Root aria-label=\"Blocs\" defaultExpanded={['energy']} onValueChange={setSelected}>\n  <Tree.Item value=\"energy\" label=\"Core business — Energy\">\n    <Tree.Item value=\"generation\" label=\"Generation\" meta=\"4 apps\" />\n    <Tree.Item value=\"network\" label=\"Network operations\">\n      <Tree.Item value=\"scada\" label=\"SCADA supervision\" />\n    </Tree.Item>\n  </Tree.Item>\n  <Tree.Item value=\"finance\" label=\"Finance & steering\" />\n</Tree.Root>",
         "relatedTo": [
           {
@@ -8381,6 +8382,25 @@
               "name": "onExpandedChange",
               "required": false,
               "type": "(expanded: string[]) => void"
+            },
+            {
+              "description": "Native: the accessible name of a branch's chevron control, from the item's text (its `textValue`, else a string `label`). Defaults to that text.",
+              "name": "expandLabel",
+              "required": false,
+              "type": "(label: string) => string"
+            },
+            {
+              "default": "150",
+              "description": "Web: with more items than this (open or not) the tree mounts only the rows in view. At or below it, every row is mounted. Default 150.",
+              "name": "virtualizeThreshold",
+              "required": false,
+              "type": "number"
+            },
+            {
+              "description": "Web, windowed: caps the scroll viewport's height; without it, it fills its parent.",
+              "name": "maxHeight",
+              "required": false,
+              "type": "Length"
             }
           ],
           "sourcePath": "packages/ui/src/components/Tree/Tree.tsx"

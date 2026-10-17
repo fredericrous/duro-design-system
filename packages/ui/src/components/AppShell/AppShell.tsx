@@ -20,6 +20,7 @@ import {Icon} from '../Icon'
 import {TextLink} from '../TextLink/TextLink'
 import {useContainerBelow} from '../../hooks/useContainerBelow'
 import type {OnNavigate} from '../../shared/navigate'
+import {InLandmarkContext} from '../../shared/InLandmarkContext'
 import {styles} from './styles.css'
 
 /* AppShell — an application's frame: a navigation rail beside the main
@@ -253,7 +254,7 @@ function Rail({'aria-label': ariaLabel, children, footer}: RailProps) {
   }, [open])
 
   return (
-    <>
+    <InLandmarkContext.Provider value={true}>
       {/* Rendered in one place at a time, so ids (a Tree's) and the landmark
           name are never duplicated: the drawer only opens below the collapse
           point, where the rail is hidden. The brand stays: the bar holds the
@@ -281,7 +282,7 @@ function Rail({'aria-label': ariaLabel, children, footer}: RailProps) {
           </Drawer.Body>
         </Drawer.Portal>
       </Drawer.Root>
-    </>
+    </InLandmarkContext.Provider>
   )
 }
 

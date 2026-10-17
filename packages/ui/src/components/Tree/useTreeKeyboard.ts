@@ -1,31 +1,70 @@
-import {type ReactNode, useEffect, useLayoutEffect, useRef} from 'react'
+import {type RefObject, useEffect, useLayoutEffect, useRef} from 'react'
+import type {TreeFocusStore} from './TreeFocusStore'
+import type {TreeRowModel} from './TreeRows'
 
 /** Typed characters within this many ms build one typeahead prefix. */
 const TYPEAHEAD_RESET_MS = 500
 
 interface TreeKeyboardInput {
-  rootRef: React.RefObject<HTMLUListElement | null>
-  focusValue: string | null
-  setFocusValue: (value: string | null) => void
-  setKeyboardFocus: (on: boolean) => void
+  rootRef: RefObject<HTMLElement | null>
+  focus: TreeFocusStore
+  /** the visible rows when the tree is windowed (most are not in the DOM), else null */
+  windowedRows: readonly TreeRowModel[] | null
+  /** a change here re-checks the tab stop: the items or the open branches */
+  children: unknown
   open: ReadonlyArray<string>
-  children: ReactNode
   onSelect: (value: string) => void
   setExpanded: (value: string, open: boolean) => void
 }
 
+/** What navigation needs of an item, from the row model or from the DOM. */
+interface NavItem {
+  value: string
+  text: string
+  /** undefined for a leaf */
+  expanded: boolean | undefined
+  parent: string | null
+}
+
+const itemSelector = (value: string) => `[data-tree-value="${CSS.escape(value)}"]`
+
+/** The rendered treeitems as nav items: DOM order IS the visible order. */
+function readDom(root: HTMLElement): NavItem[] {
+  return Array.from(root.querySelectorAll<HTMLElement>('[role="treeitem"]')).map((el) => {
+    const expanded = el.getAttribute('aria-expanded')
+    const parent = el.parentElement?.closest<HTMLElement>('[role="treeitem"]')
+    return {
+      value: el.dataset.treeValue ?? '',
+      text: el.dataset.treeText ?? '',
+      expanded: expanded === null ? undefined : expanded === 'true',
+      parent: parent && root.contains(parent) ? (parent.dataset.treeValue ?? null) : null,
+    }
+  })
+}
+
+function readRows(rows: readonly TreeRowModel[]): NavItem[] {
+  return rows.map((row) => ({
+    value: row.value,
+    text: row.text,
+    expanded: row.hasChildren ? row.open : undefined,
+    parent: row.parent,
+  }))
+}
+
 /**
  * Web: the tree's roving tab stop, arrow keys, Home/End, Enter and typeahead
- * (WAI-ARIA tree pattern), read from the rendered DOM. Native has none of
- * them (plan N0, Decision 6): useTreeKeyboard.native.ts.
+ * (WAI-ARIA tree pattern). A nested tree reads its items from the DOM; a
+ * windowed one from the row model, since most rows are not mounted: a move to
+ * a row that is not mounted goes through the focus store, and the window
+ * scrolls to it and focuses it. Native has none of them (plan N0, Decision 6):
+ * useTreeKeyboard.native.ts.
  */
 export function useTreeKeyboard({
   rootRef,
-  focusValue,
-  setFocusValue,
-  setKeyboardFocus,
-  open,
+  focus,
+  windowedRows,
   children,
+  open,
   onSelect,
   setExpanded,
 }: TreeKeyboardInput) {
@@ -34,32 +73,33 @@ export function useTreeKeyboard({
   useLayoutEffect(() => {
     const root = rootRef.current
     if (!root) return
-    const tabbable = root.querySelector('[role="treeitem"][tabindex="0"]')
-    if (tabbable) return
-    const first = root.querySelector<HTMLElement>('[role="treeitem"]')
-    const next = first?.dataset.treeValue ?? null
-    if (next !== focusValue) setFocusValue(next)
-  }, [rootRef, focusValue, setFocusValue, open, children])
+    if (root.querySelector('[role="treeitem"][tabindex="0"]')) return
+    const first =
+      windowedRows?.[0]?.value ??
+      root.querySelector<HTMLElement>('[role="treeitem"]')?.dataset.treeValue ??
+      null
+    focus.setValue(first)
+  }, [rootRef, focus, windowedRows, children, open])
 
-  // Keyboard: DOM order over the rendered items IS the visible order (a
-  // closed branch renders no children), so navigation reads it directly.
   const typeahead = useRef({text: '', at: 0})
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
     const rootEl = root
-    const items = () => Array.from(rootEl.querySelectorAll<HTMLElement>('[role="treeitem"]'))
-    const focusItem = (el: HTMLElement | null | undefined) => {
-      if (!el) return
-      el.focus()
+    const read = () => (windowedRows ? readRows(windowedRows) : readDom(rootEl))
+    const focusItem = (item: NavItem | undefined) => {
+      if (!item) return
+      const el = rootEl.querySelector<HTMLElement>(itemSelector(item.value))
+      if (el) el.focus()
+      else focus.request(item.value)
     }
     function onKeyDown(e: KeyboardEvent) {
       const current = (e.target as HTMLElement).closest<HTMLElement>('[role="treeitem"]')
       if (!current || !rootEl.contains(current)) return
-      const list = items()
-      const i = list.indexOf(current)
+      const list = read()
       const val = current.dataset.treeValue ?? ''
-      const isOpen = current.getAttribute('aria-expanded')
+      const i = list.findIndex((item) => item.value === val)
+      const here = list[i]
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault()
@@ -71,17 +111,16 @@ export function useTreeKeyboard({
           return
         case 'ArrowRight':
           e.preventDefault()
-          if (isOpen === 'false') setExpanded(val, true)
-          else if (isOpen === 'true') focusItem(list[i + 1])
+          if (here?.expanded === false) setExpanded(val, true)
+          else if (here?.expanded === true) focusItem(list[i + 1])
           return
         case 'ArrowLeft': {
           e.preventDefault()
-          if (isOpen === 'true') {
+          if (here?.expanded === true) {
             setExpanded(val, false)
             return
           }
-          const parent = current.parentElement?.closest<HTMLElement>('[role="treeitem"]')
-          if (parent && rootEl.contains(parent)) focusItem(parent)
+          focusItem(list.find((item) => item.value === here?.parent))
           return
         }
         case 'Home':
@@ -99,7 +138,12 @@ export function useTreeKeyboard({
           // runs onNavigate, or the browser navigates)
           const link = current.querySelector<HTMLElement>(':scope > [data-tree-link]')
           if (link) link.click()
-          else onSelect(val)
+          else {
+            onSelect(val)
+            // a branch with no link toggles too, as a click on its row does
+            const expanded = current.getAttribute('aria-expanded')
+            if (expanded !== null) setExpanded(val, expanded !== 'true')
+          }
           return
         }
       }
@@ -116,9 +160,9 @@ export function useTreeKeyboard({
         const needle = repeat ? typed[0] : typed
         const start = repeat ? i + 1 : i
         for (let k = 0; k < list.length; k++) {
-          const el = list[(start + k) % list.length]
-          if ((el.dataset.treeText ?? '').toLocaleLowerCase().startsWith(needle)) {
-            focusItem(el)
+          const item = list[(start + k) % list.length]
+          if (item.text.toLocaleLowerCase().startsWith(needle)) {
+            focusItem(item)
             break
           }
         }
@@ -128,14 +172,14 @@ export function useTreeKeyboard({
     function onFocusIn(e: FocusEvent) {
       const item = (e.target as HTMLElement).closest<HTMLElement>('[role="treeitem"]')
       const v = item?.dataset.treeValue
-      if (v) setFocusValue(v)
-      setKeyboardFocus(item?.matches(':focus-visible') ?? false)
+      if (v) focus.setValue(v)
+      focus.setRing(item?.matches(':focus-visible') ?? false)
     }
     function onFocusOut(e: FocusEvent) {
-      if (!rootEl.contains(e.relatedTarget as Node | null)) setKeyboardFocus(false)
+      if (!rootEl.contains(e.relatedTarget as Node | null)) focus.setRing(false)
     }
-    const onPointerDown = () => setKeyboardFocus(false)
-    const onKey = () => setKeyboardFocus(true)
+    const onPointerDown = () => focus.setRing(false)
+    const onKey = () => focus.setRing(true)
     root.addEventListener('keydown', onKeyDown)
     root.addEventListener('keydown', onKey)
     root.addEventListener('focusin', onFocusIn)
@@ -148,5 +192,5 @@ export function useTreeKeyboard({
       root.removeEventListener('focusout', onFocusOut)
       root.removeEventListener('pointerdown', onPointerDown)
     }
-  }, [rootRef, onSelect, setExpanded, setFocusValue, setKeyboardFocus])
+  }, [rootRef, focus, windowedRows, onSelect, setExpanded])
 }

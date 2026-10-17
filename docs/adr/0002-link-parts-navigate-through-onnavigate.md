@@ -3,7 +3,7 @@ id: ADR-0002
 status: accepted
 decisions:
   - key: components.link-navigation
-    choice: Every link part renders a real `<a href>` and takes an optional `onNavigate(href, event)`, called only for a plain primary click; the package depends on no router
+    choice: Every link part renders a real `<a href>` on the web and takes an optional `onNavigate(href, event)`, called only for a plain primary click; on native it renders no `href` and follows the press through `followLink` (onNavigate, then `Linking.openURL` unless prevented); the package depends on no router
     first: true
     reason: A real link keeps what the browser does for a link (new tab, copy link) and an app's router stays the app's choice
 ---
@@ -57,3 +57,25 @@ The helper is `packages/ui/src/shared/navigate.ts`; `OnNavigate` and
   treeitem keeps the single tab stop, and Enter or Space clicks the link.
 - Each part's stories check a plain click (called) and a meta-click (not
   called, default not prevented).
+
+## Addendum — native (2026-10-15)
+
+react-strict-dom 0.0.55 replaces the press handler of an `html.a` that has an
+`href` with a dev-only "href handling is not implemented" stub
+(`dist/native/index.js:3094-3100`, upstream
+[react/react-strict-dom#58](https://github.com/react/react-strict-dom/issues/58)).
+A link part on native therefore renders no `href`:
+
+- `TextLink` is an `html.a` without `href` (an inline `Text`, `role="link"`).
+  `Tree.Item` with `href` is a row with `role="link"`. `Menu.LinkItem` is a
+  `Pressable` with the link role.
+- A press goes through `followLink` (`packages/ui/src/shared/followLink.native.ts`).
+  It builds a `LinkClickEvent` for a primary press with no modifier, calls
+  `onNavigate`, and opens the URL with the system (`Linking.openURL`) unless
+  `onNavigate` called `preventDefault()`. A link with a `target` skips
+  `onNavigate`, as on the web.
+- An in-app route needs `onNavigate` on native. Without it, a relative href
+  goes to `Linking.openURL`, which rejects it.
+- `scripts/check-native-graph.mjs` refuses an `html.a` with `href` in the
+  native graph. The rule is removed once an RSD release forwards the press of
+  an `html.a` with `href`.

@@ -11,6 +11,9 @@ describe('registry native flag', () => {
     expect(registry.components.Dialog.native).toBe(true)
     expect(registry.components.Spinner.native).toBe(true)
     expect(registry.components.Select.native).toBe(true)
+    expect(registry.components.Panel.native).toBe(true)
+    expect(registry.components.TextLink.native).toBe(true)
+    expect(registry.components.LinkButton.native).toBe(false)
     // Not ported in N0 (the plan's Non-goals).
     expect(registry.components.DragDrop.native).toBe(false)
   })

@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Structural primitive for grouping content with header, body, and footer slots. A "workspace surface" for forms, settings sections, and inspectors. Sub-components are purely structural — no context required.',
+    'Structural primitive for grouping content with header, body, and footer slots. A "workspace surface" for forms, settings sections, and inspectors. Sub-components are purely structural — no context required. On native the Body does not scroll (unlike the web Body): wrap long content in ScrollArea. A TextLink inside needs onNavigate for in-app routes on native.',
   whenToUse: [
     'Organizing content with distinct header/body/footer sections',
     'Settings panels, form containers, inspector views',

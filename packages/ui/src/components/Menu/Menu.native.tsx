@@ -9,7 +9,7 @@ import {
   useId,
   useRef,
 } from 'react'
-import {Linking, Platform, Pressable, ScrollView, StyleSheet} from 'react-native'
+import {Platform, Pressable, ScrollView, StyleSheet} from 'react-native'
 import {html} from 'react-strict-dom'
 import {SIZES_PX} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
@@ -18,7 +18,8 @@ import {useMenuOpen} from './useMenuOpen'
 import {AnchoredOverlay} from '../../shared/portal/AnchoredOverlay'
 import {focusForAccessibility} from '../../shared/accessibilityFocus'
 import {mergeRefs} from '../../shared/mergeRefs'
-import type {LinkClickEvent, OnNavigate} from '../../shared/navigate'
+import {followLink} from '../../shared/followLink.native'
+import type {OnNavigate} from '../../shared/navigate'
 import type {ControlSize} from '../../shared/types'
 import {useTooltipHint} from '../Tooltip/TooltipHint'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
@@ -223,28 +224,7 @@ interface LinkItemProps {
 
 function LinkItem({href, onNavigate, children}: LinkItemProps) {
   const {closeThen} = useMenu()
-  const follow = () => {
-    let prevented = false
-    const event: LinkClickEvent = {
-      button: 0,
-      metaKey: false,
-      ctrlKey: false,
-      shiftKey: false,
-      altKey: false,
-      get defaultPrevented() {
-        return prevented
-      },
-      preventDefault() {
-        prevented = true
-      },
-    }
-    onNavigate?.(href, event)
-    if (!prevented) {
-      Linking.openURL(href).catch((error: unknown) => {
-        console.warn(`[duro] Menu.LinkItem: could not open ${href}: ${String(error)}`)
-      })
-    }
-  }
+  const follow = () => followLink(href, onNavigate, 'Menu.LinkItem')
   return (
     <Pressable accessibilityRole="link" onPress={() => closeThen(follow)}>
       {({pressed}) => (

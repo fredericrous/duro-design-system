@@ -348,9 +348,38 @@ export const DesktopLandmarks: Story = {
     await expect(canvas.getAllByRole('banner')).toHaveLength(1)
     const names = canvas.getAllByRole('navigation').map((nav) => nav.getAttribute('aria-label'))
     await expect(new Set(names).size).toBe(names.length)
+    // the SideNav inside the rail is a group, not a second navigation landmark
+    await expect(canvas.getAllByRole('navigation')).toHaveLength(1)
     await expect(canvas.queryByRole('button', {name: args.menuLabel})).toBeNull()
     // the brand is the rail's copy
     await expect(rail.contains(canvas.getByRole('link', {name: args.brand}))).toBe(true)
+  },
+}
+
+/**
+ * A SideNav without an `aria-label` inside a labelled Rail: the Rail is the one
+ * navigation landmark, the SideNav adds none.
+ */
+export const RailWithUnlabelledSideNav: Story = {
+  tags: TEST_ONLY,
+  render: ({width}) => (
+    <Frame px={FRAME_PX[width]}>
+      <AppShell.Root menuLabel="Menu" closeLabel="Close navigation" skipLabel="Skip to content">
+        <AppShell.Rail aria-label="Main">
+          <SideNav.Root defaultValue="/">
+            <SideNav.Item value="/">Dashboard</SideNav.Item>
+            <SideNav.Item value="/articles">Articles</SideNav.Item>
+          </SideNav.Root>
+        </AppShell.Rail>
+        <AppShell.Main>
+          <Heading level={1}>Docs</Heading>
+        </AppShell.Main>
+      </AppShell.Root>
+    </Frame>
+  ),
+  play: async ({canvas}) => {
+    await expect(canvas.getAllByRole('navigation')).toHaveLength(1)
+    await expect(canvas.getByRole('navigation', {name: 'Main'})).toBeVisible()
   },
 }
 
@@ -368,6 +397,7 @@ export const PhoneDrawer: Story = {
     await expect(menu).toHaveAttribute('aria-expanded', 'true')
     const drawerNav = within(dialog).getByRole('navigation', {name: 'Navigation'})
     await waitFor(() => expect(drawerNav.contains(document.activeElement)).toBe(true))
+    await expect(within(dialog).getAllByRole('navigation')).toHaveLength(1)
     // the rail's content is rendered once, in the drawer while it is open:
     // counted in the DOM (a hidden copy would still duplicate a Tree's ids)
     await expect(page().getAllByText('Articles')).toHaveLength(1)

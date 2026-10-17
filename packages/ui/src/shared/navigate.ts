@@ -1,4 +1,6 @@
 /* Router-agnostic links (docs/adr/0002-link-parts-navigate-through-onnavigate.md).
+ * On native a link part renders no `href` and goes through `followLink`
+ * (followLink.native.ts), which calls the same `onNavigate` (ADR-0002 addendum).
  *
  * Every link part renders a real `<a href>`, so the browser keeps what a link
  * does on its own: cmd/ctrl-click and middle-click open a tab, shift-click a

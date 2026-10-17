@@ -14,6 +14,7 @@ import {Button} from '../Button/Button'
 import {Drawer} from '../Drawer/Drawer'
 import {Icon} from '../Icon'
 import {useSafeAreaInsets} from '../../shared/safeArea'
+import {InLandmarkContext} from '../../shared/InLandmarkContext'
 import {nativeStyles} from './native.css'
 
 export type AppShellCollapse = 'sm' | 'md' | 'lg'
@@ -117,20 +118,22 @@ function Rail({'aria-label': ariaLabel, children, footer}: RailProps) {
   const foot = typeof footer === 'function' ? footer({close}) : footer
 
   return (
-    <Drawer.Root anchor="left" open={open} onOpenChange={setOpen}>
-      <Drawer.Portal size="sm">
-        <Drawer.Header>
-          <Drawer.Title>{ariaLabel}</Drawer.Title>
-          <Drawer.Close aria-label={closeLabel} />
-        </Drawer.Header>
-        <Drawer.Body>
-          <html.nav aria-label={ariaLabel}>
-            {content}
-            {foot != null && <html.div style={nativeStyles.drawerFooter}>{foot}</html.div>}
-          </html.nav>
-        </Drawer.Body>
-      </Drawer.Portal>
-    </Drawer.Root>
+    <InLandmarkContext.Provider value={true}>
+      <Drawer.Root anchor="left" open={open} onOpenChange={setOpen}>
+        <Drawer.Portal size="sm">
+          <Drawer.Header>
+            <Drawer.Title>{ariaLabel}</Drawer.Title>
+            <Drawer.Close aria-label={closeLabel} />
+          </Drawer.Header>
+          <Drawer.Body>
+            <html.nav aria-label={ariaLabel}>
+              {content}
+              {foot != null && <html.div style={nativeStyles.drawerFooter}>{foot}</html.div>}
+            </html.nav>
+          </Drawer.Body>
+        </Drawer.Portal>
+      </Drawer.Root>
+    </InLandmarkContext.Provider>
   )
 }
 
