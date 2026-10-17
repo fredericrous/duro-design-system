@@ -12,6 +12,11 @@ export interface Registry {
   rules: RulesRegistry
   /** Exported string-literal unions: ButtonVariant -> ['primary', ...]. */
   unions: Record<string, string[]>
+  /**
+   * The packaged interface skills (packages/cli/skills): skill name -> relative
+   * path -> file text. Absent in a registry built before guides existed.
+   */
+  guides?: Record<string, Record<string, string>>
 }
 
 export type ComponentKind = 'component' | 'compound' | 'provider' | 'hook' | 'function'

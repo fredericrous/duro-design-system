@@ -1,5 +1,6 @@
 import type {Registry} from '../registry-types.js'
 import {buildManifest} from '../manifest.js'
+import {guideNames, lookupGuide} from '../registry.js'
 import {runLookup} from './lookup.js'
 import {runList} from './list.js'
 import {cliVersion} from './manifest.js'
@@ -17,14 +18,14 @@ export function toolDefinitions(registry: Registry) {
     {
       name: 'duro_ds_lookup',
       description:
-        'Docs for anything in the Duro design system by name: a component (props, usage, example), a recipe (runnable source), a token group, "icons", or "rules". Free text falls back to a ranked search over usage metadata — pass what you need, e.g. "tags that wrap".',
+        'Docs for anything in the Duro design system by name: a component (props, usage, example), a recipe (runnable source), a token group, "icons", "rules", or an interface guide ("guide:colors", "guide:typography", "guide:ui"; "guide:<skill>/<file>" for one of its reference files). Free text falls back to a ranked search over usage metadata — pass what you need, e.g. "tags that wrap".',
       inputSchema: {
         type: 'object',
         properties: {
           name: {
             type: 'string',
             description:
-              'Component/recipe/token-group name, "icons", "rules", or free text to search',
+              'Component/recipe/token-group name, "icons", "rules", "guide:<skill>[/<file>]", or free text to search',
           },
           part: {
             type: 'string',
@@ -37,11 +38,11 @@ export function toolDefinitions(registry: Registry) {
     },
     {
       name: 'duro_ds_list',
-      description: `One-line index of everything documented (${Object.keys(registry.components).length} components, ${Object.keys(registry.recipes).length} recipes, token groups).`,
+      description: `One-line index of everything documented (${Object.keys(registry.components).length} components, ${Object.keys(registry.recipes).length} recipes, token groups; kind "guides" lists the interface guides).`,
       inputSchema: {
         type: 'object',
         properties: {
-          kind: {type: 'string', enum: ['components', 'recipes', 'tokens']},
+          kind: {type: 'string', enum: ['components', 'recipes', 'tokens', 'guides']},
         },
       },
     },
@@ -187,6 +188,11 @@ export async function runMcp(registry: Registry): Promise<void> {
         name: `${name} recipe`,
         mimeType: 'text/plain',
       })),
+      ...guideNames(registry).map((name) => ({
+        uri: `duro://guide/${name.slice('guide:'.length)}`,
+        name: `${name} guide`,
+        mimeType: 'text/markdown',
+      })),
     ],
   }))
 
@@ -194,8 +200,12 @@ export async function runMcp(registry: Registry): Promise<void> {
     const uri = request.params.uri
     const componentMatch = /^duro:\/\/component\/(.+)$/.exec(uri)
     const recipeMatch = /^duro:\/\/recipe\/(.+)$/.exec(uri)
+    const guideMatch = /^duro:\/\/guide\/(.+)$/.exec(uri)
     let text: string | null = null
-    if (componentMatch) {
+    if (guideMatch) {
+      const guide = lookupGuide(registry, `guide:${guideMatch[1]}`)
+      if (guide.ok) text = guide.content
+    } else if (componentMatch) {
       const key = decodeURIComponent(componentMatch[1])
       const entry = registry.components[key]
       if (entry) text = renderComponent(registry, key, entry)

@@ -1,5 +1,11 @@
 import {describe, expect, it} from 'vitest'
+import {readFileSync} from 'node:fs'
+import {fileURLToPath} from 'node:url'
 import {loadRegistry} from '../src/registry.js'
+import {listFiles} from '../src/commands/skill.js'
+// @ts-expect-error — a plain .mjs build script, no types
+import {listGuideFiles} from '../scripts/lib/guides.mjs'
+import type {Registry} from '../src/registry-types.js'
 import {toolDefinitions, callTool, toolResponse} from '../src/commands/mcp.js'
 
 const registry = loadRegistry()
@@ -94,6 +100,66 @@ describe('mcp tools', () => {
     expect(
       toolResponse(registry, 'duro_ds_list', {kind: 'recipes'}).structuredContent,
     ).toHaveProperty('entries')
+  })
+
+  describe('guides', () => {
+    const skillsDir = fileURLToPath(new URL('../skills/', import.meta.url))
+
+    it('duro_ds_list kind guides lists every file of the three skills', () => {
+      const list = callTool(registry, 'duro_ds_list', {kind: 'guides'})
+      expect(list.isError).toBe(false)
+      const names = (list.data as {name: string}[]).map((entry) => entry.name)
+      expect(names).toEqual(
+        expect.arrayContaining(['guide:colors', 'guide:typography', 'guide:ui']),
+      )
+      expect(names).toContain('guide:colors/contrast.md')
+      // Out of the default index and the manifest.
+      const all = callTool(registry, 'duro_ds_list', {})
+      expect((all.data as {kind: string}[]).some((entry) => entry.kind === 'guide')).toBe(false)
+      expect(JSON.stringify(callTool(registry, 'duro_ds_manifest', {}).data)).not.toContain(
+        'guide:',
+      )
+    })
+
+    it('guide:<skill> returns SKILL.md byte for byte, guide:<skill>/<file> a reference file', () => {
+      const skill = callTool(registry, 'duro_ds_lookup', {name: 'guide:colors'})
+      expect(skill.isError).toBe(false)
+      expect(skill.text).toBe(readFileSync(`${skillsDir}colors/SKILL.md`, 'utf8'))
+      const file = callTool(registry, 'duro_ds_lookup', {name: 'guide:colors/contrast.md'})
+      expect(file.isError).toBe(false)
+      expect(file.text).toBe(readFileSync(`${skillsDir}colors/contrast.md`, 'utf8'))
+      // The prefix wins over the token group of the same name.
+      expect(callTool(registry, 'duro_ds_lookup', {name: 'guide:typography'}).text).not.toBe(
+        callTool(registry, 'duro_ds_lookup', {name: 'typography'}).text,
+      )
+    })
+
+    it('an unknown file names the skill files, an unknown skill the skills', () => {
+      const file = callTool(registry, 'duro_ds_lookup', {name: 'guide:ui/nope.md'})
+      expect(file.isError).toBe(true)
+      expect(file.text).toContain('SKILL.md')
+      expect(file.text).toContain('animations.md')
+      const skill = callTool(registry, 'duro_ds_lookup', {name: 'guide:nope'})
+      expect(skill.isError).toBe(true)
+      expect(skill.text).toContain('colors, typography, ui')
+    })
+
+    it('a registry without guides gives an unknown-guide error, not a crash', () => {
+      const bare: Registry = {...registry}
+      delete bare.guides
+      const result = callTool(bare, 'duro_ds_lookup', {name: 'guide:colors'})
+      expect(result.isError).toBe(true)
+      expect(result.text).toContain('unknown guide')
+      expect(callTool(bare, 'duro_ds_list', {kind: 'guides'}).isError).toBe(false)
+    })
+
+    it('the registry walker and the installer walker list the same files in the same order', () => {
+      for (const name of Object.keys(registry.guides ?? {})) {
+        const dir = `${skillsDir}${name}`
+        expect(listGuideFiles(dir)).toEqual(listFiles(dir))
+        expect(Object.keys(registry.guides?.[name] ?? {})).toEqual(listFiles(dir))
+      }
+    })
   })
 
   it('unknown tools throw', () => {

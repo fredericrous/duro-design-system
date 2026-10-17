@@ -34,9 +34,17 @@ const PREAMBLE = [
   'duro <Component> (props+usage) · duro <recipe> --source-only ·',
   'duro spacing|icons|rules.',
   'A new screen, page or UI proposal starts with the /duro-mockup skill',
-  '(duro skill install if this repo lacks it): token-seeded artboards,',
-  'checked, then implemented from their component map.',
+  '(duro skill install if this repo lacks it; it also installs the colors,',
+  'typography and ui interface skills): token-seeded artboards, checked,',
+  'then implemented from their component map.',
 ].join('\n')
+
+/** One index line: the guides are fetched by name, never listed in the catalog. */
+function renderGuideIndex(registry: Registry): string {
+  const skills = Object.keys(registry.guides ?? {})
+  if (skills.length === 0) return ''
+  return `GUIDES: ${skills.map((skill) => `guide:${skill}`).join(' · ')} — interface rules, read with duro_ds_lookup or duro guide:<name>`
+}
 
 export interface HookOptions {
   /** Report drift and exit 1 instead of writing. For CI. */
@@ -69,6 +77,7 @@ export function runHook(
     PREAMBLE,
     renderScreens(registry),
     list.text,
+    renderGuideIndex(registry),
     renderPairs(contrast, 'PICKING BETWEEN NEIGHBORS', 'vs'),
     renderPairs(composition, 'COMPOSE — DO NOT HAND-ROLL THE WRAPPER', '+'),
   ].filter(Boolean)

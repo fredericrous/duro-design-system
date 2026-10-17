@@ -1,5 +1,5 @@
 import type {Registry} from '../registry-types.js'
-import {lookup} from '../registry.js'
+import {GUIDE_PREFIX, lookup, lookupGuide} from '../registry.js'
 import {search, suggestions} from '../search.js'
 import {
   renderComponent,
@@ -26,6 +26,15 @@ export function runLookup(
   query: string,
   options: LookupOptions,
 ): CommandResult {
+  if (query.startsWith(GUIDE_PREFIX)) {
+    const guide = lookupGuide(registry, query)
+    return guide.ok
+      ? {
+          text: guide.content,
+          data: {kind: 'guide', skill: guide.skill, file: guide.file, content: guide.content},
+        }
+      : {text: `duro: ${guide.message}`, data: {kind: 'unknown-guide', query}, exitCode: 1}
+  }
   const hit = lookup(registry, query)
   if (hit) {
     switch (hit.kind) {
@@ -51,6 +60,11 @@ export function runLookup(
         return {text: renderIcons(hit.entry), data: {kind: hit.kind, entry: hit.entry}}
       case 'rules':
         return {text: renderRules(hit.entry), data: {kind: hit.kind, entry: hit.entry}}
+      case 'guide':
+        return {
+          text: hit.content,
+          data: {kind: hit.kind, skill: hit.skill, file: hit.file, content: hit.content},
+        }
     }
   }
 

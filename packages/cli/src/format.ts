@@ -1,3 +1,4 @@
+import {guideNames} from './registry.js'
 import type {RelatedPair} from './disambiguation.js'
 import type {
   ComponentEntry,
@@ -232,6 +233,12 @@ export function renderList(registry: Registry, kind?: string): string {
     sections.push(
       `${bold('TOKENS')}\n${rows}\n  ${'icons'.padEnd(nameWidth)}${registry.icons.names.length} names — duro icons`,
     )
+  }
+  if (kind === 'guides') {
+    const rows = guideNames(registry)
+      .map((name) => `  ${name}`)
+      .join('\n')
+    sections.push(`${bold('GUIDES')} (${guideNames(registry).length})\n${rows}`)
   }
   sections.push(dim(`duro <name> for details · duro rules · duro manifest`))
   return sections.join('\n\n')

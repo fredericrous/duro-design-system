@@ -15,7 +15,7 @@ npx @duro-app/cli rules              # critical rules + what the lint plugin enf
 npx @duro-app/cli "tags that wrap"   # free text falls back to a need-search
 npx @duro-app/cli list
 npx @duro-app/cli hook install       # wire the Claude Code session + plan-mode hooks
-npx @duro-app/cli skill install      # wire the /duro-mockup workflow skill
+npx @duro-app/cli skill install      # /duro-mockup plus the colors, typography and ui skills
 npx @duro-app/cli mockup seed --out docs/mockups/approvals   # token-seeded artboard
 npx @duro-app/cli mockup check docs/mockups/approvals/*.dc.html
 npx @duro-app/cli mockup canvas docs/mockups/approvals               # one review page
@@ -137,7 +137,7 @@ pin, so patch releases never read as drift, but a **floor**: a repo whose
 script still pins `^3.4.0` never resolves a 4.x payload and never sees what
 the session-start injection gained since. The release refuses a tag whose
 major differs from that floor (`scripts/check-pin-major.mjs`). After a major,
-re-run `hook install` (and `skill install`) in every consumer: the cache
+re-run `hook install` (and `skill install`, which also refreshes the colors, typography and ui skills) in every consumer: the cache
 records the floor it was fetched with, so the next session refetches it on its
 own, and a failed refetch says so on stderr.
 
@@ -210,7 +210,7 @@ commands and one skill make the artboard the contract instead.
 npx -y @duro-app/cli mockup seed --out docs/mockups/<screen> --name Main
 npx -y @duro-app/cli mockup check docs/mockups/<screen>/*.dc.html   # exit 1 on findings
 npx -y @duro-app/cli mockup canvas docs/mockups/<screen>            # the page to pick from
-npx -y @duro-app/cli skill install                                   # /duro-mockup
+npx -y @duro-app/cli skill install                                   # /duro-mockup + colors, typography, ui
 ```
 
 `seed` writes a `.dc.html` whose `<style>` opens with the tokens as **resolved** custom properties for
@@ -241,8 +241,15 @@ direction `Tree`, `Main` first), each artboard inlined by `srcdoc` and scaled
 to its frame. It refuses, writing nothing, while any artboard fails `check`.
 Publish it as the Artifact the person picks from, or open it from disk.
 
-`skill install` writes `.claude/skills/duro-mockup/SKILL.md` (byte-compared
-by `--check`, like the hook). The skill runs the whole path — seed directions,
+`skill install` writes `.claude/skills/duro-mockup/SKILL.md` and every file of
+the packaged `colors`, `typography` and `ui` skills to `.claude/skills/<name>/`
+(byte-compared by `--check`, like the hook; a file the package does not ship is
+stale, and install removes it only where the directory carries the shipped
+`NOTICE.md`). Install refuses to write into an existing `colors`, `typography`
+or `ui` directory without that `NOTICE.md` (a skill of your own) unless you pass
+`--force`. The same three skills are served by the MCP server as guides:
+`duro_ds_lookup guide:colors`, or `guide:colors/contrast.md` for a reference
+file. The skill runs the whole path — seed directions,
 check, publish the canvas, implement the picked direction from its
 `data-duro` map, screenshot the built route and put artboard and screenshot
 side by side in the PR — with nothing outside the CLI, and it explicitly
