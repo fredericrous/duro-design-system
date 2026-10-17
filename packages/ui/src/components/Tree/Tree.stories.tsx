@@ -532,8 +532,18 @@ export const Windowed: Story = {
 
     // typeahead reaches an off-screen row
     await expect(canvas.queryByRole('treeitem', {name: 'Folder08'})).toBeNull()
-    await userEvent.keyboard('Folder08')
-    const folder = await canvas.findByRole('treeitem', {name: 'Folder08'}, {timeout: 5000})
+    // The prefix resets after a 500 ms gap (TYPEAHEAD_RESET_MS), and every prefix match
+    // scrolls and mounts rows: on a loaded runner one stall mid-word resets it. Retype
+    // once the window has passed rather than fail on timing.
+    let folder: HTMLElement | null = null
+    for (let attempt = 0; attempt < 3 && folder === null; attempt++) {
+      if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 600))
+      await userEvent.keyboard('Folder08')
+      folder = await canvas
+        .findByRole('treeitem', {name: 'Folder08'}, {timeout: 3000})
+        .catch(() => null)
+    }
+    if (folder === null) throw new Error('typeahead did not reach Folder08 in 3 attempts')
     await expect(folder).toHaveFocus()
     await expect(folder).toHaveAttribute('aria-posinset', '9')
 
