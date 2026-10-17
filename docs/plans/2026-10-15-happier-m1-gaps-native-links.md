@@ -19,7 +19,7 @@ adrs: [ADR-0002, ADR-0006]
 
 Happier M1 ships its first Duro screens on `@duro-app/ui` 5.15.0 and works around four gaps. This
 plan closes them in duro-design-system, on react-strict-dom (RSD 0.0.55) for web and native.
-`origin/main` is v5.16.0 (QrCode on native, the mockup canvas), so this ships as **5.17.0** and
+`origin/main` is v5.16.0 (QrCode on native, the mockup canvas), so this was planned as **5.17.0**; 5.17.0 and 5.18.0 went out from `main` (CLI changes) while the PR waited, so it ships as the next minor, **5.19.0**, and
 Happier can delete its workarounds: Card and Text instead of Panel and TextLink, and a derived
 `OnNavigate` type. It also fixes a native defect M1 has not hit yet: native was only bundled, never
 tapped (Happier plan line 435).
@@ -193,7 +193,7 @@ mirrors `index.ts:160`.
 - **This is a behaviour change in a minor.**
   - Before tagging, grep the fleet's consumers (duro-app, kb-vision, happier, application-landscape,
     website-builder) for `getByRole('navigation'`.
-  - The 5.17.0 release notes say: "SideNav inside AppShell.Rail is no longer a navigation landmark".
+  - The 5.19.0 release notes say: "SideNav inside AppShell.Rail is no longer a navigation landmark".
 - **Docs.** `SideNav.meta.ts` usage states the rule. The CLAUDE.md "Docs pages" example's
   `aria-label="Navigation"` becomes `"Main"`, because screen readers announce "Navigation
   navigation".
@@ -216,7 +216,7 @@ mirrors `index.ts:160`.
 
 ## Phases
 
-Cut line: Phase 1 (items 1, 1b, 2) is releasable alone as 5.17.0. Phases 2-3 ship with it if their
+Cut line: Phase 1 (items 1, 1b, 2) is releasable alone as 5.19.0 (planned as 5.17.0). Phases 2-3 ship with it if their
 checks are done in the same branch. Otherwise they follow in 5.18.0.
 
 - [x] Phase 0 — worktree `../duro-design-system-wt-native-links` from `origin/main` (0dff2e07), `pnpm install --frozen-lockfile`, `aval add --check`, land this plan as the first commit.
@@ -224,7 +224,7 @@ checks are done in the same branch. Otherwise they follow in 5.18.0.
 - [x] Phase 2 — item 3: Perf300 and tree-bench, numbers recorded; a 🧑 decision only if the rule fails. (The 4× rule does not hold on the final numbers: see the Decision log.)
 - [x] Phase 3 — item 4 and #96: reproduction story, InLandmarkContext, SideNav, Tree meta naming, docs, registry and docs regenerated.
 - [ ] Phase 4 — verification loop including the device checkpoint, implementation review, PR, merge on green.
-- [ ] Phase 5 — release 5.17.0 (minor) through `tag-release`, with release notes naming the landmark change. Check the packument. Add one line under Happier's M1 result block (`happier/docs/plans/2026-10-08-happier-fork-duro-web-app.md:435`), on `feat/m1-shell` if open, otherwise in a docs PR to `dev`. Close #96.
+- [ ] Phase 5 — release 5.19.0 (minor; planned as 5.17.0, taken by `main`) through `tag-release`, with release notes naming the landmark change. Check the packument. Add one line under Happier's M1 result block (`happier/docs/plans/2026-10-08-happier-fork-duro-web-app.md:435`), on `feat/m1-shell` if open, otherwise in a docs PR to `dev`. Close #96.
 
 ## Decision log
 
@@ -345,6 +345,11 @@ checks are done in the same branch. Otherwise they follow in 5.18.0.
   unwindowed Tree. Over the plan's 250 ms line, so "Tree on native: windowing" is due for Happier,
   outside this release. A release build would be faster; it was not measured.
 
+- 2026-10-17 — Rebased onto a `main` that moved by four commits (the interface guides in `@duro-app/cli`,
+  tags v5.17.0 and v5.18.0). Conflicts were only the generated `decisions.pack` and `docs/adr/HEADS.md`:
+  taken from `main`, the pack refreshed with `aval add`, `HEADS.md` regenerated with `aval heads --write`.
+  The release is now 5.19.0: the 5.17.0 named above and in the PR description is taken.
+
 ## Verification
 
 Each row records input → expected → actual. "Tests pass" alone is not a check.
@@ -401,8 +406,8 @@ Each row records input → expected → actual. "Tests pass" alone is not a chec
   - a web Tree or TextLink cmd-click regression;
   - a Menu.LinkItem failure at the checkpoint;
   - a native branch that cannot be expanded with a screen reader.
-- **After release:** if Happier's native session-row tap does not reach `onNavigate`, deprecate 5.17.0 on npm and ship a patch.
-- **After the release:** `npm view @duro-app/ui@5.17.0 version` resolves, and the published native
+- **After release:** if Happier's native session-row tap does not reach `onNavigate`, deprecate 5.19.0 on npm and ship a patch.
+- **After the release:** `npm view @duro-app/ui@5.19.0 version` resolves, and the published native
   types export `Panel`, `TextLink` and `OnNavigate`. Raising the dependency is Happier's own work.
 
 ### Observed (2026-10-15)
