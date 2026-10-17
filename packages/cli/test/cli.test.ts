@@ -513,8 +513,26 @@ describe('skill install', () => {
     writeFileSync(installed(foreign, 'ui', 'mine.md'), 'mine\n')
     const forced = runSkill('install', {cwd: foreign, force: true})
     expect(forced.exitCode).toBeUndefined()
+    expect(forced.text).toContain('removed')
     expect(forced.text).toContain('.claude/skills/ui/mine.md')
-    expect(existsSync(installed(foreign, 'ui', 'mine.md'))).toBe(true)
+    expect(existsSync(installed(foreign, 'ui', 'mine.md'))).toBe(false)
+
+    // A second plain install after --force changes nothing.
+    const again = install(foreign)
+    expect(again.exitCode).toBeUndefined()
+    expect(again.text).not.toContain('removed')
+    expect(again.text).not.toContain('regenerated')
+    expect(again.text).not.toContain('created')
+  })
+
+  it('exits 2 with the error message when the skills directory cannot be read', () => {
+    const root = repo()
+    const notADirectory = pathToFileURL(join(root, 'plain-file'))
+    writeFileSync(join(root, 'plain-file'), 'x\n')
+    const result = runSkill('install', {cwd: root, skillsDir: notADirectory})
+    expect(result.exitCode).toBe(2)
+    expect(result.text).toContain('ENOTDIR')
+    expect(result.text).not.toContain('missing or empty')
   })
 
   it('warns for each skill when an allowlisted .claude would not ship them', () => {
@@ -547,6 +565,9 @@ describe('skill install', () => {
   it('names --force in the command help', () => {
     const skill = COMMANDS.find((command) => command.name === 'skill')
     expect(skill?.flags.find((flag) => flag.name === 'force')?.description).toContain('--force')
+    const help = duro('skill', '--help')
+    expect(help.code).toBe(0)
+    expect(help.stdout).toContain('--force')
   })
 
   it('packs skills/{colors,typography,ui}/SKILL.md', () => {

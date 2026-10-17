@@ -6,7 +6,13 @@ import {listFiles} from '../src/commands/skill.js'
 // @ts-expect-error — a plain .mjs build script, no types
 import {listGuideFiles} from '../scripts/lib/guides.mjs'
 import type {Registry} from '../src/registry-types.js'
-import {toolDefinitions, callTool, toolResponse} from '../src/commands/mcp.js'
+import {
+  toolDefinitions,
+  callTool,
+  toolResponse,
+  listResources,
+  readResource,
+} from '../src/commands/mcp.js'
 
 const registry = loadRegistry()
 
@@ -134,6 +140,19 @@ describe('mcp tools', () => {
       )
     })
 
+    it('guide resources list and read the packaged bytes', () => {
+      const uris = listResources(registry).map((resource) => resource.uri)
+      expect(uris).toContain('duro://guide/typography')
+      const reference = listFiles(`${skillsDir}typography`).find((file) => file !== 'SKILL.md')
+      expect(reference).toBeDefined()
+      const skill = readResource(registry, 'duro://guide/typography')
+      expect(skill.contents[0].text).toBe(readFileSync(`${skillsDir}typography/SKILL.md`, 'utf8'))
+      const file = readResource(registry, `duro://guide/typography/${reference}`)
+      expect(file.contents[0].text).toBe(
+        readFileSync(`${skillsDir}typography/${reference}`, 'utf8'),
+      )
+    })
+
     it('an unknown file names the skill files, an unknown skill the skills', () => {
       const file = callTool(registry, 'duro_ds_lookup', {name: 'guide:ui/nope.md'})
       expect(file.isError).toBe(true)
@@ -154,7 +173,8 @@ describe('mcp tools', () => {
     })
 
     it('the registry walker and the installer walker list the same files in the same order', () => {
-      for (const name of Object.keys(registry.guides ?? {})) {
+      for (const name of ['colors', 'typography', 'ui']) {
+        expect(registry.guides).toHaveProperty(name)
         const dir = `${skillsDir}${name}`
         expect(listGuideFiles(dir)).toEqual(listFiles(dir))
         expect(Object.keys(registry.guides?.[name] ?? {})).toEqual(listFiles(dir))

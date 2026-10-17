@@ -72,7 +72,7 @@ export function listFiles(dir: string): string[] {
   return out.sort(byBytes)
 }
 
-/** The packaged skills: name -> files. Null when the directory is missing or empty. */
+/** The packaged skills: name -> files. Null when the directory is missing or empty; other failures throw. */
 function packagedSkills(skillsDir: URL): Map<string, string[]> | null {
   const root = fileURLToPath(skillsDir)
   try {
@@ -86,8 +86,9 @@ function packagedSkills(skillsDir: URL): Map<string, string[]> | null {
       if (files.length > 0) skills.set(name, files)
     }
     return skills.size === 0 ? null : skills
-  } catch {
-    return null
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
+    throw error
   }
 }
 
@@ -136,7 +137,16 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
   }
   const root = options.cwd ?? process.cwd()
   const skillsDir = options.skillsDir ?? SKILLS_DIR
-  const packaged = packagedSkills(skillsDir)
+  let packaged: Map<string, string[]> | null
+  try {
+    packaged = packagedSkills(skillsDir)
+  } catch (error) {
+    return {
+      text: `duro skill: cannot read the packaged skills directory (${fileURLToPath(skillsDir)}): ${error instanceof Error ? error.message : String(error)}`,
+      data: {kind: 'unreadable-skills'},
+      exitCode: 2,
+    }
+  }
   if (!packaged) {
     return {
       text: `duro skill: the packaged skills directory is missing or empty (${fileURLToPath(skillsDir)}) — reinstall @duro-app/cli`,
@@ -209,7 +219,7 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
   for (const name of packaged.keys()) {
     const dir = skillDirOf(name)
     if (!existsSync(dir)) continue
-    const removable = !options.check && owned(name)
+    const removable = !options.check && (owned(name) || options.force === true)
     for (const rel of listFiles(dir)) {
       const path = `${SKILLS_ROOT}/${name}/${rel}`
       if (shipped.has(path)) continue

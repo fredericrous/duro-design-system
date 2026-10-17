@@ -148,6 +148,49 @@ export function callTool(registry: Registry, name: string, args: Record<string, 
   }
 }
 
+export function listResources(registry: Registry): {uri: string; name: string; mimeType: string}[] {
+  return [
+    ...Object.keys(registry.components).map((name) => ({
+      uri: `duro://component/${encodeURIComponent(name)}`,
+      name: `${name} docs`,
+      mimeType: 'text/plain',
+    })),
+    ...Object.keys(registry.recipes).map((name) => ({
+      uri: `duro://recipe/${name}`,
+      name: `${name} recipe`,
+      mimeType: 'text/plain',
+    })),
+    ...guideNames(registry).map((name) => ({
+      uri: `duro://guide/${name.slice('guide:'.length)}`,
+      name: `${name} guide`,
+      mimeType: 'text/markdown',
+    })),
+  ]
+}
+
+export function readResource(
+  registry: Registry,
+  uri: string,
+): {contents: {uri: string; mimeType: string; text: string}[]} {
+  const componentMatch = /^duro:\/\/component\/(.+)$/.exec(uri)
+  const recipeMatch = /^duro:\/\/recipe\/(.+)$/.exec(uri)
+  const guideMatch = /^duro:\/\/guide\/(.+)$/.exec(uri)
+  let text: string | null = null
+  if (guideMatch) {
+    const guide = lookupGuide(registry, `guide:${guideMatch[1]}`)
+    if (guide.ok) text = guide.content
+  } else if (componentMatch) {
+    const key = decodeURIComponent(componentMatch[1])
+    const entry = registry.components[key]
+    if (entry) text = renderComponent(registry, key, entry)
+  } else if (recipeMatch) {
+    const entry = registry.recipes[recipeMatch[1]]
+    if (entry) text = renderRecipe(entry)
+  }
+  if (text === null) throw new Error(`unknown resource ${uri}`)
+  return {contents: [{uri, mimeType: 'text/plain', text}]}
+}
+
 export async function runMcp(registry: Registry): Promise<void> {
   let sdkServer, sdkStdio, sdkTypes
   try {
@@ -177,45 +220,12 @@ export async function runMcp(registry: Registry): Promise<void> {
   )
 
   server.setRequestHandler(sdkTypes.ListResourcesRequestSchema, () => ({
-    resources: [
-      ...Object.keys(registry.components).map((name) => ({
-        uri: `duro://component/${encodeURIComponent(name)}`,
-        name: `${name} docs`,
-        mimeType: 'text/plain',
-      })),
-      ...Object.keys(registry.recipes).map((name) => ({
-        uri: `duro://recipe/${name}`,
-        name: `${name} recipe`,
-        mimeType: 'text/plain',
-      })),
-      ...guideNames(registry).map((name) => ({
-        uri: `duro://guide/${name.slice('guide:'.length)}`,
-        name: `${name} guide`,
-        mimeType: 'text/markdown',
-      })),
-    ],
+    resources: listResources(registry),
   }))
 
-  server.setRequestHandler(sdkTypes.ReadResourceRequestSchema, (request) => {
-    const uri = request.params.uri
-    const componentMatch = /^duro:\/\/component\/(.+)$/.exec(uri)
-    const recipeMatch = /^duro:\/\/recipe\/(.+)$/.exec(uri)
-    const guideMatch = /^duro:\/\/guide\/(.+)$/.exec(uri)
-    let text: string | null = null
-    if (guideMatch) {
-      const guide = lookupGuide(registry, `guide:${guideMatch[1]}`)
-      if (guide.ok) text = guide.content
-    } else if (componentMatch) {
-      const key = decodeURIComponent(componentMatch[1])
-      const entry = registry.components[key]
-      if (entry) text = renderComponent(registry, key, entry)
-    } else if (recipeMatch) {
-      const entry = registry.recipes[recipeMatch[1]]
-      if (entry) text = renderRecipe(entry)
-    }
-    if (text === null) throw new Error(`unknown resource ${uri}`)
-    return {contents: [{uri, mimeType: 'text/plain', text}]}
-  })
+  server.setRequestHandler(sdkTypes.ReadResourceRequestSchema, (request) =>
+    readResource(registry, request.params.uri),
+  )
 
   server.setRequestHandler(sdkTypes.ListPromptsRequestSchema, () => ({
     prompts: [
