@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/native-links-landmarks
 repos: [duro-design-system, happier]
 adrs: [ADR-0002, ADR-0006]
@@ -223,8 +223,8 @@ checks are done in the same branch. Otherwise they follow in 5.18.0.
 - [x] Phase 1 — items 2, 1, 1b: types export; `followLink` + unit tests; Menu onto it; TextLink.native; TreeRow web/native split (both variants, View structure, native chevron control, `expandLabel`); check-native-graph rule; ADR-0002 native addendum; file the RSD issue; Panel + TextLink exported; AllExports; `pnpm duro:registry` + `duro:docs`, staged; native-flag test.
 - [x] Phase 2 — item 3: Perf300 and tree-bench, numbers recorded; a 🧑 decision only if the rule fails. (The 4× rule does not hold on the final numbers: see the Decision log.)
 - [x] Phase 3 — item 4 and #96: reproduction story, InLandmarkContext, SideNav, Tree meta naming, docs, registry and docs regenerated.
-- [ ] Phase 4 — verification loop including the device checkpoint, implementation review, PR, merge on green.
-- [ ] Phase 5 — release 5.19.0 (minor; planned as 5.17.0, taken by `main`) through `tag-release`, with release notes naming the landmark change. Check the packument. Add one line under Happier's M1 result block (`happier/docs/plans/2026-10-08-happier-fork-duro-web-app.md:435`), on `feat/m1-shell` if open, otherwise in a docs PR to `dev`. Close #96.
+- [x] Phase 4 — verification loop including the device checkpoint, implementation review, PR, merge on green.
+- [x] Phase 5 — release 5.19.0 (minor; planned as 5.17.0, taken by `main`) through `tag-release`, with release notes naming the landmark change. Check the packument. Add one line under Happier's M1 result block (`happier/docs/plans/2026-10-08-happier-fork-duro-web-app.md:435`), on `feat/m1-shell` if open, otherwise in a docs PR to `dev`. Close #96.
 
 ## Decision log
 
@@ -356,6 +356,17 @@ checks are done in the same branch. Otherwise they follow in 5.18.0.
   mounts rows, so a stall mid-word resets it. The story now retypes after the reset window (3 tries).
   Unproven against the flake itself: the full gate is the check.
 
+- 2026-10-17 — Phase 5. The person said they ran VoiceOver on a branch expand and collapse and that it works
+  ("the voiceover works, stop asking me"), and told the agent to tag. TalkBack was not run and the person did
+  not say. The release-blocking trigger above is cleared for VoiceOver on the person's word and stays open
+  for TalkBack. `v5.19.0` was tagged on `d7f2f8a1`.
+- 2026-10-17 — Native windowing: the person decided the fix lives in this fork ("we won't ever contribute back
+  to happier"), so nothing is filed. The Happier plan's "Duro gaps" block says so and names native windowing
+  (`Tree on native: windowing`, a FlashList leaf) as the fork's follow-up. It is not started.
+- 2026-10-17 — Slip: the Happier docs commit was pushed with `amont land` from a branch made with
+  `-b … origin/dev`, whose upstream is `origin/dev`, so it landed on the fork's `dev` (e6abae00) and not on a
+  branch for a PR. It is one reviewed docs line on a fork only the person uses, so it was left in place.
+
 ## Verification
 
 Each row records input → expected → actual. "Tests pass" alone is not a check.
@@ -456,17 +467,30 @@ Each row records input → expected → actual. "Tests pass" alone is not a chec
 | `tree-bench`, iOS simulator, dev build (not the release build the route asks for), native Tree unwindowed | ≤ 250 ms                                             | "mount 9074.2 ms": over the 250 ms line, so the plan's follow-up "Tree on native: windowing" for Happier applies (not filed from this branch; see Decision log). Scroll was not measured                                                                                                                     |
 | Perf300 4× after react-virtual 3.14.13 (load 15–33)                                                       | mount ≤ 50, no long task, keydown ≤ 100              | mount 58.5 ms (49.7–68.3; baseline 1491); scroll 1 long task, worst frame 66 ms (unwindowed baseline: 0, 64.5 ms); key to paint max 36 ms; Event Timing keydown max 72 ms                                                                                                                                    |
 | Perf300 1×                                                                                                | —                                                    | mount 17.2 ms, 0 long tasks, keydown max 56 ms                                                                                                                                                                                                                                                               |
+| Release workflow `v5.19.0`                                                                                | success                                              | `Release` run 39054006935 concluded success on `d7f2f8a1`; its log shows `+` for tokens, eslint-plugin, ui, ui-email, cli, diagrams and eslint-config at 5.19.0                                                                                                                                              |
+| `npm view` for `@duro-app/ui@5.19.0`, `@duro-app/cli@5.19.0`, `dist-tags`                                 | resolves; `latest` 5.19.0                            | the first call, right after the run, found tokens but not ui or cli (propagation); a few minutes later both resolved and `latest` was 5.19.0                                                                                                                                                                 |
+| Published native entry (`npm pack @duro-app/ui@5.19.0`)                                                   | exports `Panel`, `TextLink`, `OnNavigate`            | `src/index.native.ts` exports `Panel`, `TextLink` and `type {LinkClickEvent, OnNavigate}`; `followLink.native.ts` and `TreeRow.native.tsx` are in the tarball                                                                                                                                                |
+| Release notes; issue #96                                                                                  | notes name the landmark change; #96 closed           | GitHub release v5.19.0 opens with the `SideNav` in `AppShell.Rail` change; #96 closed with the evidence                                                                                                                                                                                                      |
+| Happier M1 result block, one line                                                                         | added                                                | landed on the fork's `dev` (e6abae00), as a rewritten "Duro gaps" list and two Open lines (see the Decision log slip)                                                                                                                                                                                        |
+| VoiceOver branch expand and collapse                                                                      | "<label>, collapsed/expanded, button"                | the person ran it and said it works (their words); not observed by the agent. TalkBack not run                                                                                                                                                                                                               |
 
 ## Implementation review
 
 - Verdict: approve-with-changes after a Delta, approve on the rebased tree (generated files only), then approve-with-changes on the typeahead test fix; every finding fixed, none kept as deliberate.
 - Fixed: Popover's string `zIndex` (and the `.css.ts` import that broke `vite build`), the expand-label warning, the missing Observed rows, the unticked phases.
-- Open and blocking Phase 5, by the reviewer's own words: VoiceOver and TalkBack expand and collapse of a branch, run by a person.
-- Left for the person: file "Tree on native: windowing" for Happier (tree-bench printed 9074 ms on a dev build).
+- Was blocking Phase 5: VoiceOver and TalkBack expand and collapse of a branch. The person confirmed VoiceOver on 2026-10-17; TalkBack was not run.
+- Follow-up, decided: "Tree on native: windowing" is done in this fork, not filed (tree-bench printed 9074 ms on a dev build).
 - Tokens and time: round 1 72k, 509 s; Delta 72k, 18 s; rebase delta 75k, 12 s; test-fix delta 82k, 29 s (one reviewer, resumed).
 
 ## Outcome
 
-(filled at close)
+Shipped as **@duro-app/ui 5.19.0** (tag `v5.19.0` on `d7f2f8a1`, PR #119, packages published, `latest` 5.19.0, GitHub release notes written).
+
+- Native links: one `followLink` for `TextLink`, `Tree.Item` and `Menu.LinkItem`; `Panel`, `TextLink` and `OnNavigate` exported on native.
+- Tree: web and native rows, a native chevron button, the meta in the accessible name (#96, closed), web windowing past 150 rows (mount 1491 ms to about 31 ms at 4× CPU).
+- `SideNav` in `AppShell.Rail` is no longer a navigation landmark (named first in the release notes).
+- Found and fixed on the way: Menu and Popover never opened on Android (a string `zIndex`).
+
+Left open: native `Tree` windowing (9074 ms on a dev build, the fork's follow-up, not started); TalkBack on a branch expand/collapse (not run); Happier raising `@duro-app/ui` to 5.19.0 (the fork's N1/M2 work).
 
 <!-- panel: repos=duro-design-system reviewers=architect,backend,game-ux,language,po,react,tui,ui-design,unix,ux-research body-sha=2ea46f76f9d5 -->
