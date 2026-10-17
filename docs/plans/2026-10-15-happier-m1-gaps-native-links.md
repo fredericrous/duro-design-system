@@ -459,11 +459,11 @@ Each row records input → expected → actual. "Tests pass" alone is not a chec
 
 ## Implementation review
 
-- Verdict: approve-with-changes after a Delta, then approve on the rebased tree (a second delta, generated files only); every finding fixed, none kept as deliberate.
+- Verdict: approve-with-changes after a Delta, approve on the rebased tree (generated files only), then approve-with-changes on the typeahead test fix; every finding fixed, none kept as deliberate.
 - Fixed: Popover's string `zIndex` (and the `.css.ts` import that broke `vite build`), the expand-label warning, the missing Observed rows, the unticked phases.
 - Open and blocking Phase 5, by the reviewer's own words: VoiceOver and TalkBack expand and collapse of a branch, run by a person.
 - Left for the person: file "Tree on native: windowing" for Happier (tree-bench printed 9074 ms on a dev build).
-- Tokens and time: round 1 72k, 509 s; Delta 72k, 18 s; rebase delta 75k, 12 s (one reviewer, resumed).
+- Tokens and time: round 1 72k, 509 s; Delta 72k, 18 s; rebase delta 75k, 12 s; test-fix delta 82k, 29 s (one reviewer, resumed).
 
 ## Outcome
 
