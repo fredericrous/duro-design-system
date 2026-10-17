@@ -350,6 +350,12 @@ checks are done in the same branch. Otherwise they follow in 5.18.0.
   taken from `main`, the pack refreshed with `aval add`, `HEADS.md` regenerated with `aval heads --write`.
   The release is now 5.19.0: the 5.17.0 named above and in the PR description is taken.
 
+- 2026-10-17 — The rehearsal on the rebased tree failed once on `Tree > Windowed` (`Folder08` never
+  mounted after typeahead, at load 32). Passed 9/9 three times alone at load 45–55. Cause read from the
+  code, not reproduced: the typeahead prefix resets after 500 ms and every prefix match scrolls and
+  mounts rows, so a stall mid-word resets it. The story now retypes after the reset window (3 tries).
+  Unproven against the flake itself: the full gate is the check.
+
 ## Verification
 
 Each row records input → expected → actual. "Tests pass" alone is not a check.
