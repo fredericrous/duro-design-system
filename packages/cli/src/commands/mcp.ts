@@ -176,9 +176,11 @@ export function readResource(
   const recipeMatch = /^duro:\/\/recipe\/(.+)$/.exec(uri)
   const guideMatch = /^duro:\/\/guide\/(.+)$/.exec(uri)
   let text: string | null = null
+  let mimeType = 'text/plain'
   if (guideMatch) {
     const guide = lookupGuide(registry, `guide:${guideMatch[1]}`)
     if (guide.ok) text = guide.content
+    mimeType = 'text/markdown'
   } else if (componentMatch) {
     const key = decodeURIComponent(componentMatch[1])
     const entry = registry.components[key]
@@ -188,7 +190,7 @@ export function readResource(
     if (entry) text = renderRecipe(entry)
   }
   if (text === null) throw new Error(`unknown resource ${uri}`)
-  return {contents: [{uri, mimeType: 'text/plain', text}]}
+  return {contents: [{uri, mimeType, text}]}
 }
 
 export async function runMcp(registry: Registry): Promise<void> {

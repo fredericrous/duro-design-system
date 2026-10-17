@@ -67,8 +67,15 @@ export const DURATION_MS = {
   brisk: 160,
   base: 200,
   slow: 280,
+  slower: 300,
+  stagger: 100,
 } as const
-export type DurationToken = keyof typeof DURATION_MS
+/**
+ * The durations an overlay can exit with. `slower` and `stagger` (enter and
+ * list-step timings) have no exit animation in the components yet, so they
+ * stay out of this type until one needs them.
+ */
+export type DurationToken = Exclude<keyof typeof DURATION_MS, 'slower' | 'stagger'>
 
 export const SIZE_KEYS = [
   'touchTarget',
@@ -392,6 +399,7 @@ export const EASINGS = {
   linear: 'linear',
   easeOut: 'cubic-bezier(0.32, 0.72, 0, 1)',
   easeIn: 'cubic-bezier(0.72, 0, 0.68, 0.28)',
+  emphasized: 'cubic-bezier(0.2, 0, 0, 1)',
 } as const
 
 export type ColorToken = keyof RawColors

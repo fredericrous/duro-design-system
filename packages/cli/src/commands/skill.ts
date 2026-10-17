@@ -127,6 +127,65 @@ function ignoredTrackables(root: string, candidates: string[]): string[] {
   }
 }
 
+const PRETTIER_CONFIGS = [
+  '.prettierrc',
+  '.prettierrc.json',
+  '.prettierrc.yaml',
+  '.prettierrc.yml',
+  '.prettierrc.json5',
+  '.prettierrc.js',
+  '.prettierrc.cjs',
+  '.prettierrc.mjs',
+  '.prettierrc.ts',
+  '.prettierrc.toml',
+  'prettier.config.js',
+  'prettier.config.cjs',
+  'prettier.config.mjs',
+  'prettier.config.ts',
+]
+
+function usesPrettier(root: string): boolean {
+  if (PRETTIER_CONFIGS.some((name) => existsSync(join(root, name)))) return true
+  const manifest = read(join(root, 'package.json'))
+  if (manifest === null) return false
+  try {
+    const parsed: unknown = JSON.parse(manifest.toString('utf8'))
+    return typeof parsed === 'object' && parsed !== null && 'prettier' in parsed
+  } catch {
+    return false
+  }
+}
+
+/** True when a .prettierignore line names `dir` or a parent of it (`.claude`, `/.claude/skills/`, `.claude/**`). */
+function coversDirectory(ignore: string, dir: string): boolean {
+  const covering = new Set<string>()
+  const parts = dir.split('/')
+  for (let i = 1; i <= parts.length; i++) covering.add(parts.slice(0, i).join('/'))
+  return ignore.split('\n').some((raw) => {
+    const line = raw
+      .trim()
+      .replace(/^\*\*\//, '')
+      .replace(/^\//, '')
+      .replace(/(\/\*\*?)+$/, '')
+      .replace(/\/$/, '')
+    return line !== '' && !line.startsWith('#') && !line.startsWith('!') && covering.has(line)
+  })
+}
+
+/**
+ * Prettier reformats the installed skills, so `--check` then reports drift on
+ * every run. Returns the skill directories .prettierignore leaves uncovered;
+ * empty when the repository does not use Prettier.
+ */
+function unignoredByPrettier(root: string, names: string[]): string[] {
+  if (!usesPrettier(root)) return []
+  const ignore = read(join(root, '.prettierignore'))?.toString('utf8') ?? ''
+  return names
+    .map((name) => `${SKILLS_ROOT}/${name}`)
+    .filter((dir) => !coversDirectory(ignore, dir))
+    .map((dir) => `${dir}/`)
+}
+
 export function runSkill(action: string | undefined, options: SkillOptions = {}): CommandResult {
   if (action !== 'install') {
     return {
@@ -271,6 +330,7 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
 
   const ignored = ignoredTrackables(root, [...planned.map((file) => file.path), SKILL_NOTES_PATH])
   const skillNames = ['duro-mockup', ...packaged.keys()]
+  const prettierUnignored = unignoredByPrettier(root, skillNames)
   return {
     text: [
       `Duro skills installed: ${skillNames.join(', ')} — invoke the workflow as /duro-mockup.`,
@@ -286,9 +346,17 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
             'Add a negation for each:',
             ...ignored.map((path) => `  !${path}`),
           ]),
+      ...(prettierUnignored.length === 0
+        ? []
+        : [
+            '',
+            'WARNING: this repository uses Prettier and .prettierignore does not cover the skills,',
+            'so Prettier would reformat them and --check would report drift. Add to .prettierignore:',
+            ...prettierUnignored.map((path) => `  ${path}`),
+          ]),
       '',
       'Next: npx -y @duro-app/cli skill install --check',
     ].join('\n'),
-    data: {ok: true, changes, ignored},
+    data: {ok: true, changes, ignored, prettierUnignored},
   }
 }

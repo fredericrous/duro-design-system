@@ -105,7 +105,7 @@ export const COMMANDS: CommandSpec[] = [
   {
     name: 'skill',
     summary:
-      'Claude Code skills — /duro-mockup (the mockup → implementation → proof workflow) plus the colors, typography and ui interface skills; install writes all four into the current repo',
+      'Claude Code skills — /duro-mockup (the mockup → implementation → proof workflow) plus the colors, typography and ui interface skills; install writes all four into the current repo; --force overwrites a skill directory of your own and removes the files in it that the package does not ship',
     args: [
       {
         name: 'action',
@@ -124,7 +124,7 @@ export const COMMANDS: CommandSpec[] = [
         name: 'force',
         type: 'boolean',
         description:
-          'install: with --force, write into an existing colors, typography or ui skill directory that lacks the shipped NOTICE.md (a skill of your own); without --force install refuses',
+          'install: with --force, write into an existing colors, typography or ui skill directory that lacks the shipped NOTICE.md (a skill of your own); without --force install refuses. --force also removes the files of that overwritten directory the package does not ship',
       },
     ],
     returns: {
