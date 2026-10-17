@@ -1,0 +1,16 @@
+amont-provenance-v1
+commit fb6d3dde947249edd2942a05ba628563e8d5a490
+tree 28914b64e752cb51beaca4cd7d6281bd88b1a774
+canon 6780f863aa5bb1ec0a67e1b5f9e5e467e249d6a3
+patch a4d55915c7f6867bf7173d5ad996e2d9c17293f6
+plan docs/plans/2026-10-15-happier-m1-gaps-native-links.md 4faba05f838997abf9ef2392572031a5f8cb0f7a77001da1ea7d0011e12674b2
+review reviewed 4f57826ea45b897272afd453d36b06e5ce7eb690d674185df1f00548e2087c96
+preview approved
+producer amont-agent 2.43.0
+
+-----BEGIN SSH SIGNATURE-----
+U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAg7UOvJ8myo4dhW907VFty7T/bUV
+RFQerK+MWJ4bjChwcAAAAQYW1vbnQtcHJvdmVuYW5jZQAAAAAAAAAGc2hhNTEyAAAAUwAA
+AAtzc2gtZWQyNTUxOQAAAEAP13TTASGow+DAlfhjLPMmbgO+R1XVlmgiYSpMuaIHM1eiTz
+v/muJZOOuTy9iK4cDD3Z2dglBQP6VxIpXr3tkE
+-----END SSH SIGNATURE-----
