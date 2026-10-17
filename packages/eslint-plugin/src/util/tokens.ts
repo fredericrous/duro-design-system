@@ -280,6 +280,8 @@ export const DURATION_TOKENS_BY_MS: Record<number, string> = {
   160: 'brisk',
   200: 'base',
   280: 'slow',
+  300: 'slower',
+  100: 'stagger',
 }
 
 /** Easing value (whitespace-normalized) → easing token. */
@@ -288,6 +290,7 @@ export const EASING_TOKENS: Record<string, string> = {
   linear: 'linear',
   'cubic-bezier(0.32,0.72,0,1)': 'easeOut',
   'cubic-bezier(0.72,0,0.68,0.28)': 'easeIn',
+  'cubic-bezier(0.2,0,0,1)': 'emphasized',
 }
 
 /** Collapse whitespace so `rgba(0, 0, 0, .3)` and `rgba(0,0,0,.3)` compare equal. */

@@ -11,7 +11,7 @@ A decision of this repository (resolved at its applicable scope with `aval resol
 
 Where Duro defines the value, these win: the `spacing.css.ts` radii, `shadows.css.ts` and `motion.css.ts`.
 
-The ui values with no token (`300ms` enter, `100ms` stagger, `cubic-bezier(0.2, 0, 0, 1)`) are known design-system gaps tracked in one issue (https://github.com/fredericrous/duro-design-system/issues/120), so a review reports them once against that issue and not per use.
+The ui values `300ms` enter, `100ms` stagger and `cubic-bezier(0.2, 0, 0, 1)` are Duro tokens (`duration.slower`, `duration.stagger`, `easing.emphasized`) that a review uses instead of the literal.
 
 ## Exact values, optional polish
 

@@ -146,6 +146,7 @@ describe('mcp tools', () => {
       const reference = listFiles(`${skillsDir}typography`).find((file) => file !== 'SKILL.md')
       expect(reference).toBeDefined()
       const skill = readResource(registry, 'duro://guide/typography')
+      expect(skill.contents[0].mimeType).toBe('text/markdown')
       expect(skill.contents[0].text).toBe(readFileSync(`${skillsDir}typography/SKILL.md`, 'utf8'))
       const file = readResource(registry, `duro://guide/typography/${reference}`)
       expect(file.contents[0].text).toBe(

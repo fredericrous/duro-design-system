@@ -14,6 +14,10 @@ import {css} from 'react-strict-dom'
  *   `easeIn` are the "Apple ease" curves already defined for DetailPanel.
  *   `linear` is the Spinner's constant rotation.
  *
+ * - `slower` (300ms enter), `stagger` (100ms between staggered list items) and
+ *   the `emphasized` easing come from the ui interface guide
+ *   (packages/cli/skills/ui), which gave them no token; issue #120.
+ *
  * Reduced motion is handled globally (the `@media (prefers-reduced-motion)`
  * rule in the reset neutralizes timing) plus per-component transform guards, so
  * these stay as plain timing values.
@@ -27,6 +31,8 @@ export const duration = css.defineVars({
   brisk: '160ms',
   base: '200ms',
   slow: '280ms',
+  slower: '300ms',
+  stagger: '100ms',
 })
 
 export const easing = css.defineVars({
@@ -34,4 +40,5 @@ export const easing = css.defineVars({
   linear: 'linear',
   easeOut: 'cubic-bezier(0.32, 0.72, 0, 1)',
   easeIn: 'cubic-bezier(0.72, 0, 0.68, 0.28)',
+  emphasized: 'cubic-bezier(0.2, 0, 0, 1)',
 })

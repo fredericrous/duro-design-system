@@ -247,7 +247,8 @@ the packaged `colors`, `typography` and `ui` skills to `.claude/skills/<name>/`
 stale, and install removes it only where the directory carries the shipped
 `NOTICE.md`). Install refuses to write into an existing `colors`, `typography`
 or `ui` directory without that `NOTICE.md` (a skill of your own) unless you pass
-`--force`. The same three skills are served by the MCP server as guides:
+`--force`, which also removes the files of the overwritten directory that the
+package does not ship. The same three skills are served by the MCP server as guides:
 `duro_ds_lookup guide:colors`, or `guide:colors/contrast.md` for a reference
 file. The skill runs the whole path — seed directions,
 check, publish the canvas, implement the picked direction from its

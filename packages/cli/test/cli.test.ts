@@ -545,6 +545,24 @@ describe('skill install', () => {
     }
   })
 
+  it('warns when a Prettier repository does not ignore the installed skills', () => {
+    const root = repo()
+    writeFileSync(join(root, '.prettierrc'), '{}\n')
+    writeFileSync(join(root, '.prettierignore'), '.claude/skills/ui/\n')
+    const result = install(root)
+    expect(result.text).toContain('.prettierignore')
+    expect(result.text).toContain('  .claude/skills/colors/')
+    expect(result.text).toContain('  .claude/skills/duro-mockup/')
+    expect(result.text).not.toContain('  .claude/skills/ui/\n')
+
+    const covered = repo()
+    writeFileSync(join(covered, 'package.json'), '{"prettier": {}}\n')
+    writeFileSync(join(covered, '.prettierignore'), '/.claude/\n')
+    expect(install(covered).text).not.toContain('.prettierignore')
+
+    expect(install(repo()).text).not.toContain('.prettierignore')
+  })
+
   it('refuses a foreign ui directory (exit 1) and overwrites it with --force', () => {
     const root = repo()
     mkdirSync(installed(root, 'ui'), {recursive: true})
