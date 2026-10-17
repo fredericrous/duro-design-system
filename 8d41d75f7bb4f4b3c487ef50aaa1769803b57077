@@ -1,0 +1,16 @@
+amont-provenance-v1
+commit 8d41d75f7bb4f4b3c487ef50aaa1769803b57077
+tree d879505e78f261b1dfecba79465d012b1183951c
+canon 94756c3b02309e31bdb1f51768ea776ae455c50a
+patch 52a403d3fca5bcad7a18e5eae050c92a8faab8ae
+plan docs/plans/2026-10-16-own-the-interface-rule-skills.md 7fbab05fe1a91307ea99e0b1533b7f9a19418ba619236837de9095b7d2944bf3
+review reviewed 49d5c2be1a2933276dde8d73b73187320d604fe253254579711017c458d21a5e
+preview not-required
+producer amont-agent 2.43.0
+
+-----BEGIN SSH SIGNATURE-----
+U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAg7UOvJ8myo4dhW907VFty7T/bUV
+RFQerK+MWJ4bjChwcAAAAQYW1vbnQtcHJvdmVuYW5jZQAAAAAAAAAGc2hhNTEyAAAAUwAA
+AAtzc2gtZWQyNTUxOQAAAECgKccbds5MKf53Gbyix4fxUVzwZyCFJcUdLy7bPhwkVREnSF
+et4ql9UJgn0h3Kyqe62hcRkXQYqDdD2SMreXsK
+-----END SSH SIGNATURE-----
