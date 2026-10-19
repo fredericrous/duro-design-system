@@ -199,7 +199,7 @@ These components **must** be wrapped in their `.Root`:
 | **Checkbox** | Checkbox input with optional visible label | `name`, `value`, `checked` |
 | **CheckboxGroup** | Checkbox group for multi-select from a list of options | compound: Item, Root |
 | **Cluster** | Horizontal flex layout that WRAPS to the next line when items overflow | `gap`, `align`, `justify` |
-| **CodeBlock** | A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion | `copyLabel`, `copiedLabel`, `copiedDuration` |
+| **CodeBlock** | A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion | `language`, `copyLabel`, `copiedLabel` |
 | **ColorInput** | A styled native color swatch (<input type="color">) for picking a hex color | `value`, `defaultValue`, `name` |
 | **ColorModeToggle** | Color-mode controller + toggle | `size`, `aria-label` |
 | **Combobox** | Searchable dropdown for selecting a value from a filterable list | compound: Empty, Input, Item, ItemText, Popup, … |
@@ -252,7 +252,7 @@ These components **must** be wrapped in their `.Root`:
 | **Text** | Body and label typography component | `variant`, `color`, `weight` |
 | **Text (diagrams)** | Free-floating text inside a Diagram | `x`, `y`, `variant` |
 | **TextLink** | Inline hyperlink for running text and standalone text links ("View all", "Edit profile") | `href`, `target`, `rel` |
-| **Textarea** | Multi-line text input with automatic Field/Form integration | `variant`, `name`, `placeholder` |
+| **Textarea** | Multi-line text input with automatic Field/Form integration | `autoGrow`, `maxRows`, `variant` |
 | **Time** | A date or time in running text as a <time> element: the visible text comes from you, the exact instant goes in dateTime (an ISO string) and title | `dateTime`, `title` |
 | **Timeline** | Rows of date bars against a date axis (milestones, releases, sprints), with a progress fill per bar and a today marker | compound: Bar, Root, Row |
 | **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |

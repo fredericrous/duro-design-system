@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends. A Select or Menu trigger keeps its own keys, and a control whose popup is open keeps Left/Right.',
+    'A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends. A Select or Menu trigger keeps its own keys, and a control whose popup is open keeps Left/Right. On native it is the same row of controls without the roving tab stop and arrow keys.',
   whenToUse: [
     'An editor toolbar: text style, format toggles, insert menus',
     'A dense set of related actions that should cost one Tab, not one per control',

@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    "The container for HTML Duro does not author — rendered Markdown, CMS output: headings, paragraphs, lists, tables, blockquotes, inline code, links and images are styled from tokens by descendant rules scoped to it (plain CSS in dist/index.css, :where() and its own cascade layer). Duro components inside it keep their styles, and an app's own CSS wins over every Prose rule. Web only.",
+    "The container for HTML Duro does not author — rendered Markdown, CMS output: headings, paragraphs, lists, tables, blockquotes, inline code, links and images are styled from tokens by descendant rules scoped to it (plain CSS in dist/index.css, :where() and its own cascade layer). Duro components inside it keep their styles, and an app's own CSS wins over every Prose rule. On native it is a reading-width column with a token gap; the renderer maps Markdown to Duro primitives.",
   whenToUse: [
     'The body of a docs page rendered from Markdown',
     'Any HTML produced by a renderer you do not write as JSX',

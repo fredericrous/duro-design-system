@@ -2,8 +2,12 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Multi-line text input with automatic Field/Form integration. Same Field binding behavior as Input.',
-  whenToUse: ['Multi-line text entry (comments, messages, descriptions)'],
+    'Multi-line text input with automatic Field/Form integration. Same Field binding behavior as Input. autoGrow makes the height follow the content from rows up to maxRows, then it scrolls (CSS field-sizing, with a scrollHeight fallback; native grows with the content and caps at maxRows). The anchor props of Listbox.getAnchorProps() (role combobox, aria-controls, aria-expanded, aria-activedescendant) are forwarded as ARIA attributes on web and as the matching accessibility props on native, so a Listbox can be anchored to it while the editor keeps focus.',
+  whenToUse: [
+    'Multi-line text entry (comments, messages, descriptions)',
+    'A composer that grows with its text (autoGrow, maxRows)',
+    'An editor a Listbox is anchored to for mentions or slash commands (spread Listbox.getAnchorProps())',
+  ],
   whenNotToUse: ['Single-line input — use Input'],
   relatedTo: [
     {

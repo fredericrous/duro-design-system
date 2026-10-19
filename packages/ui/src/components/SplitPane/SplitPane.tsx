@@ -22,6 +22,8 @@ interface SplitPaneContextValue {
   max: number
   setSize: (px: number) => void
   stacked: boolean
+  collapsed: boolean
+  collapsedContent: ReactNode
   primaryId: string
   label: string
 }
@@ -57,6 +59,15 @@ interface RootProps {
   maxSize?: SizeToken
   /** Below this breakpoint, measured on the split's own width, the panes stack. Default: `sm` */
   collapseBelow?: Breakpoint
+  /**
+   * Controlled: shrink the primary pane to a strip (the `iconButton` size),
+   * show `collapsedContent` in it and remove the handle. The pane's own
+   * children stay mounted (their state is kept) but are inert and hidden. When
+   * it turns false the pane returns to its prior width. Ignored when stacked.
+   */
+  collapsed?: boolean
+  /** What the strip shows while `collapsed` (an expand button, icons). */
+  collapsedContent?: ReactNode
   /** The handle's accessible name ("Resize list"). */
   'aria-label': string
 }
@@ -75,6 +86,8 @@ function Root({
   minSize = 'sidebarW',
   maxSize = 'panelLg',
   collapseBelow = 'sm',
+  collapsed = false,
+  collapsedContent,
   'aria-label': label,
 }: RootProps) {
   const min = SIZES_PX[minSize]
@@ -103,7 +116,9 @@ function Root({
   })
 
   return (
-    <SplitPaneContext.Provider value={{size, min, max, setSize, stacked, primaryId, label}}>
+    <SplitPaneContext.Provider
+      value={{size, min, max, setSize, stacked, collapsed, collapsedContent, primaryId, label}}
+    >
       <html.div ref={rootRef} style={[styles.root, stacked && styles.rootStacked]}>
         {items}
       </html.div>
@@ -112,23 +127,51 @@ function Root({
 }
 
 function Pane({children}: {children: ReactNode}) {
-  const {size, stacked, primaryId} = useSplitPane('Pane')
+  const {size, stacked, collapsed, collapsedContent, primaryId} = useSplitPane('Pane')
   const primary = useContext(PaneIndexContext) === 0
+  const strip = primary && collapsed && !stacked
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  // `inert` takes the stowed children out of the tab order and the accessibility
+  // tree; set on the node because the strict-DOM element has no such prop.
+  useEffect(() => {
+    const el = bodyRef.current
+    if (!el) return
+    if (strip) el.setAttribute('inert', '')
+    else el.removeAttribute('inert')
+  }, [strip])
+
   return (
     <html.div
       id={primary ? primaryId : undefined}
       style={[
-        primary ? [styles.primary, !stacked && styles.primarySize(size)] : styles.secondary,
+        primary
+          ? [
+              styles.primary,
+              !stacked && styles.primarySize(collapsed ? SIZES_PX.iconButton : size),
+              !stacked && collapsed && styles.primaryStrip,
+            ]
+          : styles.secondary,
         stacked && styles.stackedPane,
       ]}
     >
-      {children}
+      {strip ? collapsedContent : null}
+      {primary ? (
+        // The wrapper exists for the primary pane only, to stow its children
+        // (inert) while collapsed; unstowed it fills the pane, so a child that
+        // takes the pane's height keeps scrolling on its own.
+        <html.div ref={bodyRef} style={strip ? styles.stowed : styles.fill}>
+          {children}
+        </html.div>
+      ) : (
+        children
+      )}
     </html.div>
   )
 }
 
 function Handle() {
-  const {size, min, max, setSize, stacked, primaryId, label} = useSplitPane('Handle')
+  const {size, min, max, setSize, stacked, collapsed, primaryId, label} = useSplitPane('Handle')
   const [hovered, setHovered] = useState(false)
   const [keyboardFocus, setKeyboardFocus] = useState(false)
   const [dragging, setDragging] = useState(false)
@@ -158,9 +201,9 @@ function Handle() {
     }
     el.addEventListener('keydown', onKeyDown)
     return () => el.removeEventListener('keydown', onKeyDown)
-  }, [size, min, max, setSize, stacked])
+  }, [size, min, max, setSize, stacked, collapsed])
 
-  if (stacked) return null
+  if (stacked || collapsed) return null
   const active = hovered || keyboardFocus || dragging
 
   return (

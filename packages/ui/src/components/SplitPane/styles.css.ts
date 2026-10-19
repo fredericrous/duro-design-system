@@ -28,6 +28,34 @@ export const styles = css.create({
     minWidth: 0,
     overflow: 'auto',
   },
+  // Collapsed: only a strip is left, so nothing spills out of it.
+  // Its content is centred under a top inset, and a hairline stands in for the
+  // handle it no longer has.
+  primaryStrip: {
+    position: 'relative',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingTop: spacing.sm,
+    borderRightWidth: borders.hairline,
+    borderRightStyle: 'solid',
+    borderRightColor: colors.border,
+  },
+  // The collapsed pane's own children: mounted, so their state is kept, but
+  // out of sight, out of the tab order (with `inert`) and unclickable.
+  stowed: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    visibility: 'hidden',
+    pointerEvents: 'none',
+  },
+  // The primary pane's children wrapper, unstowed: it fills the pane.
+  fill: {
+    height: '100%',
+    minHeight: 0,
+  },
   primarySize: (px: number) => ({width: px}),
   secondary: {
     flexGrow: 1,

@@ -1,28 +1,14 @@
-import {useCallback, useEffect, useRef, useState, type ReactNode} from 'react'
+import {useCallback, useEffect, useRef, useState} from 'react'
 import {html} from 'react-strict-dom'
 import {Button} from '../Button/Button'
 import {LiveRegion} from '../LiveRegion/LiveRegion'
 import {typePresets} from '@duro-app/tokens/tokens/type-presets.css'
 import {styles} from './styles.css'
+import type {CodeBlockProps} from './types'
+import {DiffLines} from './DiffLines'
+import {textOf} from './diffRoles'
 
-interface CodeBlockProps {
-  /**
-   * The code: text, or the `<code>` element a Markdown renderer produced
-   * (highlighted spans included). What is copied is its text content.
-   */
-  children: ReactNode
-  /** The copy button's label ("Copy"), from your text catalog. */
-  copyLabel: string
-  /**
-   * The label while the copy is confirmed ("Copied"), also announced to
-   * screen readers.
-   */
-  copiedLabel: string
-  /** How long the confirmation stays, in milliseconds. Default 2000. */
-  copiedDuration?: number
-  /** Called when the clipboard refuses the write (an insecure context, a denied permission). */
-  onCopyError?: (error: unknown) => void
-}
+export type {CodeBlockProps} from './types'
 
 /**
  * CodeBlock — a block of code with a copy button: a `pre` that scrolls
@@ -33,6 +19,7 @@ interface CodeBlockProps {
  */
 export function CodeBlock({
   children,
+  language,
   copyLabel,
   copiedLabel,
   copiedDuration = 2000,
@@ -89,9 +76,10 @@ export function CodeBlock({
       <html.pre
         ref={preRef}
         tabIndex={scrollable ? 0 : undefined}
+        data-language={language}
         style={[typePresets.code, styles.pre]}
       >
-        {children}
+        {language === 'diff' ? <DiffLines text={textOf(children)} /> : children}
       </html.pre>
       <LiveRegion visuallyHidden>{copied ? copiedLabel : ''}</LiveRegion>
     </html.div>

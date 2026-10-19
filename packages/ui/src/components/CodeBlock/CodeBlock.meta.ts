@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion. Labels come from props.',
+    'A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion. Labels come from props. With language="diff", added, removed and hunk lines are coloured from tokens. On native the text is selectable and scrolls sideways; there is no copy button.',
   whenToUse: [
     'Code or a command the reader is likely to paste: a docs page, an install step',
     "A Markdown renderer's pre, inside Prose",

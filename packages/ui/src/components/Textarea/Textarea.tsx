@@ -1,12 +1,28 @@
+import {useCallback, useRef} from 'react'
 import {html} from 'react-strict-dom'
 import {useFieldContext} from '../Field/FieldContext'
+import type {ListboxAnchorProps} from '../Listbox/Listbox'
+import {useAutoGrowFallback} from './useAutoGrowFallback'
+import {grow} from './grow'
 import {styles} from './styles.css'
 
 type StrictTextareaProps = React.ComponentProps<typeof html.textarea>
 
 export type TextareaVariant = 'default' | 'error'
 
-interface TextareaProps {
+/** `maxRows` only means something on a field that grows. */
+type GrowProps =
+  | {
+      /** The height follows the content, from `rows` up to `maxRows`, then it scrolls. */
+      autoGrow: true
+      /** The most rows the field shows before it scrolls. Default: no limit */
+      maxRows?: number
+    }
+  | {autoGrow?: false; maxRows?: never}
+
+type TextareaProps = Partial<ListboxAnchorProps> & GrowProps & TextareaBaseProps
+
+interface TextareaBaseProps {
   variant?: TextareaVariant
   name?: string
   placeholder?: string
@@ -32,6 +48,14 @@ export function Textarea({
   placeholder,
   required,
   rows = 3,
+  autoGrow,
+  maxRows,
+  role,
+  'aria-controls': ariaControls,
+  'aria-expanded': ariaExpanded,
+  'aria-activedescendant': ariaActiveDescendant,
+  'aria-autocomplete': ariaAutocomplete,
+  'aria-haspopup': ariaHasPopup,
   value,
   defaultValue,
   disabled,
@@ -57,6 +81,18 @@ export function Textarea({
   const extraProps: Record<string, unknown> = {}
   if (autoFocus) extraProps.autoFocus = true
 
+  // Without CSS field-sizing, measure the content after each render.
+  const innerRef = useRef<HTMLTextAreaElement | null>(null)
+  const setRef = useCallback(
+    (el: HTMLTextAreaElement | null) => {
+      innerRef.current = el
+      if (typeof effectiveRef === 'function') effectiveRef(el)
+      else if (effectiveRef) (effectiveRef as {current: unknown}).current = el
+    },
+    [effectiveRef],
+  )
+  useAutoGrowFallback(innerRef, autoGrow ? 'content' : 'fixed')
+
   return (
     <html.textarea
       id={ctx?.controlId}
@@ -76,8 +112,19 @@ export function Textarea({
       onFocus={onFocus as StrictTextareaProps['onFocus']}
       onKeyDown={onKeyDown as StrictTextareaProps['onKeyDown']}
       onKeyUp={onKeyUp as StrictTextareaProps['onKeyUp']}
-      ref={effectiveRef as React.Ref<HTMLTextAreaElement>}
-      style={[styles.base, styles[effectiveVariant]]}
+      role={role}
+      aria-controls={ariaControls}
+      aria-expanded={ariaExpanded}
+      aria-activedescendant={ariaActiveDescendant}
+      aria-autocomplete={ariaAutocomplete}
+      aria-haspopup={ariaHasPopup}
+      ref={setRef}
+      style={[
+        styles.base,
+        styles[effectiveVariant],
+        autoGrow && grow.autoGrow,
+        autoGrow && maxRows !== undefined && grow.maxRows(maxRows),
+      ]}
       {...extraProps}
     />
   )

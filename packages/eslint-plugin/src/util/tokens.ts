@@ -57,6 +57,8 @@ export const TOKEN_DEEP_PATHS: Record<string, string> = {
   BREAKPOINT_KEYS: 'keys',
   BREAKPOINTS_PX: 'keys',
   FONT_SIZE_REM: 'keys',
+  LINE_HEIGHT: 'keys',
+  ROOT_FONT_PX: 'keys',
   FONT_WEIGHTS: 'keys',
   TYPE_SCALE_FONT_SIZE_REM: 'keys',
   SHADOWS: 'keys',

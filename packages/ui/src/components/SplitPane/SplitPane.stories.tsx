@@ -1,5 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, userEvent, waitFor} from 'storybook/test'
+import {useState, type ReactNode} from 'react'
 import {css, html} from 'react-strict-dom'
 import {SIZES_PX, SPACING_PX, type SizeToken} from '@duro-app/tokens/keys'
 import type {Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
@@ -9,6 +10,10 @@ import {List} from '../List/List'
 import {Panel} from '../Panel/Panel'
 import {Heading} from '../Heading/Heading'
 import {Text} from '../Text/Text'
+import {Input} from '../Input/Input'
+import {Button} from '../Button/Button'
+import {Icon} from '../Icon/Icon'
+import {VirtualList} from '../VirtualList/VirtualList'
 
 const meta: Meta = {
   title: 'Components/SplitPane',
@@ -29,6 +34,8 @@ interface SplitArgs {
   maxSize: SizeToken
   collapseBelow: Breakpoint
   onSizeChange?: (px: number) => void
+  collapsed?: boolean
+  collapsedContent?: ReactNode
 }
 
 const DEFAULT_ARGS: SplitArgs = {
@@ -43,7 +50,11 @@ const PANE_SIZES: SizeToken[] = ['sidebarW', 'panelSm', 'panelMd', 'panelLg']
 
 /** The picked B0 direction (docs/mockups/split-pane/Hairline.dc.html). */
 function Split(props: Partial<SplitArgs>) {
-  const {defaultSize, minSize, maxSize, collapseBelow, onSizeChange} = {...DEFAULT_ARGS, ...props}
+  const {defaultSize, minSize, maxSize, collapseBelow, onSizeChange, collapsed, collapsedContent} =
+    {
+      ...DEFAULT_ARGS,
+      ...props,
+    }
   return (
     <html.div style={frame.fill}>
       <SplitPane.Root
@@ -53,8 +64,11 @@ function Split(props: Partial<SplitArgs>) {
         maxSize={maxSize}
         collapseBelow={collapseBelow}
         onSizeChange={onSizeChange}
+        collapsed={collapsed}
+        collapsedContent={collapsedContent}
       >
         <SplitPane.Pane>
+          <Button variant="secondary">Filter sessions</Button>
           <List.Root aria-label="Sessions">
             {SESSIONS.map((s) => (
               <List.Item key={s}>
@@ -144,5 +158,197 @@ export const NarrowStacksInOneColumn: Story = {
     await expect(heading.getBoundingClientRect().top).toBeGreaterThan(
       list.getBoundingClientRect().bottom - 1,
     )
+  },
+}
+
+function Collapsible() {
+  const [collapsed, setCollapsed] = useState(false)
+  return (
+    <>
+      <Button variant="secondary" onClick={() => setCollapsed((c) => !c)}>
+        Toggle sessions
+      </Button>
+      <Split
+        collapsed={collapsed}
+        collapsedContent={
+          // As in the Focus artboard: an icon button that fits the strip.
+          <Button
+            variant="secondary"
+            size="small"
+            aria-label="Expand sessions"
+            onClick={() => setCollapsed(false)}
+          >
+            <Icon name="menu" size="sm" />
+          </Button>
+        }
+      />
+    </>
+  )
+}
+
+/**
+ * `collapsed`: the first pane shrinks to a strip holding `collapsedContent`, the
+ * handle goes away, and expanding restores the width it had.
+ */
+export const Collapsed: Story = {
+  render: () => <Collapsible />,
+}
+
+export const CollapsedShowsTheStrip: Story = {
+  render: () => <Collapsible />,
+  beforeEach: async () => {
+    await setViewport(1200, 800)
+  },
+  play: async ({canvas}) => {
+    await waitFor(() => expect(separator()).not.toBeNull())
+    const handle = separator()!
+    const primary = document.getElementById(handle.getAttribute('aria-controls')!)!
+    const toggle = canvas.getByRole('button', {name: 'Toggle sessions'})
+    await waitFor(() =>
+      expect(primary.getBoundingClientRect().width).toBeCloseTo(SIZES_PX.sidebarW, 0),
+    )
+
+    // widen the pane, then collapse
+    handle.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    const widened = SIZES_PX.sidebarW + SPACING_PX.md
+    await waitFor(() => expect(primary.getBoundingClientRect().width).toBeCloseTo(widened, 0))
+
+    await userEvent.click(toggle)
+    await waitFor(() =>
+      expect(primary.getBoundingClientRect().width).toBeCloseTo(SIZES_PX.iconButton, 0),
+    )
+    // the handle is not rendered; the pane's own children are inert and out of the a11y tree
+    await expect(separator()).toBeNull()
+    await expect(canvas.queryByRole('separator')).toBeNull()
+    await expect(canvas.queryByRole('button', {name: 'Filter sessions'})).toBeNull()
+
+    // Tab from the toggle never reaches a control inside the collapsed children,
+    // but the strip's own button is reachable
+    toggle.focus()
+    const reached = new Set<Element>()
+    for (let i = 0; i < 6; i++) {
+      await userEvent.tab()
+      if (document.activeElement) reached.add(document.activeElement)
+    }
+    const filter = document.evaluate(
+      "//button[contains(., 'Filter sessions')]",
+      document,
+      null,
+      XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null,
+    ).singleNodeValue
+    await expect(filter).not.toBeNull()
+    await expect(reached.has(filter as Element)).toBe(false)
+    await expect(reached.has(canvas.getByRole('button', {name: 'Expand sessions'}))).toBe(true)
+
+    // expanded again: the prior size returns and the handle is back
+    await userEvent.click(toggle)
+    await waitFor(() => expect(primary.getBoundingClientRect().width).toBeCloseTo(widened, 0))
+    await expect(separator()).toHaveAttribute('aria-valuenow', String(widened))
+    await expect(canvas.getByRole('button', {name: 'Filter sessions'})).toBeVisible()
+
+    // the re-mounted handle resizes by keyboard again
+    const again = separator()!
+    again.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    await waitFor(() =>
+      expect(primary.getBoundingClientRect().width).toBeCloseTo(widened + SPACING_PX.md, 0),
+    )
+  },
+}
+
+function KeepsState() {
+  const [collapsed, setCollapsed] = useState(false)
+  return (
+    <>
+      <Button variant="secondary" onClick={() => setCollapsed((c) => !c)}>
+        Toggle sessions
+      </Button>
+      <html.div style={frame.fill}>
+        <SplitPane.Root
+          aria-label="Resize the session list"
+          collapsed={collapsed}
+          collapsedContent={
+            <Button variant="secondary" size="small" aria-label="Expand sessions">
+              <Icon name="menu" size="sm" />
+            </Button>
+          }
+        >
+          <SplitPane.Pane>
+            <Input aria-label="Search sessions" />
+          </SplitPane.Pane>
+          <SplitPane.Handle />
+          <SplitPane.Pane>
+            <Text>Detail</Text>
+          </SplitPane.Pane>
+        </SplitPane.Root>
+      </html.div>
+    </>
+  )
+}
+
+export const CollapseKeepsChildState: Story = {
+  render: () => <KeepsState />,
+  beforeEach: async () => {
+    await setViewport(1200, 800)
+  },
+  play: async ({canvas}) => {
+    const field = await canvas.findByRole('textbox', {name: 'Search sessions'})
+    await userEvent.type(field, 'auth')
+    await expect(field).toHaveValue('auth')
+
+    const toggle = canvas.getByRole('button', {name: 'Toggle sessions'})
+    await userEvent.click(toggle)
+    await waitFor(() => expect(separator()).toBeNull())
+    await userEvent.click(toggle)
+    await waitFor(() => expect(separator()).not.toBeNull())
+
+    const after = await canvas.findByRole('textbox', {name: 'Search sessions'})
+    await expect(after).toBe(field)
+    await expect(after).toHaveValue('auth')
+  },
+}
+
+const ROWS = Array.from({length: 500}, (_, i) => ({id: i, text: `Row ${i + 1}`}))
+
+const list = (name: string) => (
+  <VirtualList
+    aria-label={name}
+    items={ROWS}
+    getKey={(r) => r.id}
+    estimateSize="controlLg"
+    renderItem={(r) => <Text>{r.text}</Text>}
+  />
+)
+
+function ListsInEachPane() {
+  return (
+    <html.div style={frame.fill}>
+      <SplitPane.Root aria-label="Resize the lists">
+        <SplitPane.Pane>{list('Left')}</SplitPane.Pane>
+        <SplitPane.Handle />
+        <SplitPane.Pane>{list('Right')}</SplitPane.Pane>
+      </SplitPane.Root>
+    </html.div>
+  )
+}
+
+export const VirtualListsFillTheirPanes: Story = {
+  render: () => <ListsInEachPane />,
+  beforeEach: async () => {
+    await setViewport(1200, 800)
+  },
+  play: async ({canvas}) => {
+    // Each list sits in a pane that is a direct child of the split's root.
+    const root = (await canvas.findByRole('separator')).parentElement!
+    for (const name of ['Left', 'Right']) {
+      const list = await canvas.findByRole('list', {name})
+      let pane: HTMLElement = list
+      while (pane.parentElement !== root) pane = pane.parentElement!
+      await waitFor(() => expect(list.clientHeight).toBeGreaterThan(0))
+      await waitFor(() => expect(list.clientHeight).toBe(pane.clientHeight))
+      await expect(list.scrollHeight).toBeGreaterThan(list.clientHeight)
+    }
   },
 }

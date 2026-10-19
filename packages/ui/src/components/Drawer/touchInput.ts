@@ -18,9 +18,23 @@ export async function cdpSend(method: string, params: object) {
   return session.send(method, params)
 }
 
-/** Set the page's viewport (test runner only, like `cdpSend`). */
+/** The refusal `vitest/browser` throws when loaded outside the test runner. */
+const BROWSER_MODE_ONLY = 'can be imported only inside the Browser Mode'
+
+/**
+ * Set the page's viewport under the test runner. In dev Storybook `vitest/browser`
+ * refuses to load (that refusal only); there the story keeps the browser's own
+ * viewport instead of failing to render. Any other import failure is thrown.
+ */
 export async function setViewport(width: number, height: number) {
-  const {page} = await import('vitest/browser')
+  let page: {viewport: (w: number, h: number) => Promise<unknown>}
+  try {
+    ;({page} = await import('vitest/browser'))
+  } catch (error) {
+    // Only the dev-Storybook refusal is expected; anything else is a real failure.
+    if (error instanceof Error && error.message.includes(BROWSER_MODE_ONLY)) return
+    throw error
+  }
   await page.viewport(width, height)
 }
 

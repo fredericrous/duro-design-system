@@ -15,6 +15,7 @@ import {
   Card,
   Checkbox,
   Cluster,
+  CodeBlock,
   EmptyState,
   Field,
   Grid,
@@ -27,6 +28,7 @@ import {
   Meter,
   PageShell,
   Panel,
+  Prose,
   QrCode,
   RadioGroup,
   Spinner,
@@ -38,9 +40,13 @@ import {
   TextLink,
   ThemeProvider,
   Toggle,
+  Toolbar,
   usePortalMount,
   useResolvedColors,
+  VirtualList,
 } from '@duro-app/ui'
+
+const ROWS = ['Row 1', 'Row 2', 'Row 3', 'Row 4']
 
 /**
  * Renders every value export of the native barrel, so `expo export` bundles
@@ -65,6 +71,17 @@ export function AllExports() {
         <ToastDemo />
         <Alert variant="success">Alert with its variant icon</Alert>
         <Callout variant="warning">Callout with its variant icon</Callout>
+        <Prose>
+          <Heading level={2}>Prose</Heading>
+          <Text>A reading column at token width.</Text>
+          <CodeBlock language="diff" copyLabel="Copy" copiedLabel="Copied">
+            {'@@ -1,2 +1,2 @@\n context\n-old line\n+new line\n'}
+          </CodeBlock>
+        </Prose>
+        <Toolbar aria-label="Actions">
+          <Button variant="secondary">Undo</Button>
+          <Button variant="secondary">Redo</Button>
+        </Toolbar>
         <Inline gap="sm">
           <Icon name="server" />
           <StatusIcon name="check-circle" variant="success" size="lg" />
@@ -128,6 +145,14 @@ export function AllExports() {
           <Text>Grid cell 1</Text>
           <Text>Grid cell 2</Text>
         </Grid>
+        <VirtualList
+          aria-label="Virtual list"
+          items={ROWS}
+          estimateSize="controlLg"
+          maxHeight="controlLg"
+          getKey={(row) => row}
+          renderItem={(row) => <Text>{row}</Text>}
+        />
         <ThemeProvider theme="light">
           <Text>Nested light theme</Text>
         </ThemeProvider>

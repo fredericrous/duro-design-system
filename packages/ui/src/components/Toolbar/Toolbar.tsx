@@ -1,22 +1,11 @@
-import {type ReactNode, useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {html} from 'react-strict-dom'
-import type {Orientation} from '../../shared/types'
 import {useOrderedRegistry} from '../../shared/useOrderedRegistry'
 import {ToolbarContext, type ToolbarContextValue} from './ToolbarContext'
 import {styles} from './styles.css'
+import type {ToolbarProps} from './types'
 
-export interface ToolbarProps {
-  /** Names the toolbar ("Formatting"). Required: a toolbar is a landmark-like widget. */
-  'aria-label': string
-  /**
-   * Arrow keys follow the orientation: Left/Right (default) or Up/Down. A
-   * vertical toolbar cannot hold a Select, whose closed trigger opens on
-   * ArrowDown/ArrowUp. A Menu can: its closed trigger handles no arrow key,
-   * so Up/Down move past it and Enter or Space opens it.
-   */
-  orientation?: Orientation
-  children: ReactNode
-}
+export type {ToolbarProps} from './types'
 
 /**
  * A row of controls with one tab stop (the WAI-ARIA toolbar pattern). Every
