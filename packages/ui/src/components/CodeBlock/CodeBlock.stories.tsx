@@ -5,6 +5,7 @@ import {CodeBlock} from './CodeBlock'
 import {onThemeSurface} from '../../docs/themedSurface'
 import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 import {SIZES_PX} from '@duro-app/tokens/keys'
+import {colors} from '@duro-app/tokens/tokens/colors.css'
 
 interface CodeBlockArgs {
   /** The code shown (and copied). */
@@ -51,6 +52,9 @@ const TEST_ONLY = ['!dev', '!autodocs']
 
 const styles = css.create({
   half: {maxWidth: '50%'},
+  // Probes: the token colours a diff line should resolve to, set independently of CodeBlock.
+  successProbe: {backgroundColor: colors.successBg},
+  errorProbe: {backgroundColor: colors.errorBg},
 })
 
 /**
@@ -207,12 +211,27 @@ export const Diff: Story = {
 export const DiffChecks: Story = {
   ...Diff,
   tags: TEST_ONLY,
+  render: ({code, ...args}) => (
+    <>
+      <CodeBlock {...args} language="diff">
+        <html.code>{code}</html.code>
+      </CodeBlock>
+      <html.div data-testid="success-probe" style={styles.successProbe} />
+      <html.div data-testid="error-probe" style={styles.errorProbe} />
+    </>
+  ),
   play: async ({args, canvasElement, canvas, userEvent}) => {
     const role = (name: string) => canvasElement.querySelector(`[data-diff-line="${name}"]`)
     await expect(canvasElement.querySelector('pre')).toHaveAttribute('data-language', 'diff')
     await expect(role('hunk')).toHaveTextContent('@@ -1,3 +1,3 @@')
     await expect(role('removed')).toHaveTextContent('-old line')
     await expect(role('added')).toHaveTextContent('+new line')
+    const probe = (testId: string) =>
+      getComputedStyle(canvasElement.querySelector(`[data-testid="${testId}"]`)!).backgroundColor
+    const tint = (name: string) => getComputedStyle(role(name)!).backgroundColor
+    await expect(tint('added')).toBe(probe('success-probe'))
+    await expect(tint('removed')).toBe(probe('error-probe'))
+    await expect(tint('added')).not.toBe(tint('removed'))
     const write = spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
     try {
       await userEvent.click(canvas.getByRole('button', {name: args.copyLabel}))

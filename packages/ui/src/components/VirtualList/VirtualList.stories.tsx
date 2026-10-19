@@ -179,3 +179,24 @@ export const StartReachedFiresOncePerApproach: StoryObj<{onStartReached: () => v
     await waitFor(() => expect(onStart).toHaveBeenCalledTimes(2))
   },
 }
+
+/** A list too short to scroll asks for older history at once, since no scroll can reach its start. */
+export const ShortListAsksForMore: StoryObj<{onStartReached: () => void}> = {
+  tags: ['!dev', '!autodocs'],
+  args: {onStartReached: fn()},
+  render: (args) => (
+    <VirtualList
+      aria-label="Transcript"
+      items={HISTORY.slice(0, 2)}
+      getKey={(m) => m.id}
+      estimateSize="controlLg"
+      maxHeight="previewMaxH"
+      onStartReached={args.onStartReached}
+      renderItem={(m) => <Text>{m.text}</Text>}
+    />
+  ),
+  play: async ({canvas, args}) => {
+    await waitFor(() => expect(canvas.getAllByRole('listitem').length).toBe(2))
+    await waitFor(() => expect(args.onStartReached).toHaveBeenCalledTimes(1))
+  },
+}

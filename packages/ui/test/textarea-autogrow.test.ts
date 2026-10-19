@@ -65,7 +65,7 @@ describe('Textarea autoGrow fallback', () => {
 })
 
 describe('useAutoGrowFallback without field-sizing', () => {
-  it('grows an uncontrolled field on input, up to maxRows, then it scrolls', async () => {
+  it('grows an uncontrolled field on input', async () => {
     vi.resetModules()
     const effects: Array<() => void | (() => void)> = []
     vi.doMock('react', () => ({

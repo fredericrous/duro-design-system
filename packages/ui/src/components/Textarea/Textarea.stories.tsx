@@ -120,6 +120,16 @@ export const AutoGrow: Story = {
     await userEvent.keyboard('{Shift>}{Enter}{/Shift}f')
     await expect(textarea.getBoundingClientRect().height).toBe(capped)
     await expect(capped).toBeLessThan(textarea.scrollHeight)
+    // the cap is maxRows (5) lines plus the vertical padding and border
+    const box = getComputedStyle(textarea)
+    const px = (v: string) => parseFloat(v)
+    const fiveLines =
+      5 * px(box.lineHeight) +
+      px(box.paddingTop) +
+      px(box.paddingBottom) +
+      px(box.borderTopWidth) +
+      px(box.borderBottomWidth)
+    await expect(Math.abs(capped - fiveLines)).toBeLessThan(1)
   },
 }
 

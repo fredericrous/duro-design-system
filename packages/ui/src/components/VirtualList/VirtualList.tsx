@@ -136,6 +136,8 @@ export function VirtualList<T>({
       }
     }
     readSeenRow()
+    // A list too short to scroll cannot be scrolled to its start: ask for more now.
+    if (el && items.length > 0 && el.scrollHeight <= el.clientHeight) startCallback.current?.()
     // Runs when `items` changes; scrolling is read by the frame-coalesced listener.
   }, [items, readSeenRow, virtualizer])
 

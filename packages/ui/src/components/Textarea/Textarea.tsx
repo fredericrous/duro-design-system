@@ -10,16 +10,24 @@ type StrictTextareaProps = React.ComponentProps<typeof html.textarea>
 
 export type TextareaVariant = 'default' | 'error'
 
-interface TextareaProps extends Partial<ListboxAnchorProps> {
+/** `maxRows` only means something on a field that grows. */
+type GrowProps =
+  | {
+      /** The height follows the content, from `rows` up to `maxRows`, then it scrolls. */
+      autoGrow: true
+      /** The most rows the field shows before it scrolls. Default: no limit */
+      maxRows?: number
+    }
+  | {autoGrow?: false; maxRows?: never}
+
+type TextareaProps = Partial<ListboxAnchorProps> & GrowProps & TextareaBaseProps
+
+interface TextareaBaseProps {
   variant?: TextareaVariant
   name?: string
   placeholder?: string
   required?: boolean
   rows?: number
-  /** The height follows the content, from `rows` up to `maxRows`, then it scrolls. */
-  autoGrow?: boolean
-  /** With `autoGrow`: the most rows the field shows before it scrolls. Default: no limit */
-  maxRows?: number
   value?: string
   defaultValue?: string
   disabled?: boolean

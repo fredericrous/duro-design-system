@@ -20,6 +20,7 @@ export interface VirtualListProps<T> {
   /**
    * Called once each time the reader scrolls to within 44px (touchTarget) of the
    * start (load older history). It fires again only after they move away.
+   * A list too short to scroll calls it each time `items` changes, until it fills.
    * Prepending items keeps the first visible row where it was on screen.
    */
   onStartReached?: () => void
