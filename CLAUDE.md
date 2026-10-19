@@ -215,7 +215,7 @@ These components **must** be wrapped in their `.Root`:
 | **FileTrigger** | A Button that opens the OS file picker | `accept`, `multiple`, `onSelect` |
 | **Form** | Form wrapper with Effect Schema validation and react-hook-form integration | `schema`, `defaultValues`, `onSubmit` |
 | **Grid** | Grid layout | `gap`, `columns`, `minColumnWidth` |
-| **Heading** | Semantic heading element (h1-h6) with typography presets | `level`, `variant`, `color` |
+| **Heading** | Semantic heading element (h1-h6) with typography presets | `level`, `variant`, `size` |
 | **Icon** | SVG icon component | `name`, `size`, `color` |
 | **Inline** | Horizontal flex layout with NO wrapping | `gap`, `align`, `justify` |
 | **Input** | Text input with automatic Field/Form integration | `variant`, `font`, `type` |
@@ -524,7 +524,9 @@ A floating surface picks its layer by `useInModal()` from `@duro-app/ui`, as a P
 | `caption`   | 12px    | normal   | Fine print, timestamps                  |
 | `label`     | 14px    | medium   | Form labels, UI labels                  |
 | `code`      | 14px    | normal   | Code snippets (monospace)               |
-| `overline`  | 12px    | semibold | Section headers, categories (uppercase) |
+| `overline`  | 12px    | semibold | Group titles, categories (uppercase); `Heading variant="overline"` for a title |
+| `overlineMd` | 14px   | semibold | `Heading variant="overline" size="md"`  |
+| `overlineLg` | 16px   | semibold | `Heading variant="overline" size="lg"`  |
 | `headingSm` | 20px    | semibold | h4-h6, section headers                  |
 | `headingMd` | 24px    | semibold | h3, card titles                         |
 | `headingLg` | 30px    | bold     | h2, page sections                       |

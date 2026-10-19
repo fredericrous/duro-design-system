@@ -3,7 +3,12 @@ import {html} from 'react-strict-dom'
 import {typePresets} from '@duro-app/tokens/tokens/type-presets.css'
 import {styles} from './styles.css'
 
-export type HeadingVariant =
+/** The heading's look; its size is the `size` prop. */
+export type HeadingFamily = 'heading' | 'display' | 'overline'
+export type HeadingSize = 'sm' | 'md' | 'lg' | 'xl'
+
+/** @deprecated Use `variant` with `size`: `headingSm` is `variant="heading" size="sm"`. */
+export type HeadingLegacyVariant =
   | 'displayLg'
   | 'displayMd'
   | 'displaySm'
@@ -12,9 +17,14 @@ export type HeadingVariant =
   | 'headingMd'
   | 'headingSm'
 
+export type HeadingVariant = HeadingFamily | HeadingLegacyVariant
+
 interface HeadingProps {
   level: 1 | 2 | 3 | 4 | 5 | 6
+  /** The look: `heading` (default), `display` (fluid hero titles), `overline` (small uppercase group titles). */
   variant?: HeadingVariant
+  /** The size within the look. Default: the level's size for `heading`, `md` for `display`, `sm` for `overline`; `display` and `overline` stop at `lg`. */
+  size?: HeadingSize
   color?: 'default' | 'muted' | 'accent'
   align?: 'start' | 'center' | 'end'
   /** The heading's id: an in-page link's target (`href="#id"`), an `aria-labelledby` reference. */
@@ -22,13 +32,32 @@ interface HeadingProps {
   children: ReactNode
 }
 
-const defaultVariantMap: Record<number, HeadingVariant> = {
-  1: 'headingXl',
-  2: 'headingLg',
-  3: 'headingMd',
-  4: 'headingSm',
-  5: 'headingSm',
-  6: 'headingSm',
+type Preset = keyof typeof typePresets
+
+const levelSize: Record<HeadingProps['level'], HeadingSize> = {
+  1: 'xl',
+  2: 'lg',
+  3: 'md',
+  4: 'sm',
+  5: 'sm',
+  6: 'sm',
+}
+
+const presets = {
+  heading: {sm: 'headingSm', md: 'headingMd', lg: 'headingLg', xl: 'headingXl'},
+  display: {sm: 'displaySm', md: 'displayMd', lg: 'displayLg'},
+  overline: {sm: 'overline', md: 'overlineMd', lg: 'overlineLg'},
+} as const satisfies Record<HeadingFamily, Partial<Record<HeadingSize, Preset>>>
+
+function presetOf(
+  level: HeadingProps['level'],
+  variant: HeadingVariant = 'heading',
+  size?: HeadingSize,
+): Preset {
+  if (variant === 'heading') return presets.heading[size ?? levelSize[level]]
+  if (variant === 'display') return presets.display[size === 'xl' ? 'lg' : (size ?? 'md')]
+  if (variant === 'overline') return presets.overline[size === 'xl' ? 'lg' : (size ?? 'sm')]
+  return variant
 }
 
 const alignMap = {
@@ -37,9 +66,20 @@ const alignMap = {
   end: styles.alignEnd,
 } as const
 
-export function Heading({level, variant, color = 'default', align, id, children}: HeadingProps) {
-  const resolvedVariant = variant ?? defaultVariantMap[level]
-  const style = [typePresets[resolvedVariant], styles[color], align && alignMap[align]]
+export function Heading({
+  level,
+  variant,
+  size,
+  color = 'default',
+  align,
+  id,
+  children,
+}: HeadingProps) {
+  const style = [
+    typePresets[presetOf(level, variant, size)],
+    styles[color],
+    align && alignMap[align],
+  ]
 
   if (level === 1)
     return (

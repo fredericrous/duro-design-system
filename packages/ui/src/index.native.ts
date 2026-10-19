@@ -20,7 +20,7 @@ export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge
 export {Button, type ButtonVariant, type ButtonSize} from './components/Button/Button'
 export {Card, type CardVariant, type CardSize} from './components/Card/Card'
 export {Checkbox} from './components/Checkbox/Checkbox'
-export {Heading, type HeadingVariant} from './components/Heading/Heading'
+export {Heading, type HeadingSize, type HeadingVariant} from './components/Heading/Heading'
 export {Input, type InputVariant} from './components/Input/Input'
 export {Switch} from './components/Switch/Switch'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'

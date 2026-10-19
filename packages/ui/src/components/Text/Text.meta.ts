@@ -6,10 +6,10 @@ export const meta: ComponentMeta = {
   whenToUse: [
     'Body text (paragraphs, descriptions)',
     'UI labels and metadata',
-    'Captions, code snippets, overlines',
+    'Captions, code snippets, and overline eyebrows above a Heading',
   ],
   whenNotToUse: [
-    'Page or section titles — use Heading',
+    'Page, section or group titles — use Heading, even in overline style (variant="overline")',
     'Form field labels — use Field.Label (auto-binds to form)',
   ],
   relatedTo: [
