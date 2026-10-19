@@ -18,9 +18,18 @@ export async function cdpSend(method: string, params: object) {
   return session.send(method, params)
 }
 
-/** Set the page's viewport (test runner only, like `cdpSend`). */
+/**
+ * Set the page's viewport under the test runner. In dev Storybook `vitest/browser`
+ * refuses to load; there the story keeps the browser's own viewport instead of
+ * failing to render.
+ */
 export async function setViewport(width: number, height: number) {
-  const {page} = await import('vitest/browser')
+  let page: {viewport: (w: number, h: number) => Promise<unknown>}
+  try {
+    ;({page} = await import('vitest/browser'))
+  } catch {
+    return
+  }
   await page.viewport(width, height)
 }
 
