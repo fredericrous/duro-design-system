@@ -68,7 +68,7 @@ function Split(props: Partial<SplitArgs>) {
         collapsedContent={collapsedContent}
       >
         <SplitPane.Pane>
-          <Button>Filter sessions</Button>
+          <Button variant="secondary">Filter sessions</Button>
           <List.Root aria-label="Sessions">
             {SESSIONS.map((s) => (
               <List.Item key={s}>
@@ -165,7 +165,9 @@ function Collapsible() {
   const [collapsed, setCollapsed] = useState(false)
   return (
     <>
-      <Button onClick={() => setCollapsed((c) => !c)}>Toggle sessions</Button>
+      <Button variant="secondary" onClick={() => setCollapsed((c) => !c)}>
+        Toggle sessions
+      </Button>
       <Split
         collapsed={collapsed}
         collapsedContent={
@@ -260,7 +262,9 @@ function KeepsState() {
   const [collapsed, setCollapsed] = useState(false)
   return (
     <>
-      <Button onClick={() => setCollapsed((c) => !c)}>Toggle sessions</Button>
+      <Button variant="secondary" onClick={() => setCollapsed((c) => !c)}>
+        Toggle sessions
+      </Button>
       <html.div style={frame.fill}>
         <SplitPane.Root
           aria-label="Resize the session list"
