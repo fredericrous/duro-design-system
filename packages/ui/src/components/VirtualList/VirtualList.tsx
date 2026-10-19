@@ -50,6 +50,9 @@ export function VirtualList<T>({
   const startArmed = useRef(true)
   const startCallback = useRef(onStartReached)
   startCallback.current = onStartReached
+  // The items a short list last asked more for: a new array with the same
+  // first key and length is the same content, so it does not ask again.
+  const askedFor = useRef<string | undefined>(undefined)
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
@@ -113,6 +116,18 @@ export function VirtualList<T>({
     const previous = firstKey.current
     firstKey.current = items.length > 0 ? getKeyRef.current(items[0], 0) : undefined
     itemsRef.current = items
+    // A list too short to scroll cannot be scrolled to its start: ask for more
+    // now, once per distinct content, until it fills.
+    const content = `${String(firstKey.current)}:${items.length}`
+    if (
+      el &&
+      items.length > 0 &&
+      el.scrollHeight <= el.clientHeight &&
+      askedFor.current !== content
+    ) {
+      askedFor.current = content
+      startCallback.current?.()
+    }
     const kept = seenRow.current
     let settleFrame = 0
     if (el && kept && previous !== undefined && previous !== firstKey.current) {
@@ -136,8 +151,6 @@ export function VirtualList<T>({
       }
     }
     readSeenRow()
-    // A list too short to scroll cannot be scrolled to its start: ask for more now.
-    if (el && items.length > 0 && el.scrollHeight <= el.clientHeight) startCallback.current?.()
     // Runs when `items` changes; scrolling is read by the frame-coalesced listener.
   }, [items, readSeenRow, virtualizer])
 

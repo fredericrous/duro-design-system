@@ -200,3 +200,66 @@ export const ShortListAsksForMore: StoryObj<{onStartReached: () => void}> = {
     await waitFor(() => expect(args.onStartReached).toHaveBeenCalledTimes(1))
   },
 }
+
+function ShortPager({onStart}: {onStart: () => void}) {
+  const [from, setFrom] = useState(198)
+  return (
+    <VirtualList
+      aria-label="Transcript"
+      items={HISTORY.slice(from)}
+      getKey={(m) => m.id}
+      estimateSize="controlLg"
+      maxHeight="previewMaxH"
+      onStartReached={() => {
+        onStart()
+        setFrom((f) => Math.max(f - 1, 196))
+      }}
+      renderItem={(m) => <Text>{m.text}</Text>}
+    />
+  )
+}
+
+/** A prepend that leaves the list short asks again; when no more comes, it stops. */
+export const ShortListKeepsAskingUntilNoMore: StoryObj<{onStartReached: () => void}> = {
+  tags: ['!dev', '!autodocs'],
+  args: {onStartReached: fn()},
+  render: (args) => <ShortPager onStart={args.onStartReached} />,
+  play: async ({canvas, args}) => {
+    // 2 items, then 3, then 4 (the last prepend): one call for each, then no more
+    await waitFor(() => expect(canvas.getAllByRole('listitem').length).toBe(4))
+    await waitFor(() => expect(args.onStartReached).toHaveBeenCalledTimes(3))
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    await expect(args.onStartReached).toHaveBeenCalledTimes(3)
+  },
+}
+
+function FreshArray({onStart}: {onStart: () => void}) {
+  const [calls, setCalls] = useState(0)
+  return (
+    <VirtualList
+      aria-label={`Transcript ${calls}`}
+      // a new array on every render, with the same content
+      items={HISTORY.slice(0, 2)}
+      getKey={(m) => m.id}
+      estimateSize="controlLg"
+      maxHeight="previewMaxH"
+      onStartReached={() => {
+        onStart()
+        setCalls((c) => c + 1)
+      }}
+      renderItem={(m) => <Text>{m.text}</Text>}
+    />
+  )
+}
+
+/** A new array with the same content does not ask again, even when the call re-renders. */
+export const ShortListDoesNotLoopOnFreshArrays: StoryObj<{onStartReached: () => void}> = {
+  tags: ['!dev', '!autodocs'],
+  args: {onStartReached: fn()},
+  render: (args) => <FreshArray onStart={args.onStartReached} />,
+  play: async ({canvas, args}) => {
+    await waitFor(() => expect(canvas.getByRole('list', {name: 'Transcript 1'})).toBeVisible())
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    await expect(args.onStartReached).toHaveBeenCalledTimes(1)
+  },
+}
