@@ -7535,6 +7535,18 @@
       "native": true,
       "props": [
         {
+          "description": "The height follows the content, from `rows` up to `maxRows`, then it scrolls.",
+          "name": "autoGrow",
+          "required": false,
+          "type": "true | false"
+        },
+        {
+          "description": "The most rows the field shows before it scrolls. Default: no limit",
+          "name": "maxRows",
+          "required": false,
+          "type": "number"
+        },
+        {
           "default": "'default'",
           "name": "variant",
           "required": false,
@@ -7562,18 +7574,6 @@
         {
           "default": "3",
           "name": "rows",
-          "required": false,
-          "type": "number"
-        },
-        {
-          "description": "The height follows the content, from `rows` up to `maxRows`, then it scrolls.",
-          "name": "autoGrow",
-          "required": false,
-          "type": "boolean"
-        },
-        {
-          "description": "With `autoGrow`: the most rows the field shows before it scrolls. Default: no limit",
-          "name": "maxRows",
           "required": false,
           "type": "number"
         },
@@ -8550,7 +8550,7 @@
           "type": "'start' | 'end'"
         },
         {
-          "description": "Called once each time the reader scrolls to within 44px (touchTarget) of the start (load older history). It fires again only after they move away. Prepending items keeps the first visible row where it was on screen.",
+          "description": "Called once each time the reader scrolls to within 44px (touchTarget) of the start (load older history). It fires again only after they move away. A list too short to scroll calls it once for each new first item or length, until it fills. Prepending items keeps the first visible row where it was on screen.",
           "name": "onStartReached",
           "required": false,
           "type": "() => void"

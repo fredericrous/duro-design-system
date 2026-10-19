@@ -252,7 +252,7 @@ These components **must** be wrapped in their `.Root`:
 | **Text** | Body and label typography component | `variant`, `color`, `weight` |
 | **Text (diagrams)** | Free-floating text inside a Diagram | `x`, `y`, `variant` |
 | **TextLink** | Inline hyperlink for running text and standalone text links ("View all", "Edit profile") | `href`, `target`, `rel` |
-| **Textarea** | Multi-line text input with automatic Field/Form integration | `variant`, `name`, `placeholder` |
+| **Textarea** | Multi-line text input with automatic Field/Form integration | `autoGrow`, `maxRows`, `variant` |
 | **Time** | A date or time in running text as a <time> element: the visible text comes from you, the exact instant goes in dateTime (an ISO string) and title | `dateTime`, `title` |
 | **Timeline** | Rows of date bars against a date axis (milestones, releases, sprints), with a progress fill per bar and a today marker | compound: Bar, Root, Row |
 | **Toggle** | Toggle button with pressed/unpressed state | `pressed`, `defaultPressed`, `onPressedChange` |
