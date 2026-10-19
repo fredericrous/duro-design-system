@@ -57,6 +57,8 @@ export {Tree} from './components/Tree/Tree'
 export {Select} from './components/Select/Select'
 export {Combobox} from './components/Combobox/Combobox'
 export {Listbox} from './components/Listbox/Listbox'
+// A FlatList with the web props; prepend keeps position.
+export {VirtualList, type VirtualListProps} from './components/VirtualList/VirtualList'
 // The platform's own scroll indicator: Scrollbar and Thumb draw nothing.
 export {ScrollArea} from './components/ScrollArea/ScrollArea'
 export type {ListboxAnchorProps, ListboxMaxHeight} from './components/Listbox/Listbox'

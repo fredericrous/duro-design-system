@@ -40,7 +40,10 @@ import {
   Toggle,
   usePortalMount,
   useResolvedColors,
+  VirtualList,
 } from '@duro-app/ui'
+
+const ROWS = ['Row 1', 'Row 2', 'Row 3', 'Row 4']
 
 /**
  * Renders every value export of the native barrel, so `expo export` bundles
@@ -128,6 +131,14 @@ export function AllExports() {
           <Text>Grid cell 1</Text>
           <Text>Grid cell 2</Text>
         </Grid>
+        <VirtualList
+          aria-label="Virtual list"
+          items={ROWS}
+          estimateSize="controlLg"
+          maxHeight="controlLg"
+          getKey={(row) => row}
+          renderItem={(row) => <Text>{row}</Text>}
+        />
         <ThemeProvider theme="light">
           <Text>Nested light theme</Text>
         </ThemeProvider>
