@@ -6,7 +6,7 @@ status: done
 
 Part of [M2: the shared session screen](https://git.daddyshome.fr/fredericrous/happier/src/branch/feat/m2-session/docs/plans/2026-10-19-m2-shared-session-screen.md). This repository carries Phase D: VirtualList prepend + `onStartReached` and a native version, CodeBlock `language` + diff line roles and a native version, Prose and Toolbar native, Textarea `autoGrow`/`maxRows` and forwarding `Listbox.getAnchorProps()`, SplitPane `collapsed`; released as 5.21.0.
 
-## Verification (Phase D, tree e3b74c4c)
+## Verification (Phase D, tree e3b74c4c; e946c8dd changes only story button variants: SplitPane stories 7/7)
 
 | Check                                                                     | Expected                                      | Actual                                                                                                                                            |
 | ------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -30,6 +30,6 @@ Part of [M2: the shared session screen](https://git.daddyshome.fr/fredericrous/h
 
 ## Implementation review
 
-approve (round 1 on e3b74c4c, 21k, 18 s), after four cycles.
+approve (round 1 on e946c8dd, 16k, 11 s), after five cycles; the last covered the person's preview change (one primary button per view: SplitPane story controls are secondary).
 Fixed: diff tints and autoGrow cap asserted against independent bases; `maxRows` only with `autoGrow`; short-list ask (no loop, re-asks after a prepend); stale autoGrow height cleared; hunk tint probed; regenerated docs; strip fidelity.
 Deliberate: hunk info tokens (Decision log); the unit autoGrow test is a wiring test, the story holds the cap.
