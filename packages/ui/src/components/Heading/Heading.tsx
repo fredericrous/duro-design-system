@@ -11,6 +11,7 @@ export type HeadingVariant =
   | 'headingLg'
   | 'headingMd'
   | 'headingSm'
+  | 'overline'
 
 interface HeadingProps {
   level: 1 | 2 | 3 | 4 | 5 | 6

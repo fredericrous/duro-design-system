@@ -49,3 +49,21 @@ export const WithId: Story = {
     await expect(canvas.getByRole('link', {name: 'Install'})).toHaveAttribute('href', '#install')
   },
 }
+
+/** A group title over a list of rows: the `overline` look with heading semantics. */
+export const Overline: Story = {
+  render: () => (
+    <Stack gap="xs">
+      <Heading level={3} variant="overline" color="muted">
+        Today
+      </Heading>
+      <Heading level={3} variant="overline" color="muted">
+        Earlier
+      </Heading>
+    </Stack>
+  ),
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('heading', {level: 3, name: 'Today'})).toBeInTheDocument()
+    await expect(canvas.getAllByRole('heading', {level: 3})).toHaveLength(2)
+  },
+}
