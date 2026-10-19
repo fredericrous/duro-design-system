@@ -4,7 +4,7 @@ phases: [D]
 status: done
 ---
 
-Part of [M2: the shared session screen](https://git.daddyshome.fr/fredericrous/happier/src/branch/feat/m2-session/docs/plans/2026-10-19-m2-shared-session-screen.md). This repository carries Phase D: VirtualList prepend + `onStartReached` and a native version, CodeBlock `language` + diff line roles and a native version, Prose and Toolbar native, Textarea `autoGrow`/`maxRows` and forwarding `Listbox.getAnchorProps()`, SplitPane `collapsed`; released as 5.21.0.
+Part of [M2: the shared session screen](https://git.daddyshome.fr/fredericrous/happier/src/branch/feat/m2-session/docs/plans/2026-10-19-m2-shared-session-screen.md). This repository carries Phase D: VirtualList prepend + `onStartReached` and a native version, CodeBlock `language` + diff line roles and a native version, Prose and Toolbar native, Textarea `autoGrow`/`maxRows` and forwarding `Listbox.getAnchorProps()`, SplitPane `collapsed`; released as 5.22.0 (5.21.0 shipped #130 first).
 
 ## Verification (Phase D, full suite on tree e3b74c4c; later commits e946c8dd and b71d7172 change only story buttons and the story viewport helper, checked below)
 
@@ -26,6 +26,7 @@ Part of [M2: the shared session screen](https://git.daddyshome.fr/fredericrous/h
 
 ## Decision log
 
+- 2026-10-19: the release is 5.22.0, not the planned 5.21.0: #130 (Heading axes) shipped 5.21.0 first. Happier H0 raises to ^5.22.0.
 - 2026-10-19: hunk `@@` lines use the info tokens, not success/error: a hunk header is neither an addition nor a removal.
 - 2026-10-19: SplitPane gains `collapsedContent` (what the strip shows), beside `collapsed`; the strip draws a hairline in place of the handle, as the artboard does.
 - 2026-10-19: a VirtualList too short to scroll calls `onStartReached` once per distinct first key and length, so a transcript with deferred history pages in.
