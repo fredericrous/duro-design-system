@@ -1378,13 +1378,25 @@
           "description": "Initial preference (uncontrolled). Default `'system'`. For SSR with no hydration flash, pass the value you persisted server-side (e.g. a cookie).",
           "name": "defaultPreference",
           "required": false,
-          "type": "ColorModePreference"
+          "type": "ColorModePreference",
+          "union": [
+            "system",
+            "dark",
+            "light",
+            "high-contrast"
+          ]
         },
         {
           "description": "Controlled preference — when set, the provider does not own the state.",
           "name": "preference",
           "required": false,
-          "type": "ColorModePreference"
+          "type": "ColorModePreference",
+          "union": [
+            "system",
+            "dark",
+            "light",
+            "high-contrast"
+          ]
         },
         {
           "description": "Fired whenever the preference changes (controlled or not).",
@@ -3307,8 +3319,8 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Semantic heading element (h1-h6) with typography presets. Always use the correct level for document hierarchy. Visual size can differ from semantic level via the variant prop; `overline` gives a small uppercase group title.",
-        "example": "<Stack gap=\"md\">\n  <Heading level={1}>Page Title</Heading>\n  <Heading level={2} variant=\"headingMd\">Section</Heading>\n  <Heading level={3}>Subsection</Heading>\n  <Heading level={3} variant=\"overline\" color=\"muted\">Group</Heading>\n</Stack>",
+        "description": "Semantic heading element (h1-h6) with typography presets. Always use the correct level for document hierarchy. The look is `variant` (heading, display, overline) and its size is `size` (sm, md, lg, xl), both independent of the semantic level. The old combined variants (headingSm, displayLg, …) still work and are deprecated.",
+        "example": "<Stack gap=\"md\">\n  <Heading level={1}>Page Title</Heading>\n  <Heading level={2} size=\"md\">Section</Heading>\n  <Heading level={1} variant=\"display\" size=\"lg\">Hero</Heading>\n  <Heading level={3} variant=\"overline\" color=\"muted\">Group</Heading>\n  <Heading level={2} variant=\"overline\" size=\"lg\">Large group</Heading>\n</Stack>",
         "relatedTo": [
           {
             "component": "Text",
@@ -3325,7 +3337,7 @@
           "Page titles (level 1)",
           "Section headers (level 2-3)",
           "Card or panel titles (level 3-4)",
-          "Group titles over a list of rows or a form section (level 3-4, variant=\"overline\")"
+          "Group titles over a list of rows or a form section (level 3-4, variant=\"overline\", any size)"
         ]
       },
       "name": "Heading",
@@ -3337,18 +3349,33 @@
           "type": "1 | 2 | 3 | 4 | 5 | 6"
         },
         {
+          "description": "The look: `heading` (default), `display` (fluid hero titles), `overline` (small uppercase group titles).",
           "name": "variant",
           "required": false,
           "type": "HeadingVariant",
           "union": [
+            "heading",
+            "display",
+            "overline",
             "displayLg",
             "displayMd",
             "displaySm",
             "headingXl",
             "headingLg",
             "headingMd",
-            "headingSm",
-            "overline"
+            "headingSm"
+          ]
+        },
+        {
+          "description": "The size within the look. Default: the level's size for `heading`, `md` for `display`, `sm` for `overline`; `display` and `overline` stop at `lg`.",
+          "name": "size",
+          "required": false,
+          "type": "HeadingSize",
+          "union": [
+            "sm",
+            "md",
+            "lg",
+            "xl"
           ]
         },
         {
@@ -10796,6 +10823,12 @@
             "key": "overline"
           },
           {
+            "key": "overlineMd"
+          },
+          {
+            "key": "overlineLg"
+          },
+          {
             "key": "headingSm"
           },
           {
@@ -10940,6 +10973,12 @@
       "filled",
       "interactive"
     ],
+    "ColorModePreference": [
+      "system",
+      "dark",
+      "light",
+      "high-contrast"
+    ],
     "ContainerSize": [
       "compact",
       "default",
@@ -10992,15 +11031,23 @@
       "split-wide",
       "content-aside"
     ],
+    "HeadingSize": [
+      "sm",
+      "md",
+      "lg",
+      "xl"
+    ],
     "HeadingVariant": [
+      "heading",
+      "display",
+      "overline",
       "displayLg",
       "displayMd",
       "displaySm",
       "headingXl",
       "headingLg",
       "headingMd",
-      "headingSm",
-      "overline"
+      "headingSm"
     ],
     "IconName": [
       "x-circle",

@@ -56,7 +56,7 @@ export {
   type SnapPoint,
 } from './components/Drawer/Drawer'
 export {EmptyState} from './components/EmptyState/EmptyState'
-export {Heading, type HeadingVariant} from './components/Heading/Heading'
+export {Heading, type HeadingSize, type HeadingVariant} from './components/Heading/Heading'
 export {List, type ListSelectionMode} from './components/List/List'
 export {LiveRegion, type LiveRegionPoliteness} from './components/LiveRegion/LiveRegion'
 export {Field} from './components/Field/Field'

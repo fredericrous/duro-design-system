@@ -50,20 +50,47 @@ export const WithId: Story = {
   },
 }
 
-/** A group title over a list of rows: the `overline` look with heading semantics. */
+/** `variant` is the look and `size` its size, independent of the level: a group title over a
+ *  list of rows is an `overline` heading, at any size. */
 export const Overline: Story = {
   render: () => (
     <Stack gap="xs">
       <Heading level={3} variant="overline" color="muted">
         Today
       </Heading>
-      <Heading level={3} variant="overline" color="muted">
+      <Heading level={3} variant="overline" size="md" color="muted">
         Earlier
+      </Heading>
+      <Heading level={2} variant="overline" size="lg">
+        Archive
       </Heading>
     </Stack>
   ),
   play: async ({canvas}) => {
     await expect(canvas.getByRole('heading', {level: 3, name: 'Today'})).toBeInTheDocument()
     await expect(canvas.getAllByRole('heading', {level: 3})).toHaveLength(2)
+    const sm = getComputedStyle(canvas.getByRole('heading', {name: 'Today'})).fontSize
+    const lg = getComputedStyle(canvas.getByRole('heading', {name: 'Archive'})).fontSize
+    await expect(parseFloat(lg)).toBeGreaterThan(parseFloat(sm))
+  },
+}
+
+/** The old combined variants still render the same preset as the two props. */
+export const LegacyVariant: Story = {
+  render: () => (
+    <Stack gap="xs">
+      <Heading level={2} variant="headingSm">
+        Legacy
+      </Heading>
+      <Heading level={2} variant="heading" size="sm">
+        Current
+      </Heading>
+    </Stack>
+  ),
+  play: async ({canvas}) => {
+    const legacy = getComputedStyle(canvas.getByRole('heading', {name: 'Legacy'}))
+    const current = getComputedStyle(canvas.getByRole('heading', {name: 'Current'}))
+    await expect(legacy.fontSize).toBe(current.fontSize)
+    await expect(legacy.fontWeight).toBe(current.fontWeight)
   },
 }

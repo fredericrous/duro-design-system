@@ -55,13 +55,15 @@ Presets compose scale tokens + weight + tracking into named styles via `typePres
 
 ### Heading
 
-| Preset      | Size  | Weight   | Tracking                                                                  |
-| ----------- | ----- | -------- | ------------------------------------------------------------------------- |
-| `headingSm` | 20/28 | Semibold | Tight                                                                     |
-| `headingMd` | 24/32 | Semibold | Tight                                                                     |
-| `headingLg` | 30/36 | Bold     | Tight                                                                     |
-| `headingXl` | 36/44 | Bold     | Tight                                                                     |
-| `overline`  | 12/16 | Semibold | Wide, uppercase (a group title: `<Heading level={3} variant="overline">`) |
+| Preset      | Size  | Weight   | Tracking                                                 |
+| ----------- | ----- | -------- | -------------------------------------------------------- |
+| `headingSm` | 20/28 | Semibold | Tight                                                    |
+| `headingMd` | 24/32 | Semibold | Tight                                                    |
+| `headingLg` | 30/36 | Bold     | Tight                                                    |
+| `headingXl` | 36/44 | Bold     | Tight                                                    |
+| `overline`  | 12/16 | Semibold | Wide, uppercase (`overlineMd` 14/20, `overlineLg` 16/24) |
+
+`Heading` picks a preset from two props: `variant` (`heading`, `display`, `overline`) and `size` (`sm`, `md`, `lg`, `xl`). `<Heading level={3} variant="overline" size="lg">` is a group title at 16/24. Without `size`, a heading takes its level's size, a display title `md` and an overline `sm`.
 
 ### Display (fluid)
 
@@ -83,13 +85,13 @@ See the **Fluid Display** story for a resizable demo.
 
 ## When to use which layer
 
-| Scenario                                       | Use                                       |
-| ---------------------------------------------- | ----------------------------------------- |
-| Body text in a page or card                    | `<Text variant="bodyMd">`                 |
-| Section heading                                | `<Heading level={2}>`                     |
-| Group title over a list of rows                | `<Heading level={3} variant="overline">`  |
-| Hero or landing page title                     | `<Heading level={1} variant="displayLg">` |
-| Form label                                     | `<Text variant="label">`                  |
-| Inline code                                    | `<Text variant="code">`                   |
-| Custom component needing raw font size         | `typeScale.fontSize4` token               |
-| Composing a one-off style with preset defaults | `typePresets.bodyMd` in `css.create()`    |
+| Scenario                                       | Use                                               |
+| ---------------------------------------------- | ------------------------------------------------- |
+| Body text in a page or card                    | `<Text variant="bodyMd">`                         |
+| Section heading                                | `<Heading level={2}>`                             |
+| Group title over a list of rows                | `<Heading level={3} variant="overline">`          |
+| Hero or landing page title                     | `<Heading level={1} variant="display" size="lg">` |
+| Form label                                     | `<Text variant="label">`                          |
+| Inline code                                    | `<Text variant="code">`                           |
+| Custom component needing raw font size         | `typeScale.fontSize4` token                       |
+| Composing a one-off style with preset defaults | `typePresets.bodyMd` in `css.create()`            |

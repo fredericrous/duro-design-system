@@ -55,6 +55,22 @@ export const typePresets = css.create({
     letterSpacing: typeScale.letterSpacingWide,
     textTransform: 'uppercase' as const,
   },
+  overlineMd: {
+    fontFamily: typography.fontFamily,
+    fontSize: typeScale.fontSize3,
+    lineHeight: typeScale.lineHeight3,
+    fontWeight: typography.fontWeightSemibold,
+    letterSpacing: typeScale.letterSpacingWide,
+    textTransform: 'uppercase' as const,
+  },
+  overlineLg: {
+    fontFamily: typography.fontFamily,
+    fontSize: typeScale.fontSize4,
+    lineHeight: typeScale.lineHeight4,
+    fontWeight: typography.fontWeightSemibold,
+    letterSpacing: typeScale.letterSpacingWide,
+    textTransform: 'uppercase' as const,
+  },
 
   // Heading
   headingSm: {
