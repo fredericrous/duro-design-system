@@ -106,6 +106,12 @@ describe('useAutoGrowFallback without field-sizing', () => {
     listeners.get('input')!()
     expect(el.style.height).toBe('198px')
 
+    // autoGrow turned off: the inline height goes, so `rows` sizes it again
+    effects.length = 0
+    useAutoGrowFallback({current: el as unknown as HTMLTextAreaElement}, 'fixed')
+    effects.forEach((run) => run())
+    expect(el.style.height).toBe('')
+
     vi.doUnmock('react')
     vi.unstubAllGlobals()
   })

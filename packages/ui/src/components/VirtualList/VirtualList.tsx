@@ -11,6 +11,8 @@ export type {VirtualListProps}
 /** Within this many px of the end counts as "at the bottom" for `anchor="end"`. */
 const BOTTOM_SLOP = SIZES_PX.touchTarget
 /** Frames a prepend keeps re-pinning its anchor row while new rows are measured. */
+// holds-until: a prepend whose rows take more than 6 frames to measure (images,
+// late fonts, mermaid) and visibly jumps; then settle on a ResizeObserver instead.
 const PIN_FRAMES = 6
 /** Within this many px of the start counts as "reached" for `onStartReached`. */
 const START_SLOP = SIZES_PX.touchTarget

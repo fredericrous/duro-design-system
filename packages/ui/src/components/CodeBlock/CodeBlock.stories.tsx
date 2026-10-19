@@ -55,6 +55,7 @@ const styles = css.create({
   // Probes: the token colours a diff line should resolve to, set independently of CodeBlock.
   successProbe: {backgroundColor: colors.successBg},
   errorProbe: {backgroundColor: colors.errorBg},
+  infoProbe: {backgroundColor: colors.infoBg},
 })
 
 /**
@@ -218,6 +219,7 @@ export const DiffChecks: Story = {
       </CodeBlock>
       <html.div data-testid="success-probe" style={styles.successProbe} />
       <html.div data-testid="error-probe" style={styles.errorProbe} />
+      <html.div data-testid="info-probe" style={styles.infoProbe} />
     </>
   ),
   play: async ({args, canvasElement, canvas, userEvent}) => {
@@ -231,6 +233,7 @@ export const DiffChecks: Story = {
     const tint = (name: string) => getComputedStyle(role(name)!).backgroundColor
     await expect(tint('added')).toBe(probe('success-probe'))
     await expect(tint('removed')).toBe(probe('error-probe'))
+    await expect(tint('hunk')).toBe(probe('info-probe'))
     await expect(tint('added')).not.toBe(tint('removed'))
     const write = spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
     try {
