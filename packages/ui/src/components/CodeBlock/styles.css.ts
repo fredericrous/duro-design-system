@@ -45,4 +45,21 @@ export const styles = css.create({
     outlineColor: {default: 'transparent', ':focus-visible': colors.accent},
     outlineOffset: {default: 0, ':focus-visible': borders.focusOffset},
   },
+  // A diff line fills the block's width, so its tint is a band, not a patch.
+  line: {display: 'block'},
+  added: {backgroundColor: colors.successBg},
+  removed: {backgroundColor: colors.errorBg},
+  hunk: {backgroundColor: colors.infoBg, color: colors.infoText},
+  // Native: the code scrolls sideways inside the block.
+  scroll: {
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.md,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.md,
+  },
+  text: {
+    color: colors.text,
+    userSelect: 'text',
+    whiteSpace: 'pre',
+  },
 })

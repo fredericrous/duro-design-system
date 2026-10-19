@@ -190,3 +190,35 @@ export const CopyRefusedWithoutHandler: Story = {
     }
   },
 }
+
+const DIFF = '@@ -1,3 +1,3 @@\n context\n-old line\n+new line\n'
+
+/** `language="diff"`: added, removed and hunk lines are tinted from the status tokens. */
+export const Diff: Story = {
+  args: {code: DIFF},
+  render: ({code, ...args}) => (
+    <CodeBlock {...args} language="diff">
+      <html.code>{code}</html.code>
+    </CodeBlock>
+  ),
+}
+
+/** Diff's checks: each line carries its role, the language is exposed, copy keeps the raw text. */
+export const DiffChecks: Story = {
+  ...Diff,
+  tags: TEST_ONLY,
+  play: async ({args, canvasElement, canvas, userEvent}) => {
+    const role = (name: string) => canvasElement.querySelector(`[data-diff-line="${name}"]`)
+    await expect(canvasElement.querySelector('pre')).toHaveAttribute('data-language', 'diff')
+    await expect(role('hunk')).toHaveTextContent('@@ -1,3 +1,3 @@')
+    await expect(role('removed')).toHaveTextContent('-old line')
+    await expect(role('added')).toHaveTextContent('+new line')
+    const write = spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
+    try {
+      await userEvent.click(canvas.getByRole('button', {name: args.copyLabel}))
+      await expect(write).toHaveBeenCalledWith(args.code)
+    } finally {
+      write.mockRestore()
+    }
+  },
+}

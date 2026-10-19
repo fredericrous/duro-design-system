@@ -199,7 +199,7 @@ These components **must** be wrapped in their `.Root`:
 | **Checkbox** | Checkbox input with optional visible label | `name`, `value`, `checked` |
 | **CheckboxGroup** | Checkbox group for multi-select from a list of options | compound: Item, Root |
 | **Cluster** | Horizontal flex layout that WRAPS to the next line when items overflow | `gap`, `align`, `justify` |
-| **CodeBlock** | A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion | `copyLabel`, `copiedLabel`, `copiedDuration` |
+| **CodeBlock** | A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion | `language`, `copyLabel`, `copiedLabel` |
 | **ColorInput** | A styled native color swatch (<input type="color">) for picking a hex color | `value`, `defaultValue`, `name` |
 | **ColorModeToggle** | Color-mode controller + toggle | `size`, `aria-label` |
 | **Combobox** | Searchable dropdown for selecting a value from a filterable list | compound: Empty, Input, Item, ItemText, Popup, … |

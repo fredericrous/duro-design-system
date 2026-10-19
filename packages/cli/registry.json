@@ -1182,7 +1182,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion. Labels come from props.",
+        "description": "A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion. Labels come from props. With language=\"diff\", added, removed and hunk lines are coloured from tokens. On native the text is selectable and scrolls sideways; there is no copy button.",
         "example": "<CodeBlock copyLabel=\"Copy\" copiedLabel=\"Copied\">\n  <code>pnpm add @duro-app/ui</code>\n</CodeBlock>",
         "relatedTo": [
           {
@@ -1206,13 +1206,19 @@
         ]
       },
       "name": "CodeBlock",
-      "native": false,
+      "native": true,
       "props": [
         {
           "description": "The code: text, or the `<code>` element a Markdown renderer produced (highlighted spans included). What is copied is its text content.",
           "name": "children",
           "required": true,
           "type": "ReactNode"
+        },
+        {
+          "description": "The code's language (\"diff\", \"ts\"), exposed as `data-language` on the `pre`. `\"diff\"` also gives each added (`+`), removed (`-`) and hunk (`@@`) line its own colour; what is copied stays the raw text.",
+          "name": "language",
+          "required": false,
+          "type": "string"
         },
         {
           "description": "The copy button's label (\"Copy\"), from your text catalog.",
@@ -5238,7 +5244,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "The container for HTML Duro does not author — rendered Markdown, CMS output: headings, paragraphs, lists, tables, blockquotes, inline code, links and images are styled from tokens by descendant rules scoped to it (plain CSS in dist/index.css, :where() and its own cascade layer). Duro components inside it keep their styles, and an app's own CSS wins over every Prose rule. Web only.",
+        "description": "The container for HTML Duro does not author — rendered Markdown, CMS output: headings, paragraphs, lists, tables, blockquotes, inline code, links and images are styled from tokens by descendant rules scoped to it (plain CSS in dist/index.css, :where() and its own cascade layer). Duro components inside it keep their styles, and an app's own CSS wins over every Prose rule. On native it is a reading-width column with a token gap; the renderer maps Markdown to Duro primitives.",
         "example": "<Prose>\n  <ReactMarkdown components={{pre: ({children}) => <CodeBlock copyLabel=\"Copy\" copiedLabel=\"Copied\">{children}</CodeBlock>}}>\n    {body}\n  </ReactMarkdown>\n</Prose>",
         "relatedTo": [
           {
@@ -5262,7 +5268,7 @@
         ]
       },
       "name": "Prose",
-      "native": false,
+      "native": true,
       "props": [
         {
           "description": "HTML Duro does not author: the output of a Markdown renderer.",
@@ -8159,7 +8165,7 @@
             "aria-label"
           ]
         },
-        "description": "A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends. A Select or Menu trigger keeps its own keys, and a control whose popup is open keeps Left/Right.",
+        "description": "A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends. A Select or Menu trigger keeps its own keys, and a control whose popup is open keeps Left/Right. On native it is the same row of controls without the roving tab stop and arrow keys.",
         "example": "<Toolbar aria-label=\"Formatting\">\n  <ButtonGroup attached aria-label=\"Text style\">\n    <Toggle aria-label=\"Bold\" pressed={bold} onPressedChange={setBold}>B</Toggle>\n    <Toggle aria-label=\"Italic\" pressed={italic} onPressedChange={setItalic}>I</Toggle>\n  </ButtonGroup>\n  <Menu.Root>\n    <Menu.Trigger>Insert</Menu.Trigger>\n    <Menu.Popup>…</Menu.Popup>\n  </Menu.Root>\n</Toolbar>",
         "relatedTo": [
           {
@@ -8189,7 +8195,7 @@
         ]
       },
       "name": "Toolbar",
-      "native": false,
+      "native": true,
       "props": [
         {
           "description": "Names the toolbar (\"Formatting\"). Required: a toolbar is a landmark-like widget.",

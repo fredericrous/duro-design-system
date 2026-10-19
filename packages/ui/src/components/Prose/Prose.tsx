@@ -14,7 +14,7 @@ interface ProseProps {
  * output): headings, paragraphs, lists, tables, blockquotes, inline code,
  * links and images are styled from tokens by descendant rules scoped to it.
  * Duro components inside it (a TextLink, a CodeBlock) keep their own styles,
- * and an app's own CSS wins over every Prose rule. Web only.
+ * and an app's own CSS wins over every Prose rule. Native: Prose.native.tsx.
  */
 export function Prose({children, ref}: ProseProps) {
   return (

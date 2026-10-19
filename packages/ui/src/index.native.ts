@@ -27,6 +27,11 @@ export {Text, type TextVariant, type TextColor} from './components/Text/Text'
 export {TextLink, type TextLinkVariant} from './components/TextLink/TextLink'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 
+// Text and layout
+export {CodeBlock, type CodeBlockProps} from './components/CodeBlock/CodeBlock'
+export {Prose} from './components/Prose/Prose'
+export {Toolbar, type ToolbarProps} from './components/Toolbar/Toolbar'
+
 // Form field wrappers (RN-safe — used by Input/Textarea/Checkbox)
 export {Field} from './components/Field/Field'
 export {InputGroup} from './components/InputGroup/InputGroup'
