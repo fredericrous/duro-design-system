@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.',
+    'Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. A controlled collapsed prop shrinks the first pane to a strip (the iconButton size), takes the Handle out of the tab order and the accessibility tree, and restores the prior width when it turns false; native ignores it. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.',
   whenToUse: [
     'A list beside its detail where people need more room on either side (a session list and its transcript)',
     'An editor beside its preview',

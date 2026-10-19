@@ -1,5 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, userEvent, waitFor} from 'storybook/test'
+import {useState} from 'react'
 import {css, html} from 'react-strict-dom'
 import {SIZES_PX, SPACING_PX, type SizeToken} from '@duro-app/tokens/keys'
 import type {Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
@@ -9,6 +10,7 @@ import {List} from '../List/List'
 import {Panel} from '../Panel/Panel'
 import {Heading} from '../Heading/Heading'
 import {Text} from '../Text/Text'
+import {Button} from '../Button/Button'
 
 const meta: Meta = {
   title: 'Components/SplitPane',
@@ -29,6 +31,7 @@ interface SplitArgs {
   maxSize: SizeToken
   collapseBelow: Breakpoint
   onSizeChange?: (px: number) => void
+  collapsed?: boolean
 }
 
 const DEFAULT_ARGS: SplitArgs = {
@@ -43,7 +46,10 @@ const PANE_SIZES: SizeToken[] = ['sidebarW', 'panelSm', 'panelMd', 'panelLg']
 
 /** The picked B0 direction (docs/mockups/split-pane/Hairline.dc.html). */
 function Split(props: Partial<SplitArgs>) {
-  const {defaultSize, minSize, maxSize, collapseBelow, onSizeChange} = {...DEFAULT_ARGS, ...props}
+  const {defaultSize, minSize, maxSize, collapseBelow, onSizeChange, collapsed} = {
+    ...DEFAULT_ARGS,
+    ...props,
+  }
   return (
     <html.div style={frame.fill}>
       <SplitPane.Root
@@ -53,6 +59,7 @@ function Split(props: Partial<SplitArgs>) {
         maxSize={maxSize}
         collapseBelow={collapseBelow}
         onSizeChange={onSizeChange}
+        collapsed={collapsed}
       >
         <SplitPane.Pane>
           <List.Root aria-label="Sessions">
@@ -144,5 +151,57 @@ export const NarrowStacksInOneColumn: Story = {
     await expect(heading.getBoundingClientRect().top).toBeGreaterThan(
       list.getBoundingClientRect().bottom - 1,
     )
+  },
+}
+
+function Collapsible() {
+  const [collapsed, setCollapsed] = useState(false)
+  return (
+    <>
+      <Button onClick={() => setCollapsed((c) => !c)}>Toggle sessions</Button>
+      <Split collapsed={collapsed} />
+    </>
+  )
+}
+
+export const CollapsedShowsTheStrip: Story = {
+  render: () => <Collapsible />,
+  beforeEach: async () => {
+    await setViewport(1200, 800)
+  },
+  play: async ({canvas}) => {
+    await waitFor(() => expect(separator()).not.toBeNull())
+    const handle = separator()!
+    const primary = document.getElementById(handle.getAttribute('aria-controls')!)!
+    const toggle = canvas.getByRole('button', {name: 'Toggle sessions'})
+    await waitFor(() =>
+      expect(primary.getBoundingClientRect().width).toBeCloseTo(SIZES_PX.sidebarW, 0),
+    )
+
+    // widen the pane, then collapse: a strip, the handle out of tab order and out of the a11y tree
+    handle.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    const widened = SIZES_PX.sidebarW + SPACING_PX.md
+    await waitFor(() => expect(primary.getBoundingClientRect().width).toBeCloseTo(widened, 0))
+
+    await userEvent.click(toggle)
+    await waitFor(() =>
+      expect(primary.getBoundingClientRect().width).toBeCloseTo(SIZES_PX.iconButton, 0),
+    )
+    await expect(handle).toHaveAttribute('tabindex', '-1')
+    await expect(handle).toHaveAttribute('aria-hidden', 'true')
+    await expect(canvas.queryByRole('separator')).toBeNull()
+
+    // Tab from the toggle skips the handle
+    toggle.focus()
+    await userEvent.tab()
+    await expect(handle).not.toHaveFocus()
+
+    // expanded again: the prior size returns and the handle is back
+    await userEvent.click(toggle)
+    await waitFor(() => expect(primary.getBoundingClientRect().width).toBeCloseTo(widened, 0))
+    await expect(handle).toHaveAttribute('tabindex', '0')
+    await expect(handle).not.toHaveAttribute('aria-hidden')
+    await expect(handle).toHaveAttribute('aria-valuenow', String(widened))
   },
 }

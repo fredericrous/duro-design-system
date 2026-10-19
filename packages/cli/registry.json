@@ -5944,7 +5944,7 @@
             "Pane"
           ]
         },
-        "description": "Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.",
+        "description": "Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. A controlled collapsed prop shrinks the first pane to a strip (the iconButton size), takes the Handle out of the tab order and the accessibility tree, and restores the prior width when it turns false; native ignores it. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.",
         "example": "<SplitPane.Root aria-label=\"Resize the session list\" minSize=\"sidebarW\" maxSize=\"panelLg\">\n  <SplitPane.Pane>\n    <List.Root aria-label=\"Sessions\">…</List.Root>\n  </SplitPane.Pane>\n  <SplitPane.Handle />\n  <SplitPane.Pane>\n    <Panel.Root>…</Panel.Root>\n  </SplitPane.Pane>\n</SplitPane.Root>",
         "relatedTo": [
           {
@@ -6041,6 +6041,13 @@
                 "lg",
                 "xl"
               ]
+            },
+            {
+              "default": "false",
+              "description": "Controlled: shrink the primary pane to a strip (the `iconButton` size) and take the handle out of the tab order and the accessibility tree. When it turns false the pane returns to its prior width. Ignored when stacked.",
+              "name": "collapsed",
+              "required": false,
+              "type": "boolean"
             },
             {
               "description": "The handle's accessible name (\"Resize list\").",
@@ -7495,7 +7502,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Multi-line text input with automatic Field/Form integration. Same Field binding behavior as Input.",
+        "description": "Multi-line text input with automatic Field/Form integration. Same Field binding behavior as Input. autoGrow makes the height follow the content from rows up to maxRows, then it scrolls (CSS field-sizing, with a scrollHeight fallback; native grows with the content and caps at maxRows). On web it forwards the props of Listbox.getAnchorProps() (role combobox, aria-controls, aria-expanded, aria-activedescendant) so a Listbox can be anchored to it while the editor keeps focus.",
         "example": "<Field.Root name=\"message\">\n  <Field.Label>Message</Field.Label>\n  <Textarea placeholder=\"Tell us what you think...\" rows={4} />\n  <Field.Description>At least 10 characters</Field.Description>\n  <Field.Error />\n</Field.Root>",
         "relatedTo": [
           {
@@ -7513,7 +7520,9 @@
           "Single-line input — use Input"
         ],
         "whenToUse": [
-          "Multi-line text entry (comments, messages, descriptions)"
+          "Multi-line text entry (comments, messages, descriptions)",
+          "A composer that grows with its text (autoGrow, maxRows)",
+          "An editor a Listbox is anchored to for mentions or slash commands (spread Listbox.getAnchorProps())"
         ]
       },
       "name": "Textarea",
@@ -7547,6 +7556,18 @@
         {
           "default": "3",
           "name": "rows",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "description": "The height follows the content, from `rows` up to `maxRows`, then it scrolls.",
+          "name": "autoGrow",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "With `autoGrow`: the most rows the field shows before it scrolls. Default: no limit",
+          "name": "maxRows",
           "required": false,
           "type": "number"
         },

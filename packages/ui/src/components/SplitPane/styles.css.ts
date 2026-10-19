@@ -28,6 +28,10 @@ export const styles = css.create({
     minWidth: 0,
     overflow: 'auto',
   },
+  // Collapsed: only a strip is left, so nothing spills out of it.
+  primaryStrip: {
+    overflow: 'hidden',
+  },
   primarySize: (px: number) => ({width: px}),
   secondary: {
     flexGrow: 1,
@@ -49,6 +53,11 @@ export const styles = css.create({
     touchAction: 'none',
     userSelect: 'none',
     outlineStyle: 'none',
+  },
+  // Collapsed: the handle neither drags nor shows a resize cursor.
+  handleInert: {
+    pointerEvents: 'none',
+    cursor: 'default',
   },
   line: {
     width: borders.hairline,

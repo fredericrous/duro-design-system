@@ -22,6 +22,7 @@ interface SplitPaneContextValue {
   max: number
   setSize: (px: number) => void
   stacked: boolean
+  collapsed: boolean
   primaryId: string
   label: string
 }
@@ -57,6 +58,12 @@ interface RootProps {
   maxSize?: SizeToken
   /** Below this breakpoint, measured on the split's own width, the panes stack. Default: `sm` */
   collapseBelow?: Breakpoint
+  /**
+   * Controlled: shrink the primary pane to a strip (the `iconButton` size) and
+   * take the handle out of the tab order and the accessibility tree. When it
+   * turns false the pane returns to its prior width. Ignored when stacked.
+   */
+  collapsed?: boolean
   /** The handle's accessible name ("Resize list"). */
   'aria-label': string
 }
@@ -75,6 +82,7 @@ function Root({
   minSize = 'sidebarW',
   maxSize = 'panelLg',
   collapseBelow = 'sm',
+  collapsed = false,
   'aria-label': label,
 }: RootProps) {
   const min = SIZES_PX[minSize]
@@ -103,7 +111,9 @@ function Root({
   })
 
   return (
-    <SplitPaneContext.Provider value={{size, min, max, setSize, stacked, primaryId, label}}>
+    <SplitPaneContext.Provider
+      value={{size, min, max, setSize, stacked, collapsed, primaryId, label}}
+    >
       <html.div ref={rootRef} style={[styles.root, stacked && styles.rootStacked]}>
         {items}
       </html.div>
@@ -112,13 +122,19 @@ function Root({
 }
 
 function Pane({children}: {children: ReactNode}) {
-  const {size, stacked, primaryId} = useSplitPane('Pane')
+  const {size, stacked, collapsed, primaryId} = useSplitPane('Pane')
   const primary = useContext(PaneIndexContext) === 0
   return (
     <html.div
       id={primary ? primaryId : undefined}
       style={[
-        primary ? [styles.primary, !stacked && styles.primarySize(size)] : styles.secondary,
+        primary
+          ? [
+              styles.primary,
+              !stacked && styles.primarySize(collapsed ? SIZES_PX.iconButton : size),
+              !stacked && collapsed && styles.primaryStrip,
+            ]
+          : styles.secondary,
         stacked && styles.stackedPane,
       ]}
     >
@@ -128,7 +144,7 @@ function Pane({children}: {children: ReactNode}) {
 }
 
 function Handle() {
-  const {size, min, max, setSize, stacked, primaryId, label} = useSplitPane('Handle')
+  const {size, min, max, setSize, stacked, collapsed, primaryId, label} = useSplitPane('Handle')
   const [hovered, setHovered] = useState(false)
   const [keyboardFocus, setKeyboardFocus] = useState(false)
   const [dragging, setDragging] = useState(false)
@@ -167,14 +183,15 @@ function Handle() {
     <html.div
       ref={handleRef}
       role="separator"
-      tabIndex={0}
+      tabIndex={collapsed ? -1 : 0}
+      aria-hidden={collapsed || undefined}
       aria-label={label}
       aria-orientation="vertical"
       aria-controls={primaryId}
       aria-valuenow={size}
       aria-valuemin={min}
       aria-valuemax={max}
-      style={styles.handle}
+      style={[styles.handle, collapsed && styles.handleInert]}
       onFocus={(e: {currentTarget: HTMLElement}) =>
         setKeyboardFocus(e.currentTarget.matches(':focus-visible'))
       }

@@ -18,6 +18,8 @@ interface RootProps {
   maxSize?: SizeToken
   /** Web only: a phone is below every breakpoint, so native always stacks. */
   collapseBelow?: Breakpoint
+  /** Web only: native always stacks, so there is no strip to collapse to. */
+  collapsed?: boolean
   /** The handle's accessible name (web only: native has no handle). */
   'aria-label': string
 }
