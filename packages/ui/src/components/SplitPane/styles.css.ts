@@ -30,7 +30,17 @@ export const styles = css.create({
   },
   // Collapsed: only a strip is left, so nothing spills out of it.
   primaryStrip: {
+    position: 'relative',
     overflow: 'hidden',
+  },
+  // The collapsed pane's own children: mounted, so their state is kept, but
+  // out of sight, out of the tab order (with `inert`) and unclickable.
+  stowed: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    visibility: 'hidden',
+    pointerEvents: 'none',
   },
   primarySize: (px: number) => ({width: px}),
   secondary: {
@@ -53,11 +63,6 @@ export const styles = css.create({
     touchAction: 'none',
     userSelect: 'none',
     outlineStyle: 'none',
-  },
-  // Collapsed: the handle neither drags nor shows a resize cursor.
-  handleInert: {
-    pointerEvents: 'none',
-    cursor: 'default',
   },
   line: {
     width: borders.hairline,

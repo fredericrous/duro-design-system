@@ -9,7 +9,10 @@ export interface CodeBlockProps {
   /**
    * The code's language ("diff", "ts"), exposed as `data-language` on the
    * `pre`. `"diff"` also gives each added (`+`), removed (`-`) and hunk (`@@`)
-   * line its own colour; what is copied stays the raw text.
+   * line its own colour; what is copied stays the raw text. Diff rendering
+   * works on the text content, so highlighted spans inside `children` are
+   * flattened to plain text. The language is a data attribute only: it is not
+   * announced to assistive technology.
    */
   language?: string
   /** The copy button's label ("Copy"), from your text catalog. */

@@ -16,6 +16,12 @@ import {nativeStyles} from './native.css'
 
 export type {VirtualListProps}
 
+// React Native has no listitem accessibility role, so rows are not announced as
+// list items (the list itself is role list).
+// holds-until: the device checkpoint. Native prepend (maintainVisibleContentPosition)
+// and onStartReached are verified only on a device, not in CI; FlatList may fire
+// onStartReached on mount for a list shorter than the view.
+
 const BOTTOM_SLOP = SIZES_PX.touchTarget
 const MAINTAIN_POSITION = {minIndexForVisible: 0}
 
@@ -50,7 +56,7 @@ export function VirtualList<T>({
     >
       <FlatList
         ref={listRef}
-        style={layout.list}
+        style={maxHeight === undefined ? layout.fill : layout.capped}
         accessibilityLabel={ariaLabel}
         accessibilityRole="list"
         data={items as T[]}
@@ -67,4 +73,8 @@ export function VirtualList<T>({
   )
 }
 
-const layout = StyleSheet.create({list: {flexGrow: 0, flexShrink: 1}})
+// Fill the parent unless capped; with a cap the list shrinks to its content.
+const layout = StyleSheet.create({
+  fill: {flexGrow: 1, flexShrink: 1},
+  capped: {flexGrow: 0, flexShrink: 1},
+})

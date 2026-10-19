@@ -1,11 +1,9 @@
 import {css} from 'react-strict-dom'
-import {FONT_SIZE_REM, SPACING_PX} from '@duro-app/tokens/keys'
+import {FONT_SIZE_REM, LINE_HEIGHT, ROOT_FONT_PX, SPACING_PX} from '@duro-app/tokens/keys'
 
 // One row of text, in px: the Textarea's font size (fontSizeSm, rem) at the
-// root size, times its line height (1.5). Native has no `lh` unit.
-const ROOT_PX = 16
-const LINE_HEIGHT = 1.5
-const ROW_PX = FONT_SIZE_REM.fontSizeSm * ROOT_PX * LINE_HEIGHT
+// root size, times the typography line height. Native has no `lh` unit.
+const ROW_PX = FONT_SIZE_REM.fontSizeSm * ROOT_FONT_PX * LINE_HEIGHT
 
 export const nativeStyles = css.create({
   // A multiline field on native grows with its content on its own.

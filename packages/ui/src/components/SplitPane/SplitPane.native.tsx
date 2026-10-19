@@ -20,6 +20,8 @@ interface RootProps {
   collapseBelow?: Breakpoint
   /** Web only: native always stacks, so there is no strip to collapse to. */
   collapsed?: boolean
+  /** Web only: shown in the collapsed strip. */
+  collapsedContent?: ReactNode
   /** The handle's accessible name (web only: native has no handle). */
   'aria-label': string
 }

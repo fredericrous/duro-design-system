@@ -363,6 +363,13 @@ export const FONT_SIZE_REM = {
   fontSizeHeading: 1.5,
 } as const
 
+// Mirrors tokens/typography.css.ts `typography.lineHeight`, a unitless multiplier.
+export const LINE_HEIGHT = 1.5
+
+// The root font size in px that rem tokens resolve against (the platform default);
+// native has no rem, so it multiplies FONT_SIZE_REM by this.
+export const ROOT_FONT_PX = 16
+
 // Mirrors tokens/typography.css.ts `typography` font weights, as numbers.
 export const FONT_WEIGHTS = {
   fontWeightNormal: 400,

@@ -23,6 +23,7 @@ interface SplitPaneContextValue {
   setSize: (px: number) => void
   stacked: boolean
   collapsed: boolean
+  collapsedContent: ReactNode
   primaryId: string
   label: string
 }
@@ -59,11 +60,14 @@ interface RootProps {
   /** Below this breakpoint, measured on the split's own width, the panes stack. Default: `sm` */
   collapseBelow?: Breakpoint
   /**
-   * Controlled: shrink the primary pane to a strip (the `iconButton` size) and
-   * take the handle out of the tab order and the accessibility tree. When it
-   * turns false the pane returns to its prior width. Ignored when stacked.
+   * Controlled: shrink the primary pane to a strip (the `iconButton` size),
+   * show `collapsedContent` in it and remove the handle. The pane's own
+   * children stay mounted (their state is kept) but are inert and hidden. When
+   * it turns false the pane returns to its prior width. Ignored when stacked.
    */
   collapsed?: boolean
+  /** What the strip shows while `collapsed` (an expand button, icons). */
+  collapsedContent?: ReactNode
   /** The handle's accessible name ("Resize list"). */
   'aria-label': string
 }
@@ -83,6 +87,7 @@ function Root({
   maxSize = 'panelLg',
   collapseBelow = 'sm',
   collapsed = false,
+  collapsedContent,
   'aria-label': label,
 }: RootProps) {
   const min = SIZES_PX[minSize]
@@ -112,7 +117,7 @@ function Root({
 
   return (
     <SplitPaneContext.Provider
-      value={{size, min, max, setSize, stacked, collapsed, primaryId, label}}
+      value={{size, min, max, setSize, stacked, collapsed, collapsedContent, primaryId, label}}
     >
       <html.div ref={rootRef} style={[styles.root, stacked && styles.rootStacked]}>
         {items}
@@ -122,8 +127,9 @@ function Root({
 }
 
 function Pane({children}: {children: ReactNode}) {
-  const {size, stacked, collapsed, primaryId} = useSplitPane('Pane')
+  const {size, stacked, collapsed, collapsedContent, primaryId} = useSplitPane('Pane')
   const primary = useContext(PaneIndexContext) === 0
+  const strip = primary && collapsed && !stacked
   return (
     <html.div
       id={primary ? primaryId : undefined}
@@ -138,9 +144,24 @@ function Pane({children}: {children: ReactNode}) {
         stacked && styles.stackedPane,
       ]}
     >
-      {children}
+      {strip ? (
+        <>
+          {collapsedContent}
+          <html.div ref={setInert} style={styles.stowed}>
+            {children}
+          </html.div>
+        </>
+      ) : (
+        children
+      )}
     </html.div>
   )
+}
+
+// `inert` takes the stowed children out of the tab order and the accessibility
+// tree; set on the node because the strict-DOM element has no such prop.
+function setInert(el: HTMLElement | null) {
+  el?.setAttribute('inert', '')
 }
 
 function Handle() {
@@ -176,22 +197,21 @@ function Handle() {
     return () => el.removeEventListener('keydown', onKeyDown)
   }, [size, min, max, setSize, stacked])
 
-  if (stacked) return null
+  if (stacked || collapsed) return null
   const active = hovered || keyboardFocus || dragging
 
   return (
     <html.div
       ref={handleRef}
       role="separator"
-      tabIndex={collapsed ? -1 : 0}
-      aria-hidden={collapsed || undefined}
+      tabIndex={0}
       aria-label={label}
       aria-orientation="vertical"
       aria-controls={primaryId}
       aria-valuenow={size}
       aria-valuemin={min}
       aria-valuemax={max}
-      style={[styles.handle, collapsed && styles.handleInert]}
+      style={styles.handle}
       onFocus={(e: {currentTarget: HTMLElement}) =>
         setKeyboardFocus(e.currentTarget.matches(':focus-visible'))
       }

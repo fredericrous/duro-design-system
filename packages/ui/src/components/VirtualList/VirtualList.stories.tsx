@@ -107,7 +107,7 @@ function firstVisible(list: HTMLElement) {
 
 const HISTORY = Array.from({length: 200}, (_, i) => ({id: i, text: `Message ${i + 1}`}))
 
-function Pager({onStart}: {onStart: () => void}) {
+function Pager({onStart}: {onStart?: () => void}) {
   const [items, setItems] = useState(HISTORY.slice(100))
   return (
     <>
@@ -131,13 +131,16 @@ function Pager({onStart}: {onStart: () => void}) {
 }
 
 export const PrependKeepsPosition: Story = {
-  render: () => <Pager onStart={() => {}} />,
+  render: () => <Pager />,
   play: async ({canvas, userEvent}) => {
     const list = canvas.getByRole('list', {name: 'Transcript'})
     await waitFor(() => expect(canvas.getAllByRole('listitem').length).toBeGreaterThan(0))
     list.scrollTop = 600
-    await waitFor(() => expect(list.scrollTop).toBe(600))
-    await new Promise((r) => setTimeout(r, 200))
+    // scrolled and re-rendered: the first visible row is no longer the first item
+    await waitFor(() => {
+      expect(list.scrollTop).toBe(600)
+      expect(firstVisible(list).text).not.toBe('Message 101')
+    })
     const before = firstVisible(list)
     await userEvent.click(canvas.getByRole('button', {name: 'Load older'}))
     await waitFor(() =>
@@ -151,19 +154,16 @@ export const PrependKeepsPosition: Story = {
   },
 }
 
-export const StartReachedFiresOncePerApproach: Story = {
-  render: () => {
-    const onStart = fn()
-    ;(globalThis as {__onStart?: unknown}).__onStart = onStart
-    return <Pager onStart={onStart} />
-  },
-  play: async ({canvas}) => {
-    const onStart = (globalThis as {__onStart?: ReturnType<typeof fn>}).__onStart!
+export const StartReachedFiresOncePerApproach: StoryObj<{onStartReached: () => void}> = {
+  args: {onStartReached: fn()},
+  render: (args) => <Pager onStart={args.onStartReached} />,
+  play: async ({canvas, args}) => {
+    const onStart = args.onStartReached
     const list = canvas.getByRole('list', {name: 'Transcript'})
     await waitFor(() => expect(canvas.getAllByRole('listitem').length).toBeGreaterThan(0))
     const scrollTo = async (top: number) => {
       list.scrollTop = top
-      await new Promise((r) => setTimeout(r, 50))
+      await waitFor(() => expect(list.scrollTop).toBe(top))
     }
     await scrollTo(600)
     await expect(onStart).not.toHaveBeenCalled()

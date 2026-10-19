@@ -18,7 +18,7 @@ export interface VirtualListProps<T> {
    */
   anchor?: 'start' | 'end'
   /**
-   * Called once each time the reader scrolls to within a row's height of the
+   * Called once each time the reader scrolls to within 44px (touchTarget) of the
    * start (load older history). It fires again only after they move away.
    * Prepending items keeps the first visible row where it was on screen.
    */

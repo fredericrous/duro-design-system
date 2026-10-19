@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, userEvent, waitFor} from 'storybook/test'
-import {useState} from 'react'
+import {useState, type ReactNode} from 'react'
 import {css, html} from 'react-strict-dom'
 import {SIZES_PX, SPACING_PX, type SizeToken} from '@duro-app/tokens/keys'
 import type {Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
@@ -32,6 +32,7 @@ interface SplitArgs {
   collapseBelow: Breakpoint
   onSizeChange?: (px: number) => void
   collapsed?: boolean
+  collapsedContent?: ReactNode
 }
 
 const DEFAULT_ARGS: SplitArgs = {
@@ -46,10 +47,11 @@ const PANE_SIZES: SizeToken[] = ['sidebarW', 'panelSm', 'panelMd', 'panelLg']
 
 /** The picked B0 direction (docs/mockups/split-pane/Hairline.dc.html). */
 function Split(props: Partial<SplitArgs>) {
-  const {defaultSize, minSize, maxSize, collapseBelow, onSizeChange, collapsed} = {
-    ...DEFAULT_ARGS,
-    ...props,
-  }
+  const {defaultSize, minSize, maxSize, collapseBelow, onSizeChange, collapsed, collapsedContent} =
+    {
+      ...DEFAULT_ARGS,
+      ...props,
+    }
   return (
     <html.div style={frame.fill}>
       <SplitPane.Root
@@ -60,8 +62,10 @@ function Split(props: Partial<SplitArgs>) {
         collapseBelow={collapseBelow}
         onSizeChange={onSizeChange}
         collapsed={collapsed}
+        collapsedContent={collapsedContent}
       >
         <SplitPane.Pane>
+          <Button>Filter sessions</Button>
           <List.Root aria-label="Sessions">
             {SESSIONS.map((s) => (
               <List.Item key={s}>
@@ -159,7 +163,7 @@ function Collapsible() {
   return (
     <>
       <Button onClick={() => setCollapsed((c) => !c)}>Toggle sessions</Button>
-      <Split collapsed={collapsed} />
+      <Split collapsed={collapsed} collapsedContent={<Button>Expand sessions</Button>} />
     </>
   )
 }
@@ -178,7 +182,7 @@ export const CollapsedShowsTheStrip: Story = {
       expect(primary.getBoundingClientRect().width).toBeCloseTo(SIZES_PX.sidebarW, 0),
     )
 
-    // widen the pane, then collapse: a strip, the handle out of tab order and out of the a11y tree
+    // widen the pane, then collapse
     handle.focus()
     await userEvent.keyboard('{ArrowRight}')
     const widened = SIZES_PX.sidebarW + SPACING_PX.md
@@ -188,20 +192,34 @@ export const CollapsedShowsTheStrip: Story = {
     await waitFor(() =>
       expect(primary.getBoundingClientRect().width).toBeCloseTo(SIZES_PX.iconButton, 0),
     )
-    await expect(handle).toHaveAttribute('tabindex', '-1')
-    await expect(handle).toHaveAttribute('aria-hidden', 'true')
+    // the handle is not rendered; the pane's own children are inert and out of the a11y tree
+    await expect(separator()).toBeNull()
     await expect(canvas.queryByRole('separator')).toBeNull()
+    await expect(canvas.queryByRole('button', {name: 'Filter sessions'})).toBeNull()
 
-    // Tab from the toggle skips the handle
+    // Tab from the toggle never reaches a control inside the collapsed children,
+    // but the strip's own button is reachable
     toggle.focus()
-    await userEvent.tab()
-    await expect(handle).not.toHaveFocus()
+    const reached = new Set<Element>()
+    for (let i = 0; i < 6; i++) {
+      await userEvent.tab()
+      if (document.activeElement) reached.add(document.activeElement)
+    }
+    const filter = document.evaluate(
+      "//button[contains(., 'Filter sessions')]",
+      document,
+      null,
+      XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null,
+    ).singleNodeValue
+    await expect(filter).not.toBeNull()
+    await expect(reached.has(filter as Element)).toBe(false)
+    await expect(reached.has(canvas.getByRole('button', {name: 'Expand sessions'}))).toBe(true)
 
     // expanded again: the prior size returns and the handle is back
     await userEvent.click(toggle)
     await waitFor(() => expect(primary.getBoundingClientRect().width).toBeCloseTo(widened, 0))
-    await expect(handle).toHaveAttribute('tabindex', '0')
-    await expect(handle).not.toHaveAttribute('aria-hidden')
-    await expect(handle).toHaveAttribute('aria-valuenow', String(widened))
+    await expect(separator()).toHaveAttribute('aria-valuenow', String(widened))
+    await expect(canvas.getByRole('button', {name: 'Filter sessions'})).toBeVisible()
   },
 }

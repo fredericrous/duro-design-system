@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 import {
   fitToContent,
   supportsFieldSizing,
@@ -63,5 +63,53 @@ describe('Textarea autoGrow fallback', () => {
     )
     expect(supportsFieldSizing({supports: () => false})).toBe(false)
     expect(supportsFieldSizing(undefined)).toBe(false)
+  })
+})
+
+describe('useAutoGrowFallback without field-sizing', () => {
+  it('grows an uncontrolled field on input, up to maxRows, then it scrolls', async () => {
+    vi.resetModules()
+    const effects: Array<() => void | (() => void)> = []
+    vi.doMock('react', () => ({
+      useLayoutEffect: (fn: () => void) => void effects.push(fn),
+      useEffect: (fn: () => void) => void effects.push(fn),
+    }))
+    vi.stubGlobal('CSS', {supports: () => false})
+    const {useAutoGrowFallback} = await import('../src/components/Textarea/useAutoGrowFallback')
+
+    const el = field({lines: 2, rows: 2, maxRows: 4}) as ReturnType<typeof field> & {
+      addEventListener: (type: string, fn: () => void) => void
+      removeEventListener: (type: string, fn: () => void) => void
+    }
+    const listeners = new Map<string, () => void>()
+    el.addEventListener = (type, fn) => void listeners.set(type, fn)
+    el.removeEventListener = (type) => void listeners.delete(type)
+    // the field is typed into: more lines, no re-render
+    let lines = 2
+    Object.defineProperty(el, 'scrollHeight', {get: () => lines * 20 + 16})
+    Object.defineProperty(el, 'offsetHeight', {
+      get() {
+        const natural = (el.style.height === 'auto' ? 2 : lines) * 20 + 16 + 2
+        return Math.min(natural, el.style.maxHeight)
+      },
+    })
+    Object.defineProperty(el, 'clientHeight', {get: () => el.offsetHeight - 2})
+
+    useAutoGrowFallback({current: el as unknown as HTMLTextAreaElement}, true)
+    effects.forEach((run) => run())
+    const visible = () => Math.min(parseInt(el.style.height), el.style.maxHeight)
+    expect(visible()).toBe(2 * 20 + 16 + 2)
+
+    lines = 3
+    listeners.get('input')!()
+    expect(visible()).toBe(3 * 20 + 16 + 2)
+
+    lines = 9
+    listeners.get('input')!()
+    expect(visible()).toBe(4 * 20 + 16 + 2)
+    expect(el.scrollHeight).toBeGreaterThan(el.clientHeight)
+
+    vi.doUnmock('react')
+    vi.unstubAllGlobals()
   })
 })

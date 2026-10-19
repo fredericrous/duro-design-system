@@ -73,6 +73,9 @@ export function VirtualList<T>({
   const firstKey = useRef<string | number | undefined>(undefined)
   const seenRow = useRef<{key: string | number; offset: number} | null>(null)
   const itemsRef = useRef(items)
+  // Latest getKey, so the effects below need not re-run when its identity changes.
+  const getKeyRef = useRef(getKey)
+  getKeyRef.current = getKey
   const readSeenRow = useCallback(() => {
     const el = scrollRef.current
     if (!el) return
@@ -82,25 +85,37 @@ export function VirtualList<T>({
       const index = Number(row.dataset.index)
       const item = itemsRef.current[index]
       if (rect.bottom > top && item !== undefined) {
-        seenRow.current = {key: getKey(item, index), offset: rect.top - top}
+        seenRow.current = {key: getKeyRef.current(item, index), offset: rect.top - top}
         return
       }
     }
-  }, [getKey])
+  }, [])
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
-    el.addEventListener('scroll', readSeenRow, {passive: true})
-    return () => el.removeEventListener('scroll', readSeenRow)
+    // Coalesce: at most one read per frame, however many scroll events fire.
+    let frame = 0
+    const onScroll = () => {
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        readSeenRow()
+      })
+    }
+    el.addEventListener('scroll', onScroll, {passive: true})
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+      if (frame) cancelAnimationFrame(frame)
+    }
   }, [readSeenRow])
   useLayoutEffect(() => {
     const el = scrollRef.current
     const previous = firstKey.current
-    firstKey.current = items.length > 0 ? getKey(items[0], 0) : undefined
+    firstKey.current = items.length > 0 ? getKeyRef.current(items[0], 0) : undefined
     itemsRef.current = items
     const kept = seenRow.current
     if (el && kept && previous !== undefined && previous !== firstKey.current) {
-      const at = items.findIndex((item, i) => getKey(item, i) === kept.key)
+      const at = items.findIndex((item, i) => getKeyRef.current(item, i) === kept.key)
       if (at >= 0) {
         const pin = () => {
           const start = virtualizer.measurementsCache[at]?.start
@@ -119,7 +134,8 @@ export function VirtualList<T>({
       }
     }
     readSeenRow()
-  })
+    // Runs when `items` changes; scrolling is read by the frame-coalesced listener.
+  }, [items, readSeenRow, virtualizer])
 
   useLayoutEffect(() => {
     if (anchor !== 'end' || items.length === 0 || !atBottom.current) return

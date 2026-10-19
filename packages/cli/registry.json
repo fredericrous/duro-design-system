@@ -1215,7 +1215,7 @@
           "type": "ReactNode"
         },
         {
-          "description": "The code's language (\"diff\", \"ts\"), exposed as `data-language` on the `pre`. `\"diff\"` also gives each added (`+`), removed (`-`) and hunk (`@@`) line its own colour; what is copied stays the raw text.",
+          "description": "The code's language (\"diff\", \"ts\"), exposed as `data-language` on the `pre`. `\"diff\"` also gives each added (`+`), removed (`-`) and hunk (`@@`) line its own colour; what is copied stays the raw text. Diff rendering works on the text content, so highlighted spans inside `children` are flattened to plain text. The language is a data attribute only: it is not announced to assistive technology.",
           "name": "language",
           "required": false,
           "type": "string"
@@ -5944,7 +5944,7 @@
             "Pane"
           ]
         },
-        "description": "Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. A controlled collapsed prop shrinks the first pane to a strip (the iconButton size), takes the Handle out of the tab order and the accessibility tree, and restores the prior width when it turns false; native ignores it. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.",
+        "description": "Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. A controlled collapsed prop shrinks the first pane to a strip (the iconButton size) that shows collapsedContent, removes the Handle, and keeps the first pane’s own children mounted but inert and hidden (state kept, no tab stops, out of the accessibility tree); the prior width returns when it turns false. Native ignores both. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.",
         "example": "<SplitPane.Root aria-label=\"Resize the session list\" minSize=\"sidebarW\" maxSize=\"panelLg\">\n  <SplitPane.Pane>\n    <List.Root aria-label=\"Sessions\">…</List.Root>\n  </SplitPane.Pane>\n  <SplitPane.Handle />\n  <SplitPane.Pane>\n    <Panel.Root>…</Panel.Root>\n  </SplitPane.Pane>\n</SplitPane.Root>",
         "relatedTo": [
           {
@@ -6044,10 +6044,16 @@
             },
             {
               "default": "false",
-              "description": "Controlled: shrink the primary pane to a strip (the `iconButton` size) and take the handle out of the tab order and the accessibility tree. When it turns false the pane returns to its prior width. Ignored when stacked.",
+              "description": "Controlled: shrink the primary pane to a strip (the `iconButton` size), show `collapsedContent` in it and remove the handle. The pane's own children stay mounted (their state is kept) but are inert and hidden. When it turns false the pane returns to its prior width. Ignored when stacked.",
               "name": "collapsed",
               "required": false,
               "type": "boolean"
+            },
+            {
+              "description": "What the strip shows while `collapsed` (an expand button, icons).",
+              "name": "collapsedContent",
+              "required": false,
+              "type": "ReactNode"
             },
             {
               "description": "The handle's accessible name (\"Resize list\").",
@@ -7502,7 +7508,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Multi-line text input with automatic Field/Form integration. Same Field binding behavior as Input. autoGrow makes the height follow the content from rows up to maxRows, then it scrolls (CSS field-sizing, with a scrollHeight fallback; native grows with the content and caps at maxRows). On web it forwards the props of Listbox.getAnchorProps() (role combobox, aria-controls, aria-expanded, aria-activedescendant) so a Listbox can be anchored to it while the editor keeps focus.",
+        "description": "Multi-line text input with automatic Field/Form integration. Same Field binding behavior as Input. autoGrow makes the height follow the content from rows up to maxRows, then it scrolls (CSS field-sizing, with a scrollHeight fallback; native grows with the content and caps at maxRows). The anchor props of Listbox.getAnchorProps() (role combobox, aria-controls, aria-expanded, aria-activedescendant) are forwarded as ARIA attributes on web and as the matching accessibility props on native, so a Listbox can be anchored to it while the editor keeps focus.",
         "example": "<Field.Root name=\"message\">\n  <Field.Label>Message</Field.Label>\n  <Textarea placeholder=\"Tell us what you think...\" rows={4} />\n  <Field.Description>At least 10 characters</Field.Description>\n  <Field.Error />\n</Field.Root>",
         "relatedTo": [
           {
@@ -8479,7 +8485,7 @@
           "optional": [],
           "required": []
         },
-        "description": "A windowed list on @tanstack/react-virtual: only the rows in view (plus overscan) are mounted, and rows are measured so they may differ in height. role=\"list\" with listitem rows carrying aria-setsize and aria-posinset. anchor=\"end\" opens at the last item and stays pinned to the bottom while new items arrive and the reader is at the bottom (a transcript, a log). It fills its parent, or stops at maxHeight. onStartReached fires once each time the reader scrolls to the start (load older history), and prepending items keeps the first visible row in place. On native it is a FlatList with the same props (maintainVisibleContentPosition for prepend).",
+        "description": "A windowed list on @tanstack/react-virtual: only the rows in view (plus overscan) are mounted, and rows are measured so they may differ in height. role=\"list\" with listitem rows carrying aria-setsize and aria-posinset. anchor=\"end\" opens at the last item and stays pinned to the bottom while new items arrive and the reader is at the bottom (a transcript, a log). It fills its parent, or stops at maxHeight. onStartReached fires once each time the reader scrolls to the start (load older history), and prepending items keeps the first visible row in place. On native it is a FlatList with the same props (role list; rows carry no listitem role, which React Native lacks) (maintainVisibleContentPosition for prepend).",
         "example": "<VirtualList\n  aria-label=\"Transcript\"\n  items={messages}\n  getKey={(m) => m.id}\n  estimateSize=\"controlLg\"\n  anchor=\"end\"\n  renderItem={(m) => <Text>{m.text}</Text>}\n/>",
         "relatedTo": [
           {
@@ -8544,7 +8550,7 @@
           "type": "'start' | 'end'"
         },
         {
-          "description": "Called once each time the reader scrolls to within a row's height of the start (load older history). It fires again only after they move away. Prepending items keeps the first visible row where it was on screen.",
+          "description": "Called once each time the reader scrolls to within 44px (touchTarget) of the start (load older history). It fires again only after they move away. Prepending items keeps the first visible row where it was on screen.",
           "name": "onStartReached",
           "required": false,
           "type": "() => void"
