@@ -44,8 +44,6 @@ export const styles = css.create({
   },
   // The primary pane's children wrapper, unstowed: it fills the pane.
   fill: {
-    display: 'flex',
-    flexDirection: 'column',
     height: '100%',
     minHeight: 0,
   },

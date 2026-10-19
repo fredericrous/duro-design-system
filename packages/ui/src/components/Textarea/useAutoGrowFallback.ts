@@ -1,10 +1,7 @@
 import {useEffect, useLayoutEffect, type RefObject} from 'react'
 import {fitToContent, supportsFieldSizing} from './autoGrow'
 
-/** `content`: the field sizes itself to its text; `fixed`: it keeps its `rows`. */
 import type {GrowMode} from './autoGrow'
-
-export type {GrowMode}
 
 /**
  * Where CSS field-sizing is missing, size the field to its content: after each

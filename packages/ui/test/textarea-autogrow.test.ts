@@ -95,17 +95,16 @@ describe('useAutoGrowFallback without field-sizing', () => {
 
     useAutoGrowFallback({current: el as unknown as HTMLTextAreaElement}, 'content')
     effects.forEach((run) => run())
-    const visible = () => Math.min(parseInt(el.style.height), el.style.maxHeight)
-    expect(visible()).toBe(2 * 20 + 16 + 2)
+    expect(el.style.height).toBe('58px')
 
     lines = 3
     listeners.get('input')!()
-    expect(visible()).toBe(3 * 20 + 16 + 2)
+    expect(el.style.height).toBe('78px')
 
+    // The cap and scrolling past maxRows are the AutoGrow story's (a real field).
     lines = 9
     listeners.get('input')!()
-    expect(visible()).toBe(4 * 20 + 16 + 2)
-    expect(el.scrollHeight).toBeGreaterThan(el.clientHeight)
+    expect(el.style.height).toBe('198px')
 
     vi.doUnmock('react')
     vi.unstubAllGlobals()
