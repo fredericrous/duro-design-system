@@ -10,6 +10,7 @@ import {List} from '../List/List'
 import {Panel} from '../Panel/Panel'
 import {Heading} from '../Heading/Heading'
 import {Text} from '../Text/Text'
+import {Input} from '../Input/Input'
 import {Button} from '../Button/Button'
 
 const meta: Meta = {
@@ -221,5 +222,59 @@ export const CollapsedShowsTheStrip: Story = {
     await waitFor(() => expect(primary.getBoundingClientRect().width).toBeCloseTo(widened, 0))
     await expect(separator()).toHaveAttribute('aria-valuenow', String(widened))
     await expect(canvas.getByRole('button', {name: 'Filter sessions'})).toBeVisible()
+
+    // the re-mounted handle resizes by keyboard again
+    const again = separator()!
+    again.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    await waitFor(() =>
+      expect(primary.getBoundingClientRect().width).toBeCloseTo(widened + SPACING_PX.md, 0),
+    )
+  },
+}
+
+function KeepsState() {
+  const [collapsed, setCollapsed] = useState(false)
+  return (
+    <>
+      <Button onClick={() => setCollapsed((c) => !c)}>Toggle sessions</Button>
+      <html.div style={frame.fill}>
+        <SplitPane.Root
+          aria-label="Resize the session list"
+          collapsed={collapsed}
+          collapsedContent={<Button>Expand sessions</Button>}
+        >
+          <SplitPane.Pane>
+            <Input aria-label="Search sessions" />
+          </SplitPane.Pane>
+          <SplitPane.Handle />
+          <SplitPane.Pane>
+            <Text>Detail</Text>
+          </SplitPane.Pane>
+        </SplitPane.Root>
+      </html.div>
+    </>
+  )
+}
+
+export const CollapseKeepsChildState: Story = {
+  render: () => <KeepsState />,
+  beforeEach: async () => {
+    await setViewport(1200, 800)
+  },
+  play: async ({canvas}) => {
+    const field = await canvas.findByRole('textbox', {name: 'Search sessions'})
+    await userEvent.type(field, 'auth')
+    await expect(field).toHaveValue('auth')
+
+    const toggle = canvas.getByRole('button', {name: 'Toggle sessions'})
+    await userEvent.click(toggle)
+    await waitFor(() => expect(separator()).toBeNull())
+    await userEvent.click(toggle)
+    await waitFor(() => expect(separator()).not.toBeNull())
+
+    const after = await canvas.findByRole('textbox', {name: 'Search sessions'})
+    await expect(after).toBe(field)
+    await expect(after).toHaveValue('auth')
   },
 }

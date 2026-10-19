@@ -130,6 +130,17 @@ function Pane({children}: {children: ReactNode}) {
   const {size, stacked, collapsed, collapsedContent, primaryId} = useSplitPane('Pane')
   const primary = useContext(PaneIndexContext) === 0
   const strip = primary && collapsed && !stacked
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  // `inert` takes the stowed children out of the tab order and the accessibility
+  // tree; set on the node because the strict-DOM element has no such prop.
+  useEffect(() => {
+    const el = bodyRef.current
+    if (!el) return
+    if (strip) el.setAttribute('inert', '')
+    else el.removeAttribute('inert')
+  }, [strip])
+
   return (
     <html.div
       id={primary ? primaryId : undefined}
@@ -144,24 +155,12 @@ function Pane({children}: {children: ReactNode}) {
         stacked && styles.stackedPane,
       ]}
     >
-      {strip ? (
-        <>
-          {collapsedContent}
-          <html.div ref={setInert} style={styles.stowed}>
-            {children}
-          </html.div>
-        </>
-      ) : (
-        children
-      )}
+      {strip ? collapsedContent : null}
+      <html.div ref={bodyRef} style={strip && styles.stowed}>
+        {children}
+      </html.div>
     </html.div>
   )
-}
-
-// `inert` takes the stowed children out of the tab order and the accessibility
-// tree; set on the node because the strict-DOM element has no such prop.
-function setInert(el: HTMLElement | null) {
-  el?.setAttribute('inert', '')
 }
 
 function Handle() {
@@ -195,7 +194,7 @@ function Handle() {
     }
     el.addEventListener('keydown', onKeyDown)
     return () => el.removeEventListener('keydown', onKeyDown)
-  }, [size, min, max, setSize, stacked])
+  }, [size, min, max, setSize, stacked, collapsed])
 
   if (stacked || collapsed) return null
   const active = hovered || keyboardFocus || dragging
