@@ -20,6 +20,8 @@ import {TextLink} from '../TextLink/TextLink'
 import {Aside} from '../Aside/Aside'
 import {Stack} from '../Stack/Stack'
 import {Prose} from '../Prose/Prose'
+import {SplitPane} from '../SplitPane/SplitPane'
+import {VirtualList} from '../VirtualList/VirtualList'
 
 // --- the story's frame -----------------------------------------------------
 
@@ -851,5 +853,71 @@ export const MenuButtonTouchTarget: Story = {
         SIZES_PX.touchTarget,
       )
     })
+  },
+}
+
+const ROWS = Array.from({length: 500}, (_, i) => ({id: i, text: `Message ${i + 1}`}))
+
+/**
+ * `scroll="main"`: an app, not a document. The shell is the viewport's height and Main scrolls on
+ * its own, so a SplitPane inside it fills Main and each pane scrolls by itself — here a 500-row
+ * VirtualList that mounts only the rows in view.
+ */
+export const ScrollMain: Story = {
+  render: () => (
+    <AppShell.Root
+      menuLabel="Menu"
+      closeLabel="Close navigation"
+      skipLabel="Skip to content"
+      brand={BRAND}
+      scroll="main"
+    >
+      <AppShell.Rail aria-label="Navigation">
+        <SideNav.Root value="/sessions">
+          <SideNav.Item value="/sessions">Sessions</SideNav.Item>
+        </SideNav.Root>
+      </AppShell.Rail>
+      <AppShell.Main>
+        <SplitPane.Root
+          aria-label="Resize the session list"
+          defaultSize="sidebarW"
+          minSize="sidebarW"
+          maxSize="panelLg"
+        >
+          <SplitPane.Pane>
+            <Text>Sessions</Text>
+          </SplitPane.Pane>
+          <SplitPane.Handle />
+          <SplitPane.Pane>
+            <VirtualList
+              aria-label="Transcript"
+              items={ROWS}
+              getKey={(row) => row.id}
+              estimateSize="controlLg"
+              anchor="end"
+              renderItem={(row) => <Text>{row.text}</Text>}
+            />
+          </SplitPane.Pane>
+        </SplitPane.Root>
+      </AppShell.Main>
+    </AppShell.Root>
+  ),
+}
+
+/** ScrollMain's checks: Main stays within the viewport and the list windows its rows. */
+export const ScrollMainBoundsMain: Story = {
+  ...ScrollMain,
+  tags: TEST_ONLY,
+  play: async () => {
+    const main = document.querySelector('main')!
+    const list = await waitFor(() => page().getByRole('list', {name: 'Transcript'}))
+    await waitFor(() =>
+      expect(list.querySelectorAll('[role="listitem"]').length).toBeGreaterThan(0),
+    )
+    await expect(main.getBoundingClientRect().bottom).toBeLessThanOrEqual(window.innerHeight)
+    await expect(list.querySelectorAll('[role="listitem"]').length).toBeLessThan(100)
+    await expect(list.scrollHeight).toBeGreaterThan(list.clientHeight)
+    // The document itself does not scroll: Main does.
+    await expect(document.documentElement.scrollHeight).toBeLessThanOrEqual(window.innerHeight)
   },
 }

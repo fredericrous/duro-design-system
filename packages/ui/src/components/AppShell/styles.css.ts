@@ -47,6 +47,10 @@ export const styles = css.create({
     backgroundColor: colors.bg,
     gridTemplateRows: 'auto 1fr',
   },
+  // scroll="main": the shell is the viewport, so Main's row has a definite height.
+  gridViewport: {
+    height: '100dvh',
+  },
   gridSm: {
     gridTemplateColumns: {default: 'minmax(0, 1fr)', [WIDE_SM]: RAIL_COLUMNS},
     gridTemplateAreas: {default: NARROW_AREAS, [WIDE_SM]: WIDE_AREAS},
@@ -203,6 +207,12 @@ export const styles = css.create({
     paddingBottom: spacing.lg,
     // Focused by the skip link: no ring on a region that is not a control.
     outlineStyle: 'none',
+  },
+  // scroll="main": Main is a bounded region that scrolls by itself, and a
+  // child that fills it (height 100%) gets that bound.
+  mainScrolls: {
+    minHeight: 0,
+    overflowY: 'auto',
   },
   mainSm: {
     paddingLeft: {default: spacing.md, [WIDE_SM]: spacing.lg},

@@ -39,6 +39,8 @@ import {styles} from './styles.css'
  * stop) focuses. */
 
 export type AppShellCollapse = 'sm' | 'md' | 'lg'
+/** `page`: the document scrolls (a docs site). `main`: the shell is the viewport, Main scrolls (an app). */
+export type AppShellScroll = 'page' | 'main'
 
 interface AppShellContextValue {
   open: boolean
@@ -46,6 +48,7 @@ interface AppShellContextValue {
   closeLabel: string
   brand: ReactNode
   collapseBelow: AppShellCollapse
+  scroll: AppShellScroll
   mainId: string
   mainRef: RefObject<HTMLElement | null>
 }
@@ -110,6 +113,13 @@ interface RootProps {
    */
   collapseBelow?: AppShellCollapse
   /**
+   * What scrolls. `page` (default): the document, a page that grows with its
+   * content. `main`: the shell is exactly the viewport's height and Main
+   * scrolls on its own, so a SplitPane or VirtualList inside it can fill Main
+   * and scroll its own panes (an app such as a chat or a mail client).
+   */
+  scroll?: AppShellScroll
+  /**
    * `AppShell.Rail`, `AppShell.Main` and an optional `AppShell.Header`, as
    * direct children (Root places the Header's content in its bar).
    */
@@ -122,6 +132,7 @@ function Root({
   skipLabel,
   brand,
   collapseBelow = 'sm',
+  scroll = 'page',
   children,
 }: RootProps) {
   const [open, setOpen] = useState(false)
@@ -165,8 +176,8 @@ function Root({
   }, [open])
 
   const value = useMemo(
-    () => ({open, setOpen, closeLabel, brand, collapseBelow, mainId, mainRef}),
-    [open, closeLabel, brand, collapseBelow, mainId],
+    () => ({open, setOpen, closeLabel, brand, collapseBelow, scroll, mainId, mainRef}),
+    [open, closeLabel, brand, collapseBelow, scroll, mainId],
   )
 
   // Focus Main itself (tabIndex -1), not just scroll to it, and leave the
@@ -179,7 +190,7 @@ function Root({
   return (
     <AppShellContext.Provider value={value}>
       <html.div ref={containerRef} style={styles.container}>
-        <html.div style={[styles.grid, variant.grid]}>
+        <html.div style={[styles.grid, variant.grid, scroll === 'main' && styles.gridViewport]}>
           <html.div style={styles.skip}>
             <TextLink href={`#${mainId}`} onNavigate={skip}>
               {skipLabel}
@@ -318,7 +329,7 @@ interface MainProps {
 }
 
 function Main({children, id, ref}: MainProps) {
-  const {mainId, mainRef, collapseBelow} = useAppShell()
+  const {mainId, mainRef, collapseBelow, scroll} = useAppShell()
   const setRef = useCallback(
     (node: HTMLElement | null) => {
       mainRef.current = node
@@ -332,7 +343,7 @@ function Main({children, id, ref}: MainProps) {
       ref={setRef}
       id={id ?? mainId}
       tabIndex={-1}
-      style={[styles.main, variants[collapseBelow].main]}
+      style={[styles.main, variants[collapseBelow].main, scroll === 'main' && styles.mainScrolls]}
     >
       {children}
     </html.main>

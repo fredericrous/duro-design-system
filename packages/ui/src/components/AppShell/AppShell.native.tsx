@@ -18,6 +18,7 @@ import {InLandmarkContext} from '../../shared/InLandmarkContext'
 import {nativeStyles} from './native.css'
 
 export type AppShellCollapse = 'sm' | 'md' | 'lg'
+export type AppShellScroll = 'page' | 'main'
 
 interface AppShellContextValue {
   open: boolean
@@ -47,6 +48,8 @@ interface RootProps {
   brand?: ReactNode
   /** Web only: a phone is below every breakpoint, so native always shows the bar and the drawer. */
   collapseBelow?: AppShellCollapse
+  /** Web only: native Main always fills the screen under the bar and its content scrolls itself. */
+  scroll?: AppShellScroll
   /** `AppShell.Rail`, `AppShell.Main` and an optional `AppShell.Header`, as direct children. */
   children: ReactNode
 }

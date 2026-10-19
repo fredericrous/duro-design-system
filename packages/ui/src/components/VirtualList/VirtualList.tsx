@@ -167,6 +167,8 @@ export function VirtualList<T>({
       ref={scrollRef}
       role="list"
       aria-label={ariaLabel}
+      // A scroll region the keyboard reaches even when no row holds a control.
+      tabIndex={0}
       style={[
         styles.scroller,
         maxHeight !== undefined && styles.scrollMax(resolveLength(maxHeight)),

@@ -13,6 +13,7 @@ export {Alert, type AlertVariant} from './components/Alert/Alert'
 export {
   AppShell,
   type AppShellCollapse,
+  type AppShellScroll,
   type AppShellRailState,
 } from './components/AppShell/AppShell'
 export {Aside} from './components/Aside/Aside'
