@@ -114,6 +114,7 @@ export function VirtualList<T>({
     firstKey.current = items.length > 0 ? getKeyRef.current(items[0], 0) : undefined
     itemsRef.current = items
     const kept = seenRow.current
+    let settleFrame = 0
     if (el && kept && previous !== undefined && previous !== firstKey.current) {
       const at = items.findIndex((item, i) => getKeyRef.current(item, i) === kept.key)
       if (at >= 0) {
@@ -126,11 +127,12 @@ export function VirtualList<T>({
         let frames = 0
         const settle = () => {
           pin()
-          if (frames++ < PIN_FRAMES) requestAnimationFrame(settle)
+          if (frames++ < PIN_FRAMES) settleFrame = requestAnimationFrame(settle)
           else readSeenRow()
         }
-        requestAnimationFrame(settle)
-        return
+        settleFrame = requestAnimationFrame(settle)
+        // A later prepend (or unmount) stops this loop, so it cannot re-pin a stale row.
+        return () => cancelAnimationFrame(settleFrame)
       }
     }
     readSeenRow()

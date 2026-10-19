@@ -164,6 +164,9 @@ export const StartReachedFiresOncePerApproach: StoryObj<{onStartReached: () => v
     const scrollTo = async (top: number) => {
       list.scrollTop = top
       await waitFor(() => expect(list.scrollTop).toBe(top))
+      // The scroll listener reads rows once per animation frame, so two scrollTop
+      // writes in one frame would lose the first offset: wait two frames.
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
     }
     await scrollTo(600)
     await expect(onStart).not.toHaveBeenCalled()

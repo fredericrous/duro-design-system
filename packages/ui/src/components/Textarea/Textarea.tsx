@@ -83,7 +83,7 @@ export function Textarea({
     },
     [effectiveRef],
   )
-  useAutoGrowFallback(innerRef, Boolean(autoGrow))
+  useAutoGrowFallback(innerRef, autoGrow ? 'content' : 'fixed')
 
   return (
     <html.textarea

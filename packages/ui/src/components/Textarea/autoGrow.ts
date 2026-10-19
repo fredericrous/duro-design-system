@@ -1,3 +1,6 @@
+/** How a Textarea sizes itself: to its content, or to its fixed rows. */
+export type GrowMode = 'content' | 'fixed'
+
 /**
  * Fallback for browsers without CSS `field-sizing: content`: size the field to
  * its content. The element's own `rows` give the floor, the style's maxHeight

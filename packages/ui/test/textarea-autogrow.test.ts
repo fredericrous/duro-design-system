@@ -48,13 +48,11 @@ describe('Textarea autoGrow fallback', () => {
     expect(el.style.height).toBe('118px')
   })
 
-  it('grows to maxRows, then the cap holds and the content scrolls', () => {
+  it('asks for the full content height past maxRows (the AutoGrow story covers the cap and scrolling)', () => {
     const el = field({lines: 12, rows: 3, maxRows: 6})
     fitToContent(el)
-    // the inline height asks for all 12 rows; the 6-row cap is what shows
-    expect(parseInt(el.style.height)).toBeGreaterThan(6 * 20 + 16 + 2)
-    expect(Math.min(parseInt(el.style.height), el.style.maxHeight)).toBe(6 * 20 + 16 + 2)
-    expect(el.scrollHeight).toBeGreaterThan(el.clientHeight)
+    // the inline height asks for all 12 rows; the cap is the AutoGrow story's to prove
+    expect(el.style.height).toBe('258px')
   })
 
   it('detects CSS field-sizing support', () => {
@@ -95,7 +93,7 @@ describe('useAutoGrowFallback without field-sizing', () => {
     })
     Object.defineProperty(el, 'clientHeight', {get: () => el.offsetHeight - 2})
 
-    useAutoGrowFallback({current: el as unknown as HTMLTextAreaElement}, true)
+    useAutoGrowFallback({current: el as unknown as HTMLTextAreaElement}, 'content')
     effects.forEach((run) => run())
     const visible = () => Math.min(parseInt(el.style.height), el.style.maxHeight)
     expect(visible()).toBe(2 * 20 + 16 + 2)

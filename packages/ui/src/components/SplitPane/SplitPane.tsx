@@ -156,9 +156,16 @@ function Pane({children}: {children: ReactNode}) {
       ]}
     >
       {strip ? collapsedContent : null}
-      <html.div ref={bodyRef} style={strip && styles.stowed}>
-        {children}
-      </html.div>
+      {primary ? (
+        // The wrapper exists for the primary pane only, to stow its children
+        // (inert) while collapsed; unstowed it fills the pane, so a child that
+        // takes the pane's height keeps scrolling on its own.
+        <html.div ref={bodyRef} style={strip ? styles.stowed : styles.fill}>
+          {children}
+        </html.div>
+      ) : (
+        children
+      )}
     </html.div>
   )
 }

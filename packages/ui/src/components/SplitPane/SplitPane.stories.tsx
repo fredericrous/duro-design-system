@@ -12,6 +12,7 @@ import {Heading} from '../Heading/Heading'
 import {Text} from '../Text/Text'
 import {Input} from '../Input/Input'
 import {Button} from '../Button/Button'
+import {VirtualList} from '../VirtualList/VirtualList'
 
 const meta: Meta = {
   title: 'Components/SplitPane',
@@ -276,5 +277,48 @@ export const CollapseKeepsChildState: Story = {
     const after = await canvas.findByRole('textbox', {name: 'Search sessions'})
     await expect(after).toBe(field)
     await expect(after).toHaveValue('auth')
+  },
+}
+
+const ROWS = Array.from({length: 500}, (_, i) => ({id: i, text: `Row ${i + 1}`}))
+
+const list = (name: string) => (
+  <VirtualList
+    aria-label={name}
+    items={ROWS}
+    getKey={(r) => r.id}
+    estimateSize="controlLg"
+    renderItem={(r) => <Text>{r.text}</Text>}
+  />
+)
+
+function ListsInEachPane() {
+  return (
+    <html.div style={frame.fill}>
+      <SplitPane.Root aria-label="Resize the lists">
+        <SplitPane.Pane>{list('Left')}</SplitPane.Pane>
+        <SplitPane.Handle />
+        <SplitPane.Pane>{list('Right')}</SplitPane.Pane>
+      </SplitPane.Root>
+    </html.div>
+  )
+}
+
+export const VirtualListsFillTheirPanes: Story = {
+  render: () => <ListsInEachPane />,
+  beforeEach: async () => {
+    await setViewport(1200, 800)
+  },
+  play: async ({canvas}) => {
+    // Each list sits in a pane that is a direct child of the split's root.
+    const root = (await canvas.findByRole('separator')).parentElement!
+    for (const name of ['Left', 'Right']) {
+      const list = await canvas.findByRole('list', {name})
+      let pane: HTMLElement = list
+      while (pane.parentElement !== root) pane = pane.parentElement!
+      await waitFor(() => expect(list.clientHeight).toBeGreaterThan(0))
+      await waitFor(() => expect(list.clientHeight).toBe(pane.clientHeight))
+      await expect(list.scrollHeight).toBeGreaterThan(list.clientHeight)
+    }
   },
 }

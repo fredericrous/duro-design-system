@@ -42,6 +42,13 @@ export const styles = css.create({
     visibility: 'hidden',
     pointerEvents: 'none',
   },
+  // The primary pane's children wrapper, unstowed: it fills the pane.
+  fill: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    minHeight: 0,
+  },
   primarySize: (px: number) => ({width: px}),
   secondary: {
     flexGrow: 1,
