@@ -73,6 +73,7 @@ export {SplitPane} from './components/SplitPane/SplitPane'
 export {
   AppShell,
   type AppShellCollapse,
+  type AppShellScroll,
   type AppShellRailState,
 } from './components/AppShell/AppShell'
 

@@ -190,7 +190,7 @@
             "Main"
           ]
         },
-        "description": "An application's frame: a navigation rail (a labelled nav, the brand at its top, an optional footer at its foot) beside the main content (main), with an optional Header. Below collapseBelow (sm default, md or lg), measured on the shell's own width, the rail is hidden and one sticky bar (a banner, appBarH tall) holds a Menu button that opens the same navigation in a left Drawer, the brand, and the Header's content when there is one — a shell without a Header still has its navigation on a phone. Above it the Header is a row that scrolls with the page and the rail stays sticky. CSS makes the switch: the server renders one HTML for every width with the brand in both places, and display: none hides the inactive copy, so nothing moves after hydration. A skip link (the first tab stop) focuses Main; an Aside inside Main sticks below the bar. Labels come from props. Compound component — Root is required. On React Native it is always the narrow shape: the bar below the status bar, Main under it, and the Rail in a left Drawer; there is no skip link.",
+        "description": "An application's frame: a navigation rail (a labelled nav, the brand at its top, an optional footer at its foot) beside the main content (main), with an optional Header. Below collapseBelow (sm default, md or lg), measured on the shell's own width, the rail is hidden and one sticky bar (a banner, appBarH tall) holds a Menu button that opens the same navigation in a left Drawer, the brand, and the Header's content when there is one — a shell without a Header still has its navigation on a phone. Above it the Header is a row that scrolls with the page and the rail stays sticky. CSS makes the switch: the server renders one HTML for every width with the brand in both places, and display: none hides the inactive copy, so nothing moves after hydration. A skip link (the first tab stop) focuses Main; an Aside inside Main sticks below the bar. Labels come from props. Compound component — Root is required. On React Native it is always the narrow shape: the bar below the status bar, Main under it, and the Rail in a left Drawer; there is no skip link. scroll=\"main\" makes it an app frame rather than a page: the shell is the viewport's height and Main scrolls on its own, so a SplitPane or VirtualList inside it fills Main and scrolls its own panes.",
         "example": "<AppShell.Root\n  menuLabel=\"Menu\"\n  closeLabel=\"Close navigation\"\n  skipLabel=\"Skip to content\"\n  brand={<TextLink href=\"/\">Acme</TextLink>}\n  collapseBelow=\"md\"\n>\n  <AppShell.Rail aria-label=\"Navigation\" footer={<Text variant=\"bodySm\">{user.name}</Text>}>\n    {({close}) => (\n      <SideNav.Root value={pathname} onValueChange={(v) => { close(); navigate(v) }}>\n        <SideNav.Item value=\"/docs\">Docs</SideNav.Item>\n      </SideNav.Root>\n    )}\n  </AppShell.Rail>\n  <AppShell.Header>{search}</AppShell.Header>\n  <AppShell.Main>{children}</AppShell.Main>\n</AppShell.Root>",
         "relatedTo": [
           {
@@ -323,6 +323,17 @@
                 "sm",
                 "md",
                 "lg"
+              ]
+            },
+            {
+              "default": "'page'",
+              "description": "What scrolls. `page` (default): the document, a page that grows with its content. `main`: the shell is exactly the viewport's height and Main scrolls on its own, so a SplitPane or VirtualList inside it can fill Main and scroll its own panes (an app such as a chat or a mail client).",
+              "name": "scroll",
+              "required": false,
+              "type": "AppShellScroll",
+              "union": [
+                "page",
+                "main"
               ]
             },
             {
@@ -8485,7 +8496,7 @@
           "optional": [],
           "required": []
         },
-        "description": "A windowed list on @tanstack/react-virtual: only the rows in view (plus overscan) are mounted, and rows are measured so they may differ in height. role=\"list\" with listitem rows carrying aria-setsize and aria-posinset. anchor=\"end\" opens at the last item and stays pinned to the bottom while new items arrive and the reader is at the bottom (a transcript, a log). It fills its parent, or stops at maxHeight. onStartReached fires once each time the reader scrolls to the start (load older history), and prepending items keeps the first visible row in place. On native it is a FlatList with the same props (role list; rows carry no listitem role, which React Native lacks) (maintainVisibleContentPosition for prepend).",
+        "description": "A windowed list on @tanstack/react-virtual: only the rows in view (plus overscan) are mounted, and rows are measured so they may differ in height. role=\"list\" with listitem rows carrying aria-setsize and aria-posinset. anchor=\"end\" opens at the last item and stays pinned to the bottom while new items arrive and the reader is at the bottom (a transcript, a log). It fills its parent, or stops at maxHeight. onStartReached fires once each time the reader scrolls to the start (load older history), and prepending items keeps the first visible row in place. On native it is a FlatList with the same props (role list; rows carry no listitem role, which React Native lacks) (maintainVisibleContentPosition for prepend). The scroll region is a tab stop with a focus ring, so the keyboard can scroll rows that hold no control.",
         "example": "<VirtualList\n  aria-label=\"Transcript\"\n  items={messages}\n  getKey={(m) => m.id}\n  estimateSize=\"controlLg\"\n  anchor=\"end\"\n  renderItem={(m) => <Text>{m.text}</Text>}\n/>",
         "relatedTo": [
           {
@@ -10965,6 +10976,10 @@
       "sm",
       "md",
       "lg"
+    ],
+    "AppShellScroll": [
+      "page",
+      "main"
     ],
     "BadgeSize": [
       "sm",

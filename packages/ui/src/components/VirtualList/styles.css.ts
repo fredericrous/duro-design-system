@@ -1,4 +1,6 @@
 import {css} from 'react-strict-dom'
+import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {borders} from '@duro-app/tokens/tokens/borders.css'
 
 export const styles = css.create({
   // The scroll container: it fills its parent (a pane, a flex column) by
@@ -10,6 +12,11 @@ export const styles = css.create({
     minHeight: 0,
     overflowY: 'auto',
     overscrollBehavior: 'contain',
+    // Focusable so the keyboard can scroll rows that hold no control (WCAG 2.1.1).
+    outlineWidth: {default: 0, ':focus-visible': borders.focusRing},
+    outlineStyle: {default: 'none', ':focus-visible': 'solid'},
+    outlineColor: {default: 'transparent', ':focus-visible': colors.accent},
+    outlineOffset: {default: 0, ':focus-visible': `calc(-1 * ${borders.focusRing})`},
   },
   scrollMax: (maxHeight: number | string) => ({
     height: 'auto',
