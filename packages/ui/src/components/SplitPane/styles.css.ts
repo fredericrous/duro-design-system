@@ -29,9 +29,18 @@ export const styles = css.create({
     overflow: 'auto',
   },
   // Collapsed: only a strip is left, so nothing spills out of it.
+  // Its content is centred under a top inset, and a hairline stands in for the
+  // handle it no longer has.
   primaryStrip: {
     position: 'relative',
     overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingTop: spacing.sm,
+    borderRightWidth: borders.hairline,
+    borderRightStyle: 'solid',
+    borderRightColor: colors.border,
   },
   // The collapsed pane's own children: mounted, so their state is kept, but
   // out of sight, out of the tab order (with `inert`) and unclickable.

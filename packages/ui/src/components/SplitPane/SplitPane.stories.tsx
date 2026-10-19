@@ -12,6 +12,7 @@ import {Heading} from '../Heading/Heading'
 import {Text} from '../Text/Text'
 import {Input} from '../Input/Input'
 import {Button} from '../Button/Button'
+import {Icon} from '../Icon/Icon'
 import {VirtualList} from '../VirtualList/VirtualList'
 
 const meta: Meta = {
@@ -165,9 +166,30 @@ function Collapsible() {
   return (
     <>
       <Button onClick={() => setCollapsed((c) => !c)}>Toggle sessions</Button>
-      <Split collapsed={collapsed} collapsedContent={<Button>Expand sessions</Button>} />
+      <Split
+        collapsed={collapsed}
+        collapsedContent={
+          // As in the Focus artboard: an icon button that fits the strip.
+          <Button
+            variant="secondary"
+            size="small"
+            aria-label="Expand sessions"
+            onClick={() => setCollapsed(false)}
+          >
+            <Icon name="menu" size="sm" />
+          </Button>
+        }
+      />
     </>
   )
+}
+
+/**
+ * `collapsed`: the first pane shrinks to a strip holding `collapsedContent`, the
+ * handle goes away, and expanding restores the width it had.
+ */
+export const Collapsed: Story = {
+  render: () => <Collapsible />,
 }
 
 export const CollapsedShowsTheStrip: Story = {
@@ -243,7 +265,11 @@ function KeepsState() {
         <SplitPane.Root
           aria-label="Resize the session list"
           collapsed={collapsed}
-          collapsedContent={<Button>Expand sessions</Button>}
+          collapsedContent={
+            <Button variant="secondary" size="small" aria-label="Expand sessions">
+              <Icon name="menu" size="sm" />
+            </Button>
+          }
         >
           <SplitPane.Pane>
             <Input aria-label="Search sessions" />
