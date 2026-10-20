@@ -34,6 +34,7 @@ interface SplitArgs {
   maxSize: SizeToken
   collapseBelow: Breakpoint
   onSizeChange?: (px: number) => void
+  onSizeCommit?: (px: number) => void
   collapsed?: boolean
   collapsedContent?: ReactNode
 }
@@ -50,11 +51,19 @@ const PANE_SIZES: SizeToken[] = ['sidebarW', 'panelSm', 'panelMd', 'panelLg']
 
 /** The picked B0 direction (docs/mockups/split-pane/Hairline.dc.html). */
 function Split(props: Partial<SplitArgs>) {
-  const {defaultSize, minSize, maxSize, collapseBelow, onSizeChange, collapsed, collapsedContent} =
-    {
-      ...DEFAULT_ARGS,
-      ...props,
-    }
+  const {
+    defaultSize,
+    minSize,
+    maxSize,
+    collapseBelow,
+    onSizeChange,
+    onSizeCommit,
+    collapsed,
+    collapsedContent,
+  } = {
+    ...DEFAULT_ARGS,
+    ...props,
+  }
   return (
     <html.div style={frame.fill}>
       <SplitPane.Root
@@ -64,6 +73,7 @@ function Split(props: Partial<SplitArgs>) {
         maxSize={maxSize}
         collapseBelow={collapseBelow}
         onSizeChange={onSizeChange}
+        onSizeCommit={onSizeCommit}
         collapsed={collapsed}
         collapsedContent={collapsedContent}
       >
@@ -142,6 +152,38 @@ export const KeyboardMovesTheSeparator: Story = {
 
     await userEvent.keyboard('{Home}')
     await expect(handle).toHaveAttribute('aria-valuenow', String(SIZES_PX.sidebarW))
+  },
+}
+
+// A drag reports every width while it moves and the final one once, on release;
+// a keyboard step is its own commit. An app persists the width on commit.
+export const ResizeCommitsOnceWhenItEnds: StoryObj<SplitArgs> = {
+  args: {onSizeChange: fn(), onSizeCommit: fn()},
+  render: (args) => <Split {...args} />,
+  beforeEach: async () => {
+    await setViewport(1200, 800)
+  },
+  play: async ({args}) => {
+    await waitFor(() => expect(separator()).not.toBeNull())
+    const handle = separator()!
+    const box = handle.getBoundingClientRect()
+    const x = box.left + box.width / 2
+    const y = box.top + box.height / 2
+    await userEvent.pointer([
+      {keys: '[MouseLeft>]', target: handle, coords: {clientX: x, clientY: y}},
+      {target: handle, coords: {clientX: x + 20, clientY: y}},
+      {target: handle, coords: {clientX: x + 40, clientY: y}},
+      {keys: '[/MouseLeft]', target: handle, coords: {clientX: x + 40, clientY: y}},
+    ])
+    // two widths while it moved, one commit when it was released
+    await expect(args.onSizeChange).toHaveBeenCalledTimes(2)
+    await expect(args.onSizeCommit).toHaveBeenCalledTimes(1)
+    await expect(args.onSizeCommit).toHaveBeenLastCalledWith(SIZES_PX.sidebarW + 40)
+
+    handle.focus()
+    await userEvent.keyboard('{ArrowLeft}')
+    await expect(args.onSizeCommit).toHaveBeenCalledTimes(2)
+    await expect(args.onSizeCommit).toHaveBeenLastCalledWith(SIZES_PX.sidebarW + 40 - SPACING_PX.md)
   },
 }
 

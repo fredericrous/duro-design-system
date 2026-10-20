@@ -124,6 +124,10 @@ export const styles = css.create({
   hidden: {
     display: 'none',
   },
+  // Open but not yet placed: laid out (so its height can be measured) and unseen.
+  measuring: {
+    visibility: 'hidden',
+  },
   // Popup's `empty`: no items to choose from.
   empty: {
     paddingTop: spacing.md,

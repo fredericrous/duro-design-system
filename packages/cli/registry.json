@@ -5576,7 +5576,7 @@
             "Item"
           ]
         },
-        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size=\"small\" to match small Toggles and Buttons in a toolbar. Select.Popup takes label (the list's accessible name) and empty (shown in place of the list when it has no items). On React Native the trigger opens a bottom sheet (a Drawer at the medium and large detents) titled by label, with a Cancel text button (cancelLabel); the chosen option is filled with a trailing check, and a press picks an option and closes the sheet. Native has no arrow keys: each option is its own screen-reader stop.",
+        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size=\"small\" to match small Toggles and Buttons in a toolbar. Select.Popup takes label (the list's accessible name) and empty (shown in place of the list when it has no items). On the web the list opens below the trigger, or above it when it would overflow the viewport below and fits above. On React Native the trigger opens a bottom sheet (a Drawer at the medium and large detents) titled by label, with a Cancel text button (cancelLabel); the chosen option is filled with a trailing check, and a press picks an option and closes the sheet. Native has no arrow keys: each option is its own screen-reader stop.",
         "example": "<Select.Root name=\"role\" defaultValue=\"viewer\">\n  <Select.Trigger>\n    <Select.Value placeholder=\"Select role\" />\n    <Select.Icon />\n  </Select.Trigger>\n  <Select.Popup>\n    <Select.Item value=\"admin\">Admin</Select.Item>\n    <Select.Item value=\"editor\">Editor</Select.Item>\n    <Select.Item value=\"viewer\">Viewer</Select.Item>\n  </Select.Popup>\n</Select.Root>",
         "relatedTo": [
           {
@@ -5955,7 +5955,7 @@
             "Pane"
           ]
         },
-        "description": "Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. A controlled collapsed prop shrinks the first pane to a strip (the iconButton size) that shows collapsedContent, removes the Handle, and keeps the first pane’s own children mounted but inert and hidden (state kept, no tab stops, out of the accessibility tree); the prior width returns when it turns false. Native ignores both. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.",
+        "description": "Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest. Min, max and starting widths are size tokens. onSizeChange reports every width while the handle moves; onSizeCommit reports the width once a resize ends (a released drag, each keyboard step), the moment to persist it. Below collapseBelow, measured on its own width, the panes stack in one column and the handle goes; on native they always stack. A controlled collapsed prop shrinks the first pane to a strip (the iconButton size) that shows collapsedContent, removes the Handle, and keeps the first pane’s own children mounted but inert and hidden (state kept, no tab stops, out of the accessibility tree); the prior width returns when it turns false. Native ignores both. The Handle is a hairline that thickens to the accent on hover, keyboard focus or drag.",
         "example": "<SplitPane.Root aria-label=\"Resize the session list\" minSize=\"sidebarW\" maxSize=\"panelLg\">\n  <SplitPane.Pane>\n    <List.Root aria-label=\"Sessions\">…</List.Root>\n  </SplitPane.Pane>\n  <SplitPane.Handle />\n  <SplitPane.Pane>\n    <Panel.Root>…</Panel.Root>\n  </SplitPane.Pane>\n</SplitPane.Root>",
         "relatedTo": [
           {
@@ -6022,6 +6022,12 @@
             {
               "description": "Called with the primary pane's new width while the handle moves",
               "name": "onSizeChange",
+              "required": false,
+              "type": "(px: number) => void"
+            },
+            {
+              "description": "Called once a resize ends, with the width it ended at: when a drag is released (or cancelled) and after each keyboard step. Persist the width here rather than on every `onSizeChange`.",
+              "name": "onSizeCommit",
               "required": false,
               "type": "(px: number) => void"
             },
