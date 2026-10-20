@@ -29,6 +29,7 @@ export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 
 // Text and layout
 export {CodeBlock, type CodeBlockProps} from './components/CodeBlock/CodeBlock'
+export type {CodeBlockLineAction, DiffLineInfo} from './components/CodeBlock/types'
 export {Prose} from './components/Prose/Prose'
 export {Toolbar, type ToolbarProps} from './components/Toolbar/Toolbar'
 

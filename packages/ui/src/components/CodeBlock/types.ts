@@ -1,4 +1,16 @@
 import type {ReactNode} from 'react'
+import type {DiffLineInfo} from './diffRoles'
+
+export type {DiffLineInfo} from './diffRoles'
+
+/** An action offered on diff lines (comment on a line, link to it). */
+export interface CodeBlockLineAction {
+  /** The button's accessible name for a line ("Comment on line 12"), from your text catalog. */
+  label: (line: DiffLineInfo) => string
+  onAction: (line: DiffLineInfo) => void
+  /** Which lines offer it. Default: every line inside a hunk (one with a line number). */
+  available?: (line: DiffLineInfo) => boolean
+}
 
 export interface CodeBlockProps {
   /**
@@ -26,4 +38,16 @@ export interface CodeBlockProps {
   copiedDuration?: number
   /** Called when the clipboard refuses the write (an insecure context, a denied permission). */
   onCopyError?: (error: unknown) => void
+  /**
+   * With `language="diff"`: a button in a gutter beside each line it is
+   * available on. The gutter is one tab stop; Up and Down move between its
+   * buttons.
+   */
+  lineAction?: CodeBlockLineAction
+  /**
+   * With `language="diff"`: content shown under a line, full width (a comment
+   * thread, an editor). Return null for lines with nothing under them. What
+   * is copied stays the diff text.
+   */
+  renderAfterLine?: (line: DiffLineInfo) => ReactNode
 }

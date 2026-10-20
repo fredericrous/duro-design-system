@@ -2,6 +2,9 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, spyOn, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {CodeBlock} from './CodeBlock'
+import type {DiffLineInfo} from './diffRoles'
+import {Card} from '../Card/Card'
+import {Text} from '../Text/Text'
 import {onThemeSurface} from '../../docs/themedSurface'
 import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 import {SIZES_PX} from '@duro-app/tokens/keys'
@@ -244,3 +247,98 @@ export const DiffChecks: Story = {
     }
   },
 }
+
+const REVIEW_DIFF = `@@ -10,3 +10,4 @@
+ export function guard(req, res) {
+-  const token = req.headers.authorization
++  const token = readBearer(req.headers.authorization)
++  if (!token) return unauthorized(res, 'missing_token')
+`
+
+// A removed line exists only in the old file: its name says so, so no two buttons share one.
+const commentOn = (line: DiffLineInfo) =>
+  line.role === 'removed'
+    ? `Comment on old line ${line.oldLine}`
+    : `Comment on line ${line.newLine}`
+
+/**
+ * `lineAction` puts a button beside each line inside a hunk (a review
+ * comment, say), and `renderAfterLine` shows content under a line, full
+ * width. The gutter is one tab stop: Up and Down move between its buttons.
+ */
+export const DiffLineActions: Story = {
+  args: {code: REVIEW_DIFF},
+  render: ({code, ...args}) => (
+    <CodeBlock
+      {...args}
+      language="diff"
+      lineAction={{label: commentOn, onAction: fn()}}
+      renderAfterLine={(line) =>
+        line.newLine === 11 ? (
+          <Card variant="outlined" size="compact">
+            <Text variant="bodySm">Keep the 401 status text: clients read it.</Text>
+          </Card>
+        ) : null
+      }
+    >
+      <html.code>{code}</html.code>
+    </CodeBlock>
+  ),
+}
+
+/** DiffLineActions' checks: one tab stop, arrows move, the line handed over is numbered, copy keeps the diff. */
+export const DiffLineActionsChecks: Story = {
+  ...DiffLineActions,
+  tags: TEST_ONLY,
+  args: {code: REVIEW_DIFF, onCopyError: fn()},
+  render: ({code, ...args}) => {
+    const onAction = onLineAction
+    return (
+      <CodeBlock
+        {...args}
+        language="diff"
+        lineAction={{label: commentOn, onAction}}
+        renderAfterLine={(line) =>
+          line.newLine === 11 ? <Text variant="bodySm">Saved comment</Text> : null
+        }
+      >
+        <html.code>{code}</html.code>
+      </CodeBlock>
+    )
+  },
+  play: async ({args, canvas, canvasElement, userEvent}) => {
+    onLineAction.mockClear()
+    const lineButtons = canvas.getAllByRole('button', {name: /^Comment on/})
+    // The hunk header has no line number, so no button: four lines, four buttons.
+    await expect(lineButtons).toHaveLength(4)
+    await expect(lineButtons.filter((button) => button.tabIndex === 0)).toHaveLength(1)
+
+    lineButtons[0].focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(canvas.getByRole('button', {name: 'Comment on old line 11'})).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
+    await expect(onLineAction).toHaveBeenCalledWith(
+      expect.objectContaining({role: 'removed', oldLine: 11, newLine: null}),
+    )
+
+    await userEvent.click(canvas.getByRole('button', {name: 'Comment on line 12'}))
+    await expect(onLineAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({role: 'added', oldLine: null, newLine: 12}),
+    )
+
+    // Content under a line comes right after that line's row.
+    const saved = canvas.getByText('Saved comment')
+    const row = canvasElement.querySelector('[data-diff-line="added"]')!
+    await expect(row.compareDocumentPosition(saved) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+    const write = spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
+    try {
+      await userEvent.click(canvas.getByRole('button', {name: args.copyLabel}))
+      await expect(write).toHaveBeenCalledWith(args.code)
+    } finally {
+      write.mockRestore()
+    }
+  },
+}
+
+const onLineAction = fn()

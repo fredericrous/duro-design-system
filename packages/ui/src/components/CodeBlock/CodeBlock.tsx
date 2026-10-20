@@ -6,6 +6,7 @@ import {typePresets} from '@duro-app/tokens/tokens/type-presets.css'
 import {styles} from './styles.css'
 import type {CodeBlockProps} from './types'
 import {DiffLines} from './DiffLines'
+import {DiffRows} from './DiffRows'
 import {textOf} from './diffRoles'
 
 export type {CodeBlockProps} from './types'
@@ -24,7 +25,11 @@ export function CodeBlock({
   copiedLabel,
   copiedDuration = 2000,
   onCopyError,
+  lineAction,
+  renderAfterLine,
 }: CodeBlockProps) {
+  // Lines that carry an action or content under them are rows, not text in a pre.
+  const asRows = language === 'diff' && (lineAction !== undefined || renderAfterLine !== undefined)
   const preRef = useRef<HTMLPreElement | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [copied, setCopied] = useState(false)
@@ -51,7 +56,10 @@ export function CodeBlock({
 
   const copy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(preRef.current?.textContent ?? '')
+      // Rows hold buttons and comments: what is copied is still the diff text.
+      await navigator.clipboard.writeText(
+        asRows ? textOf(children) : (preRef.current?.textContent ?? ''),
+      )
     } catch (error) {
       // Never dropped: without a handler the failure still reaches the console.
       if (onCopyError) onCopyError(error)
@@ -64,7 +72,7 @@ export function CodeBlock({
       timerRef.current = null
       setCopied(false)
     }, copiedDuration)
-  }, [copiedDuration, onCopyError])
+  }, [asRows, children, copiedDuration, onCopyError])
 
   return (
     <html.div style={styles.root}>
@@ -73,14 +81,24 @@ export function CodeBlock({
           {copied ? copiedLabel : copyLabel}
         </Button>
       </html.div>
-      <html.pre
-        ref={preRef}
-        tabIndex={scrollable ? 0 : undefined}
-        data-language={language}
-        style={[typePresets.code, styles.pre]}
-      >
-        {language === 'diff' ? <DiffLines text={textOf(children)} /> : children}
-      </html.pre>
+      {asRows ? (
+        <html.div data-language={language} style={[typePresets.code, styles.rows]}>
+          <DiffRows
+            text={textOf(children)}
+            lineAction={lineAction}
+            renderAfterLine={renderAfterLine}
+          />
+        </html.div>
+      ) : (
+        <html.pre
+          ref={preRef}
+          tabIndex={scrollable ? 0 : undefined}
+          data-language={language}
+          style={[typePresets.code, styles.pre]}
+        >
+          {language === 'diff' ? <DiffLines text={textOf(children)} /> : children}
+        </html.pre>
+      )}
       <LiveRegion visuallyHidden>{copied ? copiedLabel : ''}</LiveRegion>
     </html.div>
   )

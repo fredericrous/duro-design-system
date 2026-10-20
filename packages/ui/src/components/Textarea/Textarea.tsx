@@ -3,6 +3,7 @@ import {html} from 'react-strict-dom'
 import {useFieldContext} from '../Field/FieldContext'
 import type {ListboxAnchorProps} from '../Listbox/Listbox'
 import {useAutoGrowFallback} from './useAutoGrowFallback'
+import {useFileDrop} from './useFileDrop'
 import {grow} from './grow'
 import {styles} from './styles.css'
 
@@ -39,6 +40,12 @@ interface TextareaBaseProps {
    *  navigation of a list driven by this field. */
   onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
   onKeyUp?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
+  /**
+   * Web: files pasted into the field or dropped on it (a screenshot, a log).
+   * The field shows the drop ring while files are dragged over it. Text
+   * pastes and drops stay text. Native: never called; attach with FileTrigger.
+   */
+  onFiles?: (files: readonly File[]) => void
   ref?: React.Ref<HTMLTextAreaElement>
 }
 
@@ -65,6 +72,7 @@ export function Textarea({
   onFocus,
   onKeyDown,
   onKeyUp,
+  onFiles,
   ref,
 }: TextareaProps) {
   const ctx = useFieldContext()
@@ -92,6 +100,17 @@ export function Textarea({
     [effectiveRef],
   )
   useAutoGrowFallback(innerRef, autoGrow ? 'content' : 'fixed')
+  const dropOver = useFileDrop(innerRef, onFiles)
+  const onPaste = onFiles
+    ? // Structural: the native build (no DOM lib) types this file too; only the web pastes files.
+      (event: {clipboardData?: {files?: ArrayLike<File>} | null; preventDefault: () => void}) => {
+        const files = Array.from(event.clipboardData?.files ?? [])
+        if (files.length === 0) return
+        // Files only: the field keeps no file name as text.
+        event.preventDefault()
+        onFiles(files)
+      }
+    : undefined
 
   return (
     <html.textarea
@@ -112,6 +131,7 @@ export function Textarea({
       onFocus={onFocus as StrictTextareaProps['onFocus']}
       onKeyDown={onKeyDown as StrictTextareaProps['onKeyDown']}
       onKeyUp={onKeyUp as StrictTextareaProps['onKeyUp']}
+      onPaste={onPaste as StrictTextareaProps['onPaste']}
       role={role}
       aria-controls={ariaControls}
       aria-expanded={ariaExpanded}
@@ -124,6 +144,7 @@ export function Textarea({
         styles[effectiveVariant],
         autoGrow && grow.autoGrow,
         autoGrow && maxRows !== undefined && grow.maxRows(maxRows),
+        dropOver && styles.dropOver,
       ]}
       {...extraProps}
     />
