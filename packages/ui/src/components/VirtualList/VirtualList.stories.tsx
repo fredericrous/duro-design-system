@@ -263,3 +263,65 @@ export const ShortListDoesNotLoopOnFreshArrays: StoryObj<{onStartReached: () => 
     await expect(args.onStartReached).toHaveBeenCalledTimes(1)
   },
 }
+
+/** A link to one message: the list opens anchored to the end, then centres that message. */
+function JumpTo({target}: {target: number | null}) {
+  return (
+    <VirtualList
+      aria-label="Transcript"
+      items={ITEMS}
+      getKey={(m) => m.id}
+      estimateSize="controlLg"
+      anchor="end"
+      scrollToKey={target}
+      maxHeight="previewMaxH"
+      renderItem={(m) => <Text>{m.text}</Text>}
+    />
+  )
+}
+
+export const ScrollToKeyCentresTheItem: Story = {
+  render: () => <JumpTo target={4_200} />,
+  play: async ({canvas}) => {
+    const list = canvas.getByRole('list', {name: 'Transcript'})
+    const row = await waitFor(() => canvas.getByText('Message 4201'))
+    const listBox = list.getBoundingClientRect()
+    const rowBox = row.getBoundingClientRect()
+    await expect(rowBox.top).toBeGreaterThanOrEqual(listBox.top)
+    await expect(rowBox.bottom).toBeLessThanOrEqual(listBox.bottom)
+    // It stays there: anchor="end" does not pull it back to the last message.
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+    await expect(canvas.queryByText('Message 10000')).toBeNull()
+  },
+}
+
+export const EndReachedFiresOncePerApproach: StoryObj<{onEndReached: () => void}> = {
+  args: {onEndReached: fn()},
+  render: (args) => (
+    <VirtualList
+      aria-label="Transcript"
+      items={ITEMS.slice(0, 200)}
+      getKey={(m) => m.id}
+      estimateSize="controlLg"
+      onEndReached={args.onEndReached}
+      maxHeight="previewMaxH"
+      renderItem={(m) => <Text>{m.text}</Text>}
+    />
+  ),
+  play: async ({canvas, args}) => {
+    const list = canvas.getByRole('list', {name: 'Transcript'})
+    await waitFor(() => expect(canvas.getAllByRole('listitem').length).toBeGreaterThan(0))
+    const scrollTo = async (top: number) => {
+      list.scrollTop = top
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+    }
+    await expect(args.onEndReached).not.toHaveBeenCalled()
+    await scrollTo(list.scrollHeight)
+    await waitFor(() => expect(args.onEndReached).toHaveBeenCalledTimes(1))
+    await scrollTo(list.scrollHeight)
+    await expect(args.onEndReached).toHaveBeenCalledTimes(1)
+    await scrollTo(0)
+    await scrollTo(list.scrollHeight)
+    await waitFor(() => expect(args.onEndReached).toHaveBeenCalledTimes(2))
+  },
+}

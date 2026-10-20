@@ -24,6 +24,19 @@ export interface VirtualListProps<T> {
    * Prepending items keeps the first visible row where it was on screen.
    */
   onStartReached?: () => void
+  /**
+   * Called once each time the reader scrolls to within 44px (touchTarget) of the
+   * end (load newer items, as in a window opened on an older point). It fires
+   * again only after they move away.
+   */
+  onEndReached?: () => void
+  /**
+   * Bring this item into view, centred, each time the key changes to an item in
+   * the list (a link to one message). A key not in the list yet waits for the
+   * items that hold it; `null` or `undefined` does nothing. While it applies,
+   * `anchor="end"` stops following the end.
+   */
+  scrollToKey?: string | number | null
   /** Cap the list's height; without it, it fills its parent. */
   maxHeight?: Length
   /** The list's accessible name. */
