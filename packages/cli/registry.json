@@ -1193,7 +1193,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion. Labels come from props. With language=\"diff\", added, removed and hunk lines are coloured from tokens. On native the text is selectable and scrolls sideways; there is no copy button.",
+        "description": "A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion. Labels come from props. With language=\"diff\", added, removed and hunk lines are coloured from tokens. On native the text is selectable and scrolls sideways; there is no copy button. A diff can carry a lineAction (a button beside each line inside a hunk, one tab stop, Up and Down between them; the line handed over has its old and new line numbers) and renderAfterLine (content under a line, full width: a review comment, an editor); the copied text stays the diff.",
         "example": "<CodeBlock copyLabel=\"Copy\" copiedLabel=\"Copied\">\n  <code>pnpm add @duro-app/ui</code>\n</CodeBlock>",
         "relatedTo": [
           {
@@ -1213,7 +1213,8 @@
         ],
         "whenToUse": [
           "Code or a command the reader is likely to paste: a docs page, an install step",
-          "A Markdown renderer's pre, inside Prose"
+          "A Markdown renderer's pre, inside Prose",
+          "A diff people comment on line by line (lineAction, renderAfterLine)"
         ]
       },
       "name": "CodeBlock",
@@ -1255,6 +1256,18 @@
           "name": "onCopyError",
           "required": false,
           "type": "(error: unknown) => void"
+        },
+        {
+          "description": "With `language=\"diff\"`: a button in a gutter beside each line it is available on. The gutter is one tab stop; Up and Down move between its buttons.",
+          "name": "lineAction",
+          "required": false,
+          "type": "CodeBlockLineAction"
+        },
+        {
+          "description": "With `language=\"diff\"`: content shown under a line, full width (a comment thread, an editor). Return null for lines with nothing under them. What is copied stays the diff text.",
+          "name": "renderAfterLine",
+          "required": false,
+          "type": "(line: DiffLineInfo) => ReactNode"
         }
       ],
       "sourcePath": "packages/ui/src/components/CodeBlock/CodeBlock.tsx"
@@ -7525,7 +7538,7 @@
       "importPath": "@duro-app/ui",
       "kind": "component",
       "meta": {
-        "description": "Multi-line text input with automatic Field/Form integration. Same Field binding behavior as Input. autoGrow makes the height follow the content from rows up to maxRows, then it scrolls (CSS field-sizing, with a scrollHeight fallback; native grows with the content and caps at maxRows). The anchor props of Listbox.getAnchorProps() (role combobox, aria-controls, aria-expanded, aria-activedescendant) are forwarded as ARIA attributes on web and as the matching accessibility props on native, so a Listbox can be anchored to it while the editor keeps focus.",
+        "description": "Multi-line text input with automatic Field/Form integration. Same Field binding behavior as Input. autoGrow makes the height follow the content from rows up to maxRows, then it scrolls (CSS field-sizing, with a scrollHeight fallback; native grows with the content and caps at maxRows). The anchor props of Listbox.getAnchorProps() (role combobox, aria-controls, aria-expanded, aria-activedescendant) are forwarded as ARIA attributes on web and as the matching accessibility props on native, so a Listbox can be anchored to it while the editor keeps focus. On the web, onFiles receives files pasted into the field or dropped on it (the drop ring shows while files are dragged over it); text pastes stay text.",
         "example": "<Field.Root name=\"message\">\n  <Field.Label>Message</Field.Label>\n  <Textarea placeholder=\"Tell us what you think...\" rows={4} />\n  <Field.Description>At least 10 characters</Field.Description>\n  <Field.Error />\n</Field.Root>",
         "relatedTo": [
           {
@@ -7639,6 +7652,12 @@
           "name": "onKeyUp",
           "required": false,
           "type": "(e: React.KeyboardEvent<HTMLTextAreaElement>) => void"
+        },
+        {
+          "description": "Web: files pasted into the field or dropped on it (a screenshot, a log). The field shows the drop ring while files are dragged over it. Text pastes and drops stay text. Native: never called; attach with FileTrigger.",
+          "name": "onFiles",
+          "required": false,
+          "type": "(files: readonly File[]) => void"
         },
         {
           "name": "ref",

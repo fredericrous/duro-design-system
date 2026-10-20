@@ -231,3 +231,44 @@ export const AnchoredListbox: Story = {
     await expect(editor).toHaveFocus()
   },
 }
+
+/**
+ * `onFiles` (web): a file pasted into the field or dropped on it goes to
+ * `onFiles`; while files are dragged over it the field shows the drop ring.
+ * Pasted text stays text.
+ */
+export const PasteAndDropFiles: Story = {
+  args: {placeholder: 'Paste or drop a screenshot', onFiles: fn()},
+  play: async ({canvas, args}) => {
+    const field = canvas.getByPlaceholderText('Paste or drop a screenshot')
+    const withFile = () => {
+      const transfer = new DataTransfer()
+      transfer.items.add(new File(['png'], 'shot.png', {type: 'image/png'}))
+      return transfer
+    }
+
+    field.dispatchEvent(
+      new ClipboardEvent('paste', {clipboardData: withFile(), bubbles: true, cancelable: true}),
+    )
+    await expect(args.onFiles).toHaveBeenCalledTimes(1)
+    await expect((args.onFiles as ReturnType<typeof fn>).mock.calls[0][0][0].name).toBe('shot.png')
+
+    const text = new DataTransfer()
+    text.setData('text/plain', 'hello')
+    field.dispatchEvent(
+      new ClipboardEvent('paste', {clipboardData: text, bubbles: true, cancelable: true}),
+    )
+    await expect(args.onFiles).toHaveBeenCalledTimes(1)
+
+    const ringBefore = getComputedStyle(field).boxShadow
+    field.dispatchEvent(
+      new DragEvent('dragenter', {dataTransfer: withFile(), bubbles: true, cancelable: true}),
+    )
+    await waitFor(() => expect(getComputedStyle(field).boxShadow).not.toBe(ringBefore))
+    const drop = new DragEvent('drop', {dataTransfer: withFile(), bubbles: true, cancelable: true})
+    field.dispatchEvent(drop)
+    await expect(drop.defaultPrevented).toBe(true)
+    await expect(args.onFiles).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(getComputedStyle(field).boxShadow).toBe(ringBefore))
+  },
+}
