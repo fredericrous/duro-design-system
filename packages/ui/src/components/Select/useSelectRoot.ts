@@ -12,8 +12,15 @@ export function useSelectRoot(options: SelectStateOptions) {
   const listboxId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
-  const itemsRef = useRef(new Map<string, {value: string; element: HTMLElement}>())
+  const itemsRef = useRef(
+    new Map<string, {value: string; element: HTMLElement; disabled: boolean}>(),
+  )
   const orderRef = useRef<string[]>([])
+  // What the keys move through: the options in document order, without the disabled ones.
+  const enabledOrder = useCallback(
+    () => orderRef.current.filter((id) => !itemsRef.current.get(id)?.disabled),
+    [],
+  )
 
   const close = useCallback(() => {
     setOpen(false)
@@ -25,7 +32,7 @@ export function useSelectRoot(options: SelectStateOptions) {
     setOpen((prev) => {
       if (!prev) {
         const items = itemsRef.current
-        const order = orderRef.current
+        const order = enabledOrder()
         let found: string | null = null
         for (const id of order) {
           const item = items.get(id)
@@ -40,24 +47,27 @@ export function useSelectRoot(options: SelectStateOptions) {
       }
       return !prev
     })
-  }, [value, setOpen])
+  }, [value, setOpen, enabledOrder])
 
-  const registerItem = useCallback((id: string, itemValue: string, element: HTMLElement) => {
-    itemsRef.current.set(id, {value: itemValue, element})
-    const map = itemsRef.current
-    const ids = [...map.keys()]
-    ids.sort((a, b) => {
-      const elA = map.get(a)?.element
-      const elB = map.get(b)?.element
-      if (!elA || !elB) return 0
-      return elA.compareDocumentPosition(elB) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
-    })
-    orderRef.current = ids
-    return () => {
-      itemsRef.current.delete(id)
-      orderRef.current = orderRef.current.filter((i) => i !== id)
-    }
-  }, [])
+  const registerItem = useCallback(
+    (id: string, itemValue: string, element: HTMLElement, disabled = false) => {
+      itemsRef.current.set(id, {value: itemValue, element, disabled})
+      const map = itemsRef.current
+      const ids = [...map.keys()]
+      ids.sort((a, b) => {
+        const elA = map.get(a)?.element
+        const elB = map.get(b)?.element
+        if (!elA || !elB) return 0
+        return elA.compareDocumentPosition(elB) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+      })
+      orderRef.current = ids
+      return () => {
+        itemsRef.current.delete(id)
+        orderRef.current = orderRef.current.filter((i) => i !== id)
+      }
+    },
+    [],
+  )
 
   // Closed: ArrowDown/ArrowUp on the trigger open the listbox (the APG
   // select-only combobox), on the selected option or the first. In a Toolbar
@@ -82,7 +92,7 @@ export function useSelectRoot(options: SelectStateOptions) {
     if (!root || !open) return
 
     function handleKeyDown(e: KeyboardEvent) {
-      const order = orderRef.current
+      const order = enabledOrder()
       const items = itemsRef.current
       if (e.key === 'Escape') {
         e.preventDefault()
@@ -124,7 +134,7 @@ export function useSelectRoot(options: SelectStateOptions) {
           setHighlightedId((prev) => {
             if (prev) {
               const item = items.get(prev)
-              if (item) {
+              if (item && !item.disabled) {
                 setValue(item.value)
                 close()
               }
@@ -142,7 +152,7 @@ export function useSelectRoot(options: SelectStateOptions) {
 
     root.addEventListener('keydown', handleKeyDown)
     return () => root.removeEventListener('keydown', handleKeyDown)
-  }, [open, close, setValue])
+  }, [open, close, setValue, enabledOrder])
 
   const ctx: SelectContextValue = useMemo(
     () => ({

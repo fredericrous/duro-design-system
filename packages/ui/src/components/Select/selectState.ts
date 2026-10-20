@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'react'
+import {useCallback, useEffect, useRef, useState} from 'react'
 import {useControllableValue} from '../../hooks/useControllableValue'
 
 export interface SelectStateOptions {
@@ -6,6 +6,12 @@ export interface SelectStateOptions {
   value?: string
   onValueChange?: (value: string | null) => void
   initialLabels?: Record<string, string>
+  /**
+   * Called when the list opens or closes, by any means (a press, a key, a pick,
+   * Escape, a press outside): for work that should start only once someone is
+   * choosing, such as checking which options are available.
+   */
+  onOpenChange?: (open: boolean) => void
 }
 
 /**
@@ -19,6 +25,7 @@ export function useSelectState({
   value: controlledValue,
   onValueChange,
   initialLabels,
+  onOpenChange,
 }: SelectStateOptions) {
   const [value, setValue] = useControllableValue<string | null>(
     controlledValue,
@@ -26,6 +33,15 @@ export function useSelectState({
     onValueChange,
   )
   const [open, setOpen] = useState(false)
+  // Reported after the change commits, once per transition; never for the first render.
+  const onOpenChangeRef = useRef(onOpenChange)
+  onOpenChangeRef.current = onOpenChange
+  const reportedOpenRef = useRef(open)
+  useEffect(() => {
+    if (reportedOpenRef.current === open) return
+    reportedOpenRef.current = open
+    onOpenChangeRef.current?.(open)
+  }, [open])
   const [labels, setLabels] = useState<Record<string, string>>(initialLabels ?? {})
 
   const registerLabel = useCallback((v: string, label: string) => {

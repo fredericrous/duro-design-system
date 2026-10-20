@@ -21,11 +21,27 @@ interface RootProps {
   value?: string
   onValueChange?: (value: string | null) => void
   initialLabels?: Record<string, string>
+  /** Called when the list opens or closes (to start work only once someone is choosing). */
+  onOpenChange?: (open: boolean) => void
   children: ReactNode
 }
 
-function Root({name, defaultValue, value, onValueChange, initialLabels, children}: RootProps) {
-  const {ctx, rootRef} = useSelectRoot({defaultValue, value, onValueChange, initialLabels})
+function Root({
+  name,
+  defaultValue,
+  value,
+  onValueChange,
+  initialLabels,
+  onOpenChange,
+  children,
+}: RootProps) {
+  const {ctx, rootRef} = useSelectRoot({
+    defaultValue,
+    value,
+    onValueChange,
+    initialLabels,
+    onOpenChange,
+  })
 
   return (
     <SelectContext.Provider value={ctx}>
@@ -217,10 +233,12 @@ function Popup({children, label, empty}: PopupProps) {
 // --- Item ---
 interface ItemProps {
   value: string
+  /** Shown but not choosable: skipped by the arrow keys, inert to a press, announced as disabled. */
+  disabled?: boolean
   children: ReactNode
 }
 
-function Item({value: itemValue, children}: ItemProps) {
+function Item({value: itemValue, disabled = false, children}: ItemProps) {
   const {
     value: selectedValue,
     setValue,
@@ -246,10 +264,11 @@ function Item({value: itemValue, children}: ItemProps) {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    return registerItem(id, itemValue, el)
-  }, [id, itemValue, registerItem])
+    return registerItem(id, itemValue, el, disabled)
+  }, [disabled, id, itemValue, registerItem])
 
   const handleClick = () => {
+    if (disabled) return
     setValue(itemValue)
     close()
   }
@@ -260,12 +279,14 @@ function Item({value: itemValue, children}: ItemProps) {
       id={id}
       role="option"
       aria-selected={isSelected}
+      aria-disabled={disabled || undefined}
       onClick={handleClick}
-      onPointerEnter={() => setHighlightedId(id)}
+      onPointerEnter={disabled ? undefined : () => setHighlightedId(id)}
       style={[
         styles.item,
         isSelected && styles.itemSelected,
         isHighlighted && styles.itemHighlighted,
+        disabled && styles.itemDisabled,
       ]}
     >
       {children}

@@ -5589,7 +5589,7 @@
             "Item"
           ]
         },
-        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size=\"small\" to match small Toggles and Buttons in a toolbar. Select.Popup takes label (the list's accessible name) and empty (shown in place of the list when it has no items). On the web the list opens below the trigger, or above it when it would overflow the viewport below and fits above. On React Native the trigger opens a bottom sheet (a Drawer at the medium and large detents) titled by label, with a Cancel text button (cancelLabel); the chosen option is filled with a trailing check, and a press picks an option and closes the sheet. Native has no arrow keys: each option is its own screen-reader stop.",
+        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size=\"small\" to match small Toggles and Buttons in a toolbar. Select.Popup takes label (the list's accessible name) and empty (shown in place of the list when it has no items). On the web the list opens below the trigger, or above it when it would overflow the viewport below and fits above. On React Native the trigger opens a bottom sheet (a Drawer at the medium and large detents) titled by label, with a Cancel text button (cancelLabel); the chosen option is filled with a trailing check, and a press picks an option and closes the sheet. Native has no arrow keys: each option is its own screen-reader stop. An Item can be disabled (shown, skipped by the keys, inert to a press, announced as disabled), and onOpenChange on Root reports the list opening and closing, so work such as checking which options are available starts only once someone is choosing.",
         "example": "<Select.Root name=\"role\" defaultValue=\"viewer\">\n  <Select.Trigger>\n    <Select.Value placeholder=\"Select role\" />\n    <Select.Icon />\n  </Select.Trigger>\n  <Select.Popup>\n    <Select.Item value=\"admin\">Admin</Select.Item>\n    <Select.Item value=\"editor\">Editor</Select.Item>\n    <Select.Item value=\"viewer\">Viewer</Select.Item>\n  </Select.Popup>\n</Select.Root>",
         "relatedTo": [
           {
@@ -5639,6 +5639,13 @@
               "name": "value",
               "required": true,
               "type": "string"
+            },
+            {
+              "default": "false",
+              "description": "Shown but not choosable: skipped by the arrow keys, inert to a press, announced as disabled.",
+              "name": "disabled",
+              "required": false,
+              "type": "boolean"
             },
             {
               "name": "children",
@@ -5715,6 +5722,12 @@
               "name": "initialLabels",
               "required": false,
               "type": "Record<string, string>"
+            },
+            {
+              "description": "Called when the list opens or closes (to start work only once someone is choosing).",
+              "name": "onOpenChange",
+              "required": false,
+              "type": "(open: boolean) => void"
             },
             {
               "name": "children",
