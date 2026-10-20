@@ -1,11 +1,13 @@
 import {Children, type ReactNode, useRef, useId, useEffect, useLayoutEffect, useState} from 'react'
 import {createPortal} from 'react-dom'
 import {html} from 'react-strict-dom'
+import {SPACING_PX} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 import {SelectContext, useSelect} from './SelectContext'
 import {useSelectRoot} from './useSelectRoot'
 import {useFieldContext} from '../Field/FieldContext'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
+import {computePopoverPosition} from '../Popover/position'
 import {usePopoverLayer} from '../Popover/PopoverLayerContext'
 import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
@@ -140,18 +142,32 @@ function Popup({children, label, empty}: PopupProps) {
   const {open, close, listboxId, triggerRef} = useSelect()
   const mount = usePortalMount()
   const [coords, setCoords] = useState<{top: number; left: number; width: number} | null>(null)
+  const listboxRef = useRef<HTMLDivElement>(null)
 
-  // Measure the trigger when the popup opens, and re-measure on scroll/resize so
-  // the dropdown follows it. Capture-phase scroll catches scroll on any ancestor
-  // (e.g. a Dialog body).
+  // Place the list against the trigger when it opens, below it unless it would
+  // overflow the viewport there and fits above (as Menu and Popover do), and
+  // re-place it on scroll/resize so it follows the trigger. Capture-phase scroll
+  // catches scroll on any ancestor (e.g. a Dialog body). The list is laid out,
+  // invisible, before its first placement so its height can be measured.
   useLayoutEffect(() => {
     if (!open) return
     const update = () => {
-      const el = triggerRef.current
-      if (!el) return
-      const rect = el.getBoundingClientRect()
-      // `xs` token = 4px gap below the trigger.
-      setCoords({top: rect.bottom + 4, left: rect.left, width: rect.width})
+      const rect = triggerRef.current?.getBoundingClientRect()
+      const list = listboxRef.current
+      if (!rect || !list) return
+      const next = computePopoverPosition({
+        anchor: {top: rect.top, left: rect.left, width: rect.width, height: rect.height},
+        popup: {width: Math.max(list.offsetWidth, rect.width), height: list.offsetHeight},
+        viewport: {width: window.innerWidth, height: window.innerHeight},
+        side: 'bottom',
+        align: 'start',
+        offset: SPACING_PX.xs,
+      })
+      setCoords((prev) =>
+        prev && prev.top === next.top && prev.left === next.left && prev.width === rect.width
+          ? prev
+          : {top: next.top, left: next.left, width: rect.width},
+      )
     }
     update()
     window.addEventListener('resize', update)
@@ -162,7 +178,6 @@ function Popup({children, label, empty}: PopupProps) {
     }
   }, [open, triggerRef])
 
-  const listboxRef = useRef<HTMLDivElement>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
   usePopoverLayer(listboxRef, {active: open})
   usePopoverLayer(backdropRef, {active: open})
@@ -178,7 +193,8 @@ function Popup({children, label, empty}: PopupProps) {
         aria-hidden={!open}
         style={[
           styles.popup,
-          (!open || !coords) && styles.hidden,
+          !open && styles.hidden,
+          open && !coords && styles.measuring,
           coords && styles.popupPosition(coords.top, coords.left, coords.width),
         ]}
       >

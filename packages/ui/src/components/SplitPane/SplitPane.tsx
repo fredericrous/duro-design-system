@@ -21,6 +21,7 @@ interface SplitPaneContextValue {
   min: number
   max: number
   setSize: (px: number) => void
+  commitSize: (px: number) => void
   stacked: boolean
   collapsed: boolean
   collapsedContent: ReactNode
@@ -53,6 +54,12 @@ interface RootProps {
   size?: number
   /** Called with the primary pane's new width while the handle moves */
   onSizeChange?: (px: number) => void
+  /**
+   * Called once a resize ends, with the width it ended at: when a drag is
+   * released (or cancelled) and after each keyboard step. Persist the width
+   * here rather than on every `onSizeChange`.
+   */
+  onSizeCommit?: (px: number) => void
   /** The primary pane's narrowest width, a size token. Default: `sidebarW` */
   minSize?: SizeToken
   /** The primary pane's widest width, a size token. Default: `panelLg` */
@@ -83,6 +90,7 @@ function Root({
   defaultSize = 'sidebarW',
   size: controlledSize,
   onSizeChange,
+  onSizeCommit,
   minSize = 'sidebarW',
   maxSize = 'panelLg',
   collapseBelow = 'sm',
@@ -102,6 +110,10 @@ function Root({
     },
     [controlledSize, onSizeChange, min, max],
   )
+  const commitSize = useCallback(
+    (px: number) => onSizeCommit?.(clamp(Math.round(px), min, max)),
+    [onSizeCommit, min, max],
+  )
   const rootRef = useRef<HTMLDivElement>(null)
   const stacked = useContainerBelow(rootRef, collapseBelow)
   const primaryId = useId()
@@ -117,7 +129,18 @@ function Root({
 
   return (
     <SplitPaneContext.Provider
-      value={{size, min, max, setSize, stacked, collapsed, collapsedContent, primaryId, label}}
+      value={{
+        size,
+        min,
+        max,
+        setSize,
+        commitSize,
+        stacked,
+        collapsed,
+        collapsedContent,
+        primaryId,
+        label,
+      }}
     >
       <html.div ref={rootRef} style={[styles.root, stacked && styles.rootStacked]}>
         {items}
@@ -171,7 +194,8 @@ function Pane({children}: {children: ReactNode}) {
 }
 
 function Handle() {
-  const {size, min, max, setSize, stacked, collapsed, primaryId, label} = useSplitPane('Handle')
+  const {size, min, max, setSize, commitSize, stacked, collapsed, primaryId, label} =
+    useSplitPane('Handle')
   const [hovered, setHovered] = useState(false)
   const [keyboardFocus, setKeyboardFocus] = useState(false)
   const [dragging, setDragging] = useState(false)
@@ -198,10 +222,11 @@ function Handle() {
       if (next === null) return
       e.preventDefault()
       setSize(next)
+      commitSize(next)
     }
     el.addEventListener('keydown', onKeyDown)
     return () => el.removeEventListener('keydown', onKeyDown)
-  }, [size, min, max, setSize, stacked, collapsed])
+  }, [size, min, max, setSize, commitSize, stacked, collapsed])
 
   if (stacked || collapsed) return null
   const active = hovered || keyboardFocus || dragging
@@ -240,12 +265,16 @@ function Handle() {
         setSize(drag.current.startSize + e.clientX - drag.current.startX)
       }}
       onPointerUp={() => {
+        if (!drag.current) return
         drag.current = null
         setDragging(false)
+        commitSize(size)
       }}
       onPointerCancel={() => {
+        if (!drag.current) return
         drag.current = null
         setDragging(false)
+        commitSize(size)
       }}
     >
       <html.span aria-hidden style={[styles.line, active && styles.lineActive]} />

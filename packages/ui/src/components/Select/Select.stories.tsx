@@ -1,5 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, fn, screen} from 'storybook/test'
+import {expect, fn, screen, waitFor} from 'storybook/test'
+import {css, html} from 'react-strict-dom'
 import {Dialog} from '../Dialog/Dialog'
 import {Select} from './Select'
 
@@ -259,5 +260,40 @@ export const LabelledAndEmpty: StoryObj<LabelledArgs> = {
     const list = screen.getByRole('listbox', {name: 'Model'})
     await expect(list).toHaveTextContent(/No models/)
     await expect(screen.queryAllByRole('option')).toHaveLength(0)
+  },
+}
+
+// A composer's mode Select sits at the bottom of the window: its list opens above
+// the trigger, as Menu and Popover do, instead of running off the screen.
+const bottom = css.create({
+  frame: {height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'},
+})
+
+export const OpensAboveNearTheBottomEdge: Story = {
+  parameters: {layout: 'fullscreen'},
+  render: () => (
+    <html.div style={bottom.frame}>
+      <Select.Root defaultValue="default">
+        <Select.Trigger aria-label="Permission mode">
+          <Select.Value />
+          <Select.Icon />
+        </Select.Trigger>
+        <Select.Popup label="Permission mode">
+          <Select.Item value="default">Default</Select.Item>
+          <Select.Item value="read-only">Read only</Select.Item>
+          <Select.Item value="auto">Auto</Select.Item>
+          <Select.Item value="yolo">YOLO</Select.Item>
+        </Select.Popup>
+      </Select.Root>
+    </html.div>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const trigger = canvas.getByRole('combobox', {name: 'Permission mode'})
+    await userEvent.click(trigger)
+    const list = await screen.findByRole('listbox', {name: 'Permission mode'})
+    await waitFor(() => expect(list).toBeVisible())
+    const listBox = list.getBoundingClientRect()
+    await expect(listBox.bottom).toBeLessThanOrEqual(trigger.getBoundingClientRect().top)
+    await expect(listBox.top).toBeGreaterThanOrEqual(0)
   },
 }

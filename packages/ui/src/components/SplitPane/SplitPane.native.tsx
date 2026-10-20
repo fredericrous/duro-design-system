@@ -12,6 +12,8 @@ interface RootProps {
   size?: number
   /** Web only. */
   onSizeChange?: (px: number) => void
+  /** Web only: called once a resize ends (native always stacks). */
+  onSizeCommit?: (px: number) => void
   /** Web only. */
   minSize?: SizeToken
   /** Web only. */
