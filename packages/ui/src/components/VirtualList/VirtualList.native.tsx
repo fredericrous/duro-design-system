@@ -1,4 +1,4 @@
-import {useCallback, useRef} from 'react'
+import {useCallback, useEffect, useRef} from 'react'
 import {FlatList, type NativeScrollEvent, type NativeSyntheticEvent, StyleSheet} from 'react-native'
 import {html} from 'react-strict-dom'
 import {SIZES_PX} from '@duro-app/tokens/keys'
@@ -31,6 +31,8 @@ export function VirtualList<T>({
   getKey,
   anchor = 'start',
   onStartReached,
+  onEndReached,
+  scrollToKey,
   maxHeight,
   'aria-label': ariaLabel,
 }: VirtualListProps<T>) {
@@ -42,6 +44,18 @@ export function VirtualList<T>({
     atBottom.current =
       contentSize.height - contentOffset.y - layoutMeasurement.height <= BOTTOM_SLOP
   }, [])
+
+  // `scrollToKey`: centre that item once per key, as soon as the items hold it.
+  const scrolledTo = useRef<string | number | null | undefined>(undefined)
+  useEffect(() => {
+    if (scrollToKey === null || scrollToKey === undefined || scrolledTo.current === scrollToKey)
+      return
+    const at = items.findIndex((item, i) => getKey(item, i) === scrollToKey)
+    if (at < 0) return
+    scrolledTo.current = scrollToKey
+    atBottom.current = false
+    listRef.current?.scrollToIndex({index: at, viewPosition: 0.5, animated: false})
+  }, [getKey, items, scrollToKey])
 
   const followEnd = useCallback(() => {
     if (anchor === 'end' && atBottom.current) listRef.current?.scrollToEnd({animated: false})
@@ -65,6 +79,15 @@ export function VirtualList<T>({
         maintainVisibleContentPosition={MAINTAIN_POSITION}
         onStartReached={onStartReached ? () => onStartReached() : undefined}
         onStartReachedThreshold={0.1}
+        onEndReached={onEndReached ? () => onEndReached() : undefined}
+        onEndReachedThreshold={0.1}
+        // A row not measured yet: jump near it by estimate, then centre it once laid out.
+        onScrollToIndexFailed={({index, averageItemLength}) => {
+          listRef.current?.scrollToOffset({offset: index * averageItemLength, animated: false})
+          requestAnimationFrame(() =>
+            listRef.current?.scrollToIndex({index, viewPosition: 0.5, animated: false}),
+          )
+        }}
         onScroll={onScroll}
         scrollEventThrottle={16}
         onContentSizeChange={followEnd}

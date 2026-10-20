@@ -33,6 +33,8 @@ export function VirtualList<T>({
   overscan = 5,
   anchor = 'start',
   onStartReached,
+  onEndReached,
+  scrollToKey,
   maxHeight,
   'aria-label': ariaLabel,
 }: VirtualListProps<T>) {
@@ -52,6 +54,9 @@ export function VirtualList<T>({
   const startArmed = useRef(true)
   const startCallback = useRef(onStartReached)
   startCallback.current = onStartReached
+  const endArmed = useRef(true)
+  const endCallback = useRef(onEndReached)
+  endCallback.current = onEndReached
   // The items a short list last asked more for: a new array with the same
   // first key and length is the same content, so it does not ask again.
   const askedFor = useRef<string | undefined>(undefined)
@@ -60,6 +65,12 @@ export function VirtualList<T>({
     if (!el) return
     const onScroll = () => {
       atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight <= BOTTOM_SLOP
+      if (!atBottom.current) {
+        endArmed.current = true
+      } else if (endArmed.current && el.scrollHeight > el.clientHeight) {
+        endArmed.current = false
+        endCallback.current?.()
+      }
       if (el.scrollTop > START_SLOP) {
         startArmed.current = true
       } else if (startArmed.current) {
@@ -155,6 +166,18 @@ export function VirtualList<T>({
     readSeenRow()
     // Runs when `items` changes; scrolling is read by the frame-coalesced listener.
   }, [items, readSeenRow, virtualizer])
+
+  // `scrollToKey`: centre that item once per key, as soon as the items hold it.
+  const scrolledTo = useRef<string | number | null | undefined>(undefined)
+  useLayoutEffect(() => {
+    if (scrollToKey === null || scrollToKey === undefined || scrolledTo.current === scrollToKey)
+      return
+    const at = items.findIndex((item, i) => getKeyRef.current(item, i) === scrollToKey)
+    if (at < 0) return
+    scrolledTo.current = scrollToKey
+    atBottom.current = false
+    virtualizer.scrollToIndex(at, {align: 'center'})
+  }, [items, scrollToKey, virtualizer])
 
   useLayoutEffect(() => {
     if (anchor !== 'end' || items.length === 0 || !atBottom.current) return
