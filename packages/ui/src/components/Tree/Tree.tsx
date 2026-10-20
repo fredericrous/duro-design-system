@@ -164,10 +164,19 @@ function Root({
 
 // --- Item ---
 
-function Item({value, label, textValue, children, meta, href, onNavigate}: TreeItemProps) {
+function Item({
+  value,
+  label,
+  textValue,
+  children,
+  meta,
+  href,
+  onNavigate,
+  expandable,
+}: TreeItemProps) {
   const {isExpanded} = useTree()
   const level = useContext(TreeLevelContext)
-  const hasChildren = Children.count(children) > 0
+  const hasChildren = Children.count(children) > 0 || expandable === true
 
   return (
     <TreeItemRow

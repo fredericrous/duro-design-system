@@ -9,8 +9,14 @@ export interface TreeItemProps {
   label: ReactNode
   /** plain text for typeahead when `label` isn't a string */
   textValue?: string
-  /** nested items: the branch's children (none = a leaf) */
+  /** nested items: the branch's children (none = a leaf, unless `expandable`) */
   children?: ReactNode
+  /**
+   * A branch before its children exist (a directory not listed yet): it shows the
+   * chevron and opens like any branch, and `onExpandedChange` tells the app to load
+   * them. Pass the children once they are there (or a loading row meanwhile).
+   */
+  expandable?: boolean
   /** trailing content on the row (a count, a status) */
   meta?: ReactNode
   /**
@@ -97,8 +103,17 @@ export function collectRows(
   const visit = (nodes: ReactNode, level: number, parent: string | null, visible: boolean) => {
     const items = itemsOf(nodes, isItem)
     items.forEach((item, index) => {
-      const {value, label, textValue, children: nested, meta, href, onNavigate} = item.props
-      const hasChildren = Children.count(nested) > 0
+      const {
+        value,
+        label,
+        textValue,
+        children: nested,
+        meta,
+        href,
+        onNavigate,
+        expandable,
+      } = item.props
+      const hasChildren = Children.count(nested) > 0 || expandable === true
       if (hasChildren && countLeaves(nested) !== itemsOf(nested, isItem).length) complete = false
       const open = hasChildren && isOpen(value)
       total += 1

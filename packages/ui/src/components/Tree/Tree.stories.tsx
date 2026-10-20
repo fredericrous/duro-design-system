@@ -616,3 +616,42 @@ export const BranchRowToggles: Story = {
     await expect(branch).toHaveAttribute('aria-expanded', 'false')
   },
 }
+
+/** A file tree that lists a directory only when it is opened (`expandable`). */
+function LazyFolders() {
+  const [expanded, setExpanded] = useState<string[]>([])
+  const [loaded, setLoaded] = useState<ReadonlySet<string>>(() => new Set())
+  return (
+    <Tree.Root
+      aria-label="Folders"
+      expanded={expanded}
+      onExpandedChange={(next) => {
+        setExpanded(next)
+        // The app lists a directory the first time it opens.
+        setLoaded((prev) => new Set([...prev, ...next]))
+      }}
+    >
+      <Tree.Item value="src" label="src" expandable>
+        {loaded.has('src') ? <Tree.Item value="app" label="app.ts" /> : null}
+      </Tree.Item>
+      <Tree.Item value="readme" label="README.md" />
+    </Tree.Root>
+  )
+}
+
+export const ExpandableBranchLoadsOnOpen: Story = {
+  name: 'Expandable branch loads on open',
+  render: () => <LazyFolders />,
+  play: async ({canvas, userEvent}) => {
+    const branch = canvas.getByRole('treeitem', {name: 'src'})
+    // A branch before its children exist: it can open, a leaf cannot.
+    await expect(branch).toHaveAttribute('aria-expanded', 'false')
+    await expect(canvas.getByRole('treeitem', {name: 'README.md'})).not.toHaveAttribute(
+      'aria-expanded',
+    )
+    branch.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(branch).toHaveAttribute('aria-expanded', 'true')
+    await expect(await canvas.findByRole('treeitem', {name: 'app.ts'})).toBeVisible()
+  },
+}
