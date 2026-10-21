@@ -11,7 +11,7 @@ export interface SelectContextValue {
   listboxId: string
   highlightedId: string | null
   setHighlightedId: (id: string | null) => void
-  registerItem: (id: string, value: string, element: HTMLElement) => () => void
+  registerItem: (id: string, value: string, element: HTMLElement, disabled?: boolean) => () => void
   triggerRef: React.RefObject<HTMLButtonElement | null>
 }
 

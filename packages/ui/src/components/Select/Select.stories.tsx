@@ -297,3 +297,55 @@ export const OpensAboveNearTheBottomEdge: Story = {
     await expect(listBox.top).toBeGreaterThanOrEqual(0)
   },
 }
+
+const onAgentOpenChange = fn()
+
+/**
+ * An option can be `disabled` (shown, not choosable: an agent that cannot take
+ * over), and `onOpenChange` reports the list opening and closing, so work such
+ * as checking which options are available starts only once someone is choosing.
+ */
+export const DisabledOptionAndOpenChange: Story = {
+  render: () => (
+    <Select.Root defaultValue="claude" onOpenChange={onAgentOpenChange}>
+      <Select.Trigger aria-label="Agent">
+        <Select.Value />
+        <Select.Icon />
+      </Select.Trigger>
+      <Select.Popup label="Agent">
+        <Select.Item value="claude">Claude</Select.Item>
+        <Select.Item value="gemini" disabled>
+          Gemini
+        </Select.Item>
+        <Select.Item value="codex">Codex</Select.Item>
+      </Select.Popup>
+    </Select.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    onAgentOpenChange.mockClear()
+    const trigger = canvas.getByRole('combobox')
+    await userEvent.click(trigger)
+    await waitFor(() => expect(onAgentOpenChange).toHaveBeenCalledWith(true))
+    const gemini = screen.getByRole('option', {name: 'Gemini'})
+    await expect(gemini).toHaveAttribute('aria-disabled', 'true')
+
+    // The keys step over it: from Claude, Down lands on Codex.
+    await userEvent.keyboard('{ArrowDown}')
+    await waitFor(() =>
+      expect(trigger).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', {name: 'Codex'}).id,
+      ),
+    )
+
+    // A press does nothing: the value stays and the list stays open.
+    await userEvent.click(gemini)
+    await expect(trigger).toHaveTextContent(/Claude/)
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+
+    // Escape from the trigger closes it, and the close is reported too.
+    trigger.focus()
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(onAgentOpenChange).toHaveBeenLastCalledWith(false))
+  },
+}

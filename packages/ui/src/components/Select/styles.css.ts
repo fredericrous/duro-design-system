@@ -121,6 +121,10 @@ export const styles = css.create({
   itemHighlighted: {
     backgroundColor: colors.bgCardHover,
   },
+  itemDisabled: {
+    color: colors.textDisabled,
+    cursor: 'not-allowed',
+  },
   hidden: {
     display: 'none',
   },

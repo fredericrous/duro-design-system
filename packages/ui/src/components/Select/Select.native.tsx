@@ -57,6 +57,8 @@ interface RootProps {
   value?: string
   onValueChange?: (value: string | null) => void
   initialLabels?: Record<string, string>
+  /** Called when the sheet opens or closes. */
+  onOpenChange?: (open: boolean) => void
   children: ReactNode
 }
 
@@ -66,8 +68,15 @@ interface RootProps {
  * one and closes the sheet (C0 direction A, "Check"). The screen reader's
  * focus returns to the trigger.
  */
-function Root({defaultValue, value, onValueChange, initialLabels, children}: RootProps) {
-  const state = useSelectState({defaultValue, value, onValueChange, initialLabels})
+function Root({
+  defaultValue,
+  value,
+  onValueChange,
+  initialLabels,
+  onOpenChange,
+  children,
+}: RootProps) {
+  const state = useSelectState({defaultValue, value, onValueChange, initialLabels, onOpenChange})
   const {open, setOpen, setValue} = state
   const listboxId = useId()
   const triggerRef = useRef<unknown>(null)
@@ -191,10 +200,12 @@ function Popup({children, label, cancelLabel = 'Cancel', empty}: PopupProps) {
 
 interface ItemProps {
   value: string
+  /** Shown but not choosable. */
+  disabled?: boolean
   children: ReactNode
 }
 
-function Item({value: itemValue, children}: ItemProps) {
+function Item({value: itemValue, disabled = false, children}: ItemProps) {
   const collecting = useContext(CollectContext)
   const {value, registerLabel} = useSelect()
   const label = textOf(children)
@@ -203,7 +214,7 @@ function Item({value: itemValue, children}: ItemProps) {
   }, [collecting, itemValue, label, registerLabel])
   if (collecting) return null
   return (
-    <Listbox.Option value={itemValue} selected={value === itemValue}>
+    <Listbox.Option value={itemValue} selected={value === itemValue} disabled={disabled}>
       {children}
     </Listbox.Option>
   )

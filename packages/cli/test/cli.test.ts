@@ -61,7 +61,7 @@ describe('lookup dispatch', () => {
   })
   it('falls back to search then not-found', () => {
     expect(runLookup(registry, 'tags that wrap', {}).exitCode).toBeUndefined()
-    const notFound = runLookup(registry, 'zzzz-nope', {})
+    const notFound = runLookup(registry, 'zzzz-qxjv', {})
     expect(notFound.exitCode).toBe(1)
   })
   it('unknown part is a not-found error naming the parts', () => {
