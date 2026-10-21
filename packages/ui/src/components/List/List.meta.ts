@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Vertical list of interactive items. Ideal for narrow spaces (detail panels, sidebars) where Table would truncate. Supports selection, descriptions, and action slots.',
+    'Vertical list of interactive items. Ideal for narrow spaces (detail panels, sidebars) where Table would truncate. Supports selection, descriptions, and action slots. An Item with onClick is pressable anywhere on its row, and its Content becomes a button: focusable, pressed with Enter or Space, announced with its text, disabled with the Item; the Actions stay beside it, so a Button there never nests in it.',
   whenToUse: [
     'Displaying items in a narrow container (< 480px)',
     'Detail panels, drawers, and sidebars',

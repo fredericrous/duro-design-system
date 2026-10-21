@@ -1,4 +1,4 @@
-import {type ReactNode, createContext, useContext} from 'react'
+import {type ReactNode, createContext, useContext, useMemo} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 
@@ -50,27 +50,65 @@ interface ItemProps {
   onClick?: () => void
 }
 
+// What a clickable Item hands its Content, which becomes the item's button.
+interface ItemActionValue {
+  onClick: () => void
+  disabled: boolean
+}
+
+const ItemActionContext = createContext<ItemActionValue | null>(null)
+
 function Item({children, selected, disabled, onClick}: ItemProps) {
   const {selectionMode} = useList()
   const isSelectable = selectionMode !== 'none'
+  const action = useMemo(
+    () => (onClick ? {onClick, disabled: disabled === true} : null),
+    [onClick, disabled],
+  )
 
   return (
-    <html.div
-      role="listitem"
-      aria-selected={isSelectable ? selected : undefined}
-      aria-disabled={disabled || undefined}
-      onClick={disabled ? undefined : onClick}
-      style={[styles.item, selected && styles.itemSelected, disabled && styles.itemDisabled]}
-    >
-      {children}
-    </html.div>
+    <ItemActionContext.Provider value={action}>
+      <html.div
+        role="listitem"
+        aria-selected={isSelectable ? selected : undefined}
+        aria-disabled={disabled || undefined}
+        // A press anywhere on the row; the Content's button is what keyboards and screen
+        // readers reach.
+        onClick={disabled ? undefined : onClick}
+        style={[
+          styles.item,
+          onClick != null && !disabled && styles.itemClickable,
+          selected && styles.itemSelected,
+          disabled && styles.itemDisabled,
+        ]}
+      >
+        {children}
+      </html.div>
+    </ItemActionContext.Provider>
   )
 }
 
 // --- Content: wraps primary text + description ---
 
 function Content({children}: {children: ReactNode}) {
-  return <html.div style={styles.content}>{children}</html.div>
+  const action = useContext(ItemActionContext)
+  if (!action) return <html.div style={styles.content}>{children}</html.div>
+  // In a clickable Item the Content is a real button: focusable, pressed with Enter or Space,
+  // announced with its text. The Actions stay beside it, never nested inside.
+  return (
+    <html.button
+      type="button"
+      disabled={action.disabled}
+      onClick={(event) => {
+        // The row handles a press too; this one has been answered.
+        event.stopPropagation()
+        action.onClick()
+      }}
+      style={[styles.content, styles.contentButton]}
+    >
+      {children}
+    </html.button>
+  )
 }
 
 // --- Text: primary label ---

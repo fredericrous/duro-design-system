@@ -1,6 +1,6 @@
 import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {microSpacing, spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {duration} from '@duro-app/tokens/tokens/motion.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
@@ -40,6 +40,9 @@ export const styles = css.create({
       ':hover': colors.bgCardHover,
     },
   },
+  itemClickable: {
+    cursor: 'pointer',
+  },
   itemDisabled: {
     opacity: 0.5,
     pointerEvents: 'none',
@@ -55,6 +58,24 @@ export const styles = css.create({
     flexDirection: 'column',
     gap: microSpacing.px2,
     minWidth: 0,
+  },
+
+  // The Content of a clickable Item: a button that reads as the row's text.
+  contentButton: {
+    alignItems: 'stretch',
+    textAlign: 'start',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    padding: 0,
+    margin: 0,
+    font: 'inherit',
+    color: 'inherit',
+    cursor: 'inherit',
+    outlineWidth: {default: 0, ':focus-visible': borders.focusRing},
+    outlineStyle: {default: 'none', ':focus-visible': 'solid'},
+    outlineColor: {default: 'transparent', ':focus-visible': colors.accent},
+    outlineOffset: {default: 0, ':focus-visible': borders.focusOffset},
+    borderRadius: radii.xs,
   },
 
   // --- Primary text ---
