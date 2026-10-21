@@ -4036,7 +4036,7 @@
             "Text"
           ]
         },
-        "description": "Vertical list of interactive items. Ideal for narrow spaces (detail panels, sidebars) where Table would truncate. Supports selection, descriptions, and action slots.",
+        "description": "Vertical list of interactive items. Ideal for narrow spaces (detail panels, sidebars) where Table would truncate. Supports selection, descriptions, and action slots. An Item with onClick is pressable anywhere on its row, and its Content becomes a button: focusable, pressed with Enter or Space, announced with its text, disabled with the Item; the Actions stay beside it, so a Button there never nests in it.",
         "example": "<List.Root selectionMode=\"multiple\" aria-label=\"Certificates\">\n  <List.Item selected onClick={toggle}>\n    <Checkbox checked />\n    <List.Content>\n      <List.Text>web-server-prod-2024.pem</List.Text>\n      <List.Description>Issued: Jan 15, 2024 · Expires: Jan 15, 2025</List.Description>\n    </List.Content>\n    <List.Actions>\n      <Badge variant=\"success\">Active</Badge>\n      <Button variant=\"danger\" size=\"small\">Revoke</Button>\n    </List.Actions>\n  </List.Item>\n  <List.Empty>No certificates found.</List.Empty>\n</List.Root>",
         "relatedTo": [
           {

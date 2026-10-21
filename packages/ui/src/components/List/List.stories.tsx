@@ -221,3 +221,57 @@ function DetailPanelDemo() {
 export const SingleSelection: Story = {
   render: () => <DetailPanelDemo />,
 }
+
+// --- Clickable items ---
+
+function ClickableDemo() {
+  const [picked, setPicked] = useState<string[]>([])
+  const turns = [
+    {
+      id: 't1',
+      text: 'Fix the login bug where a stale token logs the user out mid-session',
+      reply: 'Done',
+    },
+    {id: 't2', text: 'Add a test for it', reply: 'Added auth.test.ts'},
+    {id: 't3', text: 'Still sending', reply: null},
+  ]
+  return (
+    <html.div style={narrowContainer.box}>
+      <List.Root aria-label="Turns">
+        {turns.map((turn) => (
+          <List.Item
+            key={turn.id}
+            disabled={turn.reply === null}
+            onClick={() => setPicked((all) => [...all, turn.id])}
+          >
+            <List.Content>
+              <List.Text>{turn.text}</List.Text>
+              {turn.reply ? <List.Description>{turn.reply}</List.Description> : null}
+            </List.Content>
+            <List.Actions>
+              <Badge size="sm">Turn</Badge>
+            </List.Actions>
+          </List.Item>
+        ))}
+      </List.Root>
+      <html.p>Picked: {picked.join(', ')}</html.p>
+    </html.div>
+  )
+}
+
+export const ClickableItems: Story = {
+  render: () => <ClickableDemo />,
+  play: async ({canvas, userEvent}) => {
+    const buttons = canvas.getAllByRole('button')
+    await expect(buttons).toHaveLength(3)
+    // The keyboard reaches the item and presses it, once.
+    await userEvent.tab()
+    await expect(buttons[0]).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
+    await expect(canvas.getByText('Picked: t1')).toBeInTheDocument()
+    // A press on the row outside the text is one press too.
+    await userEvent.click(canvas.getAllByText('Turn')[1])
+    await expect(canvas.getByText('Picked: t1, t2')).toBeInTheDocument()
+    await expect(buttons[2]).toBeDisabled()
+  },
+}
