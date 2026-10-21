@@ -260,6 +260,7 @@ These components **must** be wrapped in their `.Root`:
 | **Toolbar** | A row of controls with one tab stop (the WAI-ARIA toolbar pattern): Tab enters at the last focused control, Left/Right move across every control inside — through attached ButtonGroups too — and Home/End jump to the ends | `aria-label`, `orientation` |
 | **Tooltip** | Hover/focus tooltip that shows supplementary content | compound: Root, Trigger |
 | **Tree** | Hierarchy of items with single selection and expandable branches (the WAI-ARIA tree pattern): one tab stop, arrow keys, Home/End, typeahead | compound: Item, Root |
+| **Video** | A video file with the browser's own controls: a <video> as wide as its container (never wider, at its own ratio) with one source of the given MIME type, named for assistive tech by label | `src`, `type`, `label` |
 | **VirtualList** | A windowed list on @tanstack/react-virtual: only the rows in view (plus overscan) are mounted, and rows are measured so they may differ in height | `items`, `estimateSize`, `renderItem` |
 | **VirtualTable** | Sortable data table that windows its rows above a threshold (default 150) with @tanstack/react-virtual, shows a floating position indicator, and reports the visible page so the caller can mirror it in the URL | `data`, `columns`, `sorting` |
 | **VisuallyHidden** | Text for assistive tech only: kept in the accessibility tree, clipped off screen | `id` |

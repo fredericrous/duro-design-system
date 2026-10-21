@@ -5596,7 +5596,7 @@
             "Item"
           ]
         },
-        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size=\"small\" to match small Toggles and Buttons in a toolbar. Select.Popup takes label (the list's accessible name) and empty (shown in place of the list when it has no items). On the web the list opens below the trigger, or above it when it would overflow the viewport below and fits above. On React Native the trigger opens a bottom sheet (a Drawer at the medium and large detents) titled by label, with a Cancel text button (cancelLabel); the chosen option is filled with a trailing check, and a press picks an option and closes the sheet. Native has no arrow keys: each option is its own screen-reader stop. An Item can be disabled (shown, skipped by the keys, inert to a press, announced as disabled), and onOpenChange on Root reports the list opening and closing, so work such as checking which options are available starts only once someone is choosing.",
+        "description": "Dropdown select for choosing one value from a list. Compound component — Root is required (throws without it). Select.Trigger takes size=\"small\" to match small Toggles and Buttons in a toolbar. Select.Popup takes label (the list's accessible name) and empty (shown in place of the list when it has no items). On the web the list opens below the trigger, or above it when it would overflow the viewport below and fits above. On React Native the trigger opens a bottom sheet (a Drawer at the medium and large detents) titled by label, with a Cancel text button (cancelLabel); the chosen option is filled with a trailing check, and a press picks an option and closes the sheet. Native has no arrow keys: each option is its own screen-reader stop. An Item can be disabled (shown, skipped by the keys, inert to a press, announced as disabled), and onOpenChange on Root reports the list opening and closing, so work such as checking which options are available starts only once someone is choosing. Root takes disabled for the whole control: the trigger is a disabled button (announced so, on native too) and does not open.",
         "example": "<Select.Root name=\"role\" defaultValue=\"viewer\">\n  <Select.Trigger>\n    <Select.Value placeholder=\"Select role\" />\n    <Select.Icon />\n  </Select.Trigger>\n  <Select.Popup>\n    <Select.Item value=\"admin\">Admin</Select.Item>\n    <Select.Item value=\"editor\">Editor</Select.Item>\n    <Select.Item value=\"viewer\">Viewer</Select.Item>\n  </Select.Popup>\n</Select.Root>",
         "relatedTo": [
           {
@@ -5735,6 +5735,13 @@
               "name": "onOpenChange",
               "required": false,
               "type": "(open: boolean) => void"
+            },
+            {
+              "default": "false",
+              "description": "The whole control is disabled: the trigger is a disabled button and does not open.",
+              "name": "disabled",
+              "required": false,
+              "type": "boolean"
             },
             {
               "name": "children",
@@ -8538,6 +8545,65 @@
       },
       "props": null,
       "sourcePath": "packages/ui/src/components/Tree/Tree.tsx"
+    },
+    "Video": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "description": "A video file with the browser's own controls: a <video> as wide as its container (never wider, at its own ratio) with one source of the given MIME type, named for assistive tech by label. preload is metadata by default (duration and first frame, not the whole file). Web only: on React Native, host your own player (expo-video) behind a .native.tsx leaf.",
+        "example": "<Video src={objectUrl} type=\"video/mp4\" label={fileName} />",
+        "whenNotToUse": [
+          "A decorative or autoplaying background — Duro has none",
+          "An image — use an img or Prose"
+        ],
+        "whenToUse": [
+          "A video file the person opened: a screen recording, a clip in a file viewer",
+          "A video an app turned into an object URL from bytes it fetched"
+        ]
+      },
+      "name": "Video",
+      "native": false,
+      "props": [
+        {
+          "description": "The video's URL: a file URL, or an object URL an app made from bytes it fetched.",
+          "name": "src",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "Its MIME type (`video/mp4`, `video/webm`), so the browser picks a playable source.",
+          "name": "type",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "The accessible name: what the video shows (its file name, a caption).",
+          "name": "label",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "true",
+          "description": "The browser's own play, seek and volume controls. Default: true.",
+          "name": "controls",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "default": "'metadata'",
+          "description": "How much to fetch before play: metadata (duration, first frame) by default.",
+          "name": "preload",
+          "required": false,
+          "type": "'none' | 'metadata' | 'auto'"
+        },
+        {
+          "description": "The video element, e.g. to pause it from elsewhere.",
+          "name": "ref",
+          "required": false,
+          "type": "Ref<HTMLVideoElement>"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/Video/Video.tsx"
     },
     "VirtualList": {
       "importPath": "@duro-app/ui",

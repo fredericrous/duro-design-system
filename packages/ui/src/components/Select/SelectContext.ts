@@ -2,6 +2,8 @@ import {createContext, useContext} from 'react'
 
 export interface SelectContextValue {
   open: boolean
+  /** The whole control is disabled: the trigger does not open. */
+  disabled: boolean
   toggle: () => void
   close: () => void
   value: string | null

@@ -37,6 +37,12 @@ export const styles = css.create({
     transitionProperty: 'border-color',
     transitionDuration: duration.fast,
   },
+  // The whole control disabled: Button's disabled look, and no hover accent.
+  triggerDisabled: {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+    borderColor: colors.border,
+  },
   // size="small": Toggle sizeSmall's values, as longhands so they win over the
   // trigger's own longhands. Every small control is at least controlSm tall,
   // whatever it holds, and the touch target under a coarse pointer.
