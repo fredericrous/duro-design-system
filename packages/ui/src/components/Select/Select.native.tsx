@@ -28,6 +28,7 @@ const SNAP_POINTS = ['medium', 'large'] as const
 interface NativeSelectContextValue {
   value: string | null
   open: boolean
+  disabled: boolean
   setOpen: (open: boolean) => void
   choose: (value: string) => void
   labels: Record<string, string>
@@ -59,6 +60,8 @@ interface RootProps {
   initialLabels?: Record<string, string>
   /** Called when the sheet opens or closes. */
   onOpenChange?: (open: boolean) => void
+  /** The whole control is disabled: the trigger does not open the sheet. */
+  disabled?: boolean
   children: ReactNode
 }
 
@@ -74,6 +77,7 @@ function Root({
   onValueChange,
   initialLabels,
   onOpenChange,
+  disabled = false,
   children,
 }: RootProps) {
   const state = useSelectState({defaultValue, value, onValueChange, initialLabels, onOpenChange})
@@ -90,6 +94,7 @@ function Root({
   const ctx: NativeSelectContextValue = {
     value: state.value,
     open,
+    disabled,
     setOpen,
     choose: (v) => {
       setValue(v)
@@ -123,19 +128,25 @@ function Trigger({
   'aria-label'?: string
   size?: ControlSize
 }) {
-  const {open, setOpen, triggerRef} = useSelect()
+  const {open, disabled, setOpen, triggerRef} = useSelect()
   const hint = useTooltipHint()
   return (
     <Pressable
       ref={triggerRef as RefObject<never>}
+      disabled={disabled}
       onPress={() => setOpen(true)}
       accessibilityRole="combobox"
       accessibilityLabel={ariaLabel}
       accessibilityHint={hint}
-      accessibilityState={{expanded: open}}
+      accessibilityState={{expanded: open, disabled}}
     >
       <html.div
-        style={[styles.trigger, nativeStyles.nativeFlex, size === 'small' && styles.triggerSmall]}
+        style={[
+          styles.trigger,
+          nativeStyles.nativeFlex,
+          size === 'small' && styles.triggerSmall,
+          disabled && styles.triggerDisabled,
+        ]}
       >
         {children}
       </html.div>

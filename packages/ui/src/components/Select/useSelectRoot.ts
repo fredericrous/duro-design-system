@@ -157,6 +157,7 @@ export function useSelectRoot(options: SelectStateOptions) {
   const ctx: SelectContextValue = useMemo(
     () => ({
       open,
+      disabled: false,
       toggle,
       close,
       value,

@@ -1,4 +1,13 @@
-import {Children, type ReactNode, useRef, useId, useEffect, useLayoutEffect, useState} from 'react'
+import {
+  Children,
+  type ReactNode,
+  useRef,
+  useId,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react'
 import {createPortal} from 'react-dom'
 import {html} from 'react-strict-dom'
 import {SPACING_PX} from '@duro-app/tokens/keys'
@@ -23,6 +32,8 @@ interface RootProps {
   initialLabels?: Record<string, string>
   /** Called when the list opens or closes (to start work only once someone is choosing). */
   onOpenChange?: (open: boolean) => void
+  /** The whole control is disabled: the trigger is a disabled button and does not open. */
+  disabled?: boolean
   children: ReactNode
 }
 
@@ -33,15 +44,17 @@ function Root({
   onValueChange,
   initialLabels,
   onOpenChange,
+  disabled = false,
   children,
 }: RootProps) {
-  const {ctx, rootRef} = useSelectRoot({
+  const {ctx: rootCtx, rootRef} = useSelectRoot({
     defaultValue,
     value,
     onValueChange,
     initialLabels,
     onOpenChange,
   })
+  const ctx = useMemo(() => ({...rootCtx, disabled}), [rootCtx, disabled])
 
   return (
     <SelectContext.Provider value={ctx}>
@@ -64,7 +77,7 @@ function Trigger({
   /** `small` matches a small Toggle or Button beside it. Default: `default`. */
   size?: ControlSize
 }) {
-  const {open, toggle, listboxId, highlightedId, triggerRef} = useSelect()
+  const {open, disabled, toggle, listboxId, highlightedId, triggerRef} = useSelect()
   const localRef = useRef<HTMLButtonElement>(null)
   const grouped = useGroupedControl<HTMLButtonElement>()
   // Inside a <Field.Root>, adopt its controlId so <Field.Label for={controlId}>
@@ -88,6 +101,7 @@ function Trigger({
       id={fieldCtx?.controlId}
       type="button"
       role={'combobox' as 'listbox'}
+      disabled={disabled}
       onClick={toggle}
       aria-label={ariaLabel}
       aria-expanded={open}
@@ -96,7 +110,12 @@ function Trigger({
       aria-activedescendant={highlightedId ?? undefined}
       aria-describedby={describedBy || undefined}
       aria-invalid={fieldCtx?.invalid || undefined}
-      style={[styles.trigger, size === 'small' && styles.triggerSmall, grouped.style]}
+      style={[
+        styles.trigger,
+        size === 'small' && styles.triggerSmall,
+        disabled && styles.triggerDisabled,
+        grouped.style,
+      ]}
     >
       {children}
     </html.button>

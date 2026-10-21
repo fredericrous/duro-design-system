@@ -349,3 +349,34 @@ export const DisabledOptionAndOpenChange: Story = {
     await waitFor(() => expect(onAgentOpenChange).toHaveBeenLastCalledWith(false))
   },
 }
+
+const onDisabledOpenChange = fn()
+
+/**
+ * The whole control can be `disabled` (a choice that does not apply right now: a write
+ * that is not allowed): the trigger is a disabled button, announced so, and does not open.
+ */
+export const DisabledControl: Story = {
+  render: () => (
+    <Select.Root defaultValue="private" disabled onOpenChange={onDisabledOpenChange}>
+      <Select.Trigger aria-label="Visibility">
+        <Select.Value />
+        <Select.Icon />
+      </Select.Trigger>
+      <Select.Popup label="Visibility">
+        <Select.Item value="private">Private</Select.Item>
+        <Select.Item value="public">Public</Select.Item>
+      </Select.Popup>
+    </Select.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    onDisabledOpenChange.mockClear()
+    const trigger = canvas.getByRole('combobox', {name: 'Visibility'})
+    await expect(trigger).toBeDisabled()
+    await expect(trigger).toHaveTextContent(/Private/)
+    await userEvent.click(trigger)
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+    await expect(screen.queryByRole('listbox')).toBeNull()
+    await expect(onDisabledOpenChange).not.toHaveBeenCalled()
+  },
+}
