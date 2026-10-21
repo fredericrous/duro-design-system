@@ -29,6 +29,12 @@ export function useMenuRoot(options: MenuRootOptions) {
   const popupRef = useRef<HTMLDivElement | null>(null)
   const itemsRef = useRef(new Map<string, HTMLElement>())
   const orderRef = useRef<string[]>([])
+  const disabledRef = useRef(new Set<string>())
+  // What the keys move through: the items in document order, without the disabled ones.
+  const enabledOrder = useCallback(
+    () => orderRef.current.filter((id) => !disabledRef.current.has(id)),
+    [],
+  )
   // Closes and leaves focus where it is (a press elsewhere put it there).
   const dismiss = useCallback(() => {
     if (!openRef.current) return
@@ -54,13 +60,13 @@ export function useMenuRoot(options: MenuRootOptions) {
   useEffect(() => {
     if (open && !wasOpenRef.current) {
       popupRef.current?.focus({preventScroll: true})
-      const first = orderRef.current[0]
+      const first = enabledOrder()[0]
       if (first) setHighlightedId(first)
     } else if (!open && wasOpenRef.current) {
       setHighlightedId(null)
     }
     wasOpenRef.current = open
-  }, [open])
+  }, [open, enabledOrder])
 
   // Keep the highlighted item in view when the popup scrolls.
   useEffect(() => {
@@ -69,8 +75,10 @@ export function useMenuRoot(options: MenuRootOptions) {
     el?.scrollIntoView?.({block: 'nearest'})
   }, [highlightedId])
 
-  const registerItem = useCallback((id: string, element: HTMLElement) => {
+  const registerItem = useCallback((id: string, element: HTMLElement, disabled = false) => {
     itemsRef.current.set(id, element)
+    if (disabled) disabledRef.current.add(id)
+    else disabledRef.current.delete(id)
     const map = itemsRef.current
     const ids = [...map.keys()]
     ids.sort((a, b) => {
@@ -82,6 +90,7 @@ export function useMenuRoot(options: MenuRootOptions) {
     orderRef.current = ids
     return () => {
       itemsRef.current.delete(id)
+      disabledRef.current.delete(id)
       orderRef.current = orderRef.current.filter((i) => i !== id)
     }
   }, [])
@@ -104,7 +113,7 @@ export function useMenuRoot(options: MenuRootOptions) {
         close()
         return
       }
-      const order = orderRef.current
+      const order = enabledOrder()
       if (order.length === 0) return
 
       switch (e.key) {
@@ -138,7 +147,7 @@ export function useMenuRoot(options: MenuRootOptions) {
         case ' ': {
           e.preventDefault()
           const current = highlightedRef.current
-          if (current) itemsRef.current.get(current)?.click()
+          if (current && !disabledRef.current.has(current)) itemsRef.current.get(current)?.click()
           break
         }
       }
@@ -146,7 +155,7 @@ export function useMenuRoot(options: MenuRootOptions) {
 
     popup.addEventListener('keydown', handleKeyDown)
     return () => popup.removeEventListener('keydown', handleKeyDown)
-  }, [open, close])
+  }, [open, close, enabledOrder])
 
   // A press outside the trigger and the popup closes the menu, and leaves
   // focus where the press put it.

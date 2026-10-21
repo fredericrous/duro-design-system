@@ -111,6 +111,10 @@ export const styles = css.create({
     transitionProperty: 'background-color',
     transitionDuration: duration.fast,
   },
+  itemDisabled: {
+    color: colors.textDisabled,
+    cursor: 'not-allowed',
+  },
   // The fill is the highlight; the transparent outline is what forced-colors
   // mode paints, where fills are dropped.
   itemHighlighted: {
