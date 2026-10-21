@@ -9,7 +9,8 @@ export interface MenuContextValue {
   triggerId: string
   highlightedId: string | null
   setHighlightedId: (id: string | null) => void
-  registerItem: (id: string, element: HTMLElement) => () => void
+  /** A disabled item stays listed but the keys skip it and Enter does nothing. */
+  registerItem: (id: string, element: HTMLElement, disabled?: boolean) => () => void
   triggerRef: React.RefObject<HTMLButtonElement | null>
   popupRef: React.RefObject<HTMLDivElement | null>
 }

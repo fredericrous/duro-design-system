@@ -186,10 +186,12 @@ function Popup({children, align = 'start'}: PopupProps) {
 // --- Item ---
 interface ItemProps {
   onClick?: () => void
+  /** Shown but not available: skipped by the arrow keys, inert to a press, announced as disabled. */
+  disabled?: boolean
   children: ReactNode
 }
 
-function Item({onClick, children}: ItemProps) {
+function Item({onClick, disabled = false, children}: ItemProps) {
   const {close, highlightedId, setHighlightedId, registerItem} = useMenu()
   const id = useId()
   const ref = useRef<HTMLDivElement>(null)
@@ -198,10 +200,11 @@ function Item({onClick, children}: ItemProps) {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    return registerItem(id, el)
-  }, [id, registerItem])
+    return registerItem(id, el, disabled)
+  }, [disabled, id, registerItem])
 
   const handleClick = () => {
+    if (disabled) return
     onClick?.()
     close()
   }
@@ -211,9 +214,14 @@ function Item({onClick, children}: ItemProps) {
       ref={ref}
       id={id}
       role="menuitem"
+      aria-disabled={disabled || undefined}
       onClick={handleClick}
-      onPointerEnter={() => setHighlightedId(id)}
-      style={[styles.item, isHighlighted && styles.itemHighlighted]}
+      onPointerEnter={disabled ? undefined : () => setHighlightedId(id)}
+      style={[
+        styles.item,
+        isHighlighted && styles.itemHighlighted,
+        disabled && styles.itemDisabled,
+      ]}
     >
       {children}
     </html.div>

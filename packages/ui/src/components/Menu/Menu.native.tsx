@@ -197,15 +197,30 @@ const layout = StyleSheet.create({scroll: {maxHeight: SIZES_PX.listMaxH, flexGro
 
 interface ItemProps {
   onClick?: () => void
+  /** Shown but not available: inert to a press and announced as disabled. */
+  disabled?: boolean
   children: ReactNode
 }
 
-function Item({onClick, children}: ItemProps) {
+function Item({onClick, disabled = false, children}: ItemProps) {
   const {closeThen} = useMenu()
   return (
-    <Pressable accessibilityRole="menuitem" onPress={() => closeThen(onClick)}>
+    <Pressable
+      accessibilityRole="menuitem"
+      accessibilityState={{disabled}}
+      disabled={disabled}
+      onPress={() => closeThen(onClick)}
+    >
       {({pressed}) => (
-        <html.div style={[styles.item, pressed && nativeStyles.itemPressed]}>{children}</html.div>
+        <html.div
+          style={[
+            styles.item,
+            pressed && nativeStyles.itemPressed,
+            disabled && styles.itemDisabled,
+          ]}
+        >
+          {children}
+        </html.div>
       )}
     </Pressable>
   )

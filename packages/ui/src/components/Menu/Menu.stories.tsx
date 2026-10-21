@@ -539,3 +539,45 @@ export const TouchTargets: Story = {
 const touchStyles = css.create({
   row: {display: 'flex', gap: spacing.md, alignItems: 'center'},
 })
+
+// A disabled item stays listed and is announced as disabled, but the highlight and the arrow keys
+// skip it and a press does nothing (a Sync menu whose Pull is blocked while a push is running).
+const onPull = fn()
+const onPush = fn()
+export const DisabledItem: Story = {
+  render: () => (
+    <Menu.Root>
+      <Menu.Trigger>Sync</Menu.Trigger>
+      <Menu.Popup>
+        <Menu.Item disabled onClick={onPull}>
+          Pull
+        </Menu.Item>
+        <Menu.Item onClick={onPush}>Push</Menu.Item>
+        <Menu.Item>Fetch</Menu.Item>
+      </Menu.Popup>
+    </Menu.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    onPull.mockClear()
+    onPush.mockClear()
+    await userEvent.click(canvas.getByRole('button', {name: 'Sync'}))
+    const menu = await page().findByRole('menu', {name: 'Sync'})
+    const pull = page().getByRole('menuitem', {name: 'Pull'})
+    const push = page().getByRole('menuitem', {name: 'Push'})
+    await expect(pull).toHaveAttribute('aria-disabled', 'true')
+    // The highlight opens on the first item that can be chosen.
+    await waitFor(() => expect(menu).toHaveAttribute('aria-activedescendant', push.id))
+    await userEvent.click(pull)
+    await expect(onPull).not.toHaveBeenCalled()
+    await expect(menu).toBeInTheDocument()
+    // Up from Push wraps to Fetch, never landing on Pull.
+    await userEvent.keyboard('{ArrowUp}')
+    await expect(menu).toHaveAttribute(
+      'aria-activedescendant',
+      page().getByRole('menuitem', {name: 'Fetch'}).id,
+    )
+    await userEvent.keyboard('{ArrowDown}')
+    await userEvent.keyboard('{Enter}')
+    await expect(onPush).toHaveBeenCalledOnce()
+  },
+}
