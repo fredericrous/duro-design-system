@@ -33,17 +33,38 @@ export function VirtualList<T>({
   onStartReached,
   onEndReached,
   scrollToKey,
+  onAtEndChange,
+  scrollToEndKey,
   maxHeight,
   'aria-label': ariaLabel,
 }: VirtualListProps<T>) {
   const listRef = useRef<FlatList<T>>(null)
   const atBottom = useRef(true)
 
+  // The last state `onAtEndChange` was told, so it only hears a change.
+  const reportedAtEnd = useRef(true)
+  const atEndCallback = useRef(onAtEndChange)
+  atEndCallback.current = onAtEndChange
+
   const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const {contentOffset, contentSize, layoutMeasurement} = e.nativeEvent
     atBottom.current =
       contentSize.height - contentOffset.y - layoutMeasurement.height <= BOTTOM_SLOP
+    if (reportedAtEnd.current !== atBottom.current) {
+      reportedAtEnd.current = atBottom.current
+      atEndCallback.current?.(atBottom.current)
+    }
   }, [])
+
+  // `scrollToEndKey`: a new non-null key scrolls to the end and resumes following.
+  const endKey = useRef(scrollToEndKey)
+  useEffect(() => {
+    if (endKey.current === scrollToEndKey) return
+    endKey.current = scrollToEndKey
+    if (scrollToEndKey === null || scrollToEndKey === undefined) return
+    atBottom.current = true
+    listRef.current?.scrollToEnd({animated: false})
+  }, [scrollToEndKey])
 
   // `scrollToKey`: centre that item once per key, as soon as the items hold it.
   const scrolledTo = useRef<string | number | null | undefined>(undefined)

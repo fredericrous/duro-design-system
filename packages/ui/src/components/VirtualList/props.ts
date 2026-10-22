@@ -31,6 +31,19 @@ export interface VirtualListProps<T> {
    */
   onEndReached?: () => void
   /**
+   * Called once each time the reader comes within 44px (touchTarget) of the end
+   * or leaves it, with `true` at the end and `false` away from it, so a host can
+   * record whether the reader follows the live tail. It never repeats a value.
+   */
+  onAtEndChange?: (atEnd: boolean) => void
+  /**
+   * Scroll to the end, and resume `anchor="end"` following, each time the key
+   * changes to a new non-null value (a host's own send), even when the reader
+   * had scrolled up. The key present at the first render does nothing; `null`
+   * does nothing.
+   */
+  scrollToEndKey?: string | number | null
+  /**
    * Bring this item into view, centred, each time the key changes to an item in
    * the list (a link to one message). A key not in the list yet waits for the
    * items that hold it; `null` or `undefined` does nothing. While it applies,

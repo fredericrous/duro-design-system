@@ -325,3 +325,90 @@ export const EndReachedFiresOncePerApproach: StoryObj<{onEndReached: () => void}
     await waitFor(() => expect(args.onEndReached).toHaveBeenCalledTimes(2))
   },
 }
+
+function Tail({
+  onAtEndChange,
+  endKey,
+}: {
+  onAtEndChange?: (atEnd: boolean) => void
+  endKey?: number | null
+}) {
+  return (
+    <VirtualList
+      aria-label="Transcript"
+      items={ITEMS.slice(0, 200)}
+      getKey={(m) => m.id}
+      estimateSize="controlLg"
+      anchor="end"
+      onAtEndChange={onAtEndChange}
+      scrollToEndKey={endKey}
+      maxHeight="previewMaxH"
+      renderItem={(m) => <Text>{m.text}</Text>}
+    />
+  )
+}
+
+const frames = () =>
+  new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+export const AtEndChangeFiresOncePerChange: StoryObj<{onAtEndChange: (atEnd: boolean) => void}> = {
+  args: {onAtEndChange: fn()},
+  render: (args) => <Tail onAtEndChange={args.onAtEndChange} />,
+  play: async ({canvas, args}) => {
+    const list = canvas.getByRole('list', {name: 'Transcript'})
+    await waitFor(() => expect(canvas.getByText('Message 200')).toBeInTheDocument())
+    await frames()
+    await expect(args.onAtEndChange).not.toHaveBeenCalled()
+    list.scrollTop = 0
+    await waitFor(() => expect(args.onAtEndChange).toHaveBeenCalledTimes(1))
+    await expect(args.onAtEndChange).toHaveBeenLastCalledWith(false)
+    list.scrollTop = 20
+    await frames()
+    await expect(args.onAtEndChange).toHaveBeenCalledTimes(1)
+    list.scrollTop = list.scrollHeight
+    await waitFor(() => expect(args.onAtEndChange).toHaveBeenCalledTimes(2))
+    await expect(args.onAtEndChange).toHaveBeenLastCalledWith(true)
+  },
+}
+
+function EndKeyHost() {
+  const [key, setKey] = useState(0)
+  const [, setTick] = useState(0)
+  return (
+    <>
+      <html.button type="button" onClick={() => setKey((k) => k + 1)}>
+        Send
+      </html.button>
+      <html.button type="button" onClick={() => setTick((t) => t + 1)}>
+        Rerender
+      </html.button>
+      <Tail endKey={key} />
+    </>
+  )
+}
+
+export const ScrollToEndKeyScrollsToTheEnd: Story = {
+  render: () => <EndKeyHost />,
+  play: async ({canvas, userEvent}) => {
+    const list = canvas.getByRole('list', {name: 'Transcript'})
+    await waitFor(() => expect(canvas.getByText('Message 200')).toBeInTheDocument())
+    list.scrollTop = 0
+    await waitFor(() => expect(canvas.queryByText('Message 200')).toBeNull())
+    await userEvent.click(canvas.getByRole('button', {name: 'Send'}))
+    await waitFor(() => expect(canvas.getByText('Message 200')).toBeInTheDocument())
+  },
+}
+
+export const ScrollToEndKeyUnchangedDoesNotScroll: Story = {
+  render: () => <EndKeyHost />,
+  play: async ({canvas, userEvent}) => {
+    const list = canvas.getByRole('list', {name: 'Transcript'})
+    await waitFor(() => expect(canvas.getByText('Message 200')).toBeInTheDocument())
+    list.scrollTop = 0
+    await waitFor(() => expect(canvas.queryByText('Message 200')).toBeNull())
+    await userEvent.click(canvas.getByRole('button', {name: 'Rerender'}))
+    await frames()
+    await expect(canvas.queryByText('Message 200')).toBeNull()
+    await expect(list.scrollTop).toBeLessThan(list.scrollHeight / 2)
+  },
+}
