@@ -35,6 +35,8 @@ export function VirtualList<T>({
   onStartReached,
   onEndReached,
   scrollToKey,
+  onAtEndChange,
+  scrollToEndKey,
   maxHeight,
   'aria-label': ariaLabel,
 }: VirtualListProps<T>) {
@@ -57,6 +59,10 @@ export function VirtualList<T>({
   const endArmed = useRef(true)
   const endCallback = useRef(onEndReached)
   endCallback.current = onEndReached
+  // The last state `onAtEndChange` was told, so it only hears a change.
+  const reportedAtEnd = useRef(true)
+  const atEndCallback = useRef(onAtEndChange)
+  atEndCallback.current = onAtEndChange
   // The items a short list last asked more for: a new array with the same
   // first key and length is the same content, so it does not ask again.
   const askedFor = useRef<string | undefined>(undefined)
@@ -65,6 +71,10 @@ export function VirtualList<T>({
     if (!el) return
     const onScroll = () => {
       atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight <= BOTTOM_SLOP
+      if (reportedAtEnd.current !== atBottom.current) {
+        reportedAtEnd.current = atBottom.current
+        atEndCallback.current?.(atBottom.current)
+      }
       if (!atBottom.current) {
         endArmed.current = true
       } else if (endArmed.current && el.scrollHeight > el.clientHeight) {
@@ -178,6 +188,16 @@ export function VirtualList<T>({
     atBottom.current = false
     virtualizer.scrollToIndex(at, {align: 'center'})
   }, [items, scrollToKey, virtualizer])
+
+  // `scrollToEndKey`: a new non-null key scrolls to the end and resumes following.
+  const endKey = useRef(scrollToEndKey)
+  useLayoutEffect(() => {
+    if (endKey.current === scrollToEndKey) return
+    endKey.current = scrollToEndKey
+    if (scrollToEndKey === null || scrollToEndKey === undefined || items.length === 0) return
+    atBottom.current = true
+    virtualizer.scrollToIndex(items.length - 1, {align: 'end'})
+  }, [items.length, scrollToEndKey, virtualizer])
 
   useLayoutEffect(() => {
     if (anchor !== 'end' || items.length === 0 || !atBottom.current) return
