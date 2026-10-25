@@ -43,5 +43,6 @@ Input → expected → actual:
   - the four `result` placeholders (adr-lint candidates, ruled violations);
   - a ban doubled when two entries share a scope;
   - this record.
+- After approval, CI's ADR check failed: the refreshed pack carries `governs`, which the pinned aval 1.9.0 rejects. `AVAL_VERSION` is now 1.10.0, with the hook `aval hook install` rewrote for it (35a68bb2); the binding Delta approved. The Format Check job was a runner cancellation after `prettier --check` passed, and is re-run.
 - Carried to the canonical plan's phase 7: `adr-lint sync` must emit `stack` when it writes `adrLint(...)`.
 - The relais run (`run-65eb1409e09eb-12613`) stopped on `verification_inputs_changed`. It was verified by hand and recorded as salvaged at 6b4b8782.
