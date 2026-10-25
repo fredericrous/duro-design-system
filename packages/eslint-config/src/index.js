@@ -191,8 +191,17 @@ const STACK_IMPORT_BANS = {
   effect: {paths: [OTEL_BARREL_PATH], patterns: [KYSELY_PATTERN]},
 }
 
-function adrLintOptions({stack = [], restrictedImports = []}) {
-  const stackBans = stack.map((name) => {
+// The preset emits one `no-restricted-imports` per `files` scope, and in a
+// file several scopes cover flat config keeps only the last one's options. So
+// the stack's bans go on every entry: unscoped, and inside each scoped entry
+// too, or a layer contract over `src/**` would drop the UI bans there.
+function adrLintOptions({stack, restrictedImports = []}) {
+  if (stack === undefined && restrictedImports.length > 0) {
+    throw new Error(
+      '@duro-app/eslint-config: adrLint({restrictedImports}) needs `stack` — the presets whose import bans it must keep (["react"], ["effect"], or [] for none); without it a react repo would lose its UI bans',
+    )
+  }
+  const stackBans = (stack ?? []).map((name) => {
     if (!Object.hasOwn(STACK_IMPORT_BANS, name)) {
       throw new Error(
         `@duro-app/eslint-config: unknown stack "${name}" — expected "react" and/or "effect"`,
@@ -200,7 +209,18 @@ function adrLintOptions({stack = [], restrictedImports = []}) {
     }
     return STACK_IMPORT_BANS[name]
   })
-  return {restrictedImports: [...stackBans, ...restrictedImports]}
+  const stackPaths = stackBans.flatMap((bans) => bans.paths ?? [])
+  const stackPatterns = stackBans.flatMap((bans) => bans.patterns ?? [])
+  const scoped = restrictedImports.map((entry) =>
+    entry.files === undefined
+      ? entry
+      : {
+          ...entry,
+          paths: [...stackPaths, ...(entry.paths ?? [])],
+          patterns: [...stackPatterns, ...(entry.patterns ?? [])],
+        },
+  )
+  return {restrictedImports: [...stackBans, ...scoped]}
 }
 
 /**

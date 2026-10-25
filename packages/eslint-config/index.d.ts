@@ -13,10 +13,13 @@ export interface AdrLintRestrictedImport {
   patterns?: (string | {group: string[]; message?: string; allowTypeImports?: boolean})[]
 }
 
-export interface AdrLintOptions {
-  stack?: AdrLintStack[]
-  restrictedImports?: AdrLintRestrictedImport[]
-}
+/**
+ * With `restrictedImports`, `stack` is required: it names the presets whose
+ * import bans the merged `no-restricted-imports` must keep (`[]` for none).
+ */
+export type AdrLintOptions =
+  | {stack?: AdrLintStack[]; restrictedImports?: never}
+  | {stack: AdrLintStack[]; restrictedImports: AdrLintRestrictedImport[]}
 
 export declare function adrLint(options?: AdrLintOptions): Linter.Config[]
 export declare function adrLintTyped(options?: AdrLintOptions): Linter.Config[]

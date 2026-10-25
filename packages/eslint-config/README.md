@@ -121,4 +121,9 @@ export default [
 ]
 ```
 
-An unknown `stack` name throws.
+The stack's bans are also copied into every `files`-scoped entry, because in a
+file two scopes cover only the later one's options apply.
+
+`restrictedImports` without `stack` throws, since a react repository would
+otherwise lose its UI bans in silence: pass `stack: []` when no preset applies.
+An unknown `stack` name throws too.
