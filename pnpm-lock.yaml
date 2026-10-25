@@ -202,6 +202,9 @@ importers:
 
   packages/eslint-config:
     dependencies:
+      '@aval-adr/eslint-config':
+        specifier: ^0.6.0
+        version: 0.6.0(eslint@9.39.5)(typescript-eslint@8.67.0(eslint@9.39.5)(typescript@5.9.3))
       '@duro-app/eslint-plugin':
         specifier: workspace:^
         version: link:../eslint-plugin
@@ -418,6 +421,12 @@ packages:
     resolution: {integrity: sha512-eJZtAfDUXlrEHRYZGnW0e97t7lpaWGPjlNesRomAUI6dQ0Cg5wJhvllcXtgyIrFg48IbvCXzxdb6ZTu9Yzo4gQ==}
     cpu: [x64]
     os: [win32]
+
+  '@aval-adr/eslint-config@0.6.0':
+    resolution: {integrity: sha512-EMT9YtiJqz2AS/iKj8JDWB/QWUdcvEiw+s6Sir/mzajH9I8TnaerOiF6UJyWzvGH//+sr4/BXtKwhPxt4Qefzg==}
+    peerDependencies:
+      eslint: ^9.0.0 || ^10.0.0
+      typescript-eslint: ^8.0.0
 
   '@babel/code-frame@7.29.0':
     resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
@@ -1104,6 +1113,12 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@eslint-community/eslint-plugin-eslint-comments@4.8.1':
+    resolution: {integrity: sha512-vafrdi15JHBFh1qWOAucyJwlEEuhdoMof28jOdKdgnwZ7bXwd6v4wzHYSmAVLwnx0yc7bqAtfJ0EZQV1WAzV/Q==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
 
   '@eslint-community/eslint-utils@4.10.1':
     resolution: {integrity: sha512-cuadcxVFE8sDK6iWJbs8Sn0av2Nrh2QSGQhVlBW9AaAHqHwjWsZHT8LJ4hFGPh7ASBV2deFdM7H/DPjulmh8rg==}
@@ -4811,6 +4826,12 @@ snapshots:
   '@amont-hooks/win32-x64@1.49.1':
     optional: true
 
+  '@aval-adr/eslint-config@0.6.0(eslint@9.39.5)(typescript-eslint@8.67.0(eslint@9.39.5)(typescript@5.9.3))':
+    dependencies:
+      '@eslint-community/eslint-plugin-eslint-comments': 4.8.1(eslint@9.39.5)
+      eslint: 9.39.5
+      typescript-eslint: 8.67.0(eslint@9.39.5)(typescript@5.9.3)
+
   '@babel/code-frame@7.29.0':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
@@ -5544,6 +5565,12 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.12':
     optional: true
+
+  '@eslint-community/eslint-plugin-eslint-comments@4.8.1(eslint@9.39.5)':
+    dependencies:
+      escape-string-regexp: 4.0.0
+      eslint: 9.39.5
+      ignore: 7.0.6
 
   '@eslint-community/eslint-utils@4.10.1(eslint@9.39.5)':
     dependencies:

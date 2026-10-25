@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import {ESLint} from 'eslint'
-import {base, react, effect, tests} from '../src/index.js'
+import {base, react, effect, tests, adrLint} from '../src/index.js'
 
 /**
  * Fixture-consumer smoke tests: run the real ESLint engine over sample code
@@ -223,5 +223,78 @@ describe('composition', () => {
     const ids = ruleIds(result)
     expect(ids).toContain('@typescript-eslint/no-restricted-imports')
     expect(ids).toContain('duro/no-raw-html-element')
+  })
+})
+
+describe('adrLint', () => {
+  const restricted = (result: {messages: {ruleId: string | null; message: string}[]}) =>
+    result.messages.filter((m) => m.ruleId === '@typescript-eslint/no-restricted-imports')
+
+  it('keeps the react bans when it comes last', async () => {
+    const result = await lint(
+      [...react, ...adrLint({stack: ['react']})],
+      "import {Button} from '@mui/material'\nexport {Button}\n",
+      'src/App.tsx',
+    )
+    expect(restricted(result)[0]?.message).toContain('@duro-app/ui')
+  })
+
+  it('keeps the react and effect bans together', async () => {
+    const result = await lint(
+      [...react, ...effect, ...adrLint({stack: ['react', 'effect']})],
+      "import {Button} from '@mui/material'\nimport {Kysely} from 'kysely'\nexport {Button, Kysely}\n",
+      'src/App.tsx',
+    )
+    const messages = restricted(result).map((m) => m.message)
+    expect(messages.some((m) => m.includes('@duro-app/ui'))).toBe(true)
+    expect(messages.some((m) => m.includes('@effect/sql'))).toBe(true)
+  })
+
+  it('adds the consumer restrictedImports to the same rule', async () => {
+    const result = await lint(
+      [
+        ...react,
+        ...effect,
+        ...adrLint({
+          stack: ['react', 'effect'],
+          restrictedImports: [{patterns: [{group: ['**/infra/**']}]}],
+        }),
+      ],
+      "import {Button} from '@mui/material'\nimport {Kysely} from 'kysely'\nimport {db} from '../infra/db'\nexport {Button, Kysely, db}\n",
+      'src/App.tsx',
+    )
+    expect(restricted(result)).toHaveLength(3)
+  })
+
+  it('flags a ts-ignore and a bare empty catch, and passes a justified one', async () => {
+    const flagged = await lint(
+      adrLint(),
+      '// @ts-ignore\nconst a: number = "x"\ntry {\n  a.toString()\n} catch {}\nexport {a}\n',
+      'src/x.ts',
+    )
+    const ids = ruleIds(flagged)
+    expect(ids).toContain('@typescript-eslint/ban-ts-comment')
+    expect(ids).toContain('adr-lint/no-swallowed-catch')
+
+    const justified = await lint(
+      adrLint(),
+      'try {\n  JSON.parse("{}")\n} catch {} // the cache is optional\n',
+      'src/x.ts',
+    )
+    expect(ruleIds(justified)).not.toContain('adr-lint/no-swallowed-catch')
+  })
+
+  it('leaves base unchanged', async () => {
+    const result = await lint(
+      base,
+      '// @ts-ignore\nconst a: number = "x"\ntry {\n  a.toString()\n} catch {}\nexport {a}\n',
+      'src/x.ts',
+    )
+    expect(ruleIds(result)).not.toContain('adr-lint/no-swallowed-catch')
+    expect(base.some((config) => config.name?.startsWith('adr-lint'))).toBe(false)
+  })
+
+  it('refuses an unknown stack name', () => {
+    expect(() => adrLint({stack: ['nope' as never]})).toThrow('nope')
   })
 })

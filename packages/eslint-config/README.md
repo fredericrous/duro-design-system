@@ -94,3 +94,31 @@ Flat config is last-wins — scope an override after the preset:
   rules: {'no-restricted-imports': 'off'},
 }
 ```
+
+## adr-lint rules (opt-in)
+
+`adrLint` and `adrLintTyped` add the decided code rules a linter matches
+exactly (no `@ts-ignore`, no unexplained `eslint-disable`, no swallowed
+`catch`; the typed variant also checks `switch` exhaustiveness and needs
+`projectService`). They come from
+[`@aval-adr/eslint-config`](https://www.npmjs.com/package/@aval-adr/eslint-config)
+and are not part of `base`, `react`, `effect` or `tests`.
+
+Put them last and name the presets you use in `stack`: flat config keeps the
+last options of a rule, and adr-lint emits its own `no-restricted-imports`, so
+`stack` re-states the `react` / `effect` import bans inside that one rule.
+`restrictedImports` adds your own bans to it.
+
+```js
+import {react, adrLint} from '@duro-app/eslint-config'
+
+export default [
+  ...react,
+  ...adrLint({
+    stack: ['react'],
+    restrictedImports: [{patterns: [{group: ['**/infra/**']}]}],
+  }),
+]
+```
+
+An unknown `stack` name throws.
