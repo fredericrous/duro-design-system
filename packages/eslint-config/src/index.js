@@ -211,15 +211,20 @@ function adrLintOptions({stack, restrictedImports = []}) {
   })
   const stackPaths = stackBans.flatMap((bans) => bans.paths ?? [])
   const stackPatterns = stackBans.flatMap((bans) => bans.patterns ?? [])
-  const scoped = restrictedImports.map((entry) =>
-    entry.files === undefined
-      ? entry
-      : {
-          ...entry,
-          paths: [...stackPaths, ...(entry.paths ?? [])],
-          patterns: [...stackPatterns, ...(entry.patterns ?? [])],
-        },
-  )
+  // Once per scope: the preset merges entries that share `files`, and a ban
+  // listed twice there reports one import twice.
+  const scopesGiven = new Set()
+  const scoped = restrictedImports.map((entry) => {
+    if (entry.files === undefined) return entry
+    const scope = JSON.stringify(entry.files)
+    if (scopesGiven.has(scope)) return entry
+    scopesGiven.add(scope)
+    return {
+      ...entry,
+      paths: [...stackPaths, ...(entry.paths ?? [])],
+      patterns: [...stackPatterns, ...(entry.patterns ?? [])],
+    }
+  })
   return {restrictedImports: [...stackBans, ...scoped]}
 }
 

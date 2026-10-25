@@ -283,6 +283,27 @@ describe('adrLint', () => {
     expect(messages).toHaveLength(2)
   })
 
+  it('reports a stack ban once when two entries share a scope', async () => {
+    const sharedScopeReport = await lint(
+      [
+        ...react,
+        ...adrLint({
+          stack: ['react'],
+          restrictedImports: [
+            {files: ['src/**'], patterns: [{group: ['**/infra/**']}]},
+            {files: ['src/**'], paths: ['fs']},
+          ],
+        }),
+      ],
+      "import {Button} from '@mui/material'\nexport {Button}\n",
+      'src/App.tsx',
+    )
+    const uiMessages = restricted(sharedScopeReport).filter((m) =>
+      m.message.includes('@duro-app/ui'),
+    )
+    expect(uiMessages).toHaveLength(1)
+  })
+
   it('refuses restrictedImports without a stack', () => {
     expect(() => adrLint({restrictedImports: [{paths: ['fs']}]} as never)).toThrow('needs `stack`')
     expect(() => adrLint({stack: [], restrictedImports: [{paths: ['fs']}]})).not.toThrow()
