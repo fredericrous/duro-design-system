@@ -13,6 +13,15 @@ export function createItemLinkState(): ItemLinkState {
   return {anchor: null, linkPressed: false}
 }
 
+/** The modifier keys and button of the row's press, replayed on the link. */
+export interface RowPress {
+  altKey: boolean
+  ctrlKey: boolean
+  metaKey: boolean
+  shiftKey: boolean
+  button: number
+}
+
 interface ItemLinkProps {
   state: ItemLinkState
   href: string
@@ -43,17 +52,29 @@ export function ItemLink({state, href, onNavigate, children}: ItemLinkProps) {
 
 /**
  * A press on the row: the link's own press bubbling up is left alone; any other (the Leading
- * icon, the padding) clicks the anchor, so the browser and `onNavigate` see one ordinary link
- * click.
+ * icon, the padding) is replayed on the anchor with the same button and modifier keys, so the
+ * browser and `onNavigate` see one link click (a cmd-click still opens a tab, ADR-0002).
  */
 export function pressItemLink(
   state: ItemLinkState,
   _href: string,
   _onNavigate: OnNavigate | undefined,
+  press: RowPress,
 ) {
   if (state.linkPressed) {
     state.linkPressed = false
     return
   }
-  state.anchor?.click()
+  const {altKey, ctrlKey, metaKey, shiftKey, button} = press
+  state.anchor?.dispatchEvent(
+    new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      altKey,
+      ctrlKey,
+      metaKey,
+      shiftKey,
+      button,
+    }),
+  )
 }

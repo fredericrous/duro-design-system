@@ -5,13 +5,20 @@ import {followLink} from '../../shared/followLink.native'
 import type {OnNavigate} from '../../shared/navigate'
 import {styles} from './styles.css'
 
-/** What a link row shares with its link: whether the press was the link's. */
-export interface ItemLinkState {
-  linkPressed: boolean
-}
+/** Nothing to share on native: the link answers its own press and stops it there. */
+export type ItemLinkState = Record<string, never>
 
 export function createItemLinkState(): ItemLinkState {
-  return {linkPressed: false}
+  return {}
+}
+
+/** The modifier keys of the row's press (unused on native). */
+export interface RowPress {
+  altKey: boolean
+  ctrlKey: boolean
+  metaKey: boolean
+  shiftKey: boolean
+  button: number
 }
 
 interface ItemLinkProps {
@@ -25,12 +32,14 @@ interface ItemLinkProps {
  * The Content of a List.Item with an href, on native (ADR-0002, native addendum): a
  * `role="link"` that renders no `href` and follows the press through `followLink`.
  */
-export function ItemLink({state, href, onNavigate, children}: ItemLinkProps) {
+export function ItemLink({href, onNavigate, children}: ItemLinkProps) {
   return (
     <html.div
       role="link"
-      onClick={() => {
-        state.linkPressed = true
+      onClick={(event) => {
+        // Stopped, so the row never follows it a second time (native has no window listener
+        // a stopped press could hide).
+        event.stopPropagation()
         followLink(href, onNavigate, 'List.Item')
       }}
       style={[styles.content, styles.contentLink]}
@@ -40,15 +49,12 @@ export function ItemLink({state, href, onNavigate, children}: ItemLinkProps) {
   )
 }
 
-/** A press on the row outside the link follows it, as the link itself does. */
+/** A press on the row reaches here only from outside the link: it follows the link. */
 export function pressItemLink(
-  state: ItemLinkState,
+  _state: ItemLinkState,
   href: string,
   onNavigate: OnNavigate | undefined,
+  _event: RowPress,
 ) {
-  if (state.linkPressed) {
-    state.linkPressed = false
-    return
-  }
   followLink(href, onNavigate, 'List.Item')
 }

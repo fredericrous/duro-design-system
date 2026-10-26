@@ -1,7 +1,13 @@
 import {type ReactNode, createContext, useContext, useId, useMemo, useState} from 'react'
 import {html} from 'react-strict-dom'
 import type {OnNavigate} from '../../shared/navigate'
-import {ItemLink, createItemLinkState, pressItemLink, type ItemLinkState} from './ItemLink'
+import {
+  ItemLink,
+  createItemLinkState,
+  pressItemLink,
+  type ItemLinkState,
+  type RowPress,
+} from './ItemLink'
 import {styles} from './styles.css'
 
 // --- Types ---
@@ -131,7 +137,10 @@ function Item({children, selected, disabled, onClick, href, onNavigate}: ItemPro
   }, [href, onNavigate, onClick, isDisabled, linkState])
   // A press anywhere on a link row (its Leading icon, its padding) follows the link, as a
   // settings row does; a press on the Content's link is the link's own.
-  const onRowClick = href !== undefined ? () => pressItemLink(linkState, href, onNavigate) : onClick
+  const onRowClick =
+    href !== undefined
+      ? (press: RowPress) => pressItemLink(linkState, href, onNavigate, press)
+      : onClick
 
   return (
     <ItemActionContext.Provider value={action}>

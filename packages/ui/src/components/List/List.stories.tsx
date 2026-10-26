@@ -344,6 +344,21 @@ export const LinkItems: StoryObj<{onNavigate: OnNavigate}> = {
     ;(appearanceRow?.firstElementChild as HTMLElement).click()
     await expect(onNavigate).toHaveBeenCalledTimes(2)
     await expect(onNavigate.mock.calls[1][0]).toBe('#appearance')
+    // A cmd-click there keeps the browser default (a new tab), as on the link itself.
+    const leading = appearanceRow?.firstElementChild as HTMLElement
+    let replayed = false
+    const onWindowClick = (event: MouseEvent) => {
+      // The replayed anchor click, then the outer click on the icon: keep the first answer.
+      if (event.target instanceof HTMLAnchorElement) {
+        replayed = event.metaKey && !event.defaultPrevented
+      }
+      event.preventDefault()
+    }
+    window.addEventListener('click', onWindowClick)
+    leading.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, metaKey: true}))
+    window.removeEventListener('click', onWindowClick)
+    await expect(replayed).toBe(true)
+    await expect(onNavigate).toHaveBeenCalledTimes(2)
 
     // A disabled link item is plain text, not a link; the Leading icon is decorative.
     await expect(canvas.getAllByRole('link')).toHaveLength(2)
