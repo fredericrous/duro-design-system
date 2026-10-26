@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import {ESLint} from 'eslint'
-import {base, react, effect, tests} from '../src/index.js'
+import {base, react, effect, tests, adrLint} from '../src/index.js'
 
 /**
  * Fixture-consumer smoke tests: run the real ESLint engine over sample code
@@ -223,5 +223,121 @@ describe('composition', () => {
     const ids = ruleIds(result)
     expect(ids).toContain('@typescript-eslint/no-restricted-imports')
     expect(ids).toContain('duro/no-raw-html-element')
+  })
+})
+
+describe('adrLint', () => {
+  const restricted = (report: {messages: {ruleId: string | null; message: string}[]}) =>
+    report.messages.filter((m) => m.ruleId === '@typescript-eslint/no-restricted-imports')
+
+  it('keeps the react bans when it comes last', async () => {
+    const muiImportReport = await lint(
+      [...react, ...adrLint({stack: ['react']})],
+      "import {Button} from '@mui/material'\nexport {Button}\n",
+      'src/App.tsx',
+    )
+    expect(restricted(muiImportReport)[0]?.message).toContain('@duro-app/ui')
+  })
+
+  it('keeps the react and effect bans together', async () => {
+    const bothStacksReport = await lint(
+      [...react, ...effect, ...adrLint({stack: ['react', 'effect']})],
+      "import {Button} from '@mui/material'\nimport {Kysely} from 'kysely'\nexport {Button, Kysely}\n",
+      'src/App.tsx',
+    )
+    const messages = restricted(bothStacksReport).map((m) => m.message)
+    expect(messages.some((m) => m.includes('@duro-app/ui'))).toBe(true)
+    expect(messages.some((m) => m.includes('@effect/sql'))).toBe(true)
+  })
+
+  it('adds the consumer restrictedImports to the same rule', async () => {
+    const layeredReport = await lint(
+      [
+        ...react,
+        ...effect,
+        ...adrLint({
+          stack: ['react', 'effect'],
+          restrictedImports: [{patterns: [{group: ['**/infra/**']}]}],
+        }),
+      ],
+      "import {Button} from '@mui/material'\nimport {Kysely} from 'kysely'\nimport {db} from '../infra/db'\nexport {Button, Kysely, db}\n",
+      'src/App.tsx',
+    )
+    expect(restricted(layeredReport)).toHaveLength(3)
+  })
+
+  it('keeps the stack bans inside a files-scoped layer', async () => {
+    const scopedReport = await lint(
+      [
+        ...react,
+        ...adrLint({
+          stack: ['react'],
+          restrictedImports: [{files: ['src/**'], patterns: [{group: ['**/infra/**']}]}],
+        }),
+      ],
+      "import {Button} from '@mui/material'\nimport {db} from '../infra/db'\nexport {Button, db}\n",
+      'src/App.tsx',
+    )
+    const messages = restricted(scopedReport).map((m) => m.message)
+    expect(messages.some((m) => m.includes('@duro-app/ui'))).toBe(true)
+    expect(messages).toHaveLength(2)
+  })
+
+  it('reports a stack ban once when two entries share a scope', async () => {
+    const sharedScopeReport = await lint(
+      [
+        ...react,
+        ...adrLint({
+          stack: ['react'],
+          restrictedImports: [
+            {files: ['src/**'], patterns: [{group: ['**/infra/**']}]},
+            {files: ['src/**'], paths: ['fs']},
+          ],
+        }),
+      ],
+      "import {Button} from '@mui/material'\nexport {Button}\n",
+      'src/App.tsx',
+    )
+    const uiMessages = restricted(sharedScopeReport).filter((m) =>
+      m.message.includes('@duro-app/ui'),
+    )
+    expect(uiMessages).toHaveLength(1)
+  })
+
+  it('refuses restrictedImports without a stack', () => {
+    expect(() => adrLint({restrictedImports: [{paths: ['fs']}]} as never)).toThrow('needs `stack`')
+    expect(() => adrLint({stack: [], restrictedImports: [{paths: ['fs']}]})).not.toThrow()
+  })
+
+  it('flags a ts-ignore and a bare empty catch, and passes a justified one', async () => {
+    const flagged = await lint(
+      adrLint(),
+      '// @ts-ignore\nconst a: number = "x"\ntry {\n  a.toString()\n} catch {}\nexport {a}\n',
+      'src/x.ts',
+    )
+    const ids = ruleIds(flagged)
+    expect(ids).toContain('@typescript-eslint/ban-ts-comment')
+    expect(ids).toContain('adr-lint/no-swallowed-catch')
+
+    const justified = await lint(
+      adrLint(),
+      'try {\n  JSON.parse("{}")\n} catch {} // the cache is optional\n',
+      'src/x.ts',
+    )
+    expect(ruleIds(justified)).not.toContain('adr-lint/no-swallowed-catch')
+  })
+
+  it('leaves base unchanged', async () => {
+    const baseReport = await lint(
+      base,
+      '// @ts-ignore\nconst a: number = "x"\ntry {\n  a.toString()\n} catch {}\nexport {a}\n',
+      'src/x.ts',
+    )
+    expect(ruleIds(baseReport)).not.toContain('adr-lint/no-swallowed-catch')
+    expect(base.some((config) => config.name?.startsWith('adr-lint'))).toBe(false)
+  })
+
+  it('refuses an unknown stack name', () => {
+    expect(() => adrLint({stack: ['nope' as never]})).toThrow('nope')
   })
 })

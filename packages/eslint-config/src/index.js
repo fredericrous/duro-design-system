@@ -4,6 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import effectPlugin from '@effect/eslint-plugin'
 import prettier from 'eslint-config-prettier'
 import duro from '@duro-app/eslint-plugin'
+import {adrLint as aval, adrLintTyped as avalTyped} from '@aval-adr/eslint-config'
 
 /**
  * Shareable flat config for the Duro stack. Four presets, each a plain flat
@@ -49,6 +50,33 @@ const FOREIGN_UI_MESSAGE =
 const LEXICAL_MESSAGE =
   'Rich text goes through @fredericrous/lexical-multi at the app layer, never raw Lexical — the wrapper carries the multi-editor state, native support, and edit-state accessibility.'
 
+const FOREIGN_UI_PATTERN = {
+  allowTypeImports: true,
+  group: [
+    'react-aria',
+    'react-aria-components',
+    '@react-aria/*',
+    '@adobe/react-spectrum',
+    '@react-spectrum/*',
+    '@mui/*',
+    '@material-ui/*',
+    '@radix-ui/*',
+    '@chakra-ui/*',
+    '@headlessui/*',
+    'antd',
+    'antd/*',
+    '@frontjutsu/ui',
+    '@frontjutsu/ui/*',
+  ],
+  message: FOREIGN_UI_MESSAGE,
+}
+
+const LEXICAL_PATTERN = {
+  allowTypeImports: true,
+  group: ['lexical', '@lexical/*'],
+  message: LEXICAL_MESSAGE,
+}
+
 export const react = tseslint.config(
   ...base,
   // Classic hooks correctness only. react-hooks v7's flat.recommended also
@@ -78,33 +106,7 @@ export const react = tseslint.config(
       '@typescript-eslint/no-restricted-imports': [
         'error',
         {
-          patterns: [
-            {
-              allowTypeImports: true,
-              group: [
-                'react-aria',
-                'react-aria-components',
-                '@react-aria/*',
-                '@adobe/react-spectrum',
-                '@react-spectrum/*',
-                '@mui/*',
-                '@material-ui/*',
-                '@radix-ui/*',
-                '@chakra-ui/*',
-                '@headlessui/*',
-                'antd',
-                'antd/*',
-                '@frontjutsu/ui',
-                '@frontjutsu/ui/*',
-              ],
-              message: FOREIGN_UI_MESSAGE,
-            },
-            {
-              allowTypeImports: true,
-              group: ['lexical', '@lexical/*'],
-              message: LEXICAL_MESSAGE,
-            },
-          ],
+          patterns: [FOREIGN_UI_PATTERN, LEXICAL_PATTERN],
         },
       ],
     },
@@ -116,6 +118,18 @@ const KYSELY_MESSAGE =
 
 const OTEL_BARREL_MESSAGE =
   'Import the subpath you need (e.g. @effect/opentelemetry/NodeSdk) — the barrel re-exports WebSdk, which statically imports @opentelemetry/sdk-trace-web and crashes a Node service at module load.'
+
+const OTEL_BARREL_PATH = {
+  allowTypeImports: true,
+  name: '@effect/opentelemetry',
+  message: OTEL_BARREL_MESSAGE,
+}
+
+const KYSELY_PATTERN = {
+  allowTypeImports: true,
+  group: ['kysely', 'kysely-*', '@kysely/*'],
+  message: KYSELY_MESSAGE,
+}
 
 export const effect = tseslint.config(...base, {
   name: 'duro-config/effect-policy',
@@ -129,20 +143,8 @@ export const effect = tseslint.config(...base, {
     '@typescript-eslint/no-restricted-imports': [
       'error',
       {
-        paths: [
-          {
-            allowTypeImports: true,
-            name: '@effect/opentelemetry',
-            message: OTEL_BARREL_MESSAGE,
-          },
-        ],
-        patterns: [
-          {
-            allowTypeImports: true,
-            group: ['kysely', 'kysely-*', '@kysely/*'],
-            message: KYSELY_MESSAGE,
-          },
-        ],
+        paths: [OTEL_BARREL_PATH],
+        patterns: [KYSELY_PATTERN],
       },
     ],
   },
@@ -184,4 +186,65 @@ export const tests = [
   },
 ]
 
-export default {base, react, effect, tests}
+const STACK_IMPORT_BANS = {
+  react: {patterns: [FOREIGN_UI_PATTERN, LEXICAL_PATTERN]},
+  effect: {paths: [OTEL_BARREL_PATH], patterns: [KYSELY_PATTERN]},
+}
+
+// The preset emits one `no-restricted-imports` per `files` scope, and in a
+// file several scopes cover flat config keeps only the last one's options. So
+// the stack's bans go on every entry: unscoped, and inside each scoped entry
+// too, or a layer contract over `src/**` would drop the UI bans there.
+function adrLintOptions({stack, restrictedImports = []}) {
+  if (stack === undefined && restrictedImports.length > 0) {
+    throw new Error(
+      '@duro-app/eslint-config: adrLint({restrictedImports}) needs `stack` — the presets whose import bans it must keep (["react"], ["effect"], or [] for none); without it a react repo would lose its UI bans',
+    )
+  }
+  const stackBans = (stack ?? []).map((name) => {
+    if (!Object.hasOwn(STACK_IMPORT_BANS, name)) {
+      throw new Error(
+        `@duro-app/eslint-config: unknown stack "${name}" — expected "react" and/or "effect"`,
+      )
+    }
+    return STACK_IMPORT_BANS[name]
+  })
+  const stackPaths = stackBans.flatMap((bans) => bans.paths ?? [])
+  const stackPatterns = stackBans.flatMap((bans) => bans.patterns ?? [])
+  // Once per scope: the preset merges entries that share `files`, and a ban
+  // listed twice there reports one import twice.
+  const scopesGiven = new Set()
+  const scoped = restrictedImports.map((entry) => {
+    if (entry.files === undefined) return entry
+    const scope = JSON.stringify(entry.files)
+    if (scopesGiven.has(scope)) return entry
+    scopesGiven.add(scope)
+    return {
+      ...entry,
+      paths: [...stackPaths, ...(entry.paths ?? [])],
+      patterns: [...stackPatterns, ...(entry.patterns ?? [])],
+    }
+  })
+  return {restrictedImports: [...stackBans, ...scoped]}
+}
+
+/**
+ * Opt-in: the decided code rules a linter matches exactly, from
+ * @aval-adr/eslint-config. Flat config keeps the last options of a rule, so
+ * `stack` re-states the named presets' import bans inside the one merged
+ * `no-restricted-imports` that adr-lint emits.
+ *
+ * @param {import('../index.d.ts').AdrLintOptions} [options]
+ * @returns {import('eslint').Linter.Config[]}
+ */
+export const adrLint = ({stack, restrictedImports} = {}) =>
+  aval(adrLintOptions({stack, restrictedImports}))
+
+/**
+ * @param {import('../index.d.ts').AdrLintOptions} [options]
+ * @returns {import('eslint').Linter.Config[]}
+ */
+export const adrLintTyped = ({stack, restrictedImports} = {}) =>
+  avalTyped(adrLintOptions({stack, restrictedImports}))
+
+export default {base, react, effect, tests, adrLint, adrLintTyped}
