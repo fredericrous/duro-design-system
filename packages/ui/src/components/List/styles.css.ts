@@ -14,6 +14,30 @@ export const styles = css.create({
     padding: 0,
   },
 
+  // Wraps the Root when it has a title or a footer.
+  frame: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing.xs,
+  },
+  title: {
+    fontSize: typography.fontSizeSm,
+    fontWeight: typography.fontWeightSemibold,
+    lineHeight: typography.lineHeight,
+    color: colors.text,
+    margin: 0,
+    paddingLeft: spacing.ms,
+    paddingRight: spacing.ms,
+  },
+  footer: {
+    fontSize: typography.fontSizeXs,
+    lineHeight: typography.lineHeight,
+    color: colors.textMuted,
+    margin: 0,
+    paddingLeft: spacing.ms,
+    paddingRight: spacing.ms,
+  },
+
   // --- Item ---
   item: {
     display: 'flex',
@@ -76,6 +100,27 @@ export const styles = css.create({
     outlineColor: {default: 'transparent', ':focus-visible': colors.accent},
     outlineOffset: {default: 0, ':focus-visible': borders.focusOffset},
     borderRadius: radii.xs,
+  },
+
+  // The Content of an Item with an href: an anchor that reads as the row's text.
+  contentLink: {
+    textDecorationLine: 'none',
+    color: 'inherit',
+    cursor: 'pointer',
+    outlineWidth: {default: 0, ':focus-visible': borders.focusRing},
+    outlineStyle: {default: 'none', ':focus-visible': 'solid'},
+    outlineColor: {default: 'transparent', ':focus-visible': colors.accent},
+    outlineOffset: {default: 0, ':focus-visible': borders.focusOffset},
+    borderRadius: radii.xs,
+  },
+
+  // --- Leading slot (icon or avatar) ---
+  leading: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    color: colors.textMuted,
   },
 
   // --- Primary text ---

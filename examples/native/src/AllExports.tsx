@@ -9,6 +9,7 @@ import {OverlayDemo} from './OverlayDemo'
 import {ToastDemo} from './ToastDemo'
 import {
   Alert,
+  Avatar,
   Badge,
   Button,
   Callout,
@@ -84,6 +85,8 @@ export function AllExports() {
         </Toolbar>
         <Inline gap="sm">
           <Icon name="server" />
+          <Icon name="paw-print" color="categoryGreen" />
+          <Avatar alt="Grace Hopper" initials="GH" size="sm" />
           <StatusIcon name="check-circle" variant="success" size="lg" />
           <Spinner label="Loading" />
         </Inline>
@@ -94,10 +97,18 @@ export function AllExports() {
           <RadioGroup.Item value="team">Team</RadioGroup.Item>
         </RadioGroup.Root>
         <Toggle aria-label="Bold">B</Toggle>
-        <List.Root aria-label="Sessions">
+        <List.Root title="Sessions" footer="One session">
           <List.Item>
             <List.Content>
               <List.Text>A list item</List.Text>
+            </List.Content>
+          </List.Item>
+          <List.Item href="/modal">
+            <List.Leading>
+              <Icon name="palette" color="categoryBlue" size="md" />
+            </List.Leading>
+            <List.Content>
+              <List.Text>A link item</List.Text>
             </List.Content>
           </List.Item>
         </List.Root>

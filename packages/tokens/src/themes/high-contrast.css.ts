@@ -36,6 +36,16 @@ export const highContrastTheme = css.createTheme(colors, {
   highlightBg: 'rgba(216, 180, 254, 0.15)',
   highlightBorder: 'rgba(216, 180, 254, 0.5)',
   highlightText: '#e9d5ff',
+
+  // Category hues — non-status colours that tell categories apart (an icon tile, a tag); never a state.
+  categoryBlue: '#9EB9FF',
+  categoryGreen: '#66DC7E',
+  categoryOrange: '#E0B65A',
+  categoryYellow: '#F1C96A',
+  categoryRed: '#EE6E6C',
+  categoryIndigo: '#8EA3FF',
+  categoryPurple: '#C0A7FF',
+
   // Fixed overlays — the same in every theme (a scrim darkens whatever is
   // under it; the inverse overlays sit on an accent surface).
   scrim: 'rgba(0, 0, 0, 0.4)',

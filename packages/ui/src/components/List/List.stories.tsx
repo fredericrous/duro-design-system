@@ -1,8 +1,12 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {useState} from 'react'
-import {expect} from 'storybook/test'
+import {expect, fn} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {List} from './List'
+import {clickLink} from '../../docs/clickLink'
+import {onThemeSurface} from '../../docs/themedSurface'
+import type {OnNavigate} from '../../shared/navigate'
+import {Icon} from '../Icon/Icon'
 import {Badge} from '../Badge/Badge'
 import {Button} from '../Button/Button'
 import {Checkbox} from '../Checkbox/Checkbox'
@@ -273,5 +277,68 @@ export const ClickableItems: Story = {
     await userEvent.click(canvas.getAllByText('Turn')[1])
     await expect(canvas.getByText('Picked: t1, t2')).toBeInTheDocument()
     await expect(buttons[2]).toBeDisabled()
+  },
+}
+
+/**
+ * Settings-style rows: each Item with an `href` is a real link (its Content), with a
+ * category-coloured icon in the Leading slot, a title naming the list and a footer under it.
+ * `onNavigate` gets a plain primary click; a modified click keeps the browser default.
+ */
+export const LinkItems: StoryObj<{onNavigate: OnNavigate}> = {
+  parameters: {a11y: {test: 'error'}},
+  decorators: [onThemeSurface],
+  args: {onNavigate: fn()},
+  render: (args) => (
+    <List.Root title="Account" footer="Signed in on this device.">
+      <List.Item href="#account" onNavigate={args.onNavigate}>
+        <List.Leading>
+          <Icon name="user-circle" size="md" color="categoryBlue" />
+        </List.Leading>
+        <List.Content>
+          <List.Text>Account</List.Text>
+          <List.Description>Profile, sign-in, devices</List.Description>
+        </List.Content>
+      </List.Item>
+      <List.Item href="#appearance" onNavigate={args.onNavigate}>
+        <List.Leading>
+          <Icon name="palette" size="md" color="categoryIndigo" />
+        </List.Leading>
+        <List.Content>
+          <List.Text>Appearance</List.Text>
+        </List.Content>
+      </List.Item>
+      <List.Item href="#usage" disabled>
+        <List.Leading>
+          <Icon name="chart-line" size="md" color="categoryOrange" />
+        </List.Leading>
+        <List.Content>
+          <List.Text>Usage</List.Text>
+        </List.Content>
+      </List.Item>
+    </List.Root>
+  ),
+  play: async ({args, canvas}) => {
+    const onNavigate = args.onNavigate as unknown as ReturnType<typeof fn>
+    onNavigate.mockImplementation((_href: string, event: {preventDefault(): void}) =>
+      event.preventDefault(),
+    )
+    // The title names the list; the footer follows it.
+    await expect(canvas.getByRole('list', {name: 'Account'})).toBeInTheDocument()
+    await expect(canvas.getByText('Signed in on this device.')).toBeInTheDocument()
+
+    const account = canvas.getByRole('link', {name: /Account/})
+    await expect(account).toHaveAttribute('href', '#account')
+    await expect(clickLink(account).defaultPrevented).toBe(true)
+    await expect(onNavigate).toHaveBeenCalledTimes(1)
+    await expect(onNavigate.mock.calls[0][0]).toBe('#account')
+    for (const init of [{metaKey: true}, {ctrlKey: true}, {shiftKey: true}]) {
+      await expect(clickLink(account, init).defaultPrevented).toBe(false)
+    }
+    await expect(onNavigate).toHaveBeenCalledTimes(1)
+
+    // A disabled link item is plain text, not a link; the Leading icon is decorative.
+    await expect(canvas.getAllByRole('link')).toHaveLength(2)
+    await expect(canvas.queryByRole('link', {name: 'Usage'})).toBeNull()
   },
 }

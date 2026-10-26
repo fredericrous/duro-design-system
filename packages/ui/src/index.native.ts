@@ -42,6 +42,12 @@ export {Alert, type AlertVariant} from './components/Alert/Alert'
 export {Callout, type CalloutVariant} from './components/Callout/Callout'
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Icon, type IconName} from './components/Icon'
+export {
+  Avatar,
+  type AvatarProps,
+  type AvatarShape,
+  type AvatarSize,
+} from './components/Avatar/Avatar'
 export {Meter, type MeterProps, type MeterTone} from './components/Meter/Meter'
 export {QrCode, type QrCodeProps} from './components/QrCode/QrCode'
 export {Spinner, type SpinnerSize} from './components/Spinner/Spinner'

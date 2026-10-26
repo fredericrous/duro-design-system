@@ -190,6 +190,7 @@ These components **must** be wrapped in their `.Root`:
 | **AppShell** | An application's frame: a navigation rail (a labelled nav, the brand at its top, an optional footer at its foot) beside the main content (main), with an optional Header | compound: Header, Main, Rail, Root |
 | **Arrow** | Connector line between two points, with an arrowhead at the end | `from`, `to`, `bend` |
 | **Aside** | Content beside the main reading column — a table of contents, related pages: a labelled aside landmark that sticks within the viewport while the page scrolls and scrolls on its own when taller (offset from a spacing token, the raised layer) | `aria-label`, `offset`, `ref` |
+| **Avatar** | A person or entity as a picture, else their initials, else a neutral placeholder | `src`, `alt`, `initials` |
 | **Badge** | Small label or tag for status indicators, counts, or categories | `variant`, `size` |
 | **Breadcrumb** | Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first | compound: Item, Root |
 | **Button** | Standard interactive button | `variant`, `size`, `fullWidth` |
@@ -586,6 +587,7 @@ is added.
 | `warning` / `warningBg` / `warningText` | Warning states                       |
 | `info` / `infoBg` / `infoText`          | Informational states                 |
 | `highlight` / `highlightBg` / `highlightText` | A non-status accent: a category or intent (purple), never a state |
+| `categoryBlue` / `categoryGreen` / `categoryOrange` / `categoryYellow` / `categoryRed` / `categoryIndigo` / `categoryPurple` | Non-status category hues (an icon tile, a tag, an avatar); never a state, so not for success or error |
 | `contrastSurface` / `onContrastSurface` | Opposite-tone surface (toasts, coach marks) and its text |
 | `contrastBorder`                        | Border on `contrastSurface` (≥ 3:1 against it)            |
 | `overlayLight`                          | Fixed translucent white over content (light counterpart of `scrim`) |

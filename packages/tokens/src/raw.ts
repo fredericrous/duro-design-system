@@ -41,6 +41,13 @@ export type RawColors = {
   highlightBg: string
   highlightBorder: string
   highlightText: string
+  categoryBlue: string
+  categoryGreen: string
+  categoryOrange: string
+  categoryYellow: string
+  categoryRed: string
+  categoryIndigo: string
+  categoryPurple: string
   scrim: string
   inverseFill: string
   inverseFillHover: string
@@ -272,6 +279,15 @@ export const darkColors: RawColors = {
   highlightBg: 'rgba(192, 132, 252, 0.1)',
   highlightBorder: 'rgba(192, 132, 252, 0.3)',
   highlightText: '#d8b4fe',
+
+  // Category hues — non-status colours that tell categories apart (an icon tile, a tag); never a state.
+  categoryBlue: '#9EB9FF',
+  categoryGreen: '#66DC7E',
+  categoryOrange: '#E0B65A',
+  categoryYellow: '#F1C96A',
+  categoryRed: '#EE6E6C',
+  categoryIndigo: '#8EA3FF',
+  categoryPurple: '#C0A7FF',
   scrim: 'rgba(0, 0, 0, 0.4)',
   inverseFill: 'rgba(0, 0, 0, 0.10)',
   inverseFillHover: 'rgba(0, 0, 0, 0.18)',
@@ -343,6 +359,15 @@ export const lightColors: RawColors = {
   highlightBg: 'rgba(107, 33, 168, 0.08)',
   highlightBorder: 'rgba(107, 33, 168, 0.3)',
   highlightText: '#581c87',
+
+  // Category hues — non-status colours that tell categories apart (an icon tile, a tag); never a state.
+  categoryBlue: '#007AFF',
+  categoryGreen: '#34C759',
+  categoryOrange: '#FF9500',
+  categoryYellow: '#FFCC00',
+  categoryRed: '#FF3B30',
+  categoryIndigo: '#5856D6',
+  categoryPurple: '#AF52DE',
   scrim: 'rgba(0, 0, 0, 0.4)',
   inverseFill: 'rgba(0, 0, 0, 0.10)',
   inverseFillHover: 'rgba(0, 0, 0, 0.18)',
@@ -414,6 +439,15 @@ export const highContrastColors: RawColors = {
   highlightBg: 'rgba(216, 180, 254, 0.15)',
   highlightBorder: 'rgba(216, 180, 254, 0.5)',
   highlightText: '#e9d5ff',
+
+  // Category hues — non-status colours that tell categories apart (an icon tile, a tag); never a state.
+  categoryBlue: '#9EB9FF',
+  categoryGreen: '#66DC7E',
+  categoryOrange: '#E0B65A',
+  categoryYellow: '#F1C96A',
+  categoryRed: '#EE6E6C',
+  categoryIndigo: '#8EA3FF',
+  categoryPurple: '#C0A7FF',
   scrim: 'rgba(0, 0, 0, 0.4)',
   inverseFill: 'rgba(0, 0, 0, 0.10)',
   inverseFillHover: 'rgba(0, 0, 0, 0.18)',

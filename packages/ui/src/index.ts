@@ -18,6 +18,12 @@ export {
 } from './components/AppShell/AppShell'
 export {Aside} from './components/Aside/Aside'
 export {Icon, type IconName} from './components/Icon'
+export {
+  Avatar,
+  type AvatarProps,
+  type AvatarShape,
+  type AvatarSize,
+} from './components/Avatar/Avatar'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
 export {Breadcrumb} from './components/Breadcrumb/Breadcrumb'
 export {Button, type ButtonVariant, type ButtonSize} from './components/Button/Button'

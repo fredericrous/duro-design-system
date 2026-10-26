@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Vertical list of interactive items. Ideal for narrow spaces (detail panels, sidebars) where Table would truncate. Supports selection, descriptions, and action slots. An Item with onClick is pressable anywhere on its row, and its Content becomes a button: focusable, pressed with Enter or Space, announced with its text, disabled with the Item; the Actions stay beside it, so a Button there never nests in it.',
+    'Vertical list of interactive items. Ideal for narrow spaces (detail panels, sidebars) where Table would truncate. Supports selection, descriptions, and action slots. An Item with onClick is pressable anywhere on its row, and its Content becomes a button: focusable, pressed with Enter or Space, announced with its text, disabled with the Item; the Actions stay beside it, so a Button there never nests in it. An Item with href (and onNavigate for client-side routing, ADR-0002) makes its Content a real link instead: a settings-style row that goes somewhere; a disabled link Item is plain text. List.Leading holds an icon or an Avatar before the Content (decorative unless given an aria-label). List.Root takes a title, which names the list, and a footer of muted text under it.',
   whenToUse: [
     'Displaying items in a narrow container (< 480px)',
     'Detail panels, drawers, and sidebars',
@@ -10,12 +10,12 @@ export const meta: ComponentMeta = {
   ],
   whenNotToUse: [
     'Tabular data with many columns — use Table',
-    'Navigation menus — use SideNav or Menu',
+    "An app's main navigation — use SideNav or AppShell (a List of link Items is for rows that each open a page, like a settings index)",
     'Simple text lists without interaction — use Stack with Text',
   ],
   anatomy: {
     required: ['Root', 'Item', 'Content', 'Text'],
-    optional: ['Description', 'Actions', 'Empty'],
+    optional: ['Leading', 'Description', 'Actions', 'Empty'],
   },
   relatedTo: [
     {
