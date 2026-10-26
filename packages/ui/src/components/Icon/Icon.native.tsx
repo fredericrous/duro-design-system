@@ -2,7 +2,7 @@ import {createElement} from 'react'
 import Svg, {Circle, Ellipse, Line, Path, Polygon, Polyline, Rect} from 'react-native-svg'
 import {ICON_SIZES, type ColorToken} from '@duro-app/tokens/keys'
 import {useResolvedColors} from '../ThemeProvider/ThemeProvider'
-import {GLYPHS, type Paint, type Shape} from './geometry'
+import {DEFAULT_VIEW_BOX, GLYPHS, type Paint, type Shape} from './geometry'
 import type {IconProps} from './types'
 
 export type {IconName, IconProps, IconSize} from './types'
@@ -37,7 +37,7 @@ export function Icon({name, size: sizeToken = 'lg', color = 'text'}: IconProps) 
     glyph.style === 'fill' ? {fill: 'currentColor'} : {fill: 'none', stroke: 'currentColor'}
   return (
     <Svg
-      viewBox="0 0 24 24"
+      viewBox={glyph.viewBox ?? DEFAULT_VIEW_BOX}
       width={size}
       height={size}
       color={resolved}

@@ -1,8 +1,12 @@
 import type {ColorToken, IconSize} from '@duro-app/tokens/keys'
 
+import type {PhosphorIconName} from './phosphor-glyphs'
+
 export type {IconSize}
 
+/** Duro's own glyphs, then the Phosphor-generated ones Happier's React Native icon names use. */
 export type IconName =
+  | PhosphorIconName
   | 'x-circle'
   | 'check-circle'
   | 'check-done'

@@ -1,0 +1,31 @@
+import type {ComponentMeta} from '../component-meta'
+
+export const meta: ComponentMeta = {
+  description:
+    'A person or entity as a picture, else their initials, else a neutral placeholder. alt is required and is the accessible name in all three states. sm, md and lg map to the controlSm, thumbSm and iconXxl size tokens; shape is circle or square. An image that fails to load falls back to the initials.',
+  whenToUse: [
+    'The owner, author or assignee of a record, beside their name',
+    'A List.Leading slot for people or accounts',
+  ],
+  whenNotToUse: [
+    'A glyph for a thing or a status — use Icon or StatusIcon',
+    'A photo that is the content — use an image element inside Card',
+  ],
+  relatedTo: [
+    {
+      component: 'List',
+      kind: 'composition',
+      relationship: 'Avatar fills List.Leading for people and accounts',
+    },
+    {
+      component: 'Icon',
+      kind: 'contrast',
+      relationship: 'Icon draws a glyph; Avatar identifies someone',
+    },
+  ],
+  example: `<Inline gap="sm" align="center">
+  <Avatar src="/people/ada.png" alt="Ada Lovelace" />
+  <Avatar alt="Grace Hopper" initials="GH" size="lg" />
+  <Avatar alt="Unassigned" shape="square" />
+</Inline>`,
+}

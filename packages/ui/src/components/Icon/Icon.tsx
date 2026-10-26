@@ -2,7 +2,7 @@ import {createElement} from 'react'
 import {ICON_SIZES} from '@duro-app/tokens/keys'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 
-import {GLYPHS, type Shape} from './geometry'
+import {DEFAULT_VIEW_BOX, GLYPHS, type Shape} from './geometry'
 import type {IconProps} from './types'
 
 export type {IconName, IconProps, IconSize} from './types'
@@ -16,11 +16,12 @@ function svgShape(shape: Shape, key: number) {
 export function Icon({name, size: sizeToken = 'lg', color}: IconProps) {
   const size = ICON_SIZES[sizeToken]
   const glyph = GLYPHS[name]
+  const viewBox = glyph.viewBox ?? DEFAULT_VIEW_BOX
   const shapes = glyph.shapes.map(svgShape)
   const style = color ? {color: colors[color]} : undefined
   if (glyph.style === 'fill') {
     return (
-      <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size} style={style}>
+      <svg viewBox={viewBox} fill="currentColor" width={size} height={size} style={style}>
         {shapes}
       </svg>
     )
@@ -28,7 +29,7 @@ export function Icon({name, size: sizeToken = 'lg', color}: IconProps) {
 
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox={viewBox}
       fill="none"
       stroke="currentColor"
       strokeWidth={2}

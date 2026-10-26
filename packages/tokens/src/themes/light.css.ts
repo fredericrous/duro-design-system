@@ -36,6 +36,16 @@ export const lightTheme = css.createTheme(colors, {
   highlightBg: 'rgba(107, 33, 168, 0.08)',
   highlightBorder: 'rgba(107, 33, 168, 0.3)',
   highlightText: '#581c87',
+
+  // Category hues — non-status colours that tell categories apart (an icon tile, a tag); never a state.
+  categoryBlue: '#007AFF',
+  categoryGreen: '#34C759',
+  categoryOrange: '#FF9500',
+  categoryYellow: '#FFCC00',
+  categoryRed: '#FF3B30',
+  categoryIndigo: '#5856D6',
+  categoryPurple: '#AF52DE',
+
   // Fixed overlays — the same in every theme (a scrim darkens whatever is
   // under it; the inverse overlays sit on an accent surface).
   scrim: 'rgba(0, 0, 0, 0.4)',

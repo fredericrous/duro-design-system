@@ -1,3 +1,4 @@
+import {PHOSPHOR_GLYPHS} from './phosphor-glyphs'
 import type {IconName} from './types'
 
 /**
@@ -33,10 +34,16 @@ export type Shape =
 
 export interface Glyph {
   readonly style: 'stroke' | 'fill'
+  /** The glyph's own coordinate space; the 24-unit grid when absent. */
+  readonly viewBox?: string
   readonly shapes: readonly Shape[]
 }
 
+/** The grid Duro's own glyphs are drawn on. */
+export const DEFAULT_VIEW_BOX = '0 0 24 24'
+
 export const GLYPHS: Record<IconName, Glyph> = {
+  ...PHOSPHOR_GLYPHS,
   'x-circle': {
     style: 'stroke',
     shapes: [
