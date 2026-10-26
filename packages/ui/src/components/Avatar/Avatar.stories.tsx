@@ -1,5 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect} from 'storybook/test'
+import {expect, waitFor} from 'storybook/test'
 import {Avatar} from './Avatar'
 import {Inline} from '../Inline/Inline'
 import {onThemeSurface} from '../../docs/themedSurface'
@@ -64,4 +64,16 @@ export const Shapes: Story = {
       <Avatar alt="Square" initials="S" shape="square" />
     </Inline>
   ),
+}
+
+/** An image that cannot load falls back to the initials. */
+export const BrokenImage: Story = {
+  args: {src: 'data:image/png;base64,not-an-image', alt: 'Alan Turing', initials: 'AT'},
+  play: async ({canvas}) => {
+    await waitFor(async () => {
+      const avatar = canvas.getByRole('img', {name: 'Alan Turing'})
+      await expect(avatar.tagName).not.toBe('IMG')
+      await expect(avatar).toHaveTextContent('AT')
+    })
+  },
 }

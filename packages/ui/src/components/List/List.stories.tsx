@@ -337,6 +337,14 @@ export const LinkItems: StoryObj<{onNavigate: OnNavigate}> = {
     }
     await expect(onNavigate).toHaveBeenCalledTimes(1)
 
+    // A press on the row outside the text (its Leading icon) follows the link once.
+    const appearanceRow = canvas
+      .getByRole('link', {name: 'Appearance'})
+      .closest('[role="listitem"]')
+    ;(appearanceRow?.firstElementChild as HTMLElement).click()
+    await expect(onNavigate).toHaveBeenCalledTimes(2)
+    await expect(onNavigate.mock.calls[1][0]).toBe('#appearance')
+
     // A disabled link item is plain text, not a link; the Leading icon is decorative.
     await expect(canvas.getAllByRole('link')).toHaveLength(2)
     await expect(canvas.queryByRole('link', {name: 'Usage'})).toBeNull()

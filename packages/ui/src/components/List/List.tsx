@@ -1,7 +1,7 @@
-import {type ReactNode, createContext, useContext, useId, useMemo} from 'react'
+import {type ReactNode, createContext, useContext, useId, useMemo, useState} from 'react'
 import {html} from 'react-strict-dom'
 import type {OnNavigate} from '../../shared/navigate'
-import {ItemLink} from './ItemLink'
+import {ItemLink, createItemLinkState, pressItemLink, type ItemLinkState} from './ItemLink'
 import {styles} from './styles.css'
 
 // --- Types ---
@@ -110,7 +110,13 @@ type ItemProps = PressItemProps | LinkItemProps
 // What a pressable or linked Item hands its Content, which becomes the item's button or link.
 type ItemAction =
   | {kind: 'press'; onClick: () => void; disabled: boolean}
-  | {kind: 'link'; href: string; onNavigate: OnNavigate | undefined; disabled: boolean}
+  | {
+      kind: 'link'
+      href: string
+      onNavigate: OnNavigate | undefined
+      disabled: boolean
+      linkState: ItemLinkState
+    }
 
 const ItemActionContext = createContext<ItemAction | null>(null)
 
@@ -118,10 +124,14 @@ function Item({children, selected, disabled, onClick, href, onNavigate}: ItemPro
   const {selectionMode} = useList()
   const isSelectable = selectionMode !== 'none'
   const isDisabled = disabled === true
+  const [linkState] = useState(createItemLinkState)
   const action = useMemo<ItemAction | null>(() => {
-    if (href !== undefined) return {kind: 'link', href, onNavigate, disabled: isDisabled}
+    if (href !== undefined) return {kind: 'link', href, onNavigate, disabled: isDisabled, linkState}
     return onClick ? {kind: 'press', onClick, disabled: isDisabled} : null
-  }, [href, onNavigate, onClick, isDisabled])
+  }, [href, onNavigate, onClick, isDisabled, linkState])
+  // A press anywhere on a link row (its Leading icon, its padding) follows the link, as a
+  // settings row does; a press on the Content's link is the link's own.
+  const onRowClick = href !== undefined ? () => pressItemLink(linkState, href, onNavigate) : onClick
 
   return (
     <ItemActionContext.Provider value={action}>
@@ -129,9 +139,9 @@ function Item({children, selected, disabled, onClick, href, onNavigate}: ItemPro
         role="listitem"
         aria-selected={isSelectable ? selected : undefined}
         aria-disabled={disabled || undefined}
-        // A press anywhere on the row; the Content's button is what keyboards and screen
-        // readers reach.
-        onClick={disabled ? undefined : onClick}
+        // A press anywhere on the row; the Content's button or link is what keyboards and
+        // screen readers reach.
+        onClick={disabled ? undefined : onRowClick}
         style={[
           styles.item,
           (onClick != null || href !== undefined) && !disabled && styles.itemClickable,
@@ -155,7 +165,7 @@ function Content({children}: {children: ReactNode}) {
   }
   if (action.kind === 'link') {
     return (
-      <ItemLink href={action.href} onNavigate={action.onNavigate}>
+      <ItemLink state={action.linkState} href={action.href} onNavigate={action.onNavigate}>
         {children}
       </ItemLink>
     )

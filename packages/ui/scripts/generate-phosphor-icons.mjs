@@ -5,8 +5,8 @@
  *   node packages/ui/scripts/generate-phosphor-icons.mjs
  *
  * Input: src/components/Icon/phosphor-names.json, one Phosphor icon name per entry. It lists the
- * names Happier's React Native icon set uses that Duro does not define itself (a clash goes to
- * Duro's own glyph, so a name Duro defines is never listed).
+ * names Happier's React Native icon set uses that Duro does not define itself. A listed name
+ * Duro also defines resolves to Duro's glyph (geometry.ts spreads these first).
  * Output: the geometry of each name as a `fill` glyph on Phosphor's own 256-unit viewBox. The
  * output is committed, so consumers do not need `@phosphor-icons/core`, which is a devDependency
  * of this package only. The script is idempotent: a second run changes nothing.
