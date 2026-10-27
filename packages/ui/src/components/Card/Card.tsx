@@ -3,7 +3,8 @@ import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 
 export type CardVariant = 'elevated' | 'outlined' | 'filled' | 'interactive'
-export type CardSize = 'default' | 'compact' | 'full'
+/** `flush`: no padding, the content reaching the card's rounded edge (a List of rows). */
+export type CardSize = 'default' | 'compact' | 'full' | 'flush'
 
 interface CardProps {
   variant?: CardVariant
@@ -17,6 +18,7 @@ const sizeMap = {
   default: styles.sizeDefault,
   compact: styles.sizeCompact,
   full: styles.sizeFull,
+  flush: styles.sizeFlush,
 } as const
 
 export function Card({

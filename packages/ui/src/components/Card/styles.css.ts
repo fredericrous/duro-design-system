@@ -65,6 +65,11 @@ export const styles = css.create({
   sizeFull: {
     padding: spacing.xl,
   },
+  // Rows reach the edge; the rounded corners clip them.
+  sizeFlush: {
+    padding: 0,
+    overflow: 'hidden',
+  },
   // Header
   header: {
     fontSize: typography.fontSizeLg,

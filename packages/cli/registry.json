@@ -992,7 +992,8 @@
           "union": [
             "default",
             "compact",
-            "full"
+            "full",
+            "flush"
           ]
         },
         {
@@ -11532,7 +11533,8 @@
     "CardSize": [
       "default",
       "compact",
-      "full"
+      "full",
+      "flush"
     ],
     "CardVariant": [
       "elevated",
