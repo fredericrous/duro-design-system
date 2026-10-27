@@ -37,3 +37,7 @@ areas:
   packages/ui/**: [ui]
   # ui: examples/native/package.json — the Expo app that bundles the native barrel
   examples/native/**: [ui]
+
+# The fleet stack scopes this repository is in (decisions ADR-0046):
+# aval answers resolve/relevant at them by default.
+in_scopes: [duro-stack]
