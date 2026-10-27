@@ -7,6 +7,7 @@ import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'
 import type {OnNavigate} from '../../shared/navigate'
 import {Icon} from '../Icon/Icon'
+import {Card} from '../Card/Card'
 import {Badge} from '../Badge/Badge'
 import {Button} from '../Button/Button'
 import {Checkbox} from '../Checkbox/Checkbox'
@@ -363,5 +364,47 @@ export const LinkItems: StoryObj<{onNavigate: OnNavigate}> = {
     // A disabled link item is plain text, not a link; the Leading icon is decorative.
     await expect(canvas.getAllByRole('link')).toHaveLength(2)
     await expect(canvas.queryByRole('link', {name: 'Usage'})).toBeNull()
+  },
+}
+
+/**
+ * A settings group: the rows in a flush Card, reaching its rounded edge, with a divider between
+ * rows and none under the last (a hidden conditional row does not count).
+ */
+export const InFlushCard: StoryObj<{showHidden: boolean}> = {
+  decorators: [onThemeSurface],
+  args: {showHidden: false},
+  render: (args) => (
+    <Card variant="outlined" size="flush">
+      <List.Root aria-label="General">
+        <List.Item href="#updates">
+          <List.Content>
+            <List.Text>Updates</List.Text>
+          </List.Content>
+        </List.Item>
+        <List.Item href="#appearance">
+          <List.Content>
+            <List.Text>Appearance</List.Text>
+          </List.Content>
+        </List.Item>
+        {args.showHidden ? (
+          <List.Item>
+            <List.Content>
+              <List.Text>Hidden</List.Text>
+            </List.Content>
+          </List.Item>
+        ) : null}
+      </List.Root>
+    </Card>
+  ),
+  play: async ({canvas}) => {
+    const list = canvas.getByRole('list', {name: 'General'})
+    const items = canvas.getAllByRole('listitem')
+    await expect(items).toHaveLength(2)
+    await expect(getComputedStyle(items[0]).borderBottomWidth).toBe('1px')
+    await expect(getComputedStyle(items[1]).borderBottomWidth).toBe('0px')
+    const card = list.parentElement as HTMLElement
+    await expect(getComputedStyle(card).paddingTop).toBe('0px')
+    await expect(getComputedStyle(card).overflow).toBe('hidden')
   },
 }

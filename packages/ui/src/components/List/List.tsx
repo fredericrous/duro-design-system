@@ -1,4 +1,13 @@
-import {type ReactNode, createContext, useContext, useId, useMemo, useState} from 'react'
+import {
+  Children,
+  type ReactNode,
+  createContext,
+  isValidElement,
+  useContext,
+  useId,
+  useMemo,
+  useState,
+} from 'react'
 import {html} from 'react-strict-dom'
 import type {OnNavigate} from '../../shared/navigate'
 import {
@@ -21,6 +30,9 @@ interface ListContextValue {
 }
 
 const ListContext = createContext<ListContextValue>({selectionMode: 'none'})
+
+// The Root's last item draws no divider below it: the list (or the card around it) ends there.
+const LastItemContext = createContext(false)
 
 function useList() {
   return useContext(ListContext)
@@ -56,7 +68,7 @@ function Root({
       aria-labelledby={hasTitle ? titleId : undefined}
       style={styles.root}
     >
-      {children}
+      {markLastItem(children)}
     </html.div>
   )
   return (
@@ -75,6 +87,20 @@ function Root({
         list
       )}
     </ListContext.Provider>
+  )
+}
+
+/** The Root's children, the last one told it is last (a hidden conditional row is not counted). */
+function markLastItem(children: ReactNode): ReactNode {
+  const items = Children.toArray(children)
+  return items.map((child, index) =>
+    index === items.length - 1 ? (
+      <LastItemContext.Provider key={isValidElement(child) ? child.key : index} value={true}>
+        {child}
+      </LastItemContext.Provider>
+    ) : (
+      child
+    ),
   )
 }
 
@@ -130,6 +156,7 @@ function Item({children, selected, disabled, onClick, href, onNavigate}: ItemPro
   const {selectionMode} = useList()
   const isSelectable = selectionMode !== 'none'
   const isDisabled = disabled === true
+  const isLast = useContext(LastItemContext)
   const [linkState] = useState(createItemLinkState)
   const action = useMemo<ItemAction | null>(() => {
     if (href !== undefined) return {kind: 'link', href, onNavigate, disabled: isDisabled, linkState}
@@ -155,6 +182,7 @@ function Item({children, selected, disabled, onClick, href, onNavigate}: ItemPro
           styles.item,
           (onClick != null || href !== undefined) && !disabled && styles.itemClickable,
           selected && styles.itemSelected,
+          isLast && styles.itemLast,
           disabled && styles.itemDisabled,
         ]}
       >
