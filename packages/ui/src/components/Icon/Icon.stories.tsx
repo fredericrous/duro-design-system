@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {css, html} from 'react-strict-dom'
 import {Icon} from './Icon'
 import type {IconName} from './Icon'
+import {PHOSPHOR_GLYPHS} from './phosphor-glyphs'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
@@ -68,6 +69,11 @@ const groups: ReadonlyArray<{title: string; names: readonly IconName[]}> = [
       'shield-filled',
       'lock-filled',
     ],
+  },
+  // Generated from @phosphor-icons/core (scripts/generate-phosphor-icons.mjs), alphabetical.
+  {
+    title: 'Phosphor',
+    names: (Object.keys(PHOSPHOR_GLYPHS) as IconName[]).sort(),
   },
 ]
 
