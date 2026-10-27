@@ -28,7 +28,12 @@ const iconDirectory = join(
 const namesFile = join(iconDirectory, 'phosphor-names.json')
 const outputFile = join(iconDirectory, 'phosphor-glyphs.ts')
 
-const SOURCE_ALIASES = {'hard-drive-download': 'download-simple'}
+const SOURCE_ALIASES = {
+  'hard-drive-download': 'download-simple',
+  'octagon-x': 'prohibit',
+  'sidebar-left-close': 'sidebar',
+  'sidebar-left-open': 'sidebar-simple',
+}
 
 const assetsDirectory = join(
   dirname(fileURLToPath(import.meta.url)),
