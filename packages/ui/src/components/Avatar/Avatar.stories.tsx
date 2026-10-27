@@ -77,3 +77,16 @@ export const BrokenImage: Story = {
     })
   },
 }
+
+const ART =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 1"><rect width="1" height="1" fill="#c33"/><rect x="1" width="1" height="1" fill="#36c"/></svg>'
+
+/** An app-generated SVG document fills the frame when there is no loadable src. */
+export const GeneratedSvg: Story = {
+  args: {svg: ART, alt: 'Generated art'},
+  play: async ({canvas}) => {
+    const image = canvas.getByRole('img', {name: 'Generated art'})
+    await expect(image.tagName).toBe('IMG')
+    await expect(image.getAttribute('src')).toMatch(/^data:image\/svg\+xml/)
+  },
+}

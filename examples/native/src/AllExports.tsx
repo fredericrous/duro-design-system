@@ -87,6 +87,7 @@ export function AllExports() {
           <Icon name="server" />
           <Icon name="paw-print" color="categoryGreen" />
           <Avatar alt="Grace Hopper" initials="GH" size="sm" />
+          <Avatar alt="Generated" svg={GENERATED_SVG} size="sm" />
           <StatusIcon name="check-circle" variant="success" size="lg" />
           <Spinner label="Loading" />
         </Inline>
