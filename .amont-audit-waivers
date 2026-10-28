@@ -37,3 +37,11 @@ GHSA-86w9-cpqp-85rv 2026-12-31 node-forge via examples/native > expo > @expo/cli
 # breaks `expo export`). Remove when Expo's Metro moves to image-size 2.
 GHSA-5p2g-fcmc-qvqq 2026-12-31 image-size via examples/native > metro (build-time, the example's own assets); image-size 2 breaks Metro 0.83
 GHSA-w3rx-r6r6-pgpr 2026-12-31 image-size via examples/native > metro (build-time, the example's own assets); image-size 2 breaks Metro 0.83
+#
+# deepmerge 4.2.0-4.3.1 (mergeObject prototype poisoning of the returned
+# object) has no patched version. It ships through @duro-app/ui-email >
+# @react-email/render > html-to-text, which merges its own formatter options,
+# and through examples/native > expo > @expo/config (build-time config of the
+# private example). Neither merges user input. Remove when deepmerge publishes
+# a fix.
+GHSA-gcqx-w48m-w2h4 2026-12-31 deepmerge via ui-email > @react-email/render > html-to-text (own options) and examples/native > @expo/config (build-time); no patched version exists
