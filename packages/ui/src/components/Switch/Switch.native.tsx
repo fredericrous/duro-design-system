@@ -17,6 +17,7 @@ export function Switch({
   onCheckedChange,
   disabled = false,
   children,
+  'aria-label': ariaLabel,
 }: SwitchProps) {
   const [checked, setChecked] = useControllableValue(
     controlledChecked,
@@ -33,6 +34,7 @@ export function Switch({
         type="button"
         role="switch"
         aria-checked={checked}
+        aria-label={!children ? ariaLabel : undefined}
         disabled={disabled}
         onClick={handleClick}
         style={[styles.track, checked ? styles.trackChecked : styles.trackUnchecked]}

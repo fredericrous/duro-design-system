@@ -15,4 +15,6 @@ export interface SwitchProps {
   value?: string
   /** Label content rendered beside the switch. */
   children?: ReactNode
+  /** Names the switch when it has no visible label (`children`), e.g. a row whose title already shows it. */
+  'aria-label'?: string
 }
