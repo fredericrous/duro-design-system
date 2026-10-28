@@ -40,6 +40,16 @@ export const Checked: Story = {
   },
 }
 
+/** No visible label: a settings row shows the title, and `aria-label` names the switch. */
+export const Labelled: Story = {
+  args: {'aria-label': 'Analytics'},
+  play: async ({canvas, userEvent, args}) => {
+    const switchEl = canvas.getByRole('switch', {name: 'Analytics'})
+    await userEvent.click(switchEl)
+    await expect(args.onCheckedChange).toHaveBeenCalledWith(true)
+  },
+}
+
 export const Disabled: Story = {
   args: {disabled: true, children: 'Cannot toggle'},
   play: async ({canvas, userEvent, args}) => {

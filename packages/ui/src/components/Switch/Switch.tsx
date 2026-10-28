@@ -15,6 +15,7 @@ export function Switch({
   name,
   value,
   children,
+  'aria-label': ariaLabel,
 }: SwitchProps) {
   const [checked, setChecked] = useControllableValue(
     controlledChecked,
@@ -46,6 +47,7 @@ export function Switch({
         defaultChecked={controlledChecked === undefined ? defaultChecked : undefined}
         disabled={disabled}
         aria-checked={checked}
+        aria-label={!children ? ariaLabel : undefined}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           onCheckedChange?.(e.target.checked)
         }}

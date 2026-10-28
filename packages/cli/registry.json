@@ -6637,6 +6637,12 @@
           "name": "children",
           "required": false,
           "type": "ReactNode"
+        },
+        {
+          "description": "Names the switch when it has no visible label (`children`), e.g. a row whose title already shows it.",
+          "name": "aria-label",
+          "required": false,
+          "type": "string"
         }
       ],
       "sourcePath": "packages/ui/src/components/Switch/Switch.tsx"
