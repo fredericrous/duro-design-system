@@ -6,7 +6,7 @@ import {
   type EffectiveOverrides,
 } from '../src/components/ThemeProvider/overrides'
 import {overrideRule} from '../src/components/ThemeProvider/overrideRule'
-import {nativeThemeInputs} from '../src/components/ThemeProvider/nativeInputs'
+import {nativeThemeInputs, resolvedColors} from '../src/components/ThemeProvider/nativeInputs'
 import {warnDropped} from '../src/components/ThemeProvider/warnDropped'
 
 const none: EffectiveOverrides = {theme: null, tokens: {}}
@@ -83,6 +83,17 @@ describe('nativeThemeInputs', () => {
       typography: {fontFamilyMono: 'JetBrains Mono', fontSizeMd: '1.25rem'},
       radii: {md: '6px'},
     })
+  })
+
+  it('resolves colours from the palette plus the colour overrides only', () => {
+    const palette = {bg: '#000', accent: '#00f', text: '#eee'}
+    const inputs = nativeThemeInputs(
+      merge(none, 'dark', {colors: {accent: '#fff'}, radii: {md: '6px'}}),
+    )
+    const resolved = resolvedColors(palette, inputs.colors)
+    expect(resolved.bg).toBe('#000')
+    expect(resolved.accent).toBe('#fff')
+    expect(Object.keys(resolved).sort()).toEqual(['accent', 'bg', 'text'])
   })
 
   it('leaves out a group with no entries, and its colours stay colours only', () => {

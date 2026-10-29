@@ -26,7 +26,7 @@ import {
   type ColorOverrides,
   type ThemeTokens,
 } from './overrides'
-import {nativeThemeInputs} from './nativeInputs'
+import {nativeThemeInputs, resolvedColors} from './nativeInputs'
 import {TOKEN_GROUPS} from './tokenGroups'
 import {warnDropped} from './warnDropped'
 
@@ -148,7 +148,7 @@ export function ThemeProvider({theme = 'dark', overrides, tokens, children}: The
   // Resolved colours come from the palette plus the colour overrides only.
   const colorKey = JSON.stringify(inputs.colors ?? {})
   const resolved = useMemo(
-    () => ({...palettes[theme], ...(JSON.parse(colorKey) as ColorOverrides)}),
+    () => resolvedColors(palettes[theme], JSON.parse(colorKey) as ColorOverrides),
     [theme, colorKey],
   )
   const scope = useMemo<ThemeScope>(

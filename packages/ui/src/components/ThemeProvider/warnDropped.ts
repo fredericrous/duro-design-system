@@ -1,5 +1,8 @@
 import {describeDropped, type DroppedToken} from '@duro-app/tokens/theme'
 
+// Process-wide on purpose: every provider on a page shares one theme file, so
+// one warning per value is enough. holds-until: two apps with different theme
+// files share a page and need their own warnings (then keep it per provider).
 const warned = new Set<string>()
 
 /**

@@ -10,6 +10,7 @@ import {ThemeProvider, type ColorOverrides, type ThemeName} from './ThemeProvide
 import {Button} from '../Button/Button'
 import {Badge} from '../Badge/Badge'
 import {Tabs} from '../Tabs/Tabs'
+import {Select} from '../Select/Select'
 import {Text} from '../Text/Text'
 
 const meta: Meta = {
@@ -25,6 +26,8 @@ const styles = css.create({
     gap: spacing.sm,
     padding: spacing.md,
     backgroundColor: colors.bg,
+    // Read the token, as components do, so the font assertions test the theme.
+    fontFamily: typography.fontFamily,
   },
 })
 
@@ -125,7 +128,10 @@ const probe = css.create({
   width: {width: sizes.dialogSm},
   target: {minHeight: sizes.touchTarget},
   corner: {borderRadius: radii.sm},
-  timeReadout: {width: sizes.timeReadoutW},
+  themedCorner: {borderRadius: radii.md},
+  // A readout is set small: at 16px, eight mono digits need about 77px,
+  // more than timeReadoutW (74px).
+  timeReadout: {width: sizes.timeReadoutW, fontSize: typography.fontSizeSm},
 })
 
 /**
@@ -152,12 +158,24 @@ export const Tokens: StoryObj = {
             <Tabs.Tab value="two">Two</Tabs.Tab>
           </Tabs.List>
         </Tabs.Root>
+        <Select.Root defaultValue="alpha">
+          <Select.Trigger aria-label="Pick one">
+            <Select.Value />
+            <Select.Icon />
+          </Select.Trigger>
+          <Select.Popup>
+            <Select.Item value="alpha">
+              <Select.ItemText>Alpha</Select.ItemText>
+            </Select.Item>
+          </Select.Popup>
+        </Select.Root>
         <html.div data-testid="mono" style={probe.mono}>
           mono
         </html.div>
         <html.div data-testid="width" style={probe.width} />
         <html.div data-testid="target" style={probe.target} />
         <html.div data-testid="corner" style={probe.corner} />
+        <html.div data-testid="themed-corner" style={probe.themedCorner} />
         <html.div data-testid="readout" style={probe.timeReadout}>
           00:00:00
         </html.div>
@@ -181,7 +199,7 @@ export const Tokens: StoryObj = {
     await expect(unquoted(getComputedStyle(canvas.getByTestId('mono')).fontFamily)).toMatch(
       /^Courier New/,
     )
-    await expect(getComputedStyle(button).borderRadius).toBe('2px')
+    await expect(getComputedStyle(canvas.getByTestId('themed-corner')).borderRadius).toBe('2px')
     await expect(getComputedStyle(outer).padding).toBe('20px')
     await expect(getComputedStyle(canvas.getByTestId('width')).width).toBe('300px')
     // A nested provider on another theme keeps the size.
@@ -192,6 +210,7 @@ export const Tokens: StoryObj = {
     for (const el of [
       button,
       ...canvas.getAllByRole('tab'),
+      canvas.getByRole('combobox', {name: 'Pick one'}),
       canvas.getByText('New'),
       canvas.getByTestId('readout'),
     ]) {

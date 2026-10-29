@@ -24,7 +24,7 @@ import {GROUP_ALIASES, kebab} from './names'
 
 export {GROUP_ALIASES, kebab}
 
-// --- value kinds ------------------------------------------------------------
+// Value kinds.
 
 const NUMBER = String.raw`(?:\d+(?:\.\d+)?|\.\d+)`
 const LENGTH = String.raw`(?:0|${NUMBER}(?:px|rem))`
@@ -199,7 +199,7 @@ function fontFamilyProblem(value: string): string {
     : `"${refused}" is not a font name or a quoted name in a font-family list`
 }
 
-// --- the group table ----------------------------------------------------------
+// The group table.
 
 const COLOR_KEYS = Object.keys(darkColors) as readonly ColorToken[]
 const RADIUS_THEMABLE_KEYS = RADIUS_KEYS.filter(
@@ -278,7 +278,7 @@ export type ThemeTokens = {
   readonly [Group in ThemableGroup]?: Partial<Record<(typeof SPECS)[Group]['keys'][number], string>>
 }
 
-// --- validation ---------------------------------------------------------------
+// Validation.
 
 /** One entry that was refused, and the single wording of why. */
 export interface DroppedToken {

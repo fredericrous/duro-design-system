@@ -1,6 +1,6 @@
 import {THEMABLE_GROUPS} from '@duro-app/tokens/theme'
 import type {ThemableGroup} from '@duro-app/tokens/theme'
-import type {EffectiveOverrides} from './overrides'
+import type {ColorOverrides, EffectiveOverrides} from './overrides'
 
 /** `"JetBrains Mono", monospace` → `JetBrains Mono`: native takes one family, unquoted. */
 export function firstFamily(list: string): string {
@@ -27,4 +27,12 @@ export function nativeThemeInputs(effective: EffectiveOverrides): NativeThemeInp
         : entries
   }
   return inputs
+}
+
+/** What `useResolvedColors` returns: the theme's palette with the colour overrides laid over it, and nothing else. */
+export function resolvedColors<Palette extends Record<string, string>>(
+  palette: Palette,
+  colors: ColorOverrides | undefined,
+): Palette {
+  return {...palette, ...colors}
 }
