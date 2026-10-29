@@ -135,3 +135,12 @@ The person decided: no traffic light at rest; it appears when the game starts.
 | 9   | After v5.37.0: the colour-overrides story and `examples/native` ThemeDemo, computed colours vs 5.36.0                                 | identical; any difference ships 5.37.1 reverting the `ui` change                                                                                                                                                                                                                      |
 
 <!-- panel: repos=duro-design-system reviewers=architect,backend,game-ux,lang:typescript,po,react,tui,ui-design,unix,ux-research,codex body-sha=c59b91df113d -->
+
+## Decision log
+
+- 2026-10-29 — Measured on `drive.html` (Chrome, before Phase 1):
+  - **heroMinH 360 kept:** the ready and game-over boxes start clipping at the top below 340px (rows = floor(h / 17), box top = floor(rows × 0.36) − 7).
+  - **heroReserve raised from 240 to 272:** at 1280×600, the headline plus the install command need 267px under the canvas (272 on the 8px grid).
+  - **Poster threshold:** it becomes heroMinH + heroReserve = 632px.
+  - **Phone layout bug:** the phone page lays out 698px wide instead of 390 (a horizontal overflow, fixed in Phase 5). Even there, the stacked headline + text + command need 365px+.
+- 2026-10-29 — The person chose **game wins on phones**. One reserve token everywhere; on phones the first screen shows the game and the headline, and the install command is one swipe away.
