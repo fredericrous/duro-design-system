@@ -472,6 +472,9 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `appBarH` | 61px |
 | `dragThumbW` | 132px |
 | `dragThumbH` | 99px |
+| `heroMinH` | 360px |
+| `heroReserve` | 272px |
+| `heroMaxH` | 720px |
 
 ### Borders
 

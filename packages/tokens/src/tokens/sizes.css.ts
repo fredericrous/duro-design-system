@@ -102,4 +102,8 @@ export const sizes = css.defineVars({
   // Drag-ghost thumbnail: the small preview image that follows the pointer.
   dragThumbW: '132px',
   dragThumbH: '99px',
+  // A page hero: clamp(heroMinH, calc(100svh - heroReserve), heroMaxH).
+  heroMinH: '360px',
+  heroReserve: '272px',
+  heroMaxH: '720px',
 })

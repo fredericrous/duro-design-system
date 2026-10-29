@@ -456,7 +456,7 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   400: ['dialogSm'],
   520: ['dialogMd'],
   680: ['dialogLg'],
-  360: ['panelSm'],
+  360: ['panelSm', 'heroMinH'],
   480: ['panelMd', 'pageXs', 'canvasMinH'],
   640: ['panelLg'],
   440: ['toastMaxW'],
@@ -481,6 +481,8 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   61: ['appBarH'],
   132: ['dragThumbW'],
   99: ['dragThumbH'],
+  272: ['heroReserve'],
+  720: ['heroMaxH'],
 }
 
 /** px value → every borders token at that value, in key order. */

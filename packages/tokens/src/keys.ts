@@ -169,6 +169,9 @@ export const SIZE_KEYS = [
   'appBarH',
   'dragThumbW',
   'dragThumbH',
+  'heroMinH',
+  'heroReserve',
+  'heroMaxH',
 ] as const
 export type SizeToken = (typeof SIZE_KEYS)[number]
 
@@ -265,6 +268,9 @@ export const SIZES_PX = {
   appBarH: 61,
   dragThumbW: 132,
   dragThumbH: 99,
+  heroMinH: 360,
+  heroReserve: 272,
+  heroMaxH: 720,
 } as const
 
 export const BORDER_KEYS = [
