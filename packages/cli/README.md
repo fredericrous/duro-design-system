@@ -218,31 +218,41 @@ every theme (`--duro-color-bg`, `--duro-spacing-md`, … — the same names as
 `@duro-app/tokens/vars.css`, generated from the same sources). `--theme
 light|high-contrast` stamps `<html data-theme>` so the block switches.
 
-`--overrides <file.json>` seeds an artboard for an app that overrides the theme. The file is grouped like
-`ThemeProvider`'s `overrides`, `fonts` and `radii` props:
+`--overrides <file.json>` seeds an artboard for an app that themes with tokens. The file is the object
+`ThemeProvider` takes as `tokens`, so an app passes the same file to both:
 
 ```json
 {
   "colors": {"bg": "#020803", "success": "#39ff7a"},
-  "fonts": {"fontFamily": "'JetBrains Mono', monospace", "fontFamilyMono": "ui-monospace, Menlo"},
-  "radii": {"xs": "2px", "sm": "4px", "md": "6px", "lg": "8px"}
+  "typography": {
+    "fontFamily": "'JetBrains Mono', ui-monospace, Menlo, monospace",
+    "fontFamilyMono": "'JetBrains Mono', ui-monospace, Menlo, monospace"
+  },
+  "radii": {"xs": "2px", "sm": "4px", "md": "6px", "lg": "8px"},
+  "sizes": {"dialogSm": "360px"}
 }
 ```
 
-Every group is optional. `colors` keys are colour token keys (camelCase, as in `duro list colors`) mapped
-to CSS colours; `fonts` keys are `fontFamily` and `fontFamilyMono`; `radii` keys are `xs`, `sm`, `md` and
-`lg` (`px6` and `full` stay fixed), each `0` or a non-negative `px`/`rem` length. A file with none of the
-three groups is the earlier flat map of colour keys (`{"bg": "#020803"}`) and still works; a file that has a
-group and any other top-level key is refused (`unknown group "<key>" (expected colors | fonts | radii)`).
+Every group is optional. The groups are `colors`, `shadows`, `typography`, `typeScale`, `spacing`,
+`layoutSpacing`, `radii`, `sizes`, `borders`, `duration`, `easing` and `effects`; each holds a partial map
+of that group's token keys (camelCase, as in `duro list`), and each value is checked by the rule of its
+kind (a colour, a font-family list, a non-negative `px`/`rem` length, a fluid `clamp()` length, a weight,
+a shadow list, a duration, an easing, a blur). `layers`, `breakpoints`, `microSpacing`, `radii.px6` and
+`radii.full` are refused, and `sizes.touchTarget` (44px), `borders.focusRing` (2px) and
+`borders.focusOffset` keep their floors. A font list starts with a face the app loads. A file with no
+group is the earlier flat map of colour keys (`{"bg": "#020803"}`) and still works; a file that has a group
+and any other top-level key is refused (`bg: unknown group (expected colors | shadows | …)`). The validation
+is `@duro-app/tokens/theme`, the module `ThemeProvider` uses, so the CLI refuses what the app would drop.
 
-The overrides are written inside the token block as `--duro-color-<key>`, `--duro-typography-font-family`,
-`--duro-typography-font-family-mono` and `--duro-radius-<key>` rules (for `:root` and for both `data-theme`
-selectors, so they win whatever the theme), and `check` accepts them there while still refusing a raw
-colour anywhere else. The success line says what was applied (`with 1 colour, 2 font, 4 radius overrides from
-theme.json`). A missing or non-JSON file, an unknown key or a refused value exits 2 with the key, the rule
-and the refused part on stderr (`radii.md: "-1px" must be 0 or a non-negative px/rem length`); nothing is
-written. The artboard is written to `<path>.tmp` and renamed, so an interrupted run leaves nothing that blocks
-the next seed.
+The overrides are written inside the token block as `--duro-<group>-<key>` rules (`--duro-color-bg`,
+`--duro-typography-font-family`, `--duro-radius-md`, `--duro-size-dialog-sm`, … for `:root` and for both
+`data-theme` selectors, so they win whatever the theme), and `check` accepts them there while still refusing
+a raw colour anywhere else. The success line lists the groups that have entries, in the group table's order (`with overrides from
+theme.json: colors 1, typography 2, radii 4`). A missing or non-JSON file, an unknown key or a refused
+value exits 2 with `<group>.<key>: <reason>` on stderr (`radii.md: "-1px" must be 0 or a non-negative
+px/rem length`); nothing is written, and with `--json` the result (`kind`, `problems`) is still printed on
+stdout. The artboard is written to `<path>.tmp` and renamed, so an interrupted run leaves nothing that
+blocks the next seed.
 
 `check` reads an artboard back and refuses, with `file:line rule: message`:
 

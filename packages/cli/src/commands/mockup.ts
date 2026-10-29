@@ -8,6 +8,17 @@ import {
   writeFileSync,
 } from 'node:fs'
 import {dirname, join, relative, resolve} from 'node:path'
+import {
+  describeDropped,
+  GROUP_ALIASES,
+  kebab,
+  REFUSED_GROUPS,
+  THEMABLE_GROUPS,
+  validateTokens,
+  type DroppedToken,
+  type ThemableGroup,
+  type ThemeTokens,
+} from '@duro-app/tokens/theme'
 import type {Registry} from '../registry-types.js'
 import type {CommandResult} from './lookup.js'
 import {lookup} from '../registry.js'
@@ -52,17 +63,15 @@ export interface SeedOptions {
   /** Artboard file stem (default Main). */
   name?: string
   theme?: string
-  /** A theme JSON file: {colors?, fonts?, radii?}, or a flat map of colour token keys to colours. */
+  /** A theme JSON file: the `tokens` shape ThemeProvider takes, or a flat map of colour token keys to colours. */
   overrides?: string
   cwd?: string
 }
 
-/** Theme overrides read from a file: the file's name for the comment, and each group. */
+/** Theme overrides read from a file: the file's name for the comment, and the validated tokens. */
 export interface SeedOverrides {
   file: string
-  colors: Record<string, string>
-  fonts: Record<string, string>
-  radii: Record<string, string>
+  tokens: ThemeTokens
 }
 
 export interface CheckOptions {
@@ -172,109 +181,29 @@ body {
 `
 }
 
-const NAMED_COLORS = new Set(
-  (
-    'aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood ' +
-    'cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray ' +
-    'darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen ' +
-    'darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue ' +
-    'firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew ' +
-    'hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan ' +
-    'lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray ' +
-    'lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue ' +
-    'mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred ' +
-    'midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid ' +
-    'palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple ' +
-    'rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue ' +
-    'slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white ' +
-    'whitesmoke yellow yellowgreen transparent currentcolor'
-  ).split(' '),
-)
-const HEX_COLOR = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i
-const FUNCTIONAL_COLOR = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\([0-9a-z\s.,%/+-]+\)$/i
-
-function isCssColor(value: string): boolean {
-  return (
-    HEX_COLOR.test(value) || FUNCTIONAL_COLOR.test(value) || NAMED_COLORS.has(value.toLowerCase())
-  )
-}
-
 /**
- * The CSS variable a colour token key publishes. Copied from the kebab-case
- * step of packages/tokens/scripts/lib/mockup-css.mjs (harness.shared-code): the
- * names must match what registry.tokens.mockupCss declares.
+ * The CSS variable a token publishes: `--duro-<alias>-<kebab key>`, named by
+ * the module ThemeProvider and the registry build use, so it matches what
+ * registry.tokens.mockupCss declares.
  */
-export function colorVariableName(key: string): string {
-  const kebab = key
-    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
-    .toLowerCase()
-  return `--duro-color-${kebab}`
+export function tokenVariableName(group: ThemableGroup, key: string): string {
+  return `--duro-${GROUP_ALIASES[group]}-${kebab(key)}`
 }
 
-/** The CSS variable a font-family token key publishes (same naming step as mockup-css.mjs). */
-export function fontVariableName(key: string): string {
-  const kebab = key
-    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
-    .toLowerCase()
-  return `--duro-typography-${kebab}`
-}
-
-/** The CSS variable a radius token key publishes. */
-export const radiusVariableName = (key: string): string => `--duro-radius-${key}`
-
-export const FONT_OVERRIDE_KEYS = ['fontFamily', 'fontFamilyMono'] as const
-export const RADIUS_OVERRIDE_KEYS = ['xs', 'sm', 'md', 'lg'] as const
-const OVERRIDE_GROUPS = ['colors', 'fonts', 'radii'] as const
-
-const FORBIDDEN_IN_FONT_FAMILY = /[;{}<>\\]|\/\*|\*\/|url\(|var\(|expression\(/i
-const FONT_FAMILY_ITEM = /^(?:[A-Za-z_-][\w -]*|"[^"'\\]*"|'[^"'\\]*')$/
-
-/**
- * A comma-separated font-family list: identifiers or balanced quoted names.
- * Copied from isSafeFontFamily in
- * packages/ui/src/components/ThemeProvider/validate.ts (harness.shared-code):
- * the CLI refuses exactly what ThemeProvider drops.
- */
-function isSafeFontFamily(value: string): boolean {
-  if (FORBIDDEN_IN_FONT_FAMILY.test(value)) return false
-  return value.split(',').every((item) => FONT_FAMILY_ITEM.test(item.trim()))
-}
-
-/**
- * `0`, or a non-negative number with `px` or `rem`. Copied from isSafeLength in
- * packages/ui/src/components/ThemeProvider/validate.ts (harness.shared-code).
- */
-function isSafeLength(value: string): boolean {
-  return /^(?:0|(?:\d+(?:\.\d+)?|\.\d+)(?:px|rem))$/.test(value)
-}
-
-/** The part of a refused font-family list that breaks the rule. */
-function fontFamilyProblem(value: string): string {
-  const forbidden = FORBIDDEN_IN_FONT_FAMILY.exec(value)
-  if (forbidden) return `"${forbidden[0]}" is not allowed in a font-family list`
-  const item = value.split(',').find((entry) => !FONT_FAMILY_ITEM.test(entry.trim()))
-  const refused = (item ?? value).trim()
-  return /["']/.test(refused)
-    ? `"${refused}" has an unbalanced or mixed quote in a font-family list`
-    : `"${refused}" is not a font name or a quoted name in a font-family list`
-}
-
-/** The declarations of one selector: colours, then fonts, then radii. */
-function overrideDeclarations({colors, fonts, radii}: SeedOverrides): string {
-  return [
-    ...Object.entries(colors).map(([key, value]) => `${colorVariableName(key)}: ${value};`),
-    ...Object.entries(fonts).map(([key, value]) => `${fontVariableName(key)}: ${value};`),
-    ...Object.entries(radii).map(([key, value]) => `${radiusVariableName(key)}: ${value};`),
-  ].join(' ')
+/** The declarations of one selector, group by group in the table's order. */
+function overrideDeclarations({tokens}: SeedOverrides): string {
+  return THEMABLE_GROUPS.flatMap((group) =>
+    Object.entries(tokens[group] ?? {}).map(
+      ([key, value]) => `${tokenVariableName(group, key)}: ${value};`,
+    ),
+  ).join(' ')
 }
 
 /** The override rules, one per theme selector so they win whatever the theme. */
 function overridesBlock(overrides: SeedOverrides): string {
   const declarations = overrideDeclarations(overrides)
   if (declarations === '') return ''
-  const comment = `/* Theme overrides from ${overrides.file.replace(/\*\//g, '* /')}: the same JSON as ThemeProvider's overrides, fonts and radii. */`
+  const comment = `/* Theme overrides from ${overrides.file.replace(/\*\//g, '* /')}: the same JSON as ThemeProvider's tokens. */`
   return [
     comment,
     `:root { ${declarations} }`,
@@ -283,62 +212,29 @@ function overridesBlock(overrides: SeedOverrides): string {
   ].join('\n')
 }
 
-type Problem = {problem: string}
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
-function readColors(
-  registry: Registry,
-  group: unknown,
-  prefix: string,
-): {values: Record<string, string>} | Problem {
-  const known = new Set(registry.tokens.groups.colors?.entries.map((entry) => entry.key) ?? [])
-  const colors: Record<string, string> = {}
-  if (!isObject(group)) return {problem: `${prefix || 'colors'}: expected an object of colours`}
-  for (const [key, value] of Object.entries(group)) {
-    if (!known.has(key)) return {problem: `unknown colour token "${key}"`}
-    if (typeof value !== 'string' || !isCssColor(value.trim())) {
-      return {problem: `"${key}" is not a CSS colour: ${JSON.stringify(value)}`}
-    }
-    colors[key] = value.trim()
-  }
-  return {values: colors}
+/** Whether a parsed file is the `tokens` shape; otherwise it is the flat map of colours. */
+function isTokensShape(parsed: Record<string, unknown>): boolean {
+  return Object.entries(parsed).some(
+    ([key, value]) =>
+      (THEMABLE_GROUPS as readonly string[]).includes(key) ||
+      key in REFUSED_GROUPS ||
+      isObject(value),
+  )
 }
 
-function readGroup(
-  name: 'fonts' | 'radii',
-  group: unknown,
-  keys: readonly string[],
-): {values: Record<string, string>} | Problem {
-  if (!isObject(group)) return {problem: `${name}: expected an object`}
-  const values: Record<string, string> = {}
-  for (const [key, raw] of Object.entries(group)) {
-    const at = `${name}.${key}`
-    if (!keys.includes(key)) {
-      return {
-        problem: `${at}: unknown ${name === 'fonts' ? 'font' : 'radius'} (${keys.join(' | ')})`,
-      }
-    }
-    if (typeof raw !== 'string') return {problem: `${at}: ${JSON.stringify(raw)} must be a string`}
-    const value = raw.trim()
-    if (name === 'fonts' && !isSafeFontFamily(value)) {
-      return {problem: `${at}: ${fontFamilyProblem(value)}`}
-    }
-    if (name === 'radii' && !isSafeLength(value)) {
-      return {problem: `${at}: "${value}" must be 0 or a non-negative px/rem length`}
-    }
-    values[key] = value
-  }
-  return {values}
-}
+type ReadOverrides =
+  | {overrides: SeedOverrides}
+  | {error: string; problems: {group: string; key: string | null; reason: string}[]}
 
 /** Read and validate an overrides file; a usage error text when it is not acceptable. */
-function readOverrides(
-  registry: Registry,
-  cwd: string,
-  file: string,
-): {overrides: SeedOverrides} | {error: string} {
-  const fail = (problem: string) => ({error: `duro mockup seed: --overrides ${file}: ${problem}`})
+function readOverrides(cwd: string, file: string): ReadOverrides {
+  const fail = (problem: string, dropped: DroppedToken[] = []): ReadOverrides => ({
+    error: `duro mockup seed: --overrides ${file}: ${problem}`,
+    problems: dropped.map(({group, key, reason}) => ({group, key, reason})),
+  })
   let source: string
   try {
     source = readFileSync(resolve(cwd, file), 'utf8')
@@ -353,29 +249,20 @@ function readOverrides(
   }
   if (!isObject(parsed)) {
     return fail(
-      'expected a JSON object: {colors?, fonts?, radii?} or a flat map of colour token keys to colours',
+      'expected a JSON object: the tokens shape ({colors?, typography?, radii?, sizes?, …}) or a flat map of colour token keys to colours',
     )
   }
-  const grouped = OVERRIDE_GROUPS.some((group) => group in parsed)
-  if (!grouped) {
-    const colors = readColors(registry, parsed, '')
-    return 'problem' in colors
-      ? fail(colors.problem)
-      : {overrides: {file, colors: colors.values, fonts: {}, radii: {}}}
-  }
-  const stray = Object.keys(parsed).find(
-    (key) => !(OVERRIDE_GROUPS as readonly string[]).includes(key),
-  )
-  if (stray !== undefined) {
-    return fail(`unknown group "${stray}" (expected ${OVERRIDE_GROUPS.join(' | ')})`)
-  }
-  const colors = readColors(registry, parsed.colors ?? {}, 'colors')
-  if ('problem' in colors) return fail(colors.problem)
-  const fonts = readGroup('fonts', parsed.fonts ?? {}, FONT_OVERRIDE_KEYS)
-  if ('problem' in fonts) return fail(fonts.problem)
-  const radii = readGroup('radii', parsed.radii ?? {}, RADIUS_OVERRIDE_KEYS)
-  if ('problem' in radii) return fail(radii.problem)
-  return {overrides: {file, colors: colors.values, fonts: fonts.values, radii: radii.values}}
+  const {kept, dropped} = validateTokens(isTokensShape(parsed) ? parsed : {colors: parsed})
+  if (dropped.length > 0) return fail(dropped.map(describeDropped).join('\n'), dropped)
+  return {overrides: {file, tokens: kept}}
+}
+
+/** `1 colors, 4 radii`: only the groups that have entries. */
+function describeApplied({tokens}: SeedOverrides): string {
+  return THEMABLE_GROUPS.flatMap((group) => {
+    const count = Object.keys(tokens[group] ?? {}).length
+    return count > 0 ? [`${group} ${count}`] : []
+  }).join(', ')
 }
 
 export function runMockupSeed(registry: Registry, options: SeedOptions = {}): CommandResult {
@@ -392,8 +279,8 @@ export function runMockupSeed(registry: Registry, options: SeedOptions = {}): Co
   }
   let overrides: SeedOverrides | undefined
   if (options.overrides !== undefined) {
-    const read = readOverrides(registry, cwd, options.overrides)
-    if ('error' in read) return usage(read.error)
+    const read = readOverrides(cwd, options.overrides)
+    if ('error' in read) return usage(read.error, {problems: read.problems})
     overrides = read.overrides
   }
   const dir = options.out ?? join('docs', 'mockups', name.toLowerCase())
@@ -410,8 +297,11 @@ export function runMockupSeed(registry: Registry, options: SeedOptions = {}): Co
   const partial = `${abs}.tmp`
   writeFileSync(partial, seedArtboard(registry, name, theme, overrides), 'utf8')
   renameSync(partial, abs)
+  const summary = overrides ? describeApplied(overrides) : ''
   const applied = overrides
-    ? ` with ${Object.keys(overrides.colors).length} colour, ${Object.keys(overrides.fonts).length} font, ${Object.keys(overrides.radii).length} radius overrides from ${overrides.file}`
+    ? summary === ''
+      ? ` with no overrides from ${overrides.file}`
+      : ` with overrides from ${overrides.file}: ${summary}`
     : ''
   return {
     text: [
@@ -465,8 +355,8 @@ const VOID_ELEMENTS = new Set([
   'wbr',
 ])
 
-function usage(text: string): CommandResult {
-  return {text, data: {kind: 'usage-error'}, exitCode: 2}
+function usage(text: string, extra: Record<string, unknown> = {}): CommandResult {
+  return {text, data: {kind: 'usage-error', ...extra}, exitCode: 2}
 }
 
 /** Blank out the token block so its literals are never scanned, keeping offsets. */

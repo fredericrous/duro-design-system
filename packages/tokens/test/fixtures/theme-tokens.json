@@ -1,0 +1,410 @@
+{
+  "valid": [
+    {
+      "group": "colors",
+      "key": "bg",
+      "value": "#020803"
+    },
+    {
+      "group": "colors",
+      "key": "accent",
+      "value": "rgb(255, 90, 31)"
+    },
+    {
+      "group": "colors",
+      "key": "text",
+      "value": "oklch(70% 0.1 250)"
+    },
+    {
+      "group": "colors",
+      "key": "error",
+      "value": "tomato"
+    },
+    {
+      "group": "shadows",
+      "key": "sm",
+      "value": "0 2px 4px rgba(0, 0, 0, 0.3)"
+    },
+    {
+      "group": "shadows",
+      "key": "md",
+      "value": "inset 0 0 0 2px #6aaffc"
+    },
+    {
+      "group": "shadows",
+      "key": "lg",
+      "value": "0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px 2px rgba(0, 0, 0, 0.5)"
+    },
+    {
+      "group": "typography",
+      "key": "fontFamily",
+      "value": "'JetBrains Mono', ui-monospace, Menlo, monospace"
+    },
+    {
+      "group": "typography",
+      "key": "fontFamilyMono",
+      "value": "\"JetBrains Mono\", monospace"
+    },
+    {
+      "group": "typography",
+      "key": "fontSizeMd",
+      "value": "1.25rem"
+    },
+    {
+      "group": "typography",
+      "key": "fontWeightBold",
+      "value": "800"
+    },
+    {
+      "group": "typography",
+      "key": "lineHeight",
+      "value": "1.6"
+    },
+    {
+      "group": "typeScale",
+      "key": "fontSize4",
+      "value": "18px"
+    },
+    {
+      "group": "typeScale",
+      "key": "lineHeight4",
+      "value": "1.75rem"
+    },
+    {
+      "group": "typeScale",
+      "key": "displaySm",
+      "value": "clamp(2rem, 1rem + 3vw, 4rem)"
+    },
+    {
+      "group": "typeScale",
+      "key": "displayMd",
+      "value": "3rem"
+    },
+    {
+      "group": "typeScale",
+      "key": "letterSpacingWide",
+      "value": "0.1em"
+    },
+    {
+      "group": "typeScale",
+      "key": "letterSpacingTight",
+      "value": "-1px"
+    },
+    {
+      "group": "spacing",
+      "key": "md",
+      "value": "20px"
+    },
+    {
+      "group": "spacing",
+      "key": "xs",
+      "value": "0"
+    },
+    {
+      "group": "layoutSpacing",
+      "key": "stackMd",
+      "value": "1.5rem"
+    },
+    {
+      "group": "radii",
+      "key": "md",
+      "value": "0"
+    },
+    {
+      "group": "radii",
+      "key": "lg",
+      "value": "0.5rem"
+    },
+    {
+      "group": "sizes",
+      "key": "touchTarget",
+      "value": "44px"
+    },
+    {
+      "group": "sizes",
+      "key": "controlMd",
+      "value": "3rem"
+    },
+    {
+      "group": "sizes",
+      "key": "dialogMd",
+      "value": "560px"
+    },
+    {
+      "group": "borders",
+      "key": "focusRing",
+      "value": "3px"
+    },
+    {
+      "group": "borders",
+      "key": "focusOffset",
+      "value": "0"
+    },
+    {
+      "group": "borders",
+      "key": "hairline",
+      "value": "1px"
+    },
+    {
+      "group": "duration",
+      "key": "base",
+      "value": "250ms"
+    },
+    {
+      "group": "duration",
+      "key": "slow",
+      "value": "0.4s"
+    },
+    {
+      "group": "easing",
+      "key": "standard",
+      "value": "ease-in-out"
+    },
+    {
+      "group": "easing",
+      "key": "easeOut",
+      "value": "cubic-bezier(0.1, 0.9, 0.2, 1)"
+    },
+    {
+      "group": "effects",
+      "key": "overlayBlur",
+      "value": "blur(4px)"
+    }
+  ],
+  "invalid": [
+    {
+      "group": "colors",
+      "key": "bg",
+      "value": "red; } body { x: y",
+      "reason": "not a CSS colour"
+    },
+    {
+      "group": "colors",
+      "key": "bg",
+      "value": "url(x)",
+      "reason": "not a CSS colour"
+    },
+    {
+      "group": "colors",
+      "key": "nope",
+      "value": "#fff",
+      "reason": "unknown token"
+    },
+    {
+      "group": "shadows",
+      "key": "sm",
+      "value": "0 2px",
+      "reason": "comma-separated list"
+    },
+    {
+      "group": "shadows",
+      "key": "sm",
+      "value": "0 2px 4px red; }",
+      "reason": "comma-separated list"
+    },
+    {
+      "group": "shadows",
+      "key": "md",
+      "value": "1px 2px 3px 4px 5px red",
+      "reason": "comma-separated list"
+    },
+    {
+      "group": "typography",
+      "key": "fontFamily",
+      "value": "a;b",
+      "reason": "\";\" is not allowed"
+    },
+    {
+      "group": "typography",
+      "key": "fontFamily",
+      "value": "'Mono, serif",
+      "reason": "unbalanced or mixed quote"
+    },
+    {
+      "group": "typography",
+      "key": "fontFamilyMono",
+      "value": "a/*b",
+      "reason": "\"/*\" is not allowed"
+    },
+    {
+      "group": "typography",
+      "key": "fontFamily",
+      "value": "url(x)",
+      "reason": "\"url(\" is not allowed"
+    },
+    {
+      "group": "typography",
+      "key": "fontSizeMd",
+      "value": "16",
+      "reason": "non-negative px/rem length"
+    },
+    {
+      "group": "typography",
+      "key": "fontWeightBold",
+      "value": "650",
+      "reason": "weight from 100 to 900"
+    },
+    {
+      "group": "typography",
+      "key": "lineHeight",
+      "value": "4",
+      "reason": "unitless number from 1 to 3"
+    },
+    {
+      "group": "typography",
+      "key": "lineHeight",
+      "value": "1.5rem",
+      "reason": "unitless number from 1 to 3"
+    },
+    {
+      "group": "typeScale",
+      "key": "displaySm",
+      "value": "clamp(1rem, 2vw)",
+      "reason": "clamp()"
+    },
+    {
+      "group": "typeScale",
+      "key": "displayLg",
+      "value": "clamp(1rem, 2vw, calc(1px))",
+      "reason": "clamp()"
+    },
+    {
+      "group": "typeScale",
+      "key": "letterSpacingWide",
+      "value": "1",
+      "reason": "number with em or px"
+    },
+    {
+      "group": "typeScale",
+      "key": "fontSize1",
+      "value": "-1px",
+      "reason": "non-negative px/rem length"
+    },
+    {
+      "group": "spacing",
+      "key": "md",
+      "value": "-1px",
+      "reason": "non-negative px/rem length"
+    },
+    {
+      "group": "spacing",
+      "key": "huge",
+      "value": "4px",
+      "reason": "unknown token"
+    },
+    {
+      "group": "layoutSpacing",
+      "key": "stackMd",
+      "value": "1em",
+      "reason": "non-negative px/rem length"
+    },
+    {
+      "group": "radii",
+      "key": "md",
+      "value": "-1px",
+      "reason": "non-negative px/rem length"
+    },
+    {
+      "group": "radii",
+      "key": "xl",
+      "value": "6px",
+      "reason": "unknown token"
+    },
+    {
+      "group": "radii",
+      "key": "px6",
+      "value": "6px",
+      "reason": "not themable"
+    },
+    {
+      "group": "radii",
+      "key": "full",
+      "value": "0",
+      "reason": "not themable"
+    },
+    {
+      "group": "sizes",
+      "key": "touchTarget",
+      "value": "40px",
+      "reason": "is under the 44px floor"
+    },
+    {
+      "group": "sizes",
+      "key": "touchTarget",
+      "value": "2rem",
+      "reason": "is under the 44px floor"
+    },
+    {
+      "group": "sizes",
+      "key": "controlSm",
+      "value": "calc(1px)",
+      "reason": "non-negative px/rem length"
+    },
+    {
+      "group": "borders",
+      "key": "focusRing",
+      "value": "1px",
+      "reason": "is under the 2px floor"
+    },
+    {
+      "group": "borders",
+      "key": "focusOffset",
+      "value": "-1px",
+      "reason": "non-negative px/rem length"
+    },
+    {
+      "group": "duration",
+      "key": "base",
+      "value": "-5ms",
+      "reason": "non-negative number with ms or s"
+    },
+    {
+      "group": "duration",
+      "key": "fast",
+      "value": "150",
+      "reason": "non-negative number with ms or s"
+    },
+    {
+      "group": "easing",
+      "key": "standard",
+      "value": "bounce",
+      "reason": "cubic-bezier()"
+    },
+    {
+      "group": "easing",
+      "key": "easeIn",
+      "value": "cubic-bezier(1, 2, 3)",
+      "reason": "cubic-bezier()"
+    },
+    {
+      "group": "effects",
+      "key": "overlayBlur",
+      "value": "4px",
+      "reason": "blur(<length>)"
+    },
+    {
+      "group": "effects",
+      "key": "surfaceBlur",
+      "value": "blur(-2px)",
+      "reason": "blur(<length>)"
+    },
+    {
+      "group": "layers",
+      "key": "modal",
+      "value": "2000",
+      "reason": "layers are not themable"
+    },
+    {
+      "group": "breakpoints",
+      "key": "md",
+      "value": "800px",
+      "reason": "breakpoints are not themable"
+    },
+    {
+      "group": "microSpacing",
+      "key": "px1",
+      "value": "2px",
+      "reason": "microSpacing is not themable"
+    }
+  ]
+}

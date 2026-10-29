@@ -12,19 +12,21 @@ import {
   useColorMode,
   type ColorModePreference,
   type ColorOverrides,
-  type FontOverrides,
-  type RadiusOverrides,
+  type ThemeTokens,
 } from '@duro-app/ui'
 
 const A: ColorOverrides = {bgCard: '#1b2433', accent: '#ff5a1f'}
 const B: ColorOverrides = {bgCard: '#0a3c1e', accent: '#1e90ff'}
-const MONO: FontOverrides = {fontFamily: "'Courier New', monospace"}
-const SQUARE: RadiusOverrides = {xs: '2px', sm: '4px', md: '6px', lg: '8px'}
+const SQUARE: ThemeTokens = {
+  typography: {fontFamily: "'Courier New', monospace"},
+  radii: {xs: '2px', sm: '4px', md: '6px', lg: '8px'},
+  spacing: {md: '20px'},
+}
 const STEPS = [
-  {label: 'none', overrides: undefined, fonts: undefined, radii: undefined},
-  {label: 'A', overrides: A, fonts: undefined, radii: undefined},
-  {label: 'B', overrides: B, fonts: undefined, radii: undefined},
-  {label: 'fonts and radii', overrides: undefined, fonts: MONO, radii: SQUARE},
+  {label: 'none', overrides: undefined, tokens: undefined},
+  {label: 'A', overrides: A, tokens: undefined},
+  {label: 'B', overrides: B, tokens: undefined},
+  {label: 'tokens', overrides: undefined, tokens: SQUARE},
 ] as const
 
 /** Counts its own mounts: a re-mount on a theme change would show 2. */
@@ -72,12 +74,7 @@ function Themed() {
   const [step, setStep] = useState(0)
   const current = STEPS[step % STEPS.length]
   return (
-    <ThemeProvider
-      theme={theme}
-      overrides={current.overrides}
-      fonts={current.fonts}
-      radii={current.radii}
-    >
+    <ThemeProvider theme={theme} overrides={current.overrides} tokens={current.tokens}>
       <Card>
         <Stack gap="sm">
           <Panel />

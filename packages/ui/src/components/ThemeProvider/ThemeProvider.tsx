@@ -1,23 +1,23 @@
-import {createContext, type ReactNode, useContext, useId, useMemo, useState} from 'react'
+import {createContext, type ReactNode, useContext, useEffect, useId, useMemo, useState} from 'react'
 import {css, html} from 'react-strict-dom'
-import type {ColorToken, FontFamilyToken, RadiusToken} from '@duro-app/tokens/keys'
+import {validateTokens, type ThemableGroup} from '@duro-app/tokens/theme'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {lightTheme, lightShadows} from '@duro-app/tokens/themes/light.css'
 import {highContrastTheme, highContrastShadows} from '@duro-app/tokens/themes/high-contrast.css'
 import {layers} from '@duro-app/tokens/tokens/layers.css'
 import {
   mergeOverrides,
   OverridesContext,
+  ownTokens,
   type ColorOverrides,
-  type FontOverrides,
-  type RadiusOverrides,
+  type ThemeTokens,
 } from './overrides'
 import {overrideRule, variableFromReference} from './overrideRule'
+import {TOKEN_GROUPS} from './tokenGroups'
+import {warnDropped} from './warnDropped'
 
 export type ThemeName = 'dark' | 'light' | 'high-contrast'
-export type {ColorOverrides, FontOverrides, RadiusOverrides}
+export type {ColorOverrides, ThemeTokens}
 
 interface ThemeProviderProps {
   theme?: ThemeName
@@ -28,16 +28,21 @@ interface ThemeProviderProps {
    */
   overrides?: ColorOverrides
   /**
-   * Font stacks that replace the theme's own (`{fontFamilyMono: "'JetBrains Mono', monospace"}`).
-   * Not tied to a theme: a nested provider always inherits them. On native only
-   * the first family applies.
+   * Token values that replace the theme's own, keyed by group: `colors`,
+   * `shadows`, `typography`, `typeScale`, `spacing`, `layoutSpacing`, `radii`,
+   * `sizes`, `borders`, `duration`, `easing` and `effects`, each a partial
+   * record of that group's keys (`{radii: {md: '6px'}}`). An app passes its
+   * theme file as is. `layers`, `breakpoints`, `microSpacing`, `radii.px6` and
+   * `radii.full` are refused, and `sizes.touchTarget` (44px),
+   * `borders.focusRing` (2px) and `borders.focusOffset` keep their floors.
+   * Invalid entries are dropped with one development warning. `colors` and
+   * `shadows` reset when a nested provider changes theme; every other group
+   * inherits. The app loads its own fonts; on native only the first family
+   * applies (a face the app has loaded, at weights 400, 500, 600 and 700).
+   * Keep `radii` ordered `xs <= sm <= md <= lg`. Native is unverified on a
+   * device.
    */
-  fonts?: FontOverrides
-  /**
-   * Radii that replace the theme's own, as `0` or a px/rem length
-   * (`{md: '6px'}`). `px6` and `full` cannot be overridden.
-   */
-  radii?: RadiusOverrides
+  tokens?: ThemeTokens
   children: ReactNode
 }
 
@@ -79,42 +84,23 @@ export function usePortalMount(): HTMLElement | null {
 }
 
 /** `var(--bg-x1y2)` → `--bg-x1y2`: the compiled variable a token key names. */
-function variableOf(key: ColorToken): string | null {
-  return variableFromReference(colors[key])
+function variableOf(group: ThemableGroup, key: string): string | null {
+  return variableFromReference((TOKEN_GROUPS[group] as Record<string, unknown>)[key])
 }
 
-function fontVariableOf(key: FontFamilyToken): string | null {
-  return variableFromReference(typography[key])
-}
-
-function radiusVariableOf(key: RadiusToken): string | null {
-  return variableFromReference(radii[key])
-}
-
-export function ThemeProvider({
-  theme = 'dark',
-  overrides,
-  fonts,
-  radii: radiusOverrides,
-  children,
-}: ThemeProviderProps) {
+export function ThemeProvider({theme = 'dark', overrides, tokens, children}: ThemeProviderProps) {
   const themeStyles = themeMap[theme]
   const style = [themeStyles?.[0], themeStyles?.[1], styles.root] as DivStyle
   const [mount, setMount] = useState<HTMLElement | null>(null)
   const scope = useId()
   const outer = useContext(OverridesContext)
+  const checked = useMemo(() => validateTokens(ownTokens(overrides, tokens)), [overrides, tokens])
+  useEffect(() => warnDropped(checked.dropped), [checked])
   const effective = useMemo(
-    () => mergeOverrides(outer, theme, overrides, fonts, radiusOverrides),
-    [outer, theme, overrides, fonts, radiusOverrides],
+    () => mergeOverrides(outer, theme, checked.kept),
+    [outer, theme, checked],
   )
-  const rule = useMemo(
-    () =>
-      overrideRule(scope, effective.colors, variableOf, {
-        fonts: {values: effective.fonts, variableOf: fontVariableOf},
-        radii: {values: effective.radii, variableOf: radiusVariableOf},
-      }),
-    [scope, effective],
-  )
+  const rule = useMemo(() => overrideRule(scope, effective.tokens, variableOf), [scope, effective])
 
   return (
     <html.div data-theme={theme} data-duro-theme={rule ? scope : undefined} style={style}>

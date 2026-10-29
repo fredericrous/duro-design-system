@@ -308,6 +308,34 @@ checkSubset('SHADOWS', shadowsCss, keys.SHADOWS, (s) => s)
 const easingCss = extractCallArg(join(srcDir, 'tokens', 'motion.css.ts'), 'defineVars', 0, 'easing')
 checkSubset('EASINGS', easingCss, keys.EASINGS, (s) => s)
 
+// The key lists ThemeProvider's `tokens` prop accepts: each must be exactly the
+// keys (and order) of its defineVars group, so a new token cannot ship
+// unthemable, and a removed one cannot linger in the list.
+const layoutSpacingCss = extractCallArg(
+  join(srcDir, 'tokens', 'layout-spacing.css.ts'),
+  'defineVars',
+  0,
+  'layoutSpacing',
+)
+for (const [label, cssObj, list] of [
+  ['TYPOGRAPHY_KEYS', typographyCss, keys.TYPOGRAPHY_KEYS],
+  ['TYPE_SCALE_KEYS', typeScaleCss, keys.TYPE_SCALE_KEYS],
+  ['LAYOUT_SPACING_KEYS', layoutSpacingCss, keys.LAYOUT_SPACING_KEYS],
+  ['DURATION_KEYS', durationCss, keys.DURATION_KEYS],
+  ['EASING_KEYS', easingCss, keys.EASING_KEYS],
+]) {
+  const cssKeys = JSON.stringify(Object.keys(cssObj))
+  const listKeys = JSON.stringify(list)
+  if (cssKeys !== listKeys) {
+    console.error(`✗ drift: ${label} in keys.ts differs from its css.ts literal`)
+    console.error(`  css.ts:  ${cssKeys}`)
+    console.error(`  keys.ts: ${listKeys}`)
+    failures++
+  } else {
+    console.log(`✓ ${label} matches`)
+  }
+}
+
 if (failures > 0) {
   console.error(
     `\n${failures} token drift failure(s). Update src/raw.ts / src/keys.ts to match the css.ts files (or vice versa).`,

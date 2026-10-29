@@ -1,46 +1,56 @@
 import {createContext} from 'react'
 import type {ColorToken} from '@duro-app/tokens/keys'
-import {validateOwnTypography, type FontOverrides, type RadiusOverrides} from './validate'
+import type {ThemeTokens} from '@duro-app/tokens/theme'
 
 /** Colours that replace a theme's own, by token key. */
 export type ColorOverrides = Partial<Record<ColorToken, string>>
-export type {FontOverrides, RadiusOverrides}
+export type {ThemeTokens}
 
-/** The overrides in force at a provider, and the theme they were made for. */
+/** The tokens in force at a provider, and the theme they were made for. */
 export interface EffectiveOverrides {
   theme: string | null
-  colors: ColorOverrides
-  fonts: FontOverrides
-  radii: RadiusOverrides
+  tokens: ThemeTokens
 }
 
-export const OverridesContext = createContext<EffectiveOverrides>({
-  theme: null,
-  colors: {},
-  fonts: {},
-  radii: {},
-})
+export const OverridesContext = createContext<EffectiveOverrides>({theme: null, tokens: {}})
 
 /**
- * One rule on both platforms (plan N0, slice C): a provider on the same theme
- * as the one above it keeps that one's colours and lays its own over them; a
- * provider on another theme starts from its own theme's colours. Fonts and
- * radii are not tied to a theme: they always inherit, and the child's valid
- * entries lay over them.
+ * One rule on both platforms: colours and shadows are defined by every theme,
+ * so a provider on the same theme as the one above it keeps that one's and
+ * lays its own over them, and a provider on another theme starts from its own
+ * theme's. Every other group is not tied to a theme: it always inherits, and
+ * the child's entries lay over it. Pure: `own` is already validated
+ * (`validateTokens`), and warnings are the provider's job, from an effect.
  */
 export function mergeOverrides(
   outer: EffectiveOverrides,
   theme: string,
-  own: ColorOverrides | undefined,
-  ownFonts?: FontOverrides,
-  ownRadii?: RadiusOverrides,
+  own: ThemeTokens,
 ): EffectiveOverrides {
-  const inherited = outer.theme === theme ? outer.colors : {}
-  const valid = validateOwnTypography(ownFonts, ownRadii)
-  return {
-    theme,
-    colors: own ? {...inherited, ...own} : inherited,
-    fonts: {...outer.fonts, ...valid.fonts},
-    radii: {...outer.radii, ...valid.radii},
+  const sameTheme = outer.theme === theme
+  const merged: Record<string, Record<string, string>> = {}
+  const groups = new Set<string>([...Object.keys(outer.tokens), ...Object.keys(own)])
+  for (const group of groups) {
+    const resetsOnThemeChange = group === 'colors' || group === 'shadows'
+    const inherited =
+      resetsOnThemeChange && !sameTheme
+        ? {}
+        : (outer.tokens as Record<string, Record<string, string> | undefined>)[group]
+    const ownEntries = (own as Record<string, Record<string, string> | undefined>)[group]
+    const entries = {...inherited, ...ownEntries}
+    if (Object.keys(entries).length > 0) merged[group] = entries
   }
+  return {theme, tokens: merged as ThemeTokens}
+}
+
+/**
+ * A provider's own tokens, as `validateTokens` takes them: `overrides` is the
+ * colour alias and `tokens.colors` wins on a clash.
+ */
+export function ownTokens(
+  overrides: ColorOverrides | undefined,
+  tokens: ThemeTokens | undefined,
+): ThemeTokens {
+  if (!overrides) return tokens ?? {}
+  return {...tokens, colors: {...overrides, ...tokens?.colors}}
 }

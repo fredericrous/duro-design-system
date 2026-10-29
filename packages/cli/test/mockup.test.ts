@@ -17,7 +17,6 @@ import {
   ARTBOARD_HEIGHT,
   ARTBOARD_WIDTH,
   buildCanvas,
-  colorVariableName,
   checkArtboard,
   MOCKUP_SUBCOMMANDS,
   runMockup,
@@ -27,8 +26,19 @@ import {
   seedArtboard,
   TOKENS_END,
   TOKENS_START,
+  tokenVariableName,
 } from '../src/commands/mockup.js'
+import {GROUP_KEYS, THEMABLE_GROUPS, type ThemableGroup} from '@duro-app/tokens/theme'
 
+const fixture = JSON.parse(
+  readFileSync(
+    fileURLToPath(new URL('../../tokens/test/fixtures/theme-tokens.json', import.meta.url)),
+    'utf8',
+  ),
+) as {
+  valid: {group: string; key: string; value: string}[]
+  invalid: {group: string; key: string; value: string; reason: string}[]
+}
 const registry = loadRegistry()
 const bin = fileURLToPath(new URL('../dist/bin.js', import.meta.url))
 
@@ -293,11 +303,19 @@ describe('runMockup seed + check on disk', () => {
       return runMockupSeed(registry, {cwd: root, out: 'art', overrides: 'o.json'})
     }
     const seeded = () => readFileSync(join(root, 'art', 'Main.dc.html'), 'utf8')
+    const tokenBlock = (html: string) =>
+      html.slice(html.indexOf(TOKENS_START), html.indexOf(TOKENS_END))
+    const runBin = (...extra: string[]) =>
+      spawnSync(
+        process.execPath,
+        [bin, 'mockup', 'seed', '--out', 'art', '--overrides', 'o.json', ...extra],
+        {cwd: root, encoding: 'utf8'},
+      )
 
     it('writes the override rules inside the token block and the artboard passes check', () => {
       expect(seedWith('{"bg": "#020803", "successBg": "rgb(1 2 3)"}').exitCode).toBeUndefined()
       const html = seeded()
-      const block = html.slice(html.indexOf(TOKENS_START), html.indexOf(TOKENS_END))
+      const block = tokenBlock(html)
       for (const selector of [
         ':root',
         ':root[data-theme="light"]',
@@ -337,21 +355,146 @@ describe('runMockup seed + check on disk', () => {
         html.indexOf(TOKENS_END) + TOKENS_END.length,
       )
       expect(block).toBe(expectedBlock)
-      expect(block).not.toContain('Colour overrides')
+      expect(block).not.toContain('Theme overrides')
     })
 
     it('maps every colour key to a --duro-color-* variable the token CSS declares', () => {
       const entries = registry.tokens.groups.colors?.entries ?? []
       expect(entries.length).toBeGreaterThan(0)
       for (const {key} of entries) {
-        expect(registry.tokens.mockupCss).toContain(`${colorVariableName(key)}:`)
+        expect(registry.tokens.mockupCss).toContain(`${tokenVariableName('colors', key)}:`)
       }
     })
 
+    it('names every themable key of every group by a variable the token CSS declares', () => {
+      for (const group of THEMABLE_GROUPS) {
+        for (const key of GROUP_KEYS[group]) {
+          const name = tokenVariableName(group, key)
+          expect(registry.tokens.mockupCss, name).toContain(`${name}:`)
+        }
+      }
+    })
+
+    describe('tokens file', () => {
+      const tokens = JSON.stringify({
+        colors: {bg: '#020803'},
+        typography: {
+          fontFamily: "'JetBrains Mono', monospace",
+          fontFamilyMono: 'ui-monospace, Menlo',
+        },
+        radii: {xs: '2px', sm: '4px', md: '0', lg: '0.5rem'},
+        sizes: {dialogSm: '300px'},
+        spacing: {md: '20px'},
+        shadows: {sm: '0 1px 2px rgba(0, 0, 0, 0.3)'},
+        duration: {base: '250ms'},
+      })
+
+      it('seeds a variable for every group inside the token block, each one declared', () => {
+        const result = seedWith(tokens)
+        expect(result.exitCode).toBeUndefined()
+        expect(result.text).toContain(
+          'with overrides from o.json: colors 1, shadows 1, typography 2, spacing 1, radii 4, sizes 1, duration 1.',
+        )
+        const block = tokenBlock(seeded())
+        const overrides = block.slice(block.indexOf('/* Theme overrides'))
+        expect(overrides).toContain('/* Theme overrides from o.json')
+        const emitted = [...overrides.matchAll(/(--duro-[a-z0-9-]+):/g)].map((match) => match[1])
+        expect(new Set(emitted)).toEqual(
+          new Set([
+            '--duro-color-bg',
+            '--duro-typography-font-family',
+            '--duro-typography-font-family-mono',
+            '--duro-shadow-sm',
+            '--duro-spacing-md',
+            '--duro-radius-xs',
+            '--duro-radius-sm',
+            '--duro-radius-md',
+            '--duro-radius-lg',
+            '--duro-size-dialog-sm',
+            '--duro-duration-base',
+          ]),
+        )
+        for (const name of emitted) {
+          expect(registry.tokens.mockupCss, name).toContain(`${name}:`)
+        }
+        expect(block).toContain(
+          ":root { --duro-color-bg: #020803; --duro-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --duro-typography-font-family: 'JetBrains Mono', monospace;",
+        )
+      })
+
+      it('counts a flat colour file as colours only', () => {
+        const result = seedWith('{"bg": "#020803"}')
+        expect(result.text).toContain('with overrides from o.json: colors 1.')
+        expect(result.text).not.toContain('typography')
+      })
+
+      it('leaves no .tmp file behind', () => {
+        seedWith(tokens)
+        expect(existsSync(join(root, 'art', 'Main.dc.html.tmp'))).toBe(false)
+      })
+
+      it.each(fixture.valid)('accepts $group.$key = $value', ({group, key, value}) => {
+        const result = seedWith(JSON.stringify({[group]: {[key]: value}}))
+        expect(result.exitCode).toBeUndefined()
+        expect(tokenBlock(seeded())).toContain(
+          `${tokenVariableName(group as ThemableGroup, key)}: ${value};`,
+        )
+      })
+
+      it.each(fixture.invalid)(
+        'exits 2 on stderr with empty stdout for $group.$key = $value',
+        ({group, key, value, reason}) => {
+          writeFileSync(join(root, 'o.json'), JSON.stringify({[group]: {[key]: value}}))
+          const run = runBin()
+          expect(run.status).toBe(2)
+          expect(run.stdout).toBe('')
+          expect(run.stderr).toContain(`${group}.${key}: `)
+          expect(run.stderr).toContain(reason)
+          expect(existsSync(join(root, 'art', 'Main.dc.html'))).toBe(false)
+        },
+      )
+
+      it.each([
+        [
+          'a mixed file',
+          '{"colors": {}, "bg": "#fff"}',
+          `bg: unknown group (expected ${THEMABLE_GROUPS.join(' | ')})`,
+        ],
+        [
+          'an unknown group',
+          '{"radii": {}, "font": {"a": "b"}}',
+          `font: unknown group (expected ${THEMABLE_GROUPS.join(' | ')})`,
+        ],
+        ['a flat unknown colour', '{"nope": "#fff"}', 'colors.nope: unknown token'],
+        ['a flat non-colour value', '{"bg": "red; } body { x: y"}', 'colors.bg: "red; } body'],
+        ['a group that is not an object', '{"radii": 4}', 'radii: expected an object'],
+      ])('gives a usage error for %s', (_label, content, message) => {
+        const result = seedWith(content)
+        expect(result.exitCode).toBe(2)
+        expect(result.text).toContain(message)
+        expect(existsSync(join(root, 'art', 'Main.dc.html'))).toBe(false)
+      })
+
+      it('keeps the --json result on stdout with exit 2, and the error on stderr', () => {
+        writeFileSync(join(root, 'o.json'), '{"sizes": {"touchTarget": "40px"}}')
+        const run = runBin('--json')
+        expect(run.status).toBe(2)
+        expect(run.stderr).toContain('sizes.touchTarget: 40px is under the 44px floor')
+        expect(JSON.parse(run.stdout)).toMatchObject({
+          kind: 'usage-error',
+          problems: [{group: 'sizes', key: 'touchTarget'}],
+        })
+      })
+
+      it('emits a plain --json result on stdout on success', () => {
+        writeFileSync(join(root, 'o.json'), tokens)
+        const run = runBin('--json')
+        expect(run.status).toBe(0)
+        expect(JSON.parse(run.stdout)).toMatchObject({ok: true})
+      })
+    })
+
     it.each([
-      ['an unknown key', '{"nope": "#fff"}', 'unknown colour token "nope"'],
-      ['a non-colour value', '{"bg": "banana"}', 'not a CSS colour'],
-      ['a value that escapes the rule', '{"bg": "red; } body { x: y"}', 'not a CSS colour'],
       ['a non-JSON file', 'bg = red', 'not valid JSON'],
       ['an array', '[]', 'expected a JSON object'],
     ])('gives a usage error for %s', (_label, content, problem) => {
@@ -359,97 +502,6 @@ describe('runMockup seed + check on disk', () => {
       expect(result.exitCode).toBe(2)
       expect(result.text).toContain(problem)
       expect(existsSync(join(root, 'art', 'Main.dc.html'))).toBe(false)
-    })
-
-    describe('grouped theme file', () => {
-      const theme = JSON.stringify({
-        colors: {bg: '#020803'},
-        fonts: {fontFamily: "'JetBrains Mono', monospace", fontFamilyMono: 'ui-monospace, Menlo'},
-        radii: {xs: '2px', sm: '4px', md: '0', lg: '0.5rem'},
-      })
-
-      it('seeds colour, font and radius variables inside the token block', () => {
-        const result = seedWith(theme)
-        expect(result.exitCode).toBeUndefined()
-        expect(result.text).toContain('with 1 colour, 2 font, 4 radius overrides from o.json')
-        const html = seeded()
-        const block = html.slice(html.indexOf(TOKENS_START), html.indexOf(TOKENS_END))
-        const overrides = block.slice(block.indexOf('/* Theme overrides'))
-        expect(overrides).toContain('/* Theme overrides from o.json')
-        const emitted = [...overrides.matchAll(/(--duro-[a-z-]+):/g)].map((match) => match[1])
-        expect(new Set(emitted)).toEqual(
-          new Set([
-            '--duro-color-bg',
-            '--duro-typography-font-family',
-            '--duro-typography-font-family-mono',
-            '--duro-radius-xs',
-            '--duro-radius-sm',
-            '--duro-radius-md',
-            '--duro-radius-lg',
-          ]),
-        )
-        for (const name of emitted) {
-          expect(registry.tokens.mockupCss, name).toContain(`${name}:`)
-        }
-        expect(block).toContain(
-          ":root { --duro-color-bg: #020803; --duro-typography-font-family: 'JetBrains Mono', monospace;",
-        )
-      })
-
-      it('counts a flat colour file as colours only', () => {
-        const result = seedWith('{"bg": "#020803"}')
-        expect(result.text).toContain('with 1 colour, 0 font, 0 radius overrides from o.json')
-      })
-
-      it('leaves no .tmp file behind', () => {
-        seedWith(theme)
-        expect(existsSync(join(root, 'art', 'Main.dc.html.tmp'))).toBe(false)
-      })
-
-      it.each([
-        [
-          'a mixed file',
-          '{"colors": {}, "bg": "#fff"}',
-          'unknown group "bg" (expected colors | fonts | radii)',
-        ],
-        [
-          'an unknown group',
-          '{"radii": {}, "shadows": {}}',
-          'unknown group "shadows" (expected colors | fonts | radii)',
-        ],
-        ['px6', '{"radii": {"px6": "6px"}}', 'radii.px6: unknown radius (xs | sm | md | lg)'],
-        [
-          'an unknown radius',
-          '{"radii": {"xl": "6px"}}',
-          'radii.xl: unknown radius (xs | sm | md | lg)',
-        ],
-        [
-          'a ; in a font',
-          '{"fonts": {"fontFamily": "a;b"}}',
-          'fonts.fontFamily: ";" is not allowed in a font-family list',
-        ],
-        [
-          'an unbalanced quote',
-          `{"fonts": {"fontFamily": "'Mono, serif"}}`,
-          `fonts.fontFamily: "'Mono" has an unbalanced or mixed quote`,
-        ],
-        [
-          'a negative radius',
-          '{"radii": {"md": "-1px"}}',
-          'radii.md: "-1px" must be 0 or a non-negative px/rem length',
-        ],
-      ])('exits 2 on stderr with empty stdout for %s', (_label, content, message) => {
-        writeFileSync(join(root, 'o.json'), content)
-        const run = spawnSync(
-          process.execPath,
-          [bin, 'mockup', 'seed', '--out', 'art', '--overrides', 'o.json'],
-          {cwd: root, encoding: 'utf8'},
-        )
-        expect(run.status).toBe(2)
-        expect(run.stdout).toBe('')
-        expect(run.stderr).toContain(message)
-        expect(existsSync(join(root, 'art', 'Main.dc.html'))).toBe(false)
-      })
     })
 
     it('gives a usage error for a missing file', () => {

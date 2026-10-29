@@ -12,6 +12,8 @@ import {runManifest, cliVersion} from './commands/manifest.js'
 function emit(result: CommandResult, json: boolean): never {
   if (result.exitCode === 2) {
     process.stderr.write(result.text.endsWith('\n') ? result.text : result.text + '\n')
+    // A --json caller still gets its result on stdout; the failure is the exit status and stderr.
+    if (json) process.stdout.write(JSON.stringify(result.data, null, 2) + '\n')
   } else if (json) {
     process.stdout.write(JSON.stringify(result.data, null, 2) + '\n')
   } else {

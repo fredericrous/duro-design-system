@@ -163,7 +163,7 @@ export const COMMANDS: CommandSpec[] = [
         name: 'overrides',
         type: 'string',
         description:
-          'seed: a theme JSON file, {colors?, fonts?, radii?} (or a flat map of colour keys), written into the token block as --duro-color-*, --duro-typography-font-family(-mono) and --duro-radius-* rules',
+          'seed: a theme JSON file, the tokens shape ThemeProvider takes ({colors?, typography?, radii?, sizes?, … for every themable group}, or a flat map of colour keys), validated by @duro-app/tokens/theme and written into the token block as --duro-<group>-<key> rules',
       },
       {
         name: 'title',

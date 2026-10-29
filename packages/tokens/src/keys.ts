@@ -58,6 +58,85 @@ export const RADII_PX = {
 export const FONT_FAMILY_KEYS = ['fontFamily', 'fontFamilyMono'] as const
 export type FontFamilyToken = (typeof FONT_FAMILY_KEYS)[number]
 
+// Mirrors tokens/typography.css.ts `typography` (all its keys, in order).
+export const TYPOGRAPHY_KEYS = [
+  'fontFamily',
+  'fontFamilyMono',
+  'fontSizeXs',
+  'fontSizeSm',
+  'fontSizeMd',
+  'fontSizeLg',
+  'fontSizeXl',
+  'fontSizeHeading',
+  'fontWeightNormal',
+  'fontWeightMedium',
+  'fontWeightSemibold',
+  'fontWeightBold',
+  'lineHeight',
+] as const
+export type TypographyToken = (typeof TYPOGRAPHY_KEYS)[number]
+
+// Mirrors tokens/typography.css.ts `typeScale` (all its keys, in order).
+export const TYPE_SCALE_KEYS = [
+  'fontSize1',
+  'fontSize2',
+  'fontSize3',
+  'fontSize4',
+  'fontSize5',
+  'fontSize6',
+  'fontSize7',
+  'fontSize8',
+  'fontSize9',
+  'lineHeight1',
+  'lineHeight2',
+  'lineHeight3',
+  'lineHeight4',
+  'lineHeight5',
+  'lineHeight6',
+  'lineHeight7',
+  'lineHeight8',
+  'lineHeight9',
+  'displaySm',
+  'displayMd',
+  'displayLg',
+  'letterSpacingTight',
+  'letterSpacingNormal',
+  'letterSpacingWide',
+] as const
+export type TypeScaleToken = (typeof TYPE_SCALE_KEYS)[number]
+
+// Mirrors tokens/layout-spacing.css.ts `layoutSpacing` (all its keys, in order).
+export const LAYOUT_SPACING_KEYS = [
+  'stackXs',
+  'stackSm',
+  'stackMd',
+  'stackLg',
+  'stackXl',
+  'inlineXs',
+  'inlineSm',
+  'inlineMd',
+  'inlineLg',
+  'containerSm',
+  'containerMd',
+  'containerLg',
+] as const
+export type LayoutSpacingToken = (typeof LAYOUT_SPACING_KEYS)[number]
+
+// Mirrors tokens/motion.css.ts `duration` and `easing` (all their keys, in order).
+export const DURATION_KEYS = [
+  'instant',
+  'minimal',
+  'quick',
+  'fast',
+  'brisk',
+  'base',
+  'slow',
+  'slower',
+  'stagger',
+] as const
+export const EASING_KEYS = ['standard', 'linear', 'easeOut', 'easeIn', 'emphasized'] as const
+export type EasingToken = (typeof EASING_KEYS)[number]
+
 export const SHADOW_KEYS = ['sm', 'md', 'lg', 'dropReady', 'dropOver'] as const
 export type ShadowToken = (typeof SHADOW_KEYS)[number]
 

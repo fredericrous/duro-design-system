@@ -3,7 +3,9 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {ThemeProvider, type ColorOverrides, type ThemeName} from './ThemeProvider'
 import {Button} from '../Button/Button'
 import {Badge} from '../Badge/Badge'
@@ -114,13 +116,33 @@ export const OverridesUpdateInPlace: StoryObj = {
   },
 }
 
-const MONO_STACK = "'JetBrains Mono', ui-monospace, Menlo, monospace"
+const SANS_STACK = "'JetBrains Mono', ui-monospace, Menlo, monospace"
+const MONO_STACK = "'Courier New', Courier, monospace"
 const unquoted = (value: string) => value.replace(/["']/g, '')
 
-/** Fonts and radii replaced by token key; a nested provider on another theme keeps them. */
-export const FontsAndRadii: StoryObj = {
+const probe = css.create({
+  mono: {fontFamily: typography.fontFamilyMono},
+  width: {width: sizes.dialogSm},
+  target: {minHeight: sizes.touchTarget},
+  corner: {borderRadius: radii.sm},
+  timeReadout: {width: sizes.timeReadoutW},
+})
+
+/**
+ * Tokens of several groups replaced by key: a size, a spacing, a radius and
+ * two font families. A nested provider on another theme keeps them; a value
+ * that is unsafe, or under a floor, leaves the default.
+ */
+export const Tokens: StoryObj = {
   render: () => (
-    <ThemeProvider fonts={{fontFamily: MONO_STACK, fontFamilyMono: MONO_STACK}} radii={{md: '2px'}}>
+    <ThemeProvider
+      tokens={{
+        typography: {fontFamily: SANS_STACK, fontFamilyMono: MONO_STACK},
+        radii: {md: '2px', sm: '-1px'},
+        spacing: {md: '20px'},
+        sizes: {dialogSm: '300px', touchTarget: '40px'},
+      }}
+    >
       <html.div data-testid="outer" style={styles.surface}>
         <Button>Primary</Button>
         <Badge>New</Badge>
@@ -130,8 +152,19 @@ export const FontsAndRadii: StoryObj = {
             <Tabs.Tab value="two">Two</Tabs.Tab>
           </Tabs.List>
         </Tabs.Root>
+        <html.div data-testid="mono" style={probe.mono}>
+          mono
+        </html.div>
+        <html.div data-testid="width" style={probe.width} />
+        <html.div data-testid="target" style={probe.target} />
+        <html.div data-testid="corner" style={probe.corner} />
+        <html.div data-testid="readout" style={probe.timeReadout}>
+          00:00:00
+        </html.div>
         <ThemeProvider theme="light">
-          <html.div data-testid="nested" style={styles.surface} />
+          <html.div data-testid="nested" style={styles.surface}>
+            <html.div data-testid="nested-width" style={probe.width} />
+          </html.div>
         </ThemeProvider>
       </html.div>
     </ThemeProvider>
@@ -144,8 +177,24 @@ export const FontsAndRadii: StoryObj = {
       expect(unquoted(getComputedStyle(outer).fontFamily)).toMatch(/^JetBrains Mono/),
     )
     await expect(unquoted(getComputedStyle(nested).fontFamily)).toMatch(/^JetBrains Mono/)
+    // A distinct mono family, not the sans one.
+    await expect(unquoted(getComputedStyle(canvas.getByTestId('mono')).fontFamily)).toMatch(
+      /^Courier New/,
+    )
     await expect(getComputedStyle(button).borderRadius).toBe('2px')
-    for (const el of [button, ...canvas.getAllByRole('tab'), canvas.getByText('New')]) {
+    await expect(getComputedStyle(outer).padding).toBe('20px')
+    await expect(getComputedStyle(canvas.getByTestId('width')).width).toBe('300px')
+    // A nested provider on another theme keeps the size.
+    await expect(getComputedStyle(canvas.getByTestId('nested-width')).width).toBe('300px')
+    // A value under its floor, or below zero, leaves the default.
+    await expect(getComputedStyle(canvas.getByTestId('target')).minHeight).toBe('44px')
+    await expect(getComputedStyle(canvas.getByTestId('corner')).borderRadius).toBe('8px')
+    for (const el of [
+      button,
+      ...canvas.getAllByRole('tab'),
+      canvas.getByText('New'),
+      canvas.getByTestId('readout'),
+    ]) {
       await expect(el.scrollWidth).toBeLessThanOrEqual(el.clientWidth)
     }
   },
