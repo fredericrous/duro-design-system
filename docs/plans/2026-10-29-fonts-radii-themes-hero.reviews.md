@@ -37,3 +37,6 @@ Round 3 (delta on the Codex edit), **backend** approve-with-changes (48k, 38 s):
 2. Row 2: an unsafe child keeps the parent's value; add a native unit test.
 3. Native colours stay unchecked: a known limit, kept so row 9 holds, recorded in the ADR as a follow-up.
 4. One pure validator module, imported by both platforms and the CLI test.
+
+Delta (the person's change, "Generalize now in 5.37"), **backend** approve-with-changes (77k, 96 s): 3 high applied (rules must accept the shipped defaults; add the missing key lists with drift checks; built `./theme` export, optional `react-strict-dom` peer, aliases in one module). Carried: native spike per group, row 4 `--json` case, row 7 token names.
+Delta re-run, **backend** approve-with-changes (54k, 45 s): the 3 highs resolved. Carried: post-build scripts import `dist/theme.js`; the unknown-group message lists the groups from the table; one `heroReserve` value (272); row 5 checks the `tokens` shape docs.

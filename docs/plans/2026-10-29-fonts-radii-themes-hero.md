@@ -9,10 +9,10 @@ adrs: [ADR-0027, ADR-0048]
 
 ## Review panel
 
-👉 **Decide:** none — approve if a 5.37 minor that adds `fonts`/`radii` to ThemeProvider plus three hero size tokens is the right scope.
-📍 duro-design-system + greenharness-site (local) · plan reviewed, nothing built · next: measure heroMinH/heroReserve on drive.html. Panel: architect, backend, game-ux, typescript, po, react, tui, ui-design, unix, ux-research (opus-5-5), codex.
-**Changed by review:** fonts/radii inherit across themes and are validated per provider before merging, on both platforms; poster below 600px (heroMinH + heroReserve) so the headline always shows; game keys only on focus, Escape → install, pause on blur, rain stops in 5 s.
-**Verdicts:** 10 approve-with-changes in round 1; backend approve-with-changes in rounds 2 and 3; codex approve-with-changes (1 high applied). 12 findings carried into implementation.
+👉 **Decide:** none — approve if one `tokens` prop over every group (guard rails, layers/breakpoints refused) is the 5.37 scope you asked for.
+📍 duro-design-system · Phases 1–3 committed (hero tokens, fonts/radii, CLI) · next: Phase 3b generalizes them. Panel: full panel + codex on the first body; delta: backend (opus-5-5) twice.
+**Changed by review:** default values (`clamp(… + 2vw …)`, `rgba(…, …)` shadows) must pass their own rules; missing key lists and drift checks added; `@duro-app/tokens/theme` built export, no `react-strict-dom` pulled into the CLI.
+**Verdicts:** round 1: 10 approve-with-changes; codex approve-with-changes; delta (the person's change): backend approve-with-changes, then approve-with-changes with 3 highs resolved; 19 findings carried into implementation.
 📄 Full reviews: [2026-10-29-fonts-radii-themes-hero.reviews.md](2026-10-29-fonts-radii-themes-hero.reviews.md)
 
 ## Context
@@ -37,26 +37,51 @@ The person decided: no traffic light at rest; it appears when the game starts.
 
 ## Decisions
 
-- **API shape, additive.** `overrides` keeps meaning colours (no break). `ThemeProvider` gains two props:
-  - `fonts?: FontOverrides`, the keys `fontFamily` and `fontFamilyMono`;
-  - `radii?: RadiusOverrides`, keyed by `RadiusToken` except `px6` (its name is its value) and `full`.
+- **Change, 2026-10-29 (the person, after the first implementation review): every token group is themable in 5.37.** The person asked "we have other components with size, how do we override there? I thought we could theme with tokens everything" and chose "Generalize now in 5.37" over shipping three groups first.
+- **API shape: one `tokens` prop.** `ThemeProvider` gains `tokens?: ThemeTokens`, an object keyed by token group, each a partial record of that group's keys:
+  - `colors`, `shadows`, `typography`, `typeScale`, `spacing`, `layoutSpacing`, `radii`, `sizes`, `borders`, `duration`, `easing` and `effects`;
+  - `overrides` stays as the colour alias for 5.x (`tokens.colors` wins on a clash);
+  - the unreleased `fonts` / `radii` props go away.
+- **Not themable** (the keys are refused, with a warning naming why):
+  - `layers`: they order one stacking context;
+  - `breakpoints`: media queries and JS read them;
+  - `microSpacing` and `radii.px6`: named after their value;
+  - `radii.full`: a shape, not a size.
+- **Guard rails** on keys that carry a guarantee:
+  - `sizes.touchTarget` ≥ 44px;
+  - `borders.focusRing` ≥ 2px;
+  - `borders.focusOffset` / `focusOffsetSm` ≥ 0.
 
-  They merge across nested providers like colours, with one difference: fonts and radii do not depend on the theme. A nested provider inherits them even when its theme differs (`mergeOverrides` in `overrides.ts`), so web (inheritance through the cascade) and native (explicit `createTheme`) agree.
+  A rem value is converted at 16px for the floor. A value under its floor is refused like an invalid one.
 
-- **Theme file shape.** The file `mockup seed --overrides` reads becomes `{colors?, fonts?, radii?}`. A flat object of colour keys (the v5.36 shape) is still accepted. An app spreads the same file: `<ThemeProvider overrides={t.colors} fonts={t.fonts} radii={t.radii}>`.
-- **Validation, one rule per group, mirrored in the CLI:**
-  - **colours:** `isSafeColor` (unchanged);
-  - **font families:** a grammar, not a blacklist: a comma-separated list where each item is a run of identifiers (`[A-Za-z_-][\w -]*`) or one balanced single- or double-quoted string with no quote or backslash inside; nothing in the value may contain `;{}<>\`, `/*`, `*/`, `url(`, `var(` or `expression(` (an unbalanced quote or comment would swallow the rule's closing brace);
-  - **radii:** `0`, or a non-negative number with `px` or `rem`.
-  - An invalid value is dropped in the app and is a usage error in the CLI, as colours are today. In dev mode the app logs one warning per dropped value, naming the group, key, value and rule (e.g. `radii.md: 6 needs px or rem`).
-- **Native.** Colour overrides already apply through `css.createTheme(colors, …)` (`ThemeProvider.native.tsx:100-112`). Fonts and radii append `css.createTheme(typography, …)` / `css.createTheme(radii, …)` to the same `themeStyles`, which `ThemeScopeContext` / `PortalHost` already carry.
+- **Inheritance.** `colors` and `shadows` reset when a nested provider changes theme, because every theme defines them. Every other group always inherits, and the child's valid entries lay over it, so web (CSS cascade) and native (`createTheme`) agree.
+- **Theme file shape.** The file `mockup seed --overrides` reads is the same object as `tokens`. A flat object of colour keys (the v5.36 shape) is still accepted. An app passes the file as is: `<ThemeProvider tokens={theme}>`.
+- **Validation, one rule per kind of value, in one module both the UI and the CLI import.** The module is `@duro-app/tokens/theme`, built to `dist/theme.js`; `@duro-app/cli` gains `@duro-app/tokens` as a dependency, so there are no copies:
+  - **colour:** `isSafeColor` (unchanged);
+  - **font family** (`typography.fontFamily`, `fontFamilyMono`): a grammar, not a blacklist. It is a comma-separated list where each item is a run of identifiers (`[A-Za-z_-][\w -]*`) or one balanced single- or double-quoted string with no quote or backslash inside. Nothing in the value may contain `;{}<>\`, `/*`, `*/`, `url(`, `var(` or `expression(`, because an unbalanced quote or comment would swallow the rule's closing brace;
+  - **length** (`spacing`, `layoutSpacing`, `radii`, `sizes`, `borders`, `typography.fontSize*`, `typeScale.fontSize*` / `lineHeight*`): `0`, or a non-negative number with `px` or `rem`;
+  - **fluid length** (`typeScale.display*`): a length, or `clamp(` of three items, each a length, a number with `vw` / `svh`, or a sum `<length> + <number>vw|svh` (the shipped `displaySm` is `clamp(2.25rem, 1.5rem + 2vw, 3rem)`). Every shipped default of every themable group passes its own rule, asserted by a test;
+  - **letter spacing:** `0`, or a signed number with `em` or `px`;
+  - **font weight:** 100–900 in steps of 100;
+  - **line height** (`typography.lineHeight`): a unitless number from 1 to 3;
+  - **shadow:** a list of `[inset] <length>{2,4} <colour>`, split on top-level commas only (the defaults hold `rgba(0, 0, 0, 0.3)`);
+  - **duration:** a non-negative number with `ms` or `s`;
+  - **easing:** `linear`, `ease`, `ease-in`, `ease-out`, `ease-in-out` or `cubic-bezier(` of four numbers;
+  - **effect:** `blur(<length>)`.
+  - **Dropped values:** an invalid value is dropped in the app and is a usage error in the CLI. In development the app logs one warning per distinct dropped value, from an effect (not during render), naming the group, key, value and the rule, e.g. `sizes.touchTarget: 40px is under the 44px floor`. The CLI words the same rule identically.
+- **Native.** Colour overrides already apply through `css.createTheme(colors, …)` (`ThemeProvider.native.tsx:100-112`). React-strict-dom's native `createTheme` is generic over any `defineVars` group (`dist/native/index.js:1315`), so each themed group appends its own `css.createTheme(<group>, …)` to the same `themeStyles`, which `ThemeScopeContext` / `PortalHost` already carry. `useResolvedColors` stays colours only.
   - React Native takes one family name, so native uses the first family of the list, with its quotes stripped (`'JetBrains Mono'` → `JetBrains Mono`).
   - The app loads the font itself (expo-font); ThemeProvider never loads fonts, on web or native.
   - **Open risk:** whether react-strict-dom's native `createTheme` overrides the `typography` and `radii` vars at runtime is unverified. Phase 2 starts with a spike in `examples/native`. If it does not work, native ignores `fonts` / `radii` and logs one dev-mode warning. The plan records that; it is not worked around.
 - **Hero tokens.** `heroMinH` 360px (the smallest height where the game is playable, to be confirmed before Phase 1 by rendering the ready box, the game-over box and the HUD in `drive.html` at decreasing heights and recording the first height that clips; today's canvas minimum is 440px), `heroReserve` 240px (room for the site header, the top padding, the headline and the install command; measured on `drive.html` at 1280×600 and 390×844 before Phase 1 fixes it, raised if the command does not fit), `heroMaxH` 720px.
   - The site sizes its hero as `clamp(heroMinH, calc(100svh - heroReserve), heroMaxH)`. A `calc()` of tokens is allowed under `ui.measures` (ADR-0027).
   - `Length` does not take `clamp()` / `calc()`, so this lives in the site's `css.create`, not in a prop.
-- **Record.** The theming contract becomes a Duro ADR. Today it lives only in plan N0, Decision 4. The ADR states what overrides may replace (colours, font families, radii), the validation, the native first-family rule, and that spacing, sizes and shadows are not themable. It names the theme file (colour, font and radius values) as an ADR-0027 exemption: the place where token values are defined, not consumer styles.
+- **Record.** The theming contract becomes Duro ADR-0003 (`theming.overrides`), rewritten for every group. It states:
+  - the themable groups and the refused ones;
+  - the guard rails and the value kinds;
+  - the inheritance rule;
+  - the native first-family rule, and that native is unverified on a device until a simulator check;
+  - that the theme file is an ADR-0027 exemption. The person added that exemption to the decisions corpus (`docs/principles/measures.md`, decisions#112).
 
 ## Phases
 
@@ -86,6 +111,34 @@ The person decided: no traffic light at rest; it appears when the game starts.
 - **Output:** the success line names what was applied (`with 3 colour, 2 font, 5 radius overrides from theme.json`), and the CSS comment reads "Theme overrides".
 - **Docs:** update the README, the manifest text and the tests in `packages/cli/test/mockup.test.ts`.
 
+### Phase 3b: every token group (the person's change, after Phases 1–3 were committed)
+
+- **Shared module `packages/tokens/src/theme.ts`**, built and exported as `@duro-app/tokens/theme`. It is pure and has no React, web or native imports. It holds:
+  - the table of themable groups: per group, its keys, its value kind per key, its floors and its refused keys. `keys.ts` has no list for typography (only `FONT_FAMILY_KEYS`), typeScale, layoutSpacing, duration or easing: add `TYPOGRAPHY_KEYS`, `TYPE_SCALE_KEYS`, `LAYOUT_SPACING_KEYS`, `DURATION_KEYS` and `EASING_KEYS`, and `check-token-drift.mjs` checks each list against its `defineVars` keys;
+  - the group aliases (`colors` → `color`, …) and `kebab`, which `mockup-css.mjs`, `generate-vars-css.mjs` and the CLI all import instead of keeping copies;
+  - the value-kind validators;
+  - `validateTokens(own)`, which returns `{kept, dropped}`; each dropped entry carries `{group, key, value, reason}`, the reason being the single wording used by both the warning and the CLI error.
+- **One fixture:** `packages/tokens/test/fixtures/theme-tokens.json` holds valid and invalid values per kind. It runs against `validateTokens`, and the CLI test runs it through `mockup seed`.
+- **`packages/ui` ThemeProvider:**
+  - The `fonts`/`radii` props and `validate.ts` are replaced by `tokens` and the shared module.
+  - `mergeOverrides` stays pure: validation returns the dropped entries, and each provider warns from an effect, deduplicated.
+  - `overrideRule.ts` emits one scoped rule over every themed group's `var(--x)` exports.
+  - Native builds one `createTheme` input per group in a pure helper (fonts: first family, unquoted), with tests that `resolved` colours come from the palette plus colour overrides only.
+  - Types: `ThemeTokens` is exported from both barrels. `FontOverrides`/`RadiusOverrides` go away (never released).
+- **`packages/cli` mockup seed:**
+  - It reads the `tokens` shape (or flat colours), validates through `@duro-app/tokens/theme` (a new runtime dependency) and drops its copied validators. `packages/tokens/vite.config.ts` gains the `theme` entry and `package.json` a `./theme` export (`source`/`react-native` → src, `import`/`types`/`default` → dist); `react-strict-dom` becomes optional in `peerDependenciesMeta`, so the CLI does not install it, and `theme.ts` imports nothing from it. Check: `npm ls` after installing the packed CLI into an empty directory lists no `react-strict-dom`.
+  - It emits `--duro-<alias>-<key>` with the aliases and `kebab` from `@duro-app/tokens/theme` (`mockup-css.mjs` is a build script and is not shipped); the parity test asserts every emitted variable of every group exists in `registry.tokens.mockupCss`.
+  - `readGroup` takes no flag argument.
+  - Errors read `<group>.<key>: <reason>`, colours included.
+  - The success line lists only the non-empty groups.
+  - A `--json` result stays on stdout even with exit 2.
+- **Carried from the implementation and interface reviews:**
+  - **Docs:** the JSDoc and the meta say native takes the first family (a face the app loads), that the app loads weights 400/500/600/700, that radii should stay ordered `xs ≤ sm ≤ md ≤ lg`, and that native is unverified on a device.
+  - **README:** the mono example starts with a loaded face.
+  - **Hero comment:** it names `minHeight: clamp(...)`.
+  - **The story** themes a size, a spacing and a radius, plus fonts with a distinct mono family. It asserts the computed values, that a nested other-theme provider keeps them, and that an unsafe value or a value under a floor leaves the default. It checks that Button, Badge, Tabs, a Select trigger and a `timeReadoutW` readout do not overflow.
+- **Registry and docs** are regenerated at the end (`pnpm duro:registry`, `pnpm duro:docs`).
+
 ### Phase 4: record, changesets, release
 
 - Write a Duro ADR, `theming.overrides`. Changesets: minor for `@duro-app/tokens`, `@duro-app/ui` and `@duro-app/cli`.
@@ -94,8 +147,9 @@ The person decided: no traffic light at rest; it appears when the game starts.
 ### Phase 5: greenharness-site (local, not a repo yet)
 
 - The `drive.html` keyboard and motion fixes depend on no Duro change and may land before Phase 1.
-- **Theme file:** `theme.json` gains:
-  - `fonts`: `"'JetBrains Mono', ui-monospace, Menlo, monospace"` for both families; the site loads weights 400, 500, 600 and 700, the ones the presets use;
+- **Theme file:** `theme.json` becomes the `tokens` shape:
+  - `colors`: today's Matrix palette;
+  - `typography`: `fontFamily` and `fontFamilyMono` set to `"'JetBrains Mono', ui-monospace, Menlo, monospace"`; the site loads weights 400, 500, 600 and 700, the ones the presets use;
   - `radii`: the near-square set, as strings with units (the validator refuses bare numbers): `"xs": "2px"`, `"sm": "4px"`, `"md": "6px"`, `"lg": "8px"`.
 - **Mockup A:** re-seed it with v5.37.0, keep its authored layout, and size the stage with the hero tokens; add artboards for the focused, started game and the short-viewport poster.
 - **`drive.html` hero** (the prototype the real site will port):
@@ -108,33 +162,31 @@ The person decided: no traffic light at rest; it appears when the game starts.
   - a "Skip to install" link sits before the canvas;
   - the focusable canvas has an accessible name that states the start keys;
   - the code rain at rest stops by itself within 5 s for every user (WCAG 2.2.2), and is static under reduced motion until the player starts;
-  - below `heroMinH + heroReserve` (600px) of viewport height, a "tap to play" poster replaces the game (the hero would otherwise push the headline out of view: clamp floors at 360, and 360 + 240 = 600); a tap on the poster opens the game at full viewport height, scrolled into view, and Escape or a close control returns to the poster;
+  - below `heroMinH + heroReserve` (632px after the measurement) of viewport height, a "tap to play" poster replaces the game (the hero would otherwise push the headline out of view); the switch is a JS `matchMedia` built from the computed vars, and `drive.html` links `@duro-app/ui`'s `dist/vars.css`; a tap on the poster opens the game at full viewport height, scrolled into view, and Escape or a close control returns to the poster;
   - no traffic light at rest;
   - the game-over box adds a line under "drive again": "↓ install the harness", which jumps to the command like the skip link.
 
 ## Non-goals
 
 - A generic `Hero` component, or `clamp()` / `calc()` in `Length`.
-- Theming spacing, sizes, shadows or type sizes.
+- Theming `layers`, `breakpoints`, `microSpacing`, `radii.px6` or `radii.full` (see Decisions).
 - Loading fonts from ThemeProvider.
 - Building the real site on Duro: that is the next plan, after a direction is picked.
 - Tool renames.
 
 ## Verification
 
-| #   | Check                                                                                                                                 | Expected                                                                                                                                                                                                                                                                              |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `pnpm run typecheck`; `vitest --project=unit`; `check-token-drift.mjs` with heroMaxH moved out of order; `build-registry.mjs --check` | 0 errors; the new validator cases pass; the drift check fails on the reorder, then passes restored; the registry lists heroMinH/heroReserve/heroMaxH                                                                                                                                  |
-| 2   | Storybook play test of fonts and radii overrides                                                                                      | computed `font-family` starts with the override after normalising quotes to double quotes (CSSOM serialisation); `border-radius` equals the override; an unsafe value leaves the default                                                                                              |
-| 3   | Native spike in `examples/native` (simulator)                                                                                         | font and radius change on screen, or the documented fallback and warning                                                                                                                                                                                                              |
-| 4   | CLI on the built bin: seed with `{colors, fonts, radii}`; legacy flat file; bad font (`a;b`), bad radius (`-1px`)                     | block written; legacy accepted; usage errors naming the key and the refused part (asserted text) on stderr with stdout empty, exit 2 (`emit` in `bin.ts` routes exitCode 2 text to stderr)                                                                                            |
-| 5   | Published v5.37.0 (`npm view`, `npx --prefer-online … --help`)                                                                        | the new flags and docs are present                                                                                                                                                                                                                                                    |
-| 6   | Mockup A re-seeded, `mockup check`, canvas next to `drive.html` in Chrome                                                             | the same font and corners; remaining differences listed                                                                                                                                                                                                                               |
-| 7   | `drive.html` in Chrome at 1440×900, 1280×600, 1024×500, 390×844, 844×390                                                              | hero height = clamp(360, innerHeight−240, 720) measured; headline and install command bottom ≤ innerHeight; 1024×500 and 844×390 show the poster. svh stability is cited (web.dev), not emulated                                                                                      |
-| 8   | Keyboard on `drive.html`                                                                                                              | arrow keys scroll the page until the canvas is focused and started; Tab leaves the canvas; Escape moves focus to the install command and pauses a race with the timer frozen; "Skip to install" focuses the command; the canvas announces its name; the rain at rest stops within 5 s |
-| 9   | After v5.37.0: the colour-overrides story and `examples/native` ThemeDemo, computed colours vs 5.36.0                                 | identical; any difference ships 5.37.1 reverting the `ui` change                                                                                                                                                                                                                      |
-
-<!-- panel: repos=duro-design-system reviewers=architect,backend,game-ux,lang:typescript,po,react,tui,ui-design,unix,ux-research,codex body-sha=c59b91df113d -->
+| #   | Check                                                                                                                                                                                                                              | Expected                                                                                                                                                                                                                                                                              |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `pnpm run typecheck`; `vitest --project=unit`; `check-token-drift.mjs` with heroMaxH moved out of order; `build-registry.mjs --check`                                                                                              | 0 errors; the new validator cases pass; the drift check fails on the reorder, then passes restored; the registry lists heroMinH/heroReserve/heroMaxH                                                                                                                                  |
+| 2   | Storybook play test of `tokens` (CI "Storybook Tests")                                                                                                                                                                             | computed `font-family` (quotes normalised), `border-radius`, a themed size and a themed spacing equal the overrides; a nested other-theme provider keeps them; an unsafe value or one under a floor (`touchTarget: 40px`) leaves the default; no overflow in the mono stack           |
+| 3   | Native spike in `examples/native` (simulator)                                                                                                                                                                                      | font and radius change on screen, or the documented fallback and warning                                                                                                                                                                                                              |
+| 4   | CLI on the built bin: seed with a `tokens` file (colours, typography, radii, sizes, spacing, shadows, duration); legacy flat file; bad font (`a;b`), bad radius (`-1px`), `sizes.touchTarget: 40px`, `layers.modal`, unknown group | block written; legacy accepted; usage errors naming the key and the refused part (asserted text) on stderr with stdout empty, exit 2 (`emit` in `bin.ts` routes exitCode 2 text to stderr)                                                                                            |
+| 5   | Published v5.37.0 (`npm view`, `npx --prefer-online … --help`)                                                                                                                                                                     | the new flags and docs are present                                                                                                                                                                                                                                                    |
+| 6   | Mockup A re-seeded, `mockup check`, canvas next to `drive.html` in Chrome                                                                                                                                                          | the same font and corners; remaining differences listed                                                                                                                                                                                                                               |
+| 7   | `drive.html` in Chrome at 1440×900, 1280×600, 1024×500, 390×844, 844×390                                                                                                                                                           | hero height = clamp(360, innerHeight−240, 720) measured; headline and install command bottom ≤ innerHeight; 1024×500 and 844×390 show the poster. svh stability is cited (web.dev), not emulated                                                                                      |
+| 8   | Keyboard on `drive.html`                                                                                                                                                                                                           | arrow keys scroll the page until the canvas is focused and started; Tab leaves the canvas; Escape moves focus to the install command and pauses a race with the timer frozen; "Skip to install" focuses the command; the canvas announces its name; the rain at rest stops within 5 s |
+| 9   | After v5.37.0: the colour-overrides story and `examples/native` ThemeDemo, computed colours vs 5.36.0                                                                                                                              | identical; any difference ships 5.37.1 reverting the `ui` change                                                                                                                                                                                                                      |
 
 ## Decision log
 
@@ -162,3 +214,5 @@ Phase status:
 - [x] Phase 3: mockup overrides take fonts and radii (6aa02d6e).
 - [ ] Phase 4: ADR-0003 and the changeset are done (45c76bce); the release follows the merge.
 - [ ] Phase 5: the site's keyboard, motion and overflow fixes are done locally in drive.html; the sizing, the poster and the mockup follow the release.
+
+<!-- panel: repos=duro-design-system reviewers=architect,backend,game-ux,lang:typescript,po,react,tui,ui-design,unix,ux-research,codex body-sha=9c8e6cb66132 -->
