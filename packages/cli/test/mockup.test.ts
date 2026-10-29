@@ -7,6 +7,8 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs'
+import {spawnSync} from 'node:child_process'
+import {fileURLToPath} from 'node:url'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
@@ -28,6 +30,7 @@ import {
 } from '../src/commands/mockup.js'
 
 const registry = loadRegistry()
+const bin = fileURLToPath(new URL('../dist/bin.js', import.meta.url))
 
 const rules = (html: string) => checkArtboard(registry, 'A.dc.html', html).map((f) => f.rule)
 
@@ -356,6 +359,97 @@ describe('runMockup seed + check on disk', () => {
       expect(result.exitCode).toBe(2)
       expect(result.text).toContain(problem)
       expect(existsSync(join(root, 'art', 'Main.dc.html'))).toBe(false)
+    })
+
+    describe('grouped theme file', () => {
+      const theme = JSON.stringify({
+        colors: {bg: '#020803'},
+        fonts: {fontFamily: "'JetBrains Mono', monospace", fontFamilyMono: 'ui-monospace, Menlo'},
+        radii: {xs: '2px', sm: '4px', md: '0', lg: '0.5rem'},
+      })
+
+      it('seeds colour, font and radius variables inside the token block', () => {
+        const result = seedWith(theme)
+        expect(result.exitCode).toBeUndefined()
+        expect(result.text).toContain('with 1 colour, 2 font, 4 radius overrides from o.json')
+        const html = seeded()
+        const block = html.slice(html.indexOf(TOKENS_START), html.indexOf(TOKENS_END))
+        const overrides = block.slice(block.indexOf('/* Theme overrides'))
+        expect(overrides).toContain('/* Theme overrides from o.json')
+        const emitted = [...overrides.matchAll(/(--duro-[a-z-]+):/g)].map((match) => match[1])
+        expect(new Set(emitted)).toEqual(
+          new Set([
+            '--duro-color-bg',
+            '--duro-typography-font-family',
+            '--duro-typography-font-family-mono',
+            '--duro-radius-xs',
+            '--duro-radius-sm',
+            '--duro-radius-md',
+            '--duro-radius-lg',
+          ]),
+        )
+        for (const name of emitted) {
+          expect(registry.tokens.mockupCss, name).toContain(`${name}:`)
+        }
+        expect(block).toContain(
+          ":root { --duro-color-bg: #020803; --duro-typography-font-family: 'JetBrains Mono', monospace;",
+        )
+      })
+
+      it('counts a flat colour file as colours only', () => {
+        const result = seedWith('{"bg": "#020803"}')
+        expect(result.text).toContain('with 1 colour, 0 font, 0 radius overrides from o.json')
+      })
+
+      it('leaves no .tmp file behind', () => {
+        seedWith(theme)
+        expect(existsSync(join(root, 'art', 'Main.dc.html.tmp'))).toBe(false)
+      })
+
+      it.each([
+        [
+          'a mixed file',
+          '{"colors": {}, "bg": "#fff"}',
+          'unknown group "bg" (expected colors | fonts | radii)',
+        ],
+        [
+          'an unknown group',
+          '{"radii": {}, "shadows": {}}',
+          'unknown group "shadows" (expected colors | fonts | radii)',
+        ],
+        ['px6', '{"radii": {"px6": "6px"}}', 'radii.px6: unknown radius (xs | sm | md | lg)'],
+        [
+          'an unknown radius',
+          '{"radii": {"xl": "6px"}}',
+          'radii.xl: unknown radius (xs | sm | md | lg)',
+        ],
+        [
+          'a ; in a font',
+          '{"fonts": {"fontFamily": "a;b"}}',
+          'fonts.fontFamily: ";" is not allowed in a font-family list',
+        ],
+        [
+          'an unbalanced quote',
+          `{"fonts": {"fontFamily": "'Mono, serif"}}`,
+          `fonts.fontFamily: "'Mono" has an unbalanced or mixed quote`,
+        ],
+        [
+          'a negative radius',
+          '{"radii": {"md": "-1px"}}',
+          'radii.md: "-1px" must be 0 or a non-negative px/rem length',
+        ],
+      ])('exits 2 on stderr with empty stdout for %s', (_label, content, message) => {
+        writeFileSync(join(root, 'o.json'), content)
+        const run = spawnSync(
+          process.execPath,
+          [bin, 'mockup', 'seed', '--out', 'art', '--overrides', 'o.json'],
+          {cwd: root, encoding: 'utf8'},
+        )
+        expect(run.status).toBe(2)
+        expect(run.stdout).toBe('')
+        expect(run.stderr).toContain(message)
+        expect(existsSync(join(root, 'art', 'Main.dc.html'))).toBe(false)
+      })
     })
 
     it('gives a usage error for a missing file', () => {

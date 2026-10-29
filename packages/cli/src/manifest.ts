@@ -163,7 +163,7 @@ export const COMMANDS: CommandSpec[] = [
         name: 'overrides',
         type: 'string',
         description:
-          "seed: a JSON file of colour token overrides (ThemeProvider's overrides shape), written into the token block",
+          'seed: a theme JSON file, {colors?, fonts?, radii?} (or a flat map of colour keys), written into the token block as --duro-color-*, --duro-typography-font-family(-mono) and --duro-radius-* rules',
       },
       {
         name: 'title',
