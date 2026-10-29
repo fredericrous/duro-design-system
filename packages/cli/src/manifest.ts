@@ -160,6 +160,12 @@ export const COMMANDS: CommandSpec[] = [
         description: 'seed: dark (default) | light | high-contrast — sets <html data-theme>',
       },
       {
+        name: 'overrides',
+        type: 'string',
+        description:
+          "seed: a JSON file of colour token overrides (ThemeProvider's overrides shape), written into the token block",
+      },
+      {
         name: 'title',
         type: 'string',
         description: 'canvas: the page title (default "<dir> directions")',
