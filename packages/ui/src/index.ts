@@ -136,6 +136,7 @@ export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
 export {
   ThemeProvider,
   type ColorOverrides,
+  type ThemeTokens,
   usePortalMount,
   type ThemeName,
 } from './components/ThemeProvider/ThemeProvider'

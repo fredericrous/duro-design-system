@@ -5,33 +5,10 @@
 
 import {join} from 'node:path'
 import {extractCallArg} from './literals.mjs'
+// Straight from source (Node strips the types): the registry build must not need a tokens build.
+import {GROUP_ALIASES, kebab} from '../../src/names.ts'
 
 export function buildMockupCss(srcDir) {
-  // Same aliases as generate-vars-css.mjs — the two files publish ONE name set.
-  const GROUP_NAMES = {
-    colors: 'color',
-    radii: 'radius',
-    shadows: 'shadow',
-    spacing: 'spacing',
-    microSpacing: 'micro-spacing',
-    sizes: 'size',
-    borders: 'border',
-    layers: 'layer',
-    effects: 'effect',
-    layoutSpacing: 'layout-spacing',
-    typography: 'typography',
-    typeScale: 'type-scale',
-    duration: 'duration',
-    easing: 'easing',
-    breakpoints: 'breakpoint',
-  }
-
-  const kebab = (s) =>
-    s
-      .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
-      .toLowerCase()
-
   const tokensDir = join(srcDir, 'tokens')
   const themesDir = join(srcDir, 'themes')
   const vars = (file, exportName) =>
@@ -86,7 +63,7 @@ export function buildMockupCss(srcDir) {
   ]
 
   function declarations(group, bag) {
-    const alias = GROUP_NAMES[group]
+    const alias = GROUP_ALIASES[group]
     const lines = [`  /* ${group} */`]
     for (const [name, value] of Object.entries(bag).sort(([a], [b]) => a.localeCompare(b))) {
       lines.push(`  --duro-${alias}-${kebab(name)}: ${value};`)

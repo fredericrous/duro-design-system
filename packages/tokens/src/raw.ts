@@ -240,6 +240,9 @@ export const SIZES_PX = {
   appBarH: 61,
   dragThumbW: 132,
   dragThumbH: 99,
+  heroMinH: 360,
+  heroReserve: 272,
+  heroMaxH: 720,
 } as const
 
 // Email-only measures: no CSS variable (mail clients cannot read them) and not

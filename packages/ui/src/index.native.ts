@@ -125,6 +125,7 @@ export type {LinkClickEvent, OnNavigate} from './shared/navigate'
 export {
   ThemeProvider,
   type ColorOverrides,
+  type ThemeTokens,
   usePortalMount,
   useResolvedColors,
   type ThemeName,

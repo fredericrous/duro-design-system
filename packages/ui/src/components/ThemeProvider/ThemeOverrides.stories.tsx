@@ -3,9 +3,14 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {ThemeProvider, type ColorOverrides, type ThemeName} from './ThemeProvider'
 import {Button} from '../Button/Button'
+import {Badge} from '../Badge/Badge'
+import {Tabs} from '../Tabs/Tabs'
+import {Select} from '../Select/Select'
 import {Text} from '../Text/Text'
 
 const meta: Meta = {
@@ -21,6 +26,8 @@ const styles = css.create({
     gap: spacing.sm,
     padding: spacing.md,
     backgroundColor: colors.bg,
+    // Read the token, as components do, so the font assertions test the theme.
+    fontFamily: typography.fontFamily,
   },
 })
 
@@ -109,5 +116,105 @@ export const OverridesUpdateInPlace: StoryObj = {
     // The invalid value never reaches a rule, and nothing leaked onto body.
     await expect(rules.some((r) => r.includes('body{'))).toBe(false)
     await expect(getComputedStyle(document.body).backgroundColor).not.toBe('rgb(255, 0, 0)')
+  },
+}
+
+const SANS_STACK = "'JetBrains Mono', ui-monospace, Menlo, monospace"
+const MONO_STACK = "'Courier New', Courier, monospace"
+const unquoted = (value: string) => value.replace(/["']/g, '')
+
+const probe = css.create({
+  mono: {fontFamily: typography.fontFamilyMono},
+  width: {width: sizes.dialogSm},
+  target: {minHeight: sizes.touchTarget},
+  corner: {borderRadius: radii.sm},
+  themedCorner: {borderRadius: radii.md},
+  // A readout is set small: at 16px, eight mono digits need about 77px,
+  // more than timeReadoutW (74px).
+  timeReadout: {width: sizes.timeReadoutW, fontSize: typography.fontSizeSm},
+})
+
+/**
+ * Tokens of several groups replaced by key: a size, a spacing, a radius and
+ * two font families. A nested provider on another theme keeps them; a value
+ * that is unsafe, or under a floor, leaves the default.
+ */
+export const Tokens: StoryObj = {
+  render: () => (
+    <ThemeProvider
+      tokens={{
+        typography: {fontFamily: SANS_STACK, fontFamilyMono: MONO_STACK},
+        radii: {md: '2px', sm: '-1px'},
+        spacing: {md: '20px'},
+        sizes: {dialogSm: '300px', touchTarget: '40px'},
+      }}
+    >
+      <html.div data-testid="outer" style={styles.surface}>
+        <Button>Primary</Button>
+        <Badge>New</Badge>
+        <Tabs.Root defaultValue="one">
+          <Tabs.List>
+            <Tabs.Tab value="one">One</Tabs.Tab>
+            <Tabs.Tab value="two">Two</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
+        <Select.Root defaultValue="alpha">
+          <Select.Trigger aria-label="Pick one">
+            <Select.Value />
+            <Select.Icon />
+          </Select.Trigger>
+          <Select.Popup>
+            <Select.Item value="alpha">
+              <Select.ItemText>Alpha</Select.ItemText>
+            </Select.Item>
+          </Select.Popup>
+        </Select.Root>
+        <html.div data-testid="mono" style={probe.mono}>
+          mono
+        </html.div>
+        <html.div data-testid="width" style={probe.width} />
+        <html.div data-testid="target" style={probe.target} />
+        <html.div data-testid="corner" style={probe.corner} />
+        <html.div data-testid="themed-corner" style={probe.themedCorner} />
+        <html.div data-testid="readout" style={probe.timeReadout}>
+          00:00:00
+        </html.div>
+        <ThemeProvider theme="light">
+          <html.div data-testid="nested" style={styles.surface}>
+            <html.div data-testid="nested-width" style={probe.width} />
+          </html.div>
+        </ThemeProvider>
+      </html.div>
+    </ThemeProvider>
+  ),
+  play: async ({canvas}) => {
+    const outer = canvas.getByTestId('outer')
+    const nested = canvas.getByTestId('nested')
+    const button = canvas.getByRole('button', {name: 'Primary'})
+    await waitFor(() =>
+      expect(unquoted(getComputedStyle(outer).fontFamily)).toMatch(/^JetBrains Mono/),
+    )
+    await expect(unquoted(getComputedStyle(nested).fontFamily)).toMatch(/^JetBrains Mono/)
+    // A distinct mono family, not the sans one.
+    await expect(unquoted(getComputedStyle(canvas.getByTestId('mono')).fontFamily)).toMatch(
+      /^Courier New/,
+    )
+    await expect(getComputedStyle(canvas.getByTestId('themed-corner')).borderRadius).toBe('2px')
+    await expect(getComputedStyle(outer).padding).toBe('20px')
+    await expect(getComputedStyle(canvas.getByTestId('width')).width).toBe('300px')
+    // A nested provider on another theme keeps the size.
+    await expect(getComputedStyle(canvas.getByTestId('nested-width')).width).toBe('300px')
+    // A value under its floor, or below zero, leaves the default.
+    await expect(getComputedStyle(canvas.getByTestId('target')).minHeight).toBe('44px')
+    await expect(getComputedStyle(canvas.getByTestId('corner')).borderRadius).toBe('8px')
+    for (const el of [
+      button,
+      ...canvas.getAllByRole('tab'),
+      canvas.getByRole('combobox', {name: 'Pick one'}),
+      canvas.getByText('New'),
+      canvas.getByTestId('readout'),
+    ]) {
+      await expect(el.scrollWidth).toBeLessThanOrEqual(el.clientWidth)
+    }
   },
 }

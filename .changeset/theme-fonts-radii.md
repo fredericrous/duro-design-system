@@ -1,0 +1,7 @@
+---
+'@duro-app/ui': minor
+'@duro-app/tokens': minor
+'@duro-app/cli': minor
+---
+
+`ThemeProvider` takes one `tokens` prop over every themable group (`colors`, `shadows`, `typography`, `typeScale`, `spacing`, `layoutSpacing`, `radii`, `sizes`, `borders`, `duration`, `easing`, `effects`), beside `overrides`, which stays the colour alias. `layers`, `breakpoints`, `microSpacing`, `radii.px6` and `radii.full` are refused, and `sizes.touchTarget` (44px), `borders.focusRing` (2px) and `borders.focusOffset` keep their floors. Each provider's own values are validated before merging by one rule per kind of value, an invalid one is dropped with one development warning, `colors` and `shadows` reset when a nested provider changes theme and every other group inherits. `ThemeTokens` is exported. `@duro-app/tokens/theme` is the pure module that holds the group table and `validateTokens`; `react-strict-dom` is now an optional peer of the tokens package, and the new `TYPOGRAPHY_KEYS`, `TYPE_SCALE_KEYS`, `LAYOUT_SPACING_KEYS`, `DURATION_KEYS` and `EASING_KEYS` lists are held to the token sources by the drift check. Three size tokens size a page hero: `heroMinH` 360px, `heroReserve` 272px, `heroMaxH` 720px. `duro mockup seed --overrides` reads the same `tokens` file (or the flat colour map), validates it through `@duro-app/tokens/theme` (now a runtime dependency of the CLI), writes `--duro-<group>-<key>` rules for every group, and reports `<group>.<key>: <reason>` on stderr with exit 2; a `--json` result stays on stdout.

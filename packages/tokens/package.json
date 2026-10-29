@@ -36,6 +36,13 @@
       "types": "./dist/raw.d.ts",
       "default": "./dist/raw.js"
     },
+    "./theme": {
+      "react-native": "./src/theme.ts",
+      "source": "./src/theme.ts",
+      "import": "./dist/theme.js",
+      "types": "./dist/theme.d.ts",
+      "default": "./dist/theme.js"
+    },
     "./keys": "./src/keys.ts",
     "./tokens/breakpoints.css": "./src/tokens/breakpoints.css.ts",
     "./tokens/colors.css": "./src/tokens/colors.css.ts",
@@ -63,6 +70,11 @@
   },
   "peerDependencies": {
     "react-strict-dom": "^0.0.55"
+  },
+  "peerDependenciesMeta": {
+    "react-strict-dom": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/parser": "^7.29.0",

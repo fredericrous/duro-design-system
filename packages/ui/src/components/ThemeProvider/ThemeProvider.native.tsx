@@ -4,9 +4,10 @@
 // this applies the theme to a plain flex-column container, and passive
 // overlays (toasts) draw through the host registry instead (plan N0,
 // Decision 2).
-import {createContext, type ReactNode, useContext, useMemo, useState} from 'react'
+import {createContext, type ReactNode, useContext, useEffect, useMemo, useState} from 'react'
 import {css, html} from 'react-strict-dom'
 import type {ColorToken} from '@duro-app/tokens/keys'
+import {THEMABLE_GROUPS, validateTokens} from '@duro-app/tokens/theme'
 import {darkColors, highContrastColors, lightColors, type RawColors} from '@duro-app/tokens/raw'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {lightTheme, lightShadows} from '@duro-app/tokens/themes/light.css'
@@ -18,10 +19,20 @@ import {
   ThemeScopeContext,
   type ThemeScope,
 } from '../../shared/portal/themeScope'
-import {mergeOverrides, OverridesContext, type ColorOverrides} from './overrides'
+import {
+  mergeOverrides,
+  OverridesContext,
+  ownTokens,
+  type ColorOverrides,
+  type ThemeTokens,
+} from './overrides'
+import {nativeThemeInputs, resolvedColors} from './nativeInputs'
+import {TOKEN_GROUPS} from './tokenGroups'
+import {warnDropped} from './warnDropped'
 
 export type ThemeName = 'dark' | 'light' | 'high-contrast'
-export type {ColorOverrides}
+export {firstFamily, nativeThemeInputs, type NativeThemeInputs} from './nativeInputs'
+export type {ColorOverrides, ThemeTokens}
 
 interface ThemeProviderProps {
   theme?: ThemeName
@@ -31,6 +42,22 @@ interface ThemeProviderProps {
    * theme keeps these and lays its own over them.
    */
   overrides?: ColorOverrides
+  /**
+   * Token values that replace the theme's own, keyed by group: `colors`,
+   * `shadows`, `typography`, `typeScale`, `spacing`, `layoutSpacing`, `radii`,
+   * `sizes`, `borders`, `duration`, `easing` and `effects`, each a partial
+   * record of that group's keys (`{radii: {md: '6px'}}`). An app passes its
+   * theme file as is. `layers`, `breakpoints`, `microSpacing`, `radii.px6` and
+   * `radii.full` are refused, and `sizes.touchTarget` (44px),
+   * `borders.focusRing` (2px) and `borders.focusOffset` keep their floors.
+   * Invalid entries are dropped with one development warning. `colors` and
+   * `shadows` reset when a nested provider changes theme; every other group
+   * inherits. The app loads its own fonts; native takes the first family of a
+   * list, unquoted (a face the app has loaded, at weights 400, 500, 600 and
+   * 700). Keep `radii` ordered `xs <= sm <= md <= lg`. Native is unverified
+   * on a device.
+   */
+  tokens?: ThemeTokens
   children: ReactNode
 }
 
@@ -88,7 +115,7 @@ export function useResolvedColors(): Record<ColorToken, string> {
   return useContext(ResolvedColorsContext)
 }
 
-export function ThemeProvider({theme = 'dark', overrides, children}: ThemeProviderProps) {
+export function ThemeProvider({theme = 'dark', overrides, tokens, children}: ThemeProviderProps) {
   const outerRegistry = useContext(HostRegistryContext)
   const outerScope = useContext(ThemeScopeContext)
   // The outermost provider owns the registry and draws the root host.
@@ -97,22 +124,32 @@ export function ThemeProvider({theme = 'dark', overrides, children}: ThemeProvid
   )
   const registry = outerRegistry ?? ownRegistry
   const outerOverrides = useContext(OverridesContext)
+  const checked = useMemo(() => validateTokens(ownTokens(overrides, tokens)), [overrides, tokens])
+  useEffect(() => warnDropped(checked.dropped), [checked])
   const effective = useMemo(
-    () => mergeOverrides(outerOverrides, theme, overrides),
-    [outerOverrides, theme, overrides],
+    () => mergeOverrides(outerOverrides, theme, checked.kept),
+    [outerOverrides, theme, checked],
   )
-  // A runtime theme on native, applied after the base one so RSD styles
-  // cascade it; rebuilt only when the colours change.
-  const overrideKey = JSON.stringify(effective.colors)
+  // A runtime theme per group on native, applied after the base one so RSD
+  // styles cascade it; rebuilt only when that group's values change.
+  const inputs = nativeThemeInputs(effective)
+  const inputsKey = JSON.stringify(inputs)
   const themeStyles = useMemo(() => {
-    const base = themeMap[theme]
-    return overrideKey === '{}'
-      ? base
-      : [...base, css.createTheme(colors, JSON.parse(overrideKey) as ColorOverrides)]
-  }, [theme, overrideKey])
+    const layered = [...themeMap[theme]]
+    const byGroup = JSON.parse(inputsKey) as typeof inputs
+    for (const group of THEMABLE_GROUPS) {
+      const values = byGroup[group]
+      if (values) {
+        layered.push(css.createTheme(TOKEN_GROUPS[group] as never, values as never))
+      }
+    }
+    return layered
+  }, [theme, inputsKey])
+  // Resolved colours come from the palette plus the colour overrides only.
+  const colorKey = JSON.stringify(inputs.colors ?? {})
   const resolved = useMemo(
-    () => ({...palettes[theme], ...(JSON.parse(overrideKey) as ColorOverrides)}),
-    [theme, overrideKey],
+    () => resolvedColors(palettes[theme], JSON.parse(colorKey) as ColorOverrides),
+    [theme, colorKey],
   )
   const scope = useMemo<ThemeScope>(
     () => ({styles: [...outerScope.styles, ...themeStyles]}),

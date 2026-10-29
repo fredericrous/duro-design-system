@@ -9,6 +9,7 @@ export default defineConfig({
       entry: {
         index: './src/index.ts',
         raw: './src/raw.ts',
+        theme: './src/theme.ts',
       },
       formats: ['es'],
       fileName: (_format, entryName) => `${entryName}.js`,

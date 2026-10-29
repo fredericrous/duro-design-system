@@ -30,31 +30,8 @@ import {fileURLToPath} from 'node:url'
 const here = dirname(fileURLToPath(import.meta.url))
 const distDir = join(here, '..', 'dist')
 
-// Group name in the emitted variable. Singularised where the plural reads
-// oddly on one value (`--duro-radii-sm` vs `--duro-radius-sm`).
-const GROUP_NAMES = {
-  colors: 'color',
-  radii: 'radius',
-  shadows: 'shadow',
-  spacing: 'spacing',
-  microSpacing: 'micro-spacing',
-  sizes: 'size',
-  borders: 'border',
-  layers: 'layer',
-  effects: 'effect',
-  layoutSpacing: 'layout-spacing',
-  typography: 'typography',
-  typeScale: 'type-scale',
-  duration: 'duration',
-  easing: 'easing',
-}
-
-const kebab = (s) =>
-  s
-    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
-    .toLowerCase()
-
+// The names are published by the same module the CLI and ThemeProvider use.
+const {GROUP_ALIASES, kebab} = await import(join(distDir, 'theme.js'))
 const tokens = await import(join(distDir, 'index.js'))
 const raw = await import(join(distDir, 'raw.js'))
 
@@ -88,7 +65,7 @@ const canvas = CANVAS.map(
 const lines = []
 let count = 0
 
-for (const [group, alias] of Object.entries(GROUP_NAMES)) {
+for (const [group, alias] of Object.entries(GROUP_ALIASES)) {
   const bag = tokens[group]
   if (!bag || typeof bag !== 'object') continue
 

@@ -141,13 +141,14 @@ importers:
         version: 4.1.12(@types/node@25.3.2)(@vitest/browser-playwright@4.1.12)(@vitest/coverage-v8@4.0.18)(vite@6.4.4(@types/node@25.3.2)(terser@5.46.0)(yaml@2.9.1))
 
   packages/cli:
+    dependencies:
+      '@duro-app/tokens':
+        specifier: workspace:^
+        version: link:../tokens
     devDependencies:
       '@duro-app/eslint-plugin':
         specifier: workspace:^
         version: link:../eslint-plugin
-      '@duro-app/tokens':
-        specifier: workspace:^
-        version: link:../tokens
       '@duro-app/ui':
         specifier: workspace:^
         version: link:../ui
