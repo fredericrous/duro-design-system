@@ -12,7 +12,10 @@ import {join} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {loadRegistry} from '../src/registry.js'
 import {
+  ARTBOARD_HEIGHT,
+  ARTBOARD_WIDTH,
   buildCanvas,
+  colorVariableName,
   checkArtboard,
   MOCKUP_SUBCOMMANDS,
   runMockup,
@@ -279,6 +282,87 @@ describe('runMockup seed + check on disk', () => {
     expect(readFileSync(join(root, 'art', 'Main.dc.html'), 'utf8')).toContain('data-theme="light"')
     expect(runMockupSeed(registry, {cwd: root, theme: 'sepia'}).exitCode).toBe(2)
     expect(runMockupSeed(registry, {cwd: root, name: '../x'}).exitCode).toBe(2)
+  })
+
+  describe('--overrides', () => {
+    const seedWith = (content: string) => {
+      writeFileSync(join(root, 'o.json'), content)
+      return runMockupSeed(registry, {cwd: root, out: 'art', overrides: 'o.json'})
+    }
+    const seeded = () => readFileSync(join(root, 'art', 'Main.dc.html'), 'utf8')
+
+    it('writes the override rules inside the token block and the artboard passes check', () => {
+      expect(seedWith('{"bg": "#020803", "successBg": "rgb(1 2 3)"}').exitCode).toBeUndefined()
+      const html = seeded()
+      const block = html.slice(html.indexOf(TOKENS_START), html.indexOf(TOKENS_END))
+      for (const selector of [
+        ':root',
+        ':root[data-theme="light"]',
+        ':root[data-theme="high-contrast"]',
+      ]) {
+        expect(block).toContain(
+          `${selector} { --duro-color-bg: #020803; --duro-color-success-bg: rgb(1 2 3); }`,
+        )
+      }
+      expect(block).toContain('o.json')
+      expect(block.indexOf('--duro-mockup-canvas-width')).toBeLessThan(block.indexOf('o.json'))
+      const authored = html.replace(
+        '</div>\n</x-dc>',
+        '<div class="btn" data-duro="Button variant=primary">Go</div></div>\n</x-dc>',
+      )
+      expect(rules(authored)).toEqual([])
+    })
+
+    it('still refuses a raw colour outside the block', () => {
+      seedWith('{"bg": "#020803"}')
+      const raw = seeded().replace('</style>', '.x { color: #ff0000; }\n</style>')
+      expect(rules(raw)).toContain('raw-color')
+    })
+
+    it('is byte-for-byte the plain seed without overrides', () => {
+      runMockupSeed(registry, {cwd: root, out: 'art'})
+      const html = seeded()
+      const expectedBlock = [
+        TOKENS_START,
+        registry.tokens.mockupCss.trimEnd(),
+        "/* The design canvas size: the board's coordinate space, not a design token. */",
+        `:root { --duro-mockup-canvas-width: ${ARTBOARD_WIDTH}px; --duro-mockup-canvas-height: ${ARTBOARD_HEIGHT}px; }`,
+        TOKENS_END,
+      ].join('\n')
+      const block = html.slice(
+        html.indexOf(TOKENS_START),
+        html.indexOf(TOKENS_END) + TOKENS_END.length,
+      )
+      expect(block).toBe(expectedBlock)
+      expect(block).not.toContain('Colour overrides')
+    })
+
+    it('maps every colour key to a --duro-color-* variable the token CSS declares', () => {
+      const entries = registry.tokens.groups.colors?.entries ?? []
+      expect(entries.length).toBeGreaterThan(0)
+      for (const {key} of entries) {
+        expect(registry.tokens.mockupCss).toContain(`${colorVariableName(key)}:`)
+      }
+    })
+
+    it.each([
+      ['an unknown key', '{"nope": "#fff"}', 'unknown colour token "nope"'],
+      ['a non-colour value', '{"bg": "banana"}', 'not a CSS colour'],
+      ['a value that escapes the rule', '{"bg": "red; } body { x: y"}', 'not a CSS colour'],
+      ['a non-JSON file', 'bg = red', 'not valid JSON'],
+      ['an array', '[]', 'expected a JSON object'],
+    ])('gives a usage error for %s', (_label, content, problem) => {
+      const result = seedWith(content)
+      expect(result.exitCode).toBe(2)
+      expect(result.text).toContain(problem)
+      expect(existsSync(join(root, 'art', 'Main.dc.html'))).toBe(false)
+    })
+
+    it('gives a usage error for a missing file', () => {
+      const result = runMockupSeed(registry, {cwd: root, overrides: 'absent.json'})
+      expect(result.exitCode).toBe(2)
+      expect(result.text).toContain('cannot read')
+    })
   })
 
   it('check reads several files, exits 1 with file:line lines, 2 on a missing file', () => {

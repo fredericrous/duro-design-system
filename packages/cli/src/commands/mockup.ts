@@ -44,7 +44,15 @@ export interface SeedOptions {
   /** Artboard file stem (default Main). */
   name?: string
   theme?: string
+  /** A JSON file mapping colour token keys to colours (ThemeProvider's `overrides`). */
+  overrides?: string
   cwd?: string
+}
+
+/** Colour overrides read from a file: the file's name for the comment, and the colours. */
+export interface SeedOverrides {
+  file: string
+  colors: Record<string, string>
 }
 
 export interface CheckOptions {
@@ -86,7 +94,12 @@ export interface Finding {
  * <helmet><style>. Everything a
  * finished artboard adds goes inside the same style block and the root div.
  */
-export function seedArtboard(registry: Registry, name: string, theme: MockupTheme): string {
+export function seedArtboard(
+  registry: Registry,
+  name: string,
+  theme: MockupTheme,
+  overrides?: SeedOverrides,
+): string {
   const themeAttr = theme === 'dark' ? '' : ` data-theme="${theme}"`
   const tokens = registry.tokens.mockupCss.trimEnd()
   return `<!doctype html>
@@ -102,7 +115,7 @@ export function seedArtboard(registry: Registry, name: string, theme: MockupThem
 ${TOKENS_START}
 ${tokens}
 /* The design canvas size: the board's coordinate space, not a design token. */
-:root { --duro-mockup-canvas-width: ${ARTBOARD_WIDTH}px; --duro-mockup-canvas-height: ${ARTBOARD_HEIGHT}px; }
+:root { --duro-mockup-canvas-width: ${ARTBOARD_WIDTH}px; --duro-mockup-canvas-height: ${ARTBOARD_HEIGHT}px; }${overrides ? `\n${overridesBlock(overrides)}` : ''}
 ${TOKENS_END}
 
 /*
@@ -149,6 +162,94 @@ body {
 `
 }
 
+const NAMED_COLORS = new Set(
+  (
+    'aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood ' +
+    'cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray ' +
+    'darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen ' +
+    'darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue ' +
+    'firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew ' +
+    'hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan ' +
+    'lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray ' +
+    'lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue ' +
+    'mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred ' +
+    'midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid ' +
+    'palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple ' +
+    'rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue ' +
+    'slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white ' +
+    'whitesmoke yellow yellowgreen transparent currentcolor'
+  ).split(' '),
+)
+const HEX_COLOR = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i
+const FUNCTIONAL_COLOR = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\([0-9a-z\s.,%/+-]+\)$/i
+
+function isCssColor(value: string): boolean {
+  return (
+    HEX_COLOR.test(value) || FUNCTIONAL_COLOR.test(value) || NAMED_COLORS.has(value.toLowerCase())
+  )
+}
+
+/**
+ * The CSS variable a colour token key publishes. Copied from the kebab-case
+ * step of packages/tokens/scripts/lib/mockup-css.mjs (harness.shared-code): the
+ * names must match what registry.tokens.mockupCss declares.
+ */
+export function colorVariableName(key: string): string {
+  const kebab = key
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+    .toLowerCase()
+  return `--duro-color-${kebab}`
+}
+
+/** The override rules, one per theme selector so they win whatever the theme. */
+function overridesBlock({file, colors}: SeedOverrides): string {
+  const declarations = Object.entries(colors)
+    .map(([key, value]) => `${colorVariableName(key)}: ${value};`)
+    .join(' ')
+  const comment = `/* Colour overrides from ${file.replace(/\*\//g, '* /')}: the same JSON as ThemeProvider's overrides. */`
+  return [
+    comment,
+    `:root { ${declarations} }`,
+    `:root[data-theme="light"] { ${declarations} }`,
+    `:root[data-theme="high-contrast"] { ${declarations} }`,
+  ].join('\n')
+}
+
+/** Read and validate an overrides file; a usage error text when it is not acceptable. */
+function readOverrides(
+  registry: Registry,
+  cwd: string,
+  file: string,
+): {overrides: SeedOverrides} | {error: string} {
+  const fail = (problem: string) => ({error: `duro mockup seed: --overrides ${file}: ${problem}`})
+  let source: string
+  try {
+    source = readFileSync(resolve(cwd, file), 'utf8')
+  } catch {
+    return fail('cannot read the file')
+  }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(source)
+  } catch {
+    return fail('not valid JSON')
+  }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    return fail('expected a JSON object mapping colour token keys to colours')
+  }
+  const known = new Set(registry.tokens.groups.colors?.entries.map((entry) => entry.key) ?? [])
+  const colors: Record<string, string> = {}
+  for (const [key, value] of Object.entries(parsed)) {
+    if (!known.has(key)) return fail(`unknown colour token "${key}"`)
+    if (typeof value !== 'string' || !isCssColor(value.trim())) {
+      return fail(`"${key}" is not a CSS colour: ${JSON.stringify(value)}`)
+    }
+    colors[key] = value.trim()
+  }
+  return {overrides: {file, colors}}
+}
+
 export function runMockupSeed(registry: Registry, options: SeedOptions = {}): CommandResult {
   const cwd = options.cwd ?? process.cwd()
   const name = options.name ?? 'Main'
@@ -161,6 +262,12 @@ export function runMockupSeed(registry: Registry, options: SeedOptions = {}): Co
       `duro mockup seed: --theme must be one of ${MOCKUP_THEMES.join(' | ')}, got "${theme}"`,
     )
   }
+  let overrides: SeedOverrides | undefined
+  if (options.overrides !== undefined) {
+    const read = readOverrides(registry, cwd, options.overrides)
+    if ('error' in read) return usage(read.error)
+    overrides = read.overrides
+  }
   const dir = options.out ?? join('docs', 'mockups', name.toLowerCase())
   const path = join(dir, `${name}.dc.html`)
   const abs = resolve(cwd, path)
@@ -172,7 +279,7 @@ export function runMockupSeed(registry: Registry, options: SeedOptions = {}): Co
     }
   }
   mkdirSync(resolve(cwd, dir), {recursive: true})
-  writeFileSync(abs, seedArtboard(registry, name, theme), 'utf8')
+  writeFileSync(abs, seedArtboard(registry, name, theme, overrides), 'utf8')
   return {
     text: [
       `Seeded ${path} (${theme}).`,
@@ -735,7 +842,8 @@ export function runMockup(
   options: SeedOptions & CheckOptions & CanvasOptions,
 ): CommandResult {
   if (sub === 'seed') {
-    if (rest.length > 0) return usage('duro mockup seed takes flags only (--out, --name, --theme)')
+    if (rest.length > 0)
+      return usage('duro mockup seed takes flags only (--out, --name, --theme, --overrides)')
     return runMockupSeed(registry, options)
   }
   if (sub === 'check') return runMockupCheck(registry, rest, options)

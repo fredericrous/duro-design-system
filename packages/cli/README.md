@@ -218,6 +218,19 @@ every theme (`--duro-color-bg`, `--duro-spacing-md`, … — the same names as
 `@duro-app/tokens/vars.css`, generated from the same sources). `--theme
 light|high-contrast` stamps `<html data-theme>` so the block switches.
 
+`--overrides <file.json>` seeds an artboard for an app that overrides theme colours. The file maps colour
+token keys (camelCase, as in `duro list colors`) to CSS colours, and is the same JSON that
+`ThemeProvider`'s `overrides` prop takes:
+
+```json
+{"bg": "#020803", "success": "#39ff7a"}
+```
+
+The overrides are written inside the token block as `--duro-color-<key>` rules (for `:root` and for both
+`data-theme` selectors, so they win whatever the theme), and `check` accepts them there while still
+refusing a raw colour anywhere else. A missing or non-JSON file, an unknown key or a value that is not a
+CSS colour exits 2.
+
 `check` reads an artboard back and refuses, with `file:line rule: message`:
 
 | Rule                  | Finding                                                                                                                                                                                                                                                                                                                                                |
