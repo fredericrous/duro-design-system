@@ -55,6 +55,9 @@ export const RADII_PX = {
   full: 9999,
 } as const
 
+export const FONT_FAMILY_KEYS = ['fontFamily', 'fontFamilyMono'] as const
+export type FontFamilyToken = (typeof FONT_FAMILY_KEYS)[number]
+
 export const SHADOW_KEYS = ['sm', 'md', 'lg', 'dropReady', 'dropOver'] as const
 export type ShadowToken = (typeof SHADOW_KEYS)[number]
 

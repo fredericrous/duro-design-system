@@ -6,6 +6,8 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {ThemeProvider, type ColorOverrides, type ThemeName} from './ThemeProvider'
 import {Button} from '../Button/Button'
+import {Badge} from '../Badge/Badge'
+import {Tabs} from '../Tabs/Tabs'
 import {Text} from '../Text/Text'
 
 const meta: Meta = {
@@ -109,5 +111,42 @@ export const OverridesUpdateInPlace: StoryObj = {
     // The invalid value never reaches a rule, and nothing leaked onto body.
     await expect(rules.some((r) => r.includes('body{'))).toBe(false)
     await expect(getComputedStyle(document.body).backgroundColor).not.toBe('rgb(255, 0, 0)')
+  },
+}
+
+const MONO_STACK = "'JetBrains Mono', ui-monospace, Menlo, monospace"
+const unquoted = (value: string) => value.replace(/["']/g, '')
+
+/** Fonts and radii replaced by token key; a nested provider on another theme keeps them. */
+export const FontsAndRadii: StoryObj = {
+  render: () => (
+    <ThemeProvider fonts={{fontFamily: MONO_STACK, fontFamilyMono: MONO_STACK}} radii={{md: '2px'}}>
+      <html.div data-testid="outer" style={styles.surface}>
+        <Button>Primary</Button>
+        <Badge>New</Badge>
+        <Tabs.Root defaultValue="one">
+          <Tabs.List>
+            <Tabs.Tab value="one">One</Tabs.Tab>
+            <Tabs.Tab value="two">Two</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
+        <ThemeProvider theme="light">
+          <html.div data-testid="nested" style={styles.surface} />
+        </ThemeProvider>
+      </html.div>
+    </ThemeProvider>
+  ),
+  play: async ({canvas}) => {
+    const outer = canvas.getByTestId('outer')
+    const nested = canvas.getByTestId('nested')
+    const button = canvas.getByRole('button', {name: 'Primary'})
+    await waitFor(() =>
+      expect(unquoted(getComputedStyle(outer).fontFamily)).toMatch(/^JetBrains Mono/),
+    )
+    await expect(unquoted(getComputedStyle(nested).fontFamily)).toMatch(/^JetBrains Mono/)
+    await expect(getComputedStyle(button).borderRadius).toBe('2px')
+    for (const el of [button, ...canvas.getAllByRole('tab'), canvas.getByText('New')]) {
+      await expect(el.scrollWidth).toBeLessThanOrEqual(el.clientWidth)
+    }
   },
 }

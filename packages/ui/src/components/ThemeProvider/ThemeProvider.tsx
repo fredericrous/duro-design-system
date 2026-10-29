@@ -1,15 +1,23 @@
 import {createContext, type ReactNode, useContext, useId, useMemo, useState} from 'react'
 import {css, html} from 'react-strict-dom'
-import type {ColorToken} from '@duro-app/tokens/keys'
+import type {ColorToken, FontFamilyToken, RadiusToken} from '@duro-app/tokens/keys'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {radii} from '@duro-app/tokens/tokens/spacing.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {lightTheme, lightShadows} from '@duro-app/tokens/themes/light.css'
 import {highContrastTheme, highContrastShadows} from '@duro-app/tokens/themes/high-contrast.css'
 import {layers} from '@duro-app/tokens/tokens/layers.css'
-import {mergeOverrides, OverridesContext, type ColorOverrides} from './overrides'
-import {overrideRule} from './overrideRule'
+import {
+  mergeOverrides,
+  OverridesContext,
+  type ColorOverrides,
+  type FontOverrides,
+  type RadiusOverrides,
+} from './overrides'
+import {overrideRule, variableFromReference} from './overrideRule'
 
 export type ThemeName = 'dark' | 'light' | 'high-contrast'
-export type {ColorOverrides}
+export type {ColorOverrides, FontOverrides, RadiusOverrides}
 
 interface ThemeProviderProps {
   theme?: ThemeName
@@ -19,6 +27,17 @@ interface ThemeProviderProps {
    * theme keeps these and lays its own over them.
    */
   overrides?: ColorOverrides
+  /**
+   * Font stacks that replace the theme's own (`{fontFamilyMono: "'JetBrains Mono', monospace"}`).
+   * Not tied to a theme: a nested provider always inherits them. On native only
+   * the first family applies.
+   */
+  fonts?: FontOverrides
+  /**
+   * Radii that replace the theme's own, as `0` or a px/rem length
+   * (`{md: '6px'}`). `px6` and `full` cannot be overridden.
+   */
+  radii?: RadiusOverrides
   children: ReactNode
 }
 
@@ -61,26 +80,39 @@ export function usePortalMount(): HTMLElement | null {
 
 /** `var(--bg-x1y2)` → `--bg-x1y2`: the compiled variable a token key names. */
 function variableOf(key: ColorToken): string | null {
-  const ref = String(colors[key] ?? '')
-  const match = /^var\((--[\w-]+)\)$/.exec(ref)
-  return match ? match[1] : null
+  return variableFromReference(colors[key])
 }
 
-export function ThemeProvider({theme = 'dark', overrides, children}: ThemeProviderProps) {
+function fontVariableOf(key: FontFamilyToken): string | null {
+  return variableFromReference(typography[key])
+}
+
+function radiusVariableOf(key: RadiusToken): string | null {
+  return variableFromReference(radii[key])
+}
+
+export function ThemeProvider({
+  theme = 'dark',
+  overrides,
+  fonts,
+  radii: radiusOverrides,
+  children,
+}: ThemeProviderProps) {
   const themeStyles = themeMap[theme]
   const style = [themeStyles?.[0], themeStyles?.[1], styles.root] as DivStyle
   const [mount, setMount] = useState<HTMLElement | null>(null)
   const scope = useId()
   const outer = useContext(OverridesContext)
   const effective = useMemo(
-    () => mergeOverrides(outer, theme, overrides),
-    [outer, theme, overrides],
+    () => mergeOverrides(outer, theme, overrides, fonts, radiusOverrides),
+    [outer, theme, overrides, fonts, radiusOverrides],
   )
   const rule = useMemo(
     () =>
-      Object.keys(effective.colors).length > 0
-        ? overrideRule(scope, effective.colors, variableOf)
-        : null,
+      overrideRule(scope, effective.colors, variableOf, {
+        fonts: {values: effective.fonts, variableOf: fontVariableOf},
+        radii: {values: effective.radii, variableOf: radiusVariableOf},
+      }),
     [scope, effective],
   )
 

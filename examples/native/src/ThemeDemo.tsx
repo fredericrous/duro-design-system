@@ -12,14 +12,19 @@ import {
   useColorMode,
   type ColorModePreference,
   type ColorOverrides,
+  type FontOverrides,
+  type RadiusOverrides,
 } from '@duro-app/ui'
 
 const A: ColorOverrides = {bgCard: '#1b2433', accent: '#ff5a1f'}
 const B: ColorOverrides = {bgCard: '#0a3c1e', accent: '#1e90ff'}
+const MONO: FontOverrides = {fontFamily: "'Courier New', monospace"}
+const SQUARE: RadiusOverrides = {xs: '2px', sm: '4px', md: '6px', lg: '8px'}
 const STEPS = [
-  {label: 'none', overrides: undefined},
-  {label: 'A', overrides: A},
-  {label: 'B', overrides: B},
+  {label: 'none', overrides: undefined, fonts: undefined, radii: undefined},
+  {label: 'A', overrides: A, fonts: undefined, radii: undefined},
+  {label: 'B', overrides: B, fonts: undefined, radii: undefined},
+  {label: 'fonts and radii', overrides: undefined, fonts: MONO, radii: SQUARE},
 ] as const
 
 /** Counts its own mounts: a re-mount on a theme change would show 2. */
@@ -67,7 +72,12 @@ function Themed() {
   const [step, setStep] = useState(0)
   const current = STEPS[step % STEPS.length]
   return (
-    <ThemeProvider theme={theme} overrides={current.overrides}>
+    <ThemeProvider
+      theme={theme}
+      overrides={current.overrides}
+      fonts={current.fonts}
+      radii={current.radii}
+    >
       <Card>
         <Stack gap="sm">
           <Panel />

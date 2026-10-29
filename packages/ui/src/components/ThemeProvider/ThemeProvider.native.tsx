@@ -9,6 +9,8 @@ import {css, html} from 'react-strict-dom'
 import type {ColorToken} from '@duro-app/tokens/keys'
 import {darkColors, highContrastColors, lightColors, type RawColors} from '@duro-app/tokens/raw'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {radii} from '@duro-app/tokens/tokens/spacing.css'
+import {typography} from '@duro-app/tokens/tokens/typography.css'
 import {lightTheme, lightShadows} from '@duro-app/tokens/themes/light.css'
 import {highContrastTheme, highContrastShadows} from '@duro-app/tokens/themes/high-contrast.css'
 import {createHostRegistry, type HostRegistry} from '../../shared/portal/hostRegistry'
@@ -18,10 +20,18 @@ import {
   ThemeScopeContext,
   type ThemeScope,
 } from '../../shared/portal/themeScope'
-import {mergeOverrides, OverridesContext, type ColorOverrides} from './overrides'
+import {
+  mergeOverrides,
+  OverridesContext,
+  type ColorOverrides,
+  type FontOverrides,
+  type RadiusOverrides,
+} from './overrides'
+import {nativeThemeInputs} from './nativeInputs'
 
 export type ThemeName = 'dark' | 'light' | 'high-contrast'
-export type {ColorOverrides}
+export {firstFamily, nativeThemeInputs, type NativeThemeInputs} from './nativeInputs'
+export type {ColorOverrides, FontOverrides, RadiusOverrides}
 
 interface ThemeProviderProps {
   theme?: ThemeName
@@ -31,6 +41,17 @@ interface ThemeProviderProps {
    * theme keeps these and lays its own over them.
    */
   overrides?: ColorOverrides
+  /**
+   * Font stacks that replace the theme's own (`{fontFamilyMono: "'JetBrains Mono', monospace"}`).
+   * Not tied to a theme: a nested provider always inherits them. On native only
+   * the first family applies.
+   */
+  fonts?: FontOverrides
+  /**
+   * Radii that replace the theme's own, as `0` or a px/rem length
+   * (`{md: '6px'}`). `px6` and `full` cannot be overridden.
+   */
+  radii?: RadiusOverrides
   children: ReactNode
 }
 
@@ -88,7 +109,13 @@ export function useResolvedColors(): Record<ColorToken, string> {
   return useContext(ResolvedColorsContext)
 }
 
-export function ThemeProvider({theme = 'dark', overrides, children}: ThemeProviderProps) {
+export function ThemeProvider({
+  theme = 'dark',
+  overrides,
+  fonts,
+  radii: radiusOverrides,
+  children,
+}: ThemeProviderProps) {
   const outerRegistry = useContext(HostRegistryContext)
   const outerScope = useContext(ThemeScopeContext)
   // The outermost provider owns the registry and draws the root host.
@@ -98,18 +125,28 @@ export function ThemeProvider({theme = 'dark', overrides, children}: ThemeProvid
   const registry = outerRegistry ?? ownRegistry
   const outerOverrides = useContext(OverridesContext)
   const effective = useMemo(
-    () => mergeOverrides(outerOverrides, theme, overrides),
-    [outerOverrides, theme, overrides],
+    () => mergeOverrides(outerOverrides, theme, overrides, fonts, radiusOverrides),
+    [outerOverrides, theme, overrides, fonts, radiusOverrides],
   )
+  const inputs = nativeThemeInputs(effective)
   // A runtime theme on native, applied after the base one so RSD styles
   // cascade it; rebuilt only when the colours change.
-  const overrideKey = JSON.stringify(effective.colors)
+  const overrideKey = JSON.stringify(inputs.colors)
+  const typographyKey = JSON.stringify(inputs.typography)
+  const radiiKey = JSON.stringify(inputs.radii)
   const themeStyles = useMemo(() => {
-    const base = themeMap[theme]
-    return overrideKey === '{}'
-      ? base
-      : [...base, css.createTheme(colors, JSON.parse(overrideKey) as ColorOverrides)]
-  }, [theme, overrideKey])
+    const layered = [...themeMap[theme]]
+    if (overrideKey !== '{}') {
+      layered.push(css.createTheme(colors, JSON.parse(overrideKey) as ColorOverrides))
+    }
+    if (typographyKey !== '{}') {
+      layered.push(css.createTheme(typography, JSON.parse(typographyKey) as FontOverrides))
+    }
+    if (radiiKey !== '{}') {
+      layered.push(css.createTheme(radii, JSON.parse(radiiKey) as RadiusOverrides))
+    }
+    return layered
+  }, [theme, overrideKey, typographyKey, radiiKey])
   const resolved = useMemo(
     () => ({...palettes[theme], ...(JSON.parse(overrideKey) as ColorOverrides)}),
     [theme, overrideKey],
