@@ -25,6 +25,9 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Built entries such as @duro-app/tokens/theme resolve to dist/, as in ci.yml.
+      - name: Build libraries
+        run: pnpm build
       - run: pnpm build-storybook
       - uses: actions/upload-pages-artifact@v3
         with:
