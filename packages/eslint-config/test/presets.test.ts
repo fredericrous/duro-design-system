@@ -337,6 +337,118 @@ describe('adrLint', () => {
     expect(base.some((config) => config.name?.startsWith('adr-lint'))).toBe(false)
   })
 
+  describe('scoped stacks', () => {
+    const lexicalCode = "import {x} from 'lexical'\nexport {x}\n"
+    const lexicalHits = (report: {messages: {ruleId: string | null; message: string}[]}) =>
+      restricted(report).filter(
+        (m) => m.message.includes('lexical') || m.message.includes('@duro-app/ui'),
+      )
+
+    it('bans lexical only in the scoped files', async () => {
+      const configs = adrLint({stack: [{name: 'react', files: ['apps/web/**']}]})
+      expect(lexicalHits(await lint(configs, lexicalCode, 'apps/web/a.ts'))).toHaveLength(1)
+      expect(lexicalHits(await lint(configs, lexicalCode, 'packages/headless/a.ts'))).toHaveLength(
+        0,
+      )
+    })
+
+    it('keeps a plain stack name repo-wide', async () => {
+      const configs = adrLint({stack: ['react']})
+      expect(lexicalHits(await lint(configs, lexicalCode, 'packages/headless/a.ts'))).toHaveLength(
+        1,
+      )
+    })
+
+    it('keeps the layer ban and adds the stack ban where they overlap', async () => {
+      const configs = adrLint({
+        stack: [{name: 'react', files: ['packages/editor/**']}],
+        restrictedImports: [{files: ['packages/**'], paths: ['fs']}],
+      })
+      const code = "import {x} from 'lexical'\nimport fs from 'fs'\nexport {x, fs}\n"
+      const inEditor = restricted(await lint(configs, code, 'packages/editor/a.ts'))
+      expect(inEditor).toHaveLength(2)
+      expect(inEditor.some((m) => m.message.includes("'fs'"))).toBe(true)
+      const inOther = restricted(await lint(configs, code, 'packages/other/a.ts'))
+      expect(inOther).toHaveLength(1)
+      expect(inOther[0]?.message).toContain("'fs'")
+    })
+
+    it('keeps the plain stack bans inside a scoped stack and a layer', async () => {
+      const configs = adrLint({
+        stack: ['effect', {name: 'react', files: ['apps/web/**']}],
+        restrictedImports: [{files: ['apps/**'], paths: ['fs']}],
+      })
+      const code =
+        "import {x} from 'lexical'\nimport fs from 'fs'\nimport k from 'kysely'\nexport {x, fs, k}\n"
+      const inWeb = restricted(await lint(configs, code, 'apps/web/a.ts')).map((m) => m.message)
+      expect(inWeb).toHaveLength(3)
+      expect(inWeb.some((m) => m.includes('lexical'))).toBe(true)
+      expect(inWeb.some((m) => m.includes("'fs'"))).toBe(true)
+      expect(inWeb.some((m) => m.includes('Kysely'))).toBe(true)
+      const inOther = restricted(await lint(configs, code, 'apps/other/a.ts')).map((m) => m.message)
+      expect(inOther).toHaveLength(2)
+      expect(inOther.some((m) => m.includes('lexical'))).toBe(false)
+    })
+
+    it('holds both stacks bans where two scoped stacks overlap', async () => {
+      const configs = adrLint({
+        stack: [
+          {name: 'react', files: ['packages/editor/**']},
+          {name: 'effect', files: ['packages/**']},
+        ],
+      })
+      const code = "import {x} from 'lexical'\nimport k from 'kysely'\nexport {x, k}\n"
+      const inEditor = restricted(await lint(configs, code, 'packages/editor/a.ts')).map(
+        (m) => m.message,
+      )
+      expect(inEditor.some((m) => m.includes('lexical'))).toBe(true)
+      expect(inEditor.some((m) => m.includes('Kysely'))).toBe(true)
+      const inOther = restricted(await lint(configs, code, 'packages/other/a.ts')).map(
+        (m) => m.message,
+      )
+      expect(inOther).toHaveLength(1)
+      expect(inOther[0]).toContain('Kysely')
+    })
+
+    it('carries an unscoped consumer ban into a scoped stack once', async () => {
+      const configs = adrLint({
+        stack: [{name: 'react', files: ['apps/**']}],
+        restrictedImports: [{paths: ['fs']}],
+      })
+      const code = "import fs from 'fs'\nimport {$getRoot} from 'lexical'\nexport {fs, $getRoot}\n"
+      const inApps = restricted(await lint(configs, code, 'apps/a.ts')).map((m) => m.message)
+      // Both survive in the scoped files: the scope's own ban and the
+      // repo-wide one, which is not the last match there.
+      expect(inApps).toHaveLength(2)
+      expect(inApps.filter((m) => m.includes("'fs'"))).toHaveLength(1)
+      expect(inApps.some((m) => m.includes('lexical'))).toBe(true)
+      const outside = restricted(await lint(configs, code, 'packages/a.ts')).map((m) => m.message)
+      expect(outside).toHaveLength(1)
+      expect(outside[0]).toContain("'fs'")
+    })
+
+    it('reports one ban where a stack name is scoped twice and overlaps', async () => {
+      const configs = adrLint({
+        stack: [
+          {name: 'react', files: ['apps/**']},
+          {name: 'react', files: ['apps/web/**']},
+        ],
+      })
+      const inWeb = restricted(await lint(configs, lexicalCode, 'apps/web/a.ts')).filter((m) =>
+        m.message.includes('lexical'),
+      )
+      expect(inWeb).toHaveLength(1)
+    })
+
+    it('refuses a scoped stack without files', () => {
+      expect(() => adrLint({stack: [{name: 'react'} as never]})).toThrow('non-empty `files` array')
+      expect(() => adrLint({stack: [{name: 'react', files: []} as never]})).toThrow(
+        'non-empty `files` array',
+      )
+      expect(() => adrLint({stack: [{name: 'nope', files: ['a/**']} as never]})).toThrow('nope')
+    })
+  })
+
   it('refuses an unknown stack name', () => {
     expect(() => adrLint({stack: ['nope' as never]})).toThrow('nope')
   })

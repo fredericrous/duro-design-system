@@ -5,7 +5,10 @@ export declare const react: Linter.Config[]
 export declare const effect: Linter.Config[]
 export declare const tests: Linter.Config[]
 
-export type AdrLintStack = 'react' | 'effect'
+export type AdrLintStackName = 'react' | 'effect'
+
+/** A stack name (repo-wide) or a stack whose import bans apply only to `files`. */
+export type AdrLintStack = AdrLintStackName | {name: AdrLintStackName; files: [string, ...string[]]}
 
 export interface AdrLintRestrictedImport {
   files?: string[]
