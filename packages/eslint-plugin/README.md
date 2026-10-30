@@ -186,3 +186,8 @@ sizes and weights, shadows, durations, easings, color palette) is mirrored
 from `@duro-app/tokens` as literals so the published plugin stays
 dependency-free. `test/token-drift.test.ts` rebuilds every table from the real
 tokens package and fails CI when they drift.
+
+Only `test/` imports `@duro-app/tokens`; `src/` never does. The root `prepare`
+script relies on that: it builds this plugin and the tokens package in parallel
+(`pnpm --no-sort`). If `src/` ever imports `@duro-app/tokens`, drop `--no-sort`
+there, or a fresh install can build the plugin before the tokens it reads.

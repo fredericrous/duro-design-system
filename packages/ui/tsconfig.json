@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
+    "customConditions": ["source"],
     "paths": {
       "@duro-app/tokens": ["../tokens/dist/index.d.ts"]
     }

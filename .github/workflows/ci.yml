@@ -84,7 +84,12 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Build first: @duro-app/tokens/theme resolves its types from dist/ for ui and cli.
+      # ui reads every tokens entry from source (customConditions: source), so it
+      # typechecks with no tokens build. `prepare` built tokens at install, so the
+      # check deletes that output first, or it could not fail.
+      - name: Typecheck ui without a tokens build
+        run: rm -rf packages/tokens/dist && pnpm --filter @duro-app/ui run typecheck
+      # Build first: @duro-app/tokens/theme resolves its types from dist/ for cli.
       - name: Build libraries
         run: pnpm build
       - name: Packed types (attw)
