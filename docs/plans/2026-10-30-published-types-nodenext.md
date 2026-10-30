@@ -116,12 +116,14 @@ Observed before the push, on the branch's tree (raw output kept outside the repo
 - 2026-10-30: Phase 2's relais candidate stored `pnpm-lock.yaml` as binary; the rest was applied and pnpm regenerated the lockfile (217 lines added, none removed). Recorded as salvaged.
 - 2026-10-30: in a fresh worktree the pre-commit `lint-js` gate fails until `@duro-app/eslint-plugin` is built (the `lint` gate builds it in parallel). Not fixed here; a separate follow-up.
 - 2026-10-30: the push's audit gate reported a new moderate advisory, GHSA-8g5g-mxqh-grgj on `vite` 6.4.4 (reached via `diagrams`), that would block the v5.37.1 tag this plan's Phase 3 needs, so it rides in this PR (7d343380). The four `vite` specifiers moved from `^6.0.0` to `^6.4.5`, and a plain `pnpm install` re-resolved the lockfile: 56/56 lines, and `vite` is the only resolved version that changed. A first `pnpm up -r` attempt also changed metro, flow-parser and rollup, so it was reverted. Afterwards `pnpm audit` shows only the waived low deepmerge; `pnpm build` and `pnpm check:types-packed` exit 0.
+- 2026-10-30: after the vite fix, the audit gate still blocked the tag: the private Expo example (`examples/native`, its own lockfile, never published) had gained GHSA-qr28-fpjm-wq7f (high, `decode-uri-component` ≤ 0.5.0, via `expo-router > query-string`). It rides in this PR (64f187e7) for the same reason. The existing override from #114 moved its floor from `<0.5.0: ^0.5.0` to `<0.5.1: ^0.5.1`; no override was added, and `query-string` 7 already ran on the ESM 0.5.x line. The lockfile changed 5/5 lines, 0.5.0 → 0.5.1 only. The example's remaining advisories (GHSA-5p2g-fcmc-qvqq, GHSA-w3rx-r6r6-pgpr, GHSA-86w9-cpqp-85rv high; GHSA-gcqx-w48m-w2h4 low) are all in `.amont-audit-waivers` until 2026-12-31. The Native bundle CI job is the bundle proof.
 
 ## Implementation review
 
 - **Round 1:** approve-with-changes (67k, 47 s). The test's module-level `let dist` was fixed: a `withDist` helper now passes it to each test explicitly. The row 0 count was corrected. The attw ownership argument (dependency tree, no install scripts, maintainer and cadence, what happens if it is abandoned) went into the PR body, because `package.json` cannot carry it.
 - **Delta (tree cb1f4197):** approve (72k, 17 s), no new findings.
 - **Delta (tree c3b219c5, the vite 6.4.5 bump):** approve-with-changes (76k, 15 s). One low finding: record the bump in the decision log (done). Hand check: `vite` is the only resolved version that changes in the lockfile.
+- **Delta (tree 2f01383b, the native `decode-uri-component` 0.5.1 override):** approve-with-changes (79k, 15 s). One low finding: record the change in the decision log (done).
 - **Next:** Phase 3. Merge on green, tag v5.37.1, then row 6 against the published packages.
 
 <!-- panel: repos=duro-design-system reviewers=backend body-sha=5b949680c20b -->
