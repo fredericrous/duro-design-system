@@ -33,8 +33,25 @@ const config: StorybookConfig = {
 
     config.plugins.push(webGraphGuard(), react({babel: {configFile: true}}), babel())
 
+    // @duro-app/tokens/theme is the one tokens entry built to dist/ (the CLI runs it
+    // under Node); every other entry points at src. Read its source here too, so
+    // Storybook and its tests need no library build first.
+    const tokensTheme = {
+      find: /^@duro-app\/tokens\/theme$/,
+      replacement: resolve(
+        dirname(fileURLToPath(import.meta.url)),
+        '../packages/tokens/src/theme.ts',
+      ),
+    }
+    const alias = config.resolve?.alias
     config.resolve = {
       ...config.resolve,
+      alias: Array.isArray(alias)
+        ? [tokensTheme, ...alias]
+        : [
+            tokensTheme,
+            ...Object.entries(alias ?? {}).map(([find, replacement]) => ({find, replacement})),
+          ],
       extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js'],
     }
 
