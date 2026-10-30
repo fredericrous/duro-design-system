@@ -43,21 +43,96 @@
       "types": "./dist/theme.d.ts",
       "default": "./dist/theme.js"
     },
-    "./keys": "./src/keys.ts",
-    "./tokens/breakpoints.css": "./src/tokens/breakpoints.css.ts",
-    "./tokens/colors.css": "./src/tokens/colors.css.ts",
-    "./tokens/spacing.css": "./src/tokens/spacing.css.ts",
-    "./tokens/sizes.css": "./src/tokens/sizes.css.ts",
-    "./tokens/borders.css": "./src/tokens/borders.css.ts",
-    "./tokens/layers.css": "./src/tokens/layers.css.ts",
-    "./tokens/effects.css": "./src/tokens/effects.css.ts",
-    "./tokens/typography.css": "./src/tokens/typography.css.ts",
-    "./tokens/layout-spacing.css": "./src/tokens/layout-spacing.css.ts",
-    "./tokens/shadows.css": "./src/tokens/shadows.css.ts",
-    "./tokens/motion.css": "./src/tokens/motion.css.ts",
-    "./tokens/type-presets.css": "./src/tokens/type-presets.css.ts",
-    "./themes/light.css": "./src/themes/light.css.ts",
-    "./themes/high-contrast.css": "./src/themes/high-contrast.css.ts",
+    "./keys": {
+      "react-native": "./src/keys.ts",
+      "source": "./src/keys.ts",
+      "types": "./dist/keys.d.ts",
+      "default": "./src/keys.ts"
+    },
+    "./tokens/breakpoints.css": {
+      "react-native": "./src/tokens/breakpoints.css.ts",
+      "source": "./src/tokens/breakpoints.css.ts",
+      "types": "./dist/tokens/breakpoints.css.d.ts",
+      "default": "./src/tokens/breakpoints.css.ts"
+    },
+    "./tokens/colors.css": {
+      "react-native": "./src/tokens/colors.css.ts",
+      "source": "./src/tokens/colors.css.ts",
+      "types": "./dist/tokens/colors.css.d.ts",
+      "default": "./src/tokens/colors.css.ts"
+    },
+    "./tokens/spacing.css": {
+      "react-native": "./src/tokens/spacing.css.ts",
+      "source": "./src/tokens/spacing.css.ts",
+      "types": "./dist/tokens/spacing.css.d.ts",
+      "default": "./src/tokens/spacing.css.ts"
+    },
+    "./tokens/sizes.css": {
+      "react-native": "./src/tokens/sizes.css.ts",
+      "source": "./src/tokens/sizes.css.ts",
+      "types": "./dist/tokens/sizes.css.d.ts",
+      "default": "./src/tokens/sizes.css.ts"
+    },
+    "./tokens/borders.css": {
+      "react-native": "./src/tokens/borders.css.ts",
+      "source": "./src/tokens/borders.css.ts",
+      "types": "./dist/tokens/borders.css.d.ts",
+      "default": "./src/tokens/borders.css.ts"
+    },
+    "./tokens/layers.css": {
+      "react-native": "./src/tokens/layers.css.ts",
+      "source": "./src/tokens/layers.css.ts",
+      "types": "./dist/tokens/layers.css.d.ts",
+      "default": "./src/tokens/layers.css.ts"
+    },
+    "./tokens/effects.css": {
+      "react-native": "./src/tokens/effects.css.ts",
+      "source": "./src/tokens/effects.css.ts",
+      "types": "./dist/tokens/effects.css.d.ts",
+      "default": "./src/tokens/effects.css.ts"
+    },
+    "./tokens/typography.css": {
+      "react-native": "./src/tokens/typography.css.ts",
+      "source": "./src/tokens/typography.css.ts",
+      "types": "./dist/tokens/typography.css.d.ts",
+      "default": "./src/tokens/typography.css.ts"
+    },
+    "./tokens/layout-spacing.css": {
+      "react-native": "./src/tokens/layout-spacing.css.ts",
+      "source": "./src/tokens/layout-spacing.css.ts",
+      "types": "./dist/tokens/layout-spacing.css.d.ts",
+      "default": "./src/tokens/layout-spacing.css.ts"
+    },
+    "./tokens/shadows.css": {
+      "react-native": "./src/tokens/shadows.css.ts",
+      "source": "./src/tokens/shadows.css.ts",
+      "types": "./dist/tokens/shadows.css.d.ts",
+      "default": "./src/tokens/shadows.css.ts"
+    },
+    "./tokens/motion.css": {
+      "react-native": "./src/tokens/motion.css.ts",
+      "source": "./src/tokens/motion.css.ts",
+      "types": "./dist/tokens/motion.css.d.ts",
+      "default": "./src/tokens/motion.css.ts"
+    },
+    "./tokens/type-presets.css": {
+      "react-native": "./src/tokens/type-presets.css.ts",
+      "source": "./src/tokens/type-presets.css.ts",
+      "types": "./dist/tokens/type-presets.css.d.ts",
+      "default": "./src/tokens/type-presets.css.ts"
+    },
+    "./themes/light.css": {
+      "react-native": "./src/themes/light.css.ts",
+      "source": "./src/themes/light.css.ts",
+      "types": "./dist/themes/light.css.d.ts",
+      "default": "./src/themes/light.css.ts"
+    },
+    "./themes/high-contrast.css": {
+      "react-native": "./src/themes/high-contrast.css.ts",
+      "source": "./src/themes/high-contrast.css.ts",
+      "types": "./dist/themes/high-contrast.css.d.ts",
+      "default": "./src/themes/high-contrast.css.ts"
+    },
     "./vars.css": "./dist/vars.css",
     "./mockup.css": "./dist/mockup.css"
   },
@@ -65,7 +140,7 @@
     "dev": "vite build --watch",
     "prebuild": "node scripts/check-token-drift.mjs",
     "build": "vite build",
-    "check:types": "test -f dist/index.d.ts && attw --pack . --profile esm-only --exclude-entrypoints ./tokens/layers.css ./tokens/type-presets.css ./themes/light.css ./themes/high-contrast.css ./vars.css ./mockup.css",
+    "check:types": "test -f dist/index.d.ts && attw --pack . --profile esm-only --exclude-entrypoints ./vars.css ./mockup.css",
     "typecheck": "tsc --noEmit",
     "postbuild": "node scripts/generate-vars-css.mjs && node scripts/generate-mockup-css.mjs"
   },
