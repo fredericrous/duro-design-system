@@ -65,6 +65,7 @@
     "dev": "vite build --watch",
     "prebuild": "node scripts/check-token-drift.mjs",
     "build": "vite build",
+    "check:types": "test -f dist/index.d.ts && attw --pack . --profile esm-only --exclude-entrypoints ./tokens/layers.css ./tokens/type-presets.css ./themes/light.css ./themes/high-contrast.css ./vars.css ./mockup.css",
     "typecheck": "tsc --noEmit",
     "postbuild": "node scripts/generate-vars-css.mjs && node scripts/generate-mockup-css.mjs"
   },

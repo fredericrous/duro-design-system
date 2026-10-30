@@ -48,6 +48,7 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",
+    "check:types": "test -f dist/index.d.ts && attw --pack . --profile esm-only --exclude-entrypoints ./dist/index.css ./reset.css ./strict.css",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.native.json"
   },
   "peerDependencies": {

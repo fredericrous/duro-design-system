@@ -87,6 +87,8 @@ jobs:
       # Build first: @duro-app/tokens/theme resolves its types from dist/ for ui and cli.
       - name: Build libraries
         run: pnpm build
+      - name: Packed types (attw)
+        run: pnpm check:types-packed
       - name: Typecheck
         if: ${{ !contains(fromJSON(steps.attest.outputs.gates), 'pre-push-run-tests-js') }}
         run: pnpm typecheck

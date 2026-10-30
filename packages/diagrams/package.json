@@ -34,6 +34,7 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",
+    "check:types": "test -f dist/index.d.ts && attw --pack . --profile esm-only --exclude-entrypoints ./dist/index.css ./styles.css",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {

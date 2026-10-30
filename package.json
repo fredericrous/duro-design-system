@@ -7,6 +7,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "typecheck": "pnpm -r run typecheck",
+    "check:types-packed": "pnpm --filter @duro-app/tokens --filter @duro-app/ui --filter @duro-app/diagrams --filter @duro-app/ui-email run check:types",
     "native:install": "pnpm install --frozen-lockfile --ignore-workspace --dir examples/native",
     "native:export": "pnpm --ignore-workspace --dir examples/native run export && node scripts/check-native-bundle.mjs",
     "typecheck:native": "pnpm --filter @duro-app/ui exec tsc --noEmit -p tsconfig.native.json",
@@ -20,6 +21,7 @@
     "prepare": "amont init"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
     "@duro-app/cli": "workspace:*",
     "@duro-app/eslint-config": "workspace:^",
     "@duro-app/eslint-plugin": "workspace:*",
