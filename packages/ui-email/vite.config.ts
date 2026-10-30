@@ -1,6 +1,8 @@
 import {defineConfig} from 'vite'
 import react from '@vitejs/plugin-react'
 import dts from 'vite-plugin-dts'
+import path from 'node:path'
+import {addDtsExtensions} from '../../scripts/dts-extensions.mjs'
 
 // Plain React → ESM library. Unlike @duro-app/ui this does NOT use the
 // react-strict-dom / StyleX babel preset — email components are plain
@@ -22,6 +24,12 @@ export default defineConfig({
     target: 'es2020',
     cssCodeSplit: false,
   },
-  plugins: [react({babel: {babelrc: false, configFile: false}}), dts({insertTypesEntry: true})],
+  plugins: [
+    react({babel: {babelrc: false, configFile: false}}),
+    dts({
+      insertTypesEntry: true,
+      afterBuild: () => addDtsExtensions(path.resolve(__dirname, 'dist')),
+    }),
+  ],
   publicDir: false,
 })
