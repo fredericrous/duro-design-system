@@ -618,7 +618,12 @@ Consumers on `^4` are untouched until they bump.
   declarations with missing `@types` peers are not this release's to fix.
   Found while doing it: ui-email's `.d.ts` uses extensionless relative
   imports, which `nodenext` consumers reject. This predates the branch and
-  is a follow-up.
+  is a follow-up. **Closed 2026-10-30:** measured on 5.37.0, it was `ui`,
+  `tokens` and `diagrams`, not `ui-email` (clean). 5.37.1 (#156) rewrites the
+  emitted `.d.ts` to explicit `.js` specifiers and gates releases on attw;
+  5.37.2 (#157) types every tokens subpath from `dist`
+  (`docs/plans/2026-10-30-published-types-nodenext.md`,
+  `docs/plans/2026-10-30-token-subpath-types.md`).
 - **2026-10-06, the person, on implementation-review finding 1:** the
   artboard root's 1120×840 canvas is not exempted. The seed writes
   `--duro-mockup-canvas-width/height` into its token block (canvas constants,
