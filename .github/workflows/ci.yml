@@ -84,11 +84,12 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Build first: @duro-app/tokens/theme resolves its types from dist/ for ui and cli.
+      - name: Build libraries
+        run: pnpm build
       - name: Typecheck
         if: ${{ !contains(fromJSON(steps.attest.outputs.gates), 'pre-push-run-tests-js') }}
         run: pnpm typecheck
-      - name: Build libraries
-        run: pnpm build
       - name: Build Storybook
         run: pnpm build-storybook
 
