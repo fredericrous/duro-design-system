@@ -1,5 +1,7 @@
 import {defineConfig} from 'vite'
 import dts from 'vite-plugin-dts'
+import path from 'node:path'
+import {addDtsExtensions} from '../../scripts/dts-extensions.mjs'
 import babel from 'vite-plugin-babel'
 
 export default defineConfig({
@@ -23,7 +25,10 @@ export default defineConfig({
   },
   plugins: [
     babel({filter: /\.(tsx?|jsx?)$/, babelConfig: {rootMode: 'upward'}}),
-    dts({insertTypesEntry: true}),
+    dts({
+      insertTypesEntry: true,
+      afterBuild: () => addDtsExtensions(path.resolve(__dirname, 'dist')),
+    }),
   ],
   publicDir: false,
 })

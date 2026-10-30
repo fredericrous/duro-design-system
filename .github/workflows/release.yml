@@ -30,6 +30,7 @@ jobs:
       - name: CLI floors match the release's major
         run: node packages/cli/scripts/check-pin-major.mjs "${GITHUB_REF_NAME#v}"
       - run: pnpm build
+      - run: pnpm check:types-packed
       - run: pnpm -r publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

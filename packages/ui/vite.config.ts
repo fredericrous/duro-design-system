@@ -1,6 +1,7 @@
 import {defineConfig} from 'vite'
 import react from '@vitejs/plugin-react'
 import dts from 'vite-plugin-dts'
+import {addDtsExtensions} from '../../scripts/dts-extensions.mjs'
 import babel from 'vite-plugin-babel'
 import path from 'path'
 import {webGraphGuard} from './vite/web-graph-guard'
@@ -61,7 +62,11 @@ export default defineConfig({
     webGraphGuard(),
     react({babel: {configFile: true}}),
     babel(),
-    dts({insertTypesEntry: true, exclude: ['src/**/*.typecheck.tsx']}),
+    dts({
+      insertTypesEntry: true,
+      exclude: ['src/**/*.typecheck.tsx'],
+      afterBuild: () => addDtsExtensions(path.resolve(__dirname, 'dist')),
+    }),
   ],
   publicDir: false,
 })
