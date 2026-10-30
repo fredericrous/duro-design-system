@@ -124,6 +124,22 @@ export default [
 The stack's bans are also copied into every `files`-scoped entry, because in a
 file two scopes cover only the later one's options apply.
 
+A stack takes a scope: `{name, files}` applies that preset's import bans only
+to files matching the globs, and a plain string stays repo-wide.
+
+```js
+adrLint({stack: ['effect', {name: 'react', files: ['apps/web/**']}]})
+```
+
+Where scopes overlap, flat config applies only the last matching entry's
+options, so the preset emits an intersection entry (`files: [[globA, globB]]`)
+for every overlap: two scoped stacks, or a `restrictedImports` entry with
+`files` and a scoped stack. Each holds the bans of all scopes in it, ordered
+fewest scopes first so the most specific comes last. Repo-wide bans (plain
+stacks and `restrictedImports` entries without `files`) ride on every scoped
+and intersection entry, and a ban reached through several scopes, such as one
+stack name scoped twice, is listed once so an import is reported once.
+
 `restrictedImports` without `stack` throws, since a react repository would
 otherwise lose its UI bans in silence: pass `stack: []` when no preset applies.
 An unknown `stack` name throws too.

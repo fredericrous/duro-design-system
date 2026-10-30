@@ -191,41 +191,110 @@ const STACK_IMPORT_BANS = {
   effect: {paths: [OTEL_BARREL_PATH], patterns: [KYSELY_PATTERN]},
 }
 
+// Every non-empty subset of `items`, smaller subsets first.
+function combinationsBySize(items) {
+  const all = items.reduce(
+    (subsets, item) => [...subsets, ...subsets.map((s) => [...s, item])],
+    [[]],
+  )
+  return all.filter((subset) => subset.length > 0).sort((a, b) => a.length - b.length)
+}
+
+// One tuple per choice of one glob from each list: the `files` form that
+// matches a file only when it matches every glob in the tuple.
+function crossGlobs(globLists) {
+  return globLists.reduce(
+    (tuples, globs) => tuples.flatMap((tuple) => globs.map((glob) => [...tuple, glob])),
+    [[]],
+  )
+}
+
 // The preset emits one `no-restricted-imports` per `files` scope, and in a
-// file several scopes cover flat config keeps only the last one's options. So
-// the stack's bans go on every entry: unscoped, and inside each scoped entry
-// too, or a layer contract over `src/**` would drop the UI bans there.
+// file several scopes cover flat config keeps only the last one's options.
+// So each entry carries every ban that applies wherever it is the last match:
+// - the repo-wide bans (plain stacks and unscoped consumer entries) go on the
+//   unscoped entries and on every scoped or intersection entry;
+// - a scoped stack's bans go on its own `files` entry, plus the plain bans;
+// - where scopes can overlap, an intersection entry (`files: [[globA, globB]]`)
+//   holds the bans of every scope in it plus the plain ones: stack x stack,
+//   layer x each combination of scoped stacks;
+// - entries are ordered fewest scopes first, so the most specific comes last.
 function adrLintOptions({stack, restrictedImports = []}) {
   if (stack === undefined && restrictedImports.length > 0) {
     throw new Error(
       '@duro-app/eslint-config: adrLint({restrictedImports}) needs `stack` — the presets whose import bans it must keep (["react"], ["effect"], or [] for none); without it a react repo would lose its UI bans',
     )
   }
-  const stackBans = (stack ?? []).map((name) => {
-    if (!Object.hasOwn(STACK_IMPORT_BANS, name)) {
+  const expected = 'expected "react" and/or "effect", or {name, files: [globs]} to scope one'
+  const entries = (stack ?? []).map((stackEntry) => {
+    const name = typeof stackEntry === 'string' ? stackEntry : stackEntry?.name
+    if (typeof name !== 'string' || !Object.hasOwn(STACK_IMPORT_BANS, name)) {
+      throw new Error(`@duro-app/eslint-config: unknown stack "${name}" — ${expected}`)
+    }
+    if (typeof stackEntry === 'string') return {bans: STACK_IMPORT_BANS[name]}
+    const {files} = stackEntry
+    if (
+      !Array.isArray(files) ||
+      files.length === 0 ||
+      !files.every((glob) => typeof glob === 'string')
+    ) {
       throw new Error(
-        `@duro-app/eslint-config: unknown stack "${name}" — expected "react" and/or "effect"`,
+        `@duro-app/eslint-config: scoped stack "${name}" needs a non-empty \`files\` array of globs — ${expected}`,
       )
     }
-    return STACK_IMPORT_BANS[name]
+    return {bans: STACK_IMPORT_BANS[name], files}
   })
-  const stackPaths = stackBans.flatMap((bans) => bans.paths ?? [])
-  const stackPatterns = stackBans.flatMap((bans) => bans.patterns ?? [])
+  const plainStackBans = entries
+    .filter((entry) => entry.files === undefined)
+    .map((entry) => entry.bans)
+  // Unscoped consumer entries are repo-wide bans too: a scoped entry replaces
+  // them for the files it covers, so it must carry them.
+  const unscopedEntries = restrictedImports.filter((entry) => entry.files === undefined)
+  const repoWide = [...plainStackBans, ...unscopedEntries]
+  const scopedStacks = entries.filter((entry) => entry.files !== undefined)
+  const stackCombinations = combinationsBySize(scopedStacks)
+  // A ban repeated by name (two scopes of one stack) is listed once, so an
+  // import is not reported twice.
+  const mergeBans = (list) => ({
+    paths: [...new Set(list.flatMap((bans) => bans.paths ?? []))],
+    patterns: [...new Set(list.flatMap((bans) => bans.patterns ?? []))],
+  })
+  const scopedStackEntries = stackCombinations.map((combination) => ({
+    // A single scoped stack's files stay a plain glob list, not a 1-tuple.
+    files:
+      combination.length === 1
+        ? combination[0].files
+        : crossGlobs(combination.map((scopedStack) => scopedStack.files)),
+    ...mergeBans([...repoWide, ...combination.map((scopedStack) => scopedStack.bans)]),
+  }))
   // Once per scope: the preset merges entries that share `files`, and a ban
   // listed twice there reports one import twice.
   const scopesGiven = new Set()
-  const scoped = restrictedImports.map((entry) => {
-    if (entry.files === undefined) return entry
+  const scoped = restrictedImports.flatMap((entry) => {
+    if (entry.files === undefined) return []
     const scope = JSON.stringify(entry.files)
-    if (scopesGiven.has(scope)) return entry
+    const first = !scopesGiven.has(scope)
     scopesGiven.add(scope)
-    return {
+    const stackBansOnce = (list) => (first ? list : [])
+    const layer = {
       ...entry,
-      paths: [...stackPaths, ...(entry.paths ?? [])],
-      patterns: [...stackPatterns, ...(entry.patterns ?? [])],
+      ...mergeBans([...stackBansOnce(repoWide), entry]),
     }
+    const intersections = stackCombinations.map((combination) => ({
+      files: crossGlobs([entry.files, ...combination.map((scopedStack) => scopedStack.files)]),
+      ...mergeBans([
+        ...stackBansOnce([...repoWide, ...combination.map((scopedStack) => scopedStack.bans)]),
+        entry,
+      ]),
+    }))
+    return [layer, ...intersections]
   })
-  return {restrictedImports: [...stackBans, ...scoped]}
+  // The repo-wide group comes first: the preset emits one entry per `files`
+  // group in first-insertion order, so an unscoped group inserted after a
+  // scoped one would be the last match and replace that scope's bans.
+  return {
+    restrictedImports: [...plainStackBans, ...unscopedEntries, ...scopedStackEntries, ...scoped],
+  }
 }
 
 /**
