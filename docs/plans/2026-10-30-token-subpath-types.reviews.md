@@ -14,3 +14,5 @@
   - low: install fails when either build fails, workaround `--ignore-scripts` (applied);
   - cosmetic: row order (not patched).
 - **backend re-run on the final body**, approve (24k, 18 s). Carried into implementation: on the PR, prove the `ui` typecheck step fails when `customConditions` is removed, and compare the install step time before and after.
+- **backend, delta on the person's change** ("build the plugin and tokens in parallel"), approve-with-changes (52k, 34 s). Safe: `@duro-app/tokens` appears in the plugin's `src` only as string constants. Two findings: medium, a row 9 search for tokens imports in `src`, plus a README note; low, timing taken 3 runs each, with the median and load. Both applied.
+- **backend, final body**, approve (25k, 20 s), no new findings. Carried into implementation: the README edit rides with the `prepare` change.
