@@ -9,10 +9,10 @@ adrs: []
 
 ## Review panel
 
-👉 **Decide:** none — approve if fixing the emitted `.d.ts` (sources untouched) plus a packed nodenext gate before publish is the right fix.
+👉 **Decide:** none — the person chose attw for the packed check; approve if the source/CSS subpath exclusions are acceptable as a non-goal.
 📍 duro-design-system · nothing built yet · next: Phase 1, the rewrite module and its unit test. Panel: backend (opus-5-5); delta panel per plan-panel; codex skipped (delta).
-**Changed by review:** specifiers found with `ts.preProcessFile`, reference paths never rewritten; a real-build row proves a throw fails `vite build`; consumer is ESM with every peer pinned, and the check never builds.
-**Verdicts:** round 1 approve-with-changes (5 accepted); round 2 approve-with-changes (1 blocker, fixed); re-run approve; final-body review approve. 2 carried into implementation.
+**Changed by review:** specifiers found with `ts.preProcessFile`, reference paths never rewritten; a real-build row proves a throw fails `vite build`; the packed check is attw (the person's choice) and never builds.
+**Verdicts:** round 1 approve-with-changes (5 accepted); round 2 approve-with-changes (1 blocker, fixed); re-run approve; final-body review approve; delta on the person's attw change approve-with-changes (4 accepted). 1 carried into implementation.
 📄 Full reviews: [2026-10-30-published-types-nodenext.reviews.md](2026-10-30-published-types-nodenext.reviews.md)
 
 ## Context
@@ -43,14 +43,12 @@ Every relative specifier in the published declarations resolves on disk to eithe
   - It finds module specifiers with `ts.preProcessFile` (`importedFiles` only: imports, re-exports, `import('…')`; comments skipped) and rewrites at the returned offsets; `/// <reference path>` names a file, not a module, and is never rewritten. The fixture keeps a commented-out relative import and a reference path, both untouched.
   - It is idempotent.
   - It writes a file only when the file changed.
-- **A packed-consumer check in CI.** `scripts/check-packed-types.mjs` packs `tokens`, `ui`, `diagrams` and `ui-email`, installs the tarballs into a scratch `"type": "module"` consumer, with every non-optional peer of the four packed manifests (including `react-hook-form`) plus `@types/react` and `typescript`, all pinned to the workspace-resolved versions, and type-checks one consumer file four ways: `bundler` and `nodenext`, each with `skipLibCheck` false and true.
-  - With `skipLibCheck: false`, an error in `@duro-app/*` or in the consumer file fails. A third-party declaration error does not; that filter is copied from `ui-email`'s smoke, with a comment naming its source.
-  - With `skipLibCheck: true`, the consumer file carries `// @ts-expect-error` sentinels that only hold when the types are real, so a silent `any` fails:
-    - `ThemeTokens` with `radii.md: 6`;
-    - `<Button variant="nope">`;
-    - a diagrams `Node` with a string `x`;
-    - an unknown key on `ThemeTokens`.
-  - It runs in `ci.yml` Validate after "Build libraries", and in `release.yml` after `pnpm build`, before `pnpm -r publish`, so a release cannot ship declarations a nodenext consumer cannot read. The script never builds: it packs the existing `dist/` and fails if one is missing.
+- **A packed-types check in CI: arethetypeswrong** (the person, 2026-10-30, after comparing with established practice: "attw (Recommended)"). `@arethetypeswrong/cli` is added as a root dev dependency at an exact version, and a root script `check:types-packed` runs `test -f packages/<name>/dist/index.d.ts && attw --pack packages/<name> --profile esm-only` for `tokens`, `ui`, `diagrams` and `ui-email`, the four chained with `&&` so any one failing fails the step.
+  - `esm-only` because the packages ship ESM only; their `exports` maps are not meant for node10 or CommonJS callers.
+  - attw reports this defect as "Internal resolution error" under node16 ESM, for every entry point (`.`, `/form`, `/table`, the tokens subpaths), with no consumer install.
+  - Subpaths that export raw source or CSS rather than built declarations (in `tokens`: `./keys` and the `./tokens/*.css`, `./themes/*.css`, `./vars.css`, `./mockup.css` entries; in `ui`: `./component-meta` and its `.css` entries; the exact list is the one row 0 measures) are excluded by name with `--exclude-entrypoints`. Nodenext consumers of those deep imports are a non-goal of this release. `internal-resolution-error` is never passed to `--ignore-rules`.
+  - Any other attw problem found today is fixed in this PR, or ignored with `--ignore-rules` naming the rule, a reason in a comment, and a line in the PR. Nothing is ignored silently.
+  - It runs in `ci.yml` Validate after "Build libraries", and in `release.yml` after `pnpm build`, before `pnpm -r publish`, so a release cannot ship declarations a nodenext consumer cannot read. It never builds: `attw --pack` packs the existing `dist/`, and the script fails if a `dist/` is missing.
 - **Release 5.37.1**: a patch changeset for `ui`, `tokens`, `diagrams` and `ui-email` ("published declarations use explicit `.js` specifiers; nodenext consumers now get the real types").
 
 ## Phases
@@ -68,7 +66,7 @@ Every relative specifier in the published declarations resolves on disk to eithe
 
 ### Phase 2: the check
 
-- Add `scripts/check-packed-types.mjs` with its consumer file under `scripts/fixtures/packed-consumer.tsx`.
+- Add `@arethetypeswrong/cli` (exact version) and the root `check:types-packed` script.
 - Add the step to `.github/workflows/ci.yml` (Validate, after Build libraries) and to `.github/workflows/release.yml` (after `pnpm build`, before publish).
 - Add a changeset; `CLAUDE.md`/AGENTS regions are regenerated only if a generator covers them.
 
@@ -86,14 +84,15 @@ Every relative specifier in the published declarations resolves on disk to eithe
 
 ## Verification
 
-| #   | Check                                                                                                                                                                                    | Expected                                                                                                                                                                  |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `vitest --project=unit scripts/test/dts-extensions.test.ts`                                                                                                                              | every case passes, including the unresolved-specifier throw                                                                                                               |
-| 2   | `pnpm build`, then count relative specifiers without `.js` in `packages/{ui,diagrams,tokens,ui-email}/dist/**/*.d.ts`                                                                    | 0; the ui count of rewritten specifiers is 348                                                                                                                            |
-| 3   | `node scripts/check-packed-types.mjs`                                                                                                                                                    | 4 configurations pass                                                                                                                                                     |
-| 4   | Same check with the `afterBuild` hook removed from `ui`                                                                                                                                  | the nodenext + `skipLibCheck: true` run fails on an unused `@ts-expect-error` (the check bites on a silent `any`), and nodenext + `skipLibCheck: false` fails with TS2834 |
-| 4b  | Add `packages/diagrams/src/__probe.d.ts` containing `export * from './nope'` (vite-plugin-dts copies it to `dist/`), run `pnpm --filter @duro-app/diagrams build`, then delete the probe | non-zero exit; output names `__probe.d.ts` and `./nope`                                                                                                                   |
-| 5   | CI on the PR: Validate (including the new step, its wall-clock time recorded), Storybook Tests, Native bundle                                                                            | green; step time noted in the PR                                                                                                                                          |
-| 6   | After v5.37.1 is published: the scratch consumer from 10-30 (`/tmp/duro-consumer`) on 5.37.1, nodenext with `skipLibCheck: true`                                                         | `{radii: {md: 6}}` is now a type error, as under bundler                                                                                                                  |
+| #   | Check                                                                                                                                                                                    | Expected                                                                                                                                                                     |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | Before any change: `attw --pack --profile esm-only` on the published 5.37.0 tarballs of the four packages                                                                                | the entries that report "Internal resolution error" under node16 ESM, and the raw-source/CSS entries, are recorded; row 4 expects the former, the exclusions list the latter |
+| 1   | `vitest --project=unit scripts/test/dts-extensions.test.ts`                                                                                                                              | every case passes, including the unresolved-specifier throw                                                                                                                  |
+| 2   | `pnpm build`, then count relative specifiers without `.js` in `packages/{ui,diagrams,tokens,ui-email}/dist/**/*.d.ts`                                                                    | 0; the ui count of rewritten specifiers is 348                                                                                                                               |
+| 3   | `pnpm check:types-packed`                                                                                                                                                                | attw reports no problem for the four packages under the esm-only profile (or only the rules ignored by name, each with its reason)                                           |
+| 4   | Same check with the `afterBuild` hook removed from `ui`                                                                                                                                  | attw reports "Internal resolution error" for `@duro-app/ui` under node16 ESM: the check bites on the defect                                                                  |
+| 4b  | Add `packages/diagrams/src/__probe.d.ts` containing `export * from './nope'` (vite-plugin-dts copies it to `dist/`), run `pnpm --filter @duro-app/diagrams build`, then delete the probe | non-zero exit; output names `__probe.d.ts` and `./nope`                                                                                                                      |
+| 5   | CI on the PR: Validate (including the new step, its wall-clock time recorded), Storybook Tests, Native bundle                                                                            | green; step time noted in the PR                                                                                                                                             |
+| 6   | After v5.37.1 is published: the scratch consumer from 10-30 (`/tmp/duro-consumer`) on 5.37.1, nodenext with `skipLibCheck: true`                                                         | `{radii: {md: 6}}` is now a type error, as under bundler                                                                                                                     |
 
 <!-- panel: repos=duro-design-system reviewers=backend body-sha=5b949680c20b -->
