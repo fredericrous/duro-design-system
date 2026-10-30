@@ -18,7 +18,7 @@
     "duro:docs": "node packages/cli/scripts/build-registry.mjs --write-docs",
     "test": "vitest --project=storybook",
     "test:unit": "vitest --project=unit",
-    "prepare": "amont init && pnpm --filter @duro-app/eslint-plugin --filter @duro-app/tokens run build"
+    "prepare": "amont init && pnpm --no-sort --filter @duro-app/eslint-plugin --filter @duro-app/tokens run build"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
