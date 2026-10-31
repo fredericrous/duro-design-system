@@ -45,3 +45,11 @@ GHSA-w3rx-r6r6-pgpr 2026-12-31 image-size via examples/native > metro (build-tim
 # private example). Neither merges user input. Remove when deepmerge publishes
 # a fix.
 GHSA-gcqx-w48m-w2h4 2026-12-31 deepmerge via ui-email > @react-email/render > html-to-text (own options) and examples/native > @expo/config (build-time); no patched version exists
+#
+# minimatch < 11.0.1 (denial of service via globparts amplification) is fixed
+# only in 11.x. It ships through @duro-app/eslint-config: eslint 9 depends on
+# minimatch ^3 (and calls its default export, which 10+ dropped), and
+# typescript-eslint's typescript-estree on 10.x; an override to 11 breaks both.
+# The patterns it expands are the consumer's own lint config globs, never user
+# input. Remove when eslint and typescript-eslint move to minimatch 11.
+GHSA-g3hv-75wg-m249 2026-12-31 minimatch via eslint-config > eslint (^3, default export) and typescript-eslint (10.x); only 11.x is patched and breaks both; globs are lint config, never user input
