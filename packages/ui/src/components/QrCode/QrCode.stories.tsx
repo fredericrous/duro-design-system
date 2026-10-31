@@ -42,3 +42,14 @@ export const LongValue: Story = {
     label: 'Scan to connect',
   },
 }
+
+/** Sized by a token: at most `qrCode` (260px) wide, here in a wider column. */
+export const Sized: Story = {
+  args: {size: 'qrCode'},
+  play: async ({canvas}) => {
+    const code = canvas.getByRole('img', {name: 'Scan to sign in on this device'})
+    const box = code.getBoundingClientRect()
+    await expect(Math.round(box.width)).toBe(260)
+    await expect(Math.round(box.height)).toBe(260)
+  },
+}

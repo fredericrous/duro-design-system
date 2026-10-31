@@ -17,7 +17,8 @@ import {
   type ItemLinkState,
   type RowPress,
 } from './ItemLink'
-import {styles} from './styles.css'
+import {styles, textColorStyles} from './styles.css'
+import type {TextColor} from '../Text/Text'
 
 // --- Types ---
 
@@ -248,8 +249,9 @@ function Leading({children, 'aria-label': ariaLabel}: LeadingProps) {
 
 // --- Text: primary label ---
 
-function ItemText({children}: {children: ReactNode}) {
-  return <html.p style={styles.text}>{children}</html.p>
+/** `color` as Text's: `error` for a destructive row (Log out, Delete). */
+function ItemText({children, color = 'default'}: {children: ReactNode; color?: TextColor}) {
+  return <html.p style={[styles.text, textColorStyles[color]]}>{children}</html.p>
 }
 
 // --- Description: secondary text ---

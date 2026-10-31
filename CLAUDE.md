@@ -234,7 +234,7 @@ These components **must** be wrapped in their `.Root`:
 | **Panel** | Structural primitive for grouping content with header, body, and footer slots | compound: Body, Footer, Header, Root |
 | **Popover** | Non-modal anchored overlay for small interactive content | compound: Close, Popup, Root, Trigger |
 | **Prose** | The container for HTML Duro does not author — rendered Markdown, CMS output: headings, paragraphs, lists, tables, blockquotes, inline code, links and images are styled from tokens by descendant rules scoped to it (plain CSS in dist/index.css, :where() and its own cascade layer) | `ref` |
-| **QrCode** | A QR code for another device to scan: dark modules on a fixed light square, as wide as its container, announced by its label as one image | `value`, `label` |
+| **QrCode** | A QR code for another device to scan: dark modules on a fixed light square, as wide as its container, announced by its label as one image | `value`, `label`, `size` |
 | **RadioGroup** | Radio button group for single-select from a list of options | compound: Item, Root |
 | **ScrollArea** | Custom scrollbar region with draggable thumb | compound: Content, Root, Scrollbar, Thumb, Viewport |
 | **Select** | Dropdown select for choosing one value from a list | compound: Icon, Item, ItemText, Popup, Root, … |
@@ -475,6 +475,7 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `heroMinH` | 360px |
 | `heroReserve` | 272px |
 | `heroMaxH` | 720px |
+| `qrCode` | 260px |
 
 ### Borders
 

@@ -254,6 +254,7 @@ export const SIZE_KEYS = [
   'heroMinH',
   'heroReserve',
   'heroMaxH',
+  'qrCode',
 ] as const
 export type SizeToken = (typeof SIZE_KEYS)[number]
 
@@ -353,6 +354,7 @@ export const SIZES_PX = {
   heroMinH: 360,
   heroReserve: 272,
   heroMaxH: 720,
+  qrCode: 260,
 } as const
 
 export const BORDER_KEYS = [

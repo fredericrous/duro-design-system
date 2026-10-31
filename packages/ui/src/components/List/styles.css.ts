@@ -165,3 +165,13 @@ export const styles = css.create({
     fontSize: typography.fontSizeSm,
   },
 })
+
+// List.Text's colour: the same tokens as Text's `color`.
+export const textColorStyles = css.create({
+  default: {color: colors.text},
+  muted: {color: colors.textMuted},
+  accent: {color: colors.accent},
+  error: {color: colors.errorText},
+  success: {color: colors.successText},
+  warning: {color: colors.warningText},
+})
