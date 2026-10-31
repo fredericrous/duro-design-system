@@ -9,4 +9,8 @@ export const styles = css.create({
     aspectRatio: 1,
     backgroundColor: colors.fixedLight,
   },
+  // A size caps the width; the code still shrinks with a narrower container.
+  sized: (maxWidth: number | string) => ({
+    maxWidth,
+  }),
 })

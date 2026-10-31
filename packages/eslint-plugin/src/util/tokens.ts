@@ -494,6 +494,7 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   99: ['dragThumbH'],
   272: ['heroReserve'],
   720: ['heroMaxH'],
+  260: ['qrCode'],
 }
 
 /** px value → every borders token at that value, in key order. */

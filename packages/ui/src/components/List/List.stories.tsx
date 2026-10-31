@@ -9,6 +9,7 @@ import type {OnNavigate} from '../../shared/navigate'
 import {Icon} from '../Icon/Icon'
 import {Card} from '../Card/Card'
 import {Badge} from '../Badge/Badge'
+import {Text} from '../Text/Text'
 import {Button} from '../Button/Button'
 import {Checkbox} from '../Checkbox/Checkbox'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
@@ -406,5 +407,34 @@ export const InFlushCard: StoryObj<{showHidden: boolean}> = {
     const card = list.parentElement as HTMLElement
     await expect(getComputedStyle(card).paddingTop).toBe('0px')
     await expect(getComputedStyle(card).overflow).toBe('hidden')
+  },
+}
+
+/** A destructive row: its label takes `color="error"`, the same red as `Text color="error"`. */
+export const DestructiveRow: Story = {
+  render: () => (
+    <>
+      <List.Root aria-label="Account">
+        <List.Item onClick={fn()}>
+          <List.Content>
+            <List.Text>Profile</List.Text>
+          </List.Content>
+        </List.Item>
+        <List.Item onClick={fn()}>
+          <List.Content>
+            <List.Text color="error">Log out</List.Text>
+          </List.Content>
+        </List.Item>
+      </List.Root>
+      <Text color="error">Reference</Text>
+    </>
+  ),
+  play: async ({canvas}) => {
+    const label = canvas.getByText('Log out')
+    const reference = canvas.getByText('Reference')
+    await expect(getComputedStyle(label).color).toBe(getComputedStyle(reference).color)
+    await expect(getComputedStyle(label).color).not.toBe(
+      getComputedStyle(canvas.getByText('Profile')).color,
+    )
   },
 }

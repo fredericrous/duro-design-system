@@ -106,4 +106,6 @@ export const sizes = css.defineVars({
   heroMinH: '360px',
   heroReserve: '272px',
   heroMaxH: '720px',
+  // A QR code another device scans from across a desk (Happier's add-phone pairing code).
+  qrCode: '260px',
 })
