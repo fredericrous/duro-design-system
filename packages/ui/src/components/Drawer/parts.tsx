@@ -22,6 +22,8 @@ export interface DrawerContextValue {
   closeDuration: DurationToken
   anchor: DrawerAnchor
   dismissable: boolean
+  /** Backdrop, aria-modal, scroll lock and ModalContext; false is a non-modal panel */
+  modal: boolean
   swipeDismiss: boolean
   requestOpen: () => void
   requestClose: () => void

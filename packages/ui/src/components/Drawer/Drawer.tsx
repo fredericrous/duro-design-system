@@ -6,6 +6,7 @@ import {styles} from './styles.css'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {ModalContext} from '../../shared/ModalContext'
+import {PopoverLayerContext} from '../Popover/PopoverLayerContext'
 import {useSwipeDismiss} from './useSwipeDismiss'
 import {useSheetHeights} from './useSheetHeights'
 import {cycleDetent} from './sheetPhysics'
@@ -39,7 +40,7 @@ const closeDurationMap = {
 
 function Root({children, ...props}: DrawerRootProps) {
   const ctx = useDrawerRoot(props)
-  const {open: present, dismissable, requestClose} = ctx
+  const {open: present, dismissable, modal, requestClose, panelRef} = ctx
 
   // Handle Escape key
   useEffect(() => {
@@ -47,25 +48,28 @@ function Root({children, ...props}: DrawerRootProps) {
     if (!dismissable) return
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
+      if (e.key !== 'Escape') return
+      const panel = panelRef.current as HTMLElement | null
+      const focusInsidePanel = panel?.contains(document.activeElement) ?? false
+      if (modal || focusInsidePanel) {
         e.stopPropagation()
         requestClose()
       }
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [present, dismissable, requestClose])
+  }, [present, dismissable, modal, panelRef, requestClose])
 
   // Lock body scroll when open
   useEffect(() => {
-    if (present) {
+    if (present && modal) {
       const prev = document.body.style.overflow
       document.body.style.overflow = 'hidden'
       return () => {
         document.body.style.overflow = prev
       }
     }
-  }, [present])
+  }, [present, modal])
 
   return <DrawerContext.Provider value={ctx}>{children}</DrawerContext.Provider>
 }
@@ -104,6 +108,10 @@ const slideOutMap = {
   bottom: styles.slideOutBottom,
 } as const
 
+// A non-modal drawer sits at layers.floating; a Popover inside it takes the
+// raised floating layer so it stacks above the panel.
+const raisedFloatingLayer = {register: () => () => undefined, raised: true}
+
 const viewportAnchorMap = {
   right: styles.viewportRight,
   left: styles.viewportLeft,
@@ -117,6 +125,7 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
     closeDuration,
     anchor,
     dismissable,
+    modal,
     swipeDismiss: swipeEnabled,
     requestClose,
     requestCloseImmediate,
@@ -164,23 +173,29 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
   const node = (
     <>
       {/* Backdrop — click to dismiss */}
-      <html.div
-        style={[
-          styles.backdrop,
-          closing && styles.backdropClosing,
-          closing && closeDurationMap[closeDuration],
-          !closing && styles.backdropOpen,
-        ]}
-        aria-hidden
-        onClick={handleBackdropClick}
-      />
+      {modal && (
+        <html.div
+          style={[
+            styles.backdrop,
+            closing && styles.backdropClosing,
+            closing && closeDurationMap[closeDuration],
+            !closing && styles.backdropOpen,
+          ]}
+          aria-hidden
+          data-drawer-backdrop=""
+          onClick={handleBackdropClick}
+        />
+      )}
 
       {/* Viewport */}
-      <html.div style={[styles.viewport, viewportAnchorMap[anchor]]} data-drawer-viewport="">
+      <html.div
+        style={[styles.viewport, !modal && styles.viewportNonModal, viewportAnchorMap[anchor]]}
+        data-drawer-viewport=""
+      >
         <html.div
           ref={attachPanel}
           role="dialog"
-          aria-modal={true}
+          aria-modal={modal ? true : undefined}
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
           style={[
@@ -211,9 +226,15 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
               <html.span style={partStyles.grabber} />
             </html.button>
           )}
-          <ModalContext.Provider value={true}>
-            <ControlContextBoundary>{children}</ControlContextBoundary>
-          </ModalContext.Provider>
+          {modal ? (
+            <ModalContext.Provider value={true}>
+              <ControlContextBoundary>{children}</ControlContextBoundary>
+            </ModalContext.Provider>
+          ) : (
+            <PopoverLayerContext.Provider value={raisedFloatingLayer}>
+              <ControlContextBoundary>{children}</ControlContextBoundary>
+            </PopoverLayerContext.Provider>
+          )}
         </html.div>
       </html.div>
     </>

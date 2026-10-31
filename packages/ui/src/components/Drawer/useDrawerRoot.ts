@@ -16,6 +16,15 @@ export interface DrawerRootProps {
   anchor?: DrawerAnchor
   /** Whether clicking backdrop or pressing Escape (Android's back button on native) closes the drawer. Default: true */
   dismissable?: boolean
+  /**
+   * Modal (default) puts a backdrop behind the panel, marks it aria-modal, locks body scroll and
+   * closes on Escape anywhere. Non-modal (false) has none of these: the page stays usable and
+   * Escape closes only while focus is inside the panel.
+   * A non-modal drawer sits at layers.floating, and a Popover inside it stacks above the panel at
+   * layers.floatingRaised; a modal drawer keeps layers.modal. Web-only for now: React Native still
+   * renders a modal drawer.
+   */
+  modal?: boolean
   /** Whether swipe gesture dismisses the drawer. Default: true */
   swipeDismiss?: boolean
   /** Motion token for the close animation. Default: 'fast' (150ms) */
@@ -38,6 +47,7 @@ export function useDrawerRoot({
   onOpenChange,
   anchor = 'right',
   dismissable = true,
+  modal = true,
   swipeDismiss = true,
   closeAnimationDuration = 'fast',
   snapPoints: snapPointsProp,
@@ -76,6 +86,7 @@ export function useDrawerRoot({
     closeDuration: closeAnimationDuration,
     anchor,
     dismissable,
+    modal,
     swipeDismiss,
     requestOpen,
     requestClose,

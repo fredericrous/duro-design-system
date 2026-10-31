@@ -46,6 +46,11 @@ export const styles = css.create({
     pointerEvents: 'none',
   },
 
+  // Non-modal: a floating surface beside the page, not above it like a modal.
+  viewportNonModal: {
+    zIndex: layers.floating,
+  },
+
   // Right anchor (desktop default)
   viewportRight: {
     justifyContent: 'flex-end',
