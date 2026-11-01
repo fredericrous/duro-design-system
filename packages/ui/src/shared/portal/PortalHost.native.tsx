@@ -9,7 +9,7 @@ import {
 } from 'react'
 import {StyleSheet, View} from 'react-native'
 import {css, html} from 'react-strict-dom'
-import type {HostRegistry} from './hostRegistry'
+import {entriesForHost, type HostRegistry} from './hostRegistry'
 import {ResolvedColorsContext, ThemeScopeContext} from './themeScope'
 
 /** The registry the outermost ThemeProvider owns; null outside every provider. */
@@ -54,11 +54,12 @@ export function PortalHost({placement = 'presented'}: PortalHostProps) {
   const registry = useHostRegistry('PortalHost')
   const id = useId()
   useLayoutEffect(() => registry.addHost(id, placement), [registry, id, placement])
-  const {topHost, entries} = useSyncExternalStore(registry.subscribe, registry.getSnapshot)
-  if (topHost !== id) return null
+  const snapshot = useSyncExternalStore(registry.subscribe, registry.getSnapshot)
+  const mine = entriesForHost(snapshot, id)
+  if (!mine) return null
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      {entries.map((entry) => (
+      {mine.map((entry) => (
         <View key={entry.key} style={StyleSheet.absoluteFill} pointerEvents="box-none">
           {entry.node}
         </View>
@@ -70,6 +71,8 @@ export function PortalHost({placement = 'presented'}: PortalHostProps) {
 interface PortalProps {
   /** Numeric layer from `LAYERS` in `@duro-app/tokens/keys`. */
   layer: number
+  /** `top` (default): above an open Modal, like a toast. `base`: below one, like a non-modal pane. */
+  host?: 'base' | 'top'
   children: ReactNode
 }
 
@@ -78,7 +81,7 @@ interface PortalProps {
  * Modal. The children keep the source's theme and resolved colours; no other
  * context crosses, so pass data, not components that read the app's contexts.
  */
-export function Portal({layer, children}: PortalProps) {
+export function Portal({layer, host, children}: PortalProps) {
   const registry = useHostRegistry('Portal')
   const key = useId()
   const scope = useContext(ThemeScopeContext)
@@ -88,6 +91,7 @@ export function Portal({layer, children}: PortalProps) {
     registry.setEntry({
       key,
       layer,
+      host,
       node: (
         <ThemeScopeContext.Provider value={scope}>
           <ResolvedColorsContext.Provider value={resolvedColors}>

@@ -6,11 +6,19 @@ export interface PortalEntry {
   /** Numeric layer from `LAYERS` in `@duro-app/tokens/keys`; higher draws on top. */
   readonly layer: number
   readonly node: ReactNode
+  /**
+   * Which host draws it. `top` (the default): the last host presented, above an open Modal.
+   * `base`: the app root host, below every Modal, so a Dialog opened later covers the entry
+   * and the entry stays mounted (a non-modal pane).
+   */
+  readonly host?: 'base' | 'top'
 }
 
 export interface HostRegistrySnapshot {
-  /** The host that draws every entry: the last one presented, else the root. */
+  /** The host that draws the `top` entries: the last one presented, else the root. */
   readonly topHost: string | undefined
+  /** The host that draws the `base` entries: the app root, whatever is presented above it. */
+  readonly baseHost: string | undefined
   /** Entries ordered by layer, lowest first (equal layers keep insertion order). */
   readonly entries: readonly PortalEntry[]
 }
@@ -18,8 +26,9 @@ export interface HostRegistrySnapshot {
 /**
  * The hosts that passive surfaces draw into, on native: the app root, each
  * open Duro Modal and each `PortalHost` a consumer mounts in a natively
- * presented route. Entries render in the top host only, so a toast raised
- * under an open Dialog draws above it.
+ * presented route. An entry renders in the top host unless it asks for the
+ * base host, so a toast raised under an open Dialog draws above it and a
+ * non-modal pane stays below it.
  *
  * A plain store (subscribe / getSnapshot) for `useSyncExternalStore`; it holds
  * no React state and imports nothing from React Native.
@@ -33,23 +42,42 @@ export interface HostRegistry {
   subscribe(listener: () => void): () => void
 }
 
+/**
+ * The entries one host draws, or null when it draws none. The top host draws the `top` entries and
+ * the base host the `base` ones; the root is both while nothing is presented above it, so it draws
+ * every entry in layer order. Entries keep their keys, so a base entry stays mounted in the root
+ * when a Modal opens and the top entries move to the Modal's host.
+ */
+export function entriesForHost(
+  snapshot: HostRegistrySnapshot,
+  id: string,
+): readonly PortalEntry[] | null {
+  const drawsTop = snapshot.topHost === id
+  const drawsBase = snapshot.baseHost === id
+  if (!drawsTop && !drawsBase) return null
+  return snapshot.entries.filter((entry) => (entry.host === 'base' ? drawsBase : drawsTop))
+}
+
 export function createHostRegistry(): HostRegistry {
   let hosts: readonly string[] = []
   let entries: readonly PortalEntry[] = []
-  let snapshot: HostRegistrySnapshot = {topHost: undefined, entries}
+  let base: string | undefined
+  let snapshot: HostRegistrySnapshot = {topHost: undefined, baseHost: undefined, entries}
   const listeners = new Set<() => void>()
 
   const publish = () => {
-    snapshot = {topHost: hosts[hosts.length - 1], entries}
+    snapshot = {topHost: hosts[hosts.length - 1], baseHost: base, entries}
     for (const listener of listeners) listener()
   }
 
   return {
     addHost(id, placement) {
       hosts = placement === 'base' ? [id, ...hosts] : [...hosts, id]
+      if (placement === 'base') base = id
       publish()
       return () => {
         hosts = hosts.filter((host) => host !== id)
+        if (base === id) base = undefined
         publish()
       }
     },
