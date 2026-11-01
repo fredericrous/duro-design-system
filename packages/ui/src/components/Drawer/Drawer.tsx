@@ -23,6 +23,7 @@ import {
   useDrawer,
   type DrawerSize,
   type GrabberLabels,
+  type SideSnapPoint,
 } from './parts'
 import {useDrawerRoot, type DrawerRootProps} from './useDrawerRoot'
 
@@ -52,7 +53,11 @@ function Root({children, ...props}: DrawerRootProps) {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== 'Escape') return
       const panel = panelRef.current as HTMLElement | null
-      const focusInsidePanel = panel?.contains(document.activeElement) ?? false
+      const focused = document.activeElement
+      const focusInsidePanel = panel?.contains(focused) ?? false
+      // A Popover opened from inside the panel closes first (its own Escape handler runs after this one).
+      const popoverOpen = focused?.getAttribute('aria-expanded') === 'true'
+      if (e.defaultPrevented || popoverOpen) return
       if (modal || focusInsidePanel) {
         e.stopPropagation()
         requestClose()
@@ -99,10 +104,10 @@ interface PortalProps {
    */
   grabberLabels?: GrabberLabels
   /**
-   * A floating panel: inset from the viewport edge by a spacing token, with rounded corners and a
-   * border all round, instead of flush against the edge. For a non-modal drawer (Pane).
+   * `floating`: inset from the viewport edge by a spacing token, with rounded corners and a
+   * border all round, instead of `edge` (flush against it). For a non-modal drawer (Pane).
    */
-  floating?: boolean
+  placement?: 'edge' | 'floating'
 }
 
 // Slide animation maps
@@ -122,6 +127,9 @@ const slideOutMap = {
 // raised floating layer so it stacks above the panel.
 const raisedFloatingLayer = {register: () => () => undefined, raised: true}
 
+// A closed drawer measures nothing.
+const NO_SIDE_POINTS: readonly SideSnapPoint[] = []
+
 const viewportAnchorMap = {
   right: styles.viewportRight,
   left: styles.viewportLeft,
@@ -132,7 +140,7 @@ function Portal({
   children,
   size: sizeProp,
   grabberLabels: grabberLabelsProp,
-  floating = false,
+  placement = 'edge',
 }: PortalProps) {
   const {
     open,
@@ -153,11 +161,12 @@ function Portal({
     setSnapIndex,
   } = useDrawer()
   const mount = usePortalMount()
+  const floating = placement === 'floating'
   const snapping = snapPoints.length > 0
   const heights = useSheetHeights(snapPoints, snapping && open)
   const sized = snapping && heights.length === snapPoints.length
   const sideSnapping = sideSnapPoints.length > 0
-  const widths = useSheetWidths(sideSnapPoints, sideSnapping && open)
+  const widths = useSheetWidths(open ? sideSnapPoints : NO_SIDE_POINTS)
   const sideSized = sideSnapping && widths.length === sideSnapPoints.length
   const size = sizeProp ?? 'md'
   const grabberLabels =
@@ -184,6 +193,18 @@ function Portal({
     },
     [panelRef],
   )
+
+  // Non-modal: focus moves into the panel on open and back to where it was on close. Not trapped.
+  useEffect(() => {
+    if (!open || modal || !panel) return
+    const before = document.activeElement as HTMLElement | null
+    panel.focus({preventScroll: true})
+    return () => {
+      // Give focus back only when it is still in the pane (or lost): the page stays usable beside it.
+      const active = document.activeElement
+      if (active === document.body || panel.contains(active)) before?.focus?.({preventScroll: true})
+    }
+  }, [open, modal, panel])
 
   const handleBackdropClick = useCallback(() => {
     if (dismissable) {
@@ -236,6 +257,7 @@ function Portal({
           role="dialog"
           aria-modal={modal ? true : undefined}
           aria-labelledby={titleId}
+          tabIndex={modal ? undefined : -1}
           aria-describedby={descriptionId}
           style={[
             styles.panel,

@@ -35,7 +35,7 @@ interface PortalProps {
 
 function Portal({children, grabberLabels}: PortalProps) {
   return (
-    <Drawer.Portal floating grabberLabels={grabberLabels}>
+    <Drawer.Portal placement="floating" grabberLabels={grabberLabels}>
       {children}
     </Drawer.Portal>
   )
@@ -62,7 +62,6 @@ function Expand({labels = DEFAULT_EXPAND_LABELS}: ExpandProps) {
   return (
     <html.button
       type="button"
-      aria-expanded={expanded}
       aria-label={expanded ? labels.collapse : labels.expand}
       onClick={() => setSnapIndex(cycleDetent(snapIndex, count))}
       style={partStyles.closeButton}

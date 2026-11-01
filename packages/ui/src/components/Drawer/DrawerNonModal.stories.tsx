@@ -13,6 +13,8 @@ export default meta
 type Story = StoryObj
 
 const getPanel = () => document.querySelector<HTMLElement>('[data-drawer-viewport] [role="dialog"]')
+// Longer than the exit animation, so a close that started would have finished.
+const EXIT_WAIT_MS = 600
 const getViewport = () => document.querySelector<HTMLElement>('[data-drawer-viewport]')
 
 function Panel({modal, onOpenChange}: {modal?: boolean; onOpenChange?: (open: boolean) => void}) {
@@ -56,8 +58,11 @@ export const NonModalEscapeNeedsFocusInside: StoryObj<{onOpenChange: (open: bool
     await waitFor(() => expect(getPanel()).not.toBeNull())
     const {onOpenChange} = args
     const inside = within(getPanel()!).getByRole('button', {name: 'Inside'})
-    inside.blur()
+    ;(document.activeElement as HTMLElement).blur()
     await userEvent.keyboard('{Escape}')
+    // The close notice comes after the exit animation: wait it out before asserting nothing happened.
+    await new Promise((resolve) => setTimeout(resolve, EXIT_WAIT_MS))
+    expect(getPanel()).not.toBeNull()
     expect(onOpenChange).not.toHaveBeenCalled()
     inside.focus()
     await userEvent.keyboard('{Escape}')
@@ -113,5 +118,31 @@ export const PopoverInNonModalDrawerStacksAbove: Story = {
     const popupLayer = Number(getComputedStyle(popup).zIndex)
     const viewportLayer = Number(getComputedStyle(getViewport()!).zIndex)
     expect(popupLayer).toBeGreaterThan(viewportLayer)
+  },
+}
+
+export const NonModalFocusMovesInAndBack: Story = {
+  render: () => (
+    <Drawer.Root modal={false}>
+      <Drawer.Trigger>
+        <Button>Open filters</Button>
+      </Drawer.Trigger>
+      <Drawer.Portal>
+        <Drawer.Title>Filters</Drawer.Title>
+        <Drawer.Body>
+          <Button>Inside</Button>
+        </Drawer.Body>
+      </Drawer.Portal>
+    </Drawer.Root>
+  ),
+  play: async ({canvasElement}) => {
+    const trigger = within(canvasElement).getByRole('button', {name: 'Open filters'})
+    trigger.focus()
+    await userEvent.click(trigger)
+    await waitFor(() => expect(getPanel()).not.toBeNull())
+    await waitFor(() => expect(getPanel()!.contains(document.activeElement)).toBe(true))
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(getPanel()).toBeNull())
+    expect(document.activeElement).toBe(trigger)
   },
 }

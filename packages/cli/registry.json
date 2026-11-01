@@ -2779,11 +2779,11 @@
               "type": "GrabberLabels"
             },
             {
-              "default": "false",
-              "description": "A floating panel: inset from the viewport edge by a spacing token, with rounded corners and a border all round, instead of flush against the edge. For a non-modal drawer (Pane).",
-              "name": "floating",
+              "default": "'edge'",
+              "description": "`floating`: inset from the viewport edge by a spacing token, with rounded corners and a border all round, instead of `edge` (flush against it). For a non-modal drawer (Pane).",
+              "name": "placement",
               "required": false,
-              "type": "boolean"
+              "type": "'edge' | 'floating'"
             }
           ],
           "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"

@@ -49,11 +49,9 @@ export const OpensCompactAndExpandSteps: Story = {
     await waitFor(() => near(panelWidth(), SIZES_PX.panelSm))
     const panel = within(getPanel()!)
     const expand = panel.getByRole('button', {name: 'Expand'})
-    await expect(expand).toHaveAttribute('aria-expanded', 'false')
     await userEvent.click(expand)
     await waitFor(() => near(panelWidth(), SIZES_PX.panelLg))
     const collapse = panel.getByRole('button', {name: 'Collapse'})
-    await expect(collapse).toHaveAttribute('aria-expanded', 'true')
     await userEvent.click(collapse)
     await waitFor(() => near(panelWidth(), SIZES_PX.panelSm))
   },
@@ -101,8 +99,11 @@ export const EscapeNeedsFocusInside: StoryObj<{onOpenChange: (open: boolean) => 
   play: async ({args}) => {
     await open()
     const inside = within(getPanel()!).getByRole('button', {name: 'Inside'})
-    inside.blur()
+    ;(document.activeElement as HTMLElement).blur()
     await userEvent.keyboard('{Escape}')
+    // The close notice comes after the exit animation: wait it out before asserting nothing happened.
+    await new Promise((resolve) => setTimeout(resolve, 600))
+    expect(getPanel()).not.toBeNull()
     expect(args.onOpenChange).not.toHaveBeenCalled()
     inside.focus()
     await userEvent.keyboard('{Escape}')

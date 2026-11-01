@@ -45,7 +45,8 @@ export function useSheetHeights(points: readonly SnapPoint[], active: boolean): 
  * Web: each side detent's width in px, ascending, following the window as it
  * resizes. A detent wider than the window is held to the window's width.
  */
-export function useSheetWidths(points: readonly SideSnapPoint[], active: boolean): number[] {
+export function useSheetWidths(points: readonly SideSnapPoint[]): number[] {
+  const active = points.length > 0
   const [windowWidth, setWindowWidth] = useState<number | null>(null)
 
   useEffect(() => {

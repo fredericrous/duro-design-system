@@ -131,10 +131,10 @@ export const styles = css.create({
     bottom: 0,
     paddingTop: 0,
     paddingBottom: 0,
-    paddingLeft: spacing.sm,
-    paddingRight: spacing.sm,
+    paddingLeft: spacing.ms,
+    paddingRight: spacing.ms,
     cursor: 'pointer',
-    zIndex: 1,
+    zIndex: layers.raised,
   },
   grabberHitSideRight: {left: 0},
   grabberHitSideLeft: {right: 0},
@@ -153,7 +153,7 @@ export const styles = css.create({
   // inset viewport. Longhands, so they replace the one-sided borders of the flush panel.
   panelFloating: {
     maxWidth: '100%',
-    maxHeight: '100%',
+    boxShadow: shadows.md,
     borderTopWidth: borders.hairline,
     borderRightWidth: borders.hairline,
     borderBottomWidth: borders.hairline,

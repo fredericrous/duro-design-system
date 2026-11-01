@@ -1,5 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, userEvent, waitFor} from 'storybook/test'
+import {expect, spyOn, userEvent, waitFor} from 'storybook/test'
 import {SIZES_PX} from '@duro-app/tokens/keys'
 import {Drawer} from './Drawer'
 import {Text} from '../Text/Text'
@@ -77,5 +77,22 @@ export const SwipeDismisses: Story = {
     await touchDrag(from, {x: from.x + 300, y: from.y})
     await pause(400)
     await waitFor(() => expect(getDialog()).toBeNull())
+  },
+}
+
+export const SizeIsIgnoredWithAWarning: Story = {
+  beforeEach: () => {
+    spyOn(console, 'warn')
+  },
+  render: () => (
+    <Drawer.Root anchor="right" snapPoints={['compact', 'expanded']} defaultOpen>
+      <Drawer.Portal size="lg">
+        <Drawer.Title>Inspector</Drawer.Title>
+      </Drawer.Portal>
+    </Drawer.Root>
+  ),
+  play: async () => {
+    await waitFor(() => expect(getDialog()).not.toBeNull())
+    await expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('size is ignored'))
   },
 }
