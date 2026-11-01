@@ -1,0 +1,16 @@
+amont-provenance-v1
+commit a654a462cbe8d607bdeed7ecf7ebf0737b8e086b
+tree 6af2f26fcb6383efa3660ea9b39491e248aa2b09
+canon 4d9d673483e34c592026b2e3c2bf224326f75f81
+patch 1c1950f0b43d78217f521f3edcb85528ff550fee
+plan docs/plans/2026-11-01-non-modal-panes.md ad9bb2bd0b876727be3de70ea9a1f26d7d4ff751fda63923a80f3b72c4b1ee4c
+review reviewed b0be727501b4db539c9fb99c380addbeac7e42506eef2f11651fa98c08306910
+preview approved
+producer amont-agent 3.11.0
+
+-----BEGIN SSH SIGNATURE-----
+U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAg7UOvJ8myo4dhW907VFty7T/bUV
+RFQerK+MWJ4bjChwcAAAAQYW1vbnQtcHJvdmVuYW5jZQAAAAAAAAAGc2hhNTEyAAAAUwAA
+AAtzc2gtZWQyNTUxOQAAAEDCQjP2daRPENpaJv4dKtVG0zU3AFtw6gcbYidCjr4eX6IkT+
+uOdPjELWZ6GqGsyLqW4h2aShpGKYynDgpTr3kC
+-----END SSH SIGNATURE-----
