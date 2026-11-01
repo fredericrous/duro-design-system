@@ -231,6 +231,7 @@ These components **must** be wrapped in their `.Root`:
 | **Node** | A rounded rectangle node with a title and optional subtitle | `x`, `y`, `w` |
 | **PageNav** | The previous and next pages in reading order, at the foot of a page: a labelled nav with up to two link cards (a direction label over the page title, both from props) | compound: Next, Prev, Root |
 | **PageShell** | Page-level layout wrapper | `maxWidth`, `padding`, `header` |
+| **Pane** | A floating, non-modal panel from a screen edge: inset from the edge, rounded all round, no backdrop, so the page and anything on it stay usable beside it | compound: Body, Close, Expand, Footer, Header, … |
 | **Panel** | Structural primitive for grouping content with header, body, and footer slots | compound: Body, Footer, Header, Root |
 | **Popover** | Non-modal anchored overlay for small interactive content | compound: Close, Popup, Root, Trigger |
 | **Prose** | The container for HTML Duro does not author — rendered Markdown, CMS output: headings, paragraphs, lists, tables, blockquotes, inline code, links and images are styled from tokens by descendant rules scoped to it (plain CSS in dist/index.css, :where() and its own cascade layer) | `ref` |
