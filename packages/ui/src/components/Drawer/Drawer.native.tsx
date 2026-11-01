@@ -9,13 +9,19 @@ import {
 } from 'react'
 import {
   type AccessibilityActionEvent,
+  BackHandler,
   type LayoutChangeEvent,
   Pressable,
   StyleSheet,
   useWindowDimensions,
   type View,
 } from 'react-native'
-import {Gesture, GestureDetector, type GestureType} from 'react-native-gesture-handler'
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+  type GestureType,
+} from 'react-native-gesture-handler'
 import Animated, {
   type AnimatedRef,
   Easing,
@@ -28,9 +34,11 @@ import Animated, {
 } from 'react-native-reanimated'
 import {scheduleOnRN} from 'react-native-worklets'
 import {html} from 'react-strict-dom'
-import {DURATION_MS, SIZES_PX} from '@duro-app/tokens/keys'
+import {DURATION_MS, LAYERS, SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
 import {ModalContext} from '../../shared/ModalContext'
+import {devWarnOnce} from '../../shared/devWarnOnce'
 import {OverlayModal} from '../../shared/portal/OverlayModal'
+import {Portal as PortalLayer} from '../../shared/portal/PortalHost'
 import {focusForAccessibility} from '../../shared/accessibilityFocus'
 import {useSafeAreaInsets} from '../../shared/safeArea'
 import {useKeyboardHeight} from '../../shared/useKeyboardHeight'
@@ -41,6 +49,7 @@ import {nativeStyles} from './native.css'
 import {partStyles} from './parts.css'
 import {
   DEFAULT_GRABBER_LABELS,
+  DEFAULT_SIDE_GRABBER_LABELS,
   Description,
   DrawerContext,
   Footer,
@@ -58,13 +67,15 @@ import {
   SNAP_MAX_OVERSHOOT,
   cycleDetent,
   detentHeight,
+  detentWidth,
   rubberBand,
   settleDetent,
+  settleWidth,
   shouldDismissEdge,
 } from './sheetPhysics'
 import {useDrawerRoot, type DrawerRootProps} from './useDrawerRoot'
 
-export type {DrawerAnchor, DrawerSize, SnapPoint} from './parts'
+export type {DrawerAnchor, DrawerSize, SideSnapPoint, SnapPoint} from './parts'
 
 /** Native-only wiring: where accessibility focus returns on close. */
 const TriggerRefContext = createContext<RefObject<unknown> | null>(null)
@@ -87,6 +98,10 @@ const SheetScrollContext = createContext<SheetScroll | null>(null)
  * detents and dismisses below the lowest. The backdrop press and Android's
  * back button close it; the screen reader's focus moves into the panel on
  * open and back to the trigger on close.
+ *
+ * `modal={false}` draws the panel in the base portal host instead (no Modal,
+ * no backdrop): the app behind stays touchable, and a Dialog opened later
+ * covers it without remounting it.
  */
 function Root({children, ...props}: DrawerRootProps) {
   const ctx = useDrawerRoot(props)
@@ -118,6 +133,11 @@ interface PortalProps {
   size?: DrawerSize
   /** The grabber's accessible names, by what a press does next. Snap sheets only */
   grabberLabels?: GrabberLabels
+  /**
+   * `floating`: inset from the screen edge by a spacing token, rounded and bordered all round,
+   * instead of `edge` (flush against it). For a non-modal drawer (Pane).
+   */
+  placement?: 'edge' | 'floating'
 }
 
 const PANEL_WIDTH = {sm: SIZES_PX.panelSm, md: SIZES_PX.panelMd, lg: SIZES_PX.panelLg} as const
@@ -128,22 +148,31 @@ const CONTENT_SHEET_CAP = 0.85
 const easeOut = Easing.out(Easing.cubic)
 const easeIn = Easing.in(Easing.cubic)
 
-function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}: PortalProps) {
+function Portal({
+  children,
+  size: sizeProp,
+  grabberLabels: grabberLabelsProp,
+  placement = 'edge',
+}: PortalProps) {
+  const drawer = useDrawer()
   const {
     open,
     closing,
     closeDuration,
     anchor,
     dismissable,
+    modal,
     swipeDismiss,
     requestClose,
     requestCloseImmediate,
     titleId,
     panelRef,
     snapPoints,
+    sideSnapPoints,
     snapIndex,
     setSnapIndex,
-  } = useDrawer()
+  } = drawer
+  const triggerRef = useContext(TriggerRefContext)
   const window = useWindowDimensions()
   const insets = useSafeAreaInsets()
   // A bottom drawer rides above the on-screen keyboard: its detents measure
@@ -153,16 +182,47 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
   const availableHeight = window.height - lift
   const bottom = anchor === 'bottom'
   const snapping = snapPoints.length > 0
+  const floating = placement === 'floating'
+  const size = sizeProp ?? 'md'
+  const sizeIgnored = sideSnapPoints.length > 0 && sizeProp !== undefined
+  useEffect(() => {
+    if (sizeIgnored) {
+      devWarnOnce(
+        'Drawer',
+        'side-snap-size',
+        "Portal's size is ignored on a side drawer with snapPoints: the detent sets the width.",
+      )
+    }
+  }, [sizeIgnored])
+  // A floating panel keeps off the edge by this inset and by the safe area.
+  const gap = floating ? SPACING_PX.md : 0
+  // The skirt below a snap sheet that a pull past its top reveals; a floating card has no room for it.
+  const overshoot = floating ? 0 : SNAP_MAX_OVERSHOOT
+  const sideRoom = window.width - 2 * gap - (floating ? insets.left + insets.right : 0)
+  const sideSnapping = sideSnapPoints.length > 0
+  const grabberLabels =
+    grabberLabelsProp ?? (sideSnapping ? DEFAULT_SIDE_GRABBER_LABELS : DEFAULT_GRABBER_LABELS)
+  // A floating panel sits in from the edge: it needs that much more room to be fully off screen.
+  const slack = floating
+    ? SPACING_PX.md + (bottom ? insets.bottom : Math.max(insets.left, insets.right))
+    : 0
+  const detentWidths = useMemo(
+    () => sideSnapPoints.map((p) => detentWidth(p, sideRoom)),
+    [sideSnapPoints, sideRoom],
+  )
 
   const heights = useMemo(
-    () => snapPoints.map((p) => detentHeight(p, availableHeight, insets.top)),
-    [snapPoints, availableHeight, insets.top],
+    () =>
+      snapPoints.map((p) =>
+        detentHeight(p, availableHeight - gap - (floating ? insets.bottom : 0), insets.top + gap),
+      ),
+    [snapPoints, availableHeight, insets.top, insets.bottom, gap, floating],
   )
   const high = heights.length > 0 ? heights[heights.length - 1] : 0
   // Where the panel rests at its detent: its offset below its own full height.
   const rest = snapping ? high - heights[snapIndex] : 0
   // Off screen: the whole panel past its edge (a snap sheet's overshoot skirt included).
-  const hidden = snapping ? high + SNAP_MAX_OVERSHOOT : bottom ? window.height : window.width
+  const hidden = (snapping ? high + overshoot : bottom ? window.height : window.width) + slack
 
   // The panel's displacement toward its edge, in px: 0 shows it whole; a
   // snap sheet rests at restOf(detent); negative only while pulled past its
@@ -191,6 +251,31 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
     // `rest` and `hidden` follow the window: a rotation re-seats the panel too.
   }, [open, closing, closeDuration, snapIndex, rest, hidden, index, offset])
 
+  // A side drawer with detents: its width, animated between them.
+  const sideWidth = useSharedValue(detentWidths[snapIndex] ?? 0)
+  useEffect(() => {
+    if (detentWidths.length === 0) return
+    sideWidth.value = withTiming(detentWidths[snapIndex] ?? detentWidths[0], {
+      duration: DURATION_MS.base,
+      easing: easeOut,
+    })
+  }, [detentWidths, snapIndex, sideWidth])
+
+  // Android back closes a non-modal drawer, as an RN Modal's request does for a modal one.
+  useEffect(() => {
+    if (!open || modal || !dismissable) return
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      requestClose()
+      return true
+    })
+    return () => subscription.remove()
+  }, [open, modal, dismissable, requestClose])
+
+  const widthsShared = useSharedValue(detentWidths)
+  useEffect(() => {
+    widthsShared.value = detentWidths
+  }, [detentWidths, widthsShared])
+
   const heightsShared = useSharedValue(heights)
   useEffect(() => {
     heightsShared.value = heights
@@ -209,6 +294,45 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
   })
 
   const horizontalSign = anchor === 'left' ? -1 : 1
+  // A drag on a side drawer's grabber resizes it between its detents. It wins over the swipe
+  // that dismisses: the panel's pan waits for this one to fail.
+  const growSign = anchor === 'left' ? 1 : -1
+  const grabberPan = useMemo(() => {
+    const grow = (e: {translationX: number}) => {
+      'worklet'
+      return growSign * e.translationX
+    }
+    return Gesture.Pan()
+      .enabled(sideSnapping)
+      .activeOffsetX([-DRAG_SLOP, DRAG_SLOP])
+      .failOffsetY([-CROSS_SLOP, CROSS_SLOP])
+      .onStart(() => {
+        start.value = sideWidth.value
+      })
+      .onUpdate((e) => {
+        const detents = widthsShared.value
+        if (detents.length === 0) return
+        sideWidth.value = Math.min(
+          detents[detents.length - 1],
+          Math.max(detents[0], start.value + grow(e)),
+        )
+      })
+      .onEnd((e) => {
+        const detents = widthsShared.value
+        if (detents.length === 0) return
+        const settled = settleWidth({
+          widths: detents,
+          from: index.value,
+          width: sideWidth.value,
+          velocity: (growSign * e.velocityX) / 1000,
+        })
+        sideWidth.value = withTiming(detents[settled], {duration: SNAP_DURATION, easing: easeOut})
+        if (settled !== index.value) {
+          index.value = settled
+          scheduleOnRN(setSnapIndex, settled)
+        }
+      })
+  }, [growSign, sideSnapping, start, sideWidth, widthsShared, index, setSnapIndex])
   const canDismiss = swipeDismiss && dismissable
   const pan = useMemo(() => {
     const toEdge = (x: number, y: number) => {
@@ -242,7 +366,7 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
         if (!owns.value) return
         if (inBody.value) scrollTo(scrollRef, 0, 0, false)
         const next = start.value + toEdge(e.translationX, e.translationY)
-        if (snapping) offset.value = next < 0 ? -rubberBand(-next, SNAP_MAX_OVERSHOOT) : next
+        if (snapping) offset.value = next < 0 ? -rubberBand(-next, overshoot) : next
         else offset.value = Math.max(0, next)
       })
       .onEnd((e) => {
@@ -277,16 +401,23 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
         owns.value = false
       })
       .simultaneousWithExternalGesture(scrollGesture)
-    return bottom
-      ? gesture.activeOffsetY([-DRAG_SLOP, DRAG_SLOP]).failOffsetX([-CROSS_SLOP, CROSS_SLOP])
-      : gesture.activeOffsetX([-DRAG_SLOP, DRAG_SLOP]).failOffsetY([-CROSS_SLOP, CROSS_SLOP])
+    if (bottom) {
+      return gesture.activeOffsetY([-DRAG_SLOP, DRAG_SLOP]).failOffsetX([-CROSS_SLOP, CROSS_SLOP])
+    }
+    const sideways = gesture
+      .activeOffsetX([-DRAG_SLOP, DRAG_SLOP])
+      .failOffsetY([-CROSS_SLOP, CROSS_SLOP])
+    return sideSnapping ? sideways.requireExternalGestureToFail(grabberPan) : sideways
   }, [
+    sideSnapping,
+    grabberPan,
     bottom,
     horizontalSign,
     snapping,
     swipeDismiss,
     canDismiss,
     hidden,
+    overshoot,
     requestCloseImmediate,
     setSnapIndex,
     scrollGesture,
@@ -301,11 +432,11 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
     heightsShared,
   ])
 
-  const panelMotion = useAnimatedStyle(() =>
-    bottom
-      ? {transform: [{translateY: offset.value}]}
-      : {transform: [{translateX: offset.value * horizontalSign}]},
-  )
+  const panelMotion = useAnimatedStyle(() => {
+    if (bottom) return {transform: [{translateY: offset.value}]}
+    const slide = {transform: [{translateX: offset.value * horizontalSign}]}
+    return sideSnapping ? {...slide, width: sideWidth.value} : slide
+  })
   const backdropMotion = useAnimatedStyle(() => {
     if (snapping) {
       const hs = heightsShared.value
@@ -315,23 +446,62 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
     return {opacity: Math.min(1, Math.max(0, 1 - offset.value / extent.value))}
   })
 
+  // A non-modal pane has no Modal to report that it is shown: the first layout is that moment.
+  const shown = useRef(false)
+  useEffect(() => {
+    if (!open) shown.current = false
+  }, [open])
   const onPanelLayout = (e: LayoutChangeEvent) => {
     const {width, height} = e.nativeEvent.layout
     extent.value = bottom ? height : width
+    if (!modal && open && !shown.current) {
+      shown.current = true
+      focusForAccessibility(panelRef.current, 'Drawer')
+    }
   }
 
-  const placement = bottom
+  // A floating panel's frame is its offset from each edge, safe area included.
+  const frame = floating
+    ? {
+        top: gap + insets.top,
+        bottom: gap + insets.bottom,
+        left: gap + insets.left,
+        right: gap + insets.right,
+      }
+    : null
+  const where = bottom
     ? snapping
-      ? [layout.bottom, {height: high + SNAP_MAX_OVERSHOOT, bottom: lift - SNAP_MAX_OVERSHOOT}]
-      : [layout.bottom, {bottom: lift, maxHeight: availableHeight * CONTENT_SHEET_CAP}]
-    : [layout.side, anchor === 'left' ? layout.left : layout.right, {maxWidth: PANEL_WIDTH[size]}]
-  const padTop = bottom ? 0 : insets.top
-  const padBottom = (lift > 0 ? 0 : insets.bottom) + (snapping ? SNAP_MAX_OVERSHOOT : 0)
+      ? [
+          layout.bottom,
+          {
+            height: high + overshoot,
+            bottom: lift - overshoot + (frame?.bottom ?? 0),
+          },
+          frame && {left: frame.left, right: frame.right},
+        ]
+      : [
+          layout.bottom,
+          {bottom: lift + (frame?.bottom ?? 0), maxHeight: availableHeight * CONTENT_SHEET_CAP},
+          frame && {left: frame.left, right: frame.right},
+        ]
+    : [
+        layout.side,
+        anchor === 'left' ? layout.left : layout.right,
+        sideSnapping ? null : {maxWidth: Math.min(PANEL_WIDTH[size], sideRoom)},
+        frame && {
+          top: frame.top,
+          bottom: frame.bottom,
+          ...(anchor === 'left' ? {left: frame.left} : {right: frame.right}),
+        },
+      ]
+  const padTop = bottom || floating ? 0 : insets.top
+  const padBottom = (lift > 0 || floating ? 0 : insets.bottom) + (snapping ? overshoot : 0)
 
-  const nextIndex = cycleDetent(snapIndex, snapPoints.length)
+  const detentCount = sideSnapping ? sideSnapPoints.length : snapPoints.length
+  const nextIndex = cycleDetent(snapIndex, detentCount)
   const onGrabberAction = (e: AccessibilityActionEvent) => {
     if (e.nativeEvent.actionName === 'increment') {
-      setSnapIndex(Math.min(snapIndex + 1, snapPoints.length - 1))
+      setSnapIndex(Math.min(snapIndex + 1, detentCount - 1))
     } else if (e.nativeEvent.actionName === 'decrement') {
       setSnapIndex(Math.max(snapIndex - 1, 0))
     }
@@ -342,6 +512,93 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
     scrollGesture,
     onScroll,
     hiddenBelow: snapping ? high - heights[snapIndex] : 0,
+  }
+
+  const grabberPress = (snapping || sideSnapping) && (
+    <Pressable
+      accessibilityRole="adjustable"
+      accessibilityLabel={nextIndex > snapIndex ? grabberLabels.expand : grabberLabels.collapse}
+      accessibilityValue={{text: sideSnapping ? sideSnapPoints[snapIndex] : snapPoints[snapIndex]}}
+      accessibilityActions={[{name: 'increment'}, {name: 'decrement'}]}
+      onAccessibilityAction={onGrabberAction}
+      onPress={() => setSnapIndex(nextIndex)}
+      style={
+        sideSnapping
+          ? [
+              layout.sideGrabber,
+              anchor === 'left' ? layout.sideGrabberLeft : layout.sideGrabberRight,
+            ]
+          : undefined
+      }
+    >
+      <html.div style={sideSnapping ? nativeStyles.grabberHitSide : partStyles.grabberHit}>
+        <html.div style={sideSnapping ? nativeStyles.grabberVertical : partStyles.grabber} />
+      </html.div>
+    </Pressable>
+  )
+  const grabber =
+    sideSnapping && grabberPress ? (
+      <GestureDetector gesture={grabberPan}>{grabberPress}</GestureDetector>
+    ) : (
+      grabberPress
+    )
+
+  const panel = (
+    <GestureDetector gesture={pan}>
+      <Animated.View
+        ref={panelRef as RefObject<View | null>}
+        accessibilityViewIsModal={modal}
+        onLayout={onPanelLayout}
+        style={[where, panelMotion]}
+      >
+        <html.div
+          role="dialog"
+          aria-modal={modal ? true : undefined}
+          aria-labelledby={titleId}
+          style={[
+            nativeStyles.panel,
+            floating && nativeStyles.panelFloating,
+            !floating && bottom && nativeStyles.panelBottom,
+            !floating && anchor === 'right' && nativeStyles.panelRight,
+            !floating && anchor === 'left' && nativeStyles.panelLeft,
+            nativeStyles.insets(padTop, padBottom),
+          ]}
+        >
+          {grabber}
+          {modal ? (
+            <ModalContext.Provider value={true}>
+              <ControlContextBoundary>
+                <SheetScrollContext.Provider value={sheetScroll}>
+                  {children}
+                </SheetScrollContext.Provider>
+              </ControlContextBoundary>
+            </ModalContext.Provider>
+          ) : (
+            <ControlContextBoundary>
+              <SheetScrollContext.Provider value={sheetScroll}>
+                {children}
+              </SheetScrollContext.Provider>
+            </ControlContextBoundary>
+          )}
+        </html.div>
+      </Animated.View>
+    </GestureDetector>
+  )
+
+  // Non-modal: no Modal and no backdrop. The panel draws in the base host, below any Dialog opened
+  // later and mounted once; the portal carries only the theme, so the Drawer's own contexts are
+  // provided again here.
+  if (!modal) {
+    if (!open) return null
+    return (
+      <PortalLayer layer={LAYERS.floating} host="base">
+        <GestureHandlerRootView style={StyleSheet.absoluteFill} pointerEvents="box-none">
+          <DrawerContext.Provider value={drawer}>
+            <TriggerRefContext.Provider value={triggerRef}>{panel}</TriggerRefContext.Provider>
+          </DrawerContext.Provider>
+        </GestureHandlerRootView>
+      </PortalLayer>
+    )
   }
 
   return (
@@ -362,51 +619,7 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
           <html.div aria-hidden style={[nativeStyles.fill, nativeStyles.scrim]} />
         </Pressable>
       </Animated.View>
-      <GestureDetector gesture={pan}>
-        <Animated.View
-          ref={panelRef as RefObject<View | null>}
-          accessibilityViewIsModal
-          onLayout={onPanelLayout}
-          style={[placement, panelMotion]}
-        >
-          <html.div
-            role="dialog"
-            aria-modal
-            aria-labelledby={titleId}
-            style={[
-              nativeStyles.panel,
-              bottom && nativeStyles.panelBottom,
-              anchor === 'right' && nativeStyles.panelRight,
-              anchor === 'left' && nativeStyles.panelLeft,
-              nativeStyles.insets(padTop, padBottom),
-            ]}
-          >
-            {snapping && (
-              <Pressable
-                accessibilityRole="adjustable"
-                accessibilityLabel={
-                  nextIndex > snapIndex ? grabberLabels.expand : grabberLabels.collapse
-                }
-                accessibilityValue={{text: snapPoints[snapIndex]}}
-                accessibilityActions={[{name: 'increment'}, {name: 'decrement'}]}
-                onAccessibilityAction={onGrabberAction}
-                onPress={() => setSnapIndex(nextIndex)}
-              >
-                <html.div style={partStyles.grabberHit}>
-                  <html.div style={partStyles.grabber} />
-                </html.div>
-              </Pressable>
-            )}
-            <ModalContext.Provider value={true}>
-              <ControlContextBoundary>
-                <SheetScrollContext.Provider value={sheetScroll}>
-                  {children}
-                </SheetScrollContext.Provider>
-              </ControlContextBoundary>
-            </ModalContext.Provider>
-          </html.div>
-        </Animated.View>
-      </GestureDetector>
+      {panel}
     </OverlayModal>
   )
 }
@@ -417,6 +630,10 @@ const layout = StyleSheet.create({
   side: {position: 'absolute', top: 0, bottom: 0, width: '100%'},
   left: {left: 0},
   right: {right: 0},
+  // The side grabber: a strip down the panel's inner edge.
+  sideGrabber: {position: 'absolute', top: 0, bottom: 0, zIndex: 1},
+  sideGrabberLeft: {right: 0},
+  sideGrabberRight: {left: 0},
   body: {flexGrow: 0, flexShrink: 1},
   bodyFill: {flex: 1},
 })

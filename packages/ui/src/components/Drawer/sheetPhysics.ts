@@ -95,6 +95,33 @@ export function settleDetent({
   return nearest
 }
 
+/**
+ * Where a drag on a side drawer's grabber settles. `velocity` is px/ms, positive while the panel
+ * grows. A fling moves one detent in its direction; a slow release goes to the nearest width.
+ * Unlike a sheet, a side drawer never dismisses from here: its swipe does that.
+ */
+export function settleWidth({
+  widths,
+  from,
+  width,
+  velocity,
+}: {
+  widths: readonly number[]
+  from: number
+  width: number
+  velocity: number
+}): number {
+  'worklet'
+  const last = widths.length - 1
+  if (velocity > VELOCITY_THRESHOLD) return Math.min(from + 1, last)
+  if (velocity < -VELOCITY_THRESHOLD) return Math.max(from - 1, 0)
+  let nearest = 0
+  for (let i = 1; i <= last; i++) {
+    if (Math.abs(widths[i] - width) < Math.abs(widths[nearest] - width)) nearest = i
+  }
+  return nearest
+}
+
 /** The grabber's tap: the next detent up, wrapping from the largest to the smallest. */
 export function cycleDetent(index: number, count: number): number {
   'worklet'

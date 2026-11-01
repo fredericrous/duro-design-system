@@ -24,8 +24,8 @@ interface DrawerRootBaseProps {
    * closes on Escape anywhere. Non-modal (false) has none of these: the page stays usable and
    * Escape closes only while focus is inside the panel.
    * A non-modal drawer sits at layers.floating, and a Popover inside it stacks above the panel at
-   * layers.floatingRaised; a modal drawer keeps layers.modal. Web-only for now: React Native still
-   * renders a modal drawer.
+   * layers.floatingRaised; a modal drawer keeps layers.modal. On React Native a non-modal drawer
+   * draws in the base portal host (no Modal, no backdrop), below any Dialog opened later.
    */
   modal?: boolean
   /** Whether swipe gesture dismisses the drawer. Default: true */
@@ -52,9 +52,10 @@ export interface DrawerSideRootProps extends DrawerRootBaseProps {
   /** Which edge the drawer slides from. Default: 'right' */
   anchor?: 'left' | 'right'
   /**
-   * The widths the panel rests at (web only). 'compact' is the panelSm width, 'expanded' the
-   * panelLg width, each held to the window's width. The grabber steps through them on a tap;
-   * Portal's `size` is ignored. Swipe still dismisses; a drag does not move between detents.
+   * The widths the panel rests at. 'compact' is the panelSm width, 'expanded' the
+   * panelLg width, each held to the window's width. A tap on the grabber steps through them and
+   * a drag on it resizes the panel, settling on a detent; Portal's `size` is ignored. A swipe
+   * elsewhere on the panel still dismisses it.
    */
   snapPoints?: readonly SideSnapPoint[]
   /** The detent the panel opens at. Default: the lowest of snapPoints */

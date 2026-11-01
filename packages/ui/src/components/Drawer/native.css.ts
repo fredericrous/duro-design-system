@@ -3,6 +3,7 @@ import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 /**
  * Native Drawer surfaces. Motion is Reanimated's (plan N0, Decision 4): these
@@ -43,6 +44,41 @@ export const nativeStyles = css.create({
     borderRightWidth: borders.hairline,
     borderRightStyle: 'solid',
     borderRightColor: colors.border,
+  },
+  // A floating panel: a border and rounded corners all round, a lighter shadow than a modal's.
+  panelFloating: {
+    boxShadow: shadows.md,
+    borderTopWidth: borders.hairline,
+    borderRightWidth: borders.hairline,
+    borderBottomWidth: borders.hairline,
+    borderLeftWidth: borders.hairline,
+    borderTopStyle: 'solid',
+    borderRightStyle: 'solid',
+    borderBottomStyle: 'solid',
+    borderLeftStyle: 'solid',
+    borderTopColor: colors.borderStrong,
+    borderRightColor: colors.borderStrong,
+    borderBottomColor: colors.borderStrong,
+    borderLeftColor: colors.borderStrong,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderBottomLeftRadius: radii.lg,
+    borderBottomRightRadius: radii.lg,
+  },
+  // The side grabber's hit area and its vertical bar (the bottom grabber's, turned).
+  grabberHitSide: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+    paddingLeft: spacing.ms,
+    paddingRight: spacing.ms,
+  },
+  grabberVertical: {
+    width: sizes.sheetGrabberH,
+    height: sizes.sheetGrabberW,
+    borderRadius: radii.full,
+    backgroundColor: colors.border,
   },
   // The safe-area insets (and a snap sheet's overshoot skirt), as padding.
   insets: (top: number, bottom: number) => ({paddingTop: top, paddingBottom: bottom}),

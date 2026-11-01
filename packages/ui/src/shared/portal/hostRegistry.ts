@@ -10,7 +10,6 @@ export interface PortalEntry {
    * Which host draws it. `top` (the default): the last host presented, above an open Modal.
    * `base`: the app root host, below every Modal, so a Dialog opened later covers the entry
    * and the entry stays mounted (a non-modal pane).
-   * holds-until: Drawer.native.tsx draws a non-modal pane through it (Pane's native phase).
    */
   readonly host?: 'base' | 'top'
 }

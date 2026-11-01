@@ -4,6 +4,7 @@ import {
   detentHeight,
   rubberBand,
   settleDetent,
+  settleWidth,
   shouldDismissEdge,
   sortSnapPoints,
 } from '../src/components/Drawer/sheetPhysics'
@@ -74,5 +75,24 @@ describe('shouldDismissEdge', () => {
     expect(shouldDismissEdge(120, 320, 0)).toBe(true)
     expect(shouldDismissEdge(40, 320, 0)).toBe(false)
     expect(shouldDismissEdge(40, 320, 0.8)).toBe(true)
+  })
+})
+
+describe('settleWidth', () => {
+  const widths = [360, 640]
+
+  it('settles a slow release on the nearest width', () => {
+    expect(settleWidth({widths, from: 0, width: 480, velocity: 0})).toBe(0)
+    expect(settleWidth({widths, from: 0, width: 520, velocity: 0})).toBe(1)
+  })
+
+  it('moves one detent in the direction of a fling', () => {
+    expect(settleWidth({widths, from: 0, width: 380, velocity: 1})).toBe(1)
+    expect(settleWidth({widths, from: 1, width: 620, velocity: -1})).toBe(0)
+  })
+
+  it('never leaves the detents: a fling past the end stays on it', () => {
+    expect(settleWidth({widths, from: 1, width: 640, velocity: 1})).toBe(1)
+    expect(settleWidth({widths, from: 0, width: 360, velocity: -1})).toBe(0)
   })
 })

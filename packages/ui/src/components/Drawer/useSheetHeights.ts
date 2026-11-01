@@ -45,7 +45,7 @@ export function useSheetHeights(points: readonly SnapPoint[], active: boolean): 
  * Web: each side detent's width in px, ascending, following the window as it
  * resizes. A detent wider than the window is held to the window's width.
  */
-export function useSheetWidths(points: readonly SideSnapPoint[]): number[] {
+export function useSheetWidths(points: readonly SideSnapPoint[], inset: number): number[] {
   const active = points.length > 0
   const [windowWidth, setWindowWidth] = useState<number | null>(null)
 
@@ -58,7 +58,7 @@ export function useSheetWidths(points: readonly SideSnapPoint[]): number[] {
   }, [active])
 
   return useMemo(
-    () => (windowWidth === null ? [] : points.map((p) => detentWidth(p, windowWidth))),
-    [points, windowWidth],
+    () => (windowWidth === null ? [] : points.map((p) => detentWidth(p, windowWidth - inset))),
+    [points, windowWidth, inset],
   )
 }

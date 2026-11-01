@@ -1,7 +1,7 @@
 import {createPortal} from 'react-dom'
 import {type ReactNode, useState, useEffect, useCallback} from 'react'
 import {html} from 'react-strict-dom'
-import type {DurationToken} from '@duro-app/tokens/keys'
+import {SPACING_PX, type DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 import {devWarnOnce} from '../../shared/devWarnOnce'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
@@ -10,6 +10,7 @@ import {ModalContext} from '../../shared/ModalContext'
 import {PopoverLayerContext} from '../Popover/PopoverLayerContext'
 import {useSwipeDismiss} from './useSwipeDismiss'
 import {useSheetHeights, useSheetWidths} from './useSheetHeights'
+import {useSideResize} from './useSideResize'
 import {cycleDetent} from './sheetPhysics'
 import {partStyles} from './parts.css'
 import {
@@ -132,6 +133,7 @@ const raisedFloatingLayer = {register: () => () => undefined, raised: true}
 
 // A closed drawer measures nothing.
 const NO_SIDE_POINTS: readonly SideSnapPoint[] = []
+const NO_WIDTHS: readonly number[] = []
 
 const viewportAnchorMap = {
   right: styles.viewportRight,
@@ -169,7 +171,10 @@ function Portal({
   const heights = useSheetHeights(snapPoints, snapping && open)
   const sized = snapping && heights.length === snapPoints.length
   const sideSnapping = sideSnapPoints.length > 0
-  const widths = useSheetWidths(open ? sideSnapPoints : NO_SIDE_POINTS)
+  const widths = useSheetWidths(
+    open ? sideSnapPoints : NO_SIDE_POINTS,
+    floating ? 2 * SPACING_PX.md : 0,
+  )
   const sideSized = sideSnapping && widths.length === sideSnapPoints.length
   const size = sizeProp ?? 'md'
   const grabberLabels =
@@ -208,6 +213,15 @@ function Portal({
       if (active === document.body || panel.contains(active)) before?.focus?.({preventScroll: true})
     }
   }, [open, modal, panel])
+
+  // A drag on a side drawer's grabber resizes it between its detents.
+  useSideResize({
+    anchor,
+    panel,
+    widths: sideSized ? widths : NO_WIDTHS,
+    index: snapIndex,
+    onSnap: setSnapIndex,
+  })
 
   const handleBackdropClick = useCallback(() => {
     if (dismissable) {
@@ -269,6 +283,7 @@ function Portal({
             !isHorizontal && styles.panelVertical,
             sized && styles.panelSnap,
             sized && styles.sheetHeight(heights[snapIndex]),
+            floating && sized && styles.panelFloatingFit,
             sideSnapping && styles.panelSideSnap,
             sideSized && styles.sheetWidth(widths[snapIndex]),
             anchor === 'left' && styles.panelLeftBorder,

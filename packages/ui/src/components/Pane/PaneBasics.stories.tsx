@@ -1,9 +1,11 @@
+import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, userEvent, waitFor, within} from 'storybook/test'
 import {SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
 import {Pane} from './Pane'
 import {Button} from '../Button/Button'
 import {pause, setViewport} from '../Drawer/touchInput'
+import {detentHeight} from '../Drawer/sheetPhysics'
 
 const meta: Meta = {
   title: 'Components/Pane/Basics',
@@ -30,6 +32,8 @@ function Demo({onOpenChange}: {onOpenChange?: (open: boolean) => void}) {
   )
 }
 
+// Longer than the exit animation, so a close that started would have finished.
+const EXIT_WAIT_MS = 600
 const getPanel = () => document.querySelector<HTMLElement>('[data-drawer-viewport] [role="dialog"]')
 const panelWidth = () => getPanel()!.getBoundingClientRect().width
 const near = (actual: number, expected: number) =>
@@ -102,11 +106,57 @@ export const EscapeNeedsFocusInside: StoryObj<{onOpenChange: (open: boolean) => 
     ;(document.activeElement as HTMLElement).blur()
     await userEvent.keyboard('{Escape}')
     // The close notice comes after the exit animation: wait it out before asserting nothing happened.
-    await new Promise((resolve) => setTimeout(resolve, 600))
+    await new Promise((resolve) => setTimeout(resolve, EXIT_WAIT_MS))
     expect(getPanel()).not.toBeNull()
     expect(args.onOpenChange).not.toHaveBeenCalled()
     inside.focus()
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(args.onOpenChange).toHaveBeenCalledWith(false))
+  },
+}
+
+function Flippable() {
+  const [anchor, setAnchor] = useState<'right' | 'bottom'>('right')
+  return (
+    <>
+      <Button onClick={() => setAnchor('bottom')}>Flip to bottom</Button>
+      <Pane.Root defaultOpen {...(anchor === 'bottom' ? {anchor: 'bottom'} : {anchor: 'right'})}>
+        <Pane.Portal>
+          <Pane.Header>
+            <Pane.Title>Theme</Pane.Title>
+            <Pane.Expand />
+          </Pane.Header>
+        </Pane.Portal>
+      </Pane.Root>
+    </>
+  )
+}
+
+// One root whose anchor changes while it is open and expanded: it returns to the default detent.
+export const AnchorFlipResetsTheDetent: Story = {
+  render: () => <Flippable />,
+  play: async ({canvasElement}) => {
+    await open()
+    await userEvent.click(within(getPanel()!).getByRole('button', {name: 'Expand'}))
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelLg))
+    await userEvent.click(within(canvasElement).getByRole('button', {name: 'Flip to bottom'}))
+    await waitFor(() =>
+      near(
+        getPanel()!.getBoundingClientRect().height,
+        detentHeight('medium', window.innerHeight, 0),
+      ),
+    )
+  },
+}
+
+export const ExpandedHoldsInsideANarrowWindow: Story = {
+  render: () => <Demo />,
+  play: async () => {
+    await setViewport(500, 800)
+    await waitFor(() => expect(getPanel()).not.toBeNull())
+    // Compact is held to the window too: 360 fits in 500 - 2 * 16.
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelSm))
+    await userEvent.click(within(getPanel()!).getByRole('button', {name: 'Expand'}))
+    await waitFor(() => near(panelWidth(), 500 - 2 * SPACING_PX.md))
   },
 }

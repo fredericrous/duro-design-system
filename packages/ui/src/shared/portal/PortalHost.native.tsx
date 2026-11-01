@@ -77,8 +77,9 @@ interface PortalProps {
 }
 
 /**
- * Draws its children in the top host, above the app and every open Duro
- * Modal. The children keep the source's theme and resolved colours; no other
+ * Draws its children in the top host (the default), above the app and every open
+ * Duro Modal, or in the base host (`host="base"`), below every Modal, as a
+ * non-modal pane. The children keep the source's theme and resolved colours; no other
  * context crosses, so pass data, not components that read the app's contexts.
  */
 export function Portal({layer, host, children}: PortalProps) {

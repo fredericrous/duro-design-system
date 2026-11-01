@@ -73,6 +73,8 @@ therefore needs a bundle, and the bundle needs CI.
   a Pane whose anchor flips right to bottom, or back, while open resets to the default detent.
 - **Edge handle:** a snap panel on any edge gets the grabber. A side panel's grabber
   is vertical, and a tap steps through the detents, as the bottom grabber does now.
+  Dragging a side grabber resizes the panel between its detents and settles on one (a
+  fling moves one detent); the drag wins over the swipe that dismisses.
 - **Swipe-to-dismiss** keeps working on snap panels (`useSwipeDismiss`).
 - **Layer:** a non-modal panel uses `layers.floating`, not the modal layer; a Popover
   inside it is raised (`floatingRaised`), tested. It renders through the existing portal mount, so
@@ -165,7 +167,7 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
   green; a headless render of the theme pane at 1120, 500 and 320 px; the game
   still steers; the console has no error beyond the favicon; Reset gives
   `theme.json` exactly; the live URL checked after the Pages deploy.
-- Native: pressing `Pane.Close` in a non-modal native Pane calls `onOpenChange(false)` once; with a Dialog opened over it, the Dialog draws above the pane and the pane mounts once (no remount).
+- Native (not observed: no renderer, see the Handoff): pressing `Pane.Close` in a non-modal native Pane calls `onOpenChange(false)` once; with a Dialog opened over it, the Dialog draws above the pane and the pane mounts once (no remount).
 - Accessibility: keyboard only (Tab in, Escape, focus back), touch dismissal at 320 px.
 
 ## Not in this plan
@@ -178,6 +180,7 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
 
 - Confirm the switch of the site's Pages source from branch to GitHub Actions
   (a change to how the live site is published).
+- Native Pane: run the Pane scenario of `examples/native/src/SheetDemo.tsx` on a device (touches pass through to the app behind, Android back closes the pane, a Dialog opened over it covers it without remounting it). It replaces the two render tests the plan asked for, which cannot run in this repo (no renderer); say if you want it handled otherwise.
 - The theme artboard (`docs/mockups/theme-panel/Pane.dc.html`) is committed on
   `feat/theme-panel-mockups` and is not pushed yet; the PR's `## Mockup` section
   points at it once pushed.
@@ -186,29 +189,34 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
 
 - 2026-11-01, the person: "Web PR now, native next". Phase 2 (native) is not in this PR. The repo has no React Native renderer (its native tests are Node tests, plus `typecheck:native`, a native bundle export and a native-graph check), so the plan's native render tests cannot run, and gesture and animation code would ship never run. The docs already say `modal={false}` is web only for now, and `Pane` is not in the native barrel. #104 stays open until native lands.
 - What native work did land here, because it is pure and tested: portal entries can target the base host (`host: 'base'`, a `baseHost` in the registry snapshot, and `entriesForHost`, the rule `PortalHost` uses), with four unit tests covering a Dialog opened and closed over a base entry. Nothing uses it yet.
-- Side detents are drawn and driven on the web only: widths measured in px from `panelSm` and `panelLg` and held to the window, a vertical grabber on the inner edge that steps on a tap. A drag does not move between side detents; swipe still dismisses.
+- Side detents (web first, native in `feat/pane-native`): widths measured in px from `panelSm` and `panelLg` and held to the window, a vertical grabber on the inner edge that steps on a tap. Dragging the grabber resizes the panel and settles on a detent (the person's request on the preview, 2026-11-01: "I should be able to drag the handle"; read as resize, not as moving the pane around, which stays the follow-up on #104); a swipe elsewhere still dismisses.
 - `Pane` is a thin composition of the Drawer's own parts through a new `placement` option on `Drawer.Portal`; `BodyProps` and `CloseProps` became exported so the composed object can be typed.
 - The release is a tag, not this PR: a `v*` tag runs the publish workflow and sets the version from the tag. Latest is v5.39.0, so this is v5.40.0, tagged after merge.
 - Escape stays on `document` with an `aria-expanded` guard (non-modal only), not on the panel: a Popover popup is portalled out of the panel, so a panel listener misses it. Ceiling: a focused expanded control blocks Escape in a pane; the fix is a layer registry.
 
+- 2026-11-01, native PR (`feat/pane-native`): Phase 2 is written by hand after relais queued out for 29 minutes on a host slot (run abandoned, nothing written). The Phase 2 render tests (`Pane.Close` calls `onOpenChange(false)`; a Dialog draws above the pane with one mount) are not written: the repo has no React Native renderer. What backs the native code instead: `typecheck:native`, the native graph check, the unit suite, a Metro export of `examples/native` for iOS and Android, and a Pane scenario in `examples/native/src/SheetDemo.tsx` (with a Dialog opened over it) for a person to run on a device. The gesture and portal behaviour has not been seen on a device; the changeset says so.
+- Native floating geometry: a floating card keeps no overshoot skirt (a pull past the top of a floating snap sheet does not rubber-band), and its detent widths and heights are cut by the inset and the safe area.
+
 ## Verification (observed 2026-11-01)
 
-| Check                        | Input                                                               | Expected                                                           | Actual                                                                                               |
-| ---------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| typecheck, web and native    | `pnpm --filter @duro-app/ui typecheck`                              | 0 errors                                                           | 0 errors (and again in every commit gate, 27 to 29 checks each)                                      |
-| wrong snap points fail       | `drawerTypes.type-test.ts`: `anchor="right"` with `['medium']`      | a type error                                                       | `@ts-expect-error` holds, and the matching pairs compile                                             |
-| non-modal Drawer             | `DrawerNonModal.stories.tsx` in Chromium                            | no `aria-modal`, no backdrop, body overflow unchanged              | passes; the modal drawer keeps all three                                                             |
-| page behind stays clickable  | `elementFromPoint` on a button behind an open non-modal drawer/pane | the button, and its click fires                                    | passes for the Drawer and for the Pane                                                               |
-| Popover above the panel      | a Popover opened inside a non-modal drawer                          | the popup draws above the panel                                    | passes (the Drawer provides the raised floating layer; one doc comment changed, no behaviour change) |
-| Escape                       | focus outside, then inside the panel                                | closes only with focus inside                                      | passes for the Drawer and the Pane                                                                   |
-| side detents                 | `DrawerSideSnap.stories.tsx`                                        | compact `panelSm`, expanded `panelLg`, never wider than the window | passes, including at a 500 px window                                                                 |
-| Pane                         | `PaneBasics.stories.tsx`                                            | opens compact, Expand steps and back, inset and rounded            | passes                                                                                               |
-| base host                    | `hostRegistry.test.ts`                                              | a Dialog over a base entry leaves it mounted, top entries move up  | 7 tests pass, 4 of them new                                                                          |
-| registry, lint, native graph | `build-registry --check`, `eslint`, `check-native-graph`            | all exit 0                                                         | all exit 0                                                                                           |
+| Check                        | Input                                                                                                               | Expected                                                                           | Actual                                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| typecheck, web and native    | `pnpm --filter @duro-app/ui typecheck`                                                                              | 0 errors                                                                           | 0 errors (and again in every commit gate, 27 to 29 checks each)                                      |
+| wrong snap points fail       | `drawerTypes.type-test.ts`: `anchor="right"` with `['medium']`                                                      | a type error                                                                       | `@ts-expect-error` holds, and the matching pairs compile                                             |
+| non-modal Drawer             | `DrawerNonModal.stories.tsx` in Chromium                                                                            | no `aria-modal`, no backdrop, body overflow unchanged                              | passes; the modal drawer keeps all three                                                             |
+| page behind stays clickable  | `elementFromPoint` on a button behind an open non-modal drawer/pane                                                 | the button, and its click fires                                                    | passes for the Drawer and for the Pane                                                               |
+| Popover above the panel      | a Popover opened inside a non-modal drawer                                                                          | the popup draws above the panel                                                    | passes (the Drawer provides the raised floating layer; one doc comment changed, no behaviour change) |
+| Escape                       | focus outside, then inside the panel                                                                                | closes only with focus inside                                                      | passes for the Drawer and the Pane                                                                   |
+| side detents                 | `DrawerSideSnap.stories.tsx`                                                                                        | compact `panelSm`, expanded `panelLg`, never wider than the window                 | passes, including at a 500 px window                                                                 |
+| Pane                         | `PaneBasics.stories.tsx`                                                                                            | opens compact, Expand steps and back, inset and rounded                            | passes                                                                                               |
+| base host                    | `hostRegistry.test.ts`                                                                                              | a Dialog over a base entry leaves it mounted, top entries move up                  | 7 tests pass, 4 of them new                                                                          |
+| floating inset on web        | `PaneBasics.stories.tsx` at a 500 px window: open, then Expand                                                      | compact 360, expanded `500 - 2 * 16` = 468, inside the window                      | passes, with the anchor-flip story (medium height after Expand and a flip)                           |
+| grabber drag                 | `DrawerSideSnap.stories.tsx`: touch drag 300 px left, then right; synthetic pointer down, move and up, then a click | expanded, then compact; the click after a drag does not reach the grabber's parent | passes; `settleWidth` has 3 unit tests (nearest, fling, ends)                                        |
+| registry, lint, native graph | `build-registry --check`, `eslint`, `check-native-graph`                                                            | all exit 0                                                                         | all exit 0                                                                                           |
 
 On the final tree, after the plan commit moved to the front of the branch: `vitest run --project=storybook` over the Pane, Drawer and Popover folders gave 10 files and 64 tests passed, exit 0.
 
-Not observed: any native behaviour (none was written); `pnpm build` and `pnpm check:types-packed` (CI and the release run them); `duro doctor`; a keyboard-only pass in a real keyboard session (every control is a Duro Button or the Drawer's own).
+Native (this branch, observed): `pnpm typecheck:native` and web `tsc` exit 0; `check-native-graph` exits 0; the unit project passes (the Pane-in-an-example rule included); `pnpm native:export` bundles iOS (3176 modules) and Android with one copy of react-strict-dom and reanimated. Not observed: native behaviour on a device or simulator; `pnpm build` and `pnpm check:types-packed` (CI and the release run them); `duro doctor`; a keyboard-only pass in a real keyboard session (every control is a Duro Button or the Drawer's own).
 
 ## Implementation review
 
@@ -221,7 +229,23 @@ Fresh round 1 on the final tree: approve-with-changes, four low findings, all ke
 
 - deliberate: the Pane Escape story's bare 600 ms, the `Portal` doc comment, the `holds-until` wording on `PortalEntry.host` and the missing anchor-flip story are carried to the native PR, which edits the same files. 102k tokens, 69 s.
 
+Grabber drag (the person's request on the preview), fresh round 1: approve-with-changes, five findings. Fixed: a plan row and a Behaviour line for the drag, a click story that can fail (checked by removing the swallow: it fails), release speed read at the end of the drag on the web as on native, a comment, `ws` renamed. Candidates (`e` in both) ruled fine. 113k tokens, 142 s. Delta (121k, 35 s): all five resolved; three low findings kept as `deliberate`: the web release speed is read between the last two moves (a hold before release still counts as a fling; native reads the speed at release), the story's click `expect` is synchronous (nothing to await), and the plan row wording (fixed here).
+
+Observed by hand in Chromium (a real mouse, the devtools drag tool on the story at 1200 px): dragging the grabber 740 px left took the panel from 360 to 640 px and the grabber's label to "Shrink panel", with no inline width left and no extra step on release. A CDP mouse drag inside the vitest runner never moved the width; that is the runner, not the component.
+
+Native branch, fresh round 1 on the final tree: approve-with-changes, seven findings. Fixed: the second real wait, the native `size` warning, the slack axis, a verification row and a Handoff item for the device run. Kept as `deliberate`: `Pane.native.tsx` repeats `Pane.tsx`'s Root, detents and types (the two files differ in `html.button` with an svg versus a glyph, and a shared module is a follow-up once the Icon pair exists). 108k tokens, 314 s.
+
+Native branch (`feat/pane-native`), round 1: approve-with-changes, six findings. Fixed: the flip story's real wait and its claims (one root, the anchor changes, the default detent is asserted), the plan record, detent widths and heights cut by the floating inset and safe area, no overshoot skirt on a floating card, `useDrawer()` read once. 96k tokens, 110 s.
+
 ## Interface review
+
+Native branch, advisory. Fixed with the review above: side width and bottom height of a floating pane, side safe-area insets, no clipped bottom edge. Kept as `deliberate`:
+
+- the side grabber strip (28 px) overlaps the inner 4 px of the header, as on the web; a hit-slop and padding pass is a follow-up with the draggable pane;
+- `Pane.Expand` is a Unicode glyph in `Text` on native: an `Icon` pair (`maximize`, `minimize`) for both platforms is a follow-up, as is a 44 pt hit area for both header buttons;
+- the grabber's `accessibilityValue` is the raw detent key.
+
+Web, earlier:
 
 Advisory. Fixed: grabber hit width 28 px and `layers.raised`, `shadows.md` and no `maxHeight` override on a floating panel, `Pane.Expand` without `aria-expanded`, focus given back only when it is still in the pane.
 
@@ -231,6 +255,6 @@ Advisory. Fixed: grabber hit width 28 px and `layers.raised`, `shadows.md` and n
 
 ## Outcome
 
-The web half of #104: a non-modal `Drawer`, side detents and a public `Pane`, with their stories running in Chromium. Native, the release tag and the site are the next steps.
+#104: a non-modal `Drawer`, side detents and a public `Pane`, with their stories running in Chromium (web, v5.40.0) and the same API on React Native (`feat/pane-native`: typechecked, bundled by Metro, not yet seen on a device). The next steps are the native release and the site.
 
 <!-- panel: repos=duro-design-system,gh-site-import adds=ui,ops reviewers=backend,typescript body-sha=74a5b0535904 -->
