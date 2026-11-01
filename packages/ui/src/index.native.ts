@@ -92,8 +92,16 @@ export {
   Drawer,
   type DrawerAnchor,
   type DrawerSize,
+  type SideSnapPoint,
   type SnapPoint,
 } from './components/Drawer/Drawer'
+export {
+  Pane,
+  type ExpandLabels as PaneExpandLabels,
+  type PaneBottomRootProps,
+  type PaneRootProps,
+  type PaneSideRootProps,
+} from './components/Pane/Pane'
 export {Menu, type MenuTriggerVariant} from './components/Menu/Menu'
 export {Popover, type PopoverHandle} from './components/Popover/Popover'
 // Touch has no hover: a Tooltip's text is its trigger's accessibility hint.

@@ -1,3 +1,4 @@
+import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, userEvent, waitFor, within} from 'storybook/test'
 import {SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
@@ -30,6 +31,8 @@ function Demo({onOpenChange}: {onOpenChange?: (open: boolean) => void}) {
   )
 }
 
+// Longer than the exit animation, so a close that started would have finished.
+const EXIT_WAIT_MS = 600
 const getPanel = () => document.querySelector<HTMLElement>('[data-drawer-viewport] [role="dialog"]')
 const panelWidth = () => getPanel()!.getBoundingClientRect().width
 const near = (actual: number, expected: number) =>
@@ -102,11 +105,55 @@ export const EscapeNeedsFocusInside: StoryObj<{onOpenChange: (open: boolean) => 
     ;(document.activeElement as HTMLElement).blur()
     await userEvent.keyboard('{Escape}')
     // The close notice comes after the exit animation: wait it out before asserting nothing happened.
-    await new Promise((resolve) => setTimeout(resolve, 600))
+    await new Promise((resolve) => setTimeout(resolve, EXIT_WAIT_MS))
     expect(getPanel()).not.toBeNull()
     expect(args.onOpenChange).not.toHaveBeenCalled()
     inside.focus()
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(args.onOpenChange).toHaveBeenCalledWith(false))
+  },
+}
+
+function Flippable() {
+  const [anchor, setAnchor] = useState<'right' | 'bottom'>('right')
+  return (
+    <>
+      <Button onClick={() => setAnchor('bottom')}>Flip to bottom</Button>
+      {anchor === 'bottom' ? (
+        <Pane.Root defaultOpen anchor="bottom">
+          <Pane.Portal>
+            <Pane.Header>
+              <Pane.Title>Theme</Pane.Title>
+              <Pane.Expand />
+            </Pane.Header>
+          </Pane.Portal>
+        </Pane.Root>
+      ) : (
+        <Pane.Root defaultOpen anchor="right">
+          <Pane.Portal>
+            <Pane.Header>
+              <Pane.Title>Theme</Pane.Title>
+              <Pane.Expand />
+            </Pane.Header>
+          </Pane.Portal>
+        </Pane.Root>
+      )}
+    </>
+  )
+}
+
+// The two roots are different elements, so this checks the bottom pane opens at its own default
+// detent (medium) after an expanded side pane, not that one root survives a flip.
+export const BottomPaneOpensAtItsDefaultDetent: Story = {
+  render: () => <Flippable />,
+  play: async ({canvasElement}) => {
+    await open()
+    const side = within(getPanel()!)
+    await userEvent.click(side.getByRole('button', {name: 'Expand'}))
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelLg))
+    await userEvent.click(within(canvasElement).getByRole('button', {name: 'Flip to bottom'}))
+    await waitFor(() => expect(getPanel()!.getBoundingClientRect().height).toBeLessThan(800))
+    await pause(500)
+    await expect(within(getPanel()!).getByRole('button', {name: 'Expand'})).toBeVisible()
   },
 }
