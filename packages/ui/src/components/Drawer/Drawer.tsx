@@ -10,6 +10,7 @@ import {ModalContext} from '../../shared/ModalContext'
 import {PopoverLayerContext} from '../Popover/PopoverLayerContext'
 import {useSwipeDismiss} from './useSwipeDismiss'
 import {useSheetHeights, useSheetWidths} from './useSheetHeights'
+import {useSideResize} from './useSideResize'
 import {cycleDetent} from './sheetPhysics'
 import {partStyles} from './parts.css'
 import {
@@ -132,6 +133,7 @@ const raisedFloatingLayer = {register: () => () => undefined, raised: true}
 
 // A closed drawer measures nothing.
 const NO_SIDE_POINTS: readonly SideSnapPoint[] = []
+const NO_WIDTHS: readonly number[] = []
 
 const viewportAnchorMap = {
   right: styles.viewportRight,
@@ -211,6 +213,15 @@ function Portal({
       if (active === document.body || panel.contains(active)) before?.focus?.({preventScroll: true})
     }
   }, [open, modal, panel])
+
+  // A drag on a side drawer's grabber resizes it between its detents.
+  useSideResize({
+    anchor,
+    panel,
+    widths: sideSized ? widths : NO_WIDTHS,
+    index: snapIndex,
+    onSnap: setSnapIndex,
+  })
 
   const handleBackdropClick = useCallback(() => {
     if (dismissable) {

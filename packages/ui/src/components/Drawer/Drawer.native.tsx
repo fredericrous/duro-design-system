@@ -70,6 +70,7 @@ import {
   detentWidth,
   rubberBand,
   settleDetent,
+  settleWidth,
   shouldDismissEdge,
 } from './sheetPhysics'
 import {useDrawerRoot, type DrawerRootProps} from './useDrawerRoot'
@@ -270,6 +271,11 @@ function Portal({
     return () => subscription.remove()
   }, [open, modal, dismissable, requestClose])
 
+  const widthsShared = useSharedValue(detentWidths)
+  useEffect(() => {
+    widthsShared.value = detentWidths
+  }, [detentWidths, widthsShared])
+
   const heightsShared = useSharedValue(heights)
   useEffect(() => {
     heightsShared.value = heights
@@ -288,6 +294,42 @@ function Portal({
   })
 
   const horizontalSign = anchor === 'left' ? -1 : 1
+  // A drag on a side drawer's grabber resizes it between its detents. It wins over the swipe
+  // that dismisses: the panel's pan waits for this one to fail.
+  const growSign = anchor === 'left' ? 1 : -1
+  const grabberPan = useMemo(() => {
+    const grow = (e: {translationX: number}) => {
+      'worklet'
+      return growSign * e.translationX
+    }
+    return Gesture.Pan()
+      .enabled(sideSnapping)
+      .activeOffsetX([-DRAG_SLOP, DRAG_SLOP])
+      .failOffsetY([-CROSS_SLOP, CROSS_SLOP])
+      .onStart(() => {
+        start.value = sideWidth.value
+      })
+      .onUpdate((e) => {
+        const ws = widthsShared.value
+        if (ws.length === 0) return
+        sideWidth.value = Math.min(ws[ws.length - 1], Math.max(ws[0], start.value + grow(e)))
+      })
+      .onEnd((e) => {
+        const ws = widthsShared.value
+        if (ws.length === 0) return
+        const settled = settleWidth({
+          widths: ws,
+          from: index.value,
+          width: sideWidth.value,
+          velocity: (growSign * e.velocityX) / 1000,
+        })
+        sideWidth.value = withTiming(ws[settled], {duration: SNAP_DURATION, easing: easeOut})
+        if (settled !== index.value) {
+          index.value = settled
+          scheduleOnRN(setSnapIndex, settled)
+        }
+      })
+  }, [growSign, sideSnapping, start, sideWidth, widthsShared, index, setSnapIndex])
   const canDismiss = swipeDismiss && dismissable
   const pan = useMemo(() => {
     const toEdge = (x: number, y: number) => {
@@ -356,10 +398,16 @@ function Portal({
         owns.value = false
       })
       .simultaneousWithExternalGesture(scrollGesture)
-    return bottom
-      ? gesture.activeOffsetY([-DRAG_SLOP, DRAG_SLOP]).failOffsetX([-CROSS_SLOP, CROSS_SLOP])
-      : gesture.activeOffsetX([-DRAG_SLOP, DRAG_SLOP]).failOffsetY([-CROSS_SLOP, CROSS_SLOP])
+    if (bottom) {
+      return gesture.activeOffsetY([-DRAG_SLOP, DRAG_SLOP]).failOffsetX([-CROSS_SLOP, CROSS_SLOP])
+    }
+    const sideways = gesture
+      .activeOffsetX([-DRAG_SLOP, DRAG_SLOP])
+      .failOffsetY([-CROSS_SLOP, CROSS_SLOP])
+    return sideSnapping ? sideways.requireExternalGestureToFail(grabberPan) : sideways
   }, [
+    sideSnapping,
+    grabberPan,
     bottom,
     horizontalSign,
     snapping,
@@ -463,7 +511,7 @@ function Portal({
     hiddenBelow: snapping ? high - heights[snapIndex] : 0,
   }
 
-  const grabber = (snapping || sideSnapping) && (
+  const grabberPress = (snapping || sideSnapping) && (
     <Pressable
       accessibilityRole="adjustable"
       accessibilityLabel={nextIndex > snapIndex ? grabberLabels.expand : grabberLabels.collapse}
@@ -485,6 +533,12 @@ function Portal({
       </html.div>
     </Pressable>
   )
+  const grabber =
+    sideSnapping && grabberPress ? (
+      <GestureDetector gesture={grabberPan}>{grabberPress}</GestureDetector>
+    ) : (
+      grabberPress
+    )
 
   const panel = (
     <GestureDetector gesture={pan}>

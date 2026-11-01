@@ -96,3 +96,21 @@ export const SizeIsIgnoredWithAWarning: Story = {
     await expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('size is ignored'))
   },
 }
+
+export const DraggingTheGrabberResizes: Story = {
+  render: () => <SidePanel />,
+  play: async () => {
+    await setup(1200)
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelSm))
+    // Toward the page grows a right panel: a drag left from the grabber settles on expanded.
+    const grab = centre(getGrabber())
+    await touchDrag(grab, {x: grab.x - 300, y: grab.y})
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelLg))
+    // The drag was not a press: the detent did not also step on release.
+    await pause(300)
+    near(panelWidth(), SIZES_PX.panelLg)
+    const back = centre(getGrabber())
+    await touchDrag(back, {x: back.x + 300, y: back.y})
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelSm))
+  },
+}

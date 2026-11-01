@@ -53,8 +53,9 @@ export interface DrawerSideRootProps extends DrawerRootBaseProps {
   anchor?: 'left' | 'right'
   /**
    * The widths the panel rests at. 'compact' is the panelSm width, 'expanded' the
-   * panelLg width, each held to the window's width. The grabber steps through them on a tap;
-   * Portal's `size` is ignored. Swipe still dismisses; a drag does not move between detents.
+   * panelLg width, each held to the window's width. A tap on the grabber steps through them and
+   * a drag on it resizes the panel, settling on a detent; Portal's `size` is ignored. A swipe
+   * elsewhere on the panel still dismisses it.
    */
   snapPoints?: readonly SideSnapPoint[]
   /** The detent the panel opens at. Default: the lowest of snapPoints */
