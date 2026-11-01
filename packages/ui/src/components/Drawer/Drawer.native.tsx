@@ -310,20 +310,23 @@ function Portal({
         start.value = sideWidth.value
       })
       .onUpdate((e) => {
-        const ws = widthsShared.value
-        if (ws.length === 0) return
-        sideWidth.value = Math.min(ws[ws.length - 1], Math.max(ws[0], start.value + grow(e)))
+        const detents = widthsShared.value
+        if (detents.length === 0) return
+        sideWidth.value = Math.min(
+          detents[detents.length - 1],
+          Math.max(detents[0], start.value + grow(e)),
+        )
       })
       .onEnd((e) => {
-        const ws = widthsShared.value
-        if (ws.length === 0) return
+        const detents = widthsShared.value
+        if (detents.length === 0) return
         const settled = settleWidth({
-          widths: ws,
+          widths: detents,
           from: index.value,
           width: sideWidth.value,
           velocity: (growSign * e.velocityX) / 1000,
         })
-        sideWidth.value = withTiming(ws[settled], {duration: SNAP_DURATION, easing: easeOut})
+        sideWidth.value = withTiming(detents[settled], {duration: SNAP_DURATION, easing: easeOut})
         if (settled !== index.value) {
           index.value = settled
           scheduleOnRN(setSnapIndex, settled)

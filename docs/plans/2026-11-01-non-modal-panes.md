@@ -73,6 +73,8 @@ therefore needs a bundle, and the bundle needs CI.
   a Pane whose anchor flips right to bottom, or back, while open resets to the default detent.
 - **Edge handle:** a snap panel on any edge gets the grabber. A side panel's grabber
   is vertical, and a tap steps through the detents, as the bottom grabber does now.
+  Dragging a side grabber resizes the panel between its detents and settles on one (a
+  fling moves one detent); the drag wins over the swipe that dismisses.
 - **Swipe-to-dismiss** keeps working on snap panels (`useSwipeDismiss`).
 - **Layer:** a non-modal panel uses `layers.floating`, not the modal layer; a Popover
   inside it is raised (`floatingRaised`), tested. It renders through the existing portal mount, so
@@ -197,19 +199,20 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
 
 ## Verification (observed 2026-11-01)
 
-| Check                        | Input                                                               | Expected                                                           | Actual                                                                                               |
-| ---------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| typecheck, web and native    | `pnpm --filter @duro-app/ui typecheck`                              | 0 errors                                                           | 0 errors (and again in every commit gate, 27 to 29 checks each)                                      |
-| wrong snap points fail       | `drawerTypes.type-test.ts`: `anchor="right"` with `['medium']`      | a type error                                                       | `@ts-expect-error` holds, and the matching pairs compile                                             |
-| non-modal Drawer             | `DrawerNonModal.stories.tsx` in Chromium                            | no `aria-modal`, no backdrop, body overflow unchanged              | passes; the modal drawer keeps all three                                                             |
-| page behind stays clickable  | `elementFromPoint` on a button behind an open non-modal drawer/pane | the button, and its click fires                                    | passes for the Drawer and for the Pane                                                               |
-| Popover above the panel      | a Popover opened inside a non-modal drawer                          | the popup draws above the panel                                    | passes (the Drawer provides the raised floating layer; one doc comment changed, no behaviour change) |
-| Escape                       | focus outside, then inside the panel                                | closes only with focus inside                                      | passes for the Drawer and the Pane                                                                   |
-| side detents                 | `DrawerSideSnap.stories.tsx`                                        | compact `panelSm`, expanded `panelLg`, never wider than the window | passes, including at a 500 px window                                                                 |
-| Pane                         | `PaneBasics.stories.tsx`                                            | opens compact, Expand steps and back, inset and rounded            | passes                                                                                               |
-| base host                    | `hostRegistry.test.ts`                                              | a Dialog over a base entry leaves it mounted, top entries move up  | 7 tests pass, 4 of them new                                                                          |
-| floating inset on web        | `PaneBasics.stories.tsx` at a 500 px window: open, then Expand      | compact 360, expanded `500 - 2 * 16` = 468, inside the window      | passes, with the anchor-flip story (medium height after Expand and a flip)                           |
-| registry, lint, native graph | `build-registry --check`, `eslint`, `check-native-graph`            | all exit 0                                                         | all exit 0                                                                                           |
+| Check                        | Input                                                                               | Expected                                                                | Actual                                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| typecheck, web and native    | `pnpm --filter @duro-app/ui typecheck`                                              | 0 errors                                                                | 0 errors (and again in every commit gate, 27 to 29 checks each)                                      |
+| wrong snap points fail       | `drawerTypes.type-test.ts`: `anchor="right"` with `['medium']`                      | a type error                                                            | `@ts-expect-error` holds, and the matching pairs compile                                             |
+| non-modal Drawer             | `DrawerNonModal.stories.tsx` in Chromium                                            | no `aria-modal`, no backdrop, body overflow unchanged                   | passes; the modal drawer keeps all three                                                             |
+| page behind stays clickable  | `elementFromPoint` on a button behind an open non-modal drawer/pane                 | the button, and its click fires                                         | passes for the Drawer and for the Pane                                                               |
+| Popover above the panel      | a Popover opened inside a non-modal drawer                                          | the popup draws above the panel                                         | passes (the Drawer provides the raised floating layer; one doc comment changed, no behaviour change) |
+| Escape                       | focus outside, then inside the panel                                                | closes only with focus inside                                           | passes for the Drawer and the Pane                                                                   |
+| side detents                 | `DrawerSideSnap.stories.tsx`                                                        | compact `panelSm`, expanded `panelLg`, never wider than the window      | passes, including at a 500 px window                                                                 |
+| Pane                         | `PaneBasics.stories.tsx`                                                            | opens compact, Expand steps and back, inset and rounded                 | passes                                                                                               |
+| base host                    | `hostRegistry.test.ts`                                                              | a Dialog over a base entry leaves it mounted, top entries move up       | 7 tests pass, 4 of them new                                                                          |
+| floating inset on web        | `PaneBasics.stories.tsx` at a 500 px window: open, then Expand                      | compact 360, expanded `500 - 2 * 16` = 468, inside the window           | passes, with the anchor-flip story (medium height after Expand and a flip)                           |
+| grabber drag                 | `DrawerSideSnap.stories.tsx`: touch drag 300 px left, then right; a mouse drag left | expanded, then compact; a mouse release does not also click the grabber | passes; `settleWidth` has 3 unit tests (nearest, fling, ends)                                        |
+| registry, lint, native graph | `build-registry --check`, `eslint`, `check-native-graph`                            | all exit 0                                                              | all exit 0                                                                                           |
 
 On the final tree, after the plan commit moved to the front of the branch: `vitest run --project=storybook` over the Pane, Drawer and Popover folders gave 10 files and 64 tests passed, exit 0.
 
@@ -225,6 +228,8 @@ approve-with-changes, then a Delta: 7 findings fixed (focus in and back, Escape 
 Fresh round 1 on the final tree: approve-with-changes, four low findings, all kept (a fix would change the reviewed tree again):
 
 - deliberate: the Pane Escape story's bare 600 ms, the `Portal` doc comment, the `holds-until` wording on `PortalEntry.host` and the missing anchor-flip story are carried to the native PR, which edits the same files. 102k tokens, 69 s.
+
+Grabber drag (the person's request on the preview), fresh round 1: approve-with-changes, five findings. Fixed: a plan row and a Behaviour line for the drag, a click story that can fail (checked by removing the swallow: it fails), release speed read at the end of the drag on the web as on native, a comment, `ws` renamed. Candidates (`e`, `dx`) ruled fine. 113k tokens, 142 s.
 
 Native branch, fresh round 1 on the final tree: approve-with-changes, seven findings. Fixed: the second real wait, the native `size` warning, the slack axis, a verification row and a Handoff item for the device run. Kept as `deliberate`: `Pane.native.tsx` repeats `Pane.tsx`'s Root, detents and types (the two files differ in `html.button` with an svg versus a glyph, and a shared module is a follow-up once the Icon pair exists). 108k tokens, 314 s.
 

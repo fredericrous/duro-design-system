@@ -106,11 +106,39 @@ export const DraggingTheGrabberResizes: Story = {
     const grab = centre(getGrabber())
     await touchDrag(grab, {x: grab.x - 300, y: grab.y})
     await waitFor(() => near(panelWidth(), SIZES_PX.panelLg))
-    // The drag was not a press: the detent did not also step on release.
-    await pause(300)
-    near(panelWidth(), SIZES_PX.panelLg)
     const back = centre(getGrabber())
     await touchDrag(back, {x: back.x + 300, y: back.y})
     await waitFor(() => near(panelWidth(), SIZES_PX.panelSm))
+  },
+}
+
+export const ADragIsNotAlsoAPress: Story = {
+  render: () => <SidePanel />,
+  play: async () => {
+    await setup(1200)
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelSm))
+    const grabber = getGrabber()
+    const grab = centre(grabber)
+    const pointer = (type: string, x: number) =>
+      grabber.dispatchEvent(
+        new PointerEvent(type, {
+          pointerId: 1,
+          button: 0,
+          bubbles: true,
+          clientX: x,
+          clientY: grab.y,
+        }),
+      )
+    pointer('pointerdown', grab.x)
+    pointer('pointermove', grab.x - 300)
+    pointer('pointerup', grab.x - 300)
+    // The release of a mouse drag is followed by a click on the grabber: it must not step the detent.
+    let clickReached = false
+    grabber.parentElement!.addEventListener('click', () => (clickReached = true), {once: true})
+    grabber.click()
+    expect(clickReached).toBe(false)
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelLg))
+    await pause(400)
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelLg))
   },
 }

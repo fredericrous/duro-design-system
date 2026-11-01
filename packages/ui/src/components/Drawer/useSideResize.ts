@@ -16,10 +16,13 @@ interface UseSideResizeOptions {
 
 interface Drag {
   startX: number
-  startTime: number
   base: number
   moved: boolean
   growth: number
+  time: number
+  /** The previous move, so a release reads the speed at its end, as the native gesture does */
+  previousGrowth: number
+  previousTime: number
 }
 
 /**
@@ -43,15 +46,17 @@ export function useSideResize({anchor, panel, widths, index, onSnap}: UseSideRes
       if (e.button !== 0) return
       drag = {
         startX: e.clientX,
-        startTime: Date.now(),
         base: panel!.getBoundingClientRect().width,
         moved: false,
         growth: 0,
+        time: Date.now(),
+        previousGrowth: 0,
+        previousTime: Date.now(),
       }
       try {
         grabber!.setPointerCapture(e.pointerId)
       } catch {
-        // A synthetic pointer has nothing to capture; the drag still follows pointermove.
+        // A synthetic pointer has nothing to capture; the drag then follows pointermove only while over the grabber.
       }
     }
 
@@ -65,7 +70,10 @@ export function useSideResize({anchor, panel, widths, index, onSnap}: UseSideRes
       }
       e.preventDefault()
       // Dragging toward the page grows a right panel; away from the left edge grows a left one.
+      drag.previousGrowth = drag.growth
+      drag.previousTime = drag.time
       drag.growth = anchor === 'right' ? -dx : dx
+      drag.time = Date.now()
       const {widths: sizes} = latest.current
       const width = Math.min(sizes[sizes.length - 1], Math.max(sizes[0], drag.base + drag.growth))
       panel!.style.width = `${width}px`
@@ -81,12 +89,12 @@ export function useSideResize({anchor, panel, widths, index, onSnap}: UseSideRes
       setTimeout(() => grabber!.removeEventListener('click', swallow, true), 0)
 
       const {widths: sizes, index: from, onSnap: snap} = latest.current
-      const elapsed = Math.max(1, Date.now() - finished.startTime)
+      const elapsed = Math.max(1, finished.time - finished.previousTime)
       const target = settleWidth({
         widths: sizes,
         from,
         width: finished.base + finished.growth,
-        velocity: finished.growth / elapsed,
+        velocity: (finished.growth - finished.previousGrowth) / elapsed,
       })
       const ease = `${SNAP_DURATION}ms cubic-bezier(0.25, 1, 0.5, 1)`
       panel!.style.transition = `width ${ease}`
