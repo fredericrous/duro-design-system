@@ -177,6 +177,11 @@ export const styles = css.create({
     borderBottomRightRadius: radii.lg,
   },
 
+  // A floating snap sheet stays inside the inset viewport: its tallest detent is the window's height.
+  panelFloatingFit: {
+    maxHeight: '100%',
+  },
+
   panelLeftBorder: {
     borderLeftWidth: 0,
     borderRightWidth: borders.hairline,

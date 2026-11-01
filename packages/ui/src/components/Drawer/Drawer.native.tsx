@@ -152,6 +152,7 @@ function Portal({
   grabberLabels: grabberLabelsProp,
   placement = 'edge',
 }: PortalProps) {
+  const drawer = useDrawer()
   const {
     open,
     closing,
@@ -168,8 +169,7 @@ function Portal({
     sideSnapPoints,
     snapIndex,
     setSnapIndex,
-  } = useDrawer()
-  const drawer = useDrawer()
+  } = drawer
   const triggerRef = useContext(TriggerRefContext)
   const window = useWindowDimensions()
   const insets = useSafeAreaInsets()
@@ -181,26 +181,33 @@ function Portal({
   const bottom = anchor === 'bottom'
   const snapping = snapPoints.length > 0
   const floating = placement === 'floating'
+  // A floating panel keeps off the edge by this inset and by the safe area.
+  const gap = floating ? SPACING_PX.md : 0
+  // The skirt below a snap sheet that a pull past its top reveals; a floating card has no room for it.
+  const overshoot = floating ? 0 : SNAP_MAX_OVERSHOOT
+  const sideRoom = window.width - 2 * gap - (floating ? insets.left + insets.right : 0)
   const sideSnapping = sideSnapPoints.length > 0
   const grabberLabels =
     grabberLabelsProp ?? (sideSnapping ? DEFAULT_SIDE_GRABBER_LABELS : DEFAULT_GRABBER_LABELS)
   // A floating panel sits in from the edge: it needs that much more room to be fully off screen.
   const slack = floating ? SPACING_PX.md + Math.max(insets.top, insets.bottom) : 0
   const detentWidths = useMemo(
-    () => sideSnapPoints.map((p) => detentWidth(p, window.width)),
-    [sideSnapPoints, window.width],
+    () => sideSnapPoints.map((p) => detentWidth(p, sideRoom)),
+    [sideSnapPoints, sideRoom],
   )
 
   const heights = useMemo(
-    () => snapPoints.map((p) => detentHeight(p, availableHeight, insets.top)),
-    [snapPoints, availableHeight, insets.top],
+    () =>
+      snapPoints.map((p) =>
+        detentHeight(p, availableHeight - gap - (floating ? insets.bottom : 0), insets.top + gap),
+      ),
+    [snapPoints, availableHeight, insets.top, insets.bottom, gap, floating],
   )
   const high = heights.length > 0 ? heights[heights.length - 1] : 0
   // Where the panel rests at its detent: its offset below its own full height.
   const rest = snapping ? high - heights[snapIndex] : 0
   // Off screen: the whole panel past its edge (a snap sheet's overshoot skirt included).
-  const hidden =
-    (snapping ? high + SNAP_MAX_OVERSHOOT : bottom ? window.height : window.width) + slack
+  const hidden = (snapping ? high + overshoot : bottom ? window.height : window.width) + slack
 
   // The panel's displacement toward its edge, in px: 0 shows it whole; a
   // snap sheet rests at restOf(detent); negative only while pulled past its
@@ -300,7 +307,7 @@ function Portal({
         if (!owns.value) return
         if (inBody.value) scrollTo(scrollRef, 0, 0, false)
         const next = start.value + toEdge(e.translationX, e.translationY)
-        if (snapping) offset.value = next < 0 ? -rubberBand(-next, SNAP_MAX_OVERSHOOT) : next
+        if (snapping) offset.value = next < 0 ? -rubberBand(-next, overshoot) : next
         else offset.value = Math.max(0, next)
       })
       .onEnd((e) => {
@@ -345,6 +352,7 @@ function Portal({
     swipeDismiss,
     canDismiss,
     hidden,
+    overshoot,
     requestCloseImmediate,
     setSnapIndex,
     scrollGesture,
@@ -387,14 +395,13 @@ function Portal({
     }
   }
 
-  // A floating panel keeps off the edge by the inset and the safe area, so the padding is the offset.
-  const gap = floating ? SPACING_PX.md : 0
+  // A floating panel's frame is its offset from each edge, safe area included.
   const frame = floating
     ? {
         top: gap + insets.top,
         bottom: gap + insets.bottom,
-        left: gap,
-        right: gap,
+        left: gap + insets.left,
+        right: gap + insets.right,
       }
     : null
   const where = bottom
@@ -402,8 +409,8 @@ function Portal({
       ? [
           layout.bottom,
           {
-            height: high + SNAP_MAX_OVERSHOOT,
-            bottom: lift - SNAP_MAX_OVERSHOOT + (frame?.bottom ?? 0),
+            height: high + overshoot,
+            bottom: lift - overshoot + (frame?.bottom ?? 0),
           },
           frame && {left: frame.left, right: frame.right},
         ]
@@ -415,7 +422,7 @@ function Portal({
     : [
         layout.side,
         anchor === 'left' ? layout.left : layout.right,
-        sideSnapping ? null : {maxWidth: PANEL_WIDTH[size]},
+        sideSnapping ? null : {maxWidth: Math.min(PANEL_WIDTH[size], sideRoom)},
         frame && {
           top: frame.top,
           bottom: frame.bottom,
@@ -423,7 +430,7 @@ function Portal({
         },
       ]
   const padTop = bottom || floating ? 0 : insets.top
-  const padBottom = (lift > 0 || floating ? 0 : insets.bottom) + (snapping ? SNAP_MAX_OVERSHOOT : 0)
+  const padBottom = (lift > 0 || floating ? 0 : insets.bottom) + (snapping ? overshoot : 0)
 
   const detentCount = sideSnapping ? sideSnapPoints.length : snapPoints.length
   const nextIndex = cycleDetent(snapIndex, detentCount)

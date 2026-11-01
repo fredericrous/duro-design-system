@@ -5,6 +5,7 @@ import {SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
 import {Pane} from './Pane'
 import {Button} from '../Button/Button'
 import {pause, setViewport} from '../Drawer/touchInput'
+import {detentHeight} from '../Drawer/sheetPhysics'
 
 const meta: Meta = {
   title: 'Components/Pane/Basics',
@@ -119,41 +120,31 @@ function Flippable() {
   return (
     <>
       <Button onClick={() => setAnchor('bottom')}>Flip to bottom</Button>
-      {anchor === 'bottom' ? (
-        <Pane.Root defaultOpen anchor="bottom">
-          <Pane.Portal>
-            <Pane.Header>
-              <Pane.Title>Theme</Pane.Title>
-              <Pane.Expand />
-            </Pane.Header>
-          </Pane.Portal>
-        </Pane.Root>
-      ) : (
-        <Pane.Root defaultOpen anchor="right">
-          <Pane.Portal>
-            <Pane.Header>
-              <Pane.Title>Theme</Pane.Title>
-              <Pane.Expand />
-            </Pane.Header>
-          </Pane.Portal>
-        </Pane.Root>
-      )}
+      <Pane.Root defaultOpen {...(anchor === 'bottom' ? {anchor: 'bottom'} : {anchor: 'right'})}>
+        <Pane.Portal>
+          <Pane.Header>
+            <Pane.Title>Theme</Pane.Title>
+            <Pane.Expand />
+          </Pane.Header>
+        </Pane.Portal>
+      </Pane.Root>
     </>
   )
 }
 
-// The two roots are different elements, so this checks the bottom pane opens at its own default
-// detent (medium) after an expanded side pane, not that one root survives a flip.
-export const BottomPaneOpensAtItsDefaultDetent: Story = {
+// One root whose anchor changes while it is open and expanded: it returns to the default detent.
+export const AnchorFlipResetsTheDetent: Story = {
   render: () => <Flippable />,
   play: async ({canvasElement}) => {
     await open()
-    const side = within(getPanel()!)
-    await userEvent.click(side.getByRole('button', {name: 'Expand'}))
+    await userEvent.click(within(getPanel()!).getByRole('button', {name: 'Expand'}))
     await waitFor(() => near(panelWidth(), SIZES_PX.panelLg))
     await userEvent.click(within(canvasElement).getByRole('button', {name: 'Flip to bottom'}))
-    await waitFor(() => expect(getPanel()!.getBoundingClientRect().height).toBeLessThan(800))
-    await pause(500)
-    await expect(within(getPanel()!).getByRole('button', {name: 'Expand'})).toBeVisible()
+    await waitFor(() =>
+      near(
+        getPanel()!.getBoundingClientRect().height,
+        detentHeight('medium', window.innerHeight, 0),
+      ),
+    )
   },
 }

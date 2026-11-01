@@ -191,6 +191,9 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
 - The release is a tag, not this PR: a `v*` tag runs the publish workflow and sets the version from the tag. Latest is v5.39.0, so this is v5.40.0, tagged after merge.
 - Escape stays on `document` with an `aria-expanded` guard (non-modal only), not on the panel: a Popover popup is portalled out of the panel, so a panel listener misses it. Ceiling: a focused expanded control blocks Escape in a pane; the fix is a layer registry.
 
+- 2026-11-01, native PR (`feat/pane-native`): Phase 2 is written by hand after relais queued out for 29 minutes on a host slot (run abandoned, nothing written). The Phase 2 render tests (`Pane.Close` calls `onOpenChange(false)`; a Dialog draws above the pane with one mount) are not written: the repo has no React Native renderer. What backs the native code instead: `typecheck:native`, the native graph check, the unit suite, a Metro export of `examples/native` for iOS and Android, and a Pane scenario in `examples/native/src/SheetDemo.tsx` (with a Dialog opened over it) for a person to run on a device. The gesture and portal behaviour has not been seen on a device; the changeset says so.
+- Native floating geometry: a floating card keeps no overshoot skirt (a pull past the top of a floating snap sheet does not rubber-band), and its detent widths and heights are cut by the inset and the safe area.
+
 ## Verification (observed 2026-11-01)
 
 | Check                        | Input                                                               | Expected                                                           | Actual                                                                                               |
@@ -208,7 +211,7 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
 
 On the final tree, after the plan commit moved to the front of the branch: `vitest run --project=storybook` over the Pane, Drawer and Popover folders gave 10 files and 64 tests passed, exit 0.
 
-Not observed: any native behaviour (none was written); `pnpm build` and `pnpm check:types-packed` (CI and the release run them); `duro doctor`; a keyboard-only pass in a real keyboard session (every control is a Duro Button or the Drawer's own).
+Native (this branch, observed): `pnpm typecheck:native` and web `tsc` exit 0; `check-native-graph` exits 0; the unit project passes (the Pane-in-an-example rule included); `pnpm native:export` bundles iOS (3176 modules) and Android with one copy of react-strict-dom and reanimated. Not observed: native behaviour on a device or simulator; `pnpm build` and `pnpm check:types-packed` (CI and the release run them); `duro doctor`; a keyboard-only pass in a real keyboard session (every control is a Duro Button or the Drawer's own).
 
 ## Implementation review
 
@@ -221,7 +224,17 @@ Fresh round 1 on the final tree: approve-with-changes, four low findings, all ke
 
 - deliberate: the Pane Escape story's bare 600 ms, the `Portal` doc comment, the `holds-until` wording on `PortalEntry.host` and the missing anchor-flip story are carried to the native PR, which edits the same files. 102k tokens, 69 s.
 
+Native branch (`feat/pane-native`), round 1: approve-with-changes, six findings. Fixed: the flip story's real wait and its claims (one root, the anchor changes, the default detent is asserted), the plan record, detent widths and heights cut by the floating inset and safe area, no overshoot skirt on a floating card, `useDrawer()` read once. 96k tokens, 110 s.
+
 ## Interface review
+
+Native branch, advisory. Fixed with the review above: side width and bottom height of a floating pane, side safe-area insets, no clipped bottom edge. Kept as `deliberate`:
+
+- the side grabber strip (28 px) overlaps the inner 4 px of the header, as on the web; a hit-slop and padding pass is a follow-up with the draggable pane;
+- `Pane.Expand` is a Unicode glyph in `Text` on native: an `Icon` pair (`maximize`, `minimize`) for both platforms is a follow-up, as is a 44 pt hit area for both header buttons;
+- the grabber's `accessibilityValue` is the raw detent key.
+
+Web, earlier:
 
 Advisory. Fixed: grabber hit width 28 px and `layers.raised`, `shadows.md` and no `maxHeight` override on a floating panel, `Pane.Expand` without `aria-expanded`, focus given back only when it is still in the pane.
 
