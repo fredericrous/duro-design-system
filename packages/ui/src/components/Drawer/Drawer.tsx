@@ -272,6 +272,7 @@ function Portal({
             sideSnapping && styles.panelSideSnap,
             sideSized && styles.sheetWidth(widths[snapIndex]),
             anchor === 'left' && styles.panelLeftBorder,
+            !modal && styles.panelFocusTarget,
             floating && styles.panelFloating,
             closing && slideOutMap[anchor],
             closing && closeDurationMap[closeDuration],

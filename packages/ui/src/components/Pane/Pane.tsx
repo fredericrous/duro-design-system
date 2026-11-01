@@ -4,6 +4,7 @@ import {Drawer, type SideSnapPoint, type SnapPoint} from '../Drawer/Drawer'
 import {useDrawer, type GrabberLabels} from '../Drawer/parts'
 import {cycleDetent} from '../Drawer/sheetPhysics'
 import {partStyles} from '../Drawer/parts.css'
+import {styles} from './styles.css'
 import type {DrawerBottomRootProps, DrawerSideRootProps} from '../Drawer/useDrawerRoot'
 
 // A Pane is a non-modal Drawer that floats: inset from the edge, rounded all round, and resting at
@@ -64,7 +65,7 @@ function Expand({labels = DEFAULT_EXPAND_LABELS}: ExpandProps) {
       type="button"
       aria-label={expanded ? labels.collapse : labels.expand}
       onClick={() => setSnapIndex(cycleDetent(snapIndex, count))}
-      style={partStyles.closeButton}
+      style={[partStyles.closeButton, styles.expand]}
     >
       <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path

@@ -149,6 +149,11 @@ export const styles = css.create({
     touchAction: 'none',
   },
 
+  // A non-modal panel takes focus on open as a landing point, not as a control: no ring around the whole panel.
+  panelFocusTarget: {
+    outlineStyle: 'none',
+  },
+
   // A floating panel: a border and rounded corners all round, and never wider or taller than its
   // inset viewport. Longhands, so they replace the one-sided borders of the flush panel.
   panelFloating: {
