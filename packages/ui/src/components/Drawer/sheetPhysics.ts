@@ -6,10 +6,13 @@
  * is an inert string.
  */
 
-import {DURATION_MS, SPACING_PX} from '@duro-app/tokens/keys'
+import {DURATION_MS, SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
 
 /** A bottom-sheet detent (plan N0, Decision 5). */
 export type SnapPoint = 'medium' | 'large'
+
+/** A side drawer's detent: 'compact' is the panelSm width, 'expanded' the panelLg width. */
+export type SideSnapPoint = 'compact' | 'expanded'
 
 /** Fraction of the panel (or of the lowest detent) a drag must cover to dismiss */
 export const DISMISS_THRESHOLD = 0.3
@@ -39,6 +42,18 @@ export const SNAP_MAX_OVERSHOOT = SPACING_PX.lg
 export function detentHeight(point: SnapPoint, windowHeight: number, topInset: number): number {
   'worklet'
   return point === 'medium' ? windowHeight * MEDIUM_FRACTION : windowHeight - topInset
+}
+
+/** Width of one side detent in px: its size token, held to the window's width. */
+export function detentWidth(point: SideSnapPoint, windowWidth: number): number {
+  'worklet'
+  const tokenWidth = point === 'compact' ? SIZES_PX.panelSm : SIZES_PX.panelLg
+  return Math.min(tokenWidth, windowWidth)
+}
+
+/** The side detents in ascending width, each once. */
+export function sortSideSnapPoints(points: readonly SideSnapPoint[]): SideSnapPoint[] {
+  return (['compact', 'expanded'] as const).filter((p) => points.includes(p))
 }
 
 /** The detents in ascending height, each once. */

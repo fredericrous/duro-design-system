@@ -240,7 +240,8 @@ interface PopupProps {
   label: string
   /**
    * Draw over another floating surface: `layers.floatingRaised` outside a
-   * modal, `layers.popoverRaised` inside a Dialog or Drawer, instead of
+   * modal, `layers.popoverRaised` inside a Dialog or a modal Drawer (a non-modal Drawer
+   * counts as outside a modal), instead of
    * `floating` / `popover`. For one floating thing that must cover a sibling
    * one (a link editor over a format bar), never for covering a modal: a
    * Dialog opened later still covers it. A Popover nested inside a raised one

@@ -2642,7 +2642,7 @@
             "Portal"
           ]
         },
-        "description": "Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). A bottom drawer with snapPoints (medium and large) is a phone sheet: it rests at its detents, a grabber steps through them on a tap, a drag moves between them and dismisses below the lowest; its Body is the scroll the drag defers to. Header titleAlign=\"center\" centres the title with a text close at the end. Body flush drops its side padding, so rows run to the panel's edges (a picker's list); on React Native a bottom drawer rides above the on-screen keyboard. Use for secondary workflows, settings panels, or mobile-friendly detail views.",
+        "description": "Modal sliding panel from a screen edge (right, left, or bottom). Slides in with backdrop overlay. Supports swipe-to-dismiss gestures on mobile, backdrop click dismiss, and Escape key. Swipe yields to an inner Duro ScrollArea: a drag there scrolls it, and dismisses only toward the edge from the scroll start (a native overflow:auto child is not covered — use ScrollArea). A bottom drawer with snapPoints (medium and large) is a phone sheet: it rests at its detents, a grabber steps through them on a tap, a drag moves between them and dismisses below the lowest; its Body is the scroll the drag defers to. A side drawer (left or right) takes snapPoints of its own, compact (the panelSm width) and expanded (the panelLg width), each held to the window width: it opens at defaultSnapPoint, a vertical grabber on its inner edge steps between them on a tap, swipe still dismisses it, and the size of Portal is ignored for it (web only; React Native ignores side snapPoints). Header titleAlign=\"center\" centres the title with a text close at the end. Body flush drops its side padding, so rows run to the panel's edges (a picker's list); on React Native a bottom drawer rides above the on-screen keyboard. Root modal={false} drops the backdrop, aria-modal, body scroll lock and modal layering, so the page stays usable beside the panel; Escape then closes only while focus is inside the panel. A non-modal drawer sits at layers.floating (a modal one keeps layers.modal), and a Popover inside it stacks above the panel at layers.floatingRaised. modal={false} is web-only for now: React Native still renders a modal drawer. Use for secondary workflows, settings panels, or mobile-friendly detail views.",
         "example": "<Drawer.Root anchor=\"right\" open={open} onOpenChange={setOpen}>\n  <Drawer.Trigger>\n    <Button>Open drawer</Button>\n  </Drawer.Trigger>\n  <Drawer.Portal size=\"md\">\n    <Drawer.Header>\n      <Drawer.Title>Settings</Drawer.Title>\n      <Drawer.Close />\n    </Drawer.Header>\n    <Drawer.Body>\n      <Stack gap=\"md\">\n        <Text>Drawer content goes here.</Text>\n      </Stack>\n    </Drawer.Body>\n    <Drawer.Footer>\n      <Button variant=\"secondary\" onClick={() => setOpen(false)}>Done</Button>\n    </Drawer.Footer>\n  </Drawer.Portal>\n</Drawer.Root>",
         "relatedTo": [
           {
@@ -2670,6 +2670,7 @@
         "whenToUse": [
           "Settings or configuration panels that slide in from the side",
           "Mobile-friendly detail views (bottom sheet pattern)",
+          "Side panels that open narrow and widen on demand (snapPoints compact and expanded)",
           "Phone pickers and lists that need more room on demand (snapPoints)",
           "Secondary workflows that need more space than a dialog",
           "Filters, navigation drawers, or form panels"
@@ -2762,7 +2763,6 @@
               "type": "ReactNode"
             },
             {
-              "default": "'md'",
               "name": "size",
               "required": false,
               "type": "DrawerSize",
@@ -2773,11 +2773,17 @@
               ]
             },
             {
-              "default": "DEFAULT_GRABBER_LABELS",
-              "description": "The grabber's accessible names, by what a press does next. Snap sheets only",
+              "description": "The grabber's accessible names, by what a press does next. Snap drawers only. Ignored for a side drawer with snapPoints: `size` is ignored there too (the detent sets the width)",
               "name": "grabberLabels",
               "required": false,
               "type": "GrabberLabels"
+            },
+            {
+              "default": "'edge'",
+              "description": "`floating`: inset from the viewport edge by a spacing token, with rounded corners and a border all round, instead of `edge` (flush against it). For a non-modal drawer (Pane).",
+              "name": "placement",
+              "required": false,
+              "type": "'edge' | 'floating'"
             }
           ],
           "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"
@@ -2786,83 +2792,22 @@
           "name": "Root",
           "props": [
             {
-              "name": "children",
-              "required": true,
-              "type": "ReactNode"
-            },
-            {
-              "description": "Controlled open state",
-              "name": "open",
-              "required": false,
-              "type": "boolean"
-            },
-            {
-              "description": "Default open state (uncontrolled)",
-              "name": "defaultOpen",
-              "required": false,
-              "type": "boolean"
-            },
-            {
-              "description": "Called when drawer open state changes",
-              "name": "onOpenChange",
-              "required": false,
-              "type": "(open: boolean) => void"
-            },
-            {
-              "description": "Which edge the drawer slides from. Default: 'right'",
+              "description": "Which edge the drawer slides from",
               "name": "anchor",
               "required": false,
-              "type": "DrawerAnchor",
-              "union": [
-                "right",
-                "left",
-                "bottom"
-              ]
+              "type": "'bottom' | 'left' | 'right'"
             },
             {
-              "description": "Whether clicking backdrop or pressing Escape (Android's back button on native) closes the drawer. Default: true",
-              "name": "dismissable",
-              "required": false,
-              "type": "boolean"
-            },
-            {
-              "description": "Whether swipe gesture dismisses the drawer. Default: true",
-              "name": "swipeDismiss",
-              "required": false,
-              "type": "boolean"
-            },
-            {
-              "description": "Motion token for the close animation. Default: 'fast' (150ms)",
-              "name": "closeAnimationDuration",
-              "required": false,
-              "type": "DurationToken",
-              "union": [
-                "instant",
-                "minimal",
-                "quick",
-                "fast",
-                "brisk",
-                "base",
-                "slow",
-                "slower",
-                "stagger"
-              ]
-            },
-            {
-              "description": "Bottom anchor only: the heights the sheet rests at. 'medium' is half the window, 'large' the window less its top safe-area inset. A drag moves between them and dismisses below the lowest; the grabber steps through them on a tap. Without it, a bottom drawer is as tall as its content.",
+              "description": "The heights the sheet rests at. 'medium' is half the window, 'large' the window less its top safe-area inset. A drag moves between them and dismisses below the lowest; the grabber steps through them on a tap. Without it, a bottom drawer is as tall as its content.",
               "name": "snapPoints",
               "required": false,
-              "type": "readonly SnapPoint[]"
+              "type": "readonly SnapPoint[] | readonly SideSnapPoint[]"
             },
             {
               "description": "The detent the sheet opens at. Default: the lowest of snapPoints",
               "name": "defaultSnapPoint",
               "required": false,
-              "type": "SnapPoint",
-              "union": [
-                "medium",
-                "large"
-              ]
+              "type": "SnapPoint | SideSnapPoint"
             }
           ],
           "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"
@@ -5291,6 +5236,128 @@
       ],
       "sourcePath": "packages/ui/src/components/PageShell/PageShell.tsx"
     },
+    "Pane": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "Trigger",
+            "Header",
+            "Title",
+            "Body",
+            "Footer",
+            "Close",
+            "Expand"
+          ],
+          "required": [
+            "Root",
+            "Portal"
+          ]
+        },
+        "description": "A floating, non-modal panel from a screen edge: inset from the edge, rounded all round, no backdrop, so the page and anything on it stay usable beside it. Side panes rest at two widths (compact and expanded) and a bottom pane at two heights (medium and large); an Expand button in the header steps between them, and so does the grabber. Escape closes it only while focus is inside. Built from Drawer, so swipe-to-dismiss and the detents are the Drawer ones. Web only for now.",
+        "example": "<Pane.Root>\n  <Pane.Trigger>\n    <Button>Theme</Button>\n  </Pane.Trigger>\n  <Pane.Portal>\n    <Pane.Header>\n      <Pane.Title>Theme</Pane.Title>\n      <Pane.Expand />\n      <Pane.Close />\n    </Pane.Header>\n    <Pane.Body>...</Pane.Body>\n  </Pane.Portal>\n</Pane.Root>",
+        "relatedTo": [
+          {
+            "component": "Drawer",
+            "kind": "composition",
+            "relationship": "Pane is a non-modal Drawer that floats; modal Drawer dims the page and locks scroll"
+          },
+          {
+            "component": "DetailPanel",
+            "kind": "contrast",
+            "relationship": "DetailPanel is in the page flow and splits the layout; Pane floats over the page and leaves the layout alone"
+          },
+          {
+            "component": "Popover",
+            "kind": "contrast",
+            "relationship": "Popover is a small overlay anchored to its trigger; Pane is a panel with its own sizes and does not open another popover over a popover"
+          }
+        ],
+        "whenNotToUse": [
+          "A modal task that needs focus and a backdrop — use Dialog or Drawer",
+          "Details that sit beside a table in the page flow — use DetailPanel",
+          "A few controls anchored to a button — use Popover",
+          "Primary navigation — use SideNav"
+        ],
+        "whenToUse": [
+          "A tool panel the user works in while looking at the page: a theme or style picker, an inspector, filters",
+          "Content that needs more room on demand: compact first, expanded when the user asks",
+          "The same panel on phones as a bottom sheet and on desktop as a side pane"
+        ]
+      },
+      "name": "Pane",
+      "native": false,
+      "parts": {
+        "Body": {
+          "name": "Body",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Close": {
+          "name": "Close",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Expand": {
+          "name": "Expand",
+          "props": [
+            {
+              "default": "DEFAULT_EXPAND_LABELS",
+              "description": "The button's accessible names, by what a press does next",
+              "name": "labels",
+              "required": false,
+              "type": "ExpandLabels"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Footer": {
+          "name": "Footer",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Header": {
+          "name": "Header",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Portal": {
+          "name": "Portal",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "description": "The grabber's accessible names, by what a press does next",
+              "name": "grabberLabels",
+              "required": false,
+              "type": "GrabberLabels"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Title": {
+          "name": "Title",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Trigger": {
+          "name": "Trigger",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+    },
     "Panel": {
       "importPath": "@duro-app/ui",
       "kind": "compound",
@@ -5490,7 +5557,7 @@
               "type": "string"
             },
             {
-              "description": "Draw over another floating surface: `layers.floatingRaised` outside a modal, `layers.popoverRaised` inside a Dialog or Drawer, instead of `floating` / `popover`. For one floating thing that must cover a sibling one (a link editor over a format bar), never for covering a modal: a Dialog opened later still covers it. A Popover nested inside a raised one is raised too. Default: inherited, else `false`.",
+              "description": "Draw over another floating surface: `layers.floatingRaised` outside a modal, `layers.popoverRaised` inside a Dialog or a modal Drawer (a non-modal Drawer counts as outside a modal), instead of `floating` / `popover`. For one floating thing that must cover a sibling one (a link editor over a format bar), never for covering a modal: a Dialog opened later still covers it. A Popover nested inside a raised one is raised too. Default: inherited, else `false`.",
               "name": "raised",
               "required": false,
               "type": "boolean"
@@ -11997,6 +12064,10 @@
       "lg",
       "dropReady",
       "dropOver"
+    ],
+    "SideSnapPoint": [
+      "compact",
+      "expanded"
     ],
     "SnapPoint": [
       "medium",

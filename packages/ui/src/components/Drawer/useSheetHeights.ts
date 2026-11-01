@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState} from 'react'
-import {detentHeight, type SnapPoint} from './sheetPhysics'
+import {detentHeight, detentWidth, type SideSnapPoint, type SnapPoint} from './sheetPhysics'
 
 interface Viewport {
   height: number
@@ -38,5 +38,27 @@ export function useSheetHeights(points: readonly SnapPoint[], active: boolean): 
   return useMemo(
     () => (viewport ? points.map((p) => detentHeight(p, viewport.height, viewport.topInset)) : []),
     [points, viewport],
+  )
+}
+
+/**
+ * Web: each side detent's width in px, ascending, following the window as it
+ * resizes. A detent wider than the window is held to the window's width.
+ */
+export function useSheetWidths(points: readonly SideSnapPoint[]): number[] {
+  const active = points.length > 0
+  const [windowWidth, setWindowWidth] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!active) return
+    setWindowWidth(window.innerWidth)
+    const onResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [active])
+
+  return useMemo(
+    () => (windowWidth === null ? [] : points.map((p) => detentWidth(p, windowWidth))),
+    [points, windowWidth],
   )
 }

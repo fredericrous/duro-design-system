@@ -46,6 +46,17 @@ export const styles = css.create({
     pointerEvents: 'none',
   },
 
+  // Non-modal: a floating surface beside the page, not above it like a modal.
+  viewportNonModal: {
+    zIndex: layers.floating,
+  },
+
+  // A floating panel keeps clear of the viewport edge.
+  viewportFloating: {
+    padding: spacing.md,
+    boxSizing: 'border-box',
+  },
+
   // Right anchor (desktop default)
   viewportRight: {
     justifyContent: 'flex-end',
@@ -105,10 +116,65 @@ export const styles = css.create({
   },
   sheetHeight: (height: number) => ({height}),
 
+  // A side drawer with detents: as wide as its detent, which replaces the max-width cap.
+  panelSideSnap: {
+    transitionProperty: 'width',
+    transitionDuration: duration.base,
+    transitionTimingFunction: easing.easeOut,
+  },
+  sheetWidth: (width: number) => ({width}),
+
+  // The side grabber: a vertical strip down the panel's inner edge.
+  grabberHitSide: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: spacing.ms,
+    paddingRight: spacing.ms,
+    cursor: 'pointer',
+    zIndex: layers.raised,
+  },
+  grabberHitSideRight: {left: 0},
+  grabberHitSideLeft: {right: 0},
+  grabberVertical: {
+    width: sizes.sheetGrabberH,
+    height: sizes.sheetGrabberW,
+  },
+
   // The grabber's web-only additions: a grab cursor, and the browser leaves the drag to us.
   grabberHitWeb: {
     cursor: 'grab',
     touchAction: 'none',
+  },
+
+  // A non-modal panel takes focus on open as a landing point, not as a control: no ring around the whole panel.
+  panelFocusTarget: {
+    outlineStyle: 'none',
+  },
+
+  // A floating panel: a border and rounded corners all round, and never wider or taller than its
+  // inset viewport. Longhands, so they replace the one-sided borders of the flush panel.
+  panelFloating: {
+    maxWidth: '100%',
+    boxShadow: shadows.md,
+    borderTopWidth: borders.hairline,
+    borderRightWidth: borders.hairline,
+    borderBottomWidth: borders.hairline,
+    borderLeftWidth: borders.hairline,
+    borderTopStyle: 'solid',
+    borderRightStyle: 'solid',
+    borderBottomStyle: 'solid',
+    borderLeftStyle: 'solid',
+    borderTopColor: colors.borderStrong,
+    borderRightColor: colors.borderStrong,
+    borderBottomColor: colors.borderStrong,
+    borderLeftColor: colors.borderStrong,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderBottomLeftRadius: radii.lg,
+    borderBottomRightRadius: radii.lg,
   },
 
   panelLeftBorder: {
