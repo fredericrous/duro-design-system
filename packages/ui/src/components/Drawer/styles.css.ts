@@ -110,6 +110,33 @@ export const styles = css.create({
   },
   sheetHeight: (height: number) => ({height}),
 
+  // A side drawer with detents: as wide as its detent, which replaces the max-width cap.
+  panelSideSnap: {
+    transitionProperty: 'width',
+    transitionDuration: duration.base,
+    transitionTimingFunction: easing.easeOut,
+  },
+  sheetWidth: (width: number) => ({width}),
+
+  // The side grabber: a vertical strip down the panel's inner edge.
+  grabberHitSide: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
+    cursor: 'pointer',
+    zIndex: 1,
+  },
+  grabberHitSideRight: {left: 0},
+  grabberHitSideLeft: {right: 0},
+  grabberVertical: {
+    width: sizes.sheetGrabberH,
+    height: sizes.sheetGrabberW,
+  },
+
   // The grabber's web-only additions: a grab cursor, and the browser leaves the drag to us.
   grabberHitWeb: {
     cursor: 'grab',

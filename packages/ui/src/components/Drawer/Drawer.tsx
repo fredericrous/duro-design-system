@@ -3,16 +3,18 @@ import {type ReactNode, useState, useEffect, useCallback} from 'react'
 import {html} from 'react-strict-dom'
 import type {DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
+import {devWarnOnce} from '../../shared/devWarnOnce'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {ModalContext} from '../../shared/ModalContext'
 import {PopoverLayerContext} from '../Popover/PopoverLayerContext'
 import {useSwipeDismiss} from './useSwipeDismiss'
-import {useSheetHeights} from './useSheetHeights'
+import {useSheetHeights, useSheetWidths} from './useSheetHeights'
 import {cycleDetent} from './sheetPhysics'
 import {partStyles} from './parts.css'
 import {
   DEFAULT_GRABBER_LABELS,
+  DEFAULT_SIDE_GRABBER_LABELS,
   Description,
   DrawerContext,
   Footer,
@@ -24,7 +26,7 @@ import {
 } from './parts'
 import {useDrawerRoot, type DrawerRootProps} from './useDrawerRoot'
 
-export type {DrawerAnchor, DrawerSize, SnapPoint} from './parts'
+export type {DrawerAnchor, DrawerSize, SideSnapPoint, SnapPoint} from './parts'
 
 const closeDurationMap = {
   instant: styles.closeDurationInstant,
@@ -91,7 +93,10 @@ function Trigger({children}: {children: ReactNode}) {
 interface PortalProps {
   children: ReactNode
   size?: DrawerSize
-  /** The grabber's accessible names, by what a press does next. Snap sheets only */
+  /**
+   * The grabber's accessible names, by what a press does next. Snap drawers only.
+   * Ignored for a side drawer with snapPoints: `size` is ignored there too (the detent sets the width)
+   */
   grabberLabels?: GrabberLabels
 }
 
@@ -118,7 +123,7 @@ const viewportAnchorMap = {
   bottom: styles.viewportBottom,
 } as const
 
-function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}: PortalProps) {
+function Portal({children, size: sizeProp, grabberLabels: grabberLabelsProp}: PortalProps) {
   const {
     open,
     closing,
@@ -133,6 +138,7 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
     descriptionId,
     panelRef,
     snapPoints,
+    sideSnapPoints,
     snapIndex,
     setSnapIndex,
   } = useDrawer()
@@ -140,6 +146,24 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
   const snapping = snapPoints.length > 0
   const heights = useSheetHeights(snapPoints, snapping && open)
   const sized = snapping && heights.length === snapPoints.length
+  const sideSnapping = sideSnapPoints.length > 0
+  const widths = useSheetWidths(sideSnapPoints, sideSnapping && open)
+  const sideSized = sideSnapping && widths.length === sideSnapPoints.length
+  const size = sizeProp ?? 'md'
+  const grabberLabels =
+    grabberLabelsProp ?? (sideSnapping ? DEFAULT_SIDE_GRABBER_LABELS : DEFAULT_GRABBER_LABELS)
+  const detentCount = sideSnapping ? sideSnapPoints.length : snapPoints.length
+  const nextIndex = cycleDetent(snapIndex, detentCount)
+  const hasSizeProp = sizeProp !== undefined
+  useEffect(() => {
+    if (sideSnapping && hasSizeProp) {
+      devWarnOnce(
+        'Drawer',
+        'side-snap-size',
+        "Portal's size is ignored on a side drawer with snapPoints: the detent sets the width.",
+      )
+    }
+  }, [sideSnapping, hasSizeProp])
   // The shown panel element, tracked as state so swipe listeners follow it
   // when the portal mount arrives and the panel is remounted into it.
   const [panel, setPanel] = useState<HTMLDivElement | null>(null)
@@ -201,29 +225,39 @@ function Portal({children, size = 'md', grabberLabels = DEFAULT_GRABBER_LABELS}:
           style={[
             styles.panel,
             isHorizontal && styles.panelHorizontal,
-            isHorizontal && styles[size],
+            isHorizontal && !sideSnapping && styles[size],
             !isHorizontal && styles.panelVertical,
             sized && styles.panelSnap,
             sized && styles.sheetHeight(heights[snapIndex]),
+            sideSnapping && styles.panelSideSnap,
+            sideSized && styles.sheetWidth(widths[snapIndex]),
             anchor === 'left' && styles.panelLeftBorder,
             closing && slideOutMap[anchor],
             closing && closeDurationMap[closeDuration],
             !closing && slideInMap[anchor],
           ]}
         >
-          {snapping && (
+          {(snapping || sideSnapping) && (
             <html.button
               type="button"
               data-drawer-grabber=""
-              aria-label={
-                cycleDetent(snapIndex, snapPoints.length) > snapIndex
-                  ? grabberLabels.expand
-                  : grabberLabels.collapse
+              aria-label={nextIndex > snapIndex ? grabberLabels.expand : grabberLabels.collapse}
+              onClick={() => setSnapIndex(nextIndex)}
+              style={
+                sideSnapping
+                  ? [
+                      partStyles.grabberHit,
+                      styles.grabberHitSide,
+                      anchor === 'left' ? styles.grabberHitSideLeft : styles.grabberHitSideRight,
+                    ]
+                  : [partStyles.grabberHit, styles.grabberHitWeb]
               }
-              onClick={() => setSnapIndex(cycleDetent(snapIndex, snapPoints.length))}
-              style={[partStyles.grabberHit, styles.grabberHitWeb]}
             >
-              <html.span style={partStyles.grabber} />
+              <html.span
+                style={
+                  sideSnapping ? [partStyles.grabber, styles.grabberVertical] : partStyles.grabber
+                }
+              />
             </html.button>
           )}
           {modal ? (

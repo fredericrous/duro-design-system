@@ -61,6 +61,7 @@ export {
   Drawer,
   type DrawerAnchor,
   type DrawerSize,
+  type SideSnapPoint,
   type SnapPoint,
 } from './components/Drawer/Drawer'
 export {EmptyState} from './components/EmptyState/EmptyState'

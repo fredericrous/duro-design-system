@@ -9,11 +9,11 @@ import {
 import {html} from 'react-strict-dom'
 import type {DurationToken} from '@duro-app/tokens/keys'
 import {partStyles} from './parts.css'
-import type {SnapPoint} from './sheetPhysics'
+import type {SideSnapPoint, SnapPoint} from './sheetPhysics'
 
 export type DrawerAnchor = 'right' | 'left' | 'bottom'
 export type DrawerSize = 'sm' | 'md' | 'lg'
-export type {SnapPoint}
+export type {SnapPoint, SideSnapPoint}
 
 export interface DrawerContextValue {
   /** Rendered: open, or playing the exit animation. */
@@ -35,7 +35,9 @@ export interface DrawerContextValue {
   panelRef: RefObject<unknown>
   /** A bottom sheet's detents, ascending; empty when the drawer has none */
   snapPoints: readonly SnapPoint[]
-  /** Index into snapPoints the sheet rests at */
+  /** A side drawer's detents, ascending; empty when the drawer has none */
+  sideSnapPoints: readonly SideSnapPoint[]
+  /** Index into snapPoints (bottom) or sideSnapPoints (left, right) the drawer rests at */
   snapIndex: number
   setSnapIndex: (index: number) => void
 }
@@ -49,7 +51,7 @@ export function useDrawer() {
 }
 
 export interface GrabberLabels {
-  /** The grabber's name when a press grows the sheet */
+  /** The grabber's name when a press grows the sheet or panel */
   expand: string
   /** The grabber's name when a press shrinks it */
   collapse: string
@@ -58,6 +60,11 @@ export interface GrabberLabels {
 export const DEFAULT_GRABBER_LABELS: GrabberLabels = {
   expand: 'Expand sheet',
   collapse: 'Shrink sheet',
+}
+
+export const DEFAULT_SIDE_GRABBER_LABELS: GrabberLabels = {
+  expand: 'Expand panel',
+  collapse: 'Shrink panel',
 }
 
 // The parts below are pure react-strict-dom, drawn the same on both platforms.
