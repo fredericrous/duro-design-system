@@ -426,7 +426,7 @@ function Portal({
         frame && {
           top: frame.top,
           bottom: frame.bottom,
-          [anchor === 'left' ? 'left' : 'right']: frame.left,
+          ...(anchor === 'left' ? {left: frame.left} : {right: frame.right}),
         },
       ]
   const padTop = bottom || floating ? 0 : insets.top

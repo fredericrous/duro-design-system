@@ -148,3 +148,14 @@ export const AnchorFlipResetsTheDetent: Story = {
     )
   },
 }
+
+export const ExpandedHoldsInsideANarrowWindow: Story = {
+  render: () => <Demo />,
+  play: async () => {
+    await setViewport(500, 800)
+    await waitFor(() => expect(getPanel()).not.toBeNull())
+    await pause(500)
+    await userEvent.click(within(getPanel()!).getByRole('button', {name: 'Expand'}))
+    await waitFor(() => near(panelWidth(), 500 - 2 * SPACING_PX.md))
+  },
+}

@@ -186,7 +186,7 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
 
 - 2026-11-01, the person: "Web PR now, native next". Phase 2 (native) is not in this PR. The repo has no React Native renderer (its native tests are Node tests, plus `typecheck:native`, a native bundle export and a native-graph check), so the plan's native render tests cannot run, and gesture and animation code would ship never run. The docs already say `modal={false}` is web only for now, and `Pane` is not in the native barrel. #104 stays open until native lands.
 - What native work did land here, because it is pure and tested: portal entries can target the base host (`host: 'base'`, a `baseHost` in the registry snapshot, and `entriesForHost`, the rule `PortalHost` uses), with four unit tests covering a Dialog opened and closed over a base entry. Nothing uses it yet.
-- Side detents are drawn and driven on the web only: widths measured in px from `panelSm` and `panelLg` and held to the window, a vertical grabber on the inner edge that steps on a tap. A drag does not move between side detents; swipe still dismisses.
+- Side detents (web first, native in `feat/pane-native`): widths measured in px from `panelSm` and `panelLg` and held to the window, a vertical grabber on the inner edge that steps on a tap. A drag does not move between side detents; swipe still dismisses.
 - `Pane` is a thin composition of the Drawer's own parts through a new `placement` option on `Drawer.Portal`; `BodyProps` and `CloseProps` became exported so the composed object can be typed.
 - The release is a tag, not this PR: a `v*` tag runs the publish workflow and sets the version from the tag. Latest is v5.39.0, so this is v5.40.0, tagged after merge.
 - Escape stays on `document` with an `aria-expanded` guard (non-modal only), not on the panel: a Popover popup is portalled out of the panel, so a panel listener misses it. Ceiling: a focused expanded control blocks Escape in a pane; the fix is a layer registry.
@@ -244,6 +244,6 @@ Advisory. Fixed: grabber hit width 28 px and `layers.raised`, `shadows.md` and n
 
 ## Outcome
 
-The web half of #104: a non-modal `Drawer`, side detents and a public `Pane`, with their stories running in Chromium. Native, the release tag and the site are the next steps.
+#104: a non-modal `Drawer`, side detents and a public `Pane`, with their stories running in Chromium (web, v5.40.0) and the same API on React Native (`feat/pane-native`: typechecked, bundled by Metro, not yet seen on a device). The next steps are the native release and the site.
 
 <!-- panel: repos=duro-design-system,gh-site-import adds=ui,ops reviewers=backend,typescript body-sha=74a5b0535904 -->
