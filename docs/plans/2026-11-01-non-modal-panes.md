@@ -182,4 +182,35 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
   `feat/theme-panel-mockups` and is not pushed yet; the PR's `## Mockup` section
   points at it once pushed.
 
+## Decision log
+
+- 2026-11-01, the person: "Web PR now, native next". Phase 2 (native) is not in this PR. The repo has no React Native renderer (its native tests are Node tests, plus `typecheck:native`, a native bundle export and a native-graph check), so the plan's native render tests cannot run, and gesture and animation code would ship never run. The docs already say `modal={false}` is web only for now, and `Pane` is not in the native barrel. #104 stays open until native lands.
+- What native work did land here, because it is pure and tested: portal entries can target the base host (`host: 'base'`, a `baseHost` in the registry snapshot, and `entriesForHost`, the rule `PortalHost` uses), with four unit tests covering a Dialog opened and closed over a base entry. Nothing uses it yet.
+- Side detents are drawn and driven on the web only: widths measured in px from `panelSm` and `panelLg` and held to the window, a vertical grabber on the inner edge that steps on a tap. A drag does not move between side detents; swipe still dismisses.
+- `Pane` is a thin composition of the Drawer's own parts through a new `floating` option on `Drawer.Portal`; `BodyProps` and `CloseProps` became exported so the composed object can be typed.
+- The release is a tag, not this PR: a `v*` tag runs the publish workflow and sets the version from the tag. Latest is v5.39.0, so this is v5.40.0, tagged after merge.
+
+## Verification (observed 2026-11-01)
+
+| Check                        | Input                                                               | Expected                                                           | Actual                                                                              |
+| ---------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| typecheck, web and native    | `pnpm --filter @duro-app/ui typecheck`                              | 0 errors                                                           | 0 errors (and again in every commit gate, 27 to 29 checks each)                     |
+| wrong snap points fail       | `drawerTypes.type-test.ts`: `anchor="right"` with `['medium']`      | a type error                                                       | `@ts-expect-error` holds, and the matching pairs compile                            |
+| non-modal Drawer             | `DrawerNonModal.stories.tsx` in Chromium                            | no `aria-modal`, no backdrop, body overflow unchanged              | passes; the modal drawer keeps all three                                            |
+| page behind stays clickable  | `elementFromPoint` on a button behind an open non-modal drawer/pane | the button, and its click fires                                    | passes for the Drawer and for the Pane                                              |
+| Popover above the panel      | a Popover opened inside a non-modal drawer                          | the popup draws above the panel                                    | passes (the Drawer provides the raised floating layer; no source change was needed) |
+| Escape                       | focus outside, then inside the panel                                | closes only with focus inside                                      | passes for the Drawer and the Pane                                                  |
+| side detents                 | `DrawerSideSnap.stories.tsx`                                        | compact `panelSm`, expanded `panelLg`, never wider than the window | passes, including at a 500 px window                                                |
+| Pane                         | `PaneBasics.stories.tsx`                                            | opens compact, Expand steps and back, inset and rounded            | passes                                                                              |
+| base host                    | `hostRegistry.test.ts`                                              | a Dialog over a base entry leaves it mounted, top entries move up  | 7 tests pass, 4 of them new                                                         |
+| registry, lint, native graph | `build-registry --check`, `eslint`, `check-native-graph`            | all exit 0                                                         | all exit 0                                                                          |
+
+On the final tree, after the plan commit moved to the front of the branch: `vitest run --project=storybook` over the Pane, Drawer and Popover folders gave 10 files and 64 tests passed, exit 0.
+
+Not observed: any native behaviour (none was written); `pnpm build` and `pnpm check:types-packed` (CI and the release run them); `duro doctor`; a keyboard-only pass in a real keyboard session (every control is a Duro Button or the Drawer's own).
+
+## Outcome
+
+The web half of #104: a non-modal `Drawer`, side detents and a public `Pane`, with their stories running in Chromium. Native, the release tag and the site are the next steps.
+
 <!-- panel: repos=duro-design-system,gh-site-import adds=ui,ops reviewers=backend,typescript body-sha=74a5b0535904 -->
