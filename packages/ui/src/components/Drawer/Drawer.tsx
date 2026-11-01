@@ -55,8 +55,9 @@ function Root({children, ...props}: DrawerRootProps) {
       const panel = panelRef.current as HTMLElement | null
       const focused = document.activeElement
       const focusInsidePanel = panel?.contains(focused) ?? false
-      // A Popover opened from inside the panel closes first (its own Escape handler runs after this one).
-      const popoverOpen = focused?.getAttribute('aria-expanded') === 'true'
+      // Non-modal only: a Popover opened from a trigger inside the pane closes alone, whichever
+      // of the two document listeners runs first. A modal drawer keeps closing on every Escape.
+      const popoverOpen = !modal && focused?.getAttribute('aria-expanded') === 'true'
       if (e.defaultPrevented || popoverOpen) return
       if (modal || focusInsidePanel) {
         e.stopPropagation()

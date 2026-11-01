@@ -209,6 +209,21 @@ On the final tree, after the plan commit moved to the front of the branch: `vite
 
 Not observed: any native behaviour (none was written); `pnpm build` and `pnpm check:types-packed` (CI and the release run them); `duro doctor`; a keyboard-only pass in a real keyboard session (every control is a Duro Button or the Drawer's own).
 
+## Implementation review
+
+approve-with-changes, then a Delta: 7 findings fixed (focus in and back, Escape stories that can fail, flag arguments, size-warning story, holds-until comment, Escape guard scoped to non-modal, comment). Delta ~124k tokens, 49 s.
+
+- deliberate: Escape stays on `document` with a guard on the focused `aria-expanded`, not on the panel as the Behaviour line said: a Popover popup is portalled out of the panel, so a panel listener would miss it.
+- deliberate: the 600 ms wait in the Escape stories is a real wait: the close notice fires after the exit animation.
+
+## Interface review
+
+Advisory. Fixed: grabber hit width 28 px and `layers.raised`, `shadows.md` and no `maxHeight` override on a floating panel, `Pane.Expand` without `aria-expanded`, focus given back only when it is still in the pane.
+
+- deliberate: detent widths ignore the floating inset (compact and expanded look alike below ~392 px); follow-up with the native phase.
+- deliberate: two label sets (grabber, Expand) and `aria-describedby` with no Description part are the Drawer's existing shape.
+- Not mine: the modal Drawer has no focus trap or restore (pre-existing).
+
 ## Outcome
 
 The web half of #104: a non-modal `Drawer`, side detents and a public `Pane`, with their stories running in Chromium. Native, the release tag and the site are the next steps.
