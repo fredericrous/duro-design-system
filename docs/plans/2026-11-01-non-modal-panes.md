@@ -217,6 +217,10 @@ approve-with-changes, then a Delta: 7 findings fixed (focus in and back, Escape 
 - deliberate: Escape stays on `document` with a guard on the focused `aria-expanded`, not on the panel as the Behaviour line said: a Popover popup is portalled out of the panel, so a panel listener would miss it.
 - deliberate: the 600 ms wait in the Escape stories is a real wait: the close notice fires after the exit animation.
 
+Fresh round 1 on the final tree: approve-with-changes, four low findings, all kept (a fix would change the reviewed tree again):
+
+- deliberate: the Pane Escape story's bare 600 ms, the `Portal` doc comment, the `holds-until` wording on `PortalEntry.host` and the missing anchor-flip story are carried to the native PR, which edits the same files. 102k tokens, 69 s.
+
 ## Interface review
 
 Advisory. Fixed: grabber hit width 28 px and `layers.raised`, `shadows.md` and no `maxHeight` override on a floating panel, `Pane.Expand` without `aria-expanded`, focus given back only when it is still in the pane.
