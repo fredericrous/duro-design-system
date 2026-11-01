@@ -1,0 +1,5 @@
+---
+'@duro-app/ui': minor
+---
+
+`Drawer.Root` takes `modal` (default `true`, so nothing changes for existing drawers). A non-modal drawer has no backdrop, no `aria-modal` and no scroll lock, sits at `layers.floating` with a Popover inside it stacking above, and closes on Escape only while focus is inside it. A left or right drawer takes `snapPoints` of `compact` and `expanded` (a new `SideSnapPoint`; the public `SnapPoint` is unchanged), mapped to the `panelSm` and `panelLg` widths and held to the window's width, with a grabber on the inner edge that steps between them; `DrawerRootProps` is a union on `anchor`, so the wrong snap points for an edge fail to compile. `Drawer.Portal` takes `floating` for an inset, rounded panel. The new `Pane` is a floating non-modal Drawer with its detents on by default and an `Expand` button for its header. All of it is web only for now: React Native still renders a modal drawer, and `Pane` is not in the native barrel. The web half of Duro#104; native follows.
