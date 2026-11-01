@@ -64,6 +64,13 @@ export {
   type SideSnapPoint,
   type SnapPoint,
 } from './components/Drawer/Drawer'
+export {
+  Pane,
+  type ExpandLabels as PaneExpandLabels,
+  type PaneBottomRootProps,
+  type PaneRootProps,
+  type PaneSideRootProps,
+} from './components/Pane/Pane'
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Heading, type HeadingSize, type HeadingVariant} from './components/Heading/Heading'
 export {List, type ListSelectionMode} from './components/List/List'

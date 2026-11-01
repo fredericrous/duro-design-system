@@ -98,6 +98,11 @@ interface PortalProps {
    * Ignored for a side drawer with snapPoints: `size` is ignored there too (the detent sets the width)
    */
   grabberLabels?: GrabberLabels
+  /**
+   * A floating panel: inset from the viewport edge by a spacing token, with rounded corners and a
+   * border all round, instead of flush against the edge. For a non-modal drawer (Pane).
+   */
+  floating?: boolean
 }
 
 // Slide animation maps
@@ -123,7 +128,12 @@ const viewportAnchorMap = {
   bottom: styles.viewportBottom,
 } as const
 
-function Portal({children, size: sizeProp, grabberLabels: grabberLabelsProp}: PortalProps) {
+function Portal({
+  children,
+  size: sizeProp,
+  grabberLabels: grabberLabelsProp,
+  floating = false,
+}: PortalProps) {
   const {
     open,
     closing,
@@ -213,7 +223,12 @@ function Portal({children, size: sizeProp, grabberLabels: grabberLabelsProp}: Po
 
       {/* Viewport */}
       <html.div
-        style={[styles.viewport, !modal && styles.viewportNonModal, viewportAnchorMap[anchor]]}
+        style={[
+          styles.viewport,
+          !modal && styles.viewportNonModal,
+          floating && styles.viewportFloating,
+          viewportAnchorMap[anchor],
+        ]}
         data-drawer-viewport=""
       >
         <html.div
@@ -232,6 +247,7 @@ function Portal({children, size: sizeProp, grabberLabels: grabberLabelsProp}: Po
             sideSnapping && styles.panelSideSnap,
             sideSized && styles.sheetWidth(widths[snapIndex]),
             anchor === 'left' && styles.panelLeftBorder,
+            floating && styles.panelFloating,
             closing && slideOutMap[anchor],
             closing && closeDurationMap[closeDuration],
             !closing && slideInMap[anchor],
@@ -284,7 +300,7 @@ function Portal({children, size: sizeProp, grabberLabels: grabberLabelsProp}: Po
 
 // --- Body ---
 
-interface BodyProps {
+export interface BodyProps {
   children: ReactNode
   /** No side padding: rows that run to the panel's edges, as a picker's list. */
   flush?: boolean
@@ -306,7 +322,7 @@ function Body({children, flush = false}: BodyProps) {
 
 // --- Close ---
 
-interface CloseProps {
+export interface CloseProps {
   children?: ReactNode
   'aria-label'?: string
 }

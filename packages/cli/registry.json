@@ -2777,6 +2777,13 @@
               "name": "grabberLabels",
               "required": false,
               "type": "GrabberLabels"
+            },
+            {
+              "default": "false",
+              "description": "A floating panel: inset from the viewport edge by a spacing token, with rounded corners and a border all round, instead of flush against the edge. For a non-modal drawer (Pane).",
+              "name": "floating",
+              "required": false,
+              "type": "boolean"
             }
           ],
           "sourcePath": "packages/ui/src/components/Drawer/Drawer.tsx"
@@ -5228,6 +5235,128 @@
         }
       ],
       "sourcePath": "packages/ui/src/components/PageShell/PageShell.tsx"
+    },
+    "Pane": {
+      "importPath": "@duro-app/ui",
+      "kind": "compound",
+      "meta": {
+        "anatomy": {
+          "optional": [
+            "Trigger",
+            "Header",
+            "Title",
+            "Body",
+            "Footer",
+            "Close",
+            "Expand"
+          ],
+          "required": [
+            "Root",
+            "Portal"
+          ]
+        },
+        "description": "A floating, non-modal panel from a screen edge: inset from the edge, rounded all round, no backdrop, so the page and anything on it stay usable beside it. Side panes rest at two widths (compact and expanded) and a bottom pane at two heights (medium and large); an Expand button in the header steps between them, and so does the grabber. Escape closes it only while focus is inside. Built from Drawer, so swipe-to-dismiss and the detents are the Drawer ones. Web only for now.",
+        "example": "<Pane.Root>\n  <Pane.Trigger>\n    <Button>Theme</Button>\n  </Pane.Trigger>\n  <Pane.Portal>\n    <Pane.Header>\n      <Pane.Title>Theme</Pane.Title>\n      <Pane.Expand />\n      <Pane.Close />\n    </Pane.Header>\n    <Pane.Body>...</Pane.Body>\n  </Pane.Portal>\n</Pane.Root>",
+        "relatedTo": [
+          {
+            "component": "Drawer",
+            "kind": "composition",
+            "relationship": "Pane is a non-modal Drawer that floats; modal Drawer dims the page and locks scroll"
+          },
+          {
+            "component": "DetailPanel",
+            "kind": "contrast",
+            "relationship": "DetailPanel is in the page flow and splits the layout; Pane floats over the page and leaves the layout alone"
+          },
+          {
+            "component": "Popover",
+            "kind": "contrast",
+            "relationship": "Popover is a small overlay anchored to its trigger; Pane is a panel with its own sizes and does not open another popover over a popover"
+          }
+        ],
+        "whenNotToUse": [
+          "A modal task that needs focus and a backdrop — use Dialog or Drawer",
+          "Details that sit beside a table in the page flow — use DetailPanel",
+          "A few controls anchored to a button — use Popover",
+          "Primary navigation — use SideNav"
+        ],
+        "whenToUse": [
+          "A tool panel the user works in while looking at the page: a theme or style picker, an inspector, filters",
+          "Content that needs more room on demand: compact first, expanded when the user asks",
+          "The same panel on phones as a bottom sheet and on desktop as a side pane"
+        ]
+      },
+      "name": "Pane",
+      "native": false,
+      "parts": {
+        "Body": {
+          "name": "Body",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Close": {
+          "name": "Close",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Expand": {
+          "name": "Expand",
+          "props": [
+            {
+              "default": "DEFAULT_EXPAND_LABELS",
+              "description": "The button's accessible names, by what a press does next",
+              "name": "labels",
+              "required": false,
+              "type": "ExpandLabels"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Footer": {
+          "name": "Footer",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Header": {
+          "name": "Header",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Portal": {
+          "name": "Portal",
+          "props": [
+            {
+              "name": "children",
+              "required": true,
+              "type": "ReactNode"
+            },
+            {
+              "description": "The grabber's accessible names, by what a press does next",
+              "name": "grabberLabels",
+              "required": false,
+              "type": "GrabberLabels"
+            }
+          ],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Root": {
+          "name": "Root",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Title": {
+          "name": "Title",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
+        "Trigger": {
+          "name": "Trigger",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        }
+      },
+      "props": null,
+      "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
     },
     "Panel": {
       "importPath": "@duro-app/ui",

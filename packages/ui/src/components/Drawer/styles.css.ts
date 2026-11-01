@@ -51,6 +51,12 @@ export const styles = css.create({
     zIndex: layers.floating,
   },
 
+  // A floating panel keeps clear of the viewport edge.
+  viewportFloating: {
+    padding: spacing.md,
+    boxSizing: 'border-box',
+  },
+
   // Right anchor (desktop default)
   viewportRight: {
     justifyContent: 'flex-end',
@@ -141,6 +147,29 @@ export const styles = css.create({
   grabberHitWeb: {
     cursor: 'grab',
     touchAction: 'none',
+  },
+
+  // A floating panel: a border and rounded corners all round, and never wider or taller than its
+  // inset viewport. Longhands, so they replace the one-sided borders of the flush panel.
+  panelFloating: {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    borderTopWidth: borders.hairline,
+    borderRightWidth: borders.hairline,
+    borderBottomWidth: borders.hairline,
+    borderLeftWidth: borders.hairline,
+    borderTopStyle: 'solid',
+    borderRightStyle: 'solid',
+    borderBottomStyle: 'solid',
+    borderLeftStyle: 'solid',
+    borderTopColor: colors.borderStrong,
+    borderRightColor: colors.borderStrong,
+    borderBottomColor: colors.borderStrong,
+    borderLeftColor: colors.borderStrong,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderBottomLeftRadius: radii.lg,
+    borderBottomRightRadius: radii.lg,
   },
 
   panelLeftBorder: {
