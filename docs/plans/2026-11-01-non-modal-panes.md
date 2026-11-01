@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/drawer-non-modal-pane
 repos: [duro-design-system, gh-site-import]
 adrs:
@@ -255,6 +255,6 @@ Advisory. Fixed: grabber hit width 28 px and `layers.raised`, `shadows.md` and n
 
 ## Outcome
 
-#104: a non-modal `Drawer`, side detents and a public `Pane`, with their stories running in Chromium (web, v5.40.0) and the same API on React Native (`feat/pane-native`: typechecked, bundled by Metro, not yet seen on a device). The next steps are the native release and the site.
+All five phases are done. #104 shipped in two releases: web in v5.40.0 (#163) and native in v5.41.0 (#164), with side detents, a draggable grabber, `Drawer.Portal placement="floating"` and the public `Pane`. The site's theme panel is Duro's Pane (greenharness.github.io #7, `@duro-app/ui@5.41.0`), checked live on https://greenharness.github.io. #104 is closed. What is left is in #165: a device run of the native half, a draggable Pane on desktop, and the review polish. The site plan's one change from this plan: the Pages source stays on the branch (the bundle is committed and CI checks it is current), so the switch to GitHub Actions never needed a decision.
 
 <!-- panel: repos=duro-design-system,gh-site-import adds=ui,ops reviewers=backend,typescript body-sha=74a5b0535904 -->
