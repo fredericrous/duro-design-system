@@ -36,6 +36,7 @@ import {scheduleOnRN} from 'react-native-worklets'
 import {html} from 'react-strict-dom'
 import {DURATION_MS, LAYERS, SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
 import {ModalContext} from '../../shared/ModalContext'
+import {devWarnOnce} from '../../shared/devWarnOnce'
 import {OverlayModal} from '../../shared/portal/OverlayModal'
 import {Portal as PortalLayer} from '../../shared/portal/PortalHost'
 import {focusForAccessibility} from '../../shared/accessibilityFocus'
@@ -148,7 +149,7 @@ const easeIn = Easing.in(Easing.cubic)
 
 function Portal({
   children,
-  size = 'md',
+  size: sizeProp,
   grabberLabels: grabberLabelsProp,
   placement = 'edge',
 }: PortalProps) {
@@ -181,6 +182,17 @@ function Portal({
   const bottom = anchor === 'bottom'
   const snapping = snapPoints.length > 0
   const floating = placement === 'floating'
+  const size = sizeProp ?? 'md'
+  const sizeIgnored = sideSnapPoints.length > 0 && sizeProp !== undefined
+  useEffect(() => {
+    if (sizeIgnored) {
+      devWarnOnce(
+        'Drawer',
+        'side-snap-size',
+        "Portal's size is ignored on a side drawer with snapPoints: the detent sets the width.",
+      )
+    }
+  }, [sizeIgnored])
   // A floating panel keeps off the edge by this inset and by the safe area.
   const gap = floating ? SPACING_PX.md : 0
   // The skirt below a snap sheet that a pull past its top reveals; a floating card has no room for it.
@@ -190,7 +202,9 @@ function Portal({
   const grabberLabels =
     grabberLabelsProp ?? (sideSnapping ? DEFAULT_SIDE_GRABBER_LABELS : DEFAULT_GRABBER_LABELS)
   // A floating panel sits in from the edge: it needs that much more room to be fully off screen.
-  const slack = floating ? SPACING_PX.md + Math.max(insets.top, insets.bottom) : 0
+  const slack = floating
+    ? SPACING_PX.md + (bottom ? insets.bottom : Math.max(insets.left, insets.right))
+    : 0
   const detentWidths = useMemo(
     () => sideSnapPoints.map((p) => detentWidth(p, sideRoom)),
     [sideSnapPoints, sideRoom],

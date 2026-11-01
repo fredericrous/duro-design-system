@@ -52,7 +52,7 @@ export interface DrawerSideRootProps extends DrawerRootBaseProps {
   /** Which edge the drawer slides from. Default: 'right' */
   anchor?: 'left' | 'right'
   /**
-   * The widths the panel rests at 'compact' is the panelSm width, 'expanded' the
+   * The widths the panel rests at. 'compact' is the panelSm width, 'expanded' the
    * panelLg width, each held to the window's width. The grabber steps through them on a tap;
    * Portal's `size` is ignored. Swipe still dismisses; a drag does not move between detents.
    */

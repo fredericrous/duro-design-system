@@ -165,7 +165,7 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
   green; a headless render of the theme pane at 1120, 500 and 320 px; the game
   still steers; the console has no error beyond the favicon; Reset gives
   `theme.json` exactly; the live URL checked after the Pages deploy.
-- Native: pressing `Pane.Close` in a non-modal native Pane calls `onOpenChange(false)` once; with a Dialog opened over it, the Dialog draws above the pane and the pane mounts once (no remount).
+- Native (not observed: no renderer, see the Handoff): pressing `Pane.Close` in a non-modal native Pane calls `onOpenChange(false)` once; with a Dialog opened over it, the Dialog draws above the pane and the pane mounts once (no remount).
 - Accessibility: keyboard only (Tab in, Escape, focus back), touch dismissal at 320 px.
 
 ## Not in this plan
@@ -178,6 +178,7 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
 
 - Confirm the switch of the site's Pages source from branch to GitHub Actions
   (a change to how the live site is published).
+- Native Pane: run the Pane scenario of `examples/native/src/SheetDemo.tsx` on a device (touches pass through to the app behind, Android back closes the pane, a Dialog opened over it covers it without remounting it). It replaces the two render tests the plan asked for, which cannot run in this repo (no renderer); say if you want it handled otherwise.
 - The theme artboard (`docs/mockups/theme-panel/Pane.dc.html`) is committed on
   `feat/theme-panel-mockups` and is not pushed yet; the PR's `## Mockup` section
   points at it once pushed.
@@ -207,6 +208,7 @@ genuinely needs a new token is added to `@duro-app/tokens` first (ADR-0027).
 | side detents                 | `DrawerSideSnap.stories.tsx`                                        | compact `panelSm`, expanded `panelLg`, never wider than the window | passes, including at a 500 px window                                                                 |
 | Pane                         | `PaneBasics.stories.tsx`                                            | opens compact, Expand steps and back, inset and rounded            | passes                                                                                               |
 | base host                    | `hostRegistry.test.ts`                                              | a Dialog over a base entry leaves it mounted, top entries move up  | 7 tests pass, 4 of them new                                                                          |
+| floating inset on web        | `PaneBasics.stories.tsx` at a 500 px window: open, then Expand      | compact 360, expanded `500 - 2 * 16` = 468, inside the window      | passes, with the anchor-flip story (medium height after Expand and a flip)                           |
 | registry, lint, native graph | `build-registry --check`, `eslint`, `check-native-graph`            | all exit 0                                                         | all exit 0                                                                                           |
 
 On the final tree, after the plan commit moved to the front of the branch: `vitest run --project=storybook` over the Pane, Drawer and Popover folders gave 10 files and 64 tests passed, exit 0.
@@ -223,6 +225,8 @@ approve-with-changes, then a Delta: 7 findings fixed (focus in and back, Escape 
 Fresh round 1 on the final tree: approve-with-changes, four low findings, all kept (a fix would change the reviewed tree again):
 
 - deliberate: the Pane Escape story's bare 600 ms, the `Portal` doc comment, the `holds-until` wording on `PortalEntry.host` and the missing anchor-flip story are carried to the native PR, which edits the same files. 102k tokens, 69 s.
+
+Native branch, fresh round 1 on the final tree: approve-with-changes, seven findings. Fixed: the second real wait, the native `size` warning, the slack axis, a verification row and a Handoff item for the device run. Kept as `deliberate`: `Pane.native.tsx` repeats `Pane.tsx`'s Root, detents and types (the two files differ in `html.button` with an svg versus a glyph, and a shared module is a follow-up once the Icon pair exists). 108k tokens, 314 s.
 
 Native branch (`feat/pane-native`), round 1: approve-with-changes, six findings. Fixed: the flip story's real wait and its claims (one root, the anchor changes, the default detent is asserted), the plan record, detent widths and heights cut by the floating inset and safe area, no overshoot skirt on a floating card, `useDrawer()` read once. 96k tokens, 110 s.
 

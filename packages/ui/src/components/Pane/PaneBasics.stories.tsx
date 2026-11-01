@@ -154,7 +154,8 @@ export const ExpandedHoldsInsideANarrowWindow: Story = {
   play: async () => {
     await setViewport(500, 800)
     await waitFor(() => expect(getPanel()).not.toBeNull())
-    await pause(500)
+    // Compact is held to the window too: 360 fits in 500 - 2 * 16.
+    await waitFor(() => near(panelWidth(), SIZES_PX.panelSm))
     await userEvent.click(within(getPanel()!).getByRole('button', {name: 'Expand'}))
     await waitFor(() => near(panelWidth(), 500 - 2 * SPACING_PX.md))
   },
