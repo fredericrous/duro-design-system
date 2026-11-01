@@ -146,3 +146,26 @@ export const NonModalFocusMovesInAndBack: Story = {
     expect(document.activeElement).toBe(trigger)
   },
 }
+
+// A disclosure that is open (aria-expanded="true") but is not a popup trigger: Escape from it closes the pane.
+export const EscapeClosesFromAnOpenDisclosure: Story = {
+  render: () => (
+    <Drawer.Root defaultOpen modal={false}>
+      <Drawer.Portal>
+        <Drawer.Title>Filters</Drawer.Title>
+        <Drawer.Body>
+          <Button aria-expanded aria-controls="advanced-filters">
+            Advanced
+          </Button>
+        </Drawer.Body>
+      </Drawer.Portal>
+    </Drawer.Root>
+  ),
+  play: async () => {
+    await waitFor(() => expect(getPanel()).not.toBeNull())
+    const advanced = within(getPanel()!).getByRole('button', {name: 'Advanced'})
+    advanced.focus()
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(getPanel()).toBeNull())
+  },
+}
