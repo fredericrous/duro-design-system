@@ -50,7 +50,7 @@ function Root({
           styles.rootMaxHeight(resolveLength(maxHeight)),
         ]}
       >
-        {children}
+        <Scroller enabled={stacked}>{children}</Scroller>
       </html.div>
     </MasterDetailContext.Provider>
   )
@@ -88,7 +88,7 @@ function Rail({children, 'aria-label': ariaLabel}: RailProps) {
         stacked && styles.railStacked,
       ]}
     >
-      <Scroller>{children}</Scroller>
+      <Scroller enabled={!stacked}>{children}</Scroller>
     </html.div>
   )
 }
@@ -197,7 +197,7 @@ interface DetailProps {
 }
 
 function Detail({children}: DetailProps) {
-  const {tabs, idPrefix} = useMasterDetail('Detail')
+  const {tabs, idPrefix, stacked} = useMasterDetail('Detail')
   const focused = tabs.activeValue
   if (focused === null) return null
   return (
@@ -205,9 +205,11 @@ function Detail({children}: DetailProps) {
       id={`${idPrefix}-detail`}
       role="tabpanel"
       aria-labelledby={itemId(idPrefix, focused)}
-      style={styles.detail}
+      style={[styles.detail, stacked && styles.detailStacked]}
     >
-      <Scroller>{typeof children === 'function' ? children(focused) : children}</Scroller>
+      <Scroller enabled={!stacked}>
+        {typeof children === 'function' ? children(focused) : children}
+      </Scroller>
     </html.div>
   )
 }

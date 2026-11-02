@@ -5804,6 +5804,12 @@
               "type": "boolean"
             },
             {
+              "description": "Width the popup takes, a `sizes` token key (`pickerMaxW`), never wider than the screen less a margin. For content that fills its width (a MasterDetail); without it the popup is as wide as its content. Default: none.",
+              "name": "width",
+              "required": false,
+              "type": "SizeToken"
+            },
+            {
               "description": "Widest the popup grows, a `sizes` token key (`pickerMaxW`). Default: none.",
               "name": "maxWidth",
               "required": false,

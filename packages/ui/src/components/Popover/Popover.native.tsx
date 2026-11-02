@@ -154,6 +154,12 @@ interface PopupProps {
   label: string
   /** Web only: on native every popup is its own Modal, above what opened it. */
   raised?: boolean
+  /**
+   * Width the popup takes, a `sizes` token key (`pickerMaxW`), never wider
+   * than the screen less a margin. For content that fills its width (a
+   * MasterDetail); without it the popup is as wide as its content. Default: none.
+   */
+  width?: SizeToken
   /** Widest the popup grows, a `sizes` token key (`pickerMaxW`). Default: none. */
   maxWidth?: SizeToken
   /** Tallest the popup grows, a `sizes` token key (`pickerMaxH`). Default: none. */
@@ -162,7 +168,7 @@ interface PopupProps {
   padding?: 'default' | 'flush'
 }
 
-function Popup({children, label, maxWidth, maxHeight, padding = 'default'}: PopupProps) {
+function Popup({children, label, width, maxWidth, maxHeight, padding = 'default'}: PopupProps) {
   const {open, setOpen, popoverId, side, align, triggerRef, placement} = usePopover('Popup')
   const popupRef = useRef<HTMLDivElement>(null)
   return (
@@ -185,6 +191,11 @@ function Popup({children, label, maxWidth, maxHeight, padding = 'default'}: Popu
           styles.popup,
           nativeStyles.popupInPlace,
           padding === 'flush' && styles.popupFlush,
+          // AnchoredOverlay caps its box at the window less a margin; 100% keeps a set width inside it.
+          width !== undefined && [
+            nativeStyles.popupFitsOverlay,
+            styles.popupWidth(resolveLength(width)),
+          ],
           maxWidth !== undefined && styles.popupMaxWidth(resolveLength(maxWidth)),
           maxHeight !== undefined && styles.popupMaxHeight(resolveLength(maxHeight)),
         ]}

@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, waitFor, within} from 'storybook/test'
 import {html} from 'react-strict-dom'
 import {Button} from '../Button/Button'
+import {Icon} from '../Icon/Icon'
 import {Popover} from '../Popover/Popover'
 import {setViewport} from '../Drawer/touchInput'
 import {MasterDetail} from './MasterDetail'
@@ -30,7 +31,11 @@ function Picker({maxHeight}: {maxHeight?: 'pickerMaxH' | 'listMaxH'}) {
               key={name}
               value={name}
               selected={index === 0}
-              action={<Button size="small" variant="secondary">{`Remove ${name}`}</Button>}
+              action={
+                <Button size="small" variant="secondary" aria-label={`Pin ${name}`}>
+                  <Icon name="pin" size="sm" />
+                </Button>
+              }
             >
               {name}
             </MasterDetail.Item>
@@ -141,24 +146,44 @@ export const InPopover: Story = {
   render: () => (
     <Popover.Root>
       <Popover.Trigger>Pick an agent</Popover.Trigger>
-      <Popover.Popup
-        label="Agent picker"
-        maxWidth="pickerMaxW"
-        maxHeight="pickerMaxH"
-        padding="flush"
-      >
+      <Popover.Popup label="Agent picker" width="pickerMaxW" maxHeight="pickerMaxH" padding="flush">
         <Picker />
       </Popover.Popup>
     </Popover.Root>
   ),
   play: async ({canvas, userEvent}) => {
+    await setViewport(1200, 800)
     await userEvent.click(canvas.getByRole('button', {name: 'Pick an agent'}))
     const popup = await page().findByRole('dialog', {name: 'Agent picker'})
     await expect(within(popup).getByRole('tabpanel')).toHaveTextContent('Details of Claude')
-    const rect = popup.getBoundingClientRect()
-    await expect(rect.width).toBeLessThanOrEqual(720)
-    await expect(rect.height).toBeLessThanOrEqual(420)
+    // The popup takes the picker's width (pickerMaxW), so the rail gets its
+    // full railW and no agent's name is cut off.
+    await waitFor(() => expect(popup.getBoundingClientRect().width).toBeCloseTo(720, 0))
+    await expect(popup.getBoundingClientRect().height).toBeLessThanOrEqual(420)
     await expect(getComputedStyle(popup).paddingTop).toBe('0px')
+    for (const name of AGENTS) {
+      const label = within(popup).getByRole('tab', {name}).firstElementChild as HTMLElement
+      await expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth)
+    }
+  },
+}
+
+/** On a screen narrower than the width, the popup keeps a margin each side. */
+export const InPopoverNarrow: Story = {
+  render: InPopover.render,
+  play: async ({canvas, userEvent}) => {
+    await setViewport(500, 800)
+    try {
+      await userEvent.click(canvas.getByRole('button', {name: 'Pick an agent'}))
+      const popup = await page().findByRole('dialog', {name: 'Agent picker'})
+      await waitFor(() => {
+        const rect = popup.getBoundingClientRect()
+        expect(rect.left).toBeGreaterThanOrEqual(0)
+        expect(rect.right).toBeLessThanOrEqual(500)
+      })
+    } finally {
+      await setViewport(1200, 800)
+    }
   },
 }
 
@@ -173,6 +198,19 @@ export const Stacked: Story = {
       await waitFor(() =>
         expect(rail.getBoundingClientRect().bottom).toBeLessThanOrEqual(
           detail.getBoundingClientRect().top + 1,
+        ),
+      )
+      // Stacked, the rail and the detail scroll as one: the detail is reached
+      // by scrolling, never cut off below the rail.
+      await expect(detail.getBoundingClientRect().height).toBeGreaterThan(0)
+      await expect(rail.scrollHeight).toBeLessThanOrEqual(rail.clientHeight + 1)
+      const scroller = rail.parentElement as HTMLElement
+      await expect(scroller.scrollHeight).toBeGreaterThan(scroller.clientHeight)
+      await expect(['auto', 'scroll']).toContain(getComputedStyle(scroller).overflowY)
+      scroller.scrollTop = scroller.scrollHeight
+      await waitFor(() =>
+        expect(detail.getBoundingClientRect().top).toBeLessThan(
+          scroller.getBoundingClientRect().bottom,
         ),
       )
     } finally {

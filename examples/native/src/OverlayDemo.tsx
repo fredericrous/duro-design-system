@@ -87,7 +87,7 @@ export function OverlayDemo() {
         <Popover.Trigger>Agents</Popover.Trigger>
         <Popover.Popup
           label="Agent picker"
-          maxWidth="pickerMaxW"
+          width="pickerMaxW"
           maxHeight="pickerMaxH"
           padding="flush"
         >

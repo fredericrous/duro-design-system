@@ -14,4 +14,7 @@ export const nativeStyles = css.create({
     position: 'relative',
     zIndex: 0,
   },
+  popupFitsOverlay: {
+    maxWidth: '100%',
+  },
 })

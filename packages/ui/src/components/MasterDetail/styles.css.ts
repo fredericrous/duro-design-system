@@ -14,7 +14,10 @@ export const styles = css.create({
     flexDirection: {default: 'row', [STACK]: 'column'},
     minWidth: 0,
     minHeight: 0,
-    overflow: 'hidden',
+    // Split, the rail and the detail scroll on their own; stacked, the Root
+    // scrolls them as one, as Happier's stacked picker does.
+    overflowX: 'hidden',
+    overflowY: {default: 'hidden', [STACK]: 'auto'},
     fontFamily: typography.fontFamily,
     fontSize: typography.fontSizeSm,
     color: colors.text,
@@ -32,7 +35,7 @@ export const styles = css.create({
     boxSizing: 'border-box',
     flexShrink: 0,
     minHeight: 0,
-    overflowY: 'auto',
+    overflowY: {default: 'auto', [STACK]: 'visible'},
     borderRightWidth: {default: borders.hairline, [STACK]: 0},
     borderRightStyle: 'solid',
     borderRightColor: colors.border,
@@ -120,9 +123,13 @@ export const styles = css.create({
     outlineColor: {default: 'transparent', ':focus-visible': colors.accent},
     outlineOffset: {default: 0, ':focus-visible': `calc(-1 * ${borders.focusOffset})`},
   },
+  // One line, cut with an ellipsis: a narrow rail never breaks a name mid-word.
   itemLabel: {
     flex: 1,
     minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
   },
   itemCheck: {
     display: 'flex',
@@ -136,11 +143,14 @@ export const styles = css.create({
     flexShrink: 0,
   },
   detail: {
-    flex: 1,
+    flex: {default: 1, [STACK]: 'none'},
     minWidth: 0,
     minHeight: 0,
-    overflowY: 'auto',
+    overflowY: {default: 'auto', [STACK]: 'visible'},
     boxSizing: 'border-box',
     padding: spacing.md,
+  },
+  detailStacked: {
+    flex: 'none',
   },
 })

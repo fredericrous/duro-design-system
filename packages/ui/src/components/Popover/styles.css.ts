@@ -88,6 +88,14 @@ export const styles = css.create({
     overflowY: 'auto',
   },
   // Dynamic styles: simple identifier params only (StyleX constraint)
+  popupWidth: (width: number | string) => ({
+    width,
+  }),
+  // A set width never runs off a narrow screen: the viewport less a margin each
+  // side, as AnchoredOverlay keeps a native popup.
+  popupWidthFits: {
+    maxWidth: `calc(100vw - 2 * ${spacing.sm})`,
+  },
   popupMaxWidth: (maxWidth: number | string) => ({
     maxWidth,
   }),
