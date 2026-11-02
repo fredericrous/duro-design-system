@@ -5255,7 +5255,7 @@
             "Portal"
           ]
         },
-        "description": "A floating, non-modal panel from a screen edge: inset from the edge, rounded all round, no backdrop, so the page and anything on it stay usable beside it. Side panes rest at two widths (compact and expanded) and a bottom pane at two heights (medium and large); an Expand button in the header steps between them, and so does the grabber. Escape closes it only while focus is inside. Built from Drawer, so swipe-to-dismiss and the detents are the Drawer ones. On React Native it draws in the base portal host, below any Dialog opened later.",
+        "description": "A floating, non-modal panel from a screen edge: inset from the edge, rounded all round, no backdrop, so the page and anything on it stay usable beside it. Side panes rest at two widths (compact and expanded) and a bottom pane at two heights (medium and large); an Expand button in the header steps between them, and so does the grabber. Escape closes it only while focus is inside. On the web a side pane takes movable: a drag on its header moves it (clamped to the window), a double-click on the header puts it back, and Pane.Move moves it with the arrow keys (Home puts it back). A bottom pane never moves. Movement is web only; React Native ignores movable. Built from Drawer, so swipe-to-dismiss and the detents are the Drawer ones. On React Native it draws in the base portal host, below any Dialog opened later.",
         "example": "<Pane.Root>\n  <Pane.Trigger>\n    <Button>Theme</Button>\n  </Pane.Trigger>\n  <Pane.Portal>\n    <Pane.Header>\n      <Pane.Title>Theme</Pane.Title>\n      <Pane.Expand />\n      <Pane.Close />\n    </Pane.Header>\n    <Pane.Body>...</Pane.Body>\n  </Pane.Portal>\n</Pane.Root>",
         "relatedTo": [
           {
@@ -5322,6 +5322,11 @@
           "props": [],
           "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
         },
+        "Move": {
+          "name": "Move",
+          "props": [],
+          "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
+        },
         "Portal": {
           "name": "Portal",
           "props": [
@@ -5341,7 +5346,14 @@
         },
         "Root": {
           "name": "Root",
-          "props": [],
+          "props": [
+            {
+              "default": "false",
+              "name": "movable",
+              "required": false,
+              "type": "boolean"
+            }
+          ],
           "sourcePath": "packages/ui/src/components/Pane/Pane.tsx"
         },
         "Title": {

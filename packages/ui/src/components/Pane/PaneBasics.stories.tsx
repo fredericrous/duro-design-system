@@ -160,3 +160,143 @@ export const ExpandedHoldsInsideANarrowWindow: Story = {
     await waitFor(() => near(panelWidth(), 500 - 2 * SPACING_PX.md))
   },
 }
+
+const getHeader = () => document.querySelector<HTMLElement>('[data-pane-handle]')
+
+// Synthetic pointer events on the header, at its left edge: the title's side, away from the controls.
+function pointerAt(target: Element, type: string, x: number, y: number) {
+  target.dispatchEvent(
+    new PointerEvent(type, {pointerId: 1, button: 0, bubbles: true, clientX: x, clientY: y}),
+  )
+}
+// A pane that cannot move has no handle: the drag then starts on its title, which must not move it either.
+function dragHeader(dx: number, dy: number) {
+  const header = getHeader() ?? getPanel()!.querySelector<HTMLElement>('h2')!
+  const r = header.getBoundingClientRect()
+  const x = r.left + 24
+  const y = r.top + r.height / 2
+  pointerAt(header, 'pointerdown', x, y)
+  pointerAt(header, 'pointermove', x + dx, y + dy)
+  pointerAt(header, 'pointerup', x + dx, y + dy)
+}
+
+function MovableDemo({
+  movable = true,
+  anchor = 'right',
+}: {
+  movable?: boolean
+  anchor?: 'right' | 'bottom'
+}) {
+  const parts = (
+    <Pane.Portal>
+      <Pane.Header>
+        <Pane.Title>Theme</Pane.Title>
+        <Pane.Move />
+        <Pane.Expand />
+        <Pane.Close />
+      </Pane.Header>
+      <Pane.Body>
+        <Button>Inside</Button>
+      </Pane.Body>
+    </Pane.Portal>
+  )
+  return anchor === 'bottom' ? (
+    <Pane.Root defaultOpen movable={movable} anchor="bottom">
+      <Pane.Trigger>
+        <Button variant="secondary">Open theme</Button>
+      </Pane.Trigger>
+      {parts}
+    </Pane.Root>
+  ) : (
+    <Pane.Root defaultOpen movable={movable} anchor="right">
+      <Pane.Trigger>
+        <Button variant="secondary">Open theme</Button>
+      </Pane.Trigger>
+      {parts}
+    </Pane.Root>
+  )
+}
+
+export const MovesFromTheHeaderAndDoubleClickPutsItBack: Story = {
+  render: () => <MovableDemo />,
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    const home = panel.getBoundingClientRect().left
+    dragHeader(-120, 0)
+    await waitFor(() => expect(panel.getBoundingClientRect().left).toBeLessThan(home - 100))
+    getHeader()!.dispatchEvent(new MouseEvent('dblclick', {bubbles: true}))
+    await waitFor(() => near(panel.getBoundingClientRect().left, home))
+  },
+}
+
+export const DragStopsAtTheWindowEdge: Story = {
+  render: () => <MovableDemo />,
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    dragHeader(-5000, 0)
+    await waitFor(() => expect(panel.getBoundingClientRect().left).toBeLessThanOrEqual(1))
+    expect(panel.getBoundingClientRect().left).toBeGreaterThanOrEqual(0)
+  },
+}
+
+export const ArrowKeysNudgeAndHomeResets: Story = {
+  render: () => <MovableDemo />,
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    const home = panel.getBoundingClientRect().left
+    const move = within(panel).getByRole('button', {name: 'Move panel'})
+    move.focus()
+    await userEvent.keyboard('{ArrowLeft}')
+    await waitFor(() => near(panel.getBoundingClientRect().left, home - SPACING_PX.md))
+    await userEvent.keyboard('{Home}')
+    await waitFor(() => near(panel.getBoundingClientRect().left, home))
+  },
+}
+
+export const ADragNeedsMovable: Story = {
+  render: () => <MovableDemo movable={false} />,
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    const home = panel.getBoundingClientRect().left
+    dragHeader(-120, 0)
+    await pause(200)
+    near(panel.getBoundingClientRect().left, home)
+    expect(panel.style.left).toBe('')
+    expect(getHeader()).toBeNull()
+  },
+}
+
+export const ABottomPaneIgnoresMovable: Story = {
+  render: () => <MovableDemo anchor="bottom" />,
+  play: async () => {
+    await open()
+    // A bottom pane's detents still settle after its slide-in: let them.
+    await pause(800)
+    const panel = getPanel()!
+    dragHeader(0, -200)
+    await pause(200)
+    // The Drawer's own sheet drag may move a bottom pane; movable must not add an offset to it.
+    expect(panel.style.top).toBe('')
+    expect(panel.style.left).toBe('')
+  },
+}
+
+export const ReopenedPaneIsAtItsDefaultPlace: Story = {
+  render: () => <MovableDemo />,
+  play: async ({canvasElement}) => {
+    await open()
+    const home = getPanel()!.getBoundingClientRect().left
+    dragHeader(-120, 0)
+    await waitFor(() => expect(getPanel()!.getBoundingClientRect().left).toBeLessThan(home - 100))
+    await userEvent.click(within(getPanel()!).getByRole('button', {name: 'Close'}))
+    await waitFor(() => expect(getPanel()).toBeNull())
+    await userEvent.click(within(canvasElement).getByRole('button', {name: 'Open theme'}))
+    await waitFor(() => expect(getPanel()).not.toBeNull())
+    await pause(500)
+    near(getPanel()!.getBoundingClientRect().left, home)
+  },
+}

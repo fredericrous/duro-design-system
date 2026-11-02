@@ -17,11 +17,12 @@ const SIDE_DETENTS = ['compact', 'expanded'] as const satisfies readonly SideSna
 const BOTTOM_DETENTS = ['medium', 'large'] as const satisfies readonly SnapPoint[]
 
 /** `modal` is the Pane's own decision: it is never modal. */
-export type PaneSideRootProps = Omit<DrawerSideRootProps, 'modal'>
-export type PaneBottomRootProps = Omit<DrawerBottomRootProps, 'modal'>
+// `movable` is web-only (a drag on a header): on React Native it is accepted and does nothing.
+export type PaneSideRootProps = Omit<DrawerSideRootProps, 'modal'> & {movable?: boolean}
+export type PaneBottomRootProps = Omit<DrawerBottomRootProps, 'modal'> & {movable?: boolean}
 export type PaneRootProps = PaneSideRootProps | PaneBottomRootProps
 
-function Root(props: PaneRootProps) {
+function Root({movable: _movable, ...props}: PaneRootProps) {
   if (props.anchor === 'bottom') {
     return <Drawer.Root {...props} modal={false} snapPoints={props.snapPoints ?? BOTTOM_DETENTS} />
   }
