@@ -27,6 +27,9 @@ export interface SwipeSnap {
   onSnap: (index: number) => void
 }
 
+/** Marks a drag handle inside a Drawer panel: a press inside it moves the panel and never starts its swipe. */
+export const DRAG_HANDLE_ATTR = 'data-drawer-drag-handle'
+
 interface UseSwipeDismissOptions {
   anchor: DrawerAnchor
   enabled: boolean
@@ -266,6 +269,8 @@ export function useSwipeDismiss({
     function handlePointerDown(e: PointerEvent) {
       if (e.button !== 0) return
       const target = e.target as HTMLElement
+      // A drag handle (a movable Pane's header) moves the panel: a press there never swipes it away.
+      if (target.closest(`[${DRAG_HANDLE_ATTR}]`)) return
       const fromGrabber = snapping && target.closest('[data-drawer-grabber]') !== null
       const scrollEl = fromGrabber ? null : target.closest<HTMLElement>('[data-duro-scroll]')
       // Outside a ScrollArea a control keeps its press. Inside one the gesture

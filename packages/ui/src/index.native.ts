@@ -99,6 +99,7 @@ export {
 export {
   Pane,
   type ExpandLabels as PaneExpandLabels,
+  type MoveLabels as PaneMoveLabels,
   type PaneBottomRootProps,
   type PaneRootProps,
   type PaneSideRootProps,

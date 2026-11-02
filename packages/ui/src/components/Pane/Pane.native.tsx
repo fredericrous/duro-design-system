@@ -17,11 +17,12 @@ const SIDE_DETENTS = ['compact', 'expanded'] as const satisfies readonly SideSna
 const BOTTOM_DETENTS = ['medium', 'large'] as const satisfies readonly SnapPoint[]
 
 /** `modal` is the Pane's own decision: it is never modal. */
-export type PaneSideRootProps = Omit<DrawerSideRootProps, 'modal'>
-export type PaneBottomRootProps = Omit<DrawerBottomRootProps, 'modal'>
+// `movable` is web-only (a drag on a header): on React Native it is accepted and does nothing.
+export type PaneSideRootProps = Omit<DrawerSideRootProps, 'modal'> & {movable?: boolean}
+export type PaneBottomRootProps = Omit<DrawerBottomRootProps, 'modal'> & {movable?: boolean}
 export type PaneRootProps = PaneSideRootProps | PaneBottomRootProps
 
-function Root(props: PaneRootProps) {
+function Root({movable: _movable, ...props}: PaneRootProps) {
   if (props.anchor === 'bottom') {
     return <Drawer.Root {...props} modal={false} snapPoints={props.snapPoints ?? BOTTOM_DETENTS} />
   }
@@ -40,6 +41,14 @@ function Portal({children, grabberLabels}: PortalProps) {
       {children}
     </Drawer.Portal>
   )
+}
+
+/** The Move control's names: on React Native it renders nothing, the type keeps shared code typed. */
+export interface MoveLabels {
+  move: string
+  toLeft: string
+  toRight: string
+  toDefault: string
 }
 
 export interface ExpandLabels {
@@ -84,4 +93,6 @@ export const Pane = {
   Footer: Drawer.Footer,
   Close: Drawer.Close,
   Expand,
+  // Moving a pane is web only: on React Native the control renders nothing, so shared code still runs.
+  Move: (_props: {labels?: MoveLabels}) => null,
 }
