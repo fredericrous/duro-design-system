@@ -480,7 +480,7 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   80: ['fieldMinWSm', 'placeholderMinH'],
   6: ['meterH', 'badgeDot'],
   96: ['skeletonChipW', 'sliderW', 'paletteMinW', 'deviceBarW'],
-  128: ['dropZoneMinH'],
+  128: ['dropZoneMinH', 'scrimRampH'],
   550: ['embedW'],
   196: ['colorPickerW'],
   150: ['colorAreaH'],

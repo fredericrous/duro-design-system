@@ -20,6 +20,20 @@ export const nativeStyles = css.create({
   scrim: {
     backgroundColor: colors.scrim,
   },
+  // The ramp scrim: bands stacked at the bottom edge, each a step more opaque than the last.
+  rampStack: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  rampBand: (height: number, opacity: number) => ({
+    height,
+    opacity,
+    backgroundColor: colors.scrim,
+  }),
   panel: {
     flexGrow: 1,
     backgroundColor: colors.bgCard,

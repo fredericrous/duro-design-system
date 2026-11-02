@@ -3,6 +3,7 @@ import {
   Badge,
   Button,
   Dialog,
+  Drawer,
   Icon,
   Inline,
   List,
@@ -21,6 +22,7 @@ import {
  */
 export function OverlayDemo() {
   const [renaming, setRenaming] = useState(false)
+  const [starting, setStarting] = useState(false)
   return (
     <Inline gap="sm">
       <Menu.Root>
@@ -49,6 +51,23 @@ export function OverlayDemo() {
           </Dialog.Body>
         </Dialog.Portal>
       </Dialog.Root>
+      <Button onClick={() => setStarting(true)}>New session</Button>
+      <Drawer.Root anchor="bottom" open={starting} onOpenChange={setStarting}>
+        <Drawer.Portal
+          placement="floating"
+          backdrop="ramp"
+          above={
+            <Button variant="secondary" onClick={() => setStarting(false)}>
+              Close
+            </Button>
+          }
+        >
+          <Drawer.Title>New session</Drawer.Title>
+          <Drawer.Body>
+            <Text>A floating card with a ramped backdrop.</Text>
+          </Drawer.Body>
+        </Drawer.Portal>
+      </Drawer.Root>
       <Popover.Root>
         <Popover.Trigger>Filters</Popover.Trigger>
         <Popover.Popup label="Filters">
