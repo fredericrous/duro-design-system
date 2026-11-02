@@ -45,6 +45,10 @@ export const sizes = css.defineVars({
   popupMinW: '160px',
   listMaxH: '280px',
   listMaxHSm: '200px',
+  // Happier's chip picker (MasterDetail in a Popover): rail width, popover caps.
+  railW: '190px',
+  pickerMaxW: '720px',
+  pickerMaxH: '420px',
   dialogSm: '400px',
   dialogMd: '520px',
   dialogLg: '680px',

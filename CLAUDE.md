@@ -226,6 +226,7 @@ These components **must** be wrapped in their `.Root`:
 | **List** | Vertical list of interactive items | compound: Actions, Content, Description, Empty, Item, … |
 | **Listbox** | Popup list of options for an input that keeps focus — an editor typeahead (mentions, slash commands) or a custom combobox | compound: Empty, Option, Root, getAnchorProps |
 | **LiveRegion** | Tells assistive tech about a change that has no focus move: a polite (role="status") or assertive (role="alert") region | `politeness`, `visuallyHidden`, `id` |
+| **MasterDetail** | A rail of selectable rows whose focused row drives a detail pane | compound: Detail, Item, Rail, Root, Section |
 | **Menu** | Dropdown action menu | compound: Item, LinkItem, Popup, Root, Separator, … |
 | **Meter** | A scalar inside a known range — WIP 2 of 3, a milestone 40% done — as role="meter" with a value text, drawn as a thin bar (the meterH token) | `value`, `min`, `max` |
 | **Node** | A rounded rectangle node with a title and optional subtitle | `x`, `y`, `w` |
@@ -423,6 +424,9 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `popupMinW` | 160px |
 | `listMaxH` | 280px |
 | `listMaxHSm` | 200px |
+| `railW` | 190px |
+| `pickerMaxW` | 720px |
+| `pickerMaxH` | 420px |
 | `dialogSm` | 400px |
 | `dialogMd` | 520px |
 | `dialogLg` | 680px |

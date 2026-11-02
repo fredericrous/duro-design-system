@@ -79,6 +79,29 @@ export const styles = css.create({
     // the popup takes them back.
     pointerEvents: 'auto',
   },
+  // padding="flush": the content (a MasterDetail) brings its own padding and dividers.
+  popupFlush: {
+    padding: 0,
+  },
+  // A maxHeight caps the popup; taller content scrolls inside it.
+  popupScrolls: {
+    overflowY: 'auto',
+  },
+  // Dynamic styles: simple identifier params only (StyleX constraint)
+  popupWidth: (width: number | string) => ({
+    width,
+  }),
+  // A set width never runs off a narrow screen: the viewport less a margin each
+  // side, as AnchoredOverlay keeps a native popup.
+  popupWidthFits: {
+    maxWidth: `calc(100vw - 2 * ${spacing.sm})`,
+  },
+  popupMaxWidth: (maxWidth: number | string) => ({
+    maxWidth,
+  }),
+  popupMaxHeight: (maxHeight: number | string) => ({
+    maxHeight,
+  }),
   close: {
     display: 'inline-flex',
     alignItems: 'center',
