@@ -20,31 +20,44 @@ function isMoved(panel: HTMLElement): boolean {
   return panel.style.left !== '' || panel.style.top !== ''
 }
 
-/** The inset a moved pane keeps from the window edge: the same gap a floating pane rests at. */
+/** The gap the Move menu's edge places keep from the window edge: the one a floating pane rests at. */
 const EDGE_GAP_PX = SPACING_PX.md
 
-/**
- * Places the panel at offset (x, y), clamped so it stays inside the window less the edge gap. The
- * default place is found from the panel's rectangle less its current offset, so this works from
- * any place. The window is the layout viewport (clientWidth), so a classic scrollbar is not covered.
- */
-export function placePanel(panel: HTMLElement, x: number, y: number) {
+// How far a dragged pane may slide off the window, as in the website builder's floating panels:
+// 80% of its width past the left or right edge (a fifth stays in view to grab back), never past
+// the top edge (the header stays reachable), and 90% of its height past the bottom.
+const OFF_SIDE = 0.8
+const OFF_BOTTOM = 0.9
+
+/** Where the panel would sit with no offset: its rectangle less the offset it has now. */
+function geometry(panel: HTMLElement) {
   const rect = panel.getBoundingClientRect()
   const current = offsetOf(panel)
-  const baseLeft = rect.left - current.x
-  const baseTop = rect.top - current.y
-  const width = document.documentElement.clientWidth
-  const height = document.documentElement.clientHeight
-  const minX = EDGE_GAP_PX - baseLeft
-  const maxX = width - EDGE_GAP_PX - baseLeft - rect.width
-  const minY = EDGE_GAP_PX - baseTop
-  const maxY = height - EDGE_GAP_PX - baseTop - rect.height
-  // A pane wider than the room left keeps its start edge in view.
-  const clampX = Math.max(minX, Math.min(x, maxX))
-  const clampY = Math.max(minY, Math.min(y, maxY))
-  panel.style.left = `${clampX}px`
-  panel.style.top = `${clampY}px`
-  // The drag hook keeps a moved panel inside the window when it grows: it listens for this.
+  return {
+    baseLeft: rect.left - current.x,
+    baseTop: rect.top - current.y,
+    width: rect.width,
+    height: rect.height,
+    // The layout viewport, so a classic scrollbar is not counted as room.
+    viewWidth: document.documentElement.clientWidth,
+    viewHeight: document.documentElement.clientHeight,
+  }
+}
+
+/**
+ * Places the panel at offset (x, y), clamped so it never leaves the window entirely: a fifth of its
+ * width stays in view on either side, its top edge never goes above the window, and a tenth of its
+ * height stays in view at the bottom.
+ */
+export function placePanel(panel: HTMLElement, x: number, y: number) {
+  const frame = geometry(panel)
+  const minX = -OFF_SIDE * frame.width - frame.baseLeft
+  const maxX = frame.viewWidth - (1 - OFF_SIDE) * frame.width - frame.baseLeft
+  const minY = -frame.baseTop
+  const maxY = frame.viewHeight - (1 - OFF_BOTTOM) * frame.height - frame.baseTop
+  panel.style.left = `${Math.max(minX, Math.min(x, maxX))}px`
+  panel.style.top = `${Math.max(minY, Math.min(y, maxY))}px`
+  // The drag hook keeps a moved panel inside these limits when it grows: it listens for this.
   panel.dispatchEvent(new Event(PANEL_MOVED, {bubbles: true}))
 }
 
@@ -61,13 +74,15 @@ export function resetPanel(panel: HTMLElement) {
 export type PanePlace = 'left' | 'right' | 'default'
 
 export function movePanelTo(panel: HTMLElement, place: PanePlace) {
-  // A far offset is clamped to the edge, so it lands at the edge gap.
+  // The edge places show the whole pane, at the gap a floating pane rests at.
+  const frame = geometry(panel)
+  const y = offsetOf(panel).y
   switch (place) {
     case 'left':
-      placePanel(panel, -Number.MAX_SAFE_INTEGER, offsetOf(panel).y)
+      placePanel(panel, EDGE_GAP_PX - frame.baseLeft, y)
       return
     case 'right':
-      placePanel(panel, Number.MAX_SAFE_INTEGER, offsetOf(panel).y)
+      placePanel(panel, frame.viewWidth - EDGE_GAP_PX - frame.baseLeft - frame.width, y)
       return
     case 'default':
       resetPanel(panel)

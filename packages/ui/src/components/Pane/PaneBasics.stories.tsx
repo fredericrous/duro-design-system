@@ -239,14 +239,25 @@ export const MovesFromTheHeaderAndDoubleClickPutsItBack: Story = {
   },
 }
 
-export const DragStopsAtTheWindowEdge: Story = {
+export const ADragNeverTakesItEntirelyOffScreen: Story = {
   render: () => <MovableDemo />,
   play: async () => {
     await open()
     const panel = getPanel()!
+    const width = panel.getBoundingClientRect().width
+    const height = panel.getBoundingClientRect().height
+    // Far left: a fifth of its width stays in view, to grab it back.
     dragHeader(-5000, 0)
-    // It stops at the edge gap a floating pane keeps, never past the window.
-    await waitFor(() => near(panel.getBoundingClientRect().left, SPACING_PX.md))
+    await waitFor(() => near(panel.getBoundingClientRect().left, -0.8 * width))
+    // Far right: a fifth stays in view on that side too.
+    dragHeader(10000, 0)
+    await waitFor(() => near(window.innerWidth - panel.getBoundingClientRect().left, 0.2 * width))
+    // Up: the top edge never goes above the window, so the header stays reachable.
+    dragHeader(0, -5000)
+    await waitFor(() => near(panel.getBoundingClientRect().top, 0))
+    // Down: a tenth of its height stays in view at the bottom.
+    dragHeader(0, 10000)
+    await waitFor(() => near(window.innerHeight - panel.getBoundingClientRect().top, 0.1 * height))
   },
 }
 
@@ -319,7 +330,7 @@ export const DraggingBackTowardTheEdgeNeverDismisses: Story = {
     dragHeader(-200, 0)
     await waitFor(() => expect(panel.getBoundingClientRect().left).toBeLessThan(home - 150))
     // Back toward the right edge: the swipe that dismisses a right pane must not start from the header.
-    dragHeader(400, 0)
+    dragHeader(200, 0)
     await pause(500)
     expect(getPanel()).not.toBeNull()
     expect(getPanel()!.style.transform).toBe('')
