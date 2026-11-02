@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -45,8 +46,8 @@ const MovableContext = createContext(false)
 /** Whether the header holds a Pane.Move: then Move, not Expand, starts the header's end group. */
 interface HeaderMove {
   hasMove: boolean
-  /** Move reports itself, wherever it sits in the header (a Fragment, a wrapper component). */
-  setHasMove: (hasMove: boolean) => void
+  /** Move reports itself, wherever it sits in the header (a Fragment, a wrapper component); the returned function takes it back. */
+  registerMove: () => () => void
 }
 const HeaderMoveContext = createContext<HeaderMove | null>(null)
 
@@ -87,8 +88,12 @@ type HeaderProps = ComponentProps<typeof Drawer.Header>
 function Header(props: HeaderProps) {
   const movable = useContext(MovableContext)
   const [hasMove, setHasMove] = useState(false)
+  const registerMove = useCallback(() => {
+    setHasMove(true)
+    return () => setHasMove(false)
+  }, [])
   const header = (
-    <HeaderMoveContext.Provider value={{hasMove: movable && hasMove, setHasMove}}>
+    <HeaderMoveContext.Provider value={{hasMove: movable && hasMove, registerMove}}>
       <Drawer.Header {...props} />
     </HeaderMoveContext.Provider>
   )
@@ -130,13 +135,12 @@ function Move({labels = DEFAULT_MOVE_LABELS}: MoveProps) {
   const movable = useContext(MovableContext)
   const headerMove = useContext(HeaderMoveContext)
   const box = useRef<HTMLDivElement>(null)
-  const setHasMove = headerMove?.setHasMove
+  const registerMove = headerMove?.registerMove
   // Tell the header it holds a Move, so Expand gives up its own auto margin.
   useLayoutEffect(() => {
-    if (!movable || !setHasMove) return
-    setHasMove(true)
-    return () => setHasMove(false)
-  }, [movable, setHasMove])
+    if (!movable || !registerMove) return
+    return registerMove()
+  }, [movable, registerMove])
   // A native listener on the wrapper: the arrow keys need preventDefault, and a closed Menu trigger
   // lets them through (an open menu has focus in its own popup, outside this wrapper).
   useEffect(() => {
