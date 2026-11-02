@@ -266,6 +266,8 @@ export function useSwipeDismiss({
     function handlePointerDown(e: PointerEvent) {
       if (e.button !== 0) return
       const target = e.target as HTMLElement
+      // A movable Pane's header is its drag handle: a press there moves the pane, it never swipes it away.
+      if (target.closest('[data-pane-handle]')) return
       const fromGrabber = snapping && target.closest('[data-drawer-grabber]') !== null
       const scrollEl = fromGrabber ? null : target.closest<HTMLElement>('[data-duro-scroll]')
       // Outside a ScrollArea a control keeps its press. Inside one the gesture

@@ -43,6 +43,14 @@ function Portal({children, grabberLabels}: PortalProps) {
   )
 }
 
+/** The Move control's names: on React Native it renders nothing, the type keeps shared code typed. */
+export interface MoveLabels {
+  move: string
+  toStart: string
+  toEnd: string
+  toDefault: string
+}
+
 export interface ExpandLabels {
   expand: string
   collapse: string
@@ -85,4 +93,6 @@ export const Pane = {
   Footer: Drawer.Footer,
   Close: Drawer.Close,
   Expand,
+  // Moving a pane is web only: on React Native the control renders nothing, so shared code still runs.
+  Move: (_props: {labels?: MoveLabels}) => null,
 }

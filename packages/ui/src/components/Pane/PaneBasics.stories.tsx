@@ -165,8 +165,17 @@ const getHeader = () => document.querySelector<HTMLElement>('[data-pane-handle]'
 
 // Synthetic pointer events on the header, at its left edge: the title's side, away from the controls.
 function pointerAt(target: Element, type: string, x: number, y: number) {
+  // As a real pointer does: the primary button is held from down to up, and released on up.
+  const buttons = type === 'pointerup' ? 0 : 1
   target.dispatchEvent(
-    new PointerEvent(type, {pointerId: 1, button: 0, bubbles: true, clientX: x, clientY: y}),
+    new PointerEvent(type, {
+      pointerId: 1,
+      button: 0,
+      buttons,
+      bubbles: true,
+      clientX: x,
+      clientY: y,
+    }),
   )
 }
 // A pane that cannot move has no handle: the drag then starts on its title, which must not move it either.
@@ -236,8 +245,8 @@ export const DragStopsAtTheWindowEdge: Story = {
     await open()
     const panel = getPanel()!
     dragHeader(-5000, 0)
-    await waitFor(() => expect(panel.getBoundingClientRect().left).toBeLessThanOrEqual(1))
-    expect(panel.getBoundingClientRect().left).toBeGreaterThanOrEqual(0)
+    // It stops at the edge gap a floating pane keeps, never past the window.
+    await waitFor(() => near(panel.getBoundingClientRect().left, SPACING_PX.md))
   },
 }
 
@@ -298,5 +307,65 @@ export const ReopenedPaneIsAtItsDefaultPlace: Story = {
     await waitFor(() => expect(getPanel()).not.toBeNull())
     await pause(500)
     near(getPanel()!.getBoundingClientRect().left, home)
+  },
+}
+
+export const DraggingBackTowardTheEdgeNeverDismisses: Story = {
+  render: () => <MovableDemo />,
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    const home = panel.getBoundingClientRect().left
+    dragHeader(-200, 0)
+    await waitFor(() => expect(panel.getBoundingClientRect().left).toBeLessThan(home - 150))
+    // Back toward the right edge: the swipe that dismisses a right pane must not start from the header.
+    dragHeader(400, 0)
+    await pause(500)
+    expect(getPanel()).not.toBeNull()
+    expect(getPanel()!.style.transform).toBe('')
+    near(getPanel()!.getBoundingClientRect().left, home)
+  },
+}
+
+export const ShiftArrowTakesALargerStep: Story = {
+  render: () => <MovableDemo />,
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    const home = panel.getBoundingClientRect().left
+    within(panel).getByRole('button', {name: 'Move panel'}).focus()
+    await userEvent.keyboard('{Shift>}{ArrowLeft}{/Shift}')
+    await waitFor(() => near(panel.getBoundingClientRect().left, home - SPACING_PX.xxxl))
+  },
+}
+
+export const TheMoveMenuSendsItToAnEdgeAndBack: Story = {
+  render: () => <MovableDemo />,
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    const home = panel.getBoundingClientRect().left
+    await userEvent.click(within(panel).getByRole('button', {name: 'Move panel'}))
+    await userEvent.click(
+      await within(document.body).findByRole('menuitem', {name: 'Move to the left edge'}),
+    )
+    await waitFor(() => near(panel.getBoundingClientRect().left, SPACING_PX.md))
+    await userEvent.click(within(panel).getByRole('button', {name: 'Move panel'}))
+    await userEvent.click(
+      await within(document.body).findByRole('menuitem', {name: 'Back to its place'}),
+    )
+    await waitFor(() => near(panel.getBoundingClientRect().left, home))
+  },
+}
+
+export const MoveSitsBesideExpandAndClose: Story = {
+  render: () => <MovableDemo />,
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    const move = within(panel).getByRole('button', {name: 'Move panel'}).getBoundingClientRect()
+    const expand = within(panel).getByRole('button', {name: 'Expand'}).getBoundingClientRect()
+    // One group at the header's end: Move is right before Expand, not floating mid-header.
+    expect(expand.left - move.right).toBeLessThanOrEqual(SPACING_PX.lg)
   },
 }

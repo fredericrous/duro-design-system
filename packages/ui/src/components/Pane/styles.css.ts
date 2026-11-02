@@ -5,9 +5,10 @@ export const styles = css.create({
   expand: {
     marginLeft: 'auto',
   },
-  // The header of a movable pane: a grab cursor says it can be dragged.
+  // The header of a movable pane: a grab cursor says it can be dragged, and a drag selects no text.
   handle: {
     cursor: 'grab',
+    userSelect: 'none',
   },
   // The move control sits before Expand, at the same end of the header.
   move: {

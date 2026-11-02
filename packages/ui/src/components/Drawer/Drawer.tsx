@@ -62,9 +62,11 @@ function Root({children, ...props}: DrawerRootProps) {
       // of the two document listeners runs first. Only a popup trigger (aria-haspopup) counts: a
       // disclosure such as Advanced also sets aria-expanded, and it must not hold Escape. A modal
       // drawer keeps closing on every Escape.
+      const hasPopup = focused?.getAttribute('aria-haspopup')
       const popoverOpen =
         !modal &&
-        focused?.getAttribute('aria-haspopup') !== null &&
+        hasPopup != null &&
+        hasPopup !== 'false' &&
         focused?.getAttribute('aria-expanded') === 'true'
       if (e.defaultPrevented || popoverOpen) return
       if (modal || focusInsidePanel) {

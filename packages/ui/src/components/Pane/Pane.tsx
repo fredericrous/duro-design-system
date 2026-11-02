@@ -1,5 +1,7 @@
 import {
+  Children,
   createContext,
+  isValidElement,
   useContext,
   useEffect,
   useRef,
@@ -11,8 +13,9 @@ import {Drawer, type SideSnapPoint, type SnapPoint} from '../Drawer/Drawer'
 import {useDrawer, type GrabberLabels} from '../Drawer/parts'
 import {cycleDetent} from '../Drawer/sheetPhysics'
 import {partStyles} from '../Drawer/parts.css'
+import {Menu} from '../Menu/Menu'
 import {styles} from './styles.css'
-import {moveWithKey, panelOf, usePaneDrag} from './paneMove'
+import {movePanelTo, moveWithKey, panelOf, usePaneDrag, type PanePlace} from './paneMove'
 import type {DrawerBottomRootProps, DrawerSideRootProps} from '../Drawer/useDrawerRoot'
 
 // A Pane is a non-modal Drawer that floats: inset from the edge, rounded all round, and resting at
@@ -31,6 +34,9 @@ export type PaneRootProps = PaneSideRootProps | PaneBottomRootProps
 
 /** Whether this Pane's header moves it. A bottom pane never moves: it rests on its edge. */
 const MovableContext = createContext(false)
+
+/** Whether the header holds a Pane.Move: then Move, not Expand, starts the header's end group. */
+const HeaderHasMoveContext = createContext(false)
 
 function Root({movable = false, ...props}: PaneRootProps) {
   const enabled = movable && props.anchor !== 'bottom'
@@ -55,7 +61,7 @@ interface PortalProps {
 }
 
 function Portal({children, grabberLabels}: PortalProps) {
-  usePaneDrag(useContext(MovableContext))
+  usePaneDrag({enabled: useContext(MovableContext)})
   return (
     <Drawer.Portal placement="floating" grabberLabels={grabberLabels}>
       {children}
@@ -68,47 +74,88 @@ type HeaderProps = ComponentProps<typeof Drawer.Header>
 /** The Drawer's header. On a movable pane it is the handle: a drag moves the pane, a double-click puts it back. */
 function Header(props: HeaderProps) {
   const movable = useContext(MovableContext)
-  if (!movable) return <Drawer.Header {...props} />
+  const hasMove =
+    movable && Children.toArray(props.children).some((c) => isValidElement(c) && c.type === Move)
+  const header = (
+    <HeaderHasMoveContext.Provider value={hasMove}>
+      <Drawer.Header {...props} />
+    </HeaderHasMoveContext.Provider>
+  )
+  if (!movable) return header
   return (
     <html.div data-pane-handle="" style={styles.handle}>
-      <Drawer.Header {...props} />
+      {header}
     </html.div>
   )
 }
 
-/** A header control that moves a movable pane with the arrow keys (Home puts it back): the non-drag way to move it. */
-function Move() {
+export interface MoveLabels {
+  /** The control's accessible name */
+  move: string
+  /** The menu items: send the pane to the window's start edge, its end edge, or back */
+  toStart: string
+  toEnd: string
+  toDefault: string
+}
+
+const DEFAULT_MOVE_LABELS: MoveLabels = {
+  move: 'Move panel',
+  toStart: 'Move to the left edge',
+  toEnd: 'Move to the right edge',
+  toDefault: 'Back to its place',
+}
+
+interface MoveProps {
+  /** The control's accessible name and its menu items */
+  labels?: MoveLabels
+}
+
+/**
+ * A header control that moves a movable pane without dragging it. A press opens a menu of places
+ * (either edge, or back to its place), the single-pointer way to move it; with focus on it the
+ * arrow keys nudge the pane (Shift for a larger step) and Home puts it back.
+ */
+function Move({labels = DEFAULT_MOVE_LABELS}: MoveProps) {
   const movable = useContext(MovableContext)
-  const button = useRef<HTMLButtonElement>(null)
-  // A native listener: the arrow keys need preventDefault, which the styled button's event type does not carry.
+  const box = useRef<HTMLDivElement>(null)
+  // A native listener on the wrapper: the arrow keys need preventDefault, and a closed Menu trigger
+  // lets them through (an open menu has focus in its own popup, outside this wrapper).
   useEffect(() => {
-    const el = button.current
+    const el = box.current
     if (!movable || !el) return
     function onKey(e: KeyboardEvent) {
       const panel = panelOf(el!)
-      if (panel && moveWithKey(panel, e.key)) e.preventDefault()
+      if (panel && moveWithKey(panel, e)) e.preventDefault()
     }
     el.addEventListener('keydown', onKey)
     return () => el.removeEventListener('keydown', onKey)
   }, [movable])
   if (!movable) return null
+  const send = (place: PanePlace) => () => {
+    const panel = box.current && panelOf(box.current)
+    if (panel) movePanelTo(panel, place)
+  }
   return (
-    <html.button
-      ref={button}
-      type="button"
-      aria-label="Move panel"
-      style={[partStyles.closeButton, styles.move]}
-    >
-      <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path
-          d="M8 2v12M2 8h12M8 2 6 4M8 2l2 2M8 14l-2-2M8 14l2-2M2 8l2-2M2 8l2 2M14 8l-2-2M14 8l-2 2"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </html.button>
+    <html.div ref={box} style={styles.move}>
+      <Menu.Root>
+        <Menu.Trigger variant="ghost" aria-label={labels.move}>
+          <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M8 2v12M2 8h12M8 2 6 4M8 2l2 2M8 14l-2-2M8 14l2-2M2 8l2-2M2 8l2 2M14 8l-2-2M14 8l-2 2"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </Menu.Trigger>
+        <Menu.Popup align="end">
+          <Menu.Item onClick={send('start')}>{labels.toStart}</Menu.Item>
+          <Menu.Item onClick={send('end')}>{labels.toEnd}</Menu.Item>
+          <Menu.Item onClick={send('default')}>{labels.toDefault}</Menu.Item>
+        </Menu.Popup>
+      </Menu.Root>
+    </html.div>
   )
 }
 
@@ -127,6 +174,8 @@ interface ExpandProps {
 /** A header button that steps the pane between its sizes. Renders nothing without two detents. */
 function Expand({labels = DEFAULT_EXPAND_LABELS}: ExpandProps) {
   const {snapPoints, sideSnapPoints, snapIndex, setSnapIndex} = useDrawer()
+  // Move, when it is there, already pushes the end group to the end: one auto margin, not two.
+  const afterMove = useContext(HeaderHasMoveContext)
   const count = sideSnapPoints.length || snapPoints.length
   if (count < 2) return null
   const expanded = snapIndex === count - 1
@@ -135,7 +184,7 @@ function Expand({labels = DEFAULT_EXPAND_LABELS}: ExpandProps) {
       type="button"
       aria-label={expanded ? labels.collapse : labels.expand}
       onClick={() => setSnapIndex(cycleDetent(snapIndex, count))}
-      style={[partStyles.closeButton, styles.expand]}
+      style={[partStyles.closeButton, !afterMove && styles.expand]}
     >
       <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path
