@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {useState} from 'react'
-import {expect, fn} from 'storybook/test'
+import {expect, fn, within} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {List} from './List'
 import {clickLink} from '../../docs/clickLink'
@@ -436,5 +436,45 @@ export const DestructiveRow: Story = {
     await expect(getComputedStyle(label).color).not.toBe(
       getComputedStyle(canvas.getByText('Profile')).color,
     )
+  },
+}
+
+/** Titled sections inside one Root: each is a group named by its title, with its rows inside. */
+export const Sections: Story = {
+  render: () => (
+    <List.Root aria-label="Branches">
+      <List.Section title="Recent" accessory="2">
+        <List.Item>
+          <List.Content>
+            <List.Text>main</List.Text>
+          </List.Content>
+        </List.Item>
+        <List.Item>
+          <List.Content>
+            <List.Text>feature/login</List.Text>
+          </List.Content>
+        </List.Item>
+      </List.Section>
+      <List.Section title="All branches">
+        <List.Item>
+          <List.Content>
+            <List.Text>release/1.0</List.Text>
+          </List.Content>
+        </List.Item>
+      </List.Section>
+    </List.Root>
+  ),
+  play: async ({canvas}) => {
+    const recent = canvas.getByRole('group', {name: 'Recent'})
+    const all = canvas.getByRole('group', {name: 'All branches'})
+    await expect(within(recent).getAllByRole('listitem')).toHaveLength(2)
+    await expect(within(recent).getByText('feature/login')).toBeInTheDocument()
+    await expect(within(recent).getByText('2')).toBeInTheDocument()
+    await expect(within(all).getAllByRole('listitem')).toHaveLength(1)
+    await expect(within(all).queryByText('main')).toBeNull()
+    // A section's last row draws no divider, wherever the section sits in the Root.
+    const rows = within(recent).getAllByRole('listitem')
+    await expect(getComputedStyle(rows[0]).borderBottomWidth).toBe('1px')
+    await expect(getComputedStyle(rows[1]).borderBottomWidth).toBe('0px')
   },
 }

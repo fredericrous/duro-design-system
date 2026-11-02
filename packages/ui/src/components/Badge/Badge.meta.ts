@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Small label or tag for status indicators, counts, or categories. Renders inline. Use for metadata annotations next to text or in table cells.',
+    'Small label or tag for status indicators, counts, or categories. Renders inline. `dot` draws a small dot (the badgeDot token) before the text in the colour of its variant; it is decorative, so the text stays the name of the Badge. Use for metadata annotations next to text or in table cells.',
   whenToUse: [
     'Status indicators (active, expired, pending)',
     'Category tags or labels',

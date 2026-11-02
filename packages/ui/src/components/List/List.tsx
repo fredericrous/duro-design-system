@@ -1,6 +1,7 @@
 import {
   Children,
   type ReactNode,
+  type Ref,
   createContext,
   isValidElement,
   useContext,
@@ -91,17 +92,46 @@ function Root({
   )
 }
 
-/** The Root's children, the last one told it is last (a hidden conditional row is not counted). */
+/**
+ * The children of a Root or a Section, each told whether it is the last (a hidden conditional
+ * row is not counted). Every child is told, so a Section's rows ignore the Root's answer.
+ */
 function markLastItem(children: ReactNode): ReactNode {
   const items = Children.toArray(children)
-  return items.map((child, index) =>
-    index === items.length - 1 ? (
-      <LastItemContext.Provider key={isValidElement(child) ? child.key : index} value={true}>
-        {child}
-      </LastItemContext.Provider>
-    ) : (
-      child
-    ),
+  return items.map((child, index) => (
+    <LastItemContext.Provider
+      key={isValidElement(child) ? child.key : index}
+      value={index === items.length - 1}
+    >
+      {child}
+    </LastItemContext.Provider>
+  ))
+}
+
+// --- Section: a titled group of items inside one Root ---
+
+interface SectionProps {
+  children: ReactNode
+  /** The section's heading, which also names the group. */
+  title: ReactNode
+  /** Trailing text or control in the heading row: a count, a hint. */
+  accessory?: ReactNode
+}
+
+function Section({children, title, accessory}: SectionProps) {
+  const titleId = useId()
+  return (
+    <html.div role="group" aria-labelledby={titleId} style={styles.section}>
+      <html.div style={styles.sectionHeader}>
+        <html.p id={titleId} style={styles.sectionTitle}>
+          {title}
+        </html.p>
+        {accessory != null ? (
+          <html.div style={styles.sectionAccessory}>{accessory}</html.div>
+        ) : null}
+      </html.div>
+      {markLastItem(children)}
+    </html.div>
   )
 }
 
@@ -109,6 +139,8 @@ function markLastItem(children: ReactNode): ReactNode {
 
 interface ItemBaseProps {
   children: ReactNode
+  /** The row's element, e.g. to return focus to it (web: the DOM node; native: the host). */
+  ref?: Ref<HTMLDivElement>
   /** Whether this item is selected */
   selected?: boolean
   /** Whether this item is disabled */
@@ -153,7 +185,7 @@ type ItemAction =
 
 const ItemActionContext = createContext<ItemAction | null>(null)
 
-function Item({children, selected, disabled, onClick, href, onNavigate}: ItemProps) {
+function Item({children, ref, selected, disabled, onClick, href, onNavigate}: ItemProps) {
   const {selectionMode} = useList()
   const isSelectable = selectionMode !== 'none'
   const isDisabled = disabled === true
@@ -173,6 +205,7 @@ function Item({children, selected, disabled, onClick, href, onNavigate}: ItemPro
   return (
     <ItemActionContext.Provider value={action}>
       <html.div
+        ref={ref}
         role="listitem"
         aria-selected={isSelectable ? selected : undefined}
         aria-disabled={disabled || undefined}
@@ -280,6 +313,7 @@ function Empty({children}: {children: ReactNode}) {
 
 export const List = {
   Root,
+  Section,
   Item,
   Leading,
   Content,

@@ -191,7 +191,7 @@ These components **must** be wrapped in their `.Root`:
 | **Arrow** | Connector line between two points, with an arrowhead at the end | `from`, `to`, `bend` |
 | **Aside** | Content beside the main reading column — a table of contents, related pages: a labelled aside landmark that sticks within the viewport while the page scrolls and scrolls on its own when taller (offset from a spacing token, the raised layer) | `aria-label`, `offset`, `ref` |
 | **Avatar** | A person or entity as a picture, else their initials, else a neutral placeholder | `src`, `alt`, `svg` |
-| **Badge** | Small label or tag for status indicators, counts, or categories | `variant`, `size` |
+| **Badge** | Small label or tag for status indicators, counts, or categories | `variant`, `size`, `dot` |
 | **Breadcrumb** | Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first | compound: Item, Root |
 | **Button** | Standard interactive button | `variant`, `size`, `fullWidth` |
 | **ButtonGroup** | Groups related buttons together with consistent spacing and layout | `orientation`, `align`, `disabled` |
@@ -244,6 +244,7 @@ These components **must** be wrapped in their `.Root`:
 | **SplitPane** | Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest | compound: Handle, Pane, Root |
 | **Stack** | Vertical flex layout | `gap`, `align` |
 | **StatusIcon** | Icon with a colored background circle | `name`, `size`, `variant` |
+| **SteppedList** | A drill-down list: a stack of steps, each with a title, its own rows and an optional input row | compound: Item, Root, Step |
 | **Switch** | Toggle switch for on/off settings | `checked`, `defaultChecked`, `onCheckedChange` |
 | **Table** | Data table with CSS grid layout | compound: Body, Cell, Container, Header, HeaderCell, … |
 | **Table (ui/table)** | Data table with CSS grid layout | compound: Body, Cell, ColumnFilter, Container, FromTanstack, … |
@@ -445,6 +446,7 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 | `popoverW` | 320px |
 | `popupMaxW` | 280px |
 | `meterH` | 6px |
+| `badgeDot` | 6px |
 | `skeletonChipW` | 96px |
 | `dropZoneMinH` | 128px |
 | `canvasMinH` | 480px |

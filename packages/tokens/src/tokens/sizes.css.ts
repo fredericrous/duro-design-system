@@ -68,6 +68,7 @@ export const sizes = css.defineVars({
   popoverW: '320px',
   popupMaxW: '280px',
   meterH: '6px',
+  badgeDot: '6px',
   skeletonChipW: '96px',
   dropZoneMinH: '128px',
   canvasMinH: '480px',

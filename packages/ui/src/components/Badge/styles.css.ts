@@ -2,6 +2,7 @@ import {css} from 'react-strict-dom'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {sizes} from '@duro-app/tokens/tokens/sizes.css'
 
 export const styles = css.create({
   base: {
@@ -53,6 +54,22 @@ export const styles = css.create({
     backgroundColor: colors.highlightBg,
     color: colors.highlightText,
   },
+  // `dot`: a round mark before the text, coloured per variant below.
+  withDot: {
+    gap: spacing.xs,
+  },
+  dot: {
+    width: sizes.badgeDot,
+    height: sizes.badgeDot,
+    borderRadius: radii.full,
+    flexShrink: 0,
+  },
+  dotDefault: {backgroundColor: colors.textMuted},
+  dotSuccess: {backgroundColor: colors.success},
+  dotWarning: {backgroundColor: colors.warning},
+  dotError: {backgroundColor: colors.error},
+  dotInfo: {backgroundColor: colors.info},
+  dotHighlight: {backgroundColor: colors.highlight},
   // RSD-native only honors display:'flex' (not 'inline-flex'). Layered on
   // native via `isNative` so the flex container applies; web keeps inline-flex.
   nativeFlex: {

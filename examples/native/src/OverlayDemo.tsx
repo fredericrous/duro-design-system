@@ -1,5 +1,17 @@
 import {useState} from 'react'
-import {Button, Dialog, Icon, Inline, Menu, Popover, Text, Tooltip} from '@duro-app/ui'
+import {
+  Badge,
+  Button,
+  Dialog,
+  Icon,
+  Inline,
+  List,
+  Menu,
+  Popover,
+  SteppedList,
+  Text,
+  Tooltip,
+} from '@duro-app/ui'
 
 /**
  * Checkpoint B scenarios for the anchored overlays: a Menu whose item opens a
@@ -40,6 +52,33 @@ export function OverlayDemo() {
         <Popover.Trigger>Filters</Popover.Trigger>
         <Popover.Popup label="Filters">
           <Text>Popover content</Text>
+          <SteppedList.Root defaultStep="repos" backLabel="Back">
+            <SteppedList.Step id="repos" title="Repositories">
+              <List.Root aria-label="Repositories">
+                <SteppedList.Item to="branches">
+                  <List.Content>
+                    <List.Text>duro</List.Text>
+                  </List.Content>
+                </SteppedList.Item>
+              </List.Root>
+            </SteppedList.Step>
+            <SteppedList.Step id="branches" title="Branches">
+              <List.Root aria-label="Branches">
+                <List.Section title="Recent">
+                  <List.Item>
+                    <List.Content>
+                      <List.Text>main</List.Text>
+                    </List.Content>
+                    <List.Actions>
+                      <Badge dot variant="success">
+                        Default
+                      </Badge>
+                    </List.Actions>
+                  </List.Item>
+                </List.Section>
+              </List.Root>
+            </SteppedList.Step>
+          </SteppedList.Root>
           <Popover.Close>Close</Popover.Close>
         </Popover.Popup>
       </Popover.Root>
