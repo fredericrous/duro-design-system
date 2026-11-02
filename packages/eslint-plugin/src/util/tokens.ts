@@ -493,7 +493,7 @@ export const SIZE_TOKENS_BY_PX: Record<number, string[]> = {
   132: ['dragThumbW'],
   99: ['dragThumbH'],
   272: ['heroReserve'],
-  720: ['heroMaxH', 'pickerMaxW'],
+  720: ['pickerMaxW', 'heroMaxH'],
   260: ['qrCode'],
   190: ['railW'],
   420: ['pickerMaxH'],
