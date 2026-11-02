@@ -92,6 +92,8 @@ export const sizes = css.defineVars({
   // Bottom-sheet grabber (Drawer snapPoints).
   sheetGrabberW: '40px',
   sheetGrabberH: '4px',
+  // Bottom-sheet scrim ramp (Drawer backdrop="ramp"): the height over which it fades in.
+  scrimRampH: '128px',
   readoutW: '40px',
   sliderW: '96px',
   paletteMinW: '96px',

@@ -14,7 +14,7 @@ import {
   Pressable,
   StyleSheet,
   useWindowDimensions,
-  type View,
+  View,
 } from 'react-native'
 import {
   Gesture,
@@ -138,7 +138,22 @@ interface PortalProps {
    * instead of `edge` (flush against it). For a non-modal drawer (Pane).
    */
   placement?: 'edge' | 'floating'
+  /**
+   * `dim` (default): a uniform scrim. `ramp`: clear above, ramping to the scrim colour over the
+   * bottom `scrimRampH`. A press on either still dismisses a dismissable drawer. Modal drawers only.
+   */
+  backdrop?: 'dim' | 'ramp'
+  /**
+   * Content laid just above the panel's top edge, end-aligned; it moves with the panel but is
+   * outside the panel's visual box.
+   */
+  above?: ReactNode
 }
+
+/** The ramp scrim has no gradient primitive on native: it is this many bands, stepped in opacity. */
+const RAMP_BANDS = 16
+const RAMP_BAND_HEIGHT = SIZES_PX.scrimRampH / RAMP_BANDS
+const RAMP_BAND_OPACITIES = Array.from({length: RAMP_BANDS}, (_, band) => (band + 1) / RAMP_BANDS)
 
 const PANEL_WIDTH = {sm: SIZES_PX.panelSm, md: SIZES_PX.panelMd, lg: SIZES_PX.panelLg} as const
 
@@ -153,6 +168,8 @@ function Portal({
   size: sizeProp,
   grabberLabels: grabberLabelsProp,
   placement = 'edge',
+  backdrop = 'dim',
+  above,
 }: PortalProps) {
   const drawer = useDrawer()
   const {
@@ -551,6 +568,11 @@ function Portal({
         onLayout={onPanelLayout}
         style={[where, panelMotion]}
       >
+        {above != null && above !== false && (
+          <View style={layout.above} pointerEvents="box-none">
+            <ControlContextBoundary>{above}</ControlContextBoundary>
+          </View>
+        )}
         <html.div
           role="dialog"
           aria-modal={modal ? true : undefined}
@@ -616,7 +638,19 @@ function Portal({
           accessible={false}
           importantForAccessibility="no"
         >
-          <html.div aria-hidden style={[nativeStyles.fill, nativeStyles.scrim]} />
+          {backdrop === 'ramp' ? (
+            <html.div aria-hidden style={nativeStyles.rampStack}>
+              {RAMP_BAND_OPACITIES.map((opacity) => (
+                <html.div
+                  key={opacity}
+                  aria-hidden
+                  style={nativeStyles.rampBand(RAMP_BAND_HEIGHT, opacity)}
+                />
+              ))}
+            </html.div>
+          ) : (
+            <html.div aria-hidden style={[nativeStyles.fill, nativeStyles.scrim]} />
+          )}
         </Pressable>
       </Animated.View>
       {panel}
@@ -634,6 +668,8 @@ const layout = StyleSheet.create({
   sideGrabber: {position: 'absolute', top: 0, bottom: 0, zIndex: 1},
   sideGrabberLeft: {right: 0},
   sideGrabberRight: {left: 0},
+  // The above slot: just over the panel's top edge, end-aligned, riding with the panel.
+  above: {position: 'absolute', bottom: '100%', right: 0, paddingBottom: SPACING_PX.sm},
   body: {flexGrow: 0, flexShrink: 1},
   bodyFill: {flex: 1},
 })

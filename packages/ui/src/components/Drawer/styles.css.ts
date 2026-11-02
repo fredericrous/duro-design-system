@@ -18,6 +18,11 @@ export const styles = css.create({
     // the backdrop must take clicks back (outside click dismisses).
     pointerEvents: 'auto',
   },
+  // A scrim that is clear above and ramps to the scrim colour over the bottom scrimRampH.
+  backdropRamp: {
+    backgroundColor: 'transparent',
+    backgroundImage: `linear-gradient(to bottom, transparent calc(100% - ${sizes.scrimRampH}), ${colors.scrim})`,
+  },
   backdropOpen: {
     animationName: css.keyframes({
       from: {opacity: 0},
@@ -49,6 +54,34 @@ export const styles = css.create({
   // Non-modal: a floating surface beside the page, not above it like a modal.
   viewportNonModal: {
     zIndex: layers.floating,
+  },
+
+  // The slot above the panel: it rides the panel's top edge, end-aligned, outside the panel's box.
+  aboveSlot: {
+    position: 'absolute',
+    bottom: `calc(100% + ${borders.hairline} + ${spacing.sm})`,
+    right: `calc(${borders.hairline} * -1)`,
+    pointerEvents: 'auto',
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  // With an above slot the panel stops clipping its own overflow (the slot sits outside its box);
+  // the content clips inside instead, so the rounded corners still hold.
+  panelOverflowVisible: {
+    overflow: 'visible',
+  },
+  panelClip: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    minHeight: 0,
+    overflow: 'hidden',
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+  },
+  panelClipFloating: {
+    borderBottomLeftRadius: radii.lg,
+    borderBottomRightRadius: radii.lg,
   },
 
   // A floating panel keeps clear of the viewport edge.

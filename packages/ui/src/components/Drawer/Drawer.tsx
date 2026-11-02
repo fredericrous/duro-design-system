@@ -119,6 +119,16 @@ interface PortalProps {
    * border all round, instead of `edge` (flush against it). For a non-modal drawer (Pane).
    */
   placement?: 'edge' | 'floating'
+  /**
+   * `dim` (default): a uniform scrim. `ramp`: clear above, ramping to the scrim colour over the
+   * bottom `scrimRampH`. A press on either still dismisses a dismissable drawer. Modal drawers only.
+   */
+  backdrop?: 'dim' | 'ramp'
+  /**
+   * Content laid just above the panel's top edge, end-aligned. It is inside the dialog, first in
+   * its focus order, and moves with the panel, but outside the panel's visual box.
+   */
+  above?: ReactNode
 }
 
 // Slide animation maps
@@ -153,6 +163,8 @@ function Portal({
   size: sizeProp,
   grabberLabels: grabberLabelsProp,
   placement = 'edge',
+  backdrop = 'dim',
+  above,
 }: PortalProps) {
   const {
     open,
@@ -247,7 +259,43 @@ function Portal({
 
   if (!open) return null
 
+  const hasAbove = above != null && above !== false
   const isHorizontal = anchor === 'left' || anchor === 'right'
+
+  const content = (
+    <>
+      {(snapping || sideSnapping) && (
+        <html.button
+          type="button"
+          data-drawer-grabber=""
+          aria-label={nextIndex > snapIndex ? grabberLabels.expand : grabberLabels.collapse}
+          onClick={() => setSnapIndex(nextIndex)}
+          style={
+            sideSnapping
+              ? [
+                  partStyles.grabberHit,
+                  styles.grabberHitSide,
+                  anchor === 'left' ? styles.grabberHitSideLeft : styles.grabberHitSideRight,
+                ]
+              : [partStyles.grabberHit, styles.grabberHitWeb]
+          }
+        >
+          <html.span
+            style={sideSnapping ? [partStyles.grabber, styles.grabberVertical] : partStyles.grabber}
+          />
+        </html.button>
+      )}
+      {modal ? (
+        <ModalContext.Provider value={true}>
+          <ControlContextBoundary>{children}</ControlContextBoundary>
+        </ModalContext.Provider>
+      ) : (
+        <PopoverLayerContext.Provider value={raisedFloatingLayer}>
+          <ControlContextBoundary>{children}</ControlContextBoundary>
+        </PopoverLayerContext.Provider>
+      )}
+    </>
+  )
 
   const node = (
     <>
@@ -256,6 +304,7 @@ function Portal({
         <html.div
           style={[
             styles.backdrop,
+            backdrop === 'ramp' && styles.backdropRamp,
             closing && styles.backdropClosing,
             closing && closeDurationMap[closeDuration],
             !closing && styles.backdropOpen,
@@ -296,42 +345,23 @@ function Portal({
             anchor === 'left' && styles.panelLeftBorder,
             !modal && styles.panelFocusTarget,
             floating && styles.panelFloating,
+            hasAbove && styles.panelOverflowVisible,
             closing && slideOutMap[anchor],
             closing && closeDurationMap[closeDuration],
             !closing && slideInMap[anchor],
           ]}
         >
-          {(snapping || sideSnapping) && (
-            <html.button
-              type="button"
-              data-drawer-grabber=""
-              aria-label={nextIndex > snapIndex ? grabberLabels.expand : grabberLabels.collapse}
-              onClick={() => setSnapIndex(nextIndex)}
-              style={
-                sideSnapping
-                  ? [
-                      partStyles.grabberHit,
-                      styles.grabberHitSide,
-                      anchor === 'left' ? styles.grabberHitSideLeft : styles.grabberHitSideRight,
-                    ]
-                  : [partStyles.grabberHit, styles.grabberHitWeb]
-              }
-            >
-              <html.span
-                style={
-                  sideSnapping ? [partStyles.grabber, styles.grabberVertical] : partStyles.grabber
-                }
-              />
-            </html.button>
+          {hasAbove && (
+            <html.div style={styles.aboveSlot}>
+              <ControlContextBoundary>{above}</ControlContextBoundary>
+            </html.div>
           )}
-          {modal ? (
-            <ModalContext.Provider value={true}>
-              <ControlContextBoundary>{children}</ControlContextBoundary>
-            </ModalContext.Provider>
+          {hasAbove ? (
+            <html.div style={[styles.panelClip, floating && styles.panelClipFloating]}>
+              {content}
+            </html.div>
           ) : (
-            <PopoverLayerContext.Provider value={raisedFloatingLayer}>
-              <ControlContextBoundary>{children}</ControlContextBoundary>
-            </PopoverLayerContext.Provider>
+            content
           )}
         </html.div>
       </html.div>

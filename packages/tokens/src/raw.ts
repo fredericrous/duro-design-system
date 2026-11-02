@@ -234,6 +234,7 @@ export const SIZES_PX = {
   barH: 4,
   sheetGrabberW: 40,
   sheetGrabberH: 4,
+  scrimRampH: 128,
   readoutW: 40,
   sliderW: 96,
   paletteMinW: 96,
