@@ -1,5 +1,8 @@
 import {useEffect} from 'react'
 import {SPACING_PX} from '@duro-app/tokens/keys'
+import {DRAG_HANDLE_ATTR} from '../Drawer/useSwipeDismiss'
+
+export {DRAG_HANDLE_ATTR}
 
 // A movable Pane is moved by its offset: `left` and `top` on the panel, which is position: relative,
 // so the Drawer's slide animation (a transform) is left alone. No offset means the default place.
@@ -41,8 +44,12 @@ export function placePanel(panel: HTMLElement, x: number, y: number) {
   const clampY = Math.max(minY, Math.min(y, maxY))
   panel.style.left = `${clampX}px`
   panel.style.top = `${clampY}px`
-  watchSize(panel)
+  // The drag hook keeps a moved panel inside the window when it grows: it listens for this.
+  panel.dispatchEvent(new Event(PANEL_MOVED, {bubbles: true}))
 }
+
+/** The event a placed panel sends, so the drag hook can watch its size. */
+const PANEL_MOVED = 'duro-pane-moved'
 
 /** Back to the default place, the one the Drawer gave it. */
 export function resetPanel(panel: HTMLElement) {
@@ -50,37 +57,26 @@ export function resetPanel(panel: HTMLElement) {
   panel.style.top = ''
 }
 
-/** Where the Move menu can send the pane: to either edge of the window, or back to its default place. */
-export type PanePlace = 'start' | 'end' | 'default'
+/** Where the Move menu can send the pane: to the window's left or right edge, or back to its default place. */
+export type PanePlace = 'left' | 'right' | 'default'
 
 export function movePanelTo(panel: HTMLElement, place: PanePlace) {
-  if (place === 'default') {
-    resetPanel(panel)
-    return
-  }
-  // A far offset is clamped to the edge: the start edge on the left, the end edge on the right.
-  const far = place === 'start' ? -Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER
-  placePanel(panel, far, offsetOf(panel).y)
-}
-
-// A moved pane that grows (Expand, a detent) could push itself off screen: each moved panel is
-// placed again at its own offset when its size changes.
-const watched = new WeakSet<HTMLElement>()
-let sizeObserver: ResizeObserver | null = null
-
-function watchSize(panel: HTMLElement) {
-  if (watched.has(panel) || typeof ResizeObserver === 'undefined') return
-  sizeObserver ??= new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const moved = entry.target as HTMLElement
-      if (isMoved(moved)) {
-        const offset = offsetOf(moved)
-        placePanel(moved, offset.x, offset.y)
-      }
+  // A far offset is clamped to the edge, so it lands at the edge gap.
+  switch (place) {
+    case 'left':
+      placePanel(panel, -Number.MAX_SAFE_INTEGER, offsetOf(panel).y)
+      return
+    case 'right':
+      placePanel(panel, Number.MAX_SAFE_INTEGER, offsetOf(panel).y)
+      return
+    case 'default':
+      resetPanel(panel)
+      return
+    default: {
+      const unhandled: never = place
+      throw new Error(`Unknown pane place: ${String(unhandled)}`)
     }
-  })
-  watched.add(panel)
-  sizeObserver.observe(panel)
+  }
 }
 
 /** The arrow keys' step, and Shift's larger one: spacing tokens, so a nudge is the same on every screen. */
@@ -119,7 +115,7 @@ const CONTROL = 'button, a, input, textarea, select, [role="button"]'
 /** The header a pointer event started on, unless it started on a control in that header. */
 function handleOf(target: EventTarget | null): HTMLElement | null {
   if (!(target instanceof Element)) return null
-  const handle = target.closest<HTMLElement>('[data-pane-handle]')
+  const handle = target.closest<HTMLElement>(`[${DRAG_HANDLE_ATTR}]`)
   if (!handle || target.closest(CONTROL)) return null
   return handle
 }
@@ -190,13 +186,37 @@ export function usePaneDrag({enabled}: PaneDragOptions) {
       })
     }
 
+    // A moved pane that grows (Expand, a detent) could push itself off screen: each panel placed
+    // while this hook runs is placed again at its own offset when its size changes. The observer
+    // lives with the hook and lets go of a panel once it has left the page.
+    const sizes =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver((entries) => {
+            for (const entry of entries) {
+              const panel = entry.target as HTMLElement
+              if (!panel.isConnected) {
+                sizes?.unobserve(panel)
+              } else if (isMoved(panel)) {
+                const offset = offsetOf(panel)
+                placePanel(panel, offset.x, offset.y)
+              }
+            }
+          })
+    function onPanelMoved(e: Event) {
+      if (e.target instanceof HTMLElement) sizes?.observe(e.target)
+    }
+
     document.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('pointermove', onPointerMove)
     document.addEventListener('pointerup', end)
     document.addEventListener('pointercancel', end)
     document.addEventListener('dblclick', onDoubleClick)
     window.addEventListener('resize', onResize)
+    document.addEventListener(PANEL_MOVED, onPanelMoved)
     return () => {
+      document.removeEventListener(PANEL_MOVED, onPanelMoved)
+      sizes?.disconnect()
       document.removeEventListener('pointerdown', onPointerDown)
       document.removeEventListener('pointermove', onPointerMove)
       document.removeEventListener('pointerup', end)

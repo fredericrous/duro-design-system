@@ -46,8 +46,8 @@ function Portal({children, grabberLabels}: PortalProps) {
 /** The Move control's names: on React Native it renders nothing, the type keeps shared code typed. */
 export interface MoveLabels {
   move: string
-  toStart: string
-  toEnd: string
+  toLeft: string
+  toRight: string
   toDefault: string
 }
 

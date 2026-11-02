@@ -161,7 +161,7 @@ export const ExpandedHoldsInsideANarrowWindow: Story = {
   },
 }
 
-const getHeader = () => document.querySelector<HTMLElement>('[data-pane-handle]')
+const getHeader = () => document.querySelector<HTMLElement>('[data-drawer-drag-handle]')
 
 // Synthetic pointer events on the header, at its left edge: the title's side, away from the controls.
 function pointerAt(target: Element, type: string, x: number, y: number) {
@@ -181,9 +181,9 @@ function pointerAt(target: Element, type: string, x: number, y: number) {
 // A pane that cannot move has no handle: the drag then starts on its title, which must not move it either.
 function dragHeader(dx: number, dy: number) {
   const header = getHeader() ?? getPanel()!.querySelector<HTMLElement>('h2')!
-  const r = header.getBoundingClientRect()
-  const x = r.left + 24
-  const y = r.top + r.height / 2
+  const headerRect = header.getBoundingClientRect()
+  const x = headerRect.left + 24
+  const y = headerRect.top + headerRect.height / 2
   pointerAt(header, 'pointerdown', x, y)
   pointerAt(header, 'pointermove', x + dx, y + dy)
   pointerAt(header, 'pointerup', x + dx, y + dy)
@@ -366,6 +366,63 @@ export const MoveSitsBesideExpandAndClose: Story = {
     const move = within(panel).getByRole('button', {name: 'Move panel'}).getBoundingClientRect()
     const expand = within(panel).getByRole('button', {name: 'Expand'}).getBoundingClientRect()
     // One group at the header's end: Move is right before Expand, not floating mid-header.
+    expect(expand.left - move.right).toBeLessThanOrEqual(SPACING_PX.lg)
+  },
+}
+
+export const EscapeFromTheOpenMoveMenuClosesOnlyTheMenu: Story = {
+  render: () => <MovableDemo />,
+  play: async () => {
+    await open()
+    const trigger = within(getPanel()!).getByRole('button', {name: 'Move panel'})
+    await userEvent.click(trigger)
+    await within(document.body).findByRole('menuitem', {name: 'Move to the left edge'})
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(document.querySelector('[role="menu"]')).toBeNull())
+    expect(getPanel()).not.toBeNull()
+    await waitFor(() => expect(document.activeElement).toBe(trigger))
+  },
+}
+
+export const MoveIsTheSameSizeAsExpand: Story = {
+  render: () => <MovableDemo />,
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    const move = within(panel).getByRole('button', {name: 'Move panel'}).getBoundingClientRect()
+    const expand = within(panel).getByRole('button', {name: 'Expand'}).getBoundingClientRect()
+    near(move.width, expand.width)
+    near(move.height, expand.height)
+  },
+}
+
+function WrappedMove() {
+  return (
+    <>
+      <Pane.Move />
+    </>
+  )
+}
+
+// A Move inside a Fragment or a wrapper still joins the end group: it reports itself to the header.
+export const AWrappedMoveStillSitsBesideExpand: Story = {
+  render: () => (
+    <Pane.Root defaultOpen movable anchor="right">
+      <Pane.Portal>
+        <Pane.Header>
+          <Pane.Title>Theme</Pane.Title>
+          <WrappedMove />
+          <Pane.Expand />
+          <Pane.Close />
+        </Pane.Header>
+      </Pane.Portal>
+    </Pane.Root>
+  ),
+  play: async () => {
+    await open()
+    const panel = getPanel()!
+    const move = within(panel).getByRole('button', {name: 'Move panel'}).getBoundingClientRect()
+    const expand = within(panel).getByRole('button', {name: 'Expand'}).getBoundingClientRect()
     expect(expand.left - move.right).toBeLessThanOrEqual(SPACING_PX.lg)
   },
 }

@@ -1,10 +1,10 @@
 import {
-  Children,
   createContext,
-  isValidElement,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
+  useState,
   type ComponentProps,
   type ReactNode,
 } from 'react'
@@ -15,7 +15,14 @@ import {cycleDetent} from '../Drawer/sheetPhysics'
 import {partStyles} from '../Drawer/parts.css'
 import {Menu} from '../Menu/Menu'
 import {styles} from './styles.css'
-import {movePanelTo, moveWithKey, panelOf, usePaneDrag, type PanePlace} from './paneMove'
+import {
+  DRAG_HANDLE_ATTR,
+  movePanelTo,
+  moveWithKey,
+  panelOf,
+  usePaneDrag,
+  type PanePlace,
+} from './paneMove'
 import type {DrawerBottomRootProps, DrawerSideRootProps} from '../Drawer/useDrawerRoot'
 
 // A Pane is a non-modal Drawer that floats: inset from the edge, rounded all round, and resting at
@@ -36,7 +43,12 @@ export type PaneRootProps = PaneSideRootProps | PaneBottomRootProps
 const MovableContext = createContext(false)
 
 /** Whether the header holds a Pane.Move: then Move, not Expand, starts the header's end group. */
-const HeaderHasMoveContext = createContext(false)
+interface HeaderMove {
+  hasMove: boolean
+  /** Move reports itself, wherever it sits in the header (a Fragment, a wrapper component). */
+  setHasMove: (hasMove: boolean) => void
+}
+const HeaderMoveContext = createContext<HeaderMove | null>(null)
 
 function Root({movable = false, ...props}: PaneRootProps) {
   const enabled = movable && props.anchor !== 'bottom'
@@ -74,16 +86,15 @@ type HeaderProps = ComponentProps<typeof Drawer.Header>
 /** The Drawer's header. On a movable pane it is the handle: a drag moves the pane, a double-click puts it back. */
 function Header(props: HeaderProps) {
   const movable = useContext(MovableContext)
-  const hasMove =
-    movable && Children.toArray(props.children).some((c) => isValidElement(c) && c.type === Move)
+  const [hasMove, setHasMove] = useState(false)
   const header = (
-    <HeaderHasMoveContext.Provider value={hasMove}>
+    <HeaderMoveContext.Provider value={{hasMove: movable && hasMove, setHasMove}}>
       <Drawer.Header {...props} />
-    </HeaderHasMoveContext.Provider>
+    </HeaderMoveContext.Provider>
   )
   if (!movable) return header
   return (
-    <html.div data-pane-handle="" style={styles.handle}>
+    <html.div {...{[DRAG_HANDLE_ATTR]: ''}} style={styles.handle}>
       {header}
     </html.div>
   )
@@ -92,16 +103,16 @@ function Header(props: HeaderProps) {
 export interface MoveLabels {
   /** The control's accessible name */
   move: string
-  /** The menu items: send the pane to the window's start edge, its end edge, or back */
-  toStart: string
-  toEnd: string
+  /** The menu items: send the pane to the window's left edge, its right edge, or back to its place */
+  toLeft: string
+  toRight: string
   toDefault: string
 }
 
 const DEFAULT_MOVE_LABELS: MoveLabels = {
   move: 'Move panel',
-  toStart: 'Move to the left edge',
-  toEnd: 'Move to the right edge',
+  toLeft: 'Move to the left edge',
+  toRight: 'Move to the right edge',
   toDefault: 'Back to its place',
 }
 
@@ -117,7 +128,15 @@ interface MoveProps {
  */
 function Move({labels = DEFAULT_MOVE_LABELS}: MoveProps) {
   const movable = useContext(MovableContext)
+  const headerMove = useContext(HeaderMoveContext)
   const box = useRef<HTMLDivElement>(null)
+  const setHasMove = headerMove?.setHasMove
+  // Tell the header it holds a Move, so Expand gives up its own auto margin.
+  useLayoutEffect(() => {
+    if (!movable || !setHasMove) return
+    setHasMove(true)
+    return () => setHasMove(false)
+  }, [movable, setHasMove])
   // A native listener on the wrapper: the arrow keys need preventDefault, and a closed Menu trigger
   // lets them through (an open menu has focus in its own popup, outside this wrapper).
   useEffect(() => {
@@ -150,8 +169,8 @@ function Move({labels = DEFAULT_MOVE_LABELS}: MoveProps) {
           </svg>
         </Menu.Trigger>
         <Menu.Popup align="end">
-          <Menu.Item onClick={send('start')}>{labels.toStart}</Menu.Item>
-          <Menu.Item onClick={send('end')}>{labels.toEnd}</Menu.Item>
+          <Menu.Item onClick={send('left')}>{labels.toLeft}</Menu.Item>
+          <Menu.Item onClick={send('right')}>{labels.toRight}</Menu.Item>
           <Menu.Item onClick={send('default')}>{labels.toDefault}</Menu.Item>
         </Menu.Popup>
       </Menu.Root>
@@ -175,7 +194,7 @@ interface ExpandProps {
 function Expand({labels = DEFAULT_EXPAND_LABELS}: ExpandProps) {
   const {snapPoints, sideSnapPoints, snapIndex, setSnapIndex} = useDrawer()
   // Move, when it is there, already pushes the end group to the end: one auto margin, not two.
-  const afterMove = useContext(HeaderHasMoveContext)
+  const afterMove = useContext(HeaderMoveContext)?.hasMove ?? false
   const count = sideSnapPoints.length || snapPoints.length
   if (count < 2) return null
   const expanded = snapIndex === count - 1
