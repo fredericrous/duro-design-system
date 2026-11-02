@@ -74,6 +74,7 @@ export {
 export {EmptyState} from './components/EmptyState/EmptyState'
 export {Heading, type HeadingSize, type HeadingVariant} from './components/Heading/Heading'
 export {List, type ListSelectionMode} from './components/List/List'
+export {SteppedList} from './components/SteppedList/SteppedList'
 export {LiveRegion, type LiveRegionPoliteness} from './components/LiveRegion/LiveRegion'
 export {Field} from './components/Field/Field'
 export type {LabelPosition, NecessityIndicator} from './components/Form/FormContext'

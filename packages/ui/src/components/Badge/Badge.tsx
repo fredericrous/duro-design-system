@@ -9,6 +9,8 @@ export type BadgeSize = 'sm' | 'md'
 interface BadgeProps {
   variant?: BadgeVariant
   size?: BadgeSize
+  /** A small dot before the text, in the variant's colour. Decorative: the text stays the name. */
+  dot?: boolean
   children: ReactNode
 }
 
@@ -17,9 +19,29 @@ const sizeMap = {
   md: styles.sizeMd,
 } as const
 
-export function Badge({variant = 'default', size = 'md', children}: BadgeProps) {
+const dotMap = {
+  default: styles.dotDefault,
+  success: styles.dotSuccess,
+  warning: styles.dotWarning,
+  error: styles.dotError,
+  info: styles.dotInfo,
+  highlight: styles.dotHighlight,
+} as const
+
+export function Badge({variant = 'default', size = 'md', dot = false, children}: BadgeProps) {
   return (
-    <html.span style={[styles.base, isNative && styles.nativeFlex, sizeMap[size], styles[variant]]}>
+    <html.span
+      style={[
+        styles.base,
+        isNative && styles.nativeFlex,
+        sizeMap[size],
+        styles[variant],
+        dot && styles.withDot,
+      ]}
+    >
+      {dot ? (
+        <html.span aria-hidden data-duro-dot="" style={[styles.dot, dotMap[variant]]} />
+      ) : null}
       {children}
     </html.span>
   )

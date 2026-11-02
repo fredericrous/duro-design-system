@@ -38,6 +38,38 @@ export const styles = css.create({
     paddingRight: spacing.ms,
   },
 
+  // --- Section: a titled group inside the Root ---
+  section: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  sectionHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xs,
+    paddingLeft: spacing.ms,
+    paddingRight: spacing.ms,
+  },
+  sectionTitle: {
+    flex: 1,
+    minWidth: 0,
+    margin: 0,
+    fontSize: typography.fontSizeXs,
+    fontWeight: typography.fontWeightSemibold,
+    lineHeight: typography.lineHeight,
+    color: colors.textMuted,
+  },
+  sectionAccessory: {
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
+    fontSize: typography.fontSizeXs,
+    color: colors.textMuted,
+  },
+
   // --- Item ---
   item: {
     display: 'flex',

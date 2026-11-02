@@ -59,6 +59,7 @@ export {
 
 // Choice and collection
 export {List, type ListSelectionMode} from './components/List/List'
+export {SteppedList} from './components/SteppedList/SteppedList'
 export {RadioGroup} from './components/RadioGroup/RadioGroup'
 export {Toggle, type ToggleSize} from './components/Toggle/Toggle'
 export {Tag, type TagVariant} from './components/Tag/Tag'

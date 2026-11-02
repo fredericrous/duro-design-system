@@ -154,3 +154,28 @@ export const AllVariants: Story = {
     await expect(canvas.getAllByText('Highlight').length).toBe(2)
   },
 }
+
+export const Dot: Story = {
+  render: () => (
+    <html.div style={stackStyles.row}>
+      <Badge dot variant="success">
+        Online
+      </Badge>
+      <Badge dot variant="error" size="sm">
+        Offline
+      </Badge>
+      <Badge variant="info">Plain</Badge>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const online = canvas.getByText('Online')
+    // The dot comes before the text and is decorative: the text alone is the Badge's name.
+    const dot = online.querySelector('[data-duro-dot]')
+    await expect(dot).not.toBeNull()
+    await expect(dot?.getAttribute('aria-hidden')).toBe('true')
+    await expect(online.firstElementChild).toBe(dot)
+    await expect(online.textContent).toBe('Online')
+    await expect(canvas.getByText('Offline').querySelector('[data-duro-dot]')).not.toBeNull()
+    await expect(canvas.getByText('Plain').querySelector('[data-duro-dot]')).toBeNull()
+  },
+}
