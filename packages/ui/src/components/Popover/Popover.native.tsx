@@ -21,6 +21,8 @@ import {focusForAccessibility} from '../../shared/accessibilityFocus'
 import {mergeRefs} from '../../shared/mergeRefs'
 import {ModalContext} from '../../shared/ModalContext'
 import type {ControlSize} from '../../shared/types'
+import {resolveLength} from '../../shared/length'
+import type {SizeToken} from '@duro-app/tokens/keys'
 import {useTooltipHint} from '../Tooltip/TooltipHint'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 
@@ -152,9 +154,15 @@ interface PopupProps {
   label: string
   /** Web only: on native every popup is its own Modal, above what opened it. */
   raised?: boolean
+  /** Widest the popup grows, a `sizes` token key (`pickerMaxW`). Default: none. */
+  maxWidth?: SizeToken
+  /** Tallest the popup grows, a `sizes` token key (`pickerMaxH`). Default: none. */
+  maxHeight?: SizeToken
+  /** `flush` removes the popup's padding, for content that brings its own. Default: `default`. */
+  padding?: 'default' | 'flush'
 }
 
-function Popup({children, label}: PopupProps) {
+function Popup({children, label, maxWidth, maxHeight, padding = 'default'}: PopupProps) {
   const {open, setOpen, popoverId, side, align, triggerRef, placement} = usePopover('Popup')
   const popupRef = useRef<HTMLDivElement>(null)
   return (
@@ -173,7 +181,13 @@ function Popup({children, label}: PopupProps) {
         role="dialog"
         aria-modal
         aria-label={label}
-        style={[styles.popup, nativeStyles.popupInPlace]}
+        style={[
+          styles.popup,
+          nativeStyles.popupInPlace,
+          padding === 'flush' && styles.popupFlush,
+          maxWidth !== undefined && styles.popupMaxWidth(resolveLength(maxWidth)),
+          maxHeight !== undefined && styles.popupMaxHeight(resolveLength(maxHeight)),
+        ]}
       >
         {/* Modal on native: a Popover or Menu opened inside it stacks above it. */}
         <ModalContext.Provider value={true}>

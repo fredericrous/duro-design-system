@@ -23,6 +23,8 @@ import {useGroupedControl} from '../ButtonGroup/useGroupedControl'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {mergeRefs} from '../../shared/mergeRefs'
 import type {ControlSize} from '../../shared/types'
+import {resolveLength} from '../../shared/length'
+import type {SizeToken} from '@duro-app/tokens/keys'
 import {useInModal} from '../../shared/ModalContext'
 
 // --- Context ---
@@ -248,9 +250,15 @@ interface PopupProps {
    * is raised too. Default: inherited, else `false`.
    */
   raised?: boolean
+  /** Widest the popup grows, a `sizes` token key (`pickerMaxW`). Default: none. */
+  maxWidth?: SizeToken
+  /** Tallest the popup grows, a `sizes` token key (`pickerMaxH`); taller content scrolls. Default: none. */
+  maxHeight?: SizeToken
+  /** `flush` removes the popup's padding, for content that brings its own. Default: `default`. */
+  padding?: 'default' | 'flush'
 }
 
-function Popup({children, label, raised}: PopupProps) {
+function Popup({children, label, raised, maxWidth, maxHeight, padding = 'default'}: PopupProps) {
   const {open, popoverId, side, align, anchor, triggerRef, popupRef, repositionRef} =
     usePopover('Popup')
   const [coords, setCoords] = useState({top: 0, left: 0})
@@ -315,6 +323,12 @@ function Popup({children, label, raised}: PopupProps) {
         styles.popup,
         inModal && styles.popupInModal,
         isRaised && (inModal ? styles.popupInModalRaised : styles.popupRaised),
+        padding === 'flush' && styles.popupFlush,
+        maxWidth !== undefined && styles.popupMaxWidth(resolveLength(maxWidth)),
+        maxHeight !== undefined && [
+          styles.popupScrolls,
+          styles.popupMaxHeight(resolveLength(maxHeight)),
+        ],
         styles.popupPosition(coords.top, coords.left),
       ]}
     >

@@ -6,6 +6,7 @@ import {
   Icon,
   Inline,
   List,
+  MasterDetail,
   Menu,
   Popover,
   SteppedList,
@@ -80,6 +81,29 @@ export function OverlayDemo() {
             </SteppedList.Step>
           </SteppedList.Root>
           <Popover.Close>Close</Popover.Close>
+        </Popover.Popup>
+      </Popover.Root>
+      <Popover.Root>
+        <Popover.Trigger>Agents</Popover.Trigger>
+        <Popover.Popup
+          label="Agent picker"
+          maxWidth="pickerMaxW"
+          maxHeight="pickerMaxH"
+          padding="flush"
+        >
+          <MasterDetail.Root defaultFocusedValue="claude">
+            <MasterDetail.Rail aria-label="Agents">
+              <MasterDetail.Section title="Agents" count={2}>
+                <MasterDetail.Item value="claude" selected>
+                  Claude
+                </MasterDetail.Item>
+                <MasterDetail.Item value="codex">Codex</MasterDetail.Item>
+              </MasterDetail.Section>
+            </MasterDetail.Rail>
+            <MasterDetail.Detail>
+              {(agent) => <Text>{`Settings of ${agent}`}</Text>}
+            </MasterDetail.Detail>
+          </MasterDetail.Root>
         </Popover.Popup>
       </Popover.Root>
       <Tooltip.Root content="Saves without closing">

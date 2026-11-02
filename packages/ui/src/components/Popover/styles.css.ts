@@ -79,6 +79,21 @@ export const styles = css.create({
     // the popup takes them back.
     pointerEvents: 'auto',
   },
+  // padding="flush": the content (a MasterDetail) brings its own padding and dividers.
+  popupFlush: {
+    padding: 0,
+  },
+  // A maxHeight caps the popup; taller content scrolls inside it.
+  popupScrolls: {
+    overflowY: 'auto',
+  },
+  // Dynamic styles: simple identifier params only (StyleX constraint)
+  popupMaxWidth: (maxWidth: number | string) => ({
+    maxWidth,
+  }),
+  popupMaxHeight: (maxHeight: number | string) => ({
+    maxHeight,
+  }),
   close: {
     display: 'inline-flex',
     alignItems: 'center',
