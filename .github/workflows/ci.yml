@@ -136,34 +136,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-
 
-      # Node's Playwright downloader stalls at 0% pulling chrome-headless-shell
-      # from storage.googleapis.com on this self-hosted runner — over BOTH IPv4
-      # and IPv6, even though `curl` downloads the very same file fine in the
-      # same pod (verified by exec). So fetch the binaries with curl and drop
-      # them into Playwright's cache; the install step below then finds them and
-      # is a no-op. `chromium-headless-shell` pulls ffmpeg too, hence the loop
-      # over every (Install location, Download url) pair from --dry-run. Linux
-      # zips contain a top-level dir matching Playwright's expected layout.
-      - name: Prefetch Playwright browsers via curl
-        timeout-minutes: 6
-        run: |
-          set -euo pipefail
-          info="$(pnpm exec playwright install --dry-run chromium-headless-shell 2>/dev/null)"
-          printf '%s\n' "$info"
-          paste -d'\t' \
-            <(printf '%s\n' "$info" | sed -nE 's/^[[:space:]]*Install location:[[:space:]]*//p') \
-            <(printf '%s\n' "$info" | sed -nE 's/^[[:space:]]*Download url:[[:space:]]*//p') \
-          | while IFS="$(printf '\t')" read -r dir url; do
-              [ -z "$dir" ] && continue
-              if [ -f "$dir/INSTALLATION_COMPLETE" ]; then echo "cached: $dir"; continue; fi
-              echo "curl -> $dir"
-              mkdir -p "$dir"
-              curl -4 -fSL --retry 5 --retry-all-errors --connect-timeout 20 -o /tmp/pw.zip "$url"
-              unzip -qo /tmp/pw.zip -d "$dir"
-              touch "$dir/INSTALLATION_COMPLETE" "$dir/DEPENDENCIES_VALIDATED"
-            done
-
-      - name: Install Playwright browser (verify; no-op after prefetch)
+      - name: Install Playwright browser
         timeout-minutes: 5
         run: pnpm exec playwright install chromium-headless-shell
 
