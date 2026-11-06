@@ -102,7 +102,9 @@ jobs:
 
   test:
     name: Storybook Tests
-    runs-on: ubuntu-latest
+    # Pinned: Playwright does not support chromium-headless-shell on the Ubuntu 26.04
+    # that ubuntu-latest now resolves to. Move to ubuntu-latest once it does.
+    runs-on: ubuntu-24.04
     needs: validate
     timeout-minutes: 30
     steps:
