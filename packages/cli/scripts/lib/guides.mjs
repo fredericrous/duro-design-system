@@ -30,7 +30,8 @@ export function listGuideFiles(dir) {
 export function extractGuides(skillsDir) {
   const guides = {}
   const skills = readdirSync(skillsDir, {withFileTypes: true})
-    .filter((entry) => entry.isDirectory())
+    // duro-mockup is generated from skill-template.ts and is a workflow, not a guide.
+    .filter((entry) => entry.isDirectory() && entry.name !== 'duro-mockup')
     .map((entry) => entry.name)
     .sort(byBytes)
   for (const skill of skills) {

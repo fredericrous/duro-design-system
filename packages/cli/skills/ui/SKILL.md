@@ -3,6 +3,8 @@ name: ui
 description: Polishes the surfaces, icons and motion in your project with exact values for border radius, optical alignment, shadows, icon states and animation. Use when adding or tuning a UI animation or transition, such as a menu or dialog enter and exit, staggered list items, hover and press feedback or an icon swap.
 ---
 
+**Gate.** This skill applies only in a repository whose `package.json` depends on `@duro-app/ui` (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
+
 # UI polish
 
 This skill holds the visual polish for surfaces, icons and motion, with the exact value each detail takes. It applies once the underlying interaction is sound, and a polish finding never outranks a broken interaction.

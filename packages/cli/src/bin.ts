@@ -4,6 +4,8 @@ import {loadRegistry} from './registry.js'
 import {runLookup, type CommandResult} from './commands/lookup.js'
 import {runList} from './commands/list.js'
 import {runHook} from './commands/hook.js'
+import {runContext} from './commands/context.js'
+import {extensionPointer} from './extension-pointer.js'
 import {runMockup} from './commands/mockup.js'
 import {runSkill} from './commands/skill.js'
 import {runDoctor, uiVersionSkew} from './commands/doctor.js'
@@ -24,9 +26,13 @@ function emit(result: CommandResult, json: boolean): never {
 
 function usageError(message: string): never {
   process.stderr.write(
-    `${message}\nUsage: duro <name|list|manifest|hook|skill|mockup|doctor|mcp> [flags] — duro manifest for details\n`,
+    `${message}\nUsage: duro <name|list|manifest|hook|skill|context|mockup|doctor|mcp> [flags] — duro manifest for details\n`,
   )
   process.exit(2)
+}
+
+function pointToExtension(): void {
+  process.stderr.write(extensionPointer(process.cwd(), process.env.PATH ?? '') + '\n')
 }
 
 async function main(): Promise<void> {
@@ -43,6 +49,7 @@ async function main(): Promise<void> {
         check: {type: 'boolean', default: false},
         force: {type: 'boolean', default: false},
         session: {type: 'boolean', default: false},
+        'catalog-only': {type: 'boolean', default: false},
         out: {type: 'string'},
         name: {type: 'string'},
         theme: {type: 'string'},
@@ -91,11 +98,19 @@ async function main(): Promise<void> {
   }
   if (first === 'hook') {
     if (rest.length > 1) usageError('duro hook takes exactly one event')
-    emit(runHook(registry, rest[0], {check: values.check}), values.json)
+    const result = runHook(registry, rest[0], {check: values.check})
+    if (rest[0] === 'install') pointToExtension()
+    emit(result, values.json)
   }
   if (first === 'skill') {
     if (rest.length > 1) usageError('duro skill takes exactly one action')
-    emit(runSkill(rest[0], {check: values.check, force: values.force}), values.json)
+    const result = runSkill(rest[0], {check: values.check, force: values.force})
+    if (rest[0] === 'install') pointToExtension()
+    emit(result, values.json)
+  }
+  if (first === 'context') {
+    if (rest.length > 0) usageError('duro context takes no arguments — run it from the repo root')
+    emit(runContext(registry, {catalogOnly: values['catalog-only']}), values.json)
   }
   if (first === 'mockup') {
     const [sub, ...files] = rest

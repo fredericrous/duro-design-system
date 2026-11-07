@@ -41,8 +41,10 @@ export const HOOK_COMMAND = `sh ${HOOK_SCRIPT_PATH}`
  *        (scripts/check-pin-major.mjs).
  * 5.0.0: @duro-app/ui 5 (every measure is a token, ADR-0027); 5.x consumers
  *        get the sizes/borders tables and Critical Rule 4.
+ * 6.0.0: the design extension for grh (greenharness.toml) and `duro context`,
+ *        which `hook session-start` now delegates to.
  */
-export const HOOK_MIN_CLI = '5.0.0'
+export const HOOK_MIN_CLI = '6.0.0'
 
 /**
  * First line of the catalog cache: the floor it was fetched with. A cache

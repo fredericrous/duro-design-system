@@ -159,6 +159,45 @@ no npx, no node, no network — and every path exits 0: it can never block or
 fail a prompt. Existing `UserPromptSubmit` hooks in `settings.json` are kept;
 the duro entry joins the array.
 
+## Extension (Green Harness)
+
+`@duro-app/cli` is also the `design` extension of [grh](https://github.com/fredericrous/grh),
+the Green Harness installer. `greenharness.toml` at the package root is a grh manifest v1; install
+it from a repository that depends on the CLI:
+
+```
+grh install --extension node_modules/@duro-app/cli
+```
+
+or, without a local dependency:
+
+```
+npm pack @duro-app/cli@6 && tar -xzf duro-app-cli-6*.tgz && grh install --extension package
+```
+
+What each manifest entry does:
+
+| Entry                 | What grh places                                                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `[[skill]]` ×4        | the `colors`, `typography`, `ui` and `duro-mockup` skills, copied to `~/.claude/skills/`                                     |
+| `[[agent]]`           | `design-system-lookup`: given a plan, answers what its UI needs from the catalog as a `design-lookup` block                  |
+| `[[mcp]]`             | the `duro-ds` MCP server (`duro mcp`, through `npx`), registered for the user                                                |
+| `[[session_context]]` | `duro context`: the catalog, then the doctor block; silent outside a Duro consumer and where `duro hook install` already ran |
+| `[[doctor]]`          | `duro doctor`, shown by `grh status`; silent outside a Duro consumer                                                         |
+
+The skills gate themselves: each opens by saying it applies only in a repository whose `package.json`
+depends on `@duro-app/ui` (a `workspace:` dependency counts), and to stop anywhere else, so a
+user-level install costs other repositories nothing. The two session commands are `sh -c` guards
+that exit at once unless the root `package.json`, or a `package.json` one or two directories below it, names
+`@duro-app/`.
+
+`duro context` prints the catalog `duro hook session-start` prints (which now delegates to
+`duro context --catalog-only`) and then the `doctor --session` block, re-run only when the build files'
+key changes. Its cache is `${XDG_CACHE_HOME:-~/.cache}/duro/<repo path hash>`: written to a temporary
+file and renamed, a failed write is silent, and nothing is ever created in the repository's `.claude/`.
+`duro hook install` and `duro skill install` still work as before and print one extra line on stderr
+pointing here.
+
 ## duro doctor
 
 The design system's stylesheet is layered: `reset`, then StyleX's
@@ -195,7 +234,7 @@ Two places run it, and a consuming repo wires both:
 
 ```
 # stage     name         scope                                                                                                          severity  command
-pre-commit  duro-doctor  *.css,package.json,root.tsx,main.tsx,vite.config.ts,vitest.config.ts,postcss.config.js,postcss.config.mjs,babel.config.js  block     npx -y @duro-app/cli@^5.0.0 doctor
+pre-commit  duro-doctor  *.css,package.json,root.tsx,main.tsx,vite.config.ts,vitest.config.ts,postcss.config.js,postcss.config.mjs,babel.config.js  block     npx -y @duro-app/cli@^6.0.0 doctor
 ```
 
 ## Mockups that speak the design system

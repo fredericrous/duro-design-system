@@ -166,6 +166,7 @@ describe('command results', () => {
     expect(manifest.enums.names).toContain('login-form')
     expect(manifest.enums.names).toContain('rules')
     expect(COMMANDS.map((command) => command.name).sort()).toEqual([
+      'context',
       'doctor',
       'hook',
       'list',
