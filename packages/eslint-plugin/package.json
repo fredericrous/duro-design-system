@@ -46,6 +46,9 @@
   "peerDependencies": {
     "eslint": "^9.0.0 || ^10.0.0"
   },
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.56.0"
+  },
   "devDependencies": {
     "@duro-app/tokens": "workspace:^",
     "@typescript-eslint/parser": "^8.0.0",

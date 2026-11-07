@@ -3,14 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "Shareable ESLint flat config for the Duro stack: base TS conventions, the design-system rules and UI-library policy for React apps, Effect server conventions, and accessibility-first test selectors.",
+  "description": "Shareable ESLint flat config for the Duro design system: the design-system rules and UI-library policy for React apps, on top of @aval-adr/eslint-config.",
   "keywords": [
     "eslint",
     "eslintconfig",
     "eslint-config",
     "react-strict-dom",
-    "design-system",
-    "effect"
+    "design-system"
   ],
   "repository": {
     "type": "git",
@@ -44,18 +43,16 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
+    "@aval-adr/eslint-config": ">=0.16.0 <1",
     "eslint": "^9.0.0 || ^10.0.0"
   },
   "dependencies": {
-    "@aval-adr/eslint-config": "^0.6.0",
     "@duro-app/eslint-plugin": "workspace:^",
-    "@effect/eslint-plugin": "^0.3.2",
-    "@eslint/js": "^9.20.0 || ^10.0.0",
-    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.0.1",
     "typescript-eslint": "^8.56.0"
   },
   "devDependencies": {
+    "@aval-adr/eslint-config": "^0.16.0",
     "eslint": "^9.20.0",
     "typescript": "^5.7.0"
   }

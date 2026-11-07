@@ -1,5 +1,5 @@
 import duro from '@duro-app/eslint-plugin'
-import {base, tests} from '@duro-app/eslint-config'
+import {base, tests} from '@aval-adr/eslint-config'
 import reactHooks from 'eslint-plugin-react-hooks'
 import tsParser from '@typescript-eslint/parser'
 

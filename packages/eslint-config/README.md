@@ -5,14 +5,22 @@ agent memory can only suggest, wired into the linter so every consumer repo
 gates them at commit time (via amont's built-in `pre-commit-lint-js`, which
 activates on the presence of a root ESLint config) and in CI.
 
-Requires ESLint 9 or 10 (flat config). All plugins arrive as dependencies of
-this package — consumers install one package.
+Requires ESLint 9 or 10 (flat config). It keeps only the design-system and
+UI-library policy, as `react`. The general conventions (`base`, `effect`,
+`tests`) and the decided-rule bridge (`adrLint`) come from
+[`@aval-adr/eslint-config`](https://www.npmjs.com/package/@aval-adr/eslint-config),
+which this package extends and declares as a peer: install both.
+
+```sh
+pnpm add -D @duro-app/eslint-config @aval-adr/eslint-config
+```
 
 ## Usage
 
 ```js
 // eslint.config.js (repo root — amont only detects a ROOT config)
-import {react, effect, tests} from '@duro-app/eslint-config'
+import {react} from '@duro-app/eslint-config'
+import {effect, tests} from '@aval-adr/eslint-config'
 
 export default [
   {ignores: ['**/dist/**', '**/build/**']},
@@ -25,30 +33,27 @@ export default [
 
 ## Presets
 
-| Preset   | Composes                                                           | For                       |
-| -------- | ------------------------------------------------------------------ | ------------------------- |
-| `base`   | `@eslint/js` + `typescript-eslint` recommended, prettier interop   | every TypeScript package  |
-| `react`  | base + classic react-hooks + `@duro-app/eslint-plugin` + UI policy | RSD / `@duro-app/ui` apps |
-| `effect` | base + `@effect` plugin + server-stack policy                      | Effect services           |
-| `tests`  | accessibility-first selectors (self-scoped to test/e2e files)      | any repo with tests       |
+| Preset   | From                      | Composes                                                         | For                       |
+| -------- | ------------------------- | ---------------------------------------------------------------- | ------------------------- |
+| `react`  | `@duro-app/eslint-config` | aval `base` + classic react-hooks + the duro plugin + UI policy  | RSD / `@duro-app/ui` apps |
+| `base`   | `@aval-adr/eslint-config` | `@eslint/js` + `typescript-eslint` recommended, prettier interop | every TypeScript package  |
+| `effect` | `@aval-adr/eslint-config` | `base` + `@effect` plugin + server-stack policy                  | Effect services           |
+| `tests`  | `@aval-adr/eslint-config` | accessibility-first selectors (self-scoped to test/e2e files)    | any repo with tests       |
 
-`react` and `effect` both include `base`; applying both just repeats
-identical entries, which flat config merges harmlessly. `tests` carries its
-own `files` scope, so it can be appended unconditionally.
+`react` reports its import bans as `duro/no-restricted-imports`, apart from
+`effect`'s `@typescript-eslint/no-restricted-imports` and adr-lint's
+`adr-lint/no-restricted-imports`, so composing them keeps every ban: none of
+the three overrides another.
 
-## What the policies enforce
+## What the policy enforces
 
-- **`react`** — UI primitives come from `@duro-app/ui` only (react-aria,
+- **`react`**: UI primitives come from `@duro-app/ui` only. react-aria,
   Spectrum, MUI, Radix, Chakra, headlessui, antd and `@frontjutsu/ui` are
-  banned with a message that says where to add missing components); rich
-  text goes through `@fredericrous/lexical-multi`, never raw `lexical`;
-  plus everything in `@duro-app/eslint-plugin` (html.\* elements, deep token
-  imports, token values, form kit).
-- **`effect`** — `@effect/sql` not Kysely; `@effect/opentelemetry` only via
-  subpath (the barrel statically imports the web SDK and crashes Node at
-  module load); barrel-import hygiene via `@effect/eslint-plugin`.
-- **`tests`** — no `getByTestId` family, no CSS class/id `locator()`
-  strings: select by role/label/text, gate readiness on `aria-busy`.
+  banned with a message that says where to add a missing component. Rich
+  text goes through `@fredericrous/lexical-multi`, never raw `lexical`. It
+  also carries everything in `@duro-app/eslint-plugin`: html.\* elements,
+  deep token imports, token values and the form kit.
+- `effect` and `tests` are documented with `@aval-adr/eslint-config`.
 
 Severity is the one gating line: `error` gates at commit and CI, `warn`
 informs everywhere. Don't add `--max-warnings=0` — promote a rule to
@@ -91,55 +96,26 @@ Flat config is last-wins — scope an override after the preset:
 {
   // The one file allowed to import the raw engine reset:
   files: ['packages/editor/src/usePageNode.ts'],
-  rules: {'no-restricted-imports': 'off'},
+  rules: {'duro/no-restricted-imports': 'off'},
 }
 ```
 
 ## adr-lint rules (opt-in)
 
 `adrLint` and `adrLintTyped` add the decided code rules a linter matches
-exactly (no `@ts-ignore`, no unexplained `eslint-disable`, no swallowed
-`catch`; the typed variant also checks `switch` exhaustiveness and needs
-`projectService`). They come from
-[`@aval-adr/eslint-config`](https://www.npmjs.com/package/@aval-adr/eslint-config)
-and are not part of `base`, `react`, `effect` or `tests`.
-
-Put them last and name the presets you use in `stack`: flat config keeps the
-last options of a rule, and adr-lint emits its own `no-restricted-imports`, so
-`stack` re-states the `react` / `effect` import bans inside that one rule.
-`restrictedImports` adds your own bans to it.
+exactly. Import them from `@aval-adr/eslint-config` and put them last. Their
+bans have their own rule id, so no `stack` option is needed (6.0 drops it):
 
 ```js
-import {react, adrLint} from '@duro-app/eslint-config'
+import {react} from '@duro-app/eslint-config'
+import {adrLint} from '@aval-adr/eslint-config'
 
-export default [
-  ...react,
-  ...adrLint({
-    stack: ['react'],
-    restrictedImports: [{patterns: [{group: ['**/infra/**']}]}],
-  }),
-]
+export default [...react, ...adrLint()]
 ```
 
-The stack's bans are also copied into every `files`-scoped entry, because in a
-file two scopes cover only the later one's options apply.
+## Migrating from 5.x
 
-A stack takes a scope: `{name, files}` applies that preset's import bans only
-to files matching the globs, and a plain string stays repo-wide.
-
-```js
-adrLint({stack: ['effect', {name: 'react', files: ['apps/web/**']}]})
-```
-
-Where scopes overlap, flat config applies only the last matching entry's
-options, so the preset emits an intersection entry (`files: [[globA, globB]]`)
-for every overlap: two scoped stacks, or a `restrictedImports` entry with
-`files` and a scoped stack. Each holds the bans of all scopes in it, ordered
-fewest scopes first so the most specific comes last. Repo-wide bans (plain
-stacks and `restrictedImports` entries without `files`) ride on every scoped
-and intersection entry, and a ban reached through several scopes, such as one
-stack name scoped twice, is listed once so an import is reported once.
-
-`restrictedImports` without `stack` throws, since a react repository would
-otherwise lose its UI bans in silence: pass `stack: []` when no preset applies.
-An unknown `stack` name throws too.
+- Add `@aval-adr/eslint-config` (`^0.16.0`) beside this package.
+- Import `base`, `effect`, `tests` and `adrLint` from it; keep `react` from here.
+- Drop `stack` from an `adrLint` call.
+- An override of `no-restricted-imports` for the UI bans becomes `duro/no-restricted-imports`.

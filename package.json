@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
+    "@aval-adr/eslint-config": "^0.16.0",
     "@duro-app/cli": "workspace:*",
     "@duro-app/eslint-config": "workspace:^",
     "@duro-app/eslint-plugin": "workspace:*",
