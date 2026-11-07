@@ -80,9 +80,9 @@ function readCache(path: string): string | null {
 function writeCache(path: string, content: string): void {
   try {
     mkdirSync(join(path, '..'), {recursive: true})
-    const tmp = `${path}.tmp`
-    writeFileSync(tmp, content, 'utf8')
-    renameSync(tmp, path)
+    const partialPath = `${path}.tmp`
+    writeFileSync(partialPath, content, 'utf8')
+    renameSync(partialPath, path)
   } catch {
     // The cache is an optimisation: an unwritable cache dir costs a rerun.
   }

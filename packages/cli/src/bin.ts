@@ -98,15 +98,15 @@ async function main(): Promise<void> {
   }
   if (first === 'hook') {
     if (rest.length > 1) usageError('duro hook takes exactly one event')
-    const result = runHook(registry, rest[0], {check: values.check})
+    const hookResult = runHook(registry, rest[0], {check: values.check})
     if (rest[0] === 'install') pointToExtension()
-    emit(result, values.json)
+    emit(hookResult, values.json)
   }
   if (first === 'skill') {
     if (rest.length > 1) usageError('duro skill takes exactly one action')
-    const result = runSkill(rest[0], {check: values.check, force: values.force})
+    const skillResult = runSkill(rest[0], {check: values.check, force: values.force})
     if (rest[0] === 'install') pointToExtension()
-    emit(result, values.json)
+    emit(skillResult, values.json)
   }
   if (first === 'context') {
     if (rest.length > 0) usageError('duro context takes no arguments — run it from the repo root')
