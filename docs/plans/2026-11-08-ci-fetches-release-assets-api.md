@@ -13,4 +13,4 @@ and its recipe are canonical in adr-lint (pilot: fredericrous/adr-lint#53).
 
 ## Code review
 
-- duro-design-system: backend, platform
+- duro-design-system: none — a copy of the recipe A block that backend and platform approved in adr-lint#53, differing only in the `AVAL_VERSION` pin (the person's choice, 2026-11-08); implementation-review alone
