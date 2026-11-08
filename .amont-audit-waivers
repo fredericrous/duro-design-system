@@ -53,3 +53,4 @@ GHSA-gcqx-w48m-w2h4 2026-12-31 deepmerge via ui-email > @react-email/render > ht
 # The patterns it expands are the consumer's own lint config globs, never user
 # input. Remove when eslint and typescript-eslint move to minimatch 11.
 GHSA-g3hv-75wg-m249 2026-12-31 minimatch via eslint-config > eslint (^3, default export) and typescript-eslint (10.x); only 11.x is patched and breaks both; globs are lint config, never user input
+GHSA-3g3m-2fjr-6pw4 2026-12-31 glob via @storybook/react-vite > @joshwooding/vite-plugin-react-docgen-typescript (^13; only 14.0.2 is patched); dev-only Storybook docs build, and the plugin passes no AbortSignal, so the cancellation bypass is unreachable
