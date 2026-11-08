@@ -23,3 +23,9 @@ This repository's slice of the ADR-0048 plan is section 2, "Duro v6.0.0":
 Carried from the review: `hook session-start` uses `duro context
 --catalog-only`, and the SessionStart bar is a 100 ms median of 10 runs in
 a Rust repo.
+
+## Implementation review
+
+- Round 1: approve-with-changes (78k, 29 s). Fixed: the placeholder names `result` and `tmp`. The dependency ownership and the 0.12 → 0.16 renumbering are in the PR body.
+- Delta: approve (24k, 10 s).
+- Verification: pnpm typecheck, lint and test green; the built CLI is silent in a Rust repo (`duro context` rc 0, `duro doctor` "not a Duro consumer"), prints the catalog and a summary-first doctor in duro-app, and writes nothing into either repo; the session guard's median is 68 ms over 10 runs in amont-agent. Next: release v6.0.0.
