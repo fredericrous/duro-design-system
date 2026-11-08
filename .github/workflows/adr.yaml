@@ -32,6 +32,7 @@ jobs:
       - name: Ensure aval
         env:
           AVAL_VERSION: 1.11.0
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           # The baked binary is an optimisation, not the pin. Accepting whatever
@@ -48,10 +49,23 @@ jobs:
           fi
           echo "::warning::runner carries aval ${have:-none}, this repository pins ${AVAL_VERSION} — downloading it"
           mkdir -p "$RUNNER_TEMP/bin"
-          curl -fsSL --retry 3 --retry-delay 5 --retry-all-errors \
-            "https://github.com/fredericrous/aval/releases/download/v${AVAL_VERSION}/aval-${AVAL_VERSION}-x86_64-unknown-linux-gnu.tar.gz" \
-            | tar xz -C "$RUNNER_TEMP/bin" --strip-components=1 \
-                "aval-${AVAL_VERSION}-x86_64-unknown-linux-gnu/aval"
+          # Through the API (`gh release download`), not the public download URL:
+          # that route throttles anonymous downloads, and it returned 504 for hours
+          # on 2026-11-08 while the API served the same files.
+          asset="aval-${AVAL_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          for attempt in 1 2 3; do
+            rc=0
+            timeout 120 gh release download "v${AVAL_VERSION}" --repo fredericrous/aval \
+              --pattern "$asset" -O "$RUNNER_TEMP/$asset" --clobber || rc=$?
+            [ "$rc" = 0 ] && break
+            if [ "$attempt" = 3 ]; then
+              echo "::error::could not download $asset from fredericrous/aval v${AVAL_VERSION} (exit $rc; 124 = timed out after 120 s)"
+              exit 1
+            fi
+            sleep $((attempt * 5))
+          done
+          tar xzf "$RUNNER_TEMP/$asset" -C "$RUNNER_TEMP/bin" --strip-components=1 \
+            "aval-${AVAL_VERSION}-x86_64-unknown-linux-gnu/aval"
           chmod +x "$RUNNER_TEMP/bin/aval"
           # GITHUB_PATH applies to LATER steps only.
           echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
