@@ -1,3 +1,4 @@
+import tseslintPlugin from '@typescript-eslint/eslint-plugin'
 import {noRawHtmlElement} from './no-raw-html-element.js'
 import {noTokensBarrelImport} from './no-tokens-barrel-import.js'
 import {noDeprecatedTableParts} from './no-deprecated-table-parts.js'
@@ -16,4 +17,7 @@ export const rules = {
   'no-raw-breakpoint-query': noRawBreakpointQuery,
   'no-flex-grow-web': noFlexGrowWeb,
   'prefer-ds-form-components': preferDsFormComponents,
+  // typescript-eslint's rule under the duro prefix: the UI bans keep `allowTypeImports`
+  // and report as `duro/no-restricted-imports`, apart from the harness's own ban.
+  'no-restricted-imports': tseslintPlugin.rules['no-restricted-imports'],
 }

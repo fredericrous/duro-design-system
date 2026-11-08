@@ -56,6 +56,19 @@ jobs:
       # (its prebuild doubles as a registry freshness check).
       - name: Build CLI
         run: pnpm --filter @duro-app/cli run build
+      # The package ships the grh extension: manifest, skills and agent.
+      - name: CLI package contents
+        run: |
+          cd packages/cli
+          npm pack --dry-run --json 2>/dev/null > "$RUNNER_TEMP/pack.json"
+          missing=0
+          for file in greenharness.toml agents/design-system-lookup.md skills/colors/SKILL.md skills/typography/SKILL.md skills/ui/SKILL.md skills/duro-mockup/SKILL.md; do
+            if ! grep -q "\"path\": \"$file\"" "$RUNNER_TEMP/pack.json"; then
+              echo "npm pack would not ship $file" >&2
+              missing=1
+            fi
+          done
+          exit "$missing"
       # Node-only unit suites (lint rules + CLI/registry); runs here rather
       # than behind the 30-minute Playwright job so failures land in a minute.
       - name: Unit tests

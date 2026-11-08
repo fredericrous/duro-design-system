@@ -78,7 +78,8 @@ function packagedSkills(skillsDir: URL): Map<string, string[]> | null {
   try {
     const skills = new Map<string, string[]>()
     const names = readdirSync(root, {withFileTypes: true})
-      .filter((entry) => entry.isDirectory())
+      // duro-mockup is written from the template, not copied as a packaged skill.
+      .filter((entry) => entry.isDirectory() && entry.name !== 'duro-mockup')
       .map((entry) => entry.name)
       .sort(byBytes)
     for (const name of names) {

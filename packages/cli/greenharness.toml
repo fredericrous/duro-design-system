@@ -1,0 +1,36 @@
+# The Duro design system as the `design` Green Harness extension (ADR-0048).
+# grh manifest v1: docs/extension-manifest.md in the grh repository.
+# `version` is written from the git tag by the release, beside package.json's.
+
+[extension]
+name = "design"
+version = "1.0.0"
+harness = ">=0.1"
+
+[[skill]]
+path = "skills/colors"
+
+[[skill]]
+path = "skills/typography"
+
+[[skill]]
+path = "skills/ui"
+
+[[skill]]
+path = "skills/duro-mockup"
+
+[[agent]]
+path = "agents/design-system-lookup.md"
+
+[[mcp]]
+name = "duro-ds"
+command = "npx"
+args = ["-y", "-p", "@duro-app/cli@^6", "-p", "@modelcontextprotocol/sdk", "duro", "mcp"]
+
+# Quiet outside a Duro consumer; quiet too when `duro hook install` already
+# wired the catalog hook, so a session never gets the catalog twice.
+[[session_context]]
+command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; [ -e .claude/hooks/duro-catalog.sh ] && exit 0; exec npx -y @duro-app/cli@^6 context'"
+
+[[doctor]]
+command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; exec npx -y @duro-app/cli@^6 doctor'"

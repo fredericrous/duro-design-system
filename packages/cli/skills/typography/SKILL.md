@@ -3,6 +3,8 @@ name: typography
 description: Sets and reviews how text renders in your product, from the type scale and spacing to font features, wrapping, truncation and punctuation.
 ---
 
+**Gate.** This skill applies only in a repository whose `package.json` depends on `@duro-app/ui` (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
+
 # Typography
 
 This skill sets and reviews how text renders, from the type scale and spacing to font loading, wrapping and punctuation. It writes every fix in the project's styling system, and the [cheat sheet](css-cheat-sheet.md) maps each declaration to its Tailwind utility.

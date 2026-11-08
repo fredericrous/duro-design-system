@@ -53,3 +53,13 @@ GHSA-gcqx-w48m-w2h4 2026-12-31 deepmerge via ui-email > @react-email/render > ht
 # The patterns it expands are the consumer's own lint config globs, never user
 # input. Remove when eslint and typescript-eslint move to minimatch 11.
 GHSA-g3hv-75wg-m249 2026-12-31 minimatch via eslint-config > eslint (^3, default export) and typescript-eslint (10.x); only 11.x is patched and breaks both; globs are lint config, never user input
+
+# glob 9.0.0-14.0.1 (an AbortSignal cancellation bypass lets a traversal run
+# on past its timeout) is patched only in 14.0.2. It ships through
+# @storybook/react-vite > @joshwooding/vite-plugin-react-docgen-typescript,
+# which pins glob ^13, so an override to 14 would be untested there; `pnpm why
+# glob` shows no other path to 13.x and no published package depends on it.
+# The plugin runs at Storybook build/dev time over the repo's own source globs,
+# and its dist has no AbortSignal use (checked 2026-11-08). Remove when the
+# plugin moves to glob >= 14.0.2.
+GHSA-3g3m-2fjr-6pw4 2026-12-31 glob via @storybook/react-vite > docgen-typescript (^13; only 14.0.2 is patched); Storybook build/dev only, over the repo's own source globs; plugin dist has no AbortSignal use (checked 2026-11-08)

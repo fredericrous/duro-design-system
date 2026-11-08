@@ -27,6 +27,8 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           echo "Publishing version $VERSION"
           pnpm -r exec npm pkg set "version=$VERSION"
+          sed -i "s/^version = \".*\"$/version = \"$VERSION\"/" packages/cli/greenharness.toml
+          grep -qx "version = \"$VERSION\"" packages/cli/greenharness.toml
       - name: CLI floors match the release's major
         run: node packages/cli/scripts/check-pin-major.mjs "${GITHUB_REF_NAME#v}"
       - run: pnpm build

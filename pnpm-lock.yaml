@@ -79,6 +79,9 @@ importers:
       '@arethetypeswrong/cli':
         specifier: 0.18.5
         version: 0.18.5
+      '@aval-adr/eslint-config':
+        specifier: ^0.16.0
+        version: 0.16.0(eslint@9.39.5)(typescript-eslint@8.67.0(eslint@9.39.5)(typescript@5.9.3))
       '@duro-app/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -207,21 +210,9 @@ importers:
 
   packages/eslint-config:
     dependencies:
-      '@aval-adr/eslint-config':
-        specifier: ^0.6.0
-        version: 0.6.0(eslint@9.39.5)(typescript-eslint@8.67.0(eslint@9.39.5)(typescript@5.9.3))
       '@duro-app/eslint-plugin':
         specifier: workspace:^
         version: link:../eslint-plugin
-      '@effect/eslint-plugin':
-        specifier: ^0.3.2
-        version: 0.3.2
-      '@eslint/js':
-        specifier: ^9.20.0 || ^10.0.0
-        version: 9.39.5
-      eslint-config-prettier:
-        specifier: ^10.1.8
-        version: 10.1.8(eslint@9.39.5)
       eslint-plugin-react-hooks:
         specifier: ^7.0.1
         version: 7.1.1(eslint@9.39.5)
@@ -229,6 +220,9 @@ importers:
         specifier: ^8.56.0
         version: 8.67.0(eslint@9.39.5)(typescript@5.9.3)
     devDependencies:
+      '@aval-adr/eslint-config':
+        specifier: ^0.16.0
+        version: 0.16.0(eslint@9.39.5)(typescript-eslint@8.67.0(eslint@9.39.5)(typescript@5.9.3))
       eslint:
         specifier: ^9.20.0
         version: 9.39.5
@@ -237,6 +231,10 @@ importers:
         version: 5.9.3
 
   packages/eslint-plugin:
+    dependencies:
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.56.0
+        version: 8.67.0(@typescript-eslint/parser@8.67.0(eslint@9.39.5)(typescript@5.9.3))(eslint@9.39.5)(typescript@5.9.3)
     devDependencies:
       '@duro-app/tokens':
         specifier: workspace:^
@@ -442,8 +440,8 @@ packages:
     resolution: {integrity: sha512-9ytjzGwxjm9Uz7I9avfbt5vlQt6uk9uRRESzJjqrznl6WKvI6dwYTo+vJ3U02Wrq/mR3iql/PzhvHhKdJIAjDQ==}
     engines: {node: '>=20'}
 
-  '@aval-adr/eslint-config@0.6.0':
-    resolution: {integrity: sha512-EMT9YtiJqz2AS/iKj8JDWB/QWUdcvEiw+s6Sir/mzajH9I8TnaerOiF6UJyWzvGH//+sr4/BXtKwhPxt4Qefzg==}
+  '@aval-adr/eslint-config@0.16.0':
+    resolution: {integrity: sha512-u0qsvj4WQjd3Y6LqN4jJ9vBuOb/aqUHzvLXcPF9zIS1akk5pfC8mXGqB9jY2Y1FQXl7NatqUs5j7h+G0bPCpCA==}
     peerDependencies:
       eslint: ^9.0.0 || ^10.0.0
       typescript-eslint: ^8.0.0
@@ -4996,10 +4994,13 @@ snapshots:
       typescript: 5.6.1-rc
       validate-npm-package-name: 5.0.1
 
-  '@aval-adr/eslint-config@0.6.0(eslint@9.39.5)(typescript-eslint@8.67.0(eslint@9.39.5)(typescript@5.9.3))':
+  '@aval-adr/eslint-config@0.16.0(eslint@9.39.5)(typescript-eslint@8.67.0(eslint@9.39.5)(typescript@5.9.3))':
     dependencies:
+      '@effect/eslint-plugin': 0.3.2
       '@eslint-community/eslint-plugin-eslint-comments': 4.8.1(eslint@9.39.5)
+      '@eslint/js': 9.39.5
       eslint: 9.39.5
+      eslint-config-prettier: 10.1.8(eslint@9.39.5)
       typescript-eslint: 8.67.0(eslint@9.39.5)(typescript@5.9.3)
 
   '@babel/code-frame@7.29.0':

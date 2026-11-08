@@ -186,6 +186,24 @@ export const COMMANDS: CommandSpec[] = [
     mcpTool: 'duro_ds_mockup_check',
   },
   {
+    name: 'context',
+    summary:
+      'The design-system session context for the repo in the cwd: the catalog that `hook session-start` prints, then the `doctor --session` block (re-run only when the build files change; cached under ${XDG_CACHE_HOME:-~/.cache}/duro). Prints nothing outside a Duro consumer. Exits 0',
+    args: [],
+    flags: [
+      {
+        name: 'catalog-only',
+        type: 'boolean',
+        description: 'Leave the doctor block out',
+      },
+    ],
+    returns: {
+      shape: '{preamble, entries, contrast, composition, doctor?: string} | {consumer: false}',
+      description: 'The catalog data, plus the doctor session text unless --catalog-only',
+    },
+    examples: ['duro context', 'duro context --catalog-only'],
+  },
+  {
     name: 'doctor',
     summary:
       "Check how the app in the cwd wires @duro-app/ui into its build: runtimeInjection left on, unlayered StyleX extraction, the stylesheet missing from the entry, layers declared out of order, unlayered resets. Each one flattens component spacing while the design system's own CSS is fine. It also flags a StyleX build that never compiles @duro-app/tokens, so css.create cannot import the tokens, and fresh built CSS whose @media reads a var() (media-var). Exits 1 on an error, 0 on warnings",

@@ -20,13 +20,19 @@
 > (`runtimeInjection`, layered extraction, stylesheet import and layer order) — the ways an app
 > flattens component spacing while this package's CSS is fine — and whether the build compiles
 > `@duro-app/tokens` at all, without which `css.create` cannot import the tokens (StyleX: "ensure
-> the theme file has a .stylex.js or .stylex.ts extension"); the session hook runs it too. See
-> `packages/cli/README.md`.
+> the theme file has a .stylex.js or .stylex.ts extension"); the session hook runs it too.
+>
+> **Green Harness:** the same content also ships as the `design` extension of `grh` (ADR-0048):
+> `packages/cli/greenharness.toml` declares the four skills (self-gating: they apply only where
+> `package.json` depends on `@duro-app/ui`), the `design-system-lookup` agent, the `duro-ds` MCP
+> server, and `duro context` / `duro doctor` as session context and doctor checks. Install it with
+> `grh install --extension node_modules/@duro-app/cli`; `duro hook install` and `duro skill install`
+> keep working beside it and print a pointer to it on stderr. See `packages/cli/README.md`.
 
 ## Architecture
 
 - **Monorepo** managed by pnpm workspaces
-- **Packages:** `@duro-app/ui` (components), `@duro-app/tokens` (design tokens), `@duro-app/eslint-plugin` (lint rules enforcing the Critical Rules below — `duro.configs.recommended`), `@duro-app/eslint-config` (shareable flat config for consumer repos: `base`/`react`/`effect`/`tests` presets bundling the plugin plus stack policy — UI imports only from `@duro-app/ui`, `@effect/sql` not Kysely, a11y test selectors)
+- **Packages:** `@duro-app/ui` (components), `@duro-app/tokens` (design tokens), `@duro-app/eslint-plugin` (lint rules enforcing the Critical Rules below — `duro.configs.recommended`), `@duro-app/eslint-config` (shareable flat config for consumer repos: the `react` preset only, bundling the plugin plus the UI policy — UI imports only from `@duro-app/ui`; the `base`, `effect` and `tests` presets come from `@aval-adr/eslint-config`, which it extends)
 - **Rendering:** [react-strict-dom](https://github.com/nicklockwood/react-strict-dom) — all elements use `html.*` (e.g. `html.div`, `html.button`), **never** raw `<div>` or `<span>`
 - **Styling:** `css.create()` from `react-strict-dom` with token references
 - **Form validation:** Effect Schema + react-hook-form via `@hookform/resolvers` — `Form` imports from `@duro-app/ui/form` (4.0.0); `react-hook-form` is a required peer, `@hookform/resolvers` and `effect` are needed only by apps that import that subpath

@@ -39,6 +39,8 @@
   "files": [
     "dist",
     "skills",
+    "agents",
+    "greenharness.toml",
     "registry.json"
   ],
   "engines": {
@@ -48,7 +50,8 @@
     "registry": "node scripts/build-registry.mjs",
     "prebuild": "pnpm --filter @duro-app/tokens run build && node scripts/build-registry.mjs --check",
     "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "skill:generate": "pnpm run build && node scripts/generate-mockup-skill.mjs"
   },
   "dependencies": {
     "@duro-app/tokens": "workspace:^"

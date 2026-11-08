@@ -3,6 +3,8 @@ name: colors
 description: Helps you build and check a color system for your project. It generates palettes, names semantic tokens, converts between formats and measures contrast.
 ---
 
+**Gate.** This skill applies only in a repository whose `package.json` depends on `@duro-app/ui` (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
+
 # Colors
 
 This skill builds and audits color systems. It generates ramps, maps their steps to roles and token names, converts notation and measures rendered contrast pairs.

@@ -119,14 +119,17 @@ const COMPONENT_ELEMENTS = new Set([
 const ZERO_SPACING =
   /(?:^|[;{\s])((?:padding|margin)(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?)\s*:\s*0(?:px|rem|em)?\s*(?:!important\s*)?(?=;|$)/g
 
+/** True when the root, a workspace package or a package one directory down depends on @duro-app/ui. */
+export function isDuroConsumer(root: string): boolean {
+  return consumerPackages(resolve(root)).length > 0
+}
+
 export function runDoctor(options: DoctorOptions = {}): CommandResult {
   const root = resolve(options.cwd ?? process.cwd())
   const packages = consumerPackages(root)
   if (packages.length === 0) {
     return {
-      text: options.session
-        ? ''
-        : 'duro doctor: no package here uses @duro-app/ui — nothing to check',
+      text: options.session ? '' : 'not a Duro consumer',
       data: {ok: true, findings: [], checked: [], skipped: [], packages: []},
     }
   }
