@@ -21,13 +21,17 @@ start.
 
 `git commit` and `git push` both run their checks first, and neither is
 instant: pre-commit can invoke formatters, linters or clippy (a workspace
-build), and pre-push can run the test suite. Run `amont rehearse --wait`
-BEFORE `git push`: it runs the same push gate on a snapshot of HEAD with no
-connection open and stamps the tree, so the push itself skips the suite and
-holds the remote for seconds instead of minutes (git connects before
-pre-push runs, and a remote may drop the idle session while a suite runs).
-Where `amont.rehearseOnCommit` is on, every commit already starts that
-rehearsal in the background and `--wait` only follows it. Give both commands the
+build), and pre-push gates include the test suite. Push with `amont land`:
+it runs every push gate the push owes on a snapshot of the exact commit,
+with no connection open, then pushes, and the push itself skips them (git
+connects before pre-push runs, and a remote may drop the idle session while a
+suite runs). A bare `git push` whose push gates have not run on its tree is
+refused at once (`amont.pushGates refuse`, the default): run `amont land`, or
+`amont rehearse --wait` (or `amont run --stamp`) first and push again. Push a
+release tag with `amont land --tag <name>`: it runs the release audits on the
+tagged commit first, which a branch rehearsal never does. Where
+`amont.rehearseOnCommit` is on, every commit already starts that rehearsal in
+the background and `--wait` only follows it. Give these commands the
 longest timeout your tooling allows, never its default: here a check is
 killed only after 2m00s of silence or 1h00m in total
 (`amont.idleTimeout` / `amont.timeout`) — and on Linux and macOS a silent
