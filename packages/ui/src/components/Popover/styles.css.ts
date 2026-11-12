@@ -44,6 +44,21 @@ export const styles = css.create({
     fontSize: typography.fontSizeXs,
     minHeight: {default: sizes.controlSm, '@media (pointer: coarse)': sizes.touchTarget},
   },
+  // variant="ghost": Button's ghost, no border until hover, for chip rows.
+  triggerGhost: {
+    borderWidth: 0,
+    borderColor: 'transparent',
+    color: colors.textMuted,
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors.bgCardHover,
+      ':active': colors.bgCardHover,
+    },
+  },
+  triggerDisabled: {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
   // Inside a Dialog or Drawer: above that modal (same portal mount), below a
   // Select or Menu opened from inside the Popover.
   popupInModal: {

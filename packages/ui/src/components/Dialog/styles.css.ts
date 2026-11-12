@@ -4,6 +4,7 @@ import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
 import {shadows} from '@duro-app/tokens/tokens/shadows.css'
 import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {effects} from '@duro-app/tokens/tokens/effects.css'
 import {layers} from '@duro-app/tokens/tokens/layers.css'
 
 export const styles = css.create({
@@ -16,6 +17,9 @@ export const styles = css.create({
     // Portaled into the ThemeProvider mount, which is pointer-events: none:
     // the backdrop must take clicks back (outside click dismisses).
     pointerEvents: 'auto',
+  },
+  backdropBlur: {
+    backdropFilter: effects.overlayBlur,
   },
   backdropOpen: {
     opacity: 1,

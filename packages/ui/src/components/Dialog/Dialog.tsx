@@ -18,6 +18,7 @@ import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 import {ModalContext} from '../../shared/ModalContext'
 import {devWarnOnce} from '../../shared/devWarnOnce'
+import {useEscapeLayer} from '../../shared/escapeStack'
 import {useOverlayOpenState} from '../../shared/useOverlayOpenState'
 
 // --- Types ---
@@ -91,18 +92,19 @@ function Root({
 
   // Handle Escape key. A layer inside the dialog (a Menu, a Select) that
   // already handled it marks the event, and the dialog stays open.
+  const isInnermostLayer = useEscapeLayer(present)
   useEffect(() => {
     if (!present) return
     if (!closeOnEscape) return
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key !== 'Escape' || e.defaultPrevented) return
+      if (e.key !== 'Escape' || e.defaultPrevented || !isInnermostLayer()) return
       e.stopPropagation()
       requestClose()
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [present, closeOnEscape, requestClose])
+  }, [present, closeOnEscape, requestClose, isInnermostLayer])
 
   // Focus: into the dialog on open (initialFocus, else the first focusable
   // element, else the dialog itself), back to what had it on close. The
@@ -191,9 +193,19 @@ function Trigger({children}: TriggerProps) {
 interface PortalProps {
   children: ReactNode
   size?: DialogSize
+  /**
+   * Accessible name of the dialog when no Dialog.Title is rendered (a Dialog.Title,
+   * when present, names it). Default: none.
+   */
+  'aria-label'?: string
+  /**
+   * `blur` frosts the page behind the dim backdrop with `effects.overlayBlur`,
+   * on the backdrop element only. Default: `dim`.
+   */
+  backdrop?: 'dim' | 'blur'
 }
 
-function Portal({children, size = 'md'}: PortalProps) {
+function Portal({children, size = 'md', 'aria-label': ariaLabel, backdrop = 'dim'}: PortalProps) {
   const {
     open,
     closing,
@@ -220,6 +232,7 @@ function Portal({children, size = 'md'}: PortalProps) {
       <html.div
         style={[
           styles.backdrop,
+          backdrop === 'blur' && styles.backdropBlur,
           closing && styles.backdropClosing,
           closing && closeDurationMap[closeDuration],
           !closing && styles.backdropOpen,
@@ -235,6 +248,7 @@ function Portal({children, size = 'md'}: PortalProps) {
           role="dialog"
           aria-modal={true}
           tabIndex={-1}
+          aria-label={ariaLabel}
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
           style={[

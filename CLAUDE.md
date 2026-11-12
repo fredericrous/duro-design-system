@@ -199,7 +199,7 @@ These components **must** be wrapped in their `.Root`:
 | **Avatar** | A person or entity as a picture, else their initials, else a neutral placeholder | `src`, `alt`, `svg` |
 | **Badge** | Small label or tag for status indicators, counts, or categories | `variant`, `size`, `dot` |
 | **Breadcrumb** | Where the current page sits in the hierarchy: a labelled nav landmark with an ordered list of links, outermost first | compound: Item, Root |
-| **Button** | Standard interactive button | `variant`, `size`, `fullWidth` |
+| **Button** | Standard interactive button | `variant`, `size`, `shape` |
 | **ButtonGroup** | Groups related buttons together with consistent spacing and layout | `orientation`, `align`, `disabled` |
 | **Callout** | Block-level informational message with icon and colored background | `variant`, `icon`, `align` |
 | **Card** | Container with visual styling (elevation, border, or fill) | `variant`, `size`, `header` |

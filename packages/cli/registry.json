@@ -732,7 +732,8 @@
             "secondary",
             "inverseSecondary",
             "link",
-            "danger"
+            "danger",
+            "ghost"
           ]
         },
         {
@@ -743,6 +744,17 @@
           "union": [
             "default",
             "small"
+          ]
+        },
+        {
+          "default": "'default'",
+          "description": "`round` is an icon-only circle sized by a size token per size; it has no visible text, so it requires an `aria-label` (a development warning otherwise).",
+          "name": "shape",
+          "required": false,
+          "type": "ButtonShape",
+          "union": [
+            "default",
+            "round"
           ]
         },
         {
@@ -2302,6 +2314,19 @@
                 "md",
                 "lg"
               ]
+            },
+            {
+              "description": "Accessible name of the dialog when no Dialog.Title is rendered (a Dialog.Title, when present, names it). Default: none.",
+              "name": "aria-label",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": "'dim'",
+              "description": "`blur` frosts the page behind the dim backdrop with `effects.overlayBlur`, on the backdrop element only. Default: `dim`.",
+              "name": "backdrop",
+              "required": false,
+              "type": "'dim' | 'blur'"
             }
           ],
           "sourcePath": "packages/ui/src/components/Dialog/Dialog.tsx"
@@ -3185,7 +3210,8 @@
             "secondary",
             "inverseSecondary",
             "link",
-            "danger"
+            "danger",
+            "ghost"
           ]
         },
         {
@@ -5926,6 +5952,20 @@
               ]
             },
             {
+              "default": "'default'",
+              "description": "`ghost` is Button's: no border or fill until hover, for chip rows. Default: `default`.",
+              "name": "variant",
+              "required": false,
+              "type": "'default' | 'ghost'"
+            },
+            {
+              "default": "false",
+              "description": "Inert: not activatable by click, Enter or Space, announced as disabled. Default: `false`.",
+              "name": "disabled",
+              "required": false,
+              "type": "boolean"
+            },
+            {
               "description": "The trigger <button>, e.g. to measure it or return focus to it.",
               "name": "ref",
               "required": false,
@@ -8496,6 +8536,12 @@
           "type": "(files: readonly File[]) => void"
         },
         {
+          "description": "The selection moved or changed: `start` and `end` are character offsets (equal for a caret). Web: the DOM `select` event; native: the TextInput selection event.",
+          "name": "onSelectionChange",
+          "required": false,
+          "type": "(start: number, end: number) => void"
+        },
+        {
           "name": "ref",
           "required": false,
           "type": "React.Ref<HTMLTextAreaElement>"
@@ -9697,7 +9743,7 @@
         ]
       },
       "name": "VisuallyHidden",
-      "native": false,
+      "native": true,
       "props": [
         {
           "name": "children",
@@ -12057,6 +12103,10 @@
       "lg",
       "xl"
     ],
+    "ButtonShape": [
+      "default",
+      "round"
+    ],
     "ButtonSize": [
       "default",
       "small"
@@ -12066,7 +12116,8 @@
       "secondary",
       "inverseSecondary",
       "link",
-      "danger"
+      "danger",
+      "ghost"
     ],
     "CalloutVariant": [
       "error",

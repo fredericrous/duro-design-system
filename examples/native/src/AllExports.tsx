@@ -38,6 +38,7 @@ import {
   Switch,
   Text,
   Textarea,
+  VisuallyHidden,
   TextLink,
   ThemeProvider,
   Toggle,
@@ -153,6 +154,7 @@ export function AllExports() {
           <Input placeholder="In a group" />
         </InputGroup.Root>
         <Textarea placeholder="Textarea" />
+        <VisuallyHidden>Hidden note for screen readers</VisuallyHidden>
         <Grid columns={2} gap="sm">
           <Text>Grid cell 1</Text>
           <Text>Grid cell 2</Text>

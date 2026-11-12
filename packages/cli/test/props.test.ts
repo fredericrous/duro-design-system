@@ -16,7 +16,7 @@ describe('prop extraction goldens', () => {
     expect(prop('Button', 'variant')).toMatchObject({
       type: 'ButtonVariant',
       default: "'primary'",
-      union: ['primary', 'secondary', 'inverseSecondary', 'link', 'danger'],
+      union: ['primary', 'secondary', 'inverseSecondary', 'link', 'danger', 'ghost'],
       required: false,
     })
     expect(prop('Button', 'aria-label')).toMatchObject({type: 'string'})

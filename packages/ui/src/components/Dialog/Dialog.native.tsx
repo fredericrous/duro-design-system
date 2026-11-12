@@ -170,9 +170,13 @@ function Trigger({children}: {children: ReactNode}) {
 interface PortalProps {
   children: ReactNode
   size?: DialogSize
+  /** Accessible name of the dialog when no Dialog.Title is rendered. Default: none. */
+  'aria-label'?: string
+  /** Web only: native draws the dim backdrop either way, with no blur. Default: `dim`. */
+  backdrop?: 'dim' | 'blur'
 }
 
-function Portal({children, size = 'md'}: PortalProps) {
+function Portal({children, size = 'md', 'aria-label': ariaLabel}: PortalProps) {
   const {open, closing, closeDuration, dismissable, requestClose, titleId} = useDialog()
   const {panelRef, closeOnEscape} = useNativeDialog()
   // First frame hidden, then shown: the enter transition has a start state.
@@ -219,6 +223,7 @@ function Portal({children, size = 'md'}: PortalProps) {
               <html.div
                 role="dialog"
                 aria-modal
+                aria-label={ariaLabel}
                 aria-labelledby={titleId}
                 style={[
                   nativeStyles.popup,
