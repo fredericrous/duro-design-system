@@ -229,7 +229,7 @@ Two places run it, and a consuming repo wires both:
   runs `doctor --session`, which prints nothing when the repo is healthy and
   an agent-facing block when it is not. `hook install` wires it.
 - **Every commit that touches the wiring** — an [amont](https://github.com/fredericrous/amont)
-  row in `amont.conf`. Add any custom config file the app has (a
+  row in `greengate.conf`. Add any custom config file the app has (a
   `vite.strict-dom.ts`) to the scope:
 
 ```
