@@ -11,7 +11,7 @@ amont list --json --stage pre-push --pushed  # exactly what pushing next gates
 ```
 
 Each check reports its _effective_ severity (`block`/`warn`, including any
-`amont.severity.*` override) and whether it fires here. The same output
+`greengate.severity.*` override) and whether it fires here. The same output
 carries `commit_style`: the subject and description limits `commit-msg`
 enforces, and where the type's gitmoji is placed. It also carries
 `branch_style`: name a branch `<prefix>/<name>` BEFORE creating it —
@@ -26,20 +26,20 @@ it runs every push gate the push owes on a snapshot of the exact commit,
 with no connection open, then pushes, and the push itself skips them (git
 connects before pre-push runs, and a remote may drop the idle session while a
 suite runs). A bare `git push` whose push gates have not run on its tree is
-refused at once (`amont.pushGates refuse`, the default): run `amont land`, or
+refused at once (`greengate.pushGates refuse`, the default): run `amont land`, or
 `amont rehearse --wait` (or `amont run --stamp`) first and push again. Push a
 release tag with `amont land --tag <name>`: it runs the release audits on the
 tagged commit first, which a branch rehearsal never does. Where
-`amont.rehearseOnCommit` is on, every commit already starts that rehearsal in
+`greengate.rehearseOnCommit` is on, every commit already starts that rehearsal in
 the background and `--wait` only follows it. Give these commands the
 longest timeout your tooling allows, never its default: here a check is
 killed only after 2m00s of silence or 1h00m in total
-(`amont.idleTimeout` / `amont.timeout`) — and on Linux and macOS a silent
+(`greengate.idleTimeout` / `greengate.timeout`) — and on Linux and macOS a silent
 check whose processes are busy on CPU is not "silent": it can run to the
 1h00m ceiling. A check waiting on a cargo or uv lock answers to
-`amont.lockWait` instead, the silence budget stretches with the machine's
-load (`amont.idleLoadScale`), and a heavy check (clippy, a test suite) may
-first queue for a host slot (`amont.hostSlots`) while other worktrees run
+`greengate.lockWait` instead, the silence budget stretches with the machine's
+load (`greengate.idleLoadScale`), and a heavy check (clippy, a test suite) may
+first queue for a host slot (`greengate.hostSlots`) while other worktrees run
 theirs. A test suite may legitimately run for most of that. If your tooling caps a foreground command below it,
 run the command in the background and read its result when it exits —
 while it runs, a line a minute on stderr says which check is alive and
@@ -55,11 +55,11 @@ Never bypass with `--no-verify`. To change enforcement, downgrade it
 intentionally instead:
 
 ```sh
-git config amont.severity.<check-id> warn
+git config greengate.severity.<check-id> warn
 ```
 
 `commit-msg` takes neither `hook.skip` nor a severity override. Write the
 message it asks for, or change what it asks for — `amont setup`, or
-`amont.commit.*` directly.
+`greengate.commit.*` directly.
 
 <!-- greengate:end -->
