@@ -250,3 +250,26 @@ export const DisclosureDoesNotOwnEscape: Story = {
     await expect(page().queryByRole('dialog')).not.toBeInTheDocument()
   },
 }
+
+export const DisabledTrigger: Story = {
+  render: () => (
+    <Popover.Root>
+      <Popover.Trigger disabled variant="ghost">
+        Rename
+      </Popover.Trigger>
+      <Popover.Popup label="Rename">
+        <Popover.Close>Done</Popover.Close>
+      </Popover.Popup>
+    </Popover.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const trigger = canvas.getByRole('button', {name: 'Rename'})
+    await expect(trigger).toHaveAttribute('aria-disabled', 'true')
+    await userEvent.click(trigger)
+    await expect(page().queryByRole('dialog')).not.toBeInTheDocument()
+    trigger.focus()
+    await userEvent.keyboard('{Enter}')
+    await expect(page().queryByRole('dialog')).not.toBeInTheDocument()
+    await expect(getComputedStyle(trigger).borderTopWidth).toBe('0px')
+  },
+}

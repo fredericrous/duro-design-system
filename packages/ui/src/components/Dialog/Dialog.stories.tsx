@@ -10,6 +10,7 @@ import {Stack} from '../Stack/Stack'
 import {Input} from '../Input/Input'
 import {Field} from '../Field/Field'
 import {Select} from '../Select/Select'
+import {Popover} from '../Popover/Popover'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 import {colors} from '@duro-app/tokens/tokens/colors.css'
 import {borders} from '@duro-app/tokens/tokens/borders.css'
@@ -629,5 +630,53 @@ export const ControlledCloseAnimates: Story = {
     await userEvent.click(await doc.findByRole('button', {name: 'Save'}))
     await expect(doc.getByRole('dialog')).toBeInTheDocument()
     await waitFor(() => expect(doc.queryByRole('dialog')).toBeNull())
+  },
+}
+
+// --- AriaLabel / blurred backdrop / Escape order ---
+
+export const AriaLabel: Story = {
+  render: () => (
+    <Dialog.Root defaultOpen>
+      <Dialog.Portal aria-label="Quick note" backdrop="blur">
+        <Dialog.Body>
+          <Text>No title here.</Text>
+        </Dialog.Body>
+      </Dialog.Portal>
+    </Dialog.Root>
+  ),
+  play: async () => {
+    const page = within(document.body)
+    const dialog = await page.findByRole('dialog', {name: 'Quick note'})
+    // The backdrop is the sibling before the centring viewport that holds the popup.
+    const backdrop = dialog.parentElement!.previousElementSibling as HTMLElement
+    await waitFor(() => expect(getComputedStyle(backdrop).backdropFilter).toContain('blur'))
+  },
+}
+
+export const EscapeClosesPopoverFirst: Story = {
+  render: () => (
+    <Dialog.Root defaultOpen>
+      <Dialog.Portal aria-label="Host">
+        <Dialog.Body>
+          <Popover.Root>
+            <Popover.Trigger>Style</Popover.Trigger>
+            <Popover.Popup label="Style">
+              <Text>Inside</Text>
+            </Popover.Popup>
+          </Popover.Root>
+        </Dialog.Body>
+      </Dialog.Portal>
+    </Dialog.Root>
+  ),
+  play: async () => {
+    const page = within(document.body)
+    await userEvent.click(await page.findByRole('button', {name: 'Style'}))
+    await expect(await page.findByRole('dialog', {name: 'Style'})).toBeInTheDocument()
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(page.queryByRole('dialog', {name: 'Style'})).not.toBeInTheDocument())
+    await expect(page.getByRole('dialog', {name: 'Host'})).toBeInTheDocument()
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(page.queryByRole('dialog', {name: 'Host'})).not.toBeInTheDocument())
   },
 }

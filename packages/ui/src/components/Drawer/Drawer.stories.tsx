@@ -1,5 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, within} from 'storybook/test'
+import {expect, userEvent, waitFor, within} from 'storybook/test'
 import {useState} from 'react'
 import {Drawer} from './Drawer'
 import {Button} from '../Button/Button'
@@ -8,6 +8,7 @@ import {Inline} from '../Inline/Inline'
 import {Stack} from '../Stack/Stack'
 import {Input} from '../Input/Input'
 import {Field} from '../Field/Field'
+import {Popover} from '../Popover/Popover'
 
 const meta: Meta = {
   title: 'Components/Drawer',
@@ -364,4 +365,35 @@ export const SwipeDismissRight: Story = {
       </Drawer.Portal>
     </Drawer.Root>
   ),
+}
+
+export const EscapeClosesPopoverFirst: Story = {
+  render: () => (
+    // The floating bottom card Happier's /new uses at phone width.
+    <Drawer.Root defaultOpen anchor="bottom">
+      <Drawer.Portal placement="floating" backdrop="ramp">
+        <Drawer.Header>
+          <Drawer.Title>Host</Drawer.Title>
+        </Drawer.Header>
+        <Drawer.Body>
+          <Popover.Root>
+            <Popover.Trigger>Style</Popover.Trigger>
+            <Popover.Popup label="Style">
+              <Text>Inside</Text>
+            </Popover.Popup>
+          </Popover.Root>
+        </Drawer.Body>
+      </Drawer.Portal>
+    </Drawer.Root>
+  ),
+  play: async () => {
+    const page = within(document.body)
+    await userEvent.click(await page.findByRole('button', {name: 'Style'}))
+    await expect(await page.findByRole('dialog', {name: 'Style'})).toBeInTheDocument()
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(page.queryByRole('dialog', {name: 'Style'})).not.toBeInTheDocument())
+    await expect(page.getByRole('dialog', {name: 'Host'})).toBeInTheDocument()
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(page.queryByRole('dialog', {name: 'Host'})).not.toBeInTheDocument())
+  },
 }

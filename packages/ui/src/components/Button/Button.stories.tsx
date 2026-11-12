@@ -3,6 +3,8 @@ import {expect, fn} from 'storybook/test'
 import {useRef, useState} from 'react'
 import {css, html} from 'react-strict-dom'
 import {Button} from './Button'
+import {Icon} from '../Icon/Icon'
+import {RADII_PX} from '@duro-app/tokens/keys'
 import {spacing} from '@duro-app/tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Button> = {
@@ -14,7 +16,7 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['primary', 'secondary', 'link', 'danger'],
+      options: ['primary', 'secondary', 'link', 'danger', 'ghost'],
     },
     size: {
       control: 'select',
@@ -168,5 +170,29 @@ export const RefAndDisclosure: Story = {
     await expect(toggle).toHaveAttribute('aria-controls', 'filters-panel')
     await userEvent.click(canvas.getByRole('button', {name: 'Back to Filters'}))
     await expect(toggle).toHaveFocus()
+  },
+}
+
+export const IconRound: Story = {
+  args: {
+    shape: 'round',
+    variant: 'secondary',
+    'aria-label': 'Search',
+    children: <Icon name="search" size="sm" />,
+  },
+  play: async ({canvas}) => {
+    const button = canvas.getByRole('button', {name: 'Search'})
+    await expect(button).toBeInTheDocument()
+    const radius = parseFloat(getComputedStyle(button).borderTopLeftRadius)
+    await expect(radius === RADII_PX.full || radius >= button.offsetWidth / 2).toBe(true)
+    await expect(button.offsetWidth).toBe(button.offsetHeight)
+  },
+}
+
+export const Ghost: Story = {
+  args: {variant: 'ghost', children: 'Ghost'},
+  play: async ({canvas}) => {
+    const button = canvas.getByRole('button', {name: 'Ghost'})
+    await expect(getComputedStyle(button).borderTopWidth).toBe('0px')
   },
 }

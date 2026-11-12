@@ -26,7 +26,12 @@ export {
 } from './components/Avatar/Avatar'
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
 export {Breadcrumb} from './components/Breadcrumb/Breadcrumb'
-export {Button, type ButtonVariant, type ButtonSize} from './components/Button/Button'
+export {
+  Button,
+  type ButtonVariant,
+  type ButtonSize,
+  type ButtonShape,
+} from './components/Button/Button'
 export {
   FileTrigger,
   type FileTriggerProps,

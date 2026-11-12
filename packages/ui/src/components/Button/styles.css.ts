@@ -128,6 +128,39 @@ export const styles = css.create({
     },
     color: colors.errorContrast,
   },
+  ghost: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors.bgCardHover,
+      ':active': colors.bgCardHover,
+    },
+    borderWidth: 0,
+    borderColor: 'transparent',
+    color: colors.textMuted,
+  },
+  // Icon-only circle: width and height come from a size token per size, so
+  // the padding and the coarse-pointer minimums of the text sizes are reset.
+  round: {
+    borderRadius: radii.full,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+    boxSizing: 'border-box',
+    flexShrink: 0,
+  },
+  roundDefault: {
+    width: sizes.iconButton,
+    height: sizes.iconButton,
+    minWidth: sizes.iconButton,
+    minHeight: sizes.iconButton,
+  },
+  roundSmall: {
+    width: sizes.iconButtonSm,
+    height: sizes.iconButtonSm,
+    minWidth: sizes.iconButtonSm,
+    minHeight: sizes.iconButtonSm,
+  },
   fullWidth: {
     width: '100%',
     // Native has no border-box reset (the web's global-reset.css); declare it.

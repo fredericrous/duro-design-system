@@ -117,6 +117,10 @@ interface TriggerProps {
   'aria-label'?: string
   /** `small` matches a small Toggle or Button beside it. Default: `default`. */
   size?: ControlSize
+  /** `ghost` is Button's: no border or fill until hover, for chip rows. Default: `default`. */
+  variant?: 'default' | 'ghost'
+  /** Inert: not activatable by click, Enter or Space, announced as disabled. Default: `false`. */
+  disabled?: boolean
   /** The trigger's host, e.g. to measure it. */
   ref?: Ref<unknown>
 }
@@ -127,20 +131,34 @@ interface TriggerProps {
  * holds-until: react-strict-dom maps aria-description to accessibilityHint
  * (https://github.com/react/react-strict-dom/issues/524).
  */
-function Trigger({children, 'aria-label': ariaLabel, size = 'default', ref}: TriggerProps) {
+function Trigger({
+  children,
+  'aria-label': ariaLabel,
+  size = 'default',
+  variant = 'default',
+  disabled = false,
+  ref,
+}: TriggerProps) {
   const {open, setOpen, triggerRef} = usePopover('Trigger')
   const hint = useTooltipHint()
   return (
     <Pressable
       ref={mergeRefs(triggerRef, ref) as Ref<never>}
+      disabled={disabled}
       onPress={() => setOpen(!open)}
       accessibilityRole="button"
       accessibilityLabel={ariaLabel}
       accessibilityHint={hint}
-      accessibilityState={{expanded: open}}
+      accessibilityState={{expanded: open, disabled}}
     >
       <html.div
-        style={[styles.trigger, nativeStyles.nativeFlex, size === 'small' && styles.triggerSmall]}
+        style={[
+          styles.trigger,
+          nativeStyles.nativeFlex,
+          variant === 'ghost' && styles.triggerGhost,
+          size === 'small' && styles.triggerSmall,
+          disabled && styles.triggerDisabled,
+        ]}
       >
         {children}
       </html.div>

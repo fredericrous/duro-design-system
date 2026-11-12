@@ -17,7 +17,12 @@
 
 // Leaf primitives
 export {Badge, type BadgeVariant, type BadgeSize} from './components/Badge/Badge'
-export {Button, type ButtonVariant, type ButtonSize} from './components/Button/Button'
+export {
+  Button,
+  type ButtonVariant,
+  type ButtonSize,
+  type ButtonShape,
+} from './components/Button/Button'
 export {Card, type CardVariant, type CardSize} from './components/Card/Card'
 export {Checkbox} from './components/Checkbox/Checkbox'
 export {Heading, type HeadingSize, type HeadingVariant} from './components/Heading/Heading'
@@ -26,6 +31,7 @@ export {Switch} from './components/Switch/Switch'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
 export {TextLink, type TextLinkVariant} from './components/TextLink/TextLink'
 export {Textarea, type TextareaVariant} from './components/Textarea/Textarea'
+export {VisuallyHidden} from './components/VisuallyHidden/VisuallyHidden'
 
 // Text and layout
 export {CodeBlock, type CodeBlockProps} from './components/CodeBlock/CodeBlock'

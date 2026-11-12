@@ -1,5 +1,6 @@
 import {useCallback, useRef} from 'react'
 import {html} from 'react-strict-dom'
+import {isNative} from '../../platform'
 import {useFieldContext} from '../Field/FieldContext'
 import type {ListboxAnchorProps} from '../Listbox/Listbox'
 import {useAutoGrowFallback} from './useAutoGrowFallback'
@@ -46,6 +47,12 @@ interface TextareaBaseProps {
    * pastes and drops stay text. Native: never called; attach with FileTrigger.
    */
   onFiles?: (files: readonly File[]) => void
+  /**
+   * The selection moved or changed: `start` and `end` are character offsets
+   * (equal for a caret). Web: the DOM `select` event; native: the TextInput
+   * selection event.
+   */
+  onSelectionChange?: (start: number, end: number) => void
   ref?: React.Ref<HTMLTextAreaElement>
 }
 
@@ -73,6 +80,7 @@ export function Textarea({
   onKeyDown,
   onKeyUp,
   onFiles,
+  onSelectionChange,
   ref,
 }: TextareaProps) {
   const ctx = useFieldContext()
@@ -88,6 +96,18 @@ export function Textarea({
 
   const extraProps: Record<string, unknown> = {}
   if (autoFocus) extraProps.autoFocus = true
+  if (onSelectionChange) {
+    // Structural event types: the native build (no DOM lib) types this file too.
+    if (isNative) {
+      extraProps.onSelectionChange = (event: {
+        nativeEvent: {selection: {start: number; end: number}}
+      }) => onSelectionChange(event.nativeEvent.selection.start, event.nativeEvent.selection.end)
+    } else {
+      extraProps.onSelect = (event: {
+        currentTarget: {selectionStart: number; selectionEnd: number}
+      }) => onSelectionChange(event.currentTarget.selectionStart, event.currentTarget.selectionEnd)
+    }
+  }
 
   // Without CSS field-sizing, measure the content after each render.
   const innerRef = useRef<HTMLTextAreaElement | null>(null)

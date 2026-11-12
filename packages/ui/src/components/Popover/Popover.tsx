@@ -26,6 +26,7 @@ import type {ControlSize} from '../../shared/types'
 import {resolveLength} from '../../shared/length'
 import type {SizeToken} from '@duro-app/tokens/keys'
 import {useInModal} from '../../shared/ModalContext'
+import {useEscapeLayer} from '../../shared/escapeStack'
 
 // --- Context ---
 
@@ -131,11 +132,12 @@ function Root({
   }, [open])
 
   // Esc and outside press.
+  const isInnermostLayer = useEscapeLayer(open)
   useEffect(() => {
     if (!open) return
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key !== 'Escape' || e.defaultPrevented) return
+      if (e.key !== 'Escape' || e.defaultPrevented || !isInnermostLayer()) return
       e.preventDefault()
       setOpen(false)
     }
@@ -154,7 +156,7 @@ function Root({
       document.removeEventListener('keydown', onKeyDown)
       document.removeEventListener('pointerdown', onPointerDown, true)
     }
-  }, [open, setOpen])
+  }, [open, setOpen, isInnermostLayer])
 
   const layersRef = useRef(new Set<Element>())
   // A nested Popover's layers are inside its parent too.
@@ -208,13 +210,24 @@ interface TriggerProps {
   'aria-label'?: string
   /** `small` matches a small Toggle or Button beside it. Default: `default`. */
   size?: ControlSize
+  /** `ghost` is Button's: no border or fill until hover, for chip rows. Default: `default`. */
+  variant?: 'default' | 'ghost'
+  /** Inert: not activatable by click, Enter or Space, announced as disabled. Default: `false`. */
+  disabled?: boolean
   /** The trigger <button>, e.g. to measure it or return focus to it. */
   ref?: Ref<HTMLButtonElement>
 }
 
-function Trigger({children, 'aria-label': ariaLabel, size = 'default', ref}: TriggerProps) {
+function Trigger({
+  children,
+  'aria-label': ariaLabel,
+  size = 'default',
+  variant = 'default',
+  disabled = false,
+  ref,
+}: TriggerProps) {
   const {open, setOpen, popoverId, triggerRef} = usePopover('Trigger')
-  const grouped = useGroupedControl<HTMLButtonElement>()
+  const grouped = useGroupedControl<HTMLButtonElement>({disabled})
 
   return (
     <html.button
@@ -222,12 +235,20 @@ function Trigger({children, 'aria-label': ariaLabel, size = 'default', ref}: Tri
       tabIndex={grouped.tabIndex}
       onFocus={grouped.onFocus}
       type="button"
-      onClick={() => setOpen(!open)}
+      disabled={disabled}
+      onClick={disabled ? undefined : () => setOpen(!open)}
+      aria-disabled={disabled || undefined}
       aria-label={ariaLabel}
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-controls={open ? popoverId : undefined}
-      style={[styles.trigger, size === 'small' && styles.triggerSmall, grouped.style]}
+      style={[
+        styles.trigger,
+        variant === 'ghost' && styles.triggerGhost,
+        size === 'small' && styles.triggerSmall,
+        disabled && styles.triggerDisabled,
+        grouped.style,
+      ]}
     >
       {children}
     </html.button>

@@ -3,6 +3,7 @@ import {type ReactNode, useState, useEffect, useCallback} from 'react'
 import {html} from 'react-strict-dom'
 import {SPACING_PX, type DurationToken} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
+import {useEscapeLayer} from '../../shared/escapeStack'
 import {devWarnOnce} from '../../shared/devWarnOnce'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
@@ -47,12 +48,13 @@ function Root({children, ...props}: DrawerRootProps) {
   const {open: present, dismissable, modal, requestClose, panelRef} = ctx
 
   // Handle Escape key
+  const isInnermostLayer = useEscapeLayer(present)
   useEffect(() => {
     if (!present) return
     if (!dismissable) return
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key !== 'Escape') return
+      if (e.key !== 'Escape' || !isInnermostLayer()) return
       const panel = panelRef.current as HTMLElement | null
       const focused = document.activeElement
       const focusInsidePanel = panel?.contains(focused) ?? false
@@ -76,7 +78,7 @@ function Root({children, ...props}: DrawerRootProps) {
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [present, dismissable, modal, panelRef, requestClose])
+  }, [present, dismissable, modal, panelRef, requestClose, isInnermostLayer])
 
   // Lock body scroll when open
   useEffect(() => {
