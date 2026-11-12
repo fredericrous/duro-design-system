@@ -1,1 +1,2 @@
 zougi.fr@gmail.com namespaces="amont-attest" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO1DryfJsqOHYVvdO1Rbcu0/21FURUHqyvjFieG4wocH amont-attest
+cluster-signer@x86_64-linux namespaces="amont-attest,greengate-attest" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPN/BUrf1z2U9OgDTSRCw/zNSxHhQGRLlqd2IdOH8zHA cluster-signer@x86_64-linux
