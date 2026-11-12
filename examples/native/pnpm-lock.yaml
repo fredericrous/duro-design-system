@@ -9,7 +9,7 @@ overrides:
   uuid@<11.1.1: ^11.1.1
   decode-uri-component@<0.5.1: ^0.5.1
   undici@>=6.5.0 <6.29.1: ^6.29.1
-  node-forge@<1.4.1: ^1.4.1
+  node-forge@<1.4.3: ^1.4.3
   glob@>=9.0.0 <14.0.2: ^14.0.2
 
 importers:
@@ -2615,8 +2615,8 @@ packages:
   nested-error-stacks@2.0.1:
     resolution: {integrity: sha512-SrQrok4CATudVzBS7coSz26QRSmlK9TzzoFbeKfcPBUFPjcQM9Rqvr/DlJkOrwI/0KcgvMub1n1g5Jt9EgRn4A==}
 
-  node-forge@1.4.2:
-    resolution: {integrity: sha512-rRtAR5XLJ8gCKd9du4qrKAsgCG1ObGP4gLeNJMa4vYSeq4bmBMOJk5IHkrviBV0q7uoAJlVd8HEQYQSVUb4FGQ==}
+  node-forge@1.4.3:
+    resolution: {integrity: sha512-P6wzfh6t70avmV8FrVEAd/36sOPJQ+hkaJVX1Laap9J/77m7M0eyozDvc8SwnDf4P7MP94gwbAAo0rg3YVXT+g==}
     engines: {node: '>= 6.13.0'}
 
   node-int64@0.4.0:
@@ -4183,7 +4183,7 @@ snapshots:
       glob: 14.0.3
       lan-network: 0.1.7
       minimatch: 9.0.9
-      node-forge: 1.4.2
+      node-forge: 1.4.3
       npm-package-arg: 11.0.3
       ora: 3.4.0
       picomatch: 3.0.2
@@ -4220,7 +4220,7 @@ snapshots:
 
   '@expo/code-signing-certificates@0.0.6':
     dependencies:
-      node-forge: 1.4.2
+      node-forge: 1.4.3
 
   '@expo/config-plugins@54.0.5':
     dependencies:
@@ -6816,7 +6816,7 @@ snapshots:
 
   nested-error-stacks@2.0.1: {}
 
-  node-forge@1.4.2: {}
+  node-forge@1.4.3: {}
 
   node-int64@0.4.0: {}
 
