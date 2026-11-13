@@ -4072,7 +4072,7 @@
           "type": "(e: React.FocusEvent<HTMLInputElement>) => void"
         },
         {
-          "description": "Keyboard handlers — e.g. Enter to commit, Escape to cancel, arrow-key navigation of a list driven by this field.",
+          "description": "Keyboard handlers — e.g. Enter to commit, Escape to cancel, arrow-key navigation of a list driven by this field. On native the event carries `key` and `type` ('keydown') for a printable character, 'Backspace' and 'Enter' (react-strict-dom maps RN's onKeyPress and onSubmitEditing); RN reports no other keys, Tab included, and the event has no modifier flags.",
           "name": "onKeyDown",
           "required": false,
           "type": "(e: React.KeyboardEvent<HTMLInputElement>) => void"
@@ -6368,6 +6368,18 @@
               "type": "boolean"
             },
             {
+              "description": "A second line under the option's text, in muted type. Not part of the option's name or the trigger's label.",
+              "name": "description",
+              "required": false,
+              "type": "ReactNode"
+            },
+            {
+              "description": "An icon or a small preview before the option's text. Decorative: hidden from assistive technology.",
+              "name": "leading",
+              "required": false,
+              "type": "ReactNode"
+            },
+            {
               "name": "children",
               "required": true,
               "type": "ReactNode"
@@ -6655,6 +6667,111 @@
       },
       "props": null,
       "sourcePath": "packages/ui/src/components/SideNav/SideNav.tsx"
+    },
+    "Slider": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "description": "Single-thumb range slider for choosing a number between min and max. The thumb is role=\"slider\" with aria-valuemin, aria-valuemax, aria-valuenow and aria-valuetext (formatValue). On the web the arrow keys move one step, PageUp and PageDown ten steps, Home and End to the ends, and a pointer drag moves the thumb; on React Native a touch and drag move it, and the track is one adjustable element whose increment and decrement actions step the value. children is a visible label that names the slider; without it, give aria-label. showValue shows the current value beside the label.",
+        "example": "<Slider\n  min={0}\n  max={100}\n  step={5}\n  defaultValue={40}\n  showValue\n  formatValue={(value) => `${value}%`}\n  onValueChange={(value) => console.log(value)}\n>\n  Volume\n</Slider>",
+        "relatedTo": [
+          {
+            "component": "Input",
+            "kind": "contrast",
+            "relationship": "Input type=\"number\" for an exact figure; Slider for a value picked by position"
+          },
+          {
+            "component": "Switch",
+            "kind": "contrast",
+            "relationship": "Switch for on/off; Slider for a value in a range"
+          }
+        ],
+        "whenNotToUse": [
+          "An exact figure to type — use Input type=\"number\"",
+          "A choice among a few named options — use Select or ToggleGroup",
+          "A range with two ends — Slider has one thumb"
+        ],
+        "whenToUse": [
+          "Choosing an approximate number in a range (volume, opacity, a threshold)",
+          "A value where the relative position matters more than the exact figure"
+        ]
+      },
+      "name": "Slider",
+      "native": true,
+      "props": [
+        {
+          "description": "Controlled value.",
+          "name": "value",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "description": "Initial value (uncontrolled). Default: `min`.",
+          "name": "defaultValue",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "description": "Called with the new value as it changes: on each key, and as a drag moves.",
+          "name": "onValueChange",
+          "required": false,
+          "type": "(value: number) => void"
+        },
+        {
+          "default": "0",
+          "description": "Lowest value. Default: 0",
+          "name": "min",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "default": "100",
+          "description": "Highest value. Default: 100",
+          "name": "max",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "default": "1",
+          "description": "The distance between values, counted from `min`. Default: 1",
+          "name": "step",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "default": "false",
+          "description": "Prevents user interaction.",
+          "name": "disabled",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "A visible label; it names the slider.",
+          "name": "children",
+          "required": false,
+          "type": "ReactNode"
+        },
+        {
+          "description": "Names the slider when it has no visible label (`children`).",
+          "name": "aria-label",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "false",
+          "description": "Shows the current value beside the label.",
+          "name": "showValue",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "The value as text, for `aria-valuetext` and the visible value: `(v) => `${v}%``. Default: the number.",
+          "name": "formatValue",
+          "required": false,
+          "type": "(value: number) => string"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/Slider/Slider.tsx"
     },
     "Spinner": {
       "importPath": "@duro-app/ui",

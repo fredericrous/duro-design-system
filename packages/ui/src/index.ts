@@ -173,6 +173,7 @@ export {Popover} from './components/Popover/Popover'
 export type {PopoverHandle} from './components/Popover/Popover'
 export {useInModal} from './shared/ModalContext'
 export {Switch} from './components/Switch/Switch'
+export {Slider, type SliderProps} from './components/Slider/Slider'
 
 // Layout primitives
 export {Stack, type SpacingKey} from './components/Stack/Stack'

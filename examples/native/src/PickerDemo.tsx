@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {Combobox, Listbox, Select, Stack, Text} from '@duro-app/ui'
+import {Combobox, Listbox, Select, Slider, Stack, Text} from '@duro-app/ui'
 
 const MODELS = [
   'claude-opus-5-5',
@@ -40,6 +40,23 @@ export function PickerDemo() {
           ))}
         </Select.Popup>
       </Select.Root>
+      <Select.Root defaultValue="fast">
+        <Select.Trigger aria-label="Speed">
+          <Select.Value placeholder="Choose a speed" />
+          <Select.Icon />
+        </Select.Trigger>
+        <Select.Popup label="Speed">
+          <Select.Item value="fast" leading="⚡" description="Answers in a second or two">
+            Fast
+          </Select.Item>
+          <Select.Item value="deep" leading="🧠" description="Thinks longer, answers better">
+            Deep
+          </Select.Item>
+        </Select.Popup>
+      </Select.Root>
+      <Slider defaultValue={40} step={5} showValue formatValue={(v) => `${v}%`}>
+        Volume
+      </Slider>
       <Select.Root>
         <Select.Trigger aria-label="Model, none available">
           <Select.Value placeholder="No models" />

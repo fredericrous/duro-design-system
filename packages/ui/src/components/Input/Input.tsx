@@ -62,7 +62,10 @@ interface InputProps {
   onBlur?: () => void
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void
   /** Keyboard handlers — e.g. Enter to commit, Escape to cancel, arrow-key
-   *  navigation of a list driven by this field. */
+   *  navigation of a list driven by this field. On native the event carries
+   *  `key` and `type` ('keydown') for a printable character, 'Backspace' and
+   *  'Enter' (react-strict-dom maps RN's onKeyPress and onSubmitEditing); RN
+   *  reports no other keys, Tab included, and the event has no modifier flags. */
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   ref?: React.Ref<HTMLInputElement>
