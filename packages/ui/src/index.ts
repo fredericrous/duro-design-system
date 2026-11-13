@@ -46,6 +46,11 @@ export {CodeBlock} from './components/CodeBlock/CodeBlock'
 export type {CodeBlockLineAction, DiffLineInfo} from './components/CodeBlock/types'
 export {CheckboxGroup} from './components/CheckboxGroup/CheckboxGroup'
 export {ColorInput} from './components/ColorInput/ColorInput'
+export {
+  ColorPicker,
+  type ColorPickerProps,
+  type ColorPickerLabels,
+} from './components/ColorPicker/ColorPicker'
 export {ConfirmDialog} from './components/ConfirmDialog/ConfirmDialog'
 export {
   DragDrop,

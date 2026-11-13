@@ -28,6 +28,11 @@ export {Checkbox} from './components/Checkbox/Checkbox'
 export {Heading, type HeadingSize, type HeadingVariant} from './components/Heading/Heading'
 export {Input, type InputVariant} from './components/Input/Input'
 export {Switch} from './components/Switch/Switch'
+export {
+  ColorPicker,
+  type ColorPickerProps,
+  type ColorPickerLabels,
+} from './components/ColorPicker/ColorPicker'
 export {Slider, type SliderProps} from './components/Slider/Slider'
 export {Text, type TextVariant, type TextColor} from './components/Text/Text'
 export {TextLink, type TextLinkVariant} from './components/TextLink/TextLink'

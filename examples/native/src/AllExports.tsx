@@ -17,6 +17,7 @@ import {
   Checkbox,
   Cluster,
   CodeBlock,
+  ColorPicker,
   EmptyState,
   Field,
   Grid,
@@ -99,6 +100,12 @@ export function AllExports() {
           <RadioGroup.Item value="team">Team</RadioGroup.Item>
         </RadioGroup.Root>
         <Toggle aria-label="Bold">B</Toggle>
+        <ColorPicker
+          aria-label="Accent colour"
+          defaultValue="#3b82f6"
+          swatches={['#ef4444', '#22c55e', '#3b82f6']}
+          allowTransparent
+        />
         <List.Root title="Sessions" footer="One session">
           <List.Item>
             <List.Content>

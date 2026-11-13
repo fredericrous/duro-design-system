@@ -209,6 +209,7 @@ These components **must** be wrapped in their `.Root`:
 | **CodeBlock** | A block of code with a copy button: a pre that scrolls sideways when a line is long, and a Button that copies its text, shows the copied label for copiedDuration ms and announces it through a polite LiveRegion | `language`, `copyLabel`, `copiedLabel` |
 | **ColorInput** | A styled native color swatch (<input type="color">) for picking a hex color | `value`, `defaultValue`, `name` |
 | **ColorModeToggle** | Color-mode controller + toggle | `size`, `aria-label` |
+| **ColorPicker** | A colour picker whose value is a CSS colour string (hex, rgb(a), hsl(a) or transparent) | `value`, `defaultValue`, `onChange` |
 | **Combobox** | Searchable dropdown for selecting a value from a filterable list | compound: Empty, Input, Item, ItemText, Popup, … |
 | **ConfirmDialog** | Destructive-confirmation dialog with an optional type-a-phrase gate | `open`, `onOpenChange`, `title` |
 | **DetailPanel** | Non-modal side panel for right-side inspection | compound: Body, Close, Content, Footer, Header, … |
