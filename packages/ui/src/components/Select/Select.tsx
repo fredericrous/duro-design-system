@@ -254,10 +254,14 @@ interface ItemProps {
   value: string
   /** Shown but not choosable: skipped by the arrow keys, inert to a press, announced as disabled. */
   disabled?: boolean
+  /** A second line under the option's text, in muted type. Not part of the option's name or the trigger's label. */
+  description?: ReactNode
+  /** An icon or a small preview before the option's text. Decorative: hidden from assistive technology. */
+  leading?: ReactNode
   children: ReactNode
 }
 
-function Item({value: itemValue, disabled = false, children}: ItemProps) {
+function Item({value: itemValue, disabled = false, description, leading, children}: ItemProps) {
   const {
     value: selectedValue,
     setValue,
@@ -269,12 +273,16 @@ function Item({value: itemValue, disabled = false, children}: ItemProps) {
   } = useSelect()
   const id = useId()
   const ref = useRef<HTMLDivElement>(null)
+  const textRef = useRef<HTMLSpanElement>(null)
+  const textId = useId()
+  const descriptionId = useId()
   const isSelected = selectedValue === itemValue
   const isHighlighted = highlightedId === id
 
-  // Register label from DOM text content (works with both string and JSX children)
+  // Register label from the DOM text of the option's own text (not its
+  // description), which works with both string and JSX children.
   useEffect(() => {
-    const el = ref.current
+    const el = textRef.current
     if (!el) return
     const text = el.textContent
     if (text) registerLabel(itemValue, text)
@@ -299,6 +307,8 @@ function Item({value: itemValue, disabled = false, children}: ItemProps) {
       role="option"
       aria-selected={isSelected}
       aria-disabled={disabled || undefined}
+      aria-labelledby={textId}
+      aria-describedby={description != null ? descriptionId : undefined}
       onClick={handleClick}
       onPointerEnter={disabled ? undefined : () => setHighlightedId(id)}
       style={[
@@ -308,7 +318,21 @@ function Item({value: itemValue, disabled = false, children}: ItemProps) {
         disabled && styles.itemDisabled,
       ]}
     >
-      {children}
+      {leading != null && (
+        <html.span aria-hidden style={styles.itemLeading}>
+          {leading}
+        </html.span>
+      )}
+      <html.span style={styles.itemBody}>
+        <html.span ref={textRef} id={textId}>
+          {children}
+        </html.span>
+        {description != null && (
+          <html.span id={descriptionId} style={styles.itemDescription}>
+            {description}
+          </html.span>
+        )}
+      </html.span>
     </html.div>
   )
 }

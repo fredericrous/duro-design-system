@@ -247,6 +247,7 @@ These components **must** be wrapped in their `.Root`:
 | **ScrollArea** | Custom scrollbar region with draggable thumb | compound: Content, Root, Scrollbar, Thumb, Viewport |
 | **Select** | Dropdown select for choosing one value from a list | compound: Icon, Item, ItemText, Popup, Root, … |
 | **SideNav** | Vertical side navigation | compound: Group, Item, Root, Section |
+| **Slider** | Single-thumb range slider for choosing a number between min and max | `value`, `defaultValue`, `onValueChange` |
 | **Spinner** | Animated loading indicator | `size`, `label` |
 | **SplitPane** | Two panes side by side with a resizable separator: the first Pane is sized by the Handle (pointer drag, arrow keys, Shift for larger steps, Home and End), the second takes the rest | compound: Handle, Pane, Root |
 | **Stack** | Vertical flex layout | `gap`, `align` |
@@ -989,12 +990,12 @@ export function LoginFormRecipe() {
 
 <!-- greengate:start -->
 
-## Git hooks (amont)
+## Git hooks (greengate)
 
 This repository enforces pre-commit / pre-push checks that can REJECT a
 commit or a push. What runs, the branch-name rule, and why `git commit`
 and `git push` both need a long timeout — or a background run — are in
 [AGENTS.md](AGENTS.md) — read it before committing. Both files are
-generated: run `amont agents-md` after changing either.
+generated: run `greengate agents-md` after changing either.
 
 <!-- greengate:end -->

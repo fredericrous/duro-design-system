@@ -1,13 +1,13 @@
 <!-- greengate:start -->
 
-## Git hooks (amont)
+## Git hooks (greengate)
 
 This repository enforces pre-commit / pre-push checks. Ask the registry
 rather than guessing before assuming a change is safe:
 
 ```sh
-amont list --json
-amont list --json --stage pre-push --pushed  # exactly what pushing next gates
+greengate list --json
+greengate list --json --stage pre-push --pushed  # exactly what pushing next gates
 ```
 
 Each check reports its _effective_ severity (`block`/`warn`, including any
@@ -21,14 +21,14 @@ start.
 
 `git commit` and `git push` both run their checks first, and neither is
 instant: pre-commit can invoke formatters, linters or clippy (a workspace
-build), and pre-push gates include the test suite. Push with `amont land`:
+build), and pre-push gates include the test suite. Push with `greengate land`:
 it runs every push gate the push owes on a snapshot of the exact commit,
 with no connection open, then pushes, and the push itself skips them (git
 connects before pre-push runs, and a remote may drop the idle session while a
 suite runs). A bare `git push` whose push gates have not run on its tree is
-refused at once (`greengate.pushGates refuse`, the default): run `amont land`, or
-`amont rehearse --wait` (or `amont run --stamp`) first and push again. Push a
-release tag with `amont land --tag <name>`: it runs the release audits on the
+refused at once (`greengate.pushGates refuse`, the default): run `greengate land`, or
+`greengate rehearse --wait` (or `greengate run --stamp`) first and push again. Push a
+release tag with `greengate land --tag <name>`: it runs the release audits on the
 tagged commit first, which a branch rehearsal never does. Where
 `greengate.rehearseOnCommit` is on, every commit already starts that rehearsal in
 the background and `--wait` only follows it. Give these commands the
@@ -59,7 +59,7 @@ git config greengate.severity.<check-id> warn
 ```
 
 `commit-msg` takes neither `hook.skip` nor a severity override. Write the
-message it asks for, or change what it asks for — `amont setup`, or
+message it asks for, or change what it asks for — `greengate setup`, or
 `greengate.commit.*` directly.
 
 <!-- greengate:end -->

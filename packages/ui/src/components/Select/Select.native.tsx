@@ -8,7 +8,8 @@ import {
   useId,
   useRef,
 } from 'react'
-import {Pressable} from 'react-native'
+import {Pressable as NativePressable, View} from 'react-native'
+import {Pressable} from 'react-native-gesture-handler'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {useSelectState} from './selectState'
@@ -16,6 +17,7 @@ import {Drawer} from '../Drawer/Drawer'
 import {Listbox} from '../Listbox/Listbox'
 import {Button} from '../Button/Button'
 import {nativeStyles} from './native.css'
+import {sheetStyles} from '../Listbox/native.css'
 import {Chevron} from '../SideNav/Chevron'
 import {useTooltipHint} from '../Tooltip/TooltipHint'
 import {focusForAccessibility} from '../../shared/accessibilityFocus'
@@ -131,7 +133,7 @@ function Trigger({
   const {open, disabled, setOpen, triggerRef} = useSelect()
   const hint = useTooltipHint()
   return (
-    <Pressable
+    <NativePressable
       ref={triggerRef as RefObject<never>}
       disabled={disabled}
       onPress={() => setOpen(true)}
@@ -150,7 +152,7 @@ function Trigger({
       >
         {children}
       </html.div>
-    </Pressable>
+    </NativePressable>
   )
 }
 
@@ -213,10 +215,81 @@ interface ItemProps {
   value: string
   /** Shown but not choosable. */
   disabled?: boolean
+  /** A second line under the option's text. Not part of the option's name or the trigger's label. */
+  description?: ReactNode
+  /** An icon or a small preview before the option's text. Decorative: hidden from assistive technology. */
+  leading?: ReactNode
   children: ReactNode
 }
 
-function Item({value: itemValue, disabled = false, children}: ItemProps) {
+const ACTIVATE = [{name: 'activate'}] as const
+
+/**
+ * An option row with a leading slot or a description. It keeps Listbox.Option's
+ * two hosts (a screen-reader View named by the text alone, and a gesture
+ * handler Pressable that takes the touch) and adds the slot and the line.
+ */
+function DetailedOption({
+  value: itemValue,
+  selected,
+  disabled,
+  description,
+  leading,
+  label,
+  children,
+}: {
+  value: string
+  selected: boolean
+  disabled: boolean
+  description: ReactNode
+  leading: ReactNode
+  label: string
+  children: ReactNode
+}) {
+  const {choose} = useSelect()
+  const pick = () => {
+    if (!disabled) choose(itemValue)
+  }
+  return (
+    <View
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={label || undefined}
+      accessibilityState={{selected, disabled}}
+      accessibilityActions={ACTIVATE}
+      onAccessibilityAction={(e) => {
+        if (e.nativeEvent.actionName === 'activate') pick()
+      }}
+    >
+      <Pressable accessible={false} disabled={disabled} onPress={pick}>
+        {({pressed}) => (
+          <html.div style={[sheetStyles.option, (selected || pressed) && sheetStyles.optionFilled]}>
+            {leading != null && (
+              <html.div aria-hidden style={[nativeStyles.optionLeading, nativeStyles.nativeFlex]}>
+                {leading}
+              </html.div>
+            )}
+            <html.div style={[nativeStyles.optionBody, nativeStyles.nativeFlex]}>
+              <html.span style={[sheetStyles.label, disabled && sheetStyles.labelDisabled]}>
+                {children}
+              </html.span>
+              {description != null && (
+                <html.span style={nativeStyles.optionDescription}>{description}</html.span>
+              )}
+            </html.div>
+            {selected && (
+              <html.span aria-hidden style={sheetStyles.check}>
+                ✓
+              </html.span>
+            )}
+          </html.div>
+        )}
+      </Pressable>
+    </View>
+  )
+}
+
+function Item({value: itemValue, disabled = false, description, leading, children}: ItemProps) {
   const collecting = useContext(CollectContext)
   const {value, registerLabel} = useSelect()
   const label = textOf(children)
@@ -224,6 +297,20 @@ function Item({value: itemValue, disabled = false, children}: ItemProps) {
     if (collecting && label) registerLabel(itemValue, label)
   }, [collecting, itemValue, label, registerLabel])
   if (collecting) return null
+  if (description != null || leading != null) {
+    return (
+      <DetailedOption
+        value={itemValue}
+        selected={value === itemValue}
+        disabled={disabled}
+        description={description}
+        leading={leading}
+        label={label}
+      >
+        {children}
+      </DetailedOption>
+    )
+  }
   return (
     <Listbox.Option value={itemValue} selected={value === itemValue} disabled={disabled}>
       {children}

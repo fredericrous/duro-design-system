@@ -127,6 +127,24 @@ export const styles = css.create({
   itemHighlighted: {
     backgroundColor: colors.bgCardHover,
   },
+  // The row's slot before the text (an icon or a small preview).
+  itemLeading: {
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
+    marginRight: spacing.sm,
+  },
+  // The text and its description, stacked.
+  itemBody: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    minWidth: 0,
+  },
+  itemDescription: {
+    fontSize: typography.fontSizeXs,
+    color: colors.textMuted,
+  },
   itemDisabled: {
     color: colors.textDisabled,
     cursor: 'not-allowed',

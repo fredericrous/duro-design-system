@@ -380,3 +380,35 @@ export const DisabledControl: Story = {
     await expect(onDisabledOpenChange).not.toHaveBeenCalled()
   },
 }
+
+/** An option can carry a description line and a leading slot; its name and the trigger's label stay its text. */
+export const DescriptionAndLeading: Story = {
+  render: () => (
+    <Select.Root defaultValue="fast">
+      <Select.Trigger aria-label="Speed">
+        <Select.Value />
+        <Select.Icon />
+      </Select.Trigger>
+      <Select.Popup label="Speed">
+        <Select.Item value="fast" leading="⚡" description="Answers in a second or two">
+          Fast
+        </Select.Item>
+        <Select.Item value="deep" leading="🧠" description="Thinks longer, answers better">
+          Deep
+        </Select.Item>
+      </Select.Popup>
+    </Select.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const trigger = canvas.getByRole('combobox')
+    await expect(trigger).toHaveTextContent('Fast')
+    await expect(trigger).not.toHaveTextContent('Answers')
+    await userEvent.click(trigger)
+    const deep = await screen.findByRole('option', {name: 'Deep'})
+    await expect(deep).toHaveAccessibleDescription('Thinks longer, answers better')
+    await expect(deep).toHaveTextContent('Thinks longer, answers better')
+    await userEvent.click(deep)
+    await waitFor(() => expect(trigger).toHaveTextContent('Deep'))
+    await expect(trigger).not.toHaveTextContent('Thinks')
+  },
+}
