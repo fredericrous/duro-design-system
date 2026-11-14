@@ -1621,6 +1621,110 @@
       ],
       "sourcePath": "packages/ui/src/components/ColorMode/ColorMode.tsx"
     },
+    "ColorPicker": {
+      "importPath": "@duro-app/ui",
+      "kind": "component",
+      "meta": {
+        "description": "A colour picker whose value is a CSS colour string (hex, rgb(a), hsl(a) or transparent). Parts in order: a 2D saturation and brightness area for the current hue (a pointer or touch drag; on the web the arrow keys, Shift for a larger step), a hue slider and an alpha slider (role=\"slider\" on the web, adjustable on React Native), a preview swatch, a text field that accepts #rgb, #rrggbb, #rrggbbaa, rgb(), rgba(), hsl(), hsla() and transparent (invalid input is shown and not committed; a valid one commits on Enter or blur), then swatches and recent colours as named buttons. onChange fires as the colour changes and onChangeComplete when a drag, key press or edit ends. allowTransparent lets alpha reach 0 and accepts the transparent keyword. labels renames the parts and recentLabel the recent group, for translation.",
+        "example": "<ColorPicker\n  aria-label=\"Accent\"\n  defaultValue=\"#3b82f6\"\n  swatches={['#ef4444', '#22c55e', '#3b82f6']}\n  recentColors={recent}\n  recentLabel=\"Recent colours\"\n  allowTransparent\n  onChange={(value) => setAccent(value)}\n  onChangeComplete={(value) => remember(value)}\n/>",
+        "relatedTo": [
+          {
+            "component": "ColorInput",
+            "kind": "contrast",
+            "relationship": "ColorInput is the native swatch for a hex value; ColorPicker is the full picker with alpha"
+          },
+          {
+            "component": "Slider",
+            "kind": "composition",
+            "relationship": "The hue and alpha sliders use Slider's math (snap, fractions, keys)"
+          },
+          {
+            "component": "Popover",
+            "kind": "composition",
+            "relationship": "Put the picker in Popover.Popup behind a swatch trigger"
+          }
+        ],
+        "whenNotToUse": [
+          "A hex colour in a form through the platform picker — use ColorInput",
+          "A choice among a few named colours — use RadioGroup or ToggleGroup"
+        ],
+        "whenToUse": [
+          "Picking any colour with fine control: a brand colour, a highlight, a drawing colour",
+          "A colour that may be translucent or transparent"
+        ]
+      },
+      "name": "ColorPicker",
+      "native": true,
+      "props": [
+        {
+          "description": "Controlled value: a CSS colour string (`#rrggbb`, `rgba(…)`, `hsl(…)`, `transparent`).",
+          "name": "value",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Initial value (uncontrolled). Default: `#000000`",
+          "name": "defaultValue",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Called with the new colour as it changes: on each key, and as a drag moves.",
+          "name": "onChange",
+          "required": false,
+          "type": "(value: string) => void"
+        },
+        {
+          "description": "Called with the colour when a drag, a key press or a text edit ends.",
+          "name": "onChangeComplete",
+          "required": false,
+          "type": "(value: string) => void"
+        },
+        {
+          "description": "Colours offered as buttons.",
+          "name": "swatches",
+          "required": false,
+          "type": "string[]"
+        },
+        {
+          "description": "Colours used lately, offered as a second group of buttons.",
+          "name": "recentColors",
+          "required": false,
+          "type": "string[]"
+        },
+        {
+          "description": "Names the group of recent colours. Default: \"Recent colours\"",
+          "name": "recentLabel",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Lets alpha reach 0 and accepts `transparent`. Default: false",
+          "name": "allowTransparent",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "Prevents user interaction.",
+          "name": "disabled",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "description": "Names the picker as a group.",
+          "name": "aria-label",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Accessible names of the picker's parts.",
+          "name": "labels",
+          "required": false,
+          "type": "ColorPickerLabels"
+        }
+      ],
+      "sourcePath": "packages/ui/src/components/ColorPicker/ColorPicker.tsx"
+    },
     "Combobox": {
       "importPath": "@duro-app/ui",
       "kind": "compound",
