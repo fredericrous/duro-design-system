@@ -1,0 +1,140 @@
+import {existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync} from 'node:fs'
+import {tmpdir} from 'node:os'
+import {join} from 'node:path'
+import {describe, expect, it} from 'vitest'
+import {runHook} from '../src/commands/hook.js'
+import {loadRegistry} from '../src/registry.js'
+import {
+  HOOK_COMMAND,
+  HOOK_NOTES_PATH,
+  HOOK_SCRIPT_PATH,
+  HOOK_SETTINGS_PATH,
+  PLAN_HOOK_COMMAND,
+  PLAN_HOOK_SCRIPT_PATH,
+} from '../src/hook-script.js'
+import {
+  LEGACY_HOOK_NOTES_PATH,
+  LEGACY_HOOK_SCRIPT_PATH,
+  LEGACY_PLAN_HOOK_SCRIPT_PATH,
+} from '../src/legacy-names.js'
+
+const registry = loadRegistry()
+const install = (root: string, check = false) => runHook(registry, 'install', {cwd: root, check})
+const at = (root: string, path: string) => join(root, path)
+const noteLines = /^(migrated|removed|kept):/m
+
+function oldApp(): string {
+  const root = mkdtempSync(join(tmpdir(), 'hook-migrate-'))
+  mkdirSync(at(root, '.claude/hooks'), {recursive: true})
+  writeFileSync(at(root, LEGACY_HOOK_SCRIPT_PATH), '#!/bin/sh\necho old catalog\n')
+  writeFileSync(at(root, LEGACY_PLAN_HOOK_SCRIPT_PATH), '#!/bin/sh\necho old plan\n')
+  writeFileSync(
+    at(root, HOOK_SETTINGS_PATH),
+    JSON.stringify({
+      hooks: {
+        SessionStart: [{hooks: [{type: 'command', command: `sh ${LEGACY_HOOK_SCRIPT_PATH}`}]}],
+        UserPromptSubmit: [
+          {hooks: [{type: 'command', command: `sh ${LEGACY_PLAN_HOOK_SCRIPT_PATH}`}]},
+        ],
+      },
+    }),
+  )
+  return root
+}
+
+const commandsOf = (root: string, event: string): string[] => {
+  const settings = JSON.parse(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8'))
+  return settings.hooks[event].flatMap((group: {hooks: Array<{command: string}>}) =>
+    group.hooks.map((entry) => entry.command),
+  )
+}
+
+describe('hook install migrates the old wiring', () => {
+  it('rewrites both entries, deletes the old scripts and reports each step', () => {
+    const root = oldApp()
+    const result = install(root)
+    expect(result.exitCode).toBeUndefined()
+    expect(commandsOf(root, 'SessionStart')).toEqual([HOOK_COMMAND])
+    expect(commandsOf(root, 'UserPromptSubmit')).toEqual([PLAN_HOOK_COMMAND])
+    expect(existsSync(at(root, HOOK_SCRIPT_PATH))).toBe(true)
+    expect(existsSync(at(root, PLAN_HOOK_SCRIPT_PATH))).toBe(true)
+    expect(readdirSync(at(root, '.claude/hooks')).filter((f) => f.startsWith('duro-'))).toEqual([])
+    const lines = result.text.split('\n')
+    expect(lines).toContain(`migrated: ${LEGACY_HOOK_SCRIPT_PATH} -> ${HOOK_SCRIPT_PATH}`)
+    expect(lines).toContain(`migrated: ${LEGACY_PLAN_HOOK_SCRIPT_PATH} -> ${PLAN_HOOK_SCRIPT_PATH}`)
+    expect(lines).toContain(`removed: ${LEGACY_HOOK_SCRIPT_PATH}`)
+    expect(lines).toContain(`removed: ${LEGACY_PLAN_HOOK_SCRIPT_PATH}`)
+    expect(result.text.includes('\u001b')).toBe(false)
+  })
+
+  it('a second install changes nothing and prints no migration line', () => {
+    const root = oldApp()
+    install(root)
+    const before = readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8')
+    const again = install(root)
+    expect(again.text).not.toMatch(noteLines)
+    expect(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8')).toBe(before)
+    expect(
+      (again.data as {changes: Array<{status: string}>}).changes.every(
+        (change) => change.status === 'unchanged',
+      ),
+    ).toBe(true)
+  })
+
+  it('ends with one entry when settings hold both an old and a new one', () => {
+    const root = oldApp()
+    writeFileSync(
+      at(root, HOOK_SETTINGS_PATH),
+      JSON.stringify({
+        hooks: {
+          SessionStart: [
+            {hooks: [{type: 'command', command: `sh ${LEGACY_HOOK_SCRIPT_PATH}`}]},
+            {hooks: [{type: 'command', command: HOOK_COMMAND}]},
+          ],
+          UserPromptSubmit: [
+            {
+              hooks: [
+                {type: 'command', command: `sh ${LEGACY_PLAN_HOOK_SCRIPT_PATH}`},
+                {type: 'command', command: PLAN_HOOK_COMMAND},
+              ],
+            },
+          ],
+        },
+      }),
+    )
+    install(root)
+    expect(commandsOf(root, 'SessionStart')).toEqual([HOOK_COMMAND])
+    expect(commandsOf(root, 'UserPromptSubmit')).toEqual([PLAN_HOOK_COMMAND])
+  })
+
+  it('--check on an old wiring exits 1, writes nothing and names the way out', () => {
+    const root = oldApp()
+    const before = readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8')
+    const result = install(root, true)
+    expect(result.exitCode).toBe(1)
+    expect(result.text).toContain(LEGACY_HOOK_SCRIPT_PATH)
+    expect(result.text).toContain('npx @greenharness/greenrack-cli@^7 hook install')
+    expect(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8')).toBe(before)
+    expect(existsSync(at(root, LEGACY_HOOK_SCRIPT_PATH))).toBe(true)
+    expect(existsSync(at(root, HOOK_SCRIPT_PATH))).toBe(false)
+  })
+
+  it('renames the old notes when the new path is absent, keeps them when it exists', () => {
+    const renamed = oldApp()
+    writeFileSync(at(renamed, LEGACY_HOOK_NOTES_PATH), 'caveat\n')
+    const first = install(renamed)
+    expect(first.text.split('\n')).toContain(
+      `migrated: ${LEGACY_HOOK_NOTES_PATH} -> ${HOOK_NOTES_PATH}`,
+    )
+    expect(existsSync(at(renamed, LEGACY_HOOK_NOTES_PATH))).toBe(false)
+    expect(readFileSync(at(renamed, HOOK_NOTES_PATH), 'utf8')).toBe('caveat\n')
+
+    const kept = oldApp()
+    writeFileSync(at(kept, LEGACY_HOOK_NOTES_PATH), 'old\n')
+    writeFileSync(at(kept, HOOK_NOTES_PATH), 'new\n')
+    const second = install(kept)
+    expect(second.text).toMatch(new RegExp(`^kept: ${LEGACY_HOOK_NOTES_PATH} \\(.+\\)$`, 'm'))
+    expect(readFileSync(at(kept, HOOK_NOTES_PATH), 'utf8')).toBe('new\n')
+    expect(readFileSync(at(kept, LEGACY_HOOK_NOTES_PATH), 'utf8')).toBe('old\n')
+  })
+})

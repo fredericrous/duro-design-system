@@ -37,7 +37,7 @@ const config: StorybookConfig = {
     // under Node); every other entry points at src. Read its source here too, so
     // Storybook and its tests need no library build first.
     const tokensTheme = {
-      find: /^@duro-app\/tokens\/theme$/,
+      find: /^@greenharness\/greenrack-tokens\/theme$/,
       replacement: resolve(
         dirname(fileURLToPath(import.meta.url)),
         '../packages/tokens/src/theme.ts',

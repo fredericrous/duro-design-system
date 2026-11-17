@@ -9,7 +9,7 @@ Requires ESLint 9 (flat config). The plugin has zero runtime dependencies.
 
 ```js
 // eslint.config.js
-import duro from '@greenharness/greenrack-eslint-plugin'
+import greenrack from '@greenharness/greenrack-eslint-plugin'
 import tseslint from 'typescript-eslint'
 
 export default [
@@ -27,7 +27,7 @@ export default [
 ]
 ```
 
-The `recommended` preset registers the plugin under the `duro` namespace, so
+The `recommended` preset registers the plugin under the `greenrack` namespace, so
 you never have to register it yourself. Don't also register it manually under
 another key — you'd get two live namespaces and confusing config.
 

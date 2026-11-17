@@ -33,12 +33,12 @@ export default [
 
 ## Presets
 
-| Preset   | From                                    | Composes                                                         | For                                     |
-| -------- | --------------------------------------- | ---------------------------------------------------------------- | --------------------------------------- |
-| `react`  | `@greenharness/greenrack-eslint-config` | aval `base` + classic react-hooks + the duro plugin + UI policy  | RSD / `@greenharness/greenrack-ui` apps |
-| `base`   | `@aval-adr/eslint-config`               | `@eslint/js` + `typescript-eslint` recommended, prettier interop | every TypeScript package                |
-| `effect` | `@aval-adr/eslint-config`               | `base` + `@effect` plugin + server-stack policy                  | Effect services                         |
-| `tests`  | `@aval-adr/eslint-config`               | accessibility-first selectors (self-scoped to test/e2e files)    | any repo with tests                     |
+| Preset   | From                                    | Composes                                                             | For                                     |
+| -------- | --------------------------------------- | -------------------------------------------------------------------- | --------------------------------------- |
+| `react`  | `@greenharness/greenrack-eslint-config` | aval `base` + classic react-hooks + the greenrack plugin + UI policy | RSD / `@greenharness/greenrack-ui` apps |
+| `base`   | `@aval-adr/eslint-config`               | `@eslint/js` + `typescript-eslint` recommended, prettier interop     | every TypeScript package                |
+| `effect` | `@aval-adr/eslint-config`               | `base` + `@effect` plugin + server-stack policy                      | Effect services                         |
+| `tests`  | `@aval-adr/eslint-config`               | accessibility-first selectors (self-scoped to test/e2e files)        | any repo with tests                     |
 
 `react` reports its import bans as `greenrack/no-restricted-imports`, apart from
 `effect`'s `@typescript-eslint/no-restricted-imports` and adr-lint's

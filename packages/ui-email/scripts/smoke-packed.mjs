@@ -171,7 +171,9 @@ export {EmailShell, Text, width, sizes}
       output = String(error.stdout ?? '')
     }
     const lines = output.split('\n').filter((line) => /error TS\d+/.test(line))
-    const ours = lines.filter((line) => /^(check\.ts|node_modules\/@duro-app\/)/.test(line))
+    const ours = lines.filter((line) =>
+      /^(check\.ts|node_modules\/@greenharness\/greenrack-)/.test(line),
+    )
     // Anything not attributed to a third-party file (a TS5xxx config error,
     // a global error with no path) counts as ours.
     const thirdParty = lines.filter((line) => /^node_modules\//.test(line) && !ours.includes(line))

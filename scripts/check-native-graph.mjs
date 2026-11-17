@@ -22,7 +22,7 @@ import path from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {ESLint} from 'eslint'
 import tsParser from '@typescript-eslint/parser'
-import duro from '@greenharness/greenrack-eslint-plugin'
+import greenrack from '@greenharness/greenrack-eslint-plugin'
 
 const require = createRequire(import.meta.url)
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -102,7 +102,7 @@ export async function lintNativeGraph(files, root = repoRoot) {
     overrideConfig: [
       {
         files: ['**/*.{ts,tsx}'],
-        plugins: {duro},
+        plugins: {greenrack},
         languageOptions: {
           parser: tsParser,
           parserOptions: {sourceType: 'module', ecmaFeatures: {jsx: true}},

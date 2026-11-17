@@ -23,7 +23,9 @@ function onPath(command: string, pathVariable: string): boolean {
  */
 export function extensionPointer(cwd: string, pathVariable: string): string {
   if (!onPath('grh', pathVariable)) return README_POINTER
-  if (existsSync(join(cwd, 'node_modules', '@duro-app', 'cli', 'greenharness.toml'))) {
+  if (
+    existsSync(join(cwd, 'node_modules', '@greenharness', 'greenrack-cli', 'greenharness.toml'))
+  ) {
     return 'greenrack: also available as a grh extension: grh install --extension node_modules/@greenharness/greenrack-cli'
   }
   return 'greenrack: also available as a grh extension: npm pack @greenharness/greenrack-cli@^7 && tar -xzf greenharness-greenrack-cli-7*.tgz && grh install --extension package'

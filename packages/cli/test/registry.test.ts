@@ -42,7 +42,7 @@ describe('registry completeness', () => {
         expect(entry.meta!.description.length, `${key} empty description`).toBeGreaterThan(10)
         expect(entry.meta!.whenToUse.length, `${key} empty whenToUse`).toBeGreaterThan(0)
       }
-      expect(entry.importPath).toMatch(/^@duro-app\//)
+      expect(entry.importPath).toMatch(/^@greenharness\/greenrack-/)
       expect(entry.sourcePath).toMatch(/^packages\//)
     }
   })

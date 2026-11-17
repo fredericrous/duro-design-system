@@ -21,6 +21,7 @@ import {SKILL, SKILL_MIN_CLI, SKILL_PATH} from '../src/skill-template.js'
 import {runHook} from '../src/commands/hook.js'
 import {relatedPairs} from '../src/disambiguation.js'
 import {search} from '../src/search.js'
+import {LEGACY_HOOK_SCRIPT_PATH} from '../src/legacy-names.js'
 import {COMMANDS} from '../src/manifest.js'
 import {
   HOOK_CACHE_IGNORE,
@@ -315,9 +316,7 @@ describe('hook install', () => {
       at(root, HOOK_SETTINGS_PATH),
       JSON.stringify({
         hooks: {
-          SessionStart: [
-            {hooks: [{type: 'command', command: 'sh ./.claude/hooks/greenrack-catalog.sh'}]},
-          ],
+          SessionStart: [{hooks: [{type: 'command', command: `sh ./${LEGACY_HOOK_SCRIPT_PATH}`}]}],
         },
       }),
     )
@@ -621,7 +620,9 @@ describe('skill install', () => {
 describe('the /greenrack-mockup skill names only what the CLI ships', () => {
   it('every `greenrack mockup <sub>` it runs is a real subcommand', async () => {
     const {MOCKUP_SUBCOMMANDS} = await import('../src/commands/mockup.js')
-    const subs = [...SKILL.matchAll(/@duro-app\/cli@\S+ mockup ([a-z-]+)/g)].map((m) => m[1])
+    const subs = [...SKILL.matchAll(/@greenharness\/greenrack-cli@\S+ mockup ([a-z-]+)/g)].map(
+      (m) => m[1],
+    )
     expect(subs).toEqual(expect.arrayContaining(['seed', 'check', 'canvas']))
     for (const sub of subs) expect(MOCKUP_SUBCOMMANDS).toContain(sub)
   })
