@@ -703,8 +703,11 @@ const findingLine = (f: Finding) => `${f.file}:${f.line} ${f.rule}: ${f.message}
  * older than the app reports a component it has not heard of as unknown. npx
  * keeps a cached CLI that satisfies a range, so this is not hypothetical.
  */
-function skewNote(skew: {own: string; installed: string}, command: string): string {
-  return `note: @greenharness/greenrack-ui is ${skew.installed}, but this checker knows ${skew.own} — a component newer than the checker reads as unknown. Run: npx -y @greenharness/greenrack-cli@${skew.installed} ${command}`
+function skewNote(
+  skew: {own: string; installed: string; ui: string; cli: string},
+  command: string,
+): string {
+  return `note: ${skew.ui} is ${skew.installed}, but this checker knows ${skew.own} — a component newer than the checker reads as unknown. Run: npx -y ${skew.cli}@${skew.installed} ${command}`
 }
 
 // ---------------------------------------------------------------------------

@@ -630,16 +630,16 @@ describe('runMockup canvas on disk', () => {
 
   it('says when the app installs a different @greenharness/greenrack-ui than the checker knows', () => {
     writeFileSync(join(root, 'package.json'), '{"name":"app"}')
-    mkdirSync(join(root, 'node_modules', '@duro-app', 'ui'), {recursive: true})
+    mkdirSync(join(root, 'node_modules', '@greenharness', 'greenrack-ui'), {recursive: true})
     writeFileSync(
-      join(root, 'node_modules', '@duro-app', 'ui', 'package.json'),
+      join(root, 'node_modules', '@greenharness', 'greenrack-ui', 'package.json'),
       // As published: an exports map without ./package.json, so require() cannot read it.
       '{"name":"@greenharness/greenrack-ui","version":"0.0.1","exports":{".":"./index.js"}}',
     )
     writeFileSync(join(root, 'Main.dc.html'), clean)
     const result = runMockupCheck(registry, ['Main.dc.html'], {cwd: root})
     expect(result.text).toContain('@greenharness/greenrack-ui is 0.0.1')
-    expect(result.text).toContain('npx -y @greenharness/greenrack-cli@^7 mockup check')
+    expect(result.text).toContain('npx -y @greenharness/greenrack-cli@0.0.1 mockup check')
     expect(result.data).toMatchObject({skew: {installed: '0.0.1'}})
   })
 
@@ -650,8 +650,8 @@ describe('runMockup canvas on disk', () => {
       join(root, 'ui', 'package.json'),
       '{"name":"@greenharness/greenrack-ui","version":"0.0.1"}',
     )
-    mkdirSync(join(root, 'node_modules', '@duro-app'), {recursive: true})
-    symlinkSync(join(root, 'ui'), join(root, 'node_modules', '@duro-app', 'ui'))
+    mkdirSync(join(root, 'node_modules', '@greenharness'), {recursive: true})
+    symlinkSync(join(root, 'ui'), join(root, 'node_modules', '@greenharness', 'greenrack-ui'))
     writeFileSync(join(root, 'Main.dc.html'), clean)
     const result = runMockupCheck(registry, ['Main.dc.html'], {cwd: root})
     expect(result.text).not.toContain('note:')

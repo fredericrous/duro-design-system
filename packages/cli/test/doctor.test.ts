@@ -210,7 +210,7 @@ describe('greenrack doctor', () => {
       `  plugins: [`,
       `    reactRouter(),`,
       `    babel({filter: /\\/app\\/.*\\.[jt]sx?$/, babelConfig: {presets: [preset]}}),`,
-      `    babel({filter: /node_modules\\/@duro-app\\/tokens\\/.*\\.[jt]sx?$/, babelConfig: {presets: [preset]}}),`,
+      `    babel({filter: /node_modules\\/@greenharness\\/greenrack-tokens\\/.*\\.[jt]sx?$/, babelConfig: {presets: [preset]}}),`,
       `    babel({filter: /node_modules\\/react-strict-dom/, babelConfig: {plugins: [['@stylexjs/babel-plugin', {runtimeInjection: false}]]}}),`,
       `  ],`,
       `  ssr: {noExternal: ['react-strict-dom', '@greenharness/greenrack-tokens']},`,
@@ -257,7 +257,7 @@ describe('greenrack doctor', () => {
     it('does not take a postcss extraction include for compiling the tokens', () => {
       const root = app({
         'vite.config.ts': DURO_APP.replace(
-          / {4}babel\(\{filter: \/node_modules\\\/@duro-app.*\n/,
+          / {4}babel\(\{filter: \/node_modules\\\/@greenharness.*\n/,
           '',
         ),
         'postcss.config.mjs': `export default {plugins: {'react-strict-dom/postcss-plugin': {include: ['app/**', 'node_modules/@greenharness/greenrack-tokens/src/**/*.ts']}}}\n`,
@@ -437,11 +437,12 @@ describe('greenrack doctor', () => {
     const root = app({'dist/x.css': `@media (min-width: var(--bp)){a{b:c}}`})
     const past = new Date(Date.now() - 60_000)
     for (const file of Object.keys(HEALTHY)) utimesSync(join(root, file), past, past)
-    const [first] = runDoctor({cwd: root, session: true}).text.split('\n')
-    expect(first).toBe(
-      "GREENRACK DOCTOR — 1 error in this repo's @greenharness/greenrack-ui setup: breakpoint media queries never match until fixed. Fix before any styling work:",
+    const [banner, opening] = runDoctor({cwd: root, session: true}).text.split('\n')
+    expect(banner).toBe('GREENRACK DOCTOR — 1 error in @greenharness/greenrack-ui')
+    expect(opening).toBe(
+      "This repo's setup: breakpoint media queries never match until fixed. Fix before any styling work:",
     )
-    expect(first).not.toContain('spacing flattened')
+    expect(opening).not.toContain('spacing flattened')
   })
 
   it('ignores packages that do not use @greenharness/greenrack-ui', () => {
