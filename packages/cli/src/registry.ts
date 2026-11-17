@@ -106,7 +106,7 @@ export function lookup(registry: Registry, name: string): LookupResult | null {
   if (registry.tokens.groups[name]) {
     return {kind: 'tokens', key: name, entry: registry.tokens.groups[name]}
   }
-  // Case-insensitive exact fallback (duro button).
+  // Case-insensitive exact fallback (greenrack button).
   const lower = name.toLowerCase()
   const ciKey = lookupNames(registry).find((candidate) => candidate.toLowerCase() === lower)
   if (ciKey && ciKey !== name) return lookup(registry, ciKey)

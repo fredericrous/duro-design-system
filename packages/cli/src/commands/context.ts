@@ -54,7 +54,7 @@ function buildFiles(root: string): string[] {
 
 /** Changes when any build file, or the CLI that reads them, changes. */
 function buildKey(root: string): string {
-  const hash = createHash('sha1').update(`duro ${cliVersion()}\n`)
+  const hash = createHash('sha1').update(`greenrack ${cliVersion()}\n`)
   for (const path of buildFiles(root)) {
     try {
       hash
@@ -109,7 +109,7 @@ function cachedDoctor(root: string, cacheHome: string): string {
 /**
  * `greenrack context`: what a session should know about the design system. The
  * catalog, then the doctor block when the build wiring is wrong. Outside a
- * Duro consumer it prints nothing, so a harness can run it anywhere.
+ * greenrack consumer it prints nothing, so a harness can run it anywhere.
  */
 export function runContext(registry: Registry, options: ContextOptions = {}): CommandResult {
   const root = resolve(options.cwd ?? process.cwd())

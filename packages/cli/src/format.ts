@@ -231,7 +231,7 @@ export function renderList(registry: Registry, kind?: string): string {
       )
       .join('\n')
     sections.push(
-      `${bold('TOKENS')}\n${rows}\n  ${'icons'.padEnd(nameWidth)}${registry.icons.names.length} names — duro icons`,
+      `${bold('TOKENS')}\n${rows}\n  ${'icons'.padEnd(nameWidth)}${registry.icons.names.length} names — greenrack icons`,
     )
   }
   if (kind === 'guides') {
@@ -240,7 +240,7 @@ export function renderList(registry: Registry, kind?: string): string {
       .join('\n')
     sections.push(`${bold('GUIDES')} (${guideNames(registry).length})\n${rows}`)
   }
-  sections.push(dim(`duro <name> for details · duro rules · greenrack manifest`))
+  sections.push(dim(`greenrack <name> for details · greenrack rules · greenrack manifest`))
   return sections.join('\n\n')
 }
 

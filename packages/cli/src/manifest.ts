@@ -43,10 +43,10 @@ export const COMMANDS: CommandSpec[] = [
       description: 'The registry entry, or ranked search hits when the name did not match',
     },
     examples: [
-      'duro Button',
-      'duro Select --part Root',
-      'duro login-form --source-only',
-      'duro "tags that wrap"',
+      'greenrack Button',
+      'greenrack Select --part Root',
+      'greenrack login-form --source-only',
+      'greenrack "tags that wrap"',
     ],
     mcpTool: 'greenrack_lookup',
   },
@@ -192,7 +192,7 @@ export const COMMANDS: CommandSpec[] = [
   {
     name: 'context',
     summary:
-      'The design-system session context for the repo in the cwd: the catalog that `hook session-start` prints, then the `doctor --session` block (re-run only when the build files change; cached under ${XDG_CACHE_HOME:-~/.cache}/duro). Prints nothing outside a Duro consumer. Exits 0',
+      'The design-system session context for the repo in the cwd: the catalog that `hook session-start` prints, then the `doctor --session` block (re-run only when the build files change; cached under ${XDG_CACHE_HOME:-~/.cache}/greenrack). Prints nothing outside a greenrack consumer. Exits 0',
     args: [],
     flags: [
       {
@@ -235,7 +235,7 @@ export const COMMANDS: CommandSpec[] = [
     flags: [],
     returns: {shape: 'never', description: 'Serves until stdin closes'},
     examples: [
-      'claude mcp add duro -- npx -y -p @greenharness/greenrack-cli -p @modelcontextprotocol/sdk greenrack mcp',
+      'claude mcp add greenrack -- npx -y -p @greenharness/greenrack-cli -p @modelcontextprotocol/sdk greenrack mcp',
     ],
   },
 ]
@@ -246,8 +246,8 @@ export function buildManifest(registry: Registry, version: string) {
     bin: 'greenrack',
     version,
     schemaVersion: registry.schemaVersion,
-    description: 'Machine-queryable docs for the Duro design system.',
-    usage: 'duro <name|command> [flags] [--json]',
+    description: 'Machine-queryable docs for the greenrack design system.',
+    usage: 'greenrack <name|command> [flags] [--json]',
     globalFlags: [
       {name: 'json', type: 'boolean', description: 'Emit JSON on stdout'},
       {name: 'no-color', type: 'boolean', description: 'Disable ANSI styling'},

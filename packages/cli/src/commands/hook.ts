@@ -294,7 +294,7 @@ function runHookInstall(options: HookOptions): CommandResult {
   const ignored = ignoredTrackables(root)
   return {
     text: [
-      'Duro hooks installed: SessionStart (catalog) and UserPromptSubmit (plan-mode nudge).',
+      'greenrack hooks installed: SessionStart (catalog) and UserPromptSubmit (plan-mode nudge).',
       ...migration,
       ...lines,
       '',

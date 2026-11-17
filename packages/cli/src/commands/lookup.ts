@@ -79,7 +79,7 @@ export function runLookup(
           `  ${searchHit.key.padEnd(width)}${searchHit.kind === 'recipe' ? '(recipe) ' : ''}${searchHit.description}`,
       ),
       '',
-      `duro ${hits[0].key} for details`,
+      `greenrack ${hits[0].key} for details`,
     ].join('\n')
     return {text, data: {kind: 'search', query, hits}}
   }

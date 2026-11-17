@@ -18,7 +18,7 @@ export function toolDefinitions(registry: Registry) {
     {
       name: 'greenrack_lookup',
       description:
-        'Docs for anything in the Duro design system by name: a component (props, usage, example), a recipe (runnable source), a token group, "icons", "rules", or an interface guide ("guide:colors", "guide:typography", "guide:ui"; "guide:<skill>/<file>" for one of its reference files). Free text falls back to a ranked search over usage metadata — pass what you need, e.g. "tags that wrap".',
+        'Docs for anything in the greenrack design system by name: a component (props, usage, example), a recipe (runnable source), a token group, "icons", "rules", or an interface guide ("guide:colors", "guide:typography", "guide:ui"; "guide:<skill>/<file>" for one of its reference files). Free text falls back to a ranked search over usage metadata — pass what you need, e.g. "tags that wrap".',
       inputSchema: {
         type: 'object',
         properties: {
@@ -48,7 +48,7 @@ export function toolDefinitions(registry: Registry) {
     },
     {
       name: 'greenrack_manifest',
-      description: 'The duro command spec plus all valid lookup names.',
+      description: 'The greenrack command spec plus all valid lookup names.',
       inputSchema: {type: 'object', properties: {}},
     },
     {
@@ -233,7 +233,7 @@ export async function runMcp(registry: Registry): Promise<void> {
     prompts: [
       {
         name: 'greenrack/build-ui',
-        description: 'Prime a session with the Duro critical rules and component index',
+        description: 'Prime a session with the greenrack critical rules and component index',
       },
     ],
   }))
@@ -251,7 +251,7 @@ export async function runMcp(registry: Registry): Promise<void> {
           role: 'user',
           content: {
             type: 'text',
-            text: `You are building UI with the Duro design system. Follow these rules:\n\n${registry.rules.critical}\n\nAvailable components:\n${componentIndex}\n\nQuery details with the greenrack_lookup tool.`,
+            text: `You are building UI with the greenrack design system. Follow these rules:\n\n${registry.rules.critical}\n\nAvailable components:\n${componentIndex}\n\nQuery details with the greenrack_lookup tool.`,
           },
         },
       ],

@@ -26,7 +26,7 @@ function emit(result: CommandResult, json: boolean): never {
 
 function usageError(message: string): never {
   process.stderr.write(
-    `${message}\nUsage: duro <name|list|manifest|hook|skill|context|mockup|doctor|mcp> [flags] — greenrack manifest for details\n`,
+    `${message}\nUsage: greenrack <name|list|manifest|hook|skill|context|mockup|doctor|mcp> [flags] — greenrack manifest for details\n`,
   )
   process.exit(2)
 }

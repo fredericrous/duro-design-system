@@ -1,6 +1,6 @@
 ---
 name: greenrack-mockup
-description: Take a new screen from mockup directions to an implemented, verified PR without leaving the Duro design system. Use whenever the user asks for a screen, a page, a UI proposal, mockups, or "show me options" in a repo that consumes @greenharness/greenrack-ui — and when planning (plan mode) a new screen or a material layout, hierarchy or interaction change there.
+description: Take a new screen from mockup directions to an implemented, verified PR without leaving the greenrack design system. Use whenever the user asks for a screen, a page, a UI proposal, mockups, or "show me options" in a repo that consumes @greenharness/greenrack-ui — and when planning (plan mode) a new screen or a material layout, hierarchy or interaction change there.
 ---
 
 **Gate.** This skill applies only in a repository whose `package.json` depends on `@greenharness/greenrack-ui` (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.

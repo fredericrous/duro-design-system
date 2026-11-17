@@ -19,14 +19,14 @@ export function cliVersion(): string {
 export function runManifest(registry: Registry): CommandResult {
   const manifest = buildManifest(registry, cliVersion())
   const text = [
-    `duro — ${manifest.description}`,
+    `greenrack — ${manifest.description}`,
     '',
     `USAGE  ${manifest.usage}`,
     '',
     ...COMMANDS.map((command) => {
       const flags = command.flags.map((flag) => `--${flag.name}`).join(' ')
       return [
-        `  duro ${command.name === 'lookup' ? '<name>' : command.name}${flags ? `  [${flags}]` : ''}`,
+        `  greenrack ${command.name === 'lookup' ? '<name>' : command.name}${flags ? `  [${flags}]` : ''}`,
         `      ${command.summary}`,
         ...command.examples.map((example) => `      $ ${example}`),
       ].join('\n')
