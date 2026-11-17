@@ -1,4 +1,4 @@
-import {execFileSync} from 'node:child_process'
+import {execFileSync, spawnSync} from 'node:child_process'
 import {
   existsSync,
   mkdtempSync,
@@ -629,5 +629,24 @@ describe('the /greenrack-mockup skill names only what the CLI ships', () => {
 
   it('sends the agent to no helper greenrack does not ship', () => {
     expect(SKILL).not.toMatch(/seed-canvas|bundled-skills/)
+  })
+})
+
+describe('the version-skew warning', () => {
+  it('names the scope and the CLI of the ui the app installs, old scope included', () => {
+    const root = mkdtempSync(join(tmpdir(), 'greenrack-skew-'))
+    const ui = join(root, 'node_modules', '@duro-app', 'ui')
+    mkdirSync(ui, {recursive: true})
+    writeFileSync(
+      join(ui, 'package.json'),
+      JSON.stringify({name: '@duro-app/ui', version: '6.3.0'}),
+    )
+    const run = spawnSync(process.execPath, [bin, 'list', 'components'], {
+      cwd: root,
+      encoding: 'utf8',
+    })
+    expect(run.stderr).toContain('you have @duro-app/ui@6.3.0')
+    expect(run.stderr).toContain('npm i -D @duro-app/cli@6.3.0')
+    expect(run.stderr).not.toContain('@greenharness/greenrack-cli@6.3.0')
   })
 })

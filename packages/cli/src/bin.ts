@@ -81,7 +81,7 @@ async function main(): Promise<void> {
     const skew = uiVersionSkew(process.cwd())
     if (skew) {
       process.stderr.write(
-        `greenrack: docs are for @greenharness/greenrack-ui@${skew.own}, you have ${skew.installed} — npm i -D @greenharness/greenrack-cli@${skew.installed}\n`,
+        `greenrack: docs are for @greenharness/greenrack-ui@${skew.own}, you have ${skew.ui}@${skew.installed} — npm i -D ${skew.cli}@${skew.installed}\n`,
       )
     }
   }
