@@ -13,4 +13,6 @@ export function readStoredMigrating(
   return null
 }
 
-export function writeStoredRaw(_key: string | null, _value: string): void {}
+export function writeStoredRaw(_key: string | null, _value: string): boolean {
+  return false
+}

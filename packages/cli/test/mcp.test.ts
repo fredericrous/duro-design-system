@@ -169,9 +169,9 @@ describe('mcp tools', () => {
     it('a registry without guides gives an unknown-guide error, not a crash', () => {
       const bare: Registry = {...registry}
       delete bare.guides
-      const result = callTool(bare, 'greenrack_lookup', {name: 'guide:colors'})
-      expect(result.isError).toBe(true)
-      expect(result.text).toContain('unknown guide')
+      const lookupReply = callTool(bare, 'greenrack_lookup', {name: 'guide:colors'})
+      expect(lookupReply.isError).toBe(true)
+      expect(lookupReply.text).toContain('unknown guide')
       expect(callTool(bare, 'greenrack_list', {kind: 'guides'}).isError).toBe(false)
     })
 

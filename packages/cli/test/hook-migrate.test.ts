@@ -13,6 +13,8 @@ import {
   PLAN_HOOK_SCRIPT_PATH,
 } from '../src/hook-script.js'
 import {
+  LEGACY_HOOK_CACHE_PATH,
+  LEGACY_HOOK_GENERATED_MARKER,
   LEGACY_HOOK_NOTES_PATH,
   LEGACY_HOOK_SCRIPT_PATH,
   LEGACY_PLAN_HOOK_SCRIPT_PATH,
@@ -26,8 +28,10 @@ const noteLines = /^(migrated|removed|kept):/m
 function oldApp(): string {
   const root = mkdtempSync(join(tmpdir(), 'hook-migrate-'))
   mkdirSync(at(root, '.claude/hooks'), {recursive: true})
-  writeFileSync(at(root, LEGACY_HOOK_SCRIPT_PATH), '#!/bin/sh\necho old catalog\n')
-  writeFileSync(at(root, LEGACY_PLAN_HOOK_SCRIPT_PATH), '#!/bin/sh\necho old plan\n')
+  // The old CLI's header line, as it wrote it: only a generated script is removed.
+  const header = `# old hook — ${LEGACY_HOOK_GENERATED_MARKER}.\n`
+  writeFileSync(at(root, LEGACY_HOOK_SCRIPT_PATH), `#!/bin/sh\n${header}echo old catalog\n`)
+  writeFileSync(at(root, LEGACY_PLAN_HOOK_SCRIPT_PATH), `#!/bin/sh\n${header}echo old plan\n`)
   writeFileSync(
     at(root, HOOK_SETTINGS_PATH),
     JSON.stringify({
@@ -52,19 +56,19 @@ const commandsOf = (root: string, event: string): string[] => {
 describe('hook install migrates the old wiring', () => {
   it('rewrites both entries, deletes the old scripts and reports each step', () => {
     const root = oldApp()
-    const result = install(root)
-    expect(result.exitCode).toBeUndefined()
+    const installReport = install(root)
+    expect(installReport.exitCode).toBeUndefined()
     expect(commandsOf(root, 'SessionStart')).toEqual([HOOK_COMMAND])
     expect(commandsOf(root, 'UserPromptSubmit')).toEqual([PLAN_HOOK_COMMAND])
     expect(existsSync(at(root, HOOK_SCRIPT_PATH))).toBe(true)
     expect(existsSync(at(root, PLAN_HOOK_SCRIPT_PATH))).toBe(true)
     expect(readdirSync(at(root, '.claude/hooks')).filter((f) => f.startsWith('duro-'))).toEqual([])
-    const lines = result.text.split('\n')
+    const lines = installReport.text.split('\n')
     expect(lines).toContain(`migrated: ${LEGACY_HOOK_SCRIPT_PATH} -> ${HOOK_SCRIPT_PATH}`)
     expect(lines).toContain(`migrated: ${LEGACY_PLAN_HOOK_SCRIPT_PATH} -> ${PLAN_HOOK_SCRIPT_PATH}`)
     expect(lines).toContain(`removed: ${LEGACY_HOOK_SCRIPT_PATH}`)
     expect(lines).toContain(`removed: ${LEGACY_PLAN_HOOK_SCRIPT_PATH}`)
-    expect(result.text.includes('\u001b')).toBe(false)
+    expect(installReport.text.includes('\u001b')).toBe(false)
   })
 
   it('a second install changes nothing and prints no migration line', () => {
@@ -110,10 +114,10 @@ describe('hook install migrates the old wiring', () => {
   it('--check on an old wiring exits 1, writes nothing and names the way out', () => {
     const root = oldApp()
     const before = readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8')
-    const result = install(root, true)
-    expect(result.exitCode).toBe(1)
-    expect(result.text).toContain(LEGACY_HOOK_SCRIPT_PATH)
-    expect(result.text).toContain('npx @greenharness/greenrack-cli@^7 hook install')
+    const installReport = install(root, true)
+    expect(installReport.exitCode).toBe(1)
+    expect(installReport.text).toContain(LEGACY_HOOK_SCRIPT_PATH)
+    expect(installReport.text).toContain('npx -y @greenharness/greenrack-cli@^7 hook install')
     expect(readFileSync(at(root, HOOK_SETTINGS_PATH), 'utf8')).toBe(before)
     expect(existsSync(at(root, LEGACY_HOOK_SCRIPT_PATH))).toBe(true)
     expect(existsSync(at(root, HOOK_SCRIPT_PATH))).toBe(false)
@@ -136,5 +140,33 @@ describe('hook install migrates the old wiring', () => {
     expect(second.text).toMatch(new RegExp(`^kept: ${LEGACY_HOOK_NOTES_PATH} \\(.+\\)$`, 'm'))
     expect(readFileSync(at(kept, HOOK_NOTES_PATH), 'utf8')).toBe('new\n')
     expect(readFileSync(at(kept, LEGACY_HOOK_NOTES_PATH), 'utf8')).toBe('old\n')
+  })
+
+  it('keeps an old script a person edited, and says so', () => {
+    const root = oldApp()
+    writeFileSync(at(root, LEGACY_HOOK_SCRIPT_PATH), '#!/bin/sh\necho my own catalog\n')
+    const installReport = install(root)
+    expect(existsSync(at(root, LEGACY_HOOK_SCRIPT_PATH))).toBe(true)
+    expect(installReport.text).toContain(`kept: ${LEGACY_HOOK_SCRIPT_PATH} (edited by hand`)
+    expect(existsSync(at(root, LEGACY_PLAN_HOOK_SCRIPT_PATH))).toBe(false)
+  })
+
+  it('removes the old session cache files', () => {
+    const root = oldApp()
+    writeFileSync(at(root, LEGACY_HOOK_CACHE_PATH), 'cached')
+    writeFileSync(at(root, `${LEGACY_HOOK_CACHE_PATH}.doctor`), 'cached')
+    const installReport = install(root)
+    expect(existsSync(at(root, LEGACY_HOOK_CACHE_PATH))).toBe(false)
+    expect(existsSync(at(root, `${LEGACY_HOOK_CACHE_PATH}.doctor`))).toBe(false)
+    expect(installReport.text).toContain(`removed: ${LEGACY_HOOK_CACHE_PATH}`)
+  })
+
+  it('names a settings.json whose hooks have the wrong shape, not bad JSON', () => {
+    const root = oldApp()
+    writeFileSync(at(root, HOOK_SETTINGS_PATH), JSON.stringify({hooks: {SessionStart: {}}}))
+    const installReport = install(root)
+    expect(installReport.exitCode).toBe(2)
+    expect(installReport.text).toContain('"hooks.SessionStart" is not an array')
+    expect(installReport.text).not.toContain('not valid JSON')
   })
 })

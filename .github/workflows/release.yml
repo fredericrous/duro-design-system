@@ -15,12 +15,15 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    # A tag push and a resume of the same tag never publish at once.
+    concurrency:
+      group: release-${{ inputs.tag || github.ref_name }}
+      cancel-in-progress: false
     # `id-token: write` lets npm try trusted publishing (OIDC) first and signs
     # `--provenance` with the same grant. NPM_TOKEN stays as the fallback:
     # npm cannot create a package through trusted publishing, so the first
@@ -35,7 +38,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          # The full ref: a branch named like the tag must never be checked out.
+          ref: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -47,6 +51,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Set version from git tag
         run: |
+          if ! printf '%s\n' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+            echo "not a release tag: $TAG" >&2
+            exit 1
+          fi
           VERSION="${TAG#v}"
           echo "Publishing version $VERSION"
           pnpm -r exec npm pkg set "version=$VERSION"

@@ -3,7 +3,7 @@ name: ui
 description: Polishes the surfaces, icons and motion in your project with exact values for border radius, optical alignment, shadows, icon states and animation. Use when adding or tuning a UI animation or transition, such as a menu or dialog enter and exit, staggered list items, hover and press feedback or an icon swap.
 ---
 
-**Gate.** This skill applies only in a repository whose `package.json` depends on `@greenharness/greenrack-ui` (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
+**Gate.** This skill applies only in a repository whose `package.json` depends on `@greenharness/greenrack-ui`, or on the old `@duro-app/ui` it replaces (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
 
 # UI polish
 

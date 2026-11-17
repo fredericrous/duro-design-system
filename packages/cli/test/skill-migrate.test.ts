@@ -23,17 +23,17 @@ function repo(skillMd: string | null = generated): string {
 describe('skill install migrates the old duro-mockup skill', () => {
   it('removes a generated skill and its empty directory', () => {
     const root = repo()
-    const result = runSkill('install', {cwd: root})
-    expect(result.exitCode ?? 0).toBe(0)
-    expect(result.text.split('\n')).toContain(`removed: ${LEGACY_SKILL_DIR}/SKILL.md`)
+    const installReport = runSkill('install', {cwd: root})
+    expect(installReport.exitCode ?? 0).toBe(0)
+    expect(installReport.text.split('\n')).toContain(`removed: ${LEGACY_SKILL_DIR}/SKILL.md`)
     expect(existsSync(join(root, LEGACY_SKILL_DIR))).toBe(false)
     expect(existsSync(join(root, SKILL_PATH))).toBe(true)
   })
 
   it('keeps a hand-written SKILL.md', () => {
     const root = repo('my own skill\n')
-    const result = runSkill('install', {cwd: root})
-    expect(result.text).toMatch(
+    const installReport = runSkill('install', {cwd: root})
+    expect(installReport.text).toMatch(
       new RegExp(`^kept: ${LEGACY_SKILL_DIR} \\(.*rm -r ${LEGACY_SKILL_DIR}\\)$`, 'm'),
     )
     expect(existsSync(join(root, LEGACY_SKILL_DIR, 'SKILL.md'))).toBe(true)
@@ -42,9 +42,9 @@ describe('skill install migrates the old duro-mockup skill', () => {
   it('keeps a directory that holds another file', () => {
     const root = repo()
     writeFileSync(join(root, LEGACY_SKILL_DIR, 'extra.md'), 'x')
-    const result = runSkill('install', {cwd: root})
-    expect(result.text).toContain(`rm -r ${LEGACY_SKILL_DIR}`)
-    expect(result.text).toMatch(/^kept: /m)
+    const installReport = runSkill('install', {cwd: root})
+    expect(installReport.text).toContain(`rm -r ${LEGACY_SKILL_DIR}`)
+    expect(installReport.text).toMatch(/^kept: /m)
     expect(existsSync(join(root, LEGACY_SKILL_DIR, 'SKILL.md'))).toBe(true)
   })
 

@@ -192,52 +192,74 @@ function unignoredByPrettier(root: string, names: string[]): string[] {
     .map((dir) => `${dir}/`)
 }
 
-interface Migration {
-  /** `migrated:` / `removed:` / `kept:` lines, one per step. */
-  lines: string[]
-  /** Old files check mode reports as drift. */
-  pending: string[]
+/** One thing the old duro CLI left that install migrates, or keeps and says why. */
+type LegacySkillStep =
+  /** The generated old skill: install removes its SKILL.md, then the empty directory. */
+  | {kind: 'remove-skill'; dir: string; file: string}
+  /** An old skill directory install will not touch: the person removes it. */
+  | {kind: 'keep-skill'; dir: string; reason: string}
+  /** The old notes file: install renames it to the new notes path. */
+  | {kind: 'rename-notes'; from: string; to: string}
+  /** The old notes file, kept because the new one exists: the person merges it. */
+  | {kind: 'keep-notes'; from: string; to: string}
+
+/** What install would do about the old duro-mockup skill and its notes. Reads only. */
+function planLegacySkill(root: string): LegacySkillStep[] {
+  const at = (path: string): string => join(root, path)
+  const steps: LegacySkillStep[] = []
+  if (existsSync(at(LEGACY_SKILL_DIR))) {
+    const file = `${LEGACY_SKILL_DIR}/SKILL.md`
+    const generated = read(at(file))?.toString('utf8').includes(LEGACY_SKILL_GENERATED_MARKER)
+    const others = listFiles(at(LEGACY_SKILL_DIR)).filter((rel) => rel !== 'SKILL.md')
+    if (!generated) {
+      steps.push({
+        kind: 'keep-skill',
+        dir: LEGACY_SKILL_DIR,
+        reason: 'SKILL.md is not the one the old install generated',
+      })
+    } else if (others.length > 0) {
+      steps.push({
+        kind: 'keep-skill',
+        dir: LEGACY_SKILL_DIR,
+        reason: `holds other files: ${others.join(', ')}`,
+      })
+    } else {
+      steps.push({kind: 'remove-skill', dir: LEGACY_SKILL_DIR, file})
+    }
+  }
+  if (existsSync(at(LEGACY_SKILL_NOTES_PATH))) {
+    const kind = existsSync(at(SKILL_NOTES_PATH)) ? 'keep-notes' : 'rename-notes'
+    steps.push({kind, from: LEGACY_SKILL_NOTES_PATH, to: SKILL_NOTES_PATH})
+  }
+  return steps
 }
 
-/** Move the old duro-mockup skill and its notes to the greenrack names; check mode only reports. */
-function migrateLegacySkill(root: string, check: boolean): Migration {
+/** The one plain line a step prints when install runs it. */
+function legacySkillLine(step: LegacySkillStep): string {
+  switch (step.kind) {
+    case 'remove-skill':
+      return `removed: ${step.file}`
+    case 'keep-skill':
+      return `kept: ${step.dir} (${step.reason}; remove it yourself: rm -r ${step.dir})`
+    case 'rename-notes':
+      return `migrated: ${step.from} -> ${step.to}`
+    case 'keep-notes':
+      return `kept: ${step.from} (${step.to} already exists; merge it into ${step.to}, then delete it)`
+  }
+}
+
+/** Run the steps that change files. Called after the new skill is written. */
+function applyLegacySkill(root: string, steps: LegacySkillStep[]): string[] {
   const at = (path: string): string => join(root, path)
-  const lines: string[] = []
-  const pending: string[] = []
-  const legacyFile = `${LEGACY_SKILL_DIR}/SKILL.md`
-
-  if (existsSync(at(LEGACY_SKILL_DIR))) {
-    const generated = read(at(legacyFile))?.toString('utf8').includes(LEGACY_SKILL_GENERATED_MARKER)
-    const others = listFiles(at(LEGACY_SKILL_DIR)).filter((rel) => rel !== 'SKILL.md')
-    const keep = (reason: string): void => {
-      lines.push(
-        `kept: ${LEGACY_SKILL_DIR} (${reason}; remove it yourself: rm -r ${LEGACY_SKILL_DIR})`,
-      )
-    }
-    if (!generated) keep('SKILL.md is not the one the old install generated')
-    else if (others.length > 0) keep(`holds other files: ${others.join(', ')}`)
-    else if (check) pending.push(LEGACY_SKILL_DIR)
-    else {
-      rmSync(at(legacyFile))
-      lines.push(`removed: ${legacyFile}`)
-      if (readdirSync(at(LEGACY_SKILL_DIR)).length === 0) {
-        rmSync(at(LEGACY_SKILL_DIR), {recursive: true})
-      }
-    }
-    if (check && lines.length > 0) pending.push(LEGACY_SKILL_DIR)
-  }
-
-  if (existsSync(at(LEGACY_SKILL_NOTES_PATH))) {
-    if (existsSync(at(SKILL_NOTES_PATH))) {
-      lines.push(`kept: ${LEGACY_SKILL_NOTES_PATH} (${SKILL_NOTES_PATH} already exists)`)
-    } else if (check) {
-      pending.push(LEGACY_SKILL_NOTES_PATH)
-    } else {
-      renameSync(at(LEGACY_SKILL_NOTES_PATH), at(SKILL_NOTES_PATH))
-      lines.push(`migrated: ${LEGACY_SKILL_NOTES_PATH} -> ${SKILL_NOTES_PATH}`)
+  for (const step of steps) {
+    if (step.kind === 'remove-skill') {
+      rmSync(at(step.file))
+      if (readdirSync(at(step.dir)).length === 0) rmSync(at(step.dir), {recursive: true})
+    } else if (step.kind === 'rename-notes') {
+      renameSync(at(step.from), at(step.to))
     }
   }
-  return {lines: check ? [] : lines, pending}
+  return steps.map(legacySkillLine)
 }
 
 export function runSkill(action: string | undefined, options: SkillOptions = {}): CommandResult {
@@ -283,7 +305,7 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
       return {
         text: [
           `greenrack skill install: ${foreign.map((name) => `${SKILLS_ROOT}/${name}`).join(', ')} exist${foreign.length === 1 ? 's' : ''} without the shipped ${NOTICE}, so ${foreign.length === 1 ? 'it looks' : 'they look'} like your own skill.`,
-          'Nothing was written. Re-run with --force to overwrite: npx -y @greenharness/greenrack-cli skill install --force',
+          'Nothing was written. Re-run with --force to overwrite: npx -y @greenharness/greenrack-cli@^7 skill install --force',
         ].join('\n'),
         data: {kind: 'foreign-skill-directory', directories: foreign},
         exitCode: 1,
@@ -291,7 +313,7 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
     }
   }
 
-  const migration = migrateLegacySkill(root, options.check === true)
+  const legacySteps = planLegacySkill(root)
 
   const planned: PlannedFile[] = [
     {skill: 'greenrack-mockup', path: SKILL_PATH, content: Buffer.from(SKILL, 'utf8')},
@@ -367,13 +389,28 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
       }
     }
   }
-  for (const path of migration.pending) {
-    changes.push({path, status: 'stale', detail: 'old duro-mockup skill file, install migrates it'})
-    lines.push(`  stale     ${path} — old duro-mockup skill file, install migrates it`)
+  // A kept old skill directory blocks --check until the person removes it;
+  // install cannot, so the fix printed for it is the rm, not install.
+  const keptSkills = legacySteps.filter((step) => step.kind === 'keep-skill')
+  for (const step of legacySteps) {
+    if (step.kind === 'remove-skill' || step.kind === 'rename-notes') {
+      const path = step.kind === 'remove-skill' ? step.dir : step.from
+      changes.push({path, status: 'stale', detail: 'old duro-mockup file, install migrates it'})
+      lines.push(`  stale     ${path} — old duro-mockup file, install migrates it`)
+    } else if (step.kind === 'keep-skill') {
+      const detail = `old skill install keeps (${step.reason}); remove it yourself: rm -r ${step.dir}`
+      changes.push({path: step.dir, status: 'stale', detail})
+      lines.push(`  stale     ${step.dir} — ${detail}`)
+    }
   }
   const stale = changes.filter((change) => change.status === 'stale')
 
   if (options.check) {
+    const installFixes = stale.length > keptSkills.length
+    const fixes = [
+      ...(installFixes ? ['Run: npx -y @greenharness/greenrack-cli@^7 skill install'] : []),
+      ...keptSkills.map((step) => `Then remove the kept directory: rm -r ${step.dir}`),
+    ]
     return stale.length === 0
       ? {
           text: `greenrack skill install --check: up to date\n${lines.join('\n')}`,
@@ -382,19 +419,21 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
       : {
           text: `greenrack skill install --check: ${stale.length} file(s) out of date\n${lines.join(
             '\n',
-          )}\nRun: npx -y @greenharness/greenrack-cli skill install`,
+          )}\n${fixes.join('\n')}`,
           data: {ok: false, changes},
           exitCode: 1,
         }
   }
+
+  const migrationLines = applyLegacySkill(root, legacySteps)
 
   const ignored = ignoredTrackables(root, [...planned.map((file) => file.path), SKILL_NOTES_PATH])
   const skillNames = ['greenrack-mockup', ...packaged.keys()]
   const prettierUnignored = unignoredByPrettier(root, skillNames)
   return {
     text: [
-      ...migration.lines,
       `greenrack skills installed: ${skillNames.join(', ')} — invoke the workflow as /greenrack-mockup.`,
+      ...migrationLines,
       ...lines,
       '',
       `Repo-specific notes: put them in ${SKILL_NOTES_PATH} — the skill reads that file,`,
@@ -416,8 +455,8 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
             ...prettierUnignored.map((path) => `  ${path}`),
           ]),
       '',
-      'Next: npx -y @greenharness/greenrack-cli skill install --check',
+      'Next: npx -y @greenharness/greenrack-cli@^7 skill install --check',
     ].join('\n'),
-    data: {ok: true, changes, ignored, prettierUnignored},
+    data: {ok: true, changes, ignored, prettierUnignored, migration: migrationLines},
   }
 }

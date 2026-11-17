@@ -44,6 +44,16 @@ describe('readStoredMigrating', () => {
     expect(store.get('duro-color-mode')).toBe('sepia')
   })
 
+  it('keeps the old key when the new one cannot be written', () => {
+    const store = fakeStorage({'duro-color-mode': 'dark'})
+    const storage = (globalThis as {window: {localStorage: {setItem: unknown}}}).window.localStorage
+    storage.setItem = () => {
+      throw new Error('QuotaExceededError')
+    }
+    expect(readStoredMigrating('greenrack-color-mode', 'duro-color-mode', isMode)).toBe('dark')
+    expect(store.get('duro-color-mode')).toBe('dark')
+  })
+
   it('returns null without storage', () => {
     expect(readStoredMigrating('greenrack-color-mode', 'duro-color-mode', isMode)).toBeNull()
   })

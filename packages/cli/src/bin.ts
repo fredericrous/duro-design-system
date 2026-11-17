@@ -8,7 +8,7 @@ import {runContext} from './commands/context.js'
 import {extensionPointer} from './extension-pointer.js'
 import {runMockup} from './commands/mockup.js'
 import {runSkill} from './commands/skill.js'
-import {runDoctor, uiVersionSkew} from './commands/doctor.js'
+import {runDoctor, SCOPES, uiVersionSkew} from './commands/doctor.js'
 import {runManifest, cliVersion} from './commands/manifest.js'
 
 function emit(result: CommandResult, json: boolean): never {
@@ -78,7 +78,7 @@ async function main(): Promise<void> {
   // reports the same skew as one of its findings instead, and mockup under the
   // findings it may explain (an unknown-component newer than the checker).
   if (!values.json && first !== 'doctor' && first !== 'mockup') {
-    const skew = uiVersionSkew(process.cwd())
+    const skew = uiVersionSkew(process.cwd(), SCOPES)
     if (skew) {
       process.stderr.write(
         `greenrack: docs are for @greenharness/greenrack-ui@${skew.own}, you have ${skew.ui}@${skew.installed} — npm i -D ${skew.cli}@${skew.installed}\n`,

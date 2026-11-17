@@ -12,6 +12,7 @@ import {
 
 interface ScopeFixture {
   label: string
+  kind: 'greenrack' | 'legacy'
   ui: string
   tokens: string
   proseLayer: string
@@ -20,12 +21,14 @@ interface ScopeFixture {
 const SCOPES: ScopeFixture[] = [
   {
     label: 'new scope',
+    kind: 'greenrack',
     ui: '@greenharness/greenrack-ui',
     tokens: '@greenharness/greenrack-tokens',
     proseLayer: 'gr-prose',
   },
   {
     label: 'old scope',
+    kind: 'legacy',
     ui: LEGACY_UI_PACKAGE,
     tokens: LEGACY_TOKENS_PACKAGE,
     proseLayer: LEGACY_PROSE_LAYER,
@@ -123,9 +126,11 @@ describe.each(SCOPES)('greenrack doctor on the $label', (scope) => {
     const session = runDoctor({cwd: root, session: true}).text
     const plain = runDoctor({cwd: root}).text
     for (const text of [session, plain]) {
-      const [banner] = text.split('\n')
-      expect(banner).toContain(scope.ui)
+      // The scope is named in the banner or the line under it, every line within 80 columns.
+      const [banner, next] = text.split('\n')
+      expect(`${banner}\n${next}`).toContain(scope.ui)
       expect(banner!.length).toBeLessThan(80)
+      expect(next!.length).toBeLessThan(80)
     }
     expect(runDoctor({cwd: app(scope)}).text.split('\n')[0]).toContain(scope.ui)
   })
@@ -137,8 +142,14 @@ describe.each(SCOPES)('greenrack doctor on the $label', (scope) => {
     })
     const legacy = findings(root).filter(({rule}) => rule === 'legacy-names')
     expect(legacy).toHaveLength(1)
-    expect(legacy[0]!.message).toContain('--gr-spacing-md')
-    expect(legacy[0]!.file).toBe('app/styles/own.css')
+    if (scope.kind === 'greenrack') {
+      expect(legacy[0]!.message).toContain('--gr-spacing-md')
+      expect(legacy[0]!.file).toBe('app/styles/own.css')
+    } else {
+      // Still right on the old scope: one line saying what to do on the move.
+      expect(legacy[0]!.message).toContain('1 old CSS name(s)')
+      expect(legacy[0]!.fix).toContain('when the app moves to @greenharness/greenrack-ui')
+    }
   })
 
   it('reports the first 10 old names, then how many more', () => {
@@ -149,7 +160,12 @@ describe.each(SCOPES)('greenrack doctor on the $label', (scope) => {
     )
     write(root, {'app/styles/own.css': rules.join('\n')})
     const legacy = findings(root).filter(({rule}) => rule === 'legacy-names')
-    expect(legacy).toHaveLength(11)
-    expect(legacy[10]!.message).toBe('… and 3 more')
+    if (scope.kind === 'greenrack') {
+      expect(legacy).toHaveLength(11)
+      expect(legacy[10]!.message).toBe('… and 3 more')
+    } else {
+      expect(legacy).toHaveLength(1)
+      expect(legacy[0]!.message).toContain('13 old CSS name(s)')
+    }
   })
 })

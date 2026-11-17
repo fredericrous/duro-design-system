@@ -11,7 +11,8 @@ system? You read the plan and the repository, ask the catalog, and return a
 ## Scope check first
 
 Look for a `package.json` (the root, or a workspace package) that depends on
-`@greenharness/greenrack-ui`; a `workspace:` dependency counts. If none does, answer exactly
+`@greenharness/greenrack-ui`, or on the old `@duro-app/ui` it replaces; a `workspace:`
+dependency counts. If none does, answer exactly
 `no design system in this repository` and stop.
 
 ## greenrack's own rules

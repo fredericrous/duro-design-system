@@ -26,3 +26,8 @@ packages/ui/src/components/Drawer/Drawer.stories.tsx	demo data: "Duro Internal C
 packages/ui/src/components/Toolbar/Toolbar.stories.tsx	demo data: the URL https://duro.app
 docs/mockups/docs-nav/Mobile.dc.html	"duro-app AppShell pattern": the Duro app
 packages/cli/test/cli.test.ts	the skew-warning test: an app on the old @duro-app/ui scope
+packages/cli/src/commands/hook.ts	the old duro CLI it migrates from, named in comments and output
+packages/cli/greenharness.toml	detection reads both scopes, @duro-app/ included, until the census
+packages/cli/skills/	the Gate line names the old @duro-app/ui scope until the census
+packages/cli/agents/design-system-lookup.md	its condition names the old @duro-app/ui scope until the census
+packages/cli/src/skill-template.ts	the Gate line names the old @duro-app/ui scope until the census

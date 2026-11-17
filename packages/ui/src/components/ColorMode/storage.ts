@@ -24,7 +24,8 @@ export function readStoredMigrating(
   if (current !== null) return current
   const legacy = readStoredRaw(legacyKey)
   if (legacy === null || !isValid(legacy)) return null
-  writeStoredRaw(key, legacy)
+  // Keep the old value until the new key holds it: a failed write loses nothing.
+  if (!writeStoredRaw(key, legacy)) return legacy
   try {
     window.localStorage.removeItem(legacyKey)
   } catch {
@@ -33,11 +34,14 @@ export function readStoredMigrating(
   return legacy
 }
 
-export function writeStoredRaw(key: string | null, value: string): void {
-  if (!key || typeof window === 'undefined') return
+/** Store `value` under `key`; true when it was stored. */
+export function writeStoredRaw(key: string | null, value: string): boolean {
+  if (!key || typeof window === 'undefined') return false
   try {
     window.localStorage.setItem(key, value)
+    return true
   } catch {
-    /* ignore */
+    // Quota or blocked storage: the caller keeps what it had.
+    return false
   }
 }

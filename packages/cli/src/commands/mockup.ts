@@ -25,7 +25,7 @@ import {lookup} from '../registry.js'
 import {suggestions} from '../search.js'
 import {lineOf} from '../scan.js'
 import {MOCKUP_SUBCOMMANDS} from '../manifest.js'
-import {uiVersionSkew} from './doctor.js'
+import {SCOPES, uiVersionSkew} from './doctor.js'
 
 /*
  * greenrack mockup — token-seeded artboards, and the check that makes one a
@@ -681,7 +681,7 @@ export function runMockupCheck(
     all.push(...checkArtboard(registry, file, source))
   }
   const lines = all.map(findingLine)
-  const skew = uiVersionSkew(cwd)
+  const skew = uiVersionSkew(cwd, SCOPES)
   const note = skew ? `\n${skewNote(skew, `mockup check ${files.join(' ')}`)}` : ''
   if (all.length === 0) {
     return {
@@ -837,7 +837,7 @@ export function runMockupCanvas(
   }))
   const title = options.title ?? `${abs.split('/').pop()} directions`
   const {html, findings} = buildCanvas(registry, artboards, {title})
-  const skew = uiVersionSkew(cwd)
+  const skew = uiVersionSkew(cwd, SCOPES)
   const note = skew ? `\n${skewNote(skew, `mockup canvas ${dir}`)}` : ''
   if (html === null) {
     return {

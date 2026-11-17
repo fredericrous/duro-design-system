@@ -27,10 +27,12 @@ name = "greenrack"
 command = "npx"
 args = ["-y", "-p", "@greenharness/greenrack-cli@^7", "-p", "@modelcontextprotocol/sdk", "greenrack", "mcp"]
 
-# Quiet outside a greenrack consumer; quiet too when `greenrack hook install` already
-# wired the catalog hook, so a session never gets the catalog twice.
+# Quiet outside a greenrack consumer (on @greenharness/greenrack-* or, until
+# the census, the old @duro-app/*); quiet too when a hook install (greenrack's,
+# or the old duro one) already wired the catalog hook, so a session never gets
+# the catalog twice.
 [[session_context]]
-command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@greenharness/greenrack-\" {} + 2>/dev/null)\" ] || exit 0; [ -e .claude/hooks/greenrack-catalog.sh ] && exit 0; exec npx -y @greenharness/greenrack-cli@^7 context'"
+command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l -e \"@greenharness/greenrack-\" -e \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; [ -e .claude/hooks/greenrack-catalog.sh ] && exit 0; [ -e .claude/hooks/duro-catalog.sh ] && exit 0; exec npx -y @greenharness/greenrack-cli@^7 context'"
 
 [[doctor]]
-command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@greenharness/greenrack-\" {} + 2>/dev/null)\" ] || exit 0; exec npx -y @greenharness/greenrack-cli@^7 doctor'"
+command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l -e \"@greenharness/greenrack-\" -e \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; exec npx -y @greenharness/greenrack-cli@^7 doctor'"

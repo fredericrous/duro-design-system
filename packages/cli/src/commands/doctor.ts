@@ -67,29 +67,41 @@ export interface DoctorOptions {
  * UI package it depends on; every package-sensitive check takes that scope, so
  * the other scope's names are never evidence of a correct wiring.
  */
-interface Scope {
+export interface Scope {
+  /** The current names, or the old ones this CLI still recognises until the census. */
+  kind: 'greenrack' | 'legacy'
   ui: string
   tokens: string
   cli: string
   proseLayer: string
+  /** The prefix of the CSS custom properties the scope publishes. */
+  cssVariablePrefix: string
+  /** The prefix of the data attributes the scope's components set. */
+  dataAttributePrefix: string
 }
 
 const GREENRACK_SCOPE: Scope = {
+  kind: 'greenrack',
   ui: '@greenharness/greenrack-ui',
   tokens: '@greenharness/greenrack-tokens',
   cli: '@greenharness/greenrack-cli',
   proseLayer: 'gr-prose',
+  cssVariablePrefix: '--gr-',
+  dataAttributePrefix: 'data-gr',
 }
 
 const LEGACY_SCOPE: Scope = {
+  kind: 'legacy',
   ui: LEGACY_UI_PACKAGE,
   tokens: LEGACY_TOKENS_PACKAGE,
   cli: LEGACY_CLI_PACKAGE,
   proseLayer: LEGACY_PROSE_LAYER,
+  cssVariablePrefix: LEGACY_CSS_VARIABLE_PREFIX,
+  dataAttributePrefix: LEGACY_DATA_ATTRIBUTE_PREFIX,
 }
 
 /** New scope first: an app that depends on both is checked as the new one. */
-const SCOPES = [GREENRACK_SCOPE, LEGACY_SCOPE]
+export const SCOPES: readonly Scope[] = [GREENRACK_SCOPE, LEGACY_SCOPE]
 
 const PRIORITIES = ['priority1', 'priority2', 'priority3', 'priority4', 'priority5']
 const LAYER_STATEMENT = `@layer reset, ${PRIORITIES.join(', ')};`
@@ -274,7 +286,7 @@ function checkPackage(
     })
   }
 
-  const skew = uiVersionSkew(dir, scope)
+  const skew = uiVersionSkew(dir, [scope])
   if (skew) {
     findings.push({
       rule: 'version-skew',
@@ -420,10 +432,9 @@ function isLibrary(pkg: PackageJson): boolean {
  */
 export function uiVersionSkew(
   cwd: string,
-  scope?: Scope,
+  scopes: readonly Scope[],
 ): {own: string; installed: string; ui: string; cli: string} | null {
   const own = cliVersion()
-  const scopes = scope ? [scope] : SCOPES
   for (let dir = resolve(cwd); ; dir = dirname(dir)) {
     for (const {ui, cli} of scopes) {
       const manifest = join(dir, 'node_modules', ...ui.split('/'), 'package.json')
@@ -1097,18 +1108,20 @@ const CONSEQUENCE: Record<DoctorRule, string> = {
 
 /** The old CSS names an app's own stylesheet may still carry, with the names that replace them. */
 const LEGACY_CSS_NAME = new RegExp(
-  `${escapeRegExp(LEGACY_CSS_VARIABLE_PREFIX)}[\\w-]+|${escapeRegExp(LEGACY_DATA_ATTRIBUTE_PREFIX)}[\\w-]*|${escapeRegExp(LEGACY_PROSE_LAYER)}`,
+  `${escapeRegExp(LEGACY_SCOPE.cssVariablePrefix)}[\\w-]+|${escapeRegExp(LEGACY_SCOPE.dataAttributePrefix)}[\\w-]*|${escapeRegExp(LEGACY_SCOPE.proseLayer)}`,
   'g',
 )
 
 function renamedCssName(name: string): string {
-  if (name.startsWith(LEGACY_CSS_VARIABLE_PREFIX)) {
-    return `--gr-${name.slice(LEGACY_CSS_VARIABLE_PREFIX.length)}`
+  const from = LEGACY_SCOPE
+  const to = GREENRACK_SCOPE
+  if (name.startsWith(from.cssVariablePrefix)) {
+    return `${to.cssVariablePrefix}${name.slice(from.cssVariablePrefix.length)}`
   }
-  if (name.startsWith(LEGACY_DATA_ATTRIBUTE_PREFIX)) {
-    return `data-gr${name.slice(LEGACY_DATA_ATTRIBUTE_PREFIX.length)}`
+  if (name.startsWith(from.dataAttributePrefix)) {
+    return `${to.dataAttributePrefix}${name.slice(from.dataAttributePrefix.length)}`
   }
-  return GREENRACK_SCOPE.proseLayer
+  return to.proseLayer
 }
 
 /** How many leftover names are reported one by one, before `… and N more`. */
@@ -1139,15 +1152,25 @@ function checkLegacyNames(
           file: rel(path),
           line: lineOf(source, match.index),
           message: `${match[0]} is the old name; the new name is ${renamed}.`,
-          fix:
-            scope === GREENRACK_SCOPE
-              ? `Rename ${match[0]} to ${renamed}.`
-              : `Rename ${match[0]} to ${renamed} when the app moves to ${GREENRACK_SCOPE.ui}.`,
+          fix: `Rename ${match[0]} to ${renamed}.`,
         })
       }
     },
     [],
   )
+  if (found.length === 0) return found
+  // On the old scope these names are still right: one line says what to do on the move.
+  if (scope.kind === 'legacy') {
+    return [
+      {
+        rule: 'legacy-names',
+        severity: 'warn',
+        file: rel(dir),
+        message: `${found.length} old CSS name(s) in the app's own stylesheets, right for ${scope.ui}.`,
+        fix: `Rename them (${LEGACY_SCOPE.cssVariablePrefix}* to ${GREENRACK_SCOPE.cssVariablePrefix}*) when the app moves to ${GREENRACK_SCOPE.ui}.`,
+      },
+    ]
+  }
   if (found.length <= LEGACY_NAME_LIMIT) return found
   return [
     ...found.slice(0, LEGACY_NAME_LIMIT),
@@ -1171,7 +1194,7 @@ function report(
 ): CommandResult {
   const errors = findings.filter((finding) => finding.severity === 'error')
   const warnings = findings.filter((finding) => finding.severity === 'warn')
-  const data = {ok: errors.length === 0, findings, checked, skipped, packages, scopes}
+  const summary = {ok: errors.length === 0, findings, checked, skipped, packages, scopes}
   const scopeNames = scopes.join(' + ')
   const recheck = SCOPES.filter(({ui}) => scopes.includes(ui)).map(
     ({cli}) => `npx -y ${cli} doctor`,
@@ -1181,7 +1204,7 @@ function report(
   const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
   if (session) {
-    if (findings.length === 0) return {text: '', data}
+    if (findings.length === 0) return {text: '', data: summary}
     const effects = [...new Set(errors.map((finding) => CONSEQUENCE[finding.rule]))]
     return {
       text: [
@@ -1197,7 +1220,7 @@ function report(
         ),
         `Re-check with: ${recheck.join(' or ')}`,
       ].join('\n'),
-      data,
+      data: summary,
     }
   }
 
@@ -1208,12 +1231,13 @@ function report(
   if (findings.length === 0) {
     return {
       text: [`greenrack doctor — ${scopeNames}`, '  no problems found', ...tail].join('\n'),
-      data,
+      data: summary,
     }
   }
   return {
     text: [
-      `greenrack doctor — ${scopeNames}: ${errors.length} error(s), ${warnings.length} warning(s)`,
+      `greenrack doctor: ${errors.length} error(s), ${warnings.length} warning(s)`,
+      `  scope: ${scopeNames}`,
       ...findings.flatMap((finding) => [
         `  ${finding.severity.padEnd(5)} ${finding.rule.padEnd(18)} ${where(finding)}`,
         `        ${finding.message}`,
@@ -1221,7 +1245,7 @@ function report(
       ]),
       ...tail,
     ].join('\n'),
-    data,
+    data: summary,
     exitCode: errors.length > 0 ? 1 : undefined,
   }
 }
