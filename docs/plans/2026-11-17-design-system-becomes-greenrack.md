@@ -254,7 +254,7 @@ deletes `NPM_TOKEN`.
 
 ## Phases
 
-- [ ] Phase 1 — Transfer: run the transfer and then the checks under
+- [x] Phase 1 — Transfer: run the transfer and then the checks under
       Behaviour: Pages deploys through `.github/workflows/pages.yml` from the
       new repo, and the live checkout's `origin` is set to the new URL.
 - [ ] Phase 2 — The rename PR: worktree `duro-design-system-wt-greenrack`
@@ -344,6 +344,23 @@ new_owner=fredericrous -f new_name=duro-design-system`. Never create a
   sweep, because they still pull `@duro-app/*` 6.3.0.
 
 ## Outcome
+
+**Phase 1, observed 2026-11-17:**
+
+- `gh api repos/greenharness/greenrack` returns the repo, and the transfer
+  went through.
+- `git ls-remote` on the old URL lists `main` at c27accb7, so the git
+  redirect works.
+- The old web URL answers 200 with no redirect header (the plan expected
+  301). GitHub serves the moved page. Only a release tag page was checked,
+  not `releases/download`.
+- Pages: `build_type` `workflow`, at `greenharness.github.io/greenrack`.
+  `NPM_TOKEN` is still listed. No branch rules existed before or after.
+- The org Actions-policy read was refused (403: the token lacks
+  `admin:org`). Instead, the main CI re-run under the new owner concluded
+  `success` on every job, `fredericrous/attest@v1` and the aval download
+  included. This replaced the planned throwaway PR.
+- The live checkout's `origin` is now `git@github.com:greenharness/greenrack.git`.
 
 ## Decision log
 
