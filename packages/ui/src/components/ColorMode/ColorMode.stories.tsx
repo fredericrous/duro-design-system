@@ -74,6 +74,52 @@ function Readout() {
   )
 }
 
+/**
+ * A choice saved by the old design system name survives the rename: with the
+ * default key, `duro-color-mode` is read once after mount and moved to
+ * `greenrack-color-mode`.
+ */
+export const MigratesTheOldKey: Story = {
+  beforeEach: () => {
+    window.localStorage.removeItem('greenrack-color-mode')
+    window.localStorage.setItem('duro-color-mode', 'dark')
+    return () => {
+      window.localStorage.removeItem('greenrack-color-mode')
+      window.localStorage.removeItem('duro-color-mode')
+    }
+  },
+  render: (args) => (
+    <ColorModeProvider>
+      <ColorModeToggle {...args} />
+    </ColorModeProvider>
+  ),
+  play: async ({canvas}) => {
+    await expect(await canvas.findByRole('button', {name: /Color mode: dark/})).toBeInTheDocument()
+    await expect(window.localStorage.getItem('greenrack-color-mode')).toBe('dark')
+    await expect(window.localStorage.getItem('duro-color-mode')).toBeNull()
+  },
+}
+
+/** A custom `storageKey` never reads the old key. */
+export const CustomKeyIgnoresTheOldKey: Story = {
+  beforeEach: () => {
+    window.localStorage.setItem('duro-color-mode', 'dark')
+    return () => {
+      window.localStorage.removeItem('duro-color-mode')
+      window.localStorage.removeItem('app-color-mode')
+    }
+  },
+  render: (args) => (
+    <ColorModeProvider storageKey="app-color-mode">
+      <ColorModeToggle {...args} />
+    </ColorModeProvider>
+  ),
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('button', {name: /Color mode: system/})).toBeInTheDocument()
+    await expect(window.localStorage.getItem('duro-color-mode')).toBe('dark')
+  },
+}
+
 /** Reading the resolved theme via `useColorMode()`. */
 export const WithReadout: Story = {
   render: () => (
