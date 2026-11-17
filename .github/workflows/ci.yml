@@ -76,7 +76,11 @@ jobs:
         run: pnpm test:unit -- --run
       # The committed registry and CLAUDE.md generated regions are pure
       # functions of the source tree — regenerating must be a no-op.
+      # Skipped on a verified attestation of `pre-push-registry` (platform=any
+      # in greengate.conf), e.g. a pass the cluster proved and the in-cluster
+      # signer signed (ADR-0069).
       - name: Registry & docs freshness
+        if: ${{ !contains(fromJSON(steps.attest.outputs.gates), 'pre-push-registry') }}
         run: node packages/cli/scripts/build-registry.mjs --check --check-docs
 
   validate:
