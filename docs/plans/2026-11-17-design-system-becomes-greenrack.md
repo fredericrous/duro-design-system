@@ -257,7 +257,7 @@ deletes `NPM_TOKEN`.
 - [x] Phase 1 — Transfer: run the transfer and then the checks under
       Behaviour: Pages deploys through `.github/workflows/pages.yml` from the
       new repo, and the live checkout's `origin` is set to the new URL.
-- [ ] Phase 2 — The rename PR: worktree `duro-design-system-wt-greenrack`
+- [x] Phase 2 — The rename PR: worktree `duro-design-system-wt-greenrack`
       on `feat/greenrack` from `origin/main`. It covers steps 1–4 of the
       Behaviour, in four commits: sed, hand edits, regenerated files, release
       workflow. The key files:
@@ -275,7 +275,7 @@ deletes `NPM_TOKEN`.
       and `.github/workflows/pages.yml`: read the conclusion, check that npm
       lists the seven packages at 7.0.0, and check that
       `greenharness.github.io/greenrack` serves Storybook.
-- [ ] Phase 4 — Before the tag, prove the migration on a scratch app
+- [x] Phase 4 — Before the tag, prove the migration on a scratch app
       outside the repo. Wire it with `npx @duro-app/cli@^6 hook install` and
       `skill install`. Then, in the worktree, set every package to `7.0.0-rc.0` (as
       `release.yml` does), `pnpm pack` tokens and cli, and install both
@@ -361,6 +361,61 @@ new_owner=fredericrous -f new_name=duro-design-system`. Never create a
   `success` on every job, `fredericrous/attest@v1` and the aval download
   included. This replaced the planned throwaway PR.
 - The live checkout's `origin` is now `git@github.com:greenharness/greenrack.git`.
+
+**Phase 2, observed 2026-11-17** (input → expected → actual):
+
+- The sed's 38 ordered rules → each count equals its dry run → equal (for
+  example 6,979 `--duro-` → `--gr-`, 1,231 `@duro-app/`, 756 `data-gr`).
+  `cache-dir` and `pages-url` matched 0, as the dry run did.
+- `pnpm build`, `pnpm lint`, `build-registry.mjs --check --check-docs` →
+  pass → pass (lint has 13 warnings, no errors). The full unit suite →
+  pass → 868 tests in 49 files.
+- `scripts/check-rename-allowlist.sh` → no `duro` outside the committed
+  allowlist → exit 0.
+- All seven `packages/*/package.json` → `repository`, `homepage` and `bugs`
+  name `greenharness/greenrack` → yes; `ui-email` gained them.
+- A browser check compared Storybook on `main` (6106) and on the branch
+  (6107), for Prose ×3, Diagram ×2, ThemeProvider overrides ×2 and
+  ColorMode. Expected no visual change; got no measured difference.
+  - 7 of the 8 screenshot pairs are byte-identical. The 8th differs only in
+    the story's sample text, `pnpm add @duro-app/ui` →
+    `pnpm add @greenharness/greenrack-ui`.
+  - `--gr-color-bg-card` (#1a1a1a) and `--gr-spacing-md` (16px) equal the
+    old `--duro-*` values. The screenshots are under
+    `attestations/greenrack-sb`.
+- This repo's own `skill install` → the old generated `duro-mockup`
+  removed → `removed: .claude/skills/duro-mockup/SKILL.md`, and
+  `greenrack-mockup` written.
+- Fresh-worktree regeneration (Codex#1): `pnpm install` →
+  `greenrack:registry` → `greenrack:docs` → `skill:generate` → build →
+  `--check --check-docs` all exit 0. The worktree started without
+  node_modules or dist.
+
+**Phase 4, observed 2026-11-17**, on a scratch app wired by
+`@duro-app/cli@^6` (`duro-catalog.sh`, `duro-plan.sh`, the `duro-mockup`
+skill):
+
+- `7.0.0-rc.0` tarballs of tokens and cli were packed. The version bump was
+  reverted, never committed. They were installed with
+  `@modelcontextprotocol/sdk`, and `greenrack --version` printed
+  `7.0.0-rc.0`.
+- The first `hook install` printed two `migrated:` lines and two `removed:`
+  lines. A second install printed no migration line.
+- `skill install` printed `removed: .claude/skills/duro-mockup/SKILL.md`.
+- `doctor` on an app still on `@duro-app/ui`: its banner names
+  `@duro-app/ui`, and its fix names `@duro-app/ui/dist/index.css`.
+- `mcp` lists the server `greenrack` and its five `greenrack_*` tools.
+- The old 6.x `hook install` was run again (each hook doubled), then
+  `greenrack hook install`. **Stop number:** SessionStart 1 entry,
+  UserPromptSubmit 1 entry, and no `duro-*` file left, so it passes.
+- It also found a bug: the skew warning told an app on `@duro-app/ui` 6.3.0
+  to install `@greenharness/greenrack-cli@6.3.0`. The fix and its test are
+  in da9b9fa1.
+
+**relais:** runs (a) hook and (b) skill were blocked waiting for a host
+slot. Their candidates were applied by hand and verified locally, and are
+recorded as salvaged. Run (c) doctor was accepted. Run (d) colour mode never
+launched, and was done by hand.
 
 ## Decision log
 

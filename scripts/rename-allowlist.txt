@@ -25,3 +25,4 @@ packages/ui/src/components/SteppedList/	demo data: a folder named "duro"
 packages/ui/src/components/Drawer/Drawer.stories.tsx	demo data: "Duro Internal CA", the app's certificate authority
 packages/ui/src/components/Toolbar/Toolbar.stories.tsx	demo data: the URL https://duro.app
 docs/mockups/docs-nav/Mobile.dc.html	"duro-app AppShell pattern": the Duro app
+packages/cli/test/cli.test.ts	the skew-warning test: an app on the old @duro-app/ui scope
