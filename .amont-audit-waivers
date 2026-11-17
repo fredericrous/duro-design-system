@@ -23,6 +23,15 @@ GHSA-vfj7-8cjw-p6xm 2026-12-31 braces via react-strict-dom > postcss-react-stric
 # publishes a fix or react-native stops depending on babel-jest.
 GHSA-hp3w-g68c-fv3c 2026-12-31 sprintf-js via react-native > babel-jest and diagrams > vite-plugin-dts > argparse (help-text formatting only); no patched version exists
 
+# picomatch <= 4.0.7 (ReDoS through single-branch repeated extglobs) has no
+# patched version. It reaches the published graph as braces does: through
+# @greenharness/greenrack-tokens > react-strict-dom > postcss-react-strict-dom >
+# fast-glob > micromatch, and through @greenharness/greenrack-eslint-config >
+# typescript-eslint > @typescript-eslint/typescript-estree > tinyglobby. Both
+# glob the project's own config and source patterns at build or lint time,
+# never user input. Remove when picomatch publishes a fix.
+GHSA-fc5q-39xc-vjpf 2026-12-31 picomatch via react-strict-dom > postcss-react-strict-dom > fast-glob and eslint-config > typescript-eslint > tinyglobby (own config patterns only); no patched version exists
+
 # examples/native is a private Expo app that bundles the native barrel for the
 # CI build check and the device checkpoints; it is never published
 # ("private": true) and never runs outside a developer's machine or CI.
