@@ -1,0 +1,356 @@
+---
+status: active
+branch: feat/greenrack
+repos: [duro-design-system, decisions]
+adrs: [ADR-0075, ADR-0076]
+plan-id: p-01M7MD04J17SQ6WS6FTSEE02HZ
+---
+
+# The Duro design system moves to greenharness/greenrack and releases greenrack 7.0.0
+
+## Review panel
+
+👉 **Decide:** none. Approve if a transfer, one PR of sed plus migrations, and a 7.0.0 tested before its tag rename safely. Your one step comes before the tag: confirm `NPM_TOKEN` writes `@greenharness`.
+📍 duro-design-system, decisions · 5 phases · 4 releases · next: Phase 1, the transfer. Panel: architect, backend, lang:typescript, platform, po, react, tui, ui-design, unix (opus), codex.
+**Changed by review:** the dispatch resume reads `TAG`; migration is proved on rc tarballs before the tag; the installers migrate old hooks and skills, with output and tests.
+**Verdicts:** round 1, 9 approve-with-changes; round 2, 6 approve and 3 approve-with-changes; codex approve-with-changes (3 high applied); 13 carried; words 1732 → 2371 (×1.37); remove 0, merge 0.
+📄 Full reviews: [2026-11-17-design-system-becomes-greenrack.reviews.md](2026-11-17-design-system-becomes-greenrack.reviews.md)
+
+## Context
+
+This is ticket t06 of the greenrack-rename programme
+(`decisions/docs/programmes/greenrack-rename/`). The person chose the name greenrack (ADR-0075) and the version 7.0.0
+(ADR-0076). They also asked to move the repository into the greenharness
+org (2026-11-17). A plain sed would break a consumer in three places:
+
+- The hook installer finds its entries by the old script path, so it would
+  double each hook.
+- The skill installer would leave the old skill directory behind.
+- Detection would miss apps that are still on `@duro-app/*`.
+
+## Picture
+
+```
+           today                           after this plan
+ repo      fredericrous/duro-design-system greenharness/greenrack
+ packages  @duro-app/<p> 6.3.0             @greenharness/greenrack-<p> 7.0.0
+ CLI, MCP  duro, duro_ds_*                 greenrack, greenrack_*
+ CSS       --duro-*, data-duro*            --gr-*, data-gr*, .gr-prose
+ hooks     duro-catalog.sh, duro-plan.sh   greenrack-*.sh (install migrates)
+ publish   NPM_TOKEN                       NPM_TOKEN + OIDC, then trusted
+ Pages     fredericrous.github.io/duro-…   greenharness.github.io/greenrack
+```
+
+Each row is one kind of name, today and after the release.
+
+## Behaviour
+
+**Transfer first.** Run `gh api -X POST
+repos/fredericrous/duro-design-system/transfer -f new_owner=greenharness -f
+new_name=greenrack`; the person is an admin of the org and the name is
+free. A transfer keeps the issues, PRs, tags, secrets and branches, the
+person's `feat/breakpoints-doctor-overlay` and `feat/kbd-barchart`
+included. Then check, and repair what fails:
+
+- `git ls-remote` works through the old URL, and both the old web URL and
+  `releases/download` redirect;
+- Pages is still enabled (build type `workflow`) and the `github-pages`
+  environment still deploys;
+- `NPM_TOKEN` is still listed;
+- the `origin` of the live checkout is set to the new URL;
+- the branch rules and the org's Actions policy still let `ci.yml` run
+  `fredericrous/attest@v1` and download from `fredericrous/aval`. A green
+  CI run on a throwaway PR shows it, before the rename PR. The old Pages
+  URL has no redirect.
+
+**The rename, on a branch from `origin/main`, in one PR.** The two
+branches of the person are not touched.
+
+1. **sed, in this order.** Each rule asserts its count of replacements.
+   History is excluded: `docs/plans`, `docs/adr`, `.adr/packs`,
+   `.changeset/*.md` (dead drafts) and the lockfiles. `docs/mockups` is
+   rewritten, with its own count. Exclude the bodies of CLAUDE.md's
+   generated regions and `packages/cli/registry.json`; regenerate them
+   in step 3. Rename CLAUDE.md's opening and closing marker delimiters
+   explicitly so the renamed generator can find them.
+   Exclude `.claude/skills/duro-mockup/` entirely from sed and hand edits:
+   its original GENERATED marker must survive until step 3's installer
+   migrates it. Before registry generation, explicitly move
+   `packages/cli/skills/duro-mockup/` to
+   `packages/cli/skills/greenrack-mockup/`; regenerate its contents in
+   step 3. Verify neither old directory remains and registry guides
+   contain neither mockup workflow directory. The order matters:
+   - `--duro-` → `--gr-` comes first, because `--duro-app-*` variables
+     share the npm scope's text.
+   - The pins come next: `@duro-app/cli@^<n>…` and `@duro-app/cli@<x.y.z>`
+     → `@greenharness/greenrack-cli@^7`.
+   - Then `@duro-app/` → `@greenharness/greenrack-`.
+   - Then the attributes: `data-duro` → `data-gr`, matched as `data-duro`
+     followed by `-`, `=` or a quote, never a glob.
+   - Then the classes and layer: `duro-prose` → `gr-prose`, and
+     `duro-diagram` → `gr-diagram`.
+   - `duro-ds` → `greenrack` comes before `duro_ds_` → `greenrack_`.
+   - Then the URIs and ids: `duro://` → `greenrack://`, `duro/build-ui`,
+     `duro/ai-meta`, and the nine ESLint rule ids, matched as
+     `duro/<rule>` from the list only, and `duro.configs`/`duro-config/`.
+   - Then the skill, hooks and their files: `duro-mockup`,
+     `duro-catalog.sh`, `duro-plan.sh`, `duro-hook.local.md`,
+     `.duro-session.cache` and `#duro-hook-pin`, each to its greenrack
+     name.
+   - Then the markers: `duro:generated:`, `duro:rules:` and
+     `duro:tokens`.
+   - Then the remaining names:
+     - `duro-color-mode`, `duro-arrow` and `duro-pane-moved`;
+     - `isDuroConsumer`, `DuroComponentsInside` and `DURO DOCTOR`;
+     - the UMD globals `DuroUI`, `DuroTokens`, `DuroDiagrams` and
+       `DuroUIEmail`;
+     - the cache directory `~/.cache/duro`, and the Storybook id
+       `duro-public-vars`;
+     - `fredericrous/duro-design-system` → `greenharness/greenrack`, then
+       bare `duro-design-system` → `greenrack`.
+   - `duro-stack` is never matched (t12). Nor is
+     `packages/cli/src/legacy-names.ts`, which holds every old name the
+     migrations and detection read: the old script paths, the old skill's
+     `GENERATED by \`duro skill install\``line,`@duro-app/ui`and`duro-color-mode`.
+2. **Hand edits.**
+   - **The CLI name.** About 160 literal `duro` command words in
+     `packages/cli/src` and `test`, plus the bin in
+     `packages/cli/package.json:27`, become `greenrack`. They are reviewed
+     per file, because a bare `duro` can be prose.
+   - **Capital `Duro`** in prose: 128 lines. Each is reviewed by hand and
+     becomes greenrack. Three things that mean an app stay:
+     `packages/ui-email/scripts/duro-app.variants.json` (`appName`), the
+     identity of `examples/native` (bundle ids, scheme, its brand text),
+     and the demo URL `duro.app`.
+   - **The hook installer migrates the old wiring**
+     (`packages/cli/src/commands/hook.ts:76-107`). A `LEGACY_WIRINGS`
+     list names `.claude/hooks/duro-catalog.sh` and `duro-plan.sh`.
+     `nextSettings` treats an entry whose command holds an old script as
+     its own, and rewrites it to the new command, so there is never a
+     second entry. Install deletes the old script files, and renames
+     `.claude/duro-hook.local.md` to the new notes path when the new one
+     does not exist. `--check` reports a legacy wiring as drift, and names
+     `npx @greenharness/greenrack-cli@^7 hook install`.
+     - Writes go through a temp file and a rename, in this order: new
+       scripts, then `settings.json`, then the old scripts are deleted.
+     - Every entry whose command holds an old script is dropped after the
+       first one is rewritten.
+     - Each migrated, removed or kept item prints one plain line:
+       `migrated: <old> -> <new>`, `removed: <path>` or `kept: <path>`.
+   - **The skill installer migrates the old skill**
+     (`packages/cli/src/commands/skill.ts`). It removes
+     `.claude/skills/duro-mockup/`, but only when its `SKILL.md` carries
+     the `GENERATED` line the old CLI wrote. It removes that `SKILL.md`,
+     then the directory if it is empty. Anything else is kept, with a line
+     saying why and giving `rm -r .claude/skills/duro-mockup`. `--check`
+     exits non-zero while it stays; install exits zero. It also renames
+     `.claude/duro-mockup.local.md` to the new notes path.
+   - **Detection matches both scopes until the census.** A dated check
+     opened in Phase 5 removes the old scope after t08b. Until then:
+     - doctor accepts the `duro-prose` layer name too;
+     - it reports each `--duro-`, `data-duro` or `duro-prose` left in the
+       app's own CSS, with its new name;
+     - its banner names the scope the app uses and stays under 80
+       columns.
+     - `dependsOnUi` (`doctor.ts:336`) accepts `@greenharness/greenrack-ui`
+       or `@duro-app/ui`. Carry the detected package identity through
+       doctor's stylesheet recognition, installed-version lookup,
+       token compilation checks, SSR noExternal checks, deep-import
+       evidence and suggested commands. Hand-edit escaped regexes and
+       split scope/package filesystem paths, which the scope sed misses.
+       Recognize each scope's stylesheet paths and layer names without
+       treating the other scope's configuration as evidence of correctness.
+       Add paired legacy/new-scope fixtures: healthy configurations have
+       no spurious build-wiring findings, and missing token compilation
+       or SSR exclusions produce the expected findings and valid fixes.
+     - The `Gate.` line of the four skills and the agent
+       (`agents/design-system-lookup.md:14`) name both.
+     - `greenharness.toml`'s `session_context` and `doctor` grep
+       `grep -l -e '@duro-app/' -e '@greenharness/greenrack-'`. There is no
+       `\|`, because TOML rejects the escape. Its catalog guard exits on
+       either hook script.
+   - **The colour mode** migrates only when no `storageKey` prop is
+     passed. When the new key is absent, it reads `duro-color-mode` in the
+     existing mount effect, never in the `useState` initialiser, so
+     hydration still matches. It writes that value under the new key and
+     removes the old one.
+   - **A new test** seeds the old key and expects the toggle named
+     `Color mode: dark`. A custom key and `null` both ignore the old key.
+   - **Floors and pins move to 7.**
+     - `HOOK_MIN_CLI` and `SKILL_MIN_CLI` become `'7.0.0'`, which
+       `check-pin-major.mjs` checks at the tag.
+     - The pins in `greenharness.toml` become `@^7`.
+     - `extension-pointer.ts:29` becomes `@7` and `-7*.tgz`.
+     - The v6 assertions in `extension.test.ts` move to v7.
+   - **Tests.** The sed keeps the tests consistent. New tests keep the old
+     names literal on purpose:
+     - an app wired by the old CLI gets exactly one entry per hook, and
+       no `duro-*` file is left;
+     - a second install changes nothing;
+     - settings that hold both an old and a new entry end with one;
+     - an old generated `duro-mockup` directory is removed, and a foreign
+       one is kept;
+     - detection finds an app on either scope.
+   - **The ESLint config** keeps `@aval-adr/eslint-config >=0.16.0 <1`
+     (ADR-0076).
+3. **Regenerate, never sed.** First run `pnpm install` to regenerate
+   `pnpm-lock.yaml`, install generator dependencies and link the renamed
+   workspace packages. Run `pnpm --ignore-workspace install` in
+   `examples/native` for its lock. Then run `pnpm greenrack:registry`
+   and `pnpm greenrack:docs` (`build-registry.mjs --write-docs`), with
+   both the generator's markers and CLAUDE.md's marker delimiters renamed.
+   Run `pnpm --filter @greenharness/greenrack-tokens run build`, then
+   `pnpm --filter @greenharness/greenrack-cli run skill:generate`, then
+   `node packages/cli/dist/bin.js skill install` for this repo's own
+   `.claude/skills`. Finally run `greengate agents-md` and verify registry
+   and docs freshness. Prove this sequence from a fresh worktree without
+   pre-existing node_modules or dist directories.
+4. **The release workflow** (`.github/workflows/release.yml`):
+   - add `id-token: write`;
+   - install npm 11.6.2, because trusted publishing needs 11.5.1 or later;
+   - add `--provenance`. It needs every `package.json` to carry a
+     `repository` URL naming `greenharness/greenrack`, and `ui-email` has
+     none, so it gets one;
+   - keep `NODE_AUTH_TOKEN: secrets.NPM_TOKEN`. npm tries OIDC first and
+     falls back to the token, and a new package can only be created by a
+     token;
+   - add `workflow_dispatch` with a `tag` input, so a failed publish can
+     be resumed. One `TAG` (`inputs.tag || github.ref_name`) feeds
+     `actions/checkout`'s `ref`, the version step and `check-pin-major.mjs`,
+     which today read `GITHUB_REF_NAME` (`main` on a dispatch);
+   - rely on `pnpm -r publish`, which skips a version already on npm and
+     publishes in dependency order. The run's log is read for the skips.
+
+**Release.** Before the tag, the person confirms that `NPM_TOKEN` has not
+lapsed (it was set 2026-09-01) and can write `@greenharness`, or swaps it.
+Then use the `tag-release` skill to tag `v7.0.0`
+on the merge commit and read the run's `conclusion`.
+
+If the first package is refused because `NPM_TOKEN` cannot write
+`@greenharness`, nothing has been published yet. The person then swaps
+the token (one granular token with write on `@greenharness`), and
+`gh workflow run release.yml -f tag=v7.0.0` resumes.
+
+After 7.0.0, the person names `greenharness/greenrack`'s `release.yml` as
+the trusted publisher of each of the seven packages on npmjs.com, then
+deletes `NPM_TOKEN`.
+
+## Non-goals
+
+- Sweeping any consuming app: that is t08 and t08b. Lexical is t07, and
+  the Claude side and grh are t09.
+- The person's DS branches `feat/breakpoints-doctor-overlay` and
+  `feat/kbd-barchart`: the person decides what happens to them after the
+  rename.
+- Renaming the aval scope `duro-stack` (t12), and anything under history.
+- Moving the ESLint config onto greenspotter's package, which does not
+  exist yet (ADR-0076).
+- Deprecating or yanking `@duro-app/*` (ADR-0074).
+
+## Code review
+
+- duro-design-system: backend, lang:typescript, unix, tui, react, architect, platform (platform added for the release workflow; ui-design left out, because nothing renders differently and only names change)
+- decisions: none — markdown only
+
+## Phases
+
+- [ ] Phase 1 — Transfer: run the transfer and then the checks under
+      Behaviour: Pages deploys through `.github/workflows/pages.yml` from the
+      new repo, and the live checkout's `origin` is set to the new URL.
+- [ ] Phase 2 — The rename PR: worktree `duro-design-system-wt-greenrack`
+      on `feat/greenrack` from `origin/main`. It covers steps 1–4 of the
+      Behaviour, in four commits: sed, hand edits, regenerated files, release
+      workflow. The key files:
+  - `packages/cli/src/commands/hook.ts`, `hook-script.ts`, `skill.ts`,
+    `skill-template.ts`, `doctor.ts`, `mcp.ts`, `manifest.ts`, `bin.ts`,
+    `extension-pointer.ts`;
+  - `packages/cli/greenharness.toml` and `packages/cli/package.json`;
+  - `packages/cli/scripts/lib/docs.mjs` and `rules.mjs`;
+  - `packages/tokens/scripts/generate-vars-css.mjs` and
+    `scripts/lib/mockup-css.mjs`;
+  - `.storybook/publicVars.ts` and `packages/eslint-plugin/src/index.ts`;
+  - `packages/ui/src/components/ColorMode/ColorMode.tsx`;
+  - `.github/workflows/release.yml`.
+- [ ] Phase 3 — Once Phase 4 has passed, release `v7.0.0` through `.github/workflows/release.yml`
+      and `.github/workflows/pages.yml`: read the conclusion, check that npm
+      lists the seven packages at 7.0.0, and check that
+      `greenharness.github.io/greenrack` serves Storybook.
+- [ ] Phase 4 — Before the tag, prove the migration on a scratch app
+      outside the repo. Wire it with `npx @duro-app/cli@^6 hook install` and
+      `skill install`. Then, in the worktree, set every package to `7.0.0-rc.0` (as
+      `release.yml` does), `pnpm pack` tokens and cli, and install both
+      tarballs together, because cli needs tokens. Run that CLI's `hook
+install`, `skill install` and `doctor`. Then run the old 6.x `hook
+install`, which adds a second entry and rewrites `duro-catalog.sh`.
+      Then run `hook install` again, which must collapse it back to one
+      entry per hook. The stop number is read after that last install. The scratch app's files are
+      `.claude/settings.json`, `.claude/hooks/greenrack-catalog.sh` and
+      `.claude/skills/greenrack-mockup/SKILL.md`.
+- [ ] Phase 5 — Record t06's Resolution in
+      `docs/programmes/greenrack-rename/t06-move-and-release.md` and
+      `docs/programmes/greenrack-rename/map.md`, on
+      `prog/greenrack-rename/t06-move-and-release` in decisions. Open the dated
+      checks: trusted publishers and the `NPM_TOKEN` deletion, before
+      2026-11-30. Also open one for removing the old-scope detection after
+      t08b.
+
+## Verification
+
+- **Phase 1:** `gh api repos/greenharness/greenrack` returns the repo.
+  `git ls-remote https://github.com/fredericrous/duro-design-system` lists
+  `main`, and the old web URL answers 301. Pages reports `build_type`
+  `workflow`.
+- **Phase 2:**
+  - `pnpm -r test`, `pnpm lint`, `pnpm build` and
+    `node packages/cli/scripts/build-registry.mjs --check --check-docs`
+    all pass;
+  - `git grep -nE 'duro' -- ':!<history>'` lists only the allowlist
+    committed as `scripts/rename-allowlist.txt`: `duro-stack`, the app-data lines and the legacy-name tests
+    and lists;
+  - each sed rule's count matches the dry-run count recorded in the PR
+    before the sed;
+  - a browser-check run compares Storybook on `main` and on the branch,
+    for Prose, Diagram, ThemeOverrides and ColorModeToggle, and finds no
+    visual change;
+  - CI is green, `native` included;
+  - all seven `packages/*/package.json` name `greenharness/greenrack` in
+    `repository`, `homepage` and `bugs`.
+- **Phase 3:** the release run's `conclusion` is `success`.
+  `npm view @greenharness/greenrack-<pkg> version` gives `7.0.0` for all
+  seven packages, and `npm view … dist.attestations` shows provenance.
+- **Phase 4:**
+  - after `greenrack hook install`, `.claude/settings.json` holds exactly
+    one SessionStart and one UserPromptSubmit entry of ours, and no
+    `.claude/hooks/duro-*` file is left;
+  - `.claude/skills/duro-mockup` is gone and `greenrack-mockup` is
+    present;
+  - `greenrack doctor` reports the app as a consumer while its
+    `package.json` still names `@duro-app/ui`;
+  - `greenrack mcp` lists the five `greenrack_*` tools;
+  - **the stop number:** one duplicate hook entry or one `duro-*` file
+    left means no tag.
+
+## Rollback
+
+- **Transfer:** transfer the repo back with
+  `gh api -X POST repos/greenharness/greenrack/transfer -f
+new_owner=fredericrous -f new_name=duro-design-system`. Never create a
+  repo at the old name.
+- **Rename PR:** revert the merge. Nothing has been published before the
+  tag. A partial 7.0.0 is finished by dispatching the same tag, never by
+  retagging.
+- **After 7.0.0:** the packages stay published, because ADR-0074 rules
+  out yanking. A fix ships as 7.0.1. Apps are unaffected until their
+  sweep, because they still pull `@duro-app/*` 6.3.0.
+
+## Outcome
+
+## Decision log
+
+- 2026-11-17: move into the greenharness org by transfer (t04, and the
+  person: "we will move /duro-design-system to greenharness org").
+- 2026-11-17: publish 7.0.0 with the existing `NPM_TOKEN` (the person),
+  with OIDC beside it, because npm cannot create a package through trusted
+  publishing. Each package moves to trusted publishing after 7.0.0.
+
+<!-- panel: repos=duro-design-system,decisions adds=contract reviewers=architect,backend,lang:typescript,platform,po,react,tui,ui-design,unix body-sha=3e511b4d2b59 -->
