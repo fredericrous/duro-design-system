@@ -19,7 +19,7 @@ export function extractRules(project) {
   const indexFile = project.getSourceFileOrThrow(join(repoRoot, PLUGIN_SRC, 'index.ts'))
   const severities = {}
   indexFile.forEachDescendant((node) => {
-    if (Node.isPropertyAssignment(node) && /^'duro\//.test(node.getNameNode().getText())) {
+    if (Node.isPropertyAssignment(node) && /^'greenrack\//.test(node.getNameNode().getText())) {
       const id = node.getNameNode().getText().slice(1, -1)
       severities[id] = staticEval(node.getInitializerOrThrow(), `index.ts#${id}`)
     }
@@ -46,7 +46,7 @@ export function extractRules(project) {
     const messages = staticEval(findProperty(meta, 'messages'), `${file}#messages`)
     const hasFix = findProperty(meta, 'fixable') !== null
     const hasSuggestions = findProperty(meta, 'hasSuggestions') !== null
-    const id = `duro/${file.replace(/\.ts$/, '')}`
+    const id = `greenrack/${file.replace(/\.ts$/, '')}`
     const severity = severities[id]
     if (!severity)
       throw new Error(`${file}: ${id} missing from configs.recommended in ${PLUGIN_SRC}/index.ts`)

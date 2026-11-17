@@ -205,7 +205,7 @@ export async function runMcp(registry: Registry): Promise<void> {
   }
 
   const server = new sdkServer.Server(
-    {name: 'duro', version: cliVersion()},
+    {name: 'greenrack', version: cliVersion()},
     {capabilities: {tools: {}, resources: {}, prompts: {}}},
   )
 

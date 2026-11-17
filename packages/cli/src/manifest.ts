@@ -243,7 +243,7 @@ export const COMMANDS: CommandSpec[] = [
 export function buildManifest(registry: Registry, version: string) {
   return {
     name: '@greenharness/greenrack-cli',
-    bin: 'duro',
+    bin: 'greenrack',
     version,
     schemaVersion: registry.schemaVersion,
     description: 'Machine-queryable docs for the Duro design system.',

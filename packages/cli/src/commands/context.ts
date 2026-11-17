@@ -90,7 +90,11 @@ function writeCache(path: string, content: string): void {
 
 /** `greenrack doctor --session` output, re-run only when the build files' key changes. */
 function cachedDoctor(root: string, cacheHome: string): string {
-  const dir = join(cacheHome, 'duro', createHash('sha1').update(root).digest('hex').slice(0, 16))
+  const dir = join(
+    cacheHome,
+    'greenrack',
+    createHash('sha1').update(root).digest('hex').slice(0, 16),
+  )
   const key = buildKey(root)
   if (readCache(join(dir, 'doctor.key')) === key) {
     const cached = readCache(join(dir, 'doctor'))

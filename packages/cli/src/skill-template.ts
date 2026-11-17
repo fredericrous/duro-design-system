@@ -21,7 +21,7 @@ export const SKILL_NOTES_PATH = '.claude/greenrack-mockup.local.md'
  * consumer runs a 6.x CLI. A floating pin keeps patch releases from showing
  * up as --check drift.
  */
-export const SKILL_MIN_CLI = '6.0.0'
+export const SKILL_MIN_CLI = '7.0.0'
 
 const DURO = `npx -y @greenharness/greenrack-cli@^${SKILL_MIN_CLI}`
 

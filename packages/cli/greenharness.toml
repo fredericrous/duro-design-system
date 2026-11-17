@@ -25,7 +25,7 @@ path = "agents/design-system-lookup.md"
 [[mcp]]
 name = "greenrack"
 command = "npx"
-args = ["-y", "-p", "@greenharness/greenrack-cli@^7", "-p", "@modelcontextprotocol/sdk", "duro", "mcp"]
+args = ["-y", "-p", "@greenharness/greenrack-cli@^7", "-p", "@modelcontextprotocol/sdk", "greenrack", "mcp"]
 
 # Quiet outside a Duro consumer; quiet too when `greenrack hook install` already
 # wired the catalog hook, so a session never gets the catalog twice.

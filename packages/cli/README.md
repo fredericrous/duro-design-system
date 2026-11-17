@@ -172,7 +172,7 @@ grh install --extension node_modules/@greenharness/greenrack-cli
 or, without a local dependency:
 
 ```
-npm pack @greenharness/greenrack-cli@^7 && tar -xzf duro-app-cli-6*.tgz && grh install --extension package
+npm pack @greenharness/greenrack-cli@^7 && tar -xzf greenharness-greenrack-cli-7*.tgz && grh install --extension package
 ```
 
 What each manifest entry does:

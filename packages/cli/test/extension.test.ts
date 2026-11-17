@@ -135,7 +135,7 @@ describe('greenharness.toml', () => {
     expect(pkg.files).toEqual(expect.arrayContaining(['greenharness.toml', 'skills', 'agents']))
   })
 
-  it('registers the MCP server pinned to the v6 line', () => {
+  it('registers the MCP server pinned to the v7 line', () => {
     expect(manifest.arrays.mcp).toEqual([
       {
         name: 'greenrack',
@@ -146,7 +146,7 @@ describe('greenharness.toml', () => {
           '@greenharness/greenrack-cli@^7',
           '-p',
           '@modelcontextprotocol/sdk',
-          'duro',
+          'greenrack',
           'mcp',
         ],
       },
@@ -155,10 +155,14 @@ describe('greenharness.toml', () => {
 
   it('guards session_context and doctor: silent outside a Duro consumer, once the hook is installed too', () => {
     const run = (cwd: string, command: string) =>
-      spawnSync('sh', ['-c', command.replace(/npx -y @duro-app\/cli@\^6/, 'echo RAN')], {
-        cwd,
-        encoding: 'utf8',
-      })
+      spawnSync(
+        'sh',
+        ['-c', command.replace(/npx -y @greenharness\/greenrack-cli@\^7/, 'echo RAN')],
+        {
+          cwd,
+          encoding: 'utf8',
+        },
+      )
     const [sessionContext] = manifest.arrays.session_context!.map(
       (entry) => entry.command as string,
     )
@@ -232,9 +236,12 @@ describe('greenrack context', () => {
     const cacheHome = mkdtempSync(join(tmpdir(), 'duro-cache-'))
     const catalog = runContext(registry, {cwd, cacheHome, catalogOnly: true}).text
     runContext(registry, {cwd, cacheHome})
-    const [slot] = readdirSync(join(cacheHome, 'duro'))
-    expect(readdirSync(join(cacheHome, 'duro', slot!)).sort()).toEqual(['doctor', 'doctor.key'])
-    writeFileSync(join(cacheHome, 'duro', slot!, 'doctor'), 'GREENRACK DOCTOR — cached')
+    const [slot] = readdirSync(join(cacheHome, 'greenrack'))
+    expect(readdirSync(join(cacheHome, 'greenrack', slot!)).sort()).toEqual([
+      'doctor',
+      'doctor.key',
+    ])
+    writeFileSync(join(cacheHome, 'greenrack', slot!, 'doctor'), 'GREENRACK DOCTOR — cached')
     expect(runContext(registry, {cwd, cacheHome}).text).toBe(
       `${catalog}\n\nGREENRACK DOCTOR — cached`,
     )
@@ -270,7 +277,7 @@ describe('the grh pointer', () => {
   it('is a runnable command when grh is on PATH, a README pointer without it', () => {
     const cwd = consumer()
     expect(extensionPointer(cwd, fakeGrh())).toContain(
-      'npm pack @greenharness/greenrack-cli@^7 && tar -xzf duro-app-cli-6*.tgz && grh install --extension package',
+      'npm pack @greenharness/greenrack-cli@^7 && tar -xzf greenharness-greenrack-cli-7*.tgz && grh install --extension package',
     )
     mkdirSync(join(cwd, 'node_modules/@greenharness/greenrack-cli'), {recursive: true})
     writeFileSync(join(cwd, 'node_modules/@greenharness/greenrack-cli/greenharness.toml'), '')

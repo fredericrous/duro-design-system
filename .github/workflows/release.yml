@@ -4,6 +4,14 @@ on:
   push:
     tags:
       - 'v*'
+  # Resume a publish that failed part-way: `gh workflow run release.yml -f
+  # tag=v7.0.0`. `pnpm -r publish` skips each version already on npm, so the
+  # run publishes only what is missing; read its log for the skips.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The release tag to publish again, for example v7.0.0'
+        required: true
 
 permissions:
   contents: read
@@ -13,26 +21,41 @@ jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    # `id-token: write` lets npm try trusted publishing (OIDC) first and signs
+    # `--provenance` with the same grant. NPM_TOKEN stays as the fallback:
+    # npm cannot create a package through trusted publishing, so the first
+    # publish of each @greenharness/greenrack-* name needs the token.
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      # One tag for every step. On a dispatch, github.ref_name is the branch,
+      # so the input wins. Passed through env, never written into a script.
+      TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: pnpm
           registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install -g npm@11.6.2 && npm --version
       - run: pnpm install --frozen-lockfile
       - name: Set version from git tag
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${TAG#v}"
           echo "Publishing version $VERSION"
           pnpm -r exec npm pkg set "version=$VERSION"
           sed -i "s/^version = \".*\"$/version = \"$VERSION\"/" packages/cli/greenharness.toml
           grep -qx "version = \"$VERSION\"" packages/cli/greenharness.toml
       - name: CLI floors match the release's major
-        run: node packages/cli/scripts/check-pin-major.mjs "${GITHUB_REF_NAME#v}"
+        run: node packages/cli/scripts/check-pin-major.mjs "${TAG#v}"
       - run: pnpm build
       - run: pnpm check:types-packed
-      - run: pnpm -r publish --no-git-checks
+      - run: pnpm -r publish --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

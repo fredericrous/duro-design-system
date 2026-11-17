@@ -44,7 +44,7 @@ export const HOOK_COMMAND = `sh ${HOOK_SCRIPT_PATH}`
  * 6.0.0: the design extension for grh (greenharness.toml) and `greenrack context`,
  *        which `hook session-start` now delegates to.
  */
-export const HOOK_MIN_CLI = '6.0.0'
+export const HOOK_MIN_CLI = '7.0.0'
 
 /**
  * First line of the catalog cache: the floor it was fetched with. A cache

@@ -88,7 +88,9 @@ describe('mcp tools', () => {
     expect(
       (callTool(registry, 'greenrack_list', {kind: 'recipes'}).data as unknown[]).length,
     ).toBeGreaterThan(4)
-    expect((callTool(registry, 'greenrack_manifest', {}).data as {bin: string}).bin).toBe('duro')
+    expect((callTool(registry, 'greenrack_manifest', {}).data as {bin: string}).bin).toBe(
+      'greenrack',
+    )
   })
 
   it('every tool answers with an object structuredContent', () => {

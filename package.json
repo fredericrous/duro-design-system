@@ -13,7 +13,7 @@
     "typecheck:native": "pnpm --filter @greenharness/greenrack-ui exec tsc --noEmit -p tsconfig.native.json",
     "lint": "pnpm --filter @greenharness/greenrack-eslint-plugin run build && eslint . && node scripts/check-native-graph.mjs",
     "lint:fix": "pnpm --filter @greenharness/greenrack-eslint-plugin run build && eslint . --fix",
-    "duro": "duro",
+    "greenrack": "greenrack",
     "greenrack:registry": "pnpm --filter @greenharness/greenrack-cli run registry",
     "greenrack:docs": "node packages/cli/scripts/build-registry.mjs --write-docs",
     "test": "vitest --project=storybook",

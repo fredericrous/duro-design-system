@@ -2,7 +2,7 @@ import type {TSESLint} from '@typescript-eslint/utils'
 import {rules} from './rules/index.js'
 
 const plugin = {
-  meta: {name: 'duro'},
+  meta: {name: 'greenrack'},
   rules,
   configs: {} as Record<string, TSESLint.FlatConfig.Config>,
 }
