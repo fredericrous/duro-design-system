@@ -17,7 +17,7 @@ interface OverlayModalProps {
 /**
  * The window every interactive native overlay renders in (plan N0,
  * Decision 2). RN `Modal` is a React portal, so the app's contexts reach the
- * content, and it presents above natively presented routes. Duro draws its own
+ * content, and it presents above natively presented routes. greenrack draws its own
  * backdrop and motion, so the Modal's own animation is off.
  *
  * Content gets its own GestureHandlerRootView: on Android a Modal is a

@@ -178,7 +178,7 @@ export const RenderedMarkdown: Story = {
 
 /**
  * An app's own CSS wins over every Prose rule: a CSS Module class and even a
- * bare element selector, loaded after Duro's stylesheet. Prose sits in its
+ * bare element selector, loaded after greenrack's stylesheet. Prose sits in its
  * own cascade layer and weighs nothing (:where()).
  */
 export const AppCssWins: Story = {
@@ -205,7 +205,7 @@ export const AppCssWins: Story = {
   },
 }
 
-/** A Duro component inside Prose keeps its own styles: Prose is below them. */
+/** A greenrack component inside Prose keeps its own styles: Prose is below them. */
 export const GreenrackComponentsInside: Story = {
   render: () => (
     <Prose>

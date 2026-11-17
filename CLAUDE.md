@@ -1,6 +1,6 @@
-# Duro Design System
+# greenrack design system
 
-> AI-facing guide for code generation. Read this before generating any UI code using Duro components.
+> AI-facing guide for code generation. Read this before generating any UI code using greenrack components.
 >
 > **Machine-queryable docs:** run `npx @greenharness/greenrack-cli manifest --json` once — every component's props,
 > every recipe's source, tokens and rules follow from it (`npx @greenharness/greenrack-cli Button`,
@@ -242,7 +242,7 @@ These components **must** be wrapped in their `.Root`:
 | **Pane** | A floating, non-modal panel from a screen edge: inset from the edge, rounded all round, no backdrop, so the page and anything on it stay usable beside it | compound: Body, Close, Expand, Footer, Header, … |
 | **Panel** | Structural primitive for grouping content with header, body, and footer slots | compound: Body, Footer, Header, Root |
 | **Popover** | Non-modal anchored overlay for small interactive content | compound: Close, Popup, Root, Trigger |
-| **Prose** | The container for HTML Duro does not author — rendered Markdown, CMS output: headings, paragraphs, lists, tables, blockquotes, inline code, links and images are styled from tokens by descendant rules scoped to it (plain CSS in dist/index.css, :where() and its own cascade layer) | `ref` |
+| **Prose** | The container for HTML greenrack does not author — rendered Markdown, CMS output: headings, paragraphs, lists, tables, blockquotes, inline code, links and images are styled from tokens by descendant rules scoped to it (plain CSS in dist/index.css, :where() and its own cascade layer) | `ref` |
 | **QrCode** | A QR code for another device to scan: dark modules on a fixed light square, as wide as its container, announced by its label as one image | `value`, `label`, `size` |
 | **RadioGroup** | Radio button group for single-select from a list of options | compound: Item, Root |
 | **ScrollArea** | Custom scrollbar region with draggable thumb | compound: Content, Root, Scrollbar, Thumb, Viewport |
@@ -900,7 +900,7 @@ pieces a reader page needs, each owning its accessibility:
   blockquotes, inline code, links, images) from tokens. Its rules are plain
   CSS in `dist/index.css`, in their own cascade layer (`gr-prose`, after
   the reset and before every component style) and wrapped in `:where()`: a
-  Duro component inside it keeps its styles, and an app's CSS Module wins.
+  greenrack component inside it keeps its styles, and an app's CSS Module wins.
 - **`useContainerBelow(ref, 'md')`** answers what CSS cannot choose (a TOC as
   a list or a menu, buttons or an overflow `Menu`) from the element's own
   width; `false` on the server, so the wide layout renders first. Hand it the

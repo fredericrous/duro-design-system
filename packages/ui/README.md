@@ -1,6 +1,6 @@
 # @greenharness/greenrack-ui
 
-Duro's components, written with [react-strict-dom](https://github.com/facebook/react-strict-dom):
+greenrack's components, written with [react-strict-dom](https://github.com/facebook/react-strict-dom):
 one source for the web and for React Native. Component docs, props and
 recipes: `npx @greenharness/greenrack-cli <Name>`, or the repository's `CLAUDE.md`.
 
@@ -32,7 +32,7 @@ optional peers):
 **One copy of each.** Resolve `react`, `react-native`, the native peers,
 `react-strict-dom`, `react-hook-form`, `@hookform/resolvers`, `effect` and
 `@greenharness/greenrack-*` from the app, so the bundle has one React renderer and one
-react-strict-dom. With a linked or workspace copy of Duro, a Metro
+react-strict-dom. With a linked or workspace copy of greenrack, a Metro
 `resolveRequest` that resolves those names from the app's `package.json`
 does it; `examples/native/metro.config.mjs` in this repository is one.
 

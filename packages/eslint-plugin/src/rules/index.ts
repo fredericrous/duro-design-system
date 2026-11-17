@@ -17,7 +17,7 @@ export const rules = {
   'no-raw-breakpoint-query': noRawBreakpointQuery,
   'no-flex-grow-web': noFlexGrowWeb,
   'prefer-ds-form-components': preferDsFormComponents,
-  // typescript-eslint's rule under the duro prefix: the UI bans keep `allowTypeImports`
+  // typescript-eslint's rule under the greenrack prefix: the UI bans keep `allowTypeImports`
   // and report as `greenrack/no-restricted-imports`, apart from the harness's own ban.
   'no-restricted-imports': tseslintPlugin.rules['no-restricted-imports'],
 }

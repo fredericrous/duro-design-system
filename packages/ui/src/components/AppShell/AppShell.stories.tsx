@@ -89,7 +89,7 @@ interface ShellArgs {
   onAccountAction: (action: string) => void
 }
 
-const BRAND = 'Duro docs'
+const BRAND = 'greenrack docs'
 const FOOTER = 'Signed in as Ada'
 
 const ACCOUNT_ACTIONS = ['Profile', 'Settings', 'Sign out'] as const

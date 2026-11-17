@@ -39,7 +39,7 @@ export interface Glyph {
   readonly shapes: readonly Shape[]
 }
 
-/** The grid Duro's own glyphs are drawn on. */
+/** The grid greenrack's own glyphs are drawn on. */
 export const DEFAULT_VIEW_BOX = '0 0 24 24'
 
 export const GLYPHS: Record<IconName, Glyph> = {

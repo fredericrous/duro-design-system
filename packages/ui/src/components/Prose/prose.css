@@ -1,5 +1,5 @@
 /*
- * Prose — styles for HTML that Duro does not author: rendered Markdown, CMS
+ * Prose — styles for HTML that greenrack does not author: rendered Markdown, CMS
  * output. StyleX cannot write descendant rules, so these ship as plain CSS in
  * dist/index.css. Only var(--gr-*) tokens: the check in
  * packages/ui/test/prose-css.test.ts fails on any raw length or colour.
@@ -8,7 +8,7 @@
  *
  * - The `gr-prose` layer sits after `reset` (so these margins beat the
  *   reset's `margin: 0`) and before StyleX's own layers (strict.css declares
- *   the order). A Duro component rendered inside Prose (a TextLink, a
+ *   the order). A greenrack component rendered inside Prose (a TextLink, a
  *   CodeBlock) keeps its own styles, and any unlayered app CSS — a CSS
  *   Module rule — wins over every rule here.
  * - Every selector is wrapped in :where(), so the rules weigh nothing even

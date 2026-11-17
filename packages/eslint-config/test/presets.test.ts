@@ -69,7 +69,7 @@ describe('react', () => {
     expect(ruleIds(result)).toContain('greenrack/no-restricted-imports')
   })
 
-  it('carries the duro plugin: raw intrinsics and form primitives report', async () => {
+  it('carries the greenrack plugin: raw intrinsics and form primitives report', async () => {
     const result = await lint(
       react,
       'export const A = () => (\n  <div>\n    <html.input />\n  </div>\n)\n',

@@ -6,7 +6,7 @@ import {beforeAll, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {TOKEN_DEEP_PATHS} from '../../eslint-plugin/src/util/tokens.js'
 
-// Duro's own eslint.config.js applies greenrack/no-raw-design-values to every
+// greenrack's own eslint.config.js applies greenrack/no-raw-design-values to every
 // component source (ADR-0027). A glob typo there would silently lint nothing;
 // this lints seeded code at real paths through the real config.
 const root = fileURLToPath(new URL('../../..', import.meta.url))
@@ -59,7 +59,7 @@ describe('token groups', () => {
   })
 })
 
-describe("Duro's eslint.config.js", () => {
+describe("greenrack's eslint.config.js", () => {
   it('reports a raw width in a component source', async () => {
     expect(await ruleIds(seeded, 'packages/ui/src/components/Seeded/styles.css.ts')).toContain(
       'greenrack/no-raw-design-values',

@@ -31,7 +31,7 @@ describe('prose.css', () => {
     )
   })
 
-  it('only reads custom properties Duro publishes', () => {
+  it('only reads custom properties greenrack publishes', () => {
     // dist/vars.css publishes all of these but the breakpoints (a query cannot read a var)
     const published = new Set(
       (tokenBlock.match(/--gr-[\w-]+(?=:)/g) ?? []).filter(

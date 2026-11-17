@@ -35,7 +35,7 @@ const HEALTHY: Record<string, string> = {
 }
 
 function app(files: Record<string, string>, base = HEALTHY): string {
-  const root = mkdtempSync(join(tmpdir(), 'duro-doctor-'))
+  const root = mkdtempSync(join(tmpdir(), 'greenrack-doctor-'))
   for (const [path, content] of Object.entries({...base, ...files})) {
     mkdirSync(dirname(join(root, path)), {recursive: true})
     writeFileSync(join(root, path), content)
@@ -138,7 +138,7 @@ describe('greenrack doctor', () => {
 
   it('accepts the stylesheet as a ?url import', () => {
     const root = app({
-      'app/root.tsx': `import duro from '@greenharness/greenrack-ui/dist/index.css?url'\nimport './styles/strict.css'\n`,
+      'app/root.tsx': `import greenrack from '@greenharness/greenrack-ui/dist/index.css?url'\nimport './styles/strict.css'\n`,
     })
     expect(findings(root)).toEqual([])
   })

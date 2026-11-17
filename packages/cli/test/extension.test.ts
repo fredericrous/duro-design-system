@@ -86,7 +86,7 @@ function unknownKeys(manifest: Manifest): string[] {
 const manifest = parseToml(text(join(packageRoot, 'greenharness.toml')))
 
 function consumer(): string {
-  const dir = mkdtempSync(join(tmpdir(), 'duro-context-'))
+  const dir = mkdtempSync(join(tmpdir(), 'greenrack-context-'))
   writeFileSync(
     join(dir, 'package.json'),
     JSON.stringify({name: 'app', devDependencies: {'@greenharness/greenrack-ui': '1.0.0'}}),
@@ -95,7 +95,7 @@ function consumer(): string {
 }
 
 function bystander(): string {
-  const dir = mkdtempSync(join(tmpdir(), 'duro-bystander-'))
+  const dir = mkdtempSync(join(tmpdir(), 'greenrack-bystander-'))
   writeFileSync(join(dir, 'package.json'), JSON.stringify({name: 'plain', dependencies: {}}))
   return dir
 }
@@ -153,7 +153,7 @@ describe('greenharness.toml', () => {
     ])
   })
 
-  it('guards session_context and doctor: silent outside a Duro consumer, once the hook is installed too', () => {
+  it('guards session_context and doctor: silent outside a greenrack consumer, once the hook is installed too', () => {
     const run = (cwd: string, command: string) =>
       spawnSync(
         'sh',
@@ -171,7 +171,7 @@ describe('greenharness.toml', () => {
     expect(run(bystander(), doctor!)).toMatchObject({status: 0, stdout: ''})
     expect(run(consumer(), sessionContext!).stdout).toBe('RAN context\n')
     expect(run(consumer(), doctor!).stdout).toBe('RAN doctor\n')
-    const nested = mkdtempSync(join(tmpdir(), 'duro-nested-'))
+    const nested = mkdtempSync(join(tmpdir(), 'greenrack-nested-'))
     mkdirSync(join(nested, 'apps', 'web'), {recursive: true})
     writeFileSync(
       join(nested, 'apps', 'web', 'package.json'),
@@ -214,8 +214,8 @@ describe('the skills and the agent', () => {
 })
 
 describe('greenrack context', () => {
-  it('prints nothing outside a Duro consumer', () => {
-    const cacheHome = mkdtempSync(join(tmpdir(), 'duro-cache-'))
+  it('prints nothing outside a greenrack consumer', () => {
+    const cacheHome = mkdtempSync(join(tmpdir(), 'greenrack-cache-'))
     const result = runContext(registry, {cwd: bystander(), cacheHome})
     expect(result.text).toBe('')
     expect(result.exitCode).toBeUndefined()
@@ -224,7 +224,7 @@ describe('greenrack context', () => {
 
   it('--catalog-only is the catalog alone, and hook session-start prints exactly that', () => {
     const cwd = consumer()
-    const cacheHome = mkdtempSync(join(tmpdir(), 'duro-cache-'))
+    const cacheHome = mkdtempSync(join(tmpdir(), 'greenrack-cache-'))
     const catalogOnly = runContext(registry, {cwd, cacheHome, catalogOnly: true})
     expect(catalogOnly.text).toContain('SCREENS')
     expect(readdirSync(cacheHome)).toEqual([])
@@ -233,7 +233,7 @@ describe('greenrack context', () => {
 
   it('adds the doctor block, re-run only when the build files change, cached outside the repo', () => {
     const cwd = consumer()
-    const cacheHome = mkdtempSync(join(tmpdir(), 'duro-cache-'))
+    const cacheHome = mkdtempSync(join(tmpdir(), 'greenrack-cache-'))
     const catalog = runContext(registry, {cwd, cacheHome, catalogOnly: true}).text
     runContext(registry, {cwd, cacheHome})
     const [slot] = readdirSync(join(cacheHome, 'greenrack'))
@@ -252,23 +252,23 @@ describe('greenrack context', () => {
 
   it('stays silent when the cache cannot be written', () => {
     const cwd = consumer()
-    const blocker = join(mkdtempSync(join(tmpdir(), 'duro-cache-')), 'file')
+    const blocker = join(mkdtempSync(join(tmpdir(), 'greenrack-cache-')), 'file')
     writeFileSync(blocker, '')
     expect(() => runContext(registry, {cwd, cacheHome: blocker})).not.toThrow()
   })
 })
 
 describe('greenrack doctor outside a consumer', () => {
-  it('prints not a Duro consumer and exits 0', () => {
+  it('prints not a greenrack consumer and exits 0', () => {
     const result = runDoctor({cwd: bystander()})
-    expect(result.text).toBe('not a Duro consumer')
+    expect(result.text).toBe('not a greenrack consumer')
     expect(result.exitCode).toBeUndefined()
   })
 })
 
 describe('the grh pointer', () => {
   const fakeGrh = (): string => {
-    const dir = mkdtempSync(join(tmpdir(), 'duro-grh-'))
+    const dir = mkdtempSync(join(tmpdir(), 'greenrack-grh-'))
     writeFileSync(join(dir, 'grh'), '#!/bin/sh\nexit 0\n')
     chmodSync(join(dir, 'grh'), 0o755)
     return dir

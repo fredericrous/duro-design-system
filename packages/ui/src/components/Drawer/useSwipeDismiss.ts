@@ -52,7 +52,7 @@ interface SwipeState {
   startTime: number
   swiping: boolean
   panelSize: number
-  /** Inner Duro scroll viewport the gesture started in; capture is deferred until the axis is decided */
+  /** Inner greenrack scroll viewport the gesture started in; capture is deferred until the axis is decided */
   deferredScroll: HTMLElement | null
   /** Started on a snap sheet's grabber: a tap stays its click, a drag moves the sheet */
   fromGrabber: boolean
@@ -302,7 +302,7 @@ export function useSwipeDismiss({
 
       panel!.dataset.panelSize = String(state.panelSize)
 
-      // Inside a Duro ScrollArea the scroll may own the gesture, and a press on
+      // Inside a greenrack ScrollArea the scroll may own the gesture, and a press on
       // the grabber may be a tap: wait for the first move.
       if (!state.deferredScroll && !fromGrabber) beginCapture(e.pointerId)
     }

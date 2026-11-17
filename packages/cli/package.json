@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "Machine-queryable docs for the Duro design system: components, props, recipes, tokens and rules as CLI output, JSON, or an MCP server.",
+  "description": "Machine-queryable docs for the greenrack design system: components, props, recipes, tokens and rules as CLI output, JSON, or an MCP server.",
   "keywords": [
     "cli",
     "design-system",

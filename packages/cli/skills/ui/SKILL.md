@@ -11,9 +11,9 @@ This skill holds the visual polish for surfaces, icons and motion, with the exac
 
 A decision of this repository (resolved at its applicable scope with `aval resolve`) outranks a value in this skill. Apply token requirements and gap routing only where the repository's decisions require them, keeping their named exemptions. On `duro-stack`, a non-exempt measure without a token is a design-system gap under ADR-0006/0027, never a local literal.
 
-Where Duro defines the value, these win: the `spacing.css.ts` radii, `shadows.css.ts` and `motion.css.ts`.
+Where greenrack defines the value, these win: the `spacing.css.ts` radii, `shadows.css.ts` and `motion.css.ts`.
 
-The ui values `300ms` enter, `100ms` stagger and `cubic-bezier(0.2, 0, 0, 1)` are Duro tokens (`duration.slower`, `duration.stagger`, `easing.emphasized`) that a review uses instead of the literal.
+The ui values `300ms` enter, `100ms` stagger and `cubic-bezier(0.2, 0, 0, 1)` are greenrack tokens (`duration.slower`, `duration.stagger`, `easing.emphasized`) that a review uses instead of the literal.
 
 ## Exact values, optional polish
 

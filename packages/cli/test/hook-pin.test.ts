@@ -69,7 +69,7 @@ const SHELLS = ['sh', ...(existsSync('/bin/dash') ? ['dash'] : [])]
 
 /** A repo with the generated hook and a fake npx that prints `catalog`, nothing, or fails. */
 function repo(npx: {catalog: string} | 'fails' | 'empty' | 'no-newline', shell: string) {
-  const dir = mkdtempSync(join(tmpdir(), 'duro-hook-'))
+  const dir = mkdtempSync(join(tmpdir(), 'greenrack-hook-'))
   mkdirSync(join(dir, '.claude/hooks'), {recursive: true})
   writeFileSync(join(dir, HOOK_SCRIPT_PATH), HOOK_SCRIPT)
   const bin = join(dir, 'bin')

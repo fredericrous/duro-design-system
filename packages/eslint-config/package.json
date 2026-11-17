@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "Shareable ESLint flat config for the Duro design system: the design-system rules and UI-library policy for React apps, on top of @aval-adr/eslint-config.",
+  "description": "Shareable ESLint flat config for the greenrack design system: the design-system rules and UI-library policy for React apps, on top of @aval-adr/eslint-config.",
   "keywords": [
     "eslint",
     "eslintconfig",

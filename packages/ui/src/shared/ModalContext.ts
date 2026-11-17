@@ -15,7 +15,7 @@ export const ModalContext = createContext(false)
 
 /**
  * True inside a Dialog or Drawer, false outside. A floating surface that is not
- * a Duro Popover picks its layer with it, the way a Popover does:
+ * a greenrack Popover picks its layer with it, the way a Popover does:
  * `useInModal() ? layers.popover : layers.floating`, and for one that must
  * cover another floating surface (a link editor over a format bar)
  * `useInModal() ? layers.popoverRaised : layers.floatingRaised`.

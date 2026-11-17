@@ -187,7 +187,7 @@ export function runDoctor(options: DoctorOptions = {}): CommandResult {
   const packages = consumerPackages(root)
   if (packages.length === 0) {
     return {
-      text: options.session ? '' : 'not a Duro consumer',
+      text: options.session ? '' : 'not a greenrack consumer',
       data: {ok: true, findings: [], checked: [], skipped: [], packages: [], scopes: []},
     }
   }

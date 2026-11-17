@@ -27,7 +27,7 @@ export function followLink(href: string, onNavigate: OnNavigate | undefined, sou
   onNavigate?.(href, event)
   if (!prevented) {
     Linking.openURL(href).catch((error: unknown) => {
-      console.warn(`[duro] ${source}: could not open ${href}: ${String(error)}`)
+      console.warn(`[greenrack] ${source}: could not open ${href}: ${String(error)}`)
     })
   }
 }

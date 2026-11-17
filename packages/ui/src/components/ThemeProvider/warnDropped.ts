@@ -16,6 +16,6 @@ export function warnDropped(dropped: readonly DroppedToken[]): void {
     const signature = JSON.stringify([entry.group, entry.key, entry.value])
     if (warned.has(signature)) continue
     warned.add(signature)
-    console.warn(`[duro] ThemeProvider dropped ${describeDropped(entry)}`)
+    console.warn(`[greenrack] ThemeProvider dropped ${describeDropped(entry)}`)
   }
 }

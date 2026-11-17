@@ -3,7 +3,7 @@ import {html} from 'react-strict-dom'
 import {styles} from './styles.native.css'
 
 interface ProseProps {
-  /** Duro primitives (Heading, Text, TextLink, CodeBlock) a Markdown renderer produced. */
+  /** greenrack primitives (Heading, Text, TextLink, CodeBlock) a Markdown renderer produced. */
   children: ReactNode
   /** The container element. */
   ref?: Ref<HTMLDivElement>
@@ -11,7 +11,7 @@ interface ProseProps {
 
 /**
  * Native Prose: the reading container. Native has no descendant CSS, so it
- * styles nothing inside it: a renderer maps Markdown to Duro primitives, and
+ * styles nothing inside it: a renderer maps Markdown to greenrack primitives, and
  * Prose gives them one column at reading width with a token gap between blocks.
  */
 export function Prose({children, ref}: ProseProps) {

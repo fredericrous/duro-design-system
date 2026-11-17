@@ -11,7 +11,7 @@ This skill sets and reviews how text renders, from the type scale and spacing to
 
 A decision of this repository (resolved at its applicable scope with `aval resolve`) outranks a value in this skill. Apply token requirements and gap routing only where the repository's decisions require them, keeping their named exemptions. On `duro-stack`, a non-exempt measure without a token is a design-system gap under ADR-0006/0027, never a local literal.
 
-Where Duro defines the value, these win: the CLAUDE.md "Typography Presets" table, `typography.css.ts` and `type-presets.css.ts`.
+Where greenrack defines the value, these win: the CLAUDE.md "Typography Presets" table, `typography.css.ts` and `type-presets.css.ts`.
 
 The words belong to `writing`, semantic heading structure to `accessibility` and spatial RTL layout to `layout`. Measure contrast with `colors`; whether it passes is `accessibility`'s.
 

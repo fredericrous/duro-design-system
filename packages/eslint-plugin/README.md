@@ -1,6 +1,6 @@
 # @greenharness/greenrack-eslint-plugin
 
-ESLint rules that enforce the Duro design system conventions mechanically —
+ESLint rules that enforce the greenrack design system conventions mechanically —
 what CLAUDE.md can only suggest, these rules gate.
 
 Requires ESLint 9 (flat config). The plugin has zero runtime dependencies.
@@ -142,7 +142,7 @@ Options: `{factories?: string[], spacingProperties?: string[], radiiProperties?:
 defaults to `true`. `exemptFiles` takes
 globs (`**`, `*`, `?`, `{a,b}`), matched against the path relative to the
 working directory and the absolute path; a matching file is not checked. Name
-only a file whose literals are a technique, not a design value — Duro names
+only a file whose literals are a technique, not a design value — greenrack names
 its visually-hidden module.
 
 ### no-raw-layer-values

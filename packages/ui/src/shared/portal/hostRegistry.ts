@@ -25,7 +25,7 @@ export interface HostRegistrySnapshot {
 
 /**
  * The hosts that passive surfaces draw into, on native: the app root, each
- * open Duro Modal and each `PortalHost` a consumer mounts in a natively
+ * open greenrack Modal and each `PortalHost` a consumer mounts in a natively
  * presented route. An entry renders in the top host unless it asks for the
  * base host, so a toast raised under an open Dialog draws above it and a
  * non-modal pane stays below it.

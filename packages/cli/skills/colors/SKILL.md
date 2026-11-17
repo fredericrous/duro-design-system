@@ -11,7 +11,7 @@ This skill builds and audits color systems. It generates ramps, maps their steps
 
 A decision of this repository (resolved at its applicable scope with `aval resolve`) outranks a value in this skill. Apply token requirements and gap routing only where the repository's decisions require them, keeping their named exemptions. On `duro-stack`, a non-exempt measure without a token is a design-system gap under ADR-0006/0027, never a local literal.
 
-Where Duro defines the value, these win: the CLAUDE.md "Color Semantics" table, `packages/tokens/src/tokens/colors.css.ts` and the themes.
+Where greenrack defines the value, these win: the CLAUDE.md "Color Semantics" table, `packages/tokens/src/tokens/colors.css.ts` and the themes.
 
 Never report a contrast value you did not measure, and never estimate a color you could compute. Notation, a tinted neutral and a gradient's interpolation space are project choices, not findings. A broken role mapping, a failing pair and an out-of-gamut step are findings. Perceived lightness throughout means OKLCH `L`, from `0` to `1`.
 

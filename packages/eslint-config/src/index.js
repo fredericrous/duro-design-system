@@ -3,7 +3,7 @@ import greenrack from '@greenharness/greenrack-eslint-plugin'
 import {base} from '@aval-adr/eslint-config'
 
 /**
- * The Duro design-system and UI-library policy, on top of the harness's
+ * The greenrack design-system and UI-library policy, on top of the harness's
  * `base` from @aval-adr/eslint-config. `base`, `effect`, `tests` and
  * `adrLint` come from @aval-adr/eslint-config directly; this package keeps
  * only `react`, which carries what only the design system knows: the greenrack

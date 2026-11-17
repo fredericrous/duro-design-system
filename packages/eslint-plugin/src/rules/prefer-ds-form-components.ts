@@ -12,7 +12,7 @@ type Options = [
  * Form fields go through the design system's form kit, not bare html.*
  * primitives: `html.input` → Field.Root + Field.Label + Input, `html.select`
  * → the Select compound, `html.textarea` → Textarea. The kit carries theming
- * (the app-owned duro theme drives the tokens) and a11y wiring that a bare
+ * (the app-owned greenrack theme drives the tokens) and a11y wiring that a bare
  * primitive silently drops.
  *
  * no-raw-html-element can't express this: html.input IS the correct

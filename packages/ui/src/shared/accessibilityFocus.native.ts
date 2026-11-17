@@ -18,6 +18,6 @@ export function focusForAccessibility(target: unknown, from: string): void {
   } catch (error) {
     if (reported.has(from)) return
     reported.add(from)
-    console.warn(`[duro] ${from}: could not move accessibility focus: ${String(error)}`)
+    console.warn(`[greenrack] ${from}: could not move accessibility focus: ${String(error)}`)
   }
 }

@@ -7,7 +7,7 @@ interface Measurable {
 }
 
 /**
- * Native: whether the view behind `ref` is narrower than a Duro breakpoint.
+ * Native: whether the view behind `ref` is narrower than a greenrack breakpoint.
  * There is no ResizeObserver; the view is measured after layout and again
  * whenever the window changes size (a rotation, a split screen). `false`
  * until the first measurement, as on the web.

@@ -1,6 +1,6 @@
 # @greenharness/greenrack-eslint-config
 
-Shareable ESLint flat config for the Duro stack — the policies CLAUDE.md and
+Shareable ESLint flat config for the greenrack stack — the policies CLAUDE.md and
 agent memory can only suggest, wired into the linter so every consumer repo
 gates them at commit time (via amont's built-in `pre-commit-lint-js`, which
 activates on the presence of a root ESLint config) and in CI.
@@ -67,7 +67,7 @@ the gate for every **new** file and ratchets the old ones down with an
 explicit file list — never a glob, never `--max-warnings`:
 
 ```js
-// eslint.duro-baseline.js — delete a line when its file is migrated. Never add one.
+// eslint.greenrack-baseline.js — delete a line when its file is migrated. Never add one.
 export const RAW_VALUES_BASELINE = [
   'app/routes/legacy-dashboard.tsx',
   'app/components/OldChart/OldChart.tsx',
@@ -76,7 +76,7 @@ export const RAW_VALUES_BASELINE = [
 
 ```js
 // eslint.config.js — after the presets, so last-wins downgrades only these
-import {RAW_VALUES_BASELINE} from './eslint.duro-baseline.js'
+import {RAW_VALUES_BASELINE} from './eslint.greenrack-baseline.js'
 export default [
   ...react,
   {files: RAW_VALUES_BASELINE, rules: {'greenrack/no-raw-design-values': 'warn'}},

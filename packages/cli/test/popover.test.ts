@@ -10,7 +10,7 @@ const registry = JSON.parse(
   readFileSync(new URL('../registry.json', import.meta.url), 'utf8'),
 ) as Registry
 
-function duro(...args: string[]): string {
+function greenrack(...args: string[]): string {
   return execFileSync(process.execPath, [bin, ...args], {
     encoding: 'utf8',
     env: {...process.env, NO_COLOR: '1'},
@@ -27,8 +27,8 @@ describe('Popover in the registry and CLI', () => {
     }
   })
 
-  it('duro Popover prints use / avoid / related sections', () => {
-    const out = duro('Popover')
+  it('greenrack Popover prints use / avoid / related sections', () => {
+    const out = greenrack('Popover')
     expect(out).toContain('USE WHEN')
     expect(out).toContain('RELATED')
     // The names must be in DON'T USE WHEN itself: RELATED names them too,
@@ -44,7 +44,7 @@ describe('Popover in the registry and CLI', () => {
   })
 
   it('greenrack list components has a short Popover row', () => {
-    const row = duro('list', 'components')
+    const row = greenrack('list', 'components')
       .split('\n')
       .find((line) => line.trim().startsWith('Popover'))
     expect(row).toBeDefined()

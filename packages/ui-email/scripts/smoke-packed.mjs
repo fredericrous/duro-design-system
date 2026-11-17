@@ -66,7 +66,7 @@ try {
     run('pnpm', ['--filter', pkg, 'pack', '--pack-destination', tgz], dsRoot)
   }
   const tarballs = readdirSync(tgz).map((f) => join(tgz, f))
-  const tokensTgz = tarballs.find((f) => /duro-app-tokens-/.test(f))
+  const tokensTgz = tarballs.find((f) => /greenharness-greenrack-tokens-/.test(f))
 
   // 1. The published /raw types.
   const manifest = JSON.parse(run('tar', ['-xOzf', tokensTgz, 'package/package.json'], work, true))
@@ -183,7 +183,7 @@ export {EmailShell, Text, width, sizes}
       ours.length + unattributed.length > 0 || (exited !== 0 && thirdParty.length === 0)
     check(
       !failed,
-      `consumer import type-checks with skipLibCheck: false (${moduleResolution}; ${ours.length + unattributed.length} error(s) in @duro-app, check.ts or config; tsc exit ${exited}, ${thirdParty.length} third-party)`,
+      `consumer import type-checks with skipLibCheck: false (${moduleResolution}; ${ours.length + unattributed.length} error(s) in @greenharness/greenrack-*, check.ts or config; tsc exit ${exited}, ${thirdParty.length} third-party)`,
     )
   }
 } catch (error) {

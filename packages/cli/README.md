@@ -1,6 +1,6 @@
 # @greenharness/greenrack-cli
 
-Machine-queryable docs for the Duro design system. One lookup verb over a
+Machine-queryable docs for the greenrack design system. One lookup verb over a
 generated registry: component props and usage guidance, runnable recipes,
 design tokens, and the critical rules — as human output, `--json`, or an MCP
 server. Zero runtime dependencies.
@@ -21,7 +21,7 @@ npx @greenharness/greenrack-cli mockup check docs/mockups/approvals/*.dc.html
 npx @greenharness/greenrack-cli mockup canvas docs/mockups/approvals               # one review page
 ```
 
-Install for the short bin: `pnpm add -D @greenharness/greenrack-cli` → `duro Button`.
+Install for the short bin: `pnpm add -D @greenharness/greenrack-cli` → `greenrack Button`.
 
 Exit codes: `0` ok · `1` not found (with "did you mean") · `2` usage error ·
 `3` unreadable/incompatible registry.
@@ -98,7 +98,7 @@ doesn't, which is where agents actually go wrong:
 - **COMPOSE — DO NOT HAND-ROLL THE WRAPPER** — a hand-rolled label beside an
   Input that should have been wrapped in `Field.Root`
 
-All three ship in one injection, so none waits on a `duro <Component>` call
+All three ship in one injection, so none waits on a `greenrack <Component>` call
 the agent may never make. The tables are the `contrast` and `composition`
 edges of each component's `relatedTo` — see above.
 
@@ -111,12 +111,12 @@ npx -y @greenharness/greenrack-cli hook install --check  # CI: exit 1 if it drif
 
 `install` is idempotent, and touches exactly four files:
 
-| File                                 | What install does                                                                                                                                                                                                                                                                              |
-| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.claude/hooks/greenrack-catalog.sh` | Writes the generated hook: fetches the catalog, caches it for 7 days (npx resolution dominates session start; the catalog only changes on upgrade), stays silent when offline with no cache. Then runs [`greenrack doctor --session`](#duro-doctor), re-run only when a file it reads changes. |
-| `.claude/hooks/greenrack-plan.sh`    | Writes the generated [plan-mode nudge](#plan-mode-nudge).                                                                                                                                                                                                                                      |
-| `.claude/settings.json`              | Adds the `SessionStart` and `UserPromptSubmit` entries. Existing hooks, permissions and skill overrides are preserved; a hand-renamed duro command is migrated in place rather than duplicated. Unparseable JSON is reported, never clobbered.                                                 |
-| `.gitignore`                         | Ignores `.claude/.greenrack-session.cache*` — a glob, because a hook killed mid-`npx` leaves the staging `.tmp` behind.                                                                                                                                                                        |
+| File                                 | What install does                                                                                                                                                                                                                                                                                   |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.claude/hooks/greenrack-catalog.sh` | Writes the generated hook: fetches the catalog, caches it for 7 days (npx resolution dominates session start; the catalog only changes on upgrade), stays silent when offline with no cache. Then runs [`greenrack doctor --session`](#greenrack-doctor), re-run only when a file it reads changes. |
+| `.claude/hooks/greenrack-plan.sh`    | Writes the generated [plan-mode nudge](#plan-mode-nudge).                                                                                                                                                                                                                                           |
+| `.claude/settings.json`              | Adds the `SessionStart` and `UserPromptSubmit` entries. Existing hooks, permissions and skill overrides are preserved; a hand-renamed greenrack command is migrated in place rather than duplicated. Unparseable JSON is reported, never clobbered.                                                 |
+| `.gitignore`                         | Ignores `.claude/.greenrack-session.cache*` — a glob, because a hook killed mid-`npx` leaves the staging `.tmp` behind.                                                                                                                                                                             |
 
 Do not hand-edit the generated scripts — `--check` is a byte comparison, so an
 edit shows up as drift and the next `install` overwrites it. **Repo-specific
@@ -127,7 +127,7 @@ which packages are off-limits:
 
 ```markdown
 This repo specifically (see CLAUDE.md): the raw-markup convention licenses
-raw div/span MARKUP around Duro components — it is NOT a license to
+raw div/span MARKUP around greenrack components — it is NOT a license to
 hand-roll widgets the DS ships.
 ```
 
@@ -157,7 +157,7 @@ Outside plan mode, and on any payload it cannot read, it prints nothing. It
 runs on every prompt, so it is plain `sh` and one `grep` over the event JSON —
 no npx, no node, no network — and every path exits 0: it can never block or
 fail a prompt. Existing `UserPromptSubmit` hooks in `settings.json` are kept;
-the duro entry joins the array.
+the greenrack entry joins the array.
 
 ## Extension (Green Harness)
 
@@ -177,13 +177,13 @@ npm pack @greenharness/greenrack-cli@^7 && tar -xzf greenharness-greenrack-cli-7
 
 What each manifest entry does:
 
-| Entry                 | What grh places                                                                                                                        |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `[[skill]]` ×4        | the `colors`, `typography`, `ui` and `greenrack-mockup` skills, copied to `~/.claude/skills/`                                          |
-| `[[agent]]`           | `design-system-lookup`: given a plan, answers what its UI needs from the catalog as a `design-lookup` block                            |
-| `[[mcp]]`             | the `greenrack` MCP server (`greenrack mcp`, through `npx`), registered for the user                                                   |
-| `[[session_context]]` | `greenrack context`: the catalog, then the doctor block; silent outside a Duro consumer and where `greenrack hook install` already ran |
-| `[[doctor]]`          | `greenrack doctor`, shown by `grh status`; silent outside a Duro consumer                                                              |
+| Entry                 | What grh places                                                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[[skill]]` ×4        | the `colors`, `typography`, `ui` and `greenrack-mockup` skills, copied to `~/.claude/skills/`                                               |
+| `[[agent]]`           | `design-system-lookup`: given a plan, answers what its UI needs from the catalog as a `design-lookup` block                                 |
+| `[[mcp]]`             | the `greenrack` MCP server (`greenrack mcp`, through `npx`), registered for the user                                                        |
+| `[[session_context]]` | `greenrack context`: the catalog, then the doctor block; silent outside a greenrack consumer and where `greenrack hook install` already ran |
+| `[[doctor]]`          | `greenrack doctor`, shown by `grh status`; silent outside a greenrack consumer                                                              |
 
 The skills gate themselves: each opens by saying it applies only in a repository whose `package.json`
 depends on `@greenharness/greenrack-ui` (a `workspace:` dependency counts), and to stop anywhere else, so a
@@ -193,7 +193,7 @@ that exit at once unless the root `package.json`, or a `package.json` one or two
 
 `greenrack context` prints the catalog `greenrack hook session-start` prints (which now delegates to
 `greenrack context --catalog-only`) and then the `doctor --session` block, re-run only when the build files'
-key changes. Its cache is `${XDG_CACHE_HOME:-~/.cache}/duro/<repo path hash>`: written to a temporary
+key changes. Its cache is `${XDG_CACHE_HOME:-~/.cache}/greenrack/<repo path hash>`: written to a temporary
 file and renamed, a failed write is silent, and nothing is ever created in the repository's `.claude/`.
 `greenrack hook install` and `greenrack skill install` still work as before and print one extra line on stderr
 pointing here.
@@ -234,7 +234,7 @@ Two places run it, and a consuming repo wires both:
 
 ```
 # stage     name         scope                                                                                                          severity  command
-pre-commit  duro-doctor  *.css,package.json,root.tsx,main.tsx,vite.config.ts,vitest.config.ts,postcss.config.js,postcss.config.mjs,babel.config.js  block     npx -y @greenharness/greenrack-cli@^7 doctor
+pre-commit  greenrack-doctor  *.css,package.json,root.tsx,main.tsx,vite.config.ts,vitest.config.ts,postcss.config.js,postcss.config.mjs,babel.config.js  block     npx -y @greenharness/greenrack-cli@^7 doctor
 ```
 
 ## Mockups that speak the design system

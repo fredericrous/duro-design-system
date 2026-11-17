@@ -576,7 +576,7 @@ describe('buildCanvas', () => {
 describe('runMockup canvas on disk', () => {
   let root: string
   beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), 'duro-canvas-'))
+    root = mkdtempSync(join(tmpdir(), 'greenrack-canvas-'))
   })
   afterEach(() => {
     rmSync(root, {recursive: true, force: true})
