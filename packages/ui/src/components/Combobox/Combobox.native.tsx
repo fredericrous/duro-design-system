@@ -10,11 +10,13 @@ import {
   useRef,
   useState,
 } from 'react'
-import {Pressable} from 'react-native'
+import {Pressable as NativePressable, View} from 'react-native'
+import {Pressable} from 'react-native-gesture-handler'
 import {html} from 'react-strict-dom'
 import {DURATION_MS} from '@duro-app/tokens/keys'
 import {styles} from './styles.css'
 import {nativeStyles} from './native.css'
+import {nativeStyles as selectNativeStyles} from '../Select/native.css'
 import {matchesQuery, useComboboxState} from './comboboxState'
 import {Drawer} from '../Drawer/Drawer'
 import {Listbox} from '../Listbox/Listbox'
@@ -165,7 +167,7 @@ function Input({placeholder, children}: {placeholder?: string; children?: ReactN
   }, [placeholder, setPlaceholder])
 
   return (
-    <Pressable
+    <NativePressable
       ref={triggerRef as RefObject<never>}
       onPress={() => setOpen(true)}
       accessibilityRole="combobox"
@@ -181,7 +183,7 @@ function Input({placeholder, children}: {placeholder?: string; children?: ReactN
           <Chevron color="textMuted" />
         </html.div>
       </html.div>
-    </Pressable>
+    </NativePressable>
   )
 }
 
@@ -247,10 +249,78 @@ function Popup({children, label, cancelLabel = 'Cancel'}: PopupProps) {
 
 interface ItemProps {
   value: string
+  /** A second line under the option's text, in muted type. Not part of the option's name, its filtering or the field's text. */
+  description?: ReactNode
+  /** An icon or a small preview before the option's text. Decorative: hidden from assistive technology. */
+  leading?: ReactNode
   children: ReactNode
 }
 
-function Item({value: itemValue, children}: ItemProps) {
+const ACTIVATE = [{name: 'activate'}] as const
+
+/**
+ * Listbox.Option's two hosts (a screen-reader View named by the label alone,
+ * and a gesture handler Pressable that takes the touch), with the slot and
+ * the line Listbox.Option has no room for; laid out as Select's are.
+ */
+function DetailedOption({
+  value: itemValue,
+  selected,
+  description,
+  leading,
+  label,
+  children,
+}: {
+  value: string
+  selected: boolean
+  description: ReactNode
+  leading: ReactNode
+  label: string
+  children: ReactNode
+}) {
+  const {choose} = useCombobox()
+  const pick = () => choose(itemValue)
+  return (
+    <View
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={label || undefined}
+      accessibilityState={{selected}}
+      accessibilityActions={ACTIVATE}
+      onAccessibilityAction={(e) => {
+        if (e.nativeEvent.actionName === 'activate') pick()
+      }}
+    >
+      <Pressable accessible={false} onPress={pick}>
+        {({pressed}) => (
+          <html.div style={[sheetStyles.option, (selected || pressed) && sheetStyles.optionFilled]}>
+            {leading != null && (
+              <html.div
+                aria-hidden
+                style={[selectNativeStyles.optionLeading, selectNativeStyles.nativeFlex]}
+              >
+                {leading}
+              </html.div>
+            )}
+            <html.div style={[selectNativeStyles.optionBody, selectNativeStyles.nativeFlex]}>
+              <html.span style={sheetStyles.label}>{children}</html.span>
+              {description != null && (
+                <html.span style={selectNativeStyles.optionDescription}>{description}</html.span>
+              )}
+            </html.div>
+            {selected && (
+              <html.span aria-hidden style={sheetStyles.check}>
+                ✓
+              </html.span>
+            )}
+          </html.div>
+        )}
+      </Pressable>
+    </View>
+  )
+}
+
+function Item({value: itemValue, description, leading, children}: ItemProps) {
   const collecting = useContext(CollectContext)
   const {value, labels, query, registerLabel, registerItem} = useCombobox()
   const label = textOf(children)
@@ -261,6 +331,19 @@ function Item({value: itemValue, children}: ItemProps) {
     if (collecting) return registerItem(itemValue, label || itemValue)
   }, [collecting, itemValue, label, registerItem])
   if (collecting || !matchesQuery(labels[itemValue] ?? label, query)) return null
+  if (description != null || leading != null) {
+    return (
+      <DetailedOption
+        value={itemValue}
+        selected={value === itemValue}
+        description={description}
+        leading={leading}
+        label={label}
+      >
+        {children}
+      </DetailedOption>
+    )
+  }
   return (
     <Listbox.Option value={itemValue} selected={value === itemValue}>
       {children}

@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect} from 'storybook/test'
+import {expect, screen, waitFor} from 'storybook/test'
 import {Combobox} from './Combobox'
 import {Stack} from '../Stack/Stack'
 import {Text} from '../Text/Text'
@@ -157,5 +157,38 @@ export const ManyItems: Story = {
         </Combobox.Popup>
       </Combobox.Root>
     )
+  },
+}
+
+export const DescriptionAndLeading: Story = {
+  render: () => (
+    <Combobox.Root>
+      <Combobox.Input placeholder="Search models...">
+        <Combobox.Trigger />
+      </Combobox.Input>
+      <Combobox.Popup label="Model">
+        <Combobox.Item value="fast" leading="⚡" description="Answers in a second or two">
+          <Combobox.ItemText>Fast</Combobox.ItemText>
+        </Combobox.Item>
+        <Combobox.Item value="deep" leading="🧠" description="Thinks longer, answers better">
+          <Combobox.ItemText>Deep</Combobox.ItemText>
+        </Combobox.Item>
+        <Combobox.Empty>No model found</Combobox.Empty>
+      </Combobox.Popup>
+    </Combobox.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByRole('combobox')
+    await userEvent.click(input)
+    const deep = await screen.findByRole('option', {name: 'Deep'})
+    await expect(deep).toHaveAccessibleDescription('Thinks longer, answers better')
+    await expect(deep).toHaveTextContent('Thinks longer, answers better')
+    // The description is not filtered on: a word only it holds matches nothing.
+    await userEvent.type(input, 'longer')
+    await waitFor(() => expect(screen.queryByRole('option', {name: 'Deep'})).toBeNull())
+    await userEvent.clear(input)
+    await userEvent.type(input, 'de')
+    await userEvent.click(await screen.findByRole('option', {name: 'Deep'}))
+    await waitFor(() => expect(input).toHaveValue('Deep'))
   },
 }
