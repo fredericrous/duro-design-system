@@ -1,6 +1,6 @@
 import {useCallback, useLayoutEffect, useRef, useState} from 'react'
 import {ScrollView} from 'react-native'
-import {Badge, Inline, Stack, Text, ThemeProvider, Tree} from '@duro-app/ui'
+import {Badge, Inline, Stack, Text, ThemeProvider, Tree} from '@greenharness/greenrack-ui'
 
 const BRANCHES = Array.from({length: 20}, (_, b) => b)
 const LEAVES = Array.from({length: 15}, (_, l) => l)

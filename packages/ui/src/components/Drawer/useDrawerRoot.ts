@@ -1,5 +1,5 @@
 import {type ReactNode, useEffect, useId, useMemo, useRef, useState} from 'react'
-import type {DurationToken} from '@duro-app/tokens/keys'
+import type {DurationToken} from '@greenharness/greenrack-tokens/keys'
 import {useOverlayOpenState} from '../../shared/useOverlayOpenState'
 import type {DrawerAnchor, DrawerContextValue} from './parts'
 import {

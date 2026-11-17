@@ -10,7 +10,7 @@ import {Badge} from '../Badge/Badge'
 import {Checkbox} from '../Checkbox/Checkbox'
 import {Button} from '../Button/Button'
 import {ActionBar} from '../ActionBar/ActionBar'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
 
 import {
   flexRender,
@@ -25,10 +25,10 @@ import {
 } from '@tanstack/react-table'
 import {useDataTable} from './useDataTable'
 import {Combobox} from '../Combobox/Combobox'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/Table',

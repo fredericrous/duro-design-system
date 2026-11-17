@@ -1,5 +1,5 @@
 import {css} from 'react-strict-dom'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
 
 export const styles = css.create({
   root: {

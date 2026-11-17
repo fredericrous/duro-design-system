@@ -99,19 +99,19 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             property: 'width',
             group: 'sizes',
             tokens: 'sizes.touchTarget, sizes.swatchW',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
           },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.touchTarget'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.swatchW'),
             },
           ],
@@ -128,19 +128,19 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             property: 'minHeight',
             group: 'sizes',
             tokens: 'sizes.controlSm, sizes.iconButtonSm',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
           },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('minHeight: sizes.controlSm'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('minHeight: sizes.iconButtonSm'),
             },
           ],
@@ -156,31 +156,31 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.switchThumb'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.spinnerSm'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.glyphMd'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.iconSm'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.handle'),
             },
           ],
@@ -196,7 +196,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('maxWidth: sizes.dialogMd'),
             },
           ],
@@ -214,13 +214,13 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             property: 'width',
             group: 'sizes',
             tokens: 'sizes.divider',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
           },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.divider'),
             },
           ],
@@ -239,25 +239,25 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             property: 'width',
             group: 'sizes',
             tokens: 'sizes.gridColSm, sizes.sidebarW, sizes.popoverWSm',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
           },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.gridColSm'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.sidebarW'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.popoverWSm'),
             },
           ],
@@ -276,19 +276,19 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             property: 'height',
             group: 'sizes',
             tokens: 'sizes.glyphClampMax, sizes.editorMinH',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
           },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('height: sizes.glyphClampMax'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('height: sizes.editorMinH'),
             },
           ],
@@ -306,7 +306,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             property: 'width',
             group: 'sizes',
             tokens: '',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
             nearest: '`sizes.gridColSm`, `sizes.sidebarW`, `sizes.popoverWSm` (240)',
           },
           suggestions: [],
@@ -325,7 +325,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             property: 'width',
             group: 'sizes',
             tokens: '',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
             nearest:
               '`sizes.gridColXs` (200), `sizes.gridColSm`, `sizes.sidebarW`, `sizes.popoverWSm` (240)',
           },
@@ -343,7 +343,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.timeGutterW'),
             },
           ],
@@ -359,7 +359,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('height: sizes.dayHeaderH'),
             },
           ],
@@ -375,7 +375,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('flexBasis: sizes.timeGutterW'),
             },
           ],
@@ -402,7 +402,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('height: sizes.appBarH'),
             },
           ],
@@ -426,7 +426,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                "import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'\n" +
                 wrap('borderWidth: borders.strong'),
             },
           ],
@@ -442,7 +442,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                "import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'\n" +
                 wrap('borderTopWidth: borders.hairline'),
             },
           ],
@@ -458,7 +458,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                "import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'\n" +
                 wrap('outlineWidth: borders.focusRing'),
             },
           ],
@@ -474,7 +474,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                "import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'\n" +
                 wrap('outlineOffset: borders.focusOffset'),
             },
           ],
@@ -490,7 +490,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                "import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'\n" +
                 wrap('outlineOffset: `calc(-1 * ${borders.focusOffset})`'),
             },
           ],
@@ -506,7 +506,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {borders} from '@duro-app/tokens/tokens/borders.css'\n" +
+                "import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'\n" +
                 wrap('outlineOffset: `calc(-1 * ${borders.focusOffsetSm})`'),
             },
           ],
@@ -522,13 +522,13 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('marginLeft: -8, width: `calc(-1 * ${sizes.touchTarget})`'),
             },
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('marginLeft: -8, width: `calc(-1 * ${sizes.swatchW})`'),
             },
           ],
@@ -566,7 +566,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {sizes} from '@duro-app/tokens/tokens/sizes.css'\n" +
+                "import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'\n" +
                 wrap('width: sizes.divider'),
             },
           ],
@@ -582,7 +582,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {spacing} from '@duro-app/tokens/tokens/spacing.css'\n" +
+                "import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'\n" +
                 wrap('gap: spacing.lg'),
             },
           ],
@@ -594,12 +594,17 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       errors: [
         {
           messageId: 'rawSpacing',
-          data: {value: "'8px'", property: 'padding', token: 'sm', pkg: '@duro-app/tokens'},
+          data: {
+            value: "'8px'",
+            property: 'padding',
+            token: 'sm',
+            pkg: '@greenharness/greenrack-tokens',
+          },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {spacing} from '@duro-app/tokens/tokens/spacing.css'\n" +
+                "import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'\n" +
                 wrap('padding: spacing.sm'),
             },
           ],
@@ -615,7 +620,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {radii} from '@duro-app/tokens/tokens/spacing.css'\n" +
+                "import {radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'\n" +
                 wrap('borderRadius: radii.sm'),
             },
           ],
@@ -631,7 +636,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {colors} from '@duro-app/tokens/tokens/colors.css'\n" +
+                "import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'\n" +
                 wrap('color: colors.border'),
             },
           ],
@@ -661,7 +666,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {colors} from '@duro-app/tokens/tokens/colors.css'\n" +
+                "import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'\n" +
                 wrap("color: {default: colors.text, ':hover': '#242424'}"),
             },
           ],
@@ -672,7 +677,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {colors} from '@duro-app/tokens/tokens/colors.css'\n" +
+                "import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'\n" +
                 wrap("color: {default: '#e5e5e5', ':hover': colors.bgCardHover}"),
             },
           ],
@@ -689,25 +694,30 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             key: '@media (min-width: 768px)',
             token: 'md',
             scale: '480 / 640 / 768 / 1024 / 1280',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
           },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'\n" +
+                "import {breakpoints} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'\n" +
                 wrap('[`@media (min-width: ${breakpoints.md})`]: {padding: 32}'),
             },
           ],
         },
         {
           messageId: 'rawSpacing',
-          data: {value: '32', property: 'padding', token: 'xl', pkg: '@duro-app/tokens'},
+          data: {
+            value: '32',
+            property: 'padding',
+            token: 'xl',
+            pkg: '@greenharness/greenrack-tokens',
+          },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {spacing} from '@duro-app/tokens/tokens/spacing.css'\n" +
+                "import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'\n" +
                 wrap("'@media (min-width: 768px)': {padding: spacing.xl}"),
             },
           ],
@@ -724,7 +734,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {spacing} from '@duro-app/tokens/tokens/spacing.css'\n" +
+                "import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'\n" +
                 'css.create({x: (o) => ({marginTop: spacing.md})})',
             },
           ],
@@ -737,12 +747,17 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       errors: [
         {
           messageId: 'rawMicroSpacing',
-          data: {value: '2', property: 'paddingTop', token: 'px2', pkg: '@duro-app/tokens'},
+          data: {
+            value: '2',
+            property: 'paddingTop',
+            token: 'px2',
+            pkg: '@greenharness/greenrack-tokens',
+          },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {microSpacing} from '@duro-app/tokens/tokens/spacing.css'\n" +
+                "import {microSpacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'\n" +
                 wrap('paddingTop: microSpacing.px2'),
             },
           ],
@@ -759,7 +774,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             value: '23',
             property: 'marginTop',
             scale: '4 / 8 / 12 / 16 / 24 / 32 / 48 / 64',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
           },
           suggestions: [],
         },
@@ -781,7 +796,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'\n" +
+                "import {breakpoints} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'\n" +
                 wrap('[`@media (max-width: ${breakpoints.sm})`]: {gap: spacing.md}'),
             },
           ],
@@ -794,12 +809,17 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       errors: [
         {
           messageId: 'rawFontSize',
-          data: {value: '16', group: 'typography', token: 'fontSizeMd', pkg: '@duro-app/tokens'},
+          data: {
+            value: '16',
+            group: 'typography',
+            token: 'fontSizeMd',
+            pkg: '@greenharness/greenrack-tokens',
+          },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {typography} from '@duro-app/tokens/tokens/typography.css'\n" +
+                "import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'\n" +
                 wrap('fontSize: typography.fontSizeMd, lineHeight: 1.5'),
             },
           ],
@@ -815,13 +835,13 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             value: "'0.8125rem'",
             group: 'typeScale',
             token: 'fontSize2',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
           },
           suggestions: [
             {
               messageId: 'replaceWithToken',
               output:
-                "import {typeScale} from '@duro-app/tokens/tokens/typography.css'\n" +
+                "import {typeScale} from '@greenharness/greenrack-tokens/tokens/typography.css'\n" +
                 wrap('fontSize: typeScale.fontSize2'),
             },
           ],
@@ -837,7 +857,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {typography} from '@duro-app/tokens/tokens/typography.css'\n" +
+                "import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'\n" +
                 wrap("fontWeight: typography.fontWeightSemibold, fontSize: '14px'"),
             },
           ],
@@ -848,7 +868,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {typography} from '@duro-app/tokens/tokens/typography.css'\n" +
+                "import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'\n" +
                 wrap('fontWeight: 600, fontSize: typography.fontSizeSm'),
             },
           ],
@@ -865,7 +885,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {shadows} from '@duro-app/tokens/tokens/shadows.css'\n" +
+                "import {shadows} from '@greenharness/greenrack-tokens/tokens/shadows.css'\n" +
                 wrap('boxShadow: shadows.sm'),
             },
           ],
@@ -891,7 +911,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {duration} from '@duro-app/tokens/tokens/motion.css'\n" +
+                "import {duration} from '@greenharness/greenrack-tokens/tokens/motion.css'\n" +
                 wrap(
                   "transitionDuration: duration.fast, transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)'",
                 ),
@@ -904,7 +924,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {easing} from '@duro-app/tokens/tokens/motion.css'\n" +
+                "import {easing} from '@greenharness/greenrack-tokens/tokens/motion.css'\n" +
                 wrap("transitionDuration: '150ms', transitionTimingFunction: easing.easeOut"),
             },
           ],
@@ -925,7 +945,7 @@ tester.run('no-raw-design-values', noRawDesignValues, {
             {
               messageId: 'replaceWithToken',
               output:
-                "import {colors} from '@duro-app/tokens/tokens/colors.css'\n" +
+                "import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'\n" +
                 wrap("backgroundColor: colors.errorBg, color: 'rgb(1, 2, 3)'"),
             },
           ],
@@ -939,12 +959,22 @@ tester.run('no-raw-design-values', noRawDesignValues, {
       errors: [
         {
           messageId: 'rawSpacing',
-          data: {value: "'4px'", property: 'padding', token: 'xs', pkg: '@duro-app/tokens'},
+          data: {
+            value: "'4px'",
+            property: 'padding',
+            token: 'xs',
+            pkg: '@greenharness/greenrack-tokens',
+          },
           suggestions: [],
         },
         {
           messageId: 'rawSpacing',
-          data: {value: "'8px'", property: 'padding', token: 'sm', pkg: '@duro-app/tokens'},
+          data: {
+            value: "'8px'",
+            property: 'padding',
+            token: 'sm',
+            pkg: '@greenharness/greenrack-tokens',
+          },
           suggestions: [],
         },
       ],

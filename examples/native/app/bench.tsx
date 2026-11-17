@@ -1,7 +1,15 @@
 import {useCallback, useLayoutEffect, useRef, useState} from 'react'
 import {FlatList} from 'react-native'
 import {useLocalSearchParams} from 'expo-router'
-import {Button, Icon, Inline, Stack, Text, ThemeProvider, type IconName} from '@duro-app/ui'
+import {
+  Button,
+  Icon,
+  Inline,
+  Stack,
+  Text,
+  ThemeProvider,
+  type IconName,
+} from '@greenharness/greenrack-ui'
 import {SkiaIcon} from '../src/bench/SkiaIcon'
 
 const NAMES: IconName[] = ['server', 'check-circle', 'git-branch', 'lock-filled', 'users', 'clock']

@@ -27,7 +27,9 @@ export function Arrow({from, to, bend = 'none', axis = 'v', mid = 0.5}: ArrowPro
   const [x2, y2] = to
 
   if (bend === 'none') {
-    return <line className="arr" x1={x1} y1={y1} x2={x2} y2={y2} markerEnd="url(#duro-arrow)" />
+    return (
+      <line className="arr" x1={x1} y1={y1} x2={x2} y2={y2} markerEnd="url(#greenrack-arrow)" />
+    )
   }
 
   let d: string
@@ -44,5 +46,5 @@ export function Arrow({from, to, bend = 'none', axis = 'v', mid = 0.5}: ArrowPro
     }
   }
 
-  return <path className="arr" d={d} fill="none" markerEnd="url(#duro-arrow)" />
+  return <path className="arr" d={d} fill="none" markerEnd="url(#greenrack-arrow)" />
 }

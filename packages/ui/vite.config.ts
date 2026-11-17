@@ -9,7 +9,7 @@ import {webGraphGuard} from './vite/web-graph-guard'
 export default defineConfig({
   build: {
     lib: {
-      name: 'DuroUI',
+      name: 'GreenrackUI',
       // Two entries, so the TanStack-aware code is a separate chunk the root
       // never pulls in. One entry would put `@tanstack/react-table` back in
       // the root's graph and undo the point of the `./table` subpath.
@@ -36,7 +36,7 @@ export default defineConfig({
         // With one entry Rollup named the CSS bundle after it ("index.css").
         // With several it falls back to the package name ("ui.css"), which
         // silently breaks every consumer importing
-        // "@duro-app/ui/dist/index.css" — a resolve error in their build, not
+        // "@greenharness/greenrack-ui/dist/index.css" — a resolve error in their build, not
         // ours. Pin the name so splitting the JS entries stays invisible to
         // the stylesheet's path.
         assetFileNames: (info) => {

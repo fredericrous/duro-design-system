@@ -15,12 +15,12 @@ export function loadRegistry(): Registry {
   try {
     parsed = JSON.parse(readFileSync(url, 'utf8')) as Registry
   } catch (error) {
-    process.stderr.write(`duro: cannot read registry at ${url.pathname}: ${String(error)}\n`)
+    process.stderr.write(`greenrack: cannot read registry at ${url.pathname}: ${String(error)}\n`)
     process.exit(3)
   }
   if (parsed.schemaVersion !== 1) {
     process.stderr.write(
-      `duro: registry schemaVersion ${String(parsed.schemaVersion)} is not supported by this CLI — update @duro-app/cli\n`,
+      `greenrack: registry schemaVersion ${String(parsed.schemaVersion)} is not supported by this CLI — update @greenharness/greenrack-cli\n`,
     )
     process.exit(3)
   }
@@ -106,7 +106,7 @@ export function lookup(registry: Registry, name: string): LookupResult | null {
   if (registry.tokens.groups[name]) {
     return {kind: 'tokens', key: name, entry: registry.tokens.groups[name]}
   }
-  // Case-insensitive exact fallback (duro button).
+  // Case-insensitive exact fallback (greenrack button).
   const lower = name.toLowerCase()
   const ciKey = lookupNames(registry).find((candidate) => candidate.toLowerCase() === lower)
   if (ciKey && ciKey !== name) return lookup(registry, ciKey)

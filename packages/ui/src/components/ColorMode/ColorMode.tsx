@@ -13,7 +13,16 @@ import {Icon, type IconName, type IconSize} from '../Icon/Icon'
 import {ThemeProvider, type ThemeName} from '../ThemeProvider/ThemeProvider'
 import {styles} from './styles.css'
 import {useSystemScheme} from './useSystemScheme'
-import {readStoredRaw, writeStoredRaw} from './storage'
+import {readStoredMigrating, readStoredRaw, writeStoredRaw} from './storage'
+
+/** The key the preference persists under when no `storageKey` is given. */
+const DEFAULT_STORAGE_KEY = 'greenrack-color-mode'
+/**
+ * The default key's name before the design system became greenrack (7.0.0).
+ * A value saved under it is moved to the new key once. This package cannot
+ * import the CLI's legacy-names module, so the old name lives here.
+ */
+const LEGACY_STORAGE_KEY = 'duro-color-mode'
 
 /**
  * The user's *preference*. `'system'` follows the OS `prefers-color-scheme`;
@@ -84,7 +93,8 @@ interface ColorModeProviderProps {
   onPreferenceChange?: (preference: ColorModePreference) => void
   /** Cycle order for `cycle()` / `<ColorModeToggle>`. Default `['light', 'dark']`. */
   modes?: readonly ColorModePreference[]
-  /** localStorage key for persistence; `null` disables it. Default `'duro-color-mode'`.
+  /** localStorage key for persistence; `null` disables it. Default `'greenrack-color-mode'`;
+   * with the default, a value saved under the old `'duro-color-mode'` is migrated once.
    * Native has no localStorage: persist through `preference` and `onPreferenceChange`. */
   storageKey?: string | null
   /** Wrap children in the DS `ThemeProvider` with the resolved theme. Default `true`.
@@ -103,20 +113,27 @@ export function ColorModeProvider({
   preference: controlled,
   onPreferenceChange,
   modes = ['light', 'dark'],
-  storageKey = 'duro-color-mode',
+  storageKey: storageKeyProp,
   applyTheme = true,
 }: ColorModeProviderProps) {
+  const storageKey = storageKeyProp === undefined ? DEFAULT_STORAGE_KEY : storageKeyProp
+  // Only the default key had an old name; a key the app chose never did.
+  const migrateLegacy = storageKeyProp === undefined
   const [internal, setInternal] = useState<ColorModePreference>(controlled ?? defaultPreference)
   const preference = controlled ?? internal
 
   // Hydrate from storage AFTER mount (not in the initializer) so the first
   // client render matches the server and React doesn't warn about a mismatch.
+  // The legacy-key migration runs here too, for the same reason.
   useEffect(() => {
     if (controlled !== undefined) return
-    const stored = readStored(storageKey)
-    if (stored) setInternal(stored)
+    const stored =
+      migrateLegacy && storageKey !== null
+        ? readStoredMigrating(storageKey, LEGACY_STORAGE_KEY, isPreference)
+        : readStored(storageKey)
+    if (isPreference(stored)) setInternal(stored)
     // Only on mount / when the key changes.
-  }, [controlled, storageKey])
+  }, [controlled, storageKey, migrateLegacy])
 
   const setPreference = useCallback(
     (next: ColorModePreference) => {

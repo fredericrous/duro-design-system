@@ -5,4 +5,14 @@ export function readStoredRaw(_key: string | null): string | null {
   return null
 }
 
-export function writeStoredRaw(_key: string | null, _value: string): void {}
+export function readStoredMigrating(
+  _key: string,
+  _legacyKey: string,
+  _isValid: (value: string) => boolean,
+): string | null {
+  return null
+}
+
+export function writeStoredRaw(_key: string | null, _value: string): boolean {
+  return false
+}

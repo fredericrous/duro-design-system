@@ -6,7 +6,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native'
-import {SPACING_PX} from '@duro-app/tokens/keys'
+import {SPACING_PX} from '@greenharness/greenrack-tokens/keys'
 import {
   computePopoverPosition,
   type PopoverAlign,

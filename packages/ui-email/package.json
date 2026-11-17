@@ -1,7 +1,16 @@
 {
-  "name": "@duro-app/ui-email",
+  "name": "@greenharness/greenrack-ui-email",
   "version": "0.34.5",
-  "description": "Token-driven, dark/light-aware email components for Duro (React Email).",
+  "description": "Token-driven, dark/light-aware email components for greenrack (React Email).",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/greenharness/greenrack",
+    "directory": "packages/ui-email"
+  },
+  "homepage": "https://github.com/greenharness/greenrack",
+  "bugs": {
+    "url": "https://github.com/greenharness/greenrack/issues"
+  },
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -25,7 +34,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@duro-app/tokens": "workspace:^",
+    "@greenharness/greenrack-tokens": "workspace:^",
     "@react-email/components": "^1.0.9"
   },
   "peerDependencies": {

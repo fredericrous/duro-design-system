@@ -1,5 +1,5 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
 
 // Native TextLink: the same colour and underline facts as ./styles.css.ts —
 // change both together. A copy, not a composition: the web file's base style

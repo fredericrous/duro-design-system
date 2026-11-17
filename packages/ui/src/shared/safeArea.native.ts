@@ -16,7 +16,7 @@ export function useSafeAreaInsets(): EdgeInsets {
   devWarnOnce(
     'safeArea',
     'no-provider',
-    'No SafeAreaProvider above this Duro overlay: it draws without safe-area insets. Wrap the app in react-native-safe-area-context’s SafeAreaProvider.',
+    'No SafeAreaProvider above this greenrack overlay: it draws without safe-area insets. Wrap the app in react-native-safe-area-context’s SafeAreaProvider.',
   )
   return NO_INSETS
 }

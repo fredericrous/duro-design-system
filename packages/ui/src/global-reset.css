@@ -18,7 +18,7 @@
 
   /*
    * Colour, and color-scheme, are deliberately absent here: the page canvas
-   * has to follow the theme, and @duro-app/tokens/vars.css sets it per theme
+   * has to follow the theme, and @greenharness/greenrack-tokens/vars.css sets it per theme
    * from the generated palettes. See that file for why body needs literal
    * values rather than a var() — it sits above the element a theme lands on.
    */

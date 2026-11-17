@@ -8,7 +8,7 @@ import {
   RADII_PX,
   SIZES_PX,
   SPACING_PX,
-} from '@duro-app/tokens/keys'
+} from '@greenharness/greenrack-tokens/keys'
 import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 import {ButtonGroup} from './ButtonGroup'
 import type {ControlSize} from '../../shared/types'

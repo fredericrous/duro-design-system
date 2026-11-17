@@ -1,9 +1,9 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {breakpoints} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 
 // Below this width the rail stacks above the detail (native: `stacked`, from the window width).
 const STACK = `@media (max-width: ${breakpoints.sm})`

@@ -1,5 +1,5 @@
 import type {ReactNode} from 'react'
-import type {SizeToken} from '@duro-app/tokens/keys'
+import type {SizeToken} from '@greenharness/greenrack-tokens/keys'
 import type {Length} from '../../shared/length'
 
 export interface VirtualListProps<T> {

@@ -1,7 +1,7 @@
 import {Stack} from 'expo-router'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
-import {ThemeProvider, ToastProvider, useResolvedColors} from '@duro-app/ui'
+import {ThemeProvider, ToastProvider, useResolvedColors} from '@greenharness/greenrack-ui'
 
 /**
  * Screens get the theme's canvas colour: a natively presented route (the

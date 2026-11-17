@@ -1,4 +1,4 @@
-import {Button, Dialog, Drawer, Inline, List, Pane, Text} from '@duro-app/ui'
+import {Button, Dialog, Drawer, Inline, List, Pane, Text} from '@greenharness/greenrack-ui'
 
 const SESSIONS = Array.from({length: 40}, (_, i) => `Session ${i + 1}`)
 

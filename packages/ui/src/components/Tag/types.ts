@@ -1,5 +1,5 @@
 import type {ReactNode} from 'react'
-import type {ColorToken} from '@duro-app/tokens/keys'
+import type {ColorToken} from '@greenharness/greenrack-tokens/keys'
 
 export type TagVariant = 'default' | 'success' | 'warning' | 'error' | 'info'
 

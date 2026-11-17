@@ -7,8 +7,8 @@ import {Card} from '../Card/Card'
 import {Text} from '../Text/Text'
 import {onThemeSurface} from '../../docs/themedSurface'
 import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
-import {SIZES_PX} from '@duro-app/tokens/keys'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
 
 interface CodeBlockArgs {
   /** The code shown (and copied). */

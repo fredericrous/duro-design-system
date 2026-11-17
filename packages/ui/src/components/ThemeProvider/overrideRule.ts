@@ -2,8 +2,8 @@
  * The web ThemeProvider's override rule, pure: it runs the same on the server
  * and in the browser (no `CSS` global), so a server-rendered rule hydrates.
  */
-import {isSafeColor, THEMABLE_GROUPS, validateTokens} from '@duro-app/tokens/theme'
-import type {ThemableGroup, ThemeTokens} from '@duro-app/tokens/theme'
+import {isSafeColor, THEMABLE_GROUPS, validateTokens} from '@greenharness/greenrack-tokens/theme'
+import type {ThemableGroup, ThemeTokens} from '@greenharness/greenrack-tokens/theme'
 
 export {isSafeColor}
 
@@ -33,6 +33,6 @@ export function overrideRule(
   // Doubled, so it outranks the theme classes (one class each) wherever the
   // stylesheets land.
   // useId output holds neither a quote nor a backslash: safe inside quotes.
-  const selector = `[data-duro-theme="${scope}"]`
+  const selector = `[data-gr-theme="${scope}"]`
   return `${selector}${selector} { ${declarations.join(' ')} }`
 }

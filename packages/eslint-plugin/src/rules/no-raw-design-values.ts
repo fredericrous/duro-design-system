@@ -61,7 +61,7 @@ type Options = [
 const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/
 const FUNC_COLOR_RE = /\b(?:rgba?|hsla?)\([^)]*\)/
 const BREAKPOINT_KEY_RE = /^@(?:media|container)\b.*\b(?:min|max)-(?:width|height)\s*:\s*(\d+)px/
-const TOKENS_PKG = '@duro-app/tokens'
+const TOKENS_PKG = '@greenharness/greenrack-tokens'
 
 const FONT_SIZE_PROPERTIES = new Set(['fontSize'])
 const FONT_WEIGHT_PROPERTIES = new Set(['fontWeight'])

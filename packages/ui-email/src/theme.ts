@@ -5,14 +5,14 @@ import {
   RADII_PX,
   SPACING_PX,
   type RawColors,
-} from '@duro-app/tokens/raw'
+} from '@greenharness/greenrack-tokens/raw'
 
 // ---------------------------------------------------------------------------
 // Spacing / radius / type
 //
 // Email needs literal px values (clients reset the root font-size, so rem is
 // unsafe, and they cannot read CSS variables) and table-friendly units. Every
-// value below is computed from the @duro-app/tokens raw maps, so a measure
+// value below is computed from the @greenharness/greenrack-tokens raw maps, so a measure
 // still comes from its token (ADR-0027); only the unit is resolved here.
 // ---------------------------------------------------------------------------
 

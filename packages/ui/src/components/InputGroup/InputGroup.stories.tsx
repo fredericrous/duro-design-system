@@ -4,8 +4,8 @@ import {css, html} from 'react-strict-dom'
 import {InputGroup} from './InputGroup'
 import {Input} from '../Input/Input'
 import {Icon} from '../Icon/Icon'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/InputGroup',

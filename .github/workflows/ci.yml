@@ -48,21 +48,21 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Builds @duro-app/eslint-plugin, then lints this repo with it — the
+      # Builds @greenharness/greenrack-eslint-plugin, then lints this repo with it — the
       # plugin's own rules are exercised against real story/recipe source.
       - name: Lint
         run: pnpm lint
       # The CLI's bin end-to-end tests exec dist/bin.js, so build it first
       # (its prebuild doubles as a registry freshness check).
       - name: Build CLI
-        run: pnpm --filter @duro-app/cli run build
+        run: pnpm --filter @greenharness/greenrack-cli run build
       # The package ships the grh extension: manifest, skills and agent.
       - name: CLI package contents
         run: |
           cd packages/cli
           npm pack --dry-run --json 2>/dev/null > "$RUNNER_TEMP/pack.json"
           missing=0
-          for file in greenharness.toml agents/design-system-lookup.md skills/colors/SKILL.md skills/typography/SKILL.md skills/ui/SKILL.md skills/duro-mockup/SKILL.md; do
+          for file in greenharness.toml agents/design-system-lookup.md skills/colors/SKILL.md skills/typography/SKILL.md skills/ui/SKILL.md skills/greenrack-mockup/SKILL.md; do
             if ! grep -q "\"path\": \"$file\"" "$RUNNER_TEMP/pack.json"; then
               echo "npm pack would not ship $file" >&2
               missing=1
@@ -105,8 +105,8 @@ jobs:
       # typechecks with no tokens build. `prepare` built tokens at install, so the
       # check deletes that output first, or it could not fail.
       - name: Typecheck ui without a tokens build
-        run: rm -rf packages/tokens/dist && pnpm --filter @duro-app/ui run typecheck
-      # Build first: @duro-app/tokens/theme resolves its types from dist/ for cli.
+        run: rm -rf packages/tokens/dist && pnpm --filter @greenharness/greenrack-ui run typecheck
+      # Build first: @greenharness/greenrack-tokens/theme resolves its types from dist/ for cli.
       - name: Build libraries
         run: pnpm build
       - name: Packed types (attw)
@@ -210,7 +210,7 @@ jobs:
         run: pnpm native:install
       - name: Build tokens
         if: steps.filter.outputs.run == 'true'
-        run: pnpm --filter @duro-app/tokens run build
+        run: pnpm --filter @greenharness/greenrack-tokens run build
       - name: Native typecheck
         if: steps.filter.outputs.run == 'true'
         run: pnpm typecheck:native

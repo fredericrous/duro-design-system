@@ -1,7 +1,7 @@
 import {useMemo} from 'react'
 import {Canvas, FillType, Group, Path, Skia} from '@shopify/react-native-skia'
-import {ICON_SIZES, type ColorToken, type IconSize} from '@duro-app/tokens/keys'
-import {useResolvedColors, type IconName} from '@duro-app/ui'
+import {ICON_SIZES, type ColorToken, type IconSize} from '@greenharness/greenrack-tokens/keys'
+import {useResolvedColors, type IconName} from '@greenharness/greenrack-ui'
 import {GLYPHS} from '../../../../packages/ui/src/components/Icon/geometry'
 import {pathData} from './pathData'
 

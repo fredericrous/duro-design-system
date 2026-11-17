@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useRef} from 'react'
 import {FlatList, type NativeScrollEvent, type NativeSyntheticEvent, StyleSheet} from 'react-native'
 import {html} from 'react-strict-dom'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import {resolveLength} from '../../shared/length'
 import type {VirtualListProps} from './props'
 import {nativeStyles} from './native.css'

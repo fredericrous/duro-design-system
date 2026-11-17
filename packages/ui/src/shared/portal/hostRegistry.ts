@@ -3,7 +3,7 @@ import type {ReactNode} from 'react'
 /** One passive surface (a toast region) waiting for a host to draw it. */
 export interface PortalEntry {
   readonly key: string
-  /** Numeric layer from `LAYERS` in `@duro-app/tokens/keys`; higher draws on top. */
+  /** Numeric layer from `LAYERS` in `@greenharness/greenrack-tokens/keys`; higher draws on top. */
   readonly layer: number
   readonly node: ReactNode
   /**
@@ -25,7 +25,7 @@ export interface HostRegistrySnapshot {
 
 /**
  * The hosts that passive surfaces draw into, on native: the app root, each
- * open Duro Modal and each `PortalHost` a consumer mounts in a natively
+ * open greenrack Modal and each `PortalHost` a consumer mounts in a natively
  * presented route. An entry renders in the top host unless it asks for the
  * base host, so a toast raised under an open Dialog draws above it and a
  * non-modal pane stays below it.

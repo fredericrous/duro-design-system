@@ -1,0 +1,33 @@
+# Where "duro" stays on purpose after the greenrack rename (ADR-0075, ADR-0076).
+# `git grep -n -i duro` outside history must list only these. One entry per
+# line: a path (or a path prefix ending in /), a tab, and why it stays.
+#
+# History, never edited: docs/plans/, docs/adr/, .adr/, .changeset/.
+# Generated and regenerated, never sed: packages/cli/registry.json.
+
+packages/cli/src/legacy-names.ts	the old names the hook, skill and doctor migrations read
+packages/cli/src/commands/skill.ts	the legacy duro-mockup skill the installer migrates
+packages/cli/src/commands/doctor.ts	duro-app's vite.config.ts: the Duro app, which keeps its name
+packages/cli/test/hook-migrate.test.ts	fixtures wired by the old CLI
+packages/cli/test/skill-migrate.test.ts	fixtures holding the old skill
+packages/cli/test/doctor-scopes.test.ts	paired fixtures on the old @duro-app scope
+packages/cli/test/doctor.test.ts	DURO_APP: the Duro app's own vite.config.ts shape
+packages/ui/src/components/ColorMode/	LEGACY_STORAGE_KEY duro-color-mode, migrated once
+packages/ui/test/color-mode-migrate.test.ts	seeds the old duro-color-mode key
+.adr.yaml	in_scopes duro-stack: renamed in one step with the fleet (greenrack-rename t12)
+packages/cli/skills/	"On `duro-stack`": the aval scope, renamed at t12
+.claude/skills/	generated copies of packages/cli/skills (duro-stack, see above)
+examples/native/	the example app's own identity (name, slug, scheme, bundle ids, brand) and demo data
+packages/ui-email/scripts/duro-app.variants.json	sample props for the Duro app's emails (appName: Duro)
+packages/ui-email/scripts/render-consumer-emails.mjs	renders against the Duro app, still on @duro-app until its sweep (t08)
+packages/ui-email/scripts/render-entry.tsx	same: the Duro app's installed @duro-app tarballs
+packages/ui/src/components/SteppedList/	demo data: a folder named "duro"
+packages/ui/src/components/Drawer/Drawer.stories.tsx	demo data: "Duro Internal CA", the app's certificate authority
+packages/ui/src/components/Toolbar/Toolbar.stories.tsx	demo data: the URL https://duro.app
+docs/mockups/docs-nav/Mobile.dc.html	"duro-app AppShell pattern": the Duro app
+packages/cli/test/cli.test.ts	the skew-warning test: an app on the old @duro-app/ui scope
+packages/cli/src/commands/hook.ts	the old duro CLI it migrates from, named in comments and output
+packages/cli/greenharness.toml	detection reads both scopes, @duro-app/ included, until the census
+packages/cli/skills/	the Gate line names the old @duro-app/ui scope until the census
+packages/cli/agents/design-system-lookup.md	its condition names the old @duro-app/ui scope until the census
+packages/cli/src/skill-template.ts	the Gate line names the old @duro-app/ui scope until the census

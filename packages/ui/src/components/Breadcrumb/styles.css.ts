@@ -1,10 +1,10 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {duration, easing} from '@greenharness/greenrack-tokens/tokens/motion.css'
 
 // The picked docs browser (docs/mockups/docs-nav/Reader.dc.html, `.crumbs`):
 // small muted text, accent links, a `›` between items, the current page plain.

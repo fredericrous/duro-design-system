@@ -1,4 +1,4 @@
-# The Duro design system as the `design` Green Harness extension (ADR-0048).
+# The greenrack design system as the `design` Green Harness extension (ADR-0048).
 # grh manifest v1: docs/extension-manifest.md in the grh repository.
 # `version` is written from the git tag by the release, beside package.json's.
 
@@ -17,20 +17,22 @@ path = "skills/typography"
 path = "skills/ui"
 
 [[skill]]
-path = "skills/duro-mockup"
+path = "skills/greenrack-mockup"
 
 [[agent]]
 path = "agents/design-system-lookup.md"
 
 [[mcp]]
-name = "duro-ds"
+name = "greenrack"
 command = "npx"
-args = ["-y", "-p", "@duro-app/cli@^6", "-p", "@modelcontextprotocol/sdk", "duro", "mcp"]
+args = ["-y", "-p", "@greenharness/greenrack-cli@^7", "-p", "@modelcontextprotocol/sdk", "greenrack", "mcp"]
 
-# Quiet outside a Duro consumer; quiet too when `duro hook install` already
-# wired the catalog hook, so a session never gets the catalog twice.
+# Quiet outside a greenrack consumer (on @greenharness/greenrack-* or, until
+# the census, the old @duro-app/*); quiet too when a hook install (greenrack's,
+# or the old duro one) already wired the catalog hook, so a session never gets
+# the catalog twice.
 [[session_context]]
-command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; [ -e .claude/hooks/duro-catalog.sh ] && exit 0; exec npx -y @duro-app/cli@^6 context'"
+command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l -e \"@greenharness/greenrack-\" -e \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; [ -e .claude/hooks/greenrack-catalog.sh ] && exit 0; [ -e .claude/hooks/duro-catalog.sh ] && exit 0; exec npx -y @greenharness/greenrack-cli@^7 context'"
 
 [[doctor]]
-command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; exec npx -y @duro-app/cli@^6 doctor'"
+command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l -e \"@greenharness/greenrack-\" -e \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; exec npx -y @greenharness/greenrack-cli@^7 doctor'"

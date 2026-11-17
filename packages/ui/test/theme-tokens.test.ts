@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {validateTokens} from '@duro-app/tokens/theme'
+import {validateTokens} from '@greenharness/greenrack-tokens/theme'
 import {
   mergeOverrides,
   ownTokens,
@@ -123,7 +123,7 @@ describe('overrideRule', () => {
   it('emits a variable for every group, identically on repeat', () => {
     const first = overrideRule('s', tokens, variableOf)
     expect(first).toBe(
-      '[data-duro-theme="s"][data-duro-theme="s"] { --colors-bg: #1b2433; ' +
+      '[data-gr-theme="s"][data-gr-theme="s"] { --colors-bg: #1b2433; ' +
         '--shadows-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --typography-fontFamily: Menlo, monospace; ' +
         '--typeScale-displaySm: clamp(2rem, 1rem + 2vw, 3rem); --spacing-md: 20px; ' +
         '--layoutSpacing-stackMd: 1rem; --radii-md: 6px; --sizes-dialogSm: 300px; ' +
@@ -136,7 +136,7 @@ describe('overrideRule', () => {
   it('builds on the server, where there is no CSS global', () => {
     expect(typeof (globalThis as {CSS?: unknown}).CSS).toBe('undefined')
     expect(overrideRule('«r1»', {colors: {bg: '#1b2433'}}, variableOf)).toBe(
-      '[data-duro-theme="«r1»"][data-duro-theme="«r1»"] { --colors-bg: #1b2433; }',
+      '[data-gr-theme="«r1»"][data-gr-theme="«r1»"] { --colors-bg: #1b2433; }',
     )
   })
 

@@ -2,11 +2,11 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ScrollArea} from './ScrollArea'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {spacing, radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/ScrollArea',

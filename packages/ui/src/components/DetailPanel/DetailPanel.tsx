@@ -10,7 +10,7 @@ import {
   useRef,
 } from 'react'
 import {html} from 'react-strict-dom'
-import type {DurationToken} from '@duro-app/tokens/keys'
+import type {DurationToken} from '@greenharness/greenrack-tokens/keys'
 import {useOverlayOpenState} from '../../shared/useOverlayOpenState'
 import {styles} from './styles.css'
 

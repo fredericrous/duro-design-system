@@ -4,7 +4,7 @@ import {Breadcrumb} from './Breadcrumb'
 import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'
 import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import type {OnNavigate} from '../../shared/navigate'
 
 const meta: Meta = {

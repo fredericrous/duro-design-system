@@ -3,11 +3,11 @@ import {HighlightedCode} from './highlightJsx'
 import {addons, types} from 'storybook/manager-api'
 import {AddonPanel} from 'storybook/internal/components'
 
-const ADDON_ID = 'duro/ai-meta'
+const ADDON_ID = 'greenrack/ai-meta'
 const PANEL_ID = `${ADDON_ID}/panel`
-const CHANNEL_EVENT = 'duro/ai-meta/update'
+const CHANNEL_EVENT = 'greenrack/ai-meta/update'
 
-import type {ComponentMeta} from '@duro-app/ui/component-meta'
+import type {ComponentMeta} from '@greenharness/greenrack-ui/component-meta'
 
 interface RegistryProp {
   name: string
@@ -77,8 +77,8 @@ function AiMetaPanel() {
             border: '1px solid #6b5300',
           }}
         >
-          registry stale — this meta changed since the last <code>pnpm duro:registry</code>; agents
-          still see the old snapshot
+          registry stale — this meta changed since the last <code>pnpm greenrack:registry</code>;
+          agents still see the old snapshot
         </div>
       )}
       {registryEntry && (
@@ -86,7 +86,7 @@ function AiMetaPanel() {
           import {'{'}
           {registryEntry.name}
           {'}'} from '{registryEntry.importPath}'<span style={{margin: '0 8px'}}>·</span>
-          npx @duro-app/cli {registryEntry.name}
+          npx @greenharness/greenrack-cli {registryEntry.name}
         </div>
       )}
       <Section title="Description">

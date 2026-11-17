@@ -1,16 +1,16 @@
 {
-  "name": "@duro-app/tokens",
+  "name": "@greenharness/greenrack-tokens",
   "version": "0.28.0",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fredericrous/duro-design-system",
+    "url": "https://github.com/greenharness/greenrack",
     "directory": "packages/tokens"
   },
-  "homepage": "https://github.com/fredericrous/duro-design-system",
+  "homepage": "https://github.com/greenharness/greenrack",
   "bugs": {
-    "url": "https://github.com/fredericrous/duro-design-system/issues"
+    "url": "https://github.com/greenharness/greenrack/issues"
   },
   "publishConfig": {
     "access": "public"

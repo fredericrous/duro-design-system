@@ -4,7 +4,7 @@ import {repoRoot} from './project.mjs'
 
 const claudeMdPath = join(repoRoot, 'CLAUDE.md')
 
-const marker = (name, edge) => `<!-- duro:generated:${name} ${edge} -->`
+const marker = (name, edge) => `<!-- greenrack:generated:${name} ${edge} -->`
 
 function componentsRegion(registry) {
   const rows = Object.entries(registry.components)
@@ -25,7 +25,7 @@ function componentsRegion(registry) {
     '| --- | --- | --- |',
     ...rows,
     '',
-    'Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `duro_ds_lookup` MCP tool).',
+    'Full props, usage guidance and examples: `npx @greenharness/greenrack-cli <Name>` (or the `greenrack_lookup` MCP tool).',
   ].join('\n')
 }
 
@@ -54,7 +54,7 @@ function tokensRegion(registry) {
     '',
     '### Micro Spacing',
     '',
-    'Optical nudges below and between the scale (`microSpacing` from `@duro-app/tokens/tokens/spacing.css`). Not a layout choice: prefer the scale.',
+    'Optical nudges below and between the scale (`microSpacing` from `@greenharness/greenrack-tokens/tokens/spacing.css`). Not a layout choice: prefer the scale.',
     '',
     table(registry.tokens.groups.microSpacing),
     '',
@@ -72,15 +72,15 @@ function tokensRegion(registry) {
     '',
     '### Layers',
     '',
-    'The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@duro-app/tokens/keys`.',
+    'The z-index scale (`layers` from `@greenharness/greenrack-tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@greenharness/greenrack-tokens/keys`.',
     '',
-    'A floating surface picks its layer by `useInModal()` from `@duro-app/ui`, as a Popover does: `floating` outside a modal, `popover` inside a Dialog or Drawer. `floatingRaised` / `popoverRaised` are the same pair for one floating surface that must cover a sibling floating one (a link editor over a selection format bar); a Popover takes it with `<Popover.Popup raised>`, and a Popover nested in a raised one is raised too. A raised surface never covers a modal: a Dialog opened later still covers it.',
+    'A floating surface picks its layer by `useInModal()` from `@greenharness/greenrack-ui`, as a Popover does: `floating` outside a modal, `popover` inside a Dialog or Drawer. `floatingRaised` / `popoverRaised` are the same pair for one floating surface that must cover a sibling floating one (a link editor over a selection format bar); a Popover takes it with `<Popover.Popup raised>`, and a Popover nested in a raised one is raised too. A raised surface never covers a modal: a Dialog opened later still covers it.',
     '',
     table(registry.tokens.groups.layers),
     '',
     '### Effects',
     '',
-    '`effects` from `@duro-app/tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport). `surfaceBlur` frosts a surface over imagery (a pill or a chip on a photo) and follows the same rule: put it on that surface element only.',
+    '`effects` from `@greenharness/greenrack-tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport). `surfaceBlur` frosts a surface over imagery (a pill or a chip on a photo) and follows the same rule: put it on that surface element only.',
     '',
     table(registry.tokens.groups.effects),
   ].join('\n')
@@ -89,7 +89,7 @@ function tokensRegion(registry) {
 function recipesRegion(registry) {
   const index = Object.values(registry.recipes).map(
     (recipe) =>
-      `- **${recipe.name}** — ${recipe.meta.description} \`npx @duro-app/cli ${recipe.name} --source-only\``,
+      `- **${recipe.name}** — ${recipe.meta.description} \`npx @greenharness/greenrack-cli ${recipe.name} --source-only\``,
   )
   const exemplar = registry.recipes['login-form']
   return [
@@ -119,12 +119,12 @@ export function generatedRegions(registry) {
 /**
  * Splice the generated regions into CLAUDE.md between their markers. Never
  * touches anything outside the markers; hard-errors on missing or duplicated
- * markers, and refuses to operate on a region that overlaps duro:rules.
+ * markers, and refuses to operate on a region that overlaps greenrack:rules.
  */
 export function spliceDocs(registry, {write}) {
   const original = readFileSync(claudeMdPath, 'utf8')
-  const rulesStart = original.indexOf('<!-- duro:rules:start -->')
-  const rulesEnd = original.indexOf('<!-- duro:rules:end -->')
+  const rulesStart = original.indexOf('<!-- greenrack:rules:start -->')
+  const rulesEnd = original.indexOf('<!-- greenrack:rules:end -->')
   let updated = original
 
   for (const [name, content] of Object.entries(generatedRegions(registry))) {
@@ -142,7 +142,9 @@ export function spliceDocs(registry, {write}) {
     }
     if (end < start) throw new Error(`CLAUDE.md ${name} markers are reversed`)
     if (rulesStart !== -1 && start < rulesEnd && end > rulesStart) {
-      throw new Error(`refusing to write: generated region ${name} overlaps the duro:rules region`)
+      throw new Error(
+        `refusing to write: generated region ${name} overlaps the greenrack:rules region`,
+      )
     }
     updated =
       updated.slice(0, start + startMarker.length) + '\n\n' + content + '\n\n' + updated.slice(end)

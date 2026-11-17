@@ -17,7 +17,7 @@ export const HostRegistryContext = createContext<HostRegistry | null>(null)
 
 function useHostRegistry(component: string): HostRegistry {
   const registry = useContext(HostRegistryContext)
-  if (!registry) throw new Error(`${component} must be rendered inside a Duro ThemeProvider`)
+  if (!registry) throw new Error(`${component} must be rendered inside a greenrack ThemeProvider`)
   return registry
 }
 
@@ -46,7 +46,7 @@ interface PortalHostProps {
 
 /**
  * Where passive overlays (toasts) draw on native. The ThemeProvider draws the
- * root host and each open Duro Modal draws its own; mount one inside a
+ * root host and each open greenrack Modal draws its own; mount one inside a
  * natively presented route (`presentation: 'modal'`), or toasts raised there
  * draw behind it.
  */
@@ -69,7 +69,7 @@ export function PortalHost({placement = 'presented'}: PortalHostProps) {
 }
 
 interface PortalProps {
-  /** Numeric layer from `LAYERS` in `@duro-app/tokens/keys`. */
+  /** Numeric layer from `LAYERS` in `@greenharness/greenrack-tokens/keys`. */
   layer: number
   /** `top` (default): above an open Modal, like a toast. `base`: below one, like a non-modal pane. */
   host?: 'base' | 'top'
@@ -78,7 +78,7 @@ interface PortalProps {
 
 /**
  * Draws its children in the top host (the default), above the app and every open
- * Duro Modal, or in the base host (`host="base"`), below every Modal, as a
+ * greenrack Modal, or in the base host (`host="base"`), below every Modal, as a
  * non-modal pane. The children keep the source's theme and resolved colours; no other
  * context crosses, so pass data, not components that read the app's contexts.
  */

@@ -2,12 +2,12 @@ import {readFileSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
 import {describe, expect, it} from 'vitest'
 // The token stylesheet built from the token sources, as the registry builds
-// it: the same --duro-* names as dist/vars.css, without needing a build.
+// it: the same --gr-* names as dist/vars.css, without needing a build.
 import {buildMockupCss} from '../../tokens/scripts/lib/mockup-css.mjs'
 
 // Prose ships as plain CSS (StyleX cannot write descendant rules), so the
 // every-measure-is-a-token lint never sees it. This is that check: the
-// source holds no raw length and no raw colour, only var(--duro-*). A zero
+// source holds no raw length and no raw colour, only var(--gr-*). A zero
 // length is allowed (ADR-0027: raw 0), as a var() fallback needs a unit.
 const RAW = /\b(?!0(?:px|rem)\b)\d*\.?\d+(px|rem)\b|#[0-9a-fA-F]{3,8}\b|rgb\(/g
 
@@ -27,33 +27,33 @@ describe('prose.css', () => {
   it("lands a heading jump below AppShell's bar", () => {
     // Prose headings add the bar's height AppShell publishes; 0px elsewhere.
     expect(withoutComments(prose)).toMatch(
-      /scroll-margin-top:\s*calc\(var\(--duro-spacing-lg\)\s*\+\s*var\(--duro-app-shell-bar,\s*0px\)\)/,
+      /scroll-margin-top:\s*calc\(var\(--gr-spacing-lg\)\s*\+\s*var\(--gr-app-shell-bar,\s*0px\)\)/,
     )
   })
 
-  it('only reads custom properties Duro publishes', () => {
+  it('only reads custom properties greenrack publishes', () => {
     // dist/vars.css publishes all of these but the breakpoints (a query cannot read a var)
     const published = new Set(
-      (tokenBlock.match(/--duro-[\w-]+(?=:)/g) ?? []).filter(
-        (n) => !n.startsWith('--duro-breakpoint-'),
+      (tokenBlock.match(/--gr-[\w-]+(?=:)/g) ?? []).filter(
+        (n) => !n.startsWith('--gr-breakpoint-'),
       ),
     )
     // AppShell sets this one itself (below its collapse point), not the token sheet.
-    const setByAppShell = new Set(['--duro-app-shell-bar'])
+    const setByAppShell = new Set(['--gr-app-shell-bar'])
     // var(--x) and var(--x, fallback) alike
     const used = [...new Set([...prose.matchAll(/var\((--[\w-]+)[,)]/g)].map((m) => m[1]!))]
     expect(used.length).toBeGreaterThan(10)
-    expect(used).toContain('--duro-app-shell-bar')
+    expect(used).toContain('--gr-app-shell-bar')
     expect(used.filter((name) => !published.has(name) && !setByAppShell.has(name))).toEqual([])
   })
 
-  it('scopes every rule under :where() inside the duro-prose layer', () => {
+  it('scopes every rule under :where() inside the gr-prose layer', () => {
     const body = withoutComments(prose)
-    expect(body).toMatch(/@layer reset, duro-prose;/)
+    expect(body).toMatch(/@layer reset, gr-prose;/)
     const selectors = [...body.matchAll(/^\s*([^@{}\n][^{}]*)\{/gm)].map((m) => m[1]!.trim())
     expect(selectors.length).toBeGreaterThan(10)
     for (const selector of selectors) {
-      expect(selector.startsWith(':where(.duro-prose, [data-duro-prose])')).toBe(true)
+      expect(selector.startsWith(':where(.gr-prose, [data-gr-prose])')).toBe(true)
     }
   })
 

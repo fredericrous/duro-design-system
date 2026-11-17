@@ -11,8 +11,8 @@ import {
   useState,
 } from 'react'
 import {html} from 'react-strict-dom'
-import {SIZES_PX, SPACING_PX, type SizeToken} from '@duro-app/tokens/keys'
-import type {Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
+import {SIZES_PX, SPACING_PX, type SizeToken} from '@greenharness/greenrack-tokens/keys'
+import type {Breakpoint} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 import {useContainerBelow} from '../../hooks/useContainerBelow'
 import {styles} from './styles.css'
 

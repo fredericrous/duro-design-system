@@ -1,8 +1,8 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii} from '@duro-app/tokens/tokens/spacing.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {duration, easing} from '@greenharness/greenrack-tokens/tokens/motion.css'
 
 // Direction "Underlined" (docs/mockups/text-link/Underlined.dc.html): the
 // underline is always there, so colour is never the only cue (WCAG F73).

@@ -10,8 +10,8 @@ import {RadioGroup} from '../RadioGroup/RadioGroup'
 import {Checkbox} from '../Checkbox/Checkbox'
 import {Stack} from '../Stack/Stack'
 import {Fieldset} from '../Fieldset/Fieldset'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/Field',

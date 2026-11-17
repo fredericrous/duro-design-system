@@ -1,5 +1,14 @@
 import {useState} from 'react'
-import {Button, Card, ConfirmDialog, Dialog, Icon, Inline, Text, ThemeProvider} from '@duro-app/ui'
+import {
+  Button,
+  Card,
+  ConfirmDialog,
+  Dialog,
+  Icon,
+  Inline,
+  Text,
+  ThemeProvider,
+} from '@greenharness/greenrack-ui'
 
 /** Checkpoint A scenarios: a Dialog, a nested theme inside it, ConfirmDialog's phrase input. */
 export function DialogDemo({label}: {label: string}) {

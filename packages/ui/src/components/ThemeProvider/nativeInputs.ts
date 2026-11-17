@@ -1,5 +1,5 @@
-import {THEMABLE_GROUPS} from '@duro-app/tokens/theme'
-import type {ThemableGroup} from '@duro-app/tokens/theme'
+import {THEMABLE_GROUPS} from '@greenharness/greenrack-tokens/theme'
+import type {ThemableGroup} from '@greenharness/greenrack-tokens/theme'
 import type {ColorOverrides, EffectiveOverrides} from './overrides'
 
 /** `"JetBrains Mono", monospace` → `JetBrains Mono`: native takes one family, unquoted. */

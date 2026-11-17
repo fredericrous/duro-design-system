@@ -100,7 +100,7 @@ export const CapsItsHeight: Story = {
     const inPopup = within(popup)
     const shortRows = inPopup
       .getByRole('group', {name: 'Repositories'})
-      .querySelector<HTMLElement>('[data-duro-stepped-rows]')!
+      .querySelector<HTMLElement>('[data-gr-stepped-rows]')!
     const cap = parseFloat(getComputedStyle(shortRows).maxHeight)
     await expect(cap).toBeGreaterThan(0)
     // Two rows fit under the cap: the step is as tall as they are.
@@ -110,7 +110,7 @@ export const CapsItsHeight: Story = {
     await userEvent.click(inPopup.getByRole('button', {name: 'duro'}))
     const longRows = (
       await inPopup.findByRole('group', {name: 'Branches'})
-    ).querySelector<HTMLElement>('[data-duro-stepped-rows]')!
+    ).querySelector<HTMLElement>('[data-gr-stepped-rows]')!
     await expect(longRows.clientHeight).toBeLessThanOrEqual(cap)
     await expect(longRows.scrollHeight).toBeGreaterThan(longRows.clientHeight)
   },

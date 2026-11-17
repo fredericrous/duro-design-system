@@ -1,8 +1,8 @@
 import {addons} from 'storybook/preview-api'
-import type {ComponentMeta} from '@duro-app/ui/component-meta'
+import type {ComponentMeta} from '@greenharness/greenrack-ui/component-meta'
 import registry from '../../../packages/cli/registry.json'
 
-const CHANNEL_EVENT = 'duro/ai-meta/update'
+const CHANNEL_EVENT = 'greenrack/ai-meta/update'
 
 /**
  * Live metas via import.meta.glob — HMR keeps the panel instant while a
@@ -39,7 +39,7 @@ export interface AiMetaPayload {
   meta: ComponentMeta | null
   /** The committed registry entry — what agents actually get (props included). */
   registryEntry: (typeof registry.components)[keyof typeof registry.components] | null
-  /** Live meta differs from the registry snapshot — pnpm duro:registry. */
+  /** Live meta differs from the registry snapshot — pnpm greenrack:registry. */
   registryStale: boolean
 }
 

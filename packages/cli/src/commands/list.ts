@@ -8,7 +8,7 @@ const KINDS = new Set(['components', 'recipes', 'tokens', 'guides'])
 export function runList(registry: Registry, kind?: string): CommandResult {
   if (kind !== undefined && !KINDS.has(kind)) {
     return {
-      text: `duro list: unknown kind "${kind}" — expected components | recipes | tokens | guides`,
+      text: `greenrack list: unknown kind "${kind}" — expected components | recipes | tokens | guides`,
       data: {kind: 'usage-error'},
       exitCode: 2,
     }

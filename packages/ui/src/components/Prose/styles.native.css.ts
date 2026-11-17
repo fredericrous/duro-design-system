@@ -1,6 +1,6 @@
 import {css} from 'react-strict-dom'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
 
 export const styles = css.create({
   // One column at reading width, one gap between blocks.

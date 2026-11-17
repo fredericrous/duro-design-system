@@ -17,7 +17,9 @@ vi.mock('react-strict-dom', () => ({
 vi.mock('../src/components/CodeBlock/styles.css', () => ({
   styles: new Proxy({}, {get: (_t, k) => ({name: String(k)})}),
 }))
-vi.mock('@duro-app/tokens/tokens/type-presets.css', () => ({typePresets: {code: {name: 'code'}}}))
+vi.mock('@greenharness/greenrack-tokens/tokens/type-presets.css', () => ({
+  typePresets: {code: {name: 'code'}},
+}))
 vi.mock('../src/components/Button/Button', () => ({Button: tag('button')}))
 vi.mock('../src/components/LiveRegion/LiveRegion', () => ({LiveRegion: tag('div')}))
 

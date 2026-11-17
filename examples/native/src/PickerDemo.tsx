@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {Combobox, Listbox, Select, Slider, Stack, Text} from '@duro-app/ui'
+import {Combobox, Listbox, Select, Slider, Stack, Text} from '@greenharness/greenrack-ui'
 
 const MODELS = [
   'claude-opus-5-5',

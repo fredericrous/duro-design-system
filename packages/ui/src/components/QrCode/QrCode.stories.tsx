@@ -1,7 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 import {QrCode} from './QrCode'
 
 const styles = css.create({

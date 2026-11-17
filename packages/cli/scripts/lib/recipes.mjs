@@ -51,7 +51,7 @@ export function extractRecipes(project, components) {
         const named = importDecl.getNamedImports().map((namedImport) => namedImport.getName())
         usesComponents.push(...named.filter((name) => components[name]))
         for (const name of named) {
-          const target = components[name]?.importPath ?? '@duro-app/ui'
+          const target = components[name]?.importPath ?? '@greenharness/greenrack-ui'
           const group = perPath.get(target) ?? []
           group.push(name)
           perPath.set(target, group)
@@ -64,7 +64,7 @@ export function extractRecipes(project, components) {
         specifier !== 'react' &&
         !specifier.startsWith('react/')
       ) {
-        if (specifier !== 'react-strict-dom' && !specifier.startsWith('@duro-app/')) {
+        if (specifier !== 'react-strict-dom' && !specifier.startsWith('@greenharness/greenrack-')) {
           peerDeps.add(
             specifier.startsWith('@')
               ? specifier.split('/').slice(0, 2).join('/')

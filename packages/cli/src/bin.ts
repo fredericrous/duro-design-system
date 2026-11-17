@@ -8,7 +8,7 @@ import {runContext} from './commands/context.js'
 import {extensionPointer} from './extension-pointer.js'
 import {runMockup} from './commands/mockup.js'
 import {runSkill} from './commands/skill.js'
-import {runDoctor, uiVersionSkew} from './commands/doctor.js'
+import {runDoctor, SCOPES, uiVersionSkew} from './commands/doctor.js'
 import {runManifest, cliVersion} from './commands/manifest.js'
 
 function emit(result: CommandResult, json: boolean): never {
@@ -26,7 +26,7 @@ function emit(result: CommandResult, json: boolean): never {
 
 function usageError(message: string): never {
   process.stderr.write(
-    `${message}\nUsage: duro <name|list|manifest|hook|skill|context|mockup|doctor|mcp> [flags] — duro manifest for details\n`,
+    `${message}\nUsage: greenrack <name|list|manifest|hook|skill|context|mockup|doctor|mcp> [flags] — greenrack manifest for details\n`,
   )
   process.exit(2)
 }
@@ -60,7 +60,7 @@ async function main(): Promise<void> {
       },
     })
   } catch (error) {
-    usageError(`duro: ${error instanceof Error ? error.message : String(error)}`)
+    usageError(`greenrack: ${error instanceof Error ? error.message : String(error)}`)
   }
   const {values, positionals} = parsed
 
@@ -78,10 +78,10 @@ async function main(): Promise<void> {
   // reports the same skew as one of its findings instead, and mockup under the
   // findings it may explain (an unknown-component newer than the checker).
   if (!values.json && first !== 'doctor' && first !== 'mockup') {
-    const skew = uiVersionSkew(process.cwd())
+    const skew = uiVersionSkew(process.cwd(), SCOPES)
     if (skew) {
       process.stderr.write(
-        `duro: docs are for @duro-app/ui@${skew.own}, you have ${skew.installed} — npm i -D @duro-app/cli@${skew.installed}\n`,
+        `greenrack: docs are for @greenharness/greenrack-ui@${skew.own}, you have ${skew.ui}@${skew.installed} — npm i -D ${skew.cli}@${skew.installed}\n`,
       )
     }
   }
@@ -93,23 +93,24 @@ async function main(): Promise<void> {
     emit(runManifest(registry), values.json)
   }
   if (first === 'list') {
-    if (rest.length > 1) usageError('duro list takes at most one kind')
+    if (rest.length > 1) usageError('greenrack list takes at most one kind')
     emit(runList(registry, rest[0]), values.json)
   }
   if (first === 'hook') {
-    if (rest.length > 1) usageError('duro hook takes exactly one event')
+    if (rest.length > 1) usageError('greenrack hook takes exactly one event')
     const hookResult = runHook(registry, rest[0], {check: values.check})
     if (rest[0] === 'install') pointToExtension()
     emit(hookResult, values.json)
   }
   if (first === 'skill') {
-    if (rest.length > 1) usageError('duro skill takes exactly one action')
+    if (rest.length > 1) usageError('greenrack skill takes exactly one action')
     const skillResult = runSkill(rest[0], {check: values.check, force: values.force})
     if (rest[0] === 'install') pointToExtension()
     emit(skillResult, values.json)
   }
   if (first === 'context') {
-    if (rest.length > 0) usageError('duro context takes no arguments — run it from the repo root')
+    if (rest.length > 0)
+      usageError('greenrack context takes no arguments — run it from the repo root')
     emit(runContext(registry, {catalogOnly: values['catalog-only']}), values.json)
   }
   if (first === 'mockup') {
@@ -126,7 +127,8 @@ async function main(): Promise<void> {
     )
   }
   if (first === 'doctor') {
-    if (rest.length > 0) usageError('duro doctor takes no arguments — run it from the package root')
+    if (rest.length > 0)
+      usageError('greenrack doctor takes no arguments — run it from the package root')
     emit(runDoctor({session: values.session}), values.json)
   }
   if (first === 'mcp') {
@@ -149,6 +151,6 @@ async function main(): Promise<void> {
 
 main().catch((error: unknown) => {
   const exitCode = (error as {exitCode?: number}).exitCode ?? 1
-  process.stderr.write(`duro: ${error instanceof Error ? error.message : String(error)}\n`)
+  process.stderr.write(`greenrack: ${error instanceof Error ? error.message : String(error)}\n`)
   process.exit(exitCode)
 })

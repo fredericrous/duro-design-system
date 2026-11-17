@@ -45,7 +45,7 @@ const RELEASE_NOTES = `
   <li>A small <code>Menu.Trigger</code> in a toolbar no longer shrinks.</li>
   <li>Toggle and Button share one small padding.</li>
 </ul>
-<blockquote><p>Upgrade with <code>pnpm add @duro-app/ui@5.6.0</code>.</p></blockquote>
+<blockquote><p>Upgrade with <code>pnpm add @greenharness/greenrack-ui@5.6.0</code>.</p></blockquote>
 `
 
 const REFERENCE = `
@@ -136,7 +136,7 @@ export const Playground: Story = {}
 export const RenderedMarkdown: Story = {
   tags: TEST_ONLY,
   play: async ({canvasElement}) => {
-    const prose = canvasElement.querySelector('[data-duro-prose]') as HTMLElement
+    const prose = canvasElement.querySelector('[data-gr-prose]') as HTMLElement
     await waitFor(() => expect(prose.querySelector('h2')).not.toBeNull())
     const q = (selector: string) => prose.querySelector(selector) as HTMLElement
 
@@ -162,14 +162,14 @@ export const RenderedMarkdown: Story = {
     await expect(style(q('td')).borderLeftWidth).toBe('0px')
     await expect(style(q('th')).borderTopWidth).toBe('0px')
     await expect(style(q('th')).fontWeight).toBe('500')
-    await expect(style(q('th')).color).toBe(resolved('color', '--duro-color-text-muted', prose))
+    await expect(style(q('th')).color).toBe(resolved('color', '--gr-color-text-muted', prose))
     await expect(style(q('td')).paddingLeft).toBe('8px')
     // code: monospace inline and in a block
     await expect(style(q('p code')).fontFamily).toMatch(/mono|Menlo|Consolas|monospace/i)
     await expect(style(q('pre')).overflowX).toBe('auto')
     await expect(style(q('pre code')).borderTopWidth).toBe('0px')
     // links read as links
-    await expect(style(q('a')).color).toBe(resolved('color', '--duro-color-accent', prose))
+    await expect(style(q('a')).color).toBe(resolved('color', '--gr-color-accent', prose))
     await expect(style(q('a')).textDecorationLine).toBe('underline')
     await expect(style(q('blockquote')).borderLeftWidth).toBe('3px')
     await expect(style(q('img')).maxWidth).toBe('100%')
@@ -178,13 +178,13 @@ export const RenderedMarkdown: Story = {
 
 /**
  * An app's own CSS wins over every Prose rule: a CSS Module class and even a
- * bare element selector, loaded after Duro's stylesheet. Prose sits in its
+ * bare element selector, loaded after greenrack's stylesheet. Prose sits in its
  * own cascade layer and weighs nothing (:where()).
  */
 export const AppCssWins: Story = {
   tags: TEST_ONLY,
   play: async ({canvasElement}) => {
-    const prose = canvasElement.querySelector('[data-duro-prose]') as HTMLElement
+    const prose = canvasElement.querySelector('[data-gr-prose]') as HTMLElement
     await waitFor(() => expect(prose.querySelector('h2')).not.toBeNull())
     const h2 = prose.querySelector('h2') as HTMLElement
     const h3 = prose.querySelector('h3') as HTMLElement
@@ -205,8 +205,8 @@ export const AppCssWins: Story = {
   },
 }
 
-/** A Duro component inside Prose keeps its own styles: Prose is below them. */
-export const DuroComponentsInside: Story = {
+/** A greenrack component inside Prose keeps its own styles: Prose is below them. */
+export const GreenrackComponentsInside: Story = {
   render: () => (
     <Prose>
       <Heading level={2} variant="headingLg">
@@ -214,15 +214,15 @@ export const DuroComponentsInside: Story = {
       </Heading>
       <Text>A paragraph from Text.</Text>
       <CodeBlock copyLabel="Copy" copiedLabel="Copied">
-        pnpm add @duro-app/ui
+        pnpm add @greenharness/greenrack-ui
       </CodeBlock>
     </Prose>
   ),
 }
 
-/** DuroComponentsInside's checks, kept off the visible story so a Control change cannot fail them. */
-export const DuroComponentsInsideChecks: Story = {
-  ...DuroComponentsInside,
+/** GreenrackComponentsInside's checks, kept off the visible story so a Control change cannot fail them. */
+export const GreenrackComponentsInsideChecks: Story = {
+  ...GreenrackComponentsInside,
   tags: TEST_ONLY,
   play: async ({canvas}) => {
     const heading = canvas.getByRole('heading', {level: 2, name: 'Kept at headingLg'})
@@ -231,7 +231,9 @@ export const DuroComponentsInsideChecks: Story = {
     await expect(canvas.getByRole('button', {name: 'Copy'})).toBeVisible()
     // CodeBlock draws one block: Prose's own pre rule must not add a second
     // border, background or rounded top inside it
-    const pre = canvas.getByText('pnpm add @duro-app/ui').closest('pre') as HTMLElement
+    const pre = canvas
+      .getByText('pnpm add @greenharness/greenrack-ui')
+      .closest('pre') as HTMLElement
     await expect(style(pre).borderTopWidth).toBe('0px')
     await expect(style(pre).borderLeftWidth).toBe('0px')
     await expect(style(pre).backgroundColor).toBe('rgba(0, 0, 0, 0)')

@@ -6,10 +6,10 @@ import {ActionBar} from './ActionBar'
 import {Button} from '../Button/Button'
 import {Checkbox} from '../Checkbox/Checkbox'
 import {Table} from '../Table/Table'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 interface ActionBarStoryArgs {
   onClearSelection: () => void

@@ -10,7 +10,7 @@ import {
   Tag,
   Text,
   Tree,
-} from '@duro-app/ui'
+} from '@greenharness/greenrack-ui'
 
 /**
  * Checkpoint B for the navigation parts: the AppShell's phone shape (bar,

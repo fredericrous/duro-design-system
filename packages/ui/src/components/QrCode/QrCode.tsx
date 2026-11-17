@@ -1,6 +1,6 @@
 import {useMemo} from 'react'
 import {html} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
 import {qrGeometry} from './geometry'
 import {resolveLength} from '../../shared/length'
 import {styles} from './styles.css'

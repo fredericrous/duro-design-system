@@ -3,7 +3,7 @@ import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Tooltip} from './Tooltip'
 import {Badge} from '../Badge/Badge'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
 
 const meta: Meta = {
   title: 'Components/Tooltip',

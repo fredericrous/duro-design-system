@@ -1,11 +1,11 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
-import {shadows} from '@duro-app/tokens/tokens/shadows.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {layers} from '@duro-app/tokens/tokens/layers.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {duration, easing} from '@greenharness/greenrack-tokens/tokens/motion.css'
+import {shadows} from '@greenharness/greenrack-tokens/tokens/shadows.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {layers} from '@greenharness/greenrack-tokens/tokens/layers.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
 
 export const styles = css.create({
   // The item is the drag handle: no browser panning starts on it, so a touch

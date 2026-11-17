@@ -1,1 +1,1 @@
-export type {ComponentMeta} from '@duro-app/ui/component-meta'
+export type {ComponentMeta} from '@greenharness/greenrack-ui/component-meta'

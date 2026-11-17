@@ -7,7 +7,7 @@ import babel from 'vite-plugin-babel'
 export default defineConfig({
   build: {
     lib: {
-      name: 'DuroTokens',
+      name: 'GreenrackTokens',
       entry: {
         index: './src/index.ts',
         raw: './src/raw.ts',

@@ -1,5 +1,5 @@
 /**
- * `@duro-app/ui/table` — the TanStack-aware half of the table.
+ * `@greenharness/greenrack-ui/table` — the TanStack-aware half of the table.
  *
  * Everything here reaches `@tanstack/react-table`, which is a peer dependency
  * a consumer only has if they asked for it. Keeping it out of the package root
@@ -11,8 +11,8 @@
  * `Table` exported here is the root's object with the TanStack pieces
  * attached, so migrating is one import line and no call sites change:
  *
- *   -import {Table, useDataTable} from '@duro-app/ui'
- *   +import {Table, useDataTable} from '@duro-app/ui/table'
+ *   -import {Table, useDataTable} from '@greenharness/greenrack-ui'
+ *   +import {Table, useDataTable} from '@greenharness/greenrack-ui/table'
  *
  * Plain `<Table.Root>` users need nothing — that stays on the package root.
  */

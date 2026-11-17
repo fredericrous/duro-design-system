@@ -1,6 +1,6 @@
 import {useCallback, useRef} from 'react'
 import {html} from 'react-strict-dom'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import {useTagGroup} from '../TagGroup/TagGroupContext'
 import {styles} from './styles.css'
 import {RemoveGlyph} from './RemoveGlyph'

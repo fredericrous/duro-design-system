@@ -12,7 +12,7 @@ import {
   TextLink,
   Tree,
   type OnNavigate,
-} from '@duro-app/ui'
+} from '@greenharness/greenrack-ui'
 
 /**
  * Device checkpoint for the 5.17.0 native links (plan

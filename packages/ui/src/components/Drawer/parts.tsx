@@ -7,7 +7,7 @@ import {
   useContext,
 } from 'react'
 import {html} from 'react-strict-dom'
-import type {DurationToken} from '@duro-app/tokens/keys'
+import type {DurationToken} from '@greenharness/greenrack-tokens/keys'
 import {partStyles} from './parts.css'
 import type {SideSnapPoint, SnapPoint} from './sheetPhysics'
 

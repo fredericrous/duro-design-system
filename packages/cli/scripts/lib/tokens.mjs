@@ -115,41 +115,49 @@ export function extractTokens(project) {
 
   return {
     groups: {
-      spacing: scaleGroup('@duro-app/tokens/tokens/spacing.css', 'spacing', spacing),
-      radii: scaleGroup('@duro-app/tokens/tokens/spacing.css', 'radii', radii),
-      microSpacing: scaleGroup('@duro-app/tokens/tokens/spacing.css', 'microSpacing', microSpacing),
-      sizes: scaleGroup('@duro-app/tokens/tokens/sizes.css', 'sizes', sizes),
-      borders: scaleGroup('@duro-app/tokens/tokens/borders.css', 'borders', borders),
-      layers: scaleGroup('@duro-app/tokens/tokens/layers.css', 'layers', layers),
-      effects: scaleGroup('@duro-app/tokens/tokens/effects.css', 'effects', effects),
-      shadows: scaleGroup('@duro-app/tokens/tokens/shadows.css', 'shadows', shadows),
+      spacing: scaleGroup('@greenharness/greenrack-tokens/tokens/spacing.css', 'spacing', spacing),
+      radii: scaleGroup('@greenharness/greenrack-tokens/tokens/spacing.css', 'radii', radii),
+      microSpacing: scaleGroup(
+        '@greenharness/greenrack-tokens/tokens/spacing.css',
+        'microSpacing',
+        microSpacing,
+      ),
+      sizes: scaleGroup('@greenharness/greenrack-tokens/tokens/sizes.css', 'sizes', sizes),
+      borders: scaleGroup('@greenharness/greenrack-tokens/tokens/borders.css', 'borders', borders),
+      layers: scaleGroup('@greenharness/greenrack-tokens/tokens/layers.css', 'layers', layers),
+      effects: scaleGroup('@greenharness/greenrack-tokens/tokens/effects.css', 'effects', effects),
+      shadows: scaleGroup('@greenharness/greenrack-tokens/tokens/shadows.css', 'shadows', shadows),
       motion: {
-        importPath: '@duro-app/tokens/tokens/motion.css',
+        importPath: '@greenharness/greenrack-tokens/tokens/motion.css',
         exportName: 'duration, easing',
         entries: [
           ...Object.entries(duration).map(([key, value]) => ({key: `duration.${key}`, value})),
           ...Object.entries(easing).map(([key, value]) => ({key: `easing.${key}`, value})),
         ],
       },
-      iconSizes: scaleGroup('@duro-app/tokens/keys', 'ICON_SIZES', iconSizes),
-      typography: scaleGroup('@duro-app/tokens/tokens/typography.css', 'typography', typography),
+      iconSizes: scaleGroup('@greenharness/greenrack-tokens/keys', 'ICON_SIZES', iconSizes),
+      typography: scaleGroup(
+        '@greenharness/greenrack-tokens/tokens/typography.css',
+        'typography',
+        typography,
+      ),
       typePresets: {
-        importPath: '@duro-app/tokens/tokens/type-presets.css',
+        importPath: '@greenharness/greenrack-tokens/tokens/type-presets.css',
         exportName: 'typePresets',
         entries: typePresetKeys.map((key) => ({key})),
       },
       layoutSpacing: scaleGroup(
-        '@duro-app/tokens/tokens/layout-spacing.css',
+        '@greenharness/greenrack-tokens/tokens/layout-spacing.css',
         'layoutSpacing',
         layoutSpacing,
       ),
       breakpoints: scaleGroup(
-        '@duro-app/tokens/tokens/breakpoints.css',
+        '@greenharness/greenrack-tokens/tokens/breakpoints.css',
         'breakpointsPx',
         breakpoints,
       ),
       colors: {
-        importPath: '@duro-app/tokens/tokens/colors.css',
+        importPath: '@greenharness/greenrack-tokens/tokens/colors.css',
         exportName: 'colors',
         entries: Object.keys(dark).map((key) => ({
           key,

@@ -36,7 +36,7 @@ describe('prop extraction goldens', () => {
 
   it('the table subpath merge carries the TanStack pieces', () => {
     const merged = registry.components['Table (ui/table)']
-    expect(merged.importPath).toBe('@duro-app/ui/table')
+    expect(merged.importPath).toBe('@greenharness/greenrack-ui/table')
     expect(Object.keys(merged.parts!)).toEqual(
       expect.arrayContaining(['Root', 'FromTanstack', 'Pagination', 'SortChip']),
     )

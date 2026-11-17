@@ -1,11 +1,11 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {css, html} from 'react-strict-dom'
 import {Cluster} from './Cluster'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {SPACING_KEYS} from '@duro-app/tokens/keys'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing, radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {SPACING_KEYS} from '@greenharness/greenrack-tokens/keys'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta<typeof Cluster> = {
   title: 'Layout/Cluster',

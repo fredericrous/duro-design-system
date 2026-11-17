@@ -16,7 +16,7 @@ import {
 
 const bin = fileURLToPath(new URL('../dist/bin.js', import.meta.url))
 
-const PKG = JSON.stringify({name: 'app', dependencies: {'@duro-app/ui': '^3.0.0'}})
+const PKG = JSON.stringify({name: 'app', dependencies: {'@greenharness/greenrack-ui': '^3.0.0'}})
 
 /** A consumer wired the way customer-vision is: stylesheet first, extraction layered. */
 const HEALTHY: Record<string, string> = {
@@ -24,8 +24,8 @@ const HEALTHY: Record<string, string> = {
   'vite.config.ts': `export default {plugins: [stylex({runtimeInjection: false})]}\n`,
   'postcss.config.mjs': `export default {plugins: {'react-strict-dom/postcss-plugin': {include: ['app/**']}}}\n`,
   'app/root.tsx': [
-    `import {spacing} from '@duro-app/tokens/tokens/spacing.css'`,
-    `import '@duro-app/ui/dist/index.css'`,
+    `import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'`,
+    `import '@greenharness/greenrack-ui/dist/index.css'`,
     `import './styles/global.css'`,
     `import './styles/strict.css'`,
     '',
@@ -35,7 +35,7 @@ const HEALTHY: Record<string, string> = {
 }
 
 function app(files: Record<string, string>, base = HEALTHY): string {
-  const root = mkdtempSync(join(tmpdir(), 'duro-doctor-'))
+  const root = mkdtempSync(join(tmpdir(), 'greenrack-doctor-'))
   for (const [path, content] of Object.entries({...base, ...files})) {
     mkdirSync(dirname(join(root, path)), {recursive: true})
     writeFileSync(join(root, path), content)
@@ -46,7 +46,7 @@ function app(files: Record<string, string>, base = HEALTHY): string {
 const findings = (root: string) =>
   (runDoctor({cwd: root}).data as {findings: DoctorFinding[]}).findings
 
-describe('duro doctor', () => {
+describe('greenrack doctor', () => {
   it('passes a correctly wired app, and says nothing in session mode', () => {
     const root = app({})
     const result = runDoctor({cwd: root})
@@ -129,7 +129,7 @@ describe('duro doctor', () => {
 
   it('fails when the entry never imports the stylesheet — a .css.ts token import does not count', () => {
     const root = app({
-      'app/root.tsx': `import {spacing} from '@duro-app/tokens/tokens/spacing.css'\nimport './styles/global.css'\n`,
+      'app/root.tsx': `import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'\nimport './styles/global.css'\n`,
     })
     expect(findings(root)).toEqual([
       expect.objectContaining({rule: 'css-imported', severity: 'error', file: 'app/root.tsx'}),
@@ -138,14 +138,14 @@ describe('duro doctor', () => {
 
   it('accepts the stylesheet as a ?url import', () => {
     const root = app({
-      'app/root.tsx': `import duro from '@duro-app/ui/dist/index.css?url'\nimport './styles/strict.css'\n`,
+      'app/root.tsx': `import greenrack from '@greenharness/greenrack-ui/dist/index.css?url'\nimport './styles/strict.css'\n`,
     })
     expect(findings(root)).toEqual([])
   })
 
   it('fails when app CSS declares the priority layers before reset', () => {
     const root = app({
-      'app/root.tsx': `import './styles/strict.css'\nimport '@duro-app/ui/dist/index.css'\n`,
+      'app/root.tsx': `import './styles/strict.css'\nimport '@greenharness/greenrack-ui/dist/index.css'\n`,
     })
     expect(findings(root)).toEqual([
       expect.objectContaining({
@@ -159,7 +159,7 @@ describe('duro doctor', () => {
 
   it('accepts app CSS ahead of the stylesheet when it states the layer order first', () => {
     const root = app({
-      'app/root.tsx': `import './styles/strict.css'\nimport '@duro-app/ui/dist/index.css'\n`,
+      'app/root.tsx': `import './styles/strict.css'\nimport '@greenharness/greenrack-ui/dist/index.css'\n`,
       'app/styles/strict.css': `@layer reset, priority1, priority2, priority3, priority4, priority5;\n@react-strict-dom;\n`,
     })
     expect(findings(root)).toEqual([])
@@ -167,7 +167,7 @@ describe('duro doctor', () => {
 
   it('follows @import chains into nested stylesheets', () => {
     const root = app({
-      'app/root.tsx': `import './styles/index.css'\nimport '@duro-app/ui/dist/index.css'\n`,
+      'app/root.tsx': `import './styles/index.css'\nimport '@greenharness/greenrack-ui/dist/index.css'\n`,
       'app/styles/index.css': `@import './strict.css';\n`,
     })
     expect(findings(root)).toEqual([
@@ -193,7 +193,7 @@ describe('duro doctor', () => {
       `import stylexPlugin from '@stylexjs/babel-plugin'`,
       `const stylexBabelOpts = {runtimeInjection: false, importSources: [{from: 'react-strict-dom', as: 'css'}]}`,
       `const rsdSourceRE = /\\/react-strict-dom\\/dist\\/(web|dom)\\/[^/]+\\.js(\\?|$)/`,
-      `// @duro-app/tokens is read through the barrel (prose, not config)`,
+      `// @greenharness/greenrack-tokens is read through the barrel (prose, not config)`,
       `export default {`,
       `  optimizeDeps: {exclude: ['react-strict-dom']},`,
       `  plugins: [react({babel: {plugins: [[stylexPlugin, stylexBabelOpts]]}})],`,
@@ -210,10 +210,10 @@ describe('duro doctor', () => {
       `  plugins: [`,
       `    reactRouter(),`,
       `    babel({filter: /\\/app\\/.*\\.[jt]sx?$/, babelConfig: {presets: [preset]}}),`,
-      `    babel({filter: /node_modules\\/@duro-app\\/tokens\\/.*\\.[jt]sx?$/, babelConfig: {presets: [preset]}}),`,
+      `    babel({filter: /node_modules\\/@greenharness\\/greenrack-tokens\\/.*\\.[jt]sx?$/, babelConfig: {presets: [preset]}}),`,
       `    babel({filter: /node_modules\\/react-strict-dom/, babelConfig: {plugins: [['@stylexjs/babel-plugin', {runtimeInjection: false}]]}}),`,
       `  ],`,
-      `  ssr: {noExternal: ['react-strict-dom', '@duro-app/tokens']},`,
+      `  ssr: {noExternal: ['react-strict-dom', '@greenharness/greenrack-tokens']},`,
       `}`,
       '',
     ].join('\n')
@@ -239,7 +239,7 @@ describe('duro doctor', () => {
         'vite.config.ts': BARE_STYLEX,
         'app/components/Card.tsx': [
           `import {css} from 'react-strict-dom'`,
-          `import {spacing} from '@duro-app/tokens/tokens/spacing.css'`,
+          `import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'`,
           `export const styles = css.create({card: {padding: spacing.md}})`,
           '',
         ].join('\n'),
@@ -257,10 +257,10 @@ describe('duro doctor', () => {
     it('does not take a postcss extraction include for compiling the tokens', () => {
       const root = app({
         'vite.config.ts': DURO_APP.replace(
-          / {4}babel\(\{filter: \/node_modules\\\/@duro-app.*\n/,
+          / {4}babel\(\{filter: \/node_modules\\\/@greenharness.*\n/,
           '',
         ),
-        'postcss.config.mjs': `export default {plugins: {'react-strict-dom/postcss-plugin': {include: ['app/**', 'node_modules/@duro-app/tokens/src/**/*.ts']}}}\n`,
+        'postcss.config.mjs': `export default {plugins: {'react-strict-dom/postcss-plugin': {include: ['app/**', 'node_modules/@greenharness/greenrack-tokens/src/**/*.ts']}}}\n`,
       })
       expect(tokens(root)).toEqual([expect.objectContaining({rule: 'tokens-compiled'})])
     })
@@ -274,7 +274,7 @@ describe('duro doctor', () => {
 
     it('fails on an SSR app that compiles the tokens but does not inline them', () => {
       const root = app({
-        'vite.config.ts': DURO_APP.replace(`, '@duro-app/tokens'`, ''),
+        'vite.config.ts': DURO_APP.replace(`, '@greenharness/greenrack-tokens'`, ''),
         'app/root.tsx': `${HEALTHY['app/root.tsx']}export const s = css.create({})\n`,
       })
       expect(tokens(root)).toEqual([expect.objectContaining({severity: 'error'})])
@@ -283,12 +283,15 @@ describe('duro doctor', () => {
 
     /** DURO_APP with its noExternal list moved into a binding. */
     const withList = (binding: string) =>
-      DURO_APP.replace(`ssr: {noExternal: ['react-strict-dom', '@duro-app/tokens']},`, binding)
+      DURO_APP.replace(
+        `ssr: {noExternal: ['react-strict-dom', '@greenharness/greenrack-tokens']},`,
+        binding,
+      )
 
     it('passes an imported noExternal const when the tokens are routed through Babel', () => {
       const root = app({
         'vite.config.ts': `import {SSR_NO_EXTERNAL} from './ssr-externals'\n${withList('ssr: {noExternal: SSR_NO_EXTERNAL},')}`,
-        'ssr-externals.ts': `export const SSR_NO_EXTERNAL = ['react-strict-dom', '@duro-app/tokens']\n`,
+        'ssr-externals.ts': `export const SSR_NO_EXTERNAL = ['react-strict-dom', '@greenharness/greenrack-tokens']\n`,
       })
       expect(findings(root)).toEqual([])
       expect(runDoctor({cwd: root}).exitCode).toBeUndefined()
@@ -296,7 +299,7 @@ describe('duro doctor', () => {
 
     it('passes the {noExternal} shorthand over a local const', () => {
       const root = app({
-        'vite.config.ts': `const noExternal = ['react-strict-dom', '@duro-app/tokens']\n${withList('ssr: {noExternal},')}`,
+        'vite.config.ts': `const noExternal = ['react-strict-dom', '@greenharness/greenrack-tokens']\n${withList('ssr: {noExternal},')}`,
       })
       expect(findings(root)).toEqual([])
     })
@@ -310,7 +313,7 @@ describe('duro doctor', () => {
         expect.objectContaining({severity: 'warn', file: 'vite.config.ts', line: 12}),
       ])
       expect(tokens(root)[0]!.message).toContain('`externals`')
-      expect(tokens(root)[0]!.fix).toContain("'@duro-app/tokens' is in `externals`")
+      expect(tokens(root)[0]!.fix).toContain("'@greenharness/greenrack-tokens' is in `externals`")
       expect(result.exitCode).toBeUndefined()
       expect(result.data).toMatchObject({ok: true})
     })
@@ -320,13 +323,13 @@ describe('duro doctor', () => {
         'vite.config.ts': [
           `import stylexPlugin from '@stylexjs/babel-plugin'`,
           `import {reactRouter} from '@react-router/dev/vite'`,
-          `const noExternal = ['react-strict-dom', '@duro-app/tokens']`,
+          `const noExternal = ['react-strict-dom', '@greenharness/greenrack-tokens']`,
           `export default {plugins: [reactRouter(), stylexPlugin()], ssr: {noExternal}}`,
           '',
         ].join('\n'),
         'app/components/Card.tsx': [
           `import {css} from 'react-strict-dom'`,
-          `import {spacing} from '@duro-app/tokens/tokens/spacing.css'`,
+          `import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'`,
           `export const styles = css.create({card: {padding: spacing.md}})`,
           '',
         ].join('\n'),
@@ -426,7 +429,7 @@ describe('duro doctor', () => {
     const root = app({'vite.config.ts': `export default {runtimeInjection: true}\n`})
     const result = runDoctor({cwd: root, session: true})
     expect(result.exitCode).toBeUndefined()
-    expect(result.text).toMatch(/^DURO DOCTOR/)
+    expect(result.text).toMatch(/^GREENRACK DOCTOR/)
     expect(result.text).toContain('runtime-injection at vite.config.ts:1')
   })
 
@@ -434,14 +437,15 @@ describe('duro doctor', () => {
     const root = app({'dist/x.css': `@media (min-width: var(--bp)){a{b:c}}`})
     const past = new Date(Date.now() - 60_000)
     for (const file of Object.keys(HEALTHY)) utimesSync(join(root, file), past, past)
-    const [first] = runDoctor({cwd: root, session: true}).text.split('\n')
-    expect(first).toBe(
-      "DURO DOCTOR — 1 error in this repo's @duro-app/ui setup: breakpoint media queries never match until fixed. Fix before any styling work:",
+    const [banner, opening] = runDoctor({cwd: root, session: true}).text.split('\n')
+    expect(banner).toBe('GREENRACK DOCTOR — 1 error in @greenharness/greenrack-ui')
+    expect(opening).toBe(
+      "This repo's setup: breakpoint media queries never match until fixed. Fix before any styling work:",
     )
-    expect(first).not.toContain('spacing flattened')
+    expect(opening).not.toContain('spacing flattened')
   })
 
-  it('ignores packages that do not use @duro-app/ui', () => {
+  it('ignores packages that do not use @greenharness/greenrack-ui', () => {
     const root = app({'package.json': JSON.stringify({name: 'other'})}, {})
     expect(runDoctor({cwd: root})).toMatchObject({data: {ok: true, packages: []}})
     expect(runDoctor({cwd: root, session: true}).text).toBe('')
@@ -453,7 +457,7 @@ describe('duro doctor', () => {
         'package.json': JSON.stringify({
           name: 'lib',
           exports: './dist/index.js',
-          peerDependencies: {'@duro-app/ui': '*'},
+          peerDependencies: {'@greenharness/greenrack-ui': '*'},
         }),
       },
       {},
@@ -513,7 +517,9 @@ describe('duro doctor', () => {
 
 describe('session hook runs doctor', () => {
   it('pins doctor to the same floor as the catalog', () => {
-    expect(HOOK_SCRIPT).toContain(`npx -y @duro-app/cli@^${HOOK_MIN_CLI} doctor --session`)
+    expect(HOOK_SCRIPT).toContain(
+      `npx -y @greenharness/greenrack-cli@^${HOOK_MIN_CLI} doctor --session`,
+    )
   })
 
   it('re-runs doctor only when a file it reads changes', () => {
@@ -525,7 +531,7 @@ describe('session hook runs doctor', () => {
     const log = join(root, 'npx.log')
     writeFileSync(
       join(fakeBin, 'npx'),
-      `#!/bin/sh\ncase "$*" in\n  *doctor*) echo doctor >>"${log}"; echo "DURO DOCTOR — broken" ;;\n  *) echo catalog ;;\nesac\n`,
+      `#!/bin/sh\ncase "$*" in\n  *doctor*) echo doctor >>"${log}"; echo "GREENRACK DOCTOR — broken" ;;\n  *) echo catalog ;;\nesac\n`,
     )
     chmodSync(join(fakeBin, 'npx'), 0o755)
     const session = () =>
@@ -536,8 +542,8 @@ describe('session hook runs doctor', () => {
       })
     const runs = () => readFileSync(log, 'utf8').trim().split('\n').length
 
-    expect(session()).toBe('catalog\n\nDURO DOCTOR — broken\n')
-    expect(session()).toBe('catalog\n\nDURO DOCTOR — broken\n')
+    expect(session()).toBe('catalog\n\nGREENRACK DOCTOR — broken\n')
+    expect(session()).toBe('catalog\n\nGREENRACK DOCTOR — broken\n')
     expect(runs()).toBe(1)
     expect(readFileSync(join(root, HOOK_DOCTOR_CACHE_PATH), 'utf8')).toContain('broken')
 

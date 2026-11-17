@@ -1,9 +1,9 @@
 import {css} from 'react-strict-dom'
 import type {LayerToken} from '../keys'
 
-// The z-index scale. Values are unitless strings so `--duro-layer-*` exists
+// The z-index scale. Values are unitless strings so `--gr-layer-*` exists
 // for plain CSS; React Native takes a number, so a native overlay reads the
-// numeric LAYERS map from `@duro-app/tokens/keys` instead.
+// numeric LAYERS map from `@greenharness/greenrack-tokens/keys` instead.
 //
 // They only compete inside one stacking context. Dialog, Drawer, the popups
 // and the toast region all portal into the ThemeProvider mount (`portal`),

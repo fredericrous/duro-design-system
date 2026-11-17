@@ -8,7 +8,7 @@ export const meta: ComponentMeta = {
     'A video an app turned into an object URL from bytes it fetched',
   ],
   whenNotToUse: [
-    'A decorative or autoplaying background — Duro has none',
+    'A decorative or autoplaying background — greenrack has none',
     'An image — use an img or Prose',
   ],
   example: `<Video src={objectUrl} type="video/mp4" label={fileName} />`,

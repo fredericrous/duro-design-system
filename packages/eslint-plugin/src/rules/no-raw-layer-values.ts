@@ -6,7 +6,7 @@ import {matchesAnyGlob} from '../util/glob.js'
 type MessageIds = 'rawZIndex' | 'offScaleZIndex' | 'rawEffect' | 'replaceWithToken'
 type Options = [{factories?: string[]; exemptFiles?: string[]; localMax?: number}?]
 
-const TOKENS_PKG = '@duro-app/tokens'
+const TOKENS_PKG = '@greenharness/greenrack-tokens'
 const Z_INDEX_PROPERTIES = new Set(['zIndex'])
 const EFFECT_PROPERTIES = new Set(['backdropFilter', 'filter'])
 const BLUR_RE = /\bblur\([^)]*\)/

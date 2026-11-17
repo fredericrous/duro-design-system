@@ -10,13 +10,13 @@
 // not a contract, and inventing `var(--color-bg, #fff)` silently uses the
 // fallback forever. Both failure modes have happened.
 //
-// This publishes the durable half: `--duro-color-bg` and friends, generated
+// This publishes the durable half: `--gr-color-bg` and friends, generated
 // FROM the built tokens, so the mapping cannot drift from what StyleX actually
 // emitted. Hand-maintaining it would just move the drift somewhere quieter.
 //
 // WHY THE SELECTOR INCLUDES [data-theme]
 // A custom property's `var()` is substituted where the property is DECLARED,
-// not where it is used. Declared only on :root, `--duro-color-bg` would compute
+// not where it is used. Declared only on :root, `--gr-color-bg` would compute
 // once against the base (dark) palette and every descendant would inherit that
 // computed colour — including subtrees a ThemeProvider has themed light.
 // Re-declaring on the themed element makes it recompute there against the
@@ -79,7 +79,7 @@ for (const [group, alias] of Object.entries(GROUP_ALIASES)) {
 
   lines.push(`  /* ${group} */`)
   for (const [name, value] of entries) {
-    lines.push(`  --duro-${alias}-${kebab(name)}: ${value};`)
+    lines.push(`  --gr-${alias}-${kebab(name)}: ${value};`)
     count++
   }
 }
@@ -90,7 +90,7 @@ const css = `/*
  * Stable public names for the design tokens. The StyleX variables these point
  * at carry a build-generated hash and are not a stable API; these are.
  *
- *   .thing { background: var(--duro-color-bg-card); }
+ *   .thing { background: var(--gr-color-bg-card); }
  *
  * Declared on :root AND on every themed element, deliberately: a custom
  * property resolves its var() where it is declared, so a :root-only alias

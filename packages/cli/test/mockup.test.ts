@@ -28,7 +28,7 @@ import {
   TOKENS_START,
   tokenVariableName,
 } from '../src/commands/mockup.js'
-import {GROUP_KEYS, THEMABLE_GROUPS, type ThemableGroup} from '@duro-app/tokens/theme'
+import {GROUP_KEYS, THEMABLE_GROUPS, type ThemableGroup} from '@greenharness/greenrack-tokens/theme'
 
 const fixture = JSON.parse(
   readFileSync(
@@ -47,14 +47,14 @@ const rules = (html: string) => checkArtboard(registry, 'A.dc.html', html).map((
 /** A minimal token-clean artboard with one named control. */
 const clean = `<style>
 ${TOKENS_START}
-:root { --duro-color-bg: #0f0f0f; --duro-spacing-md: 16px; }
+:root { --gr-color-bg: #0f0f0f; --gr-spacing-md: 16px; }
 ${TOKENS_END}
-body { background: var(--duro-color-bg); padding: var(--duro-spacing-md); }
-.btn { padding: var(--duro-spacing-sm) var(--duro-spacing-md); border-radius: var(--duro-radius-sm); background: var(--duro-color-accent); cursor: pointer; }
-@media (min-width: 768px) { .row { gap: var(--duro-spacing-md); } }
+body { background: var(--gr-color-bg); padding: var(--gr-spacing-md); }
+.btn { padding: var(--gr-spacing-sm) var(--gr-spacing-md); border-radius: var(--gr-radius-sm); background: var(--gr-color-accent); cursor: pointer; }
+@media (min-width: 768px) { .row { gap: var(--gr-spacing-md); } }
 </style>
-<div class="artboard" style="width: var(--duro-mockup-canvas-width); height: var(--duro-mockup-canvas-height)">
-  <div class="btn" data-duro="Button variant=primary">Save</div>
+<div class="artboard" style="width: var(--gr-mockup-canvas-width); height: var(--gr-mockup-canvas-height)">
+  <div class="btn" data-gr="Button variant=primary">Save</div>
 </div>`
 
 describe('seedArtboard', () => {
@@ -64,7 +64,7 @@ describe('seedArtboard', () => {
     expect(html).toContain('<x-dc>')
     expect(html).toContain('<helmet>')
     expect(html.indexOf(TOKENS_START)).toBeLessThan(html.indexOf('body {'))
-    expect(html).toContain('--duro-color-bg: #0f0f0f;')
+    expect(html).toContain('--gr-color-bg: #0f0f0f;')
     expect(html).toContain(':root[data-theme="light"]')
     expect(html).not.toContain('data-theme="dark"')
   })
@@ -103,11 +103,11 @@ describe('checkArtboard', () => {
     // the root's canvas size comes through the seed's variables — not a finding.
     expect(rules(clean)).not.toContain('raw-length')
     for (const [from, to] of [
-      ['padding: var(--duro-spacing-md)', 'padding: 23px'],
-      ['border-radius: var(--duro-radius-sm)', 'border-radius: 6px'],
+      ['padding: var(--gr-spacing-md)', 'padding: 23px'],
+      ['border-radius: var(--gr-radius-sm)', 'border-radius: 6px'],
       ['cursor: pointer', 'font-size: 14px'],
       ['cursor: pointer', 'font-weight: 600'],
-      ['cursor: pointer', 'box-shadow: 0 1px 2px var(--duro-color-border)'],
+      ['cursor: pointer', 'box-shadow: 0 1px 2px var(--gr-color-border)'],
       ['cursor: pointer', 'transition: opacity 150ms'],
     ]) {
       const found = checkArtboard(registry, 'A.dc.html', clean.replace(from, to))
@@ -115,7 +115,7 @@ describe('checkArtboard', () => {
         found.map((f) => f.rule),
         `${to} should be a raw-length`,
       ).toContain('raw-length')
-      expect(found[0]?.message).toContain('var(--duro-')
+      expect(found[0]?.message).toContain('var(--gr-')
     }
     expect(rules(clean.replace('cursor: pointer', 'margin: 0'))).not.toContain('raw-length')
   })
@@ -139,14 +139,14 @@ describe('checkArtboard', () => {
     expect(
       checkArtboard(registry, 'A.dc.html', clean.replace('cursor: pointer', 'width: 44px'))[0]
         ?.message,
-    ).toContain('var(--duro-size-*)')
+    ).toContain('var(--gr-size-*)')
     // No geometry is exempt: a raw canvas size on the root is a raw length too.
-    expect(
-      rules(clean.replace('width: var(--duro-mockup-canvas-width)', 'width: 1120px')),
-    ).toContain('raw-length')
+    expect(rules(clean.replace('width: var(--gr-mockup-canvas-width)', 'width: 1120px'))).toContain(
+      'raw-length',
+    )
     for (const to of [
-      'border: var(--duro-border-hairline) solid',
-      'width: var(--duro-size-touch-target)',
+      'border: var(--gr-border-hairline) solid',
+      'width: var(--gr-size-touch-target)',
       'top: 120px',
       'left: 12px',
       'width: 100%',
@@ -170,8 +170,8 @@ describe('checkArtboard', () => {
       expect(found.find((f) => f.rule === 'raw-length')?.message).toContain('custom property')
     }
     for (const to of [
-      '--gap: var(--duro-spacing-md)',
-      '--w: calc(2 * var(--duro-size-touch-target))',
+      '--gap: var(--gr-spacing-md)',
+      '--w: calc(2 * var(--gr-size-touch-target))',
       '--ratio: 1.5',
       '--half: 50%',
       '--zero: 0px',
@@ -193,7 +193,7 @@ describe('checkArtboard', () => {
     expect(off.find((f) => f.rule === 'raw-breakpoint')?.message).toContain('480 / 640 / 768')
   })
 
-  it('validates data-duro names and parts against the registry, with suggestions', () => {
+  it('validates data-gr names and parts against the registry, with suggestions', () => {
     const unknown = checkArtboard(
       registry,
       'A.dc.html',
@@ -210,7 +210,7 @@ describe('checkArtboard', () => {
   })
 
   it('fails an artboard with no component map at all', () => {
-    expect(rules(clean.replace(' data-duro="Button variant=primary"', ''))).toEqual([
+    expect(rules(clean.replace(' data-gr="Button variant=primary"', ''))).toEqual([
       'no-component-map',
       'unannotated-control',
     ])
@@ -220,12 +220,12 @@ describe('checkArtboard', () => {
     // A canvas artboard draws controls as divs and spans: the union of every
     // rule that mentions the class decides. A hover state alone is enough.
     const html = `<style>
-.row { padding: var(--duro-spacing-sm); border-radius: var(--duro-radius-sm); }
-.row.on { background: var(--duro-color-bg-card); }
-.tab:hover { color: var(--duro-color-text); }
-.label { color: var(--duro-color-text-muted); }
+.row { padding: var(--gr-spacing-sm); border-radius: var(--gr-radius-sm); }
+.row.on { background: var(--gr-color-bg-card); }
+.tab:hover { color: var(--gr-color-text); }
+.label { color: var(--gr-color-text-muted); }
 </style>
-<div data-duro="List">
+<div data-gr="List">
   <div class="row on">one</div>
   <span class="tab">two</span>
   <span class="label">three</span>
@@ -239,20 +239,18 @@ describe('checkArtboard', () => {
   })
 
   it('lets a parent annotation cover a nested control', () => {
-    const html = `<div class="tag" data-duro="Tag"><button class="x">×</button></div>`
+    const html = `<div class="tag" data-gr="Tag"><button class="x">×</button></div>`
     expect(rules(html)).toEqual([])
-    expect(rules(`<div data-duro="Stack"><div><button>deep</button></div></div>`)).toEqual([
+    expect(rules(`<div data-gr="Stack"><div><button>deep</button></div></div>`)).toEqual([
       'unannotated-control',
     ])
   })
 
   it('reports native controls without a name, and ignores markup in comments', () => {
     expect(
-      rules(`<!-- <button>not real</button> --><a href="#" data-duro="LinkButton">go</a>`),
+      rules(`<!-- <button>not real</button> --><a href="#" data-gr="LinkButton">go</a>`),
     ).toEqual([])
-    expect(rules(`<input type="text"><div data-duro="Stack"></div>`)).toEqual([
-      'unannotated-control',
-    ])
+    expect(rules(`<input type="text"><div data-gr="Stack"></div>`)).toEqual(['unannotated-control'])
   })
 
   it('sorts findings by line and carries the file name', () => {
@@ -272,7 +270,7 @@ describe('checkArtboard', () => {
 describe('runMockup seed + check on disk', () => {
   let root: string
   beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), 'duro-mockup-'))
+    root = mkdtempSync(join(tmpdir(), 'greenrack-mockup-'))
   })
   afterEach(() => {
     rmSync(root, {recursive: true, force: true})
@@ -322,14 +320,14 @@ describe('runMockup seed + check on disk', () => {
         ':root[data-theme="high-contrast"]',
       ]) {
         expect(block).toContain(
-          `${selector} { --duro-color-bg: #020803; --duro-color-success-bg: rgb(1 2 3); }`,
+          `${selector} { --gr-color-bg: #020803; --gr-color-success-bg: rgb(1 2 3); }`,
         )
       }
       expect(block).toContain('o.json')
-      expect(block.indexOf('--duro-mockup-canvas-width')).toBeLessThan(block.indexOf('o.json'))
+      expect(block.indexOf('--gr-mockup-canvas-width')).toBeLessThan(block.indexOf('o.json'))
       const authored = html.replace(
         '</div>\n</x-dc>',
-        '<div class="btn" data-duro="Button variant=primary">Go</div></div>\n</x-dc>',
+        '<div class="btn" data-gr="Button variant=primary">Go</div></div>\n</x-dc>',
       )
       expect(rules(authored)).toEqual([])
     })
@@ -347,7 +345,7 @@ describe('runMockup seed + check on disk', () => {
         TOKENS_START,
         registry.tokens.mockupCss.trimEnd(),
         "/* The design canvas size: the board's coordinate space, not a design token. */",
-        `:root { --duro-mockup-canvas-width: ${ARTBOARD_WIDTH}px; --duro-mockup-canvas-height: ${ARTBOARD_HEIGHT}px; }`,
+        `:root { --gr-mockup-canvas-width: ${ARTBOARD_WIDTH}px; --gr-mockup-canvas-height: ${ARTBOARD_HEIGHT}px; }`,
         TOKENS_END,
       ].join('\n')
       const block = html.slice(
@@ -358,7 +356,7 @@ describe('runMockup seed + check on disk', () => {
       expect(block).not.toContain('Theme overrides')
     })
 
-    it('maps every colour key to a --duro-color-* variable the token CSS declares', () => {
+    it('maps every colour key to a --gr-color-* variable the token CSS declares', () => {
       const entries = registry.tokens.groups.colors?.entries ?? []
       expect(entries.length).toBeGreaterThan(0)
       for (const {key} of entries) {
@@ -398,27 +396,27 @@ describe('runMockup seed + check on disk', () => {
         const block = tokenBlock(seeded())
         const overrides = block.slice(block.indexOf('/* Theme overrides'))
         expect(overrides).toContain('/* Theme overrides from o.json')
-        const emitted = [...overrides.matchAll(/(--duro-[a-z0-9-]+):/g)].map((match) => match[1])
+        const emitted = [...overrides.matchAll(/(--gr-[a-z0-9-]+):/g)].map((match) => match[1])
         expect(new Set(emitted)).toEqual(
           new Set([
-            '--duro-color-bg',
-            '--duro-typography-font-family',
-            '--duro-typography-font-family-mono',
-            '--duro-shadow-sm',
-            '--duro-spacing-md',
-            '--duro-radius-xs',
-            '--duro-radius-sm',
-            '--duro-radius-md',
-            '--duro-radius-lg',
-            '--duro-size-dialog-sm',
-            '--duro-duration-base',
+            '--gr-color-bg',
+            '--gr-typography-font-family',
+            '--gr-typography-font-family-mono',
+            '--gr-shadow-sm',
+            '--gr-spacing-md',
+            '--gr-radius-xs',
+            '--gr-radius-sm',
+            '--gr-radius-md',
+            '--gr-radius-lg',
+            '--gr-size-dialog-sm',
+            '--gr-duration-base',
           ]),
         )
         for (const name of emitted) {
           expect(registry.tokens.mockupCss, name).toContain(`${name}:`)
         }
         expect(block).toContain(
-          ":root { --duro-color-bg: #020803; --duro-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --duro-typography-font-family: 'JetBrains Mono', monospace;",
+          ":root { --gr-color-bg: #020803; --gr-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --gr-typography-font-family: 'JetBrains Mono', monospace;",
         )
       })
 
@@ -520,7 +518,9 @@ describe('runMockup seed + check on disk', () => {
 
     const bad = runMockupCheck(registry, ['Good.dc.html', 'Bad.dc.html'], {cwd: root})
     expect(bad.exitCode).toBe(1)
-    expect(bad.text).toMatch(/^duro mockup check: 1 finding\(s\)\nBad\.dc\.html:\d+ raw-color: /)
+    expect(bad.text).toMatch(
+      /^greenrack mockup check: 1 finding\(s\)\nBad\.dc\.html:\d+ raw-color: /,
+    )
 
     expect(runMockupCheck(registry, ['Nope.dc.html'], {cwd: root}).exitCode).toBe(2)
     expect(runMockupCheck(registry, [], {cwd: root}).exitCode).toBe(2)
@@ -553,7 +553,7 @@ describe('buildCanvas', () => {
     expect(html).toContain('<title>Shell directions</title>')
     // srcdoc carries the whole artboard, attribute-escaped: one page, no supporting files.
     expect(html).toContain('srcdoc="')
-    expect(html).toContain('data-duro=&quot;Button variant=primary&quot;')
+    expect(html).toContain('data-gr=&quot;Button variant=primary&quot;')
     expect(html).not.toMatch(/<iframe[^>]* src=/)
     // Untrusted HTML: every frame is sandboxed, scripts off.
     expect(html!.match(/<iframe /g)).toHaveLength(html!.match(/ sandbox="" /g)!.length)
@@ -576,7 +576,7 @@ describe('buildCanvas', () => {
 describe('runMockup canvas on disk', () => {
   let root: string
   beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), 'duro-canvas-'))
+    root = mkdtempSync(join(tmpdir(), 'greenrack-canvas-'))
   })
   afterEach(() => {
     rmSync(root, {recursive: true, force: true})
@@ -628,27 +628,30 @@ describe('runMockup canvas on disk', () => {
     expect(runMockup(registry, 'canvas', ['one', 'two'], {cwd: root}).exitCode).toBe(2)
   })
 
-  it('says when the app installs a different @duro-app/ui than the checker knows', () => {
+  it('says when the app installs a different @greenharness/greenrack-ui than the checker knows', () => {
     writeFileSync(join(root, 'package.json'), '{"name":"app"}')
-    mkdirSync(join(root, 'node_modules', '@duro-app', 'ui'), {recursive: true})
+    mkdirSync(join(root, 'node_modules', '@greenharness', 'greenrack-ui'), {recursive: true})
     writeFileSync(
-      join(root, 'node_modules', '@duro-app', 'ui', 'package.json'),
+      join(root, 'node_modules', '@greenharness', 'greenrack-ui', 'package.json'),
       // As published: an exports map without ./package.json, so require() cannot read it.
-      '{"name":"@duro-app/ui","version":"0.0.1","exports":{".":"./index.js"}}',
+      '{"name":"@greenharness/greenrack-ui","version":"0.0.1","exports":{".":"./index.js"}}',
     )
     writeFileSync(join(root, 'Main.dc.html'), clean)
     const result = runMockupCheck(registry, ['Main.dc.html'], {cwd: root})
-    expect(result.text).toContain('@duro-app/ui is 0.0.1')
-    expect(result.text).toContain('npx -y @duro-app/cli@0.0.1 mockup check')
+    expect(result.text).toContain('@greenharness/greenrack-ui is 0.0.1')
+    expect(result.text).toContain('npx -y @greenharness/greenrack-cli@0.0.1 mockup check')
     expect(result.data).toMatchObject({skew: {installed: '0.0.1'}})
   })
 
-  it('stays quiet for a workspace-linked @duro-app/ui: a source checkout has no release to skew', () => {
+  it('stays quiet for a workspace-linked @greenharness/greenrack-ui: a source checkout has no release to skew', () => {
     writeFileSync(join(root, 'package.json'), '{"name":"app"}')
     mkdirSync(join(root, 'ui'))
-    writeFileSync(join(root, 'ui', 'package.json'), '{"name":"@duro-app/ui","version":"0.0.1"}')
-    mkdirSync(join(root, 'node_modules', '@duro-app'), {recursive: true})
-    symlinkSync(join(root, 'ui'), join(root, 'node_modules', '@duro-app', 'ui'))
+    writeFileSync(
+      join(root, 'ui', 'package.json'),
+      '{"name":"@greenharness/greenrack-ui","version":"0.0.1"}',
+    )
+    mkdirSync(join(root, 'node_modules', '@greenharness'), {recursive: true})
+    symlinkSync(join(root, 'ui'), join(root, 'node_modules', '@greenharness', 'greenrack-ui'))
     writeFileSync(join(root, 'Main.dc.html'), clean)
     const result = runMockupCheck(registry, ['Main.dc.html'], {cwd: root})
     expect(result.text).not.toContain('note:')

@@ -13,7 +13,7 @@ import {
   type ColorModePreference,
   type ColorOverrides,
   type ThemeTokens,
-} from '@duro-app/ui'
+} from '@greenharness/greenrack-ui'
 
 const A: ColorOverrides = {bgCard: '#1b2433', accent: '#ff5a1f'}
 const B: ColorOverrides = {bgCard: '#0a3c1e', accent: '#1e90ff'}

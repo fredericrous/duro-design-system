@@ -1,7 +1,7 @@
 // Builds the mockup stylesheet text from the token sources. Pure: reads
 // src/**/*.css.ts, returns a string. Used by generate-mockup-css.mjs (writes
 // dist/mockup.css) and by packages/cli/scripts/build-registry.mjs (embeds it
-// in registry.json so `duro mockup seed` needs no tokens build).
+// in registry.json so `greenrack mockup seed` needs no tokens build).
 
 import {join} from 'node:path'
 import {extractCallArg} from './literals.mjs'
@@ -66,7 +66,7 @@ export function buildMockupCss(srcDir) {
     const alias = GROUP_ALIASES[group]
     const lines = [`  /* ${group} */`]
     for (const [name, value] of Object.entries(bag).sort(([a], [b]) => a.localeCompare(b))) {
-      lines.push(`  --duro-${alias}-${kebab(name)}: ${value};`)
+      lines.push(`  --gr-${alias}-${kebab(name)}: ${value};`)
     }
     return lines
   }
@@ -80,7 +80,7 @@ export function buildMockupCss(srcDir) {
     if (selector === ':root') {
       for (const [group, bag] of Object.entries(shared)) lines.push(...declarations(group, bag))
     }
-    count += lines.filter((l) => l.startsWith('  --duro-')).length
+    count += lines.filter((l) => l.startsWith('  --gr-')).length
     lines.push('}')
     blocks.push(lines.join('\n'))
   }

@@ -10,11 +10,11 @@ import {
 } from './DragDrop'
 import {Text} from '../Text/Text'
 import {onThemeSurface} from '../../docs/themedSurface'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
 
 /**
  * The board shapes DragDrop 5.x is for: columns that are labelled lists,

@@ -1,7 +1,7 @@
 import type {Decorator} from '@storybook/react'
 import {css, html} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
 
 const styles = css.create({
   surface: {

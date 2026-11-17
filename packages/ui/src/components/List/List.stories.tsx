@@ -12,10 +12,10 @@ import {Badge} from '../Badge/Badge'
 import {Text} from '../Text/Text'
 import {Button} from '../Button/Button'
 import {Checkbox} from '../Checkbox/Checkbox'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii} from '@duro-app/tokens/tokens/spacing.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/List',

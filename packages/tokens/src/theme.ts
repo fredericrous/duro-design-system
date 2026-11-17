@@ -1,4 +1,4 @@
-// What ThemeProvider's `tokens` prop and `duro mockup seed --overrides` accept,
+// What ThemeProvider's `tokens` prop and `greenrack mockup seed --overrides` accept,
 // in one pure module (no React, web or native imports): the themable groups and
 // their keys, the groups and keys that are refused, the value rule of each key,
 // the guard rails, and `validateTokens`, which says what is kept and what is

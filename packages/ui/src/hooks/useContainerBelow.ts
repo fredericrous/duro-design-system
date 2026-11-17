@@ -1,8 +1,8 @@
 import {useEffect, useState, type RefObject} from 'react'
-import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
+import {breakpointsPx, type Breakpoint} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 
 /**
- * Whether the element behind `ref` is narrower than a Duro breakpoint — its
+ * Whether the element behind `ref` is narrower than a greenrack breakpoint — its
  * own width, as a container query sees it, not the window's. For the choices
  * CSS cannot make (a table of contents as a list or a menu, a row of buttons
  * or an overflow `Menu`).

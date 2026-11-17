@@ -9,7 +9,7 @@ import {Input} from '../Input/Input'
 import {Textarea} from '../Textarea/Textarea'
 import {Fieldset} from '../Fieldset/Fieldset'
 import {Button} from '../Button/Button'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/Form',

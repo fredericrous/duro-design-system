@@ -1,6 +1,6 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 export const styles = css.create({
   // The scroll container: it fills its parent (a pane, a flex column) by

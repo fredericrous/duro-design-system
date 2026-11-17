@@ -15,7 +15,7 @@ interface RootProps {
 
 /**
  * Native Tooltip (plan N0, Decision 5): touch has no hover, so no bubble is
- * drawn. A string `content` becomes the accessibility hint of the Duro
+ * drawn. A string `content` becomes the accessibility hint of the greenrack
  * trigger inside (Button, Toggle, Menu.Trigger, Popover.Trigger), read after
  * its name. Keep tooltip text non-essential: sighted touch users never see
  * it, and an icon-only trigger still needs its `aria-label`.

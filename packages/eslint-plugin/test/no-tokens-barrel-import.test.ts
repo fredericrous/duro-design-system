@@ -9,53 +9,53 @@ const tester = new RuleTester({
 
 tester.run('no-tokens-barrel-import', noTokensBarrelImport, {
   valid: [
-    "import {colors} from '@duro-app/tokens/tokens/colors.css'",
-    "import {darkColors} from '@duro-app/tokens/raw'",
-    "import {SPACING_KEYS} from '@duro-app/tokens/keys'",
+    "import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'",
+    "import {darkColors} from '@greenharness/greenrack-tokens/raw'",
+    "import {SPACING_KEYS} from '@greenharness/greenrack-tokens/keys'",
     "import {colors} from '@other/tokens'",
   ],
   invalid: [
     {
-      code: "import {colors} from '@duro-app/tokens'",
+      code: "import {colors} from '@greenharness/greenrack-tokens'",
       errors: [{messageId: 'barrelImport'}],
-      output: "import {colors} from '@duro-app/tokens/tokens/colors.css'",
+      output: "import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'",
     },
     {
-      code: "import {spacing, radii, colors} from '@duro-app/tokens'",
-      errors: [{messageId: 'barrelImport'}],
-      output:
-        "import {colors} from '@duro-app/tokens/tokens/colors.css'\n" +
-        "import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'",
-    },
-    {
-      code: "import {colors as c, type Breakpoint} from '@duro-app/tokens';",
+      code: "import {spacing, radii, colors} from '@greenharness/greenrack-tokens'",
       errors: [{messageId: 'barrelImport'}],
       output:
-        "import type {Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css';\n" +
-        "import {colors as c} from '@duro-app/tokens/tokens/colors.css';",
+        "import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'\n" +
+        "import {spacing, radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'",
     },
     {
-      code: 'import type {SpacingToken} from "@duro-app/tokens"',
+      code: "import {colors as c, type Breakpoint} from '@greenharness/greenrack-tokens';",
       errors: [{messageId: 'barrelImport'}],
-      output: 'import type {SpacingToken} from "@duro-app/tokens/keys"',
+      output:
+        "import type {Breakpoint} from '@greenharness/greenrack-tokens/tokens/breakpoints.css';\n" +
+        "import {colors as c} from '@greenharness/greenrack-tokens/tokens/colors.css';",
     },
     {
-      code: "function f() {\n  return import('x')\n}\nimport {colors, mystery} from '@duro-app/tokens'",
+      code: 'import type {SpacingToken} from "@greenharness/greenrack-tokens"',
+      errors: [{messageId: 'barrelImport'}],
+      output: 'import type {SpacingToken} from "@greenharness/greenrack-tokens/keys"',
+    },
+    {
+      code: "function f() {\n  return import('x')\n}\nimport {colors, mystery} from '@greenharness/greenrack-tokens'",
       errors: [{messageId: 'unknownSpecifiers'}],
       output: null,
     },
     {
-      code: "import * as tokens from '@duro-app/tokens'",
+      code: "import * as tokens from '@greenharness/greenrack-tokens'",
       errors: [{messageId: 'barrelNamespace'}],
       output: null,
     },
     {
-      code: "import '@duro-app/tokens'",
+      code: "import '@greenharness/greenrack-tokens'",
       errors: [{messageId: 'barrelSideEffect'}],
       output: null,
     },
     {
-      code: "export {colors} from '@duro-app/tokens'",
+      code: "export {colors} from '@greenharness/greenrack-tokens'",
       errors: [{messageId: 'barrelImport'}],
       output: null,
     },

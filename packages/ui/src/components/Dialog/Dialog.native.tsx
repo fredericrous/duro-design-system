@@ -23,7 +23,7 @@ import {
   View,
 } from 'react-native'
 import {html} from 'react-strict-dom'
-import type {DurationToken} from '@duro-app/tokens/keys'
+import type {DurationToken} from '@greenharness/greenrack-tokens/keys'
 import {mergeRefs} from '../../shared/mergeRefs'
 import {ModalContext} from '../../shared/ModalContext'
 import {OverlayModal} from '../../shared/portal/OverlayModal'

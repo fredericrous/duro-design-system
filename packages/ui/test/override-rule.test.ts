@@ -10,7 +10,7 @@ describe('ThemeProvider override rule', () => {
     expect(
       overrideRule('«r1»', {colors: {bg: '#1b2433', accent: 'rgb(255, 90, 31)'}}, variableOf),
     ).toBe(
-      '[data-duro-theme="«r1»"][data-duro-theme="«r1»"] { --bg-x1: #1b2433; --accent-x2: rgb(255, 90, 31); }',
+      '[data-gr-theme="«r1»"][data-gr-theme="«r1»"] { --bg-x1: #1b2433; --accent-x2: rgb(255, 90, 31); }',
     )
   })
 

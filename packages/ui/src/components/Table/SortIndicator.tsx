@@ -1,9 +1,9 @@
 import type {Column} from '@tanstack/react-table'
 import {html} from 'react-strict-dom'
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {duration} from '@duro-app/tokens/tokens/motion.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {duration} from '@greenharness/greenrack-tokens/tokens/motion.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
 
 const styles = css.create({
   root: {

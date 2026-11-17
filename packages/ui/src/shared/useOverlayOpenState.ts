@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
-import {DURATION_MS, type DurationToken} from '@duro-app/tokens/keys'
+import {DURATION_MS, type DurationToken} from '@greenharness/greenrack-tokens/keys'
 
 /**
  * When the owner hears that the overlay closed.

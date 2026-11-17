@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Root SVG canvas for a static diagram. Provides accessibility (role=img, title, desc), the shared arrow marker definition, and the .duro-diagram scope class that all child node/connector classes resolve under. Authoring is coordinate-explicit; pair with Node, Arrow, Leader, Text.',
+    'Root SVG canvas for a static diagram. Provides accessibility (role=img, title, desc), the shared arrow marker definition, and the .gr-diagram scope class that all child node/connector classes resolve under. Authoring is coordinate-explicit; pair with Node, Arrow, Leader, Text.',
   whenToUse: [
     'Hand-authored flowcharts and architecture diagrams rendered inline',
     'Static, non-interactive visualisations with controlled coordinates',

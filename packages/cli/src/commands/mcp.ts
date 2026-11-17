@@ -7,18 +7,18 @@ import {cliVersion} from './manifest.js'
 import {renderComponent, renderRecipe} from '../format.js'
 import {buildCanvas, checkArtboard} from './mockup.js'
 
-const INSTALL_HINT = `duro mcp needs @modelcontextprotocol/sdk (an optional peer).
+const INSTALL_HINT = `greenrack mcp needs @modelcontextprotocol/sdk (an optional peer).
   npm i -D @modelcontextprotocol/sdk
 or run it without installing:
-  npx -y -p @duro-app/cli -p @modelcontextprotocol/sdk duro mcp`
+  npx -y -p @greenharness/greenrack-cli -p @modelcontextprotocol/sdk greenrack mcp`
 
 /** The MCP tools, JSON Schemas hand-written (no zod dependency). */
 export function toolDefinitions(registry: Registry) {
   return [
     {
-      name: 'duro_ds_lookup',
+      name: 'greenrack_lookup',
       description:
-        'Docs for anything in the Duro design system by name: a component (props, usage, example), a recipe (runnable source), a token group, "icons", "rules", or an interface guide ("guide:colors", "guide:typography", "guide:ui"; "guide:<skill>/<file>" for one of its reference files). Free text falls back to a ranked search over usage metadata — pass what you need, e.g. "tags that wrap".',
+        'Docs for anything in the greenrack design system by name: a component (props, usage, example), a recipe (runnable source), a token group, "icons", "rules", or an interface guide ("guide:colors", "guide:typography", "guide:ui"; "guide:<skill>/<file>" for one of its reference files). Free text falls back to a ranked search over usage metadata — pass what you need, e.g. "tags that wrap".',
       inputSchema: {
         type: 'object',
         properties: {
@@ -37,7 +37,7 @@ export function toolDefinitions(registry: Registry) {
       },
     },
     {
-      name: 'duro_ds_list',
+      name: 'greenrack_list',
       description: `One-line index of everything documented (${Object.keys(registry.components).length} components, ${Object.keys(registry.recipes).length} recipes, token groups; kind "guides" lists the interface guides).`,
       inputSchema: {
         type: 'object',
@@ -47,14 +47,14 @@ export function toolDefinitions(registry: Registry) {
       },
     },
     {
-      name: 'duro_ds_manifest',
-      description: 'The duro command spec plus all valid lookup names.',
+      name: 'greenrack_manifest',
+      description: 'The greenrack command spec plus all valid lookup names.',
       inputSchema: {type: 'object', properties: {}},
     },
     {
-      name: 'duro_ds_mockup_check',
+      name: 'greenrack_mockup_check',
       description:
-        'Check a mockup artboard (.dc.html source) against the design system: every colour, spacing, radius, font, shadow and duration must be a var(--duro-*) token, media queries must sit on the breakpoint scale, and every control must carry data-duro="<Component>" naming an @duro-app/ui component. Returns findings; an empty list means the artboard is a valid handoff contract.',
+        'Check a mockup artboard (.dc.html source) against the design system: every colour, spacing, radius, font, shadow and duration must be a var(--gr-*) token, media queries must sit on the breakpoint scale, and every control must carry data-gr="<Component>" naming an @greenharness/greenrack-ui component. Returns findings; an empty list means the artboard is a valid handoff contract.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -65,9 +65,9 @@ export function toolDefinitions(registry: Registry) {
       },
     },
     {
-      name: 'duro_ds_mockup_canvas',
+      name: 'greenrack_mockup_canvas',
       description:
-        'One self-contained HTML review page for a set of mockup artboards: each direction (Tree.dc.html and Tree-Phone.dc.html are direction Tree) under a letter, every artboard inlined and scaled to its frame. Publish the page for the person to pick a direction. Nothing is built while an artboard fails duro_ds_mockup_check: the findings come back instead.',
+        'One self-contained HTML review page for a set of mockup artboards: each direction (Tree.dc.html and Tree-Phone.dc.html are direction Tree) under a letter, every artboard inlined and scaled to its frame. Publish the page for the person to pick a direction. Nothing is built while an artboard fails greenrack_mockup_check: the findings come back instead.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -94,7 +94,7 @@ export function toolDefinitions(registry: Registry) {
 /**
  * The wire shape of a tools/call answer. `structuredContent` must be a JSON
  * object — a bare array is rejected by the SDK's result schema, which is how
- * duro_ds_list (a ListEntry[]) used to fail with -32602 — so arrays ride under
+ * greenrack_list (a ListEntry[]) used to fail with -32602 — so arrays ride under
  * `entries`.
  */
 export function toolResponse(registry: Registry, name: string, args: Record<string, unknown>) {
@@ -108,20 +108,20 @@ export function toolResponse(registry: Registry, name: string, args: Record<stri
 
 export function callTool(registry: Registry, name: string, args: Record<string, unknown>) {
   switch (name) {
-    case 'duro_ds_lookup': {
+    case 'greenrack_lookup': {
       const result = runLookup(registry, String(args.name ?? ''), {
         part: typeof args.part === 'string' ? args.part : undefined,
         sourceOnly: args.sourceOnly === true,
       })
       return {text: result.text, data: result.data, isError: result.exitCode === 1}
     }
-    case 'duro_ds_list': {
+    case 'greenrack_list': {
       const result = runList(registry, typeof args.kind === 'string' ? args.kind : undefined)
       return {text: result.text, data: result.data, isError: result.exitCode !== undefined}
     }
-    case 'duro_ds_manifest':
+    case 'greenrack_manifest':
       return {text: '', data: buildManifest(registry, cliVersion()), isError: false}
-    case 'duro_ds_mockup_check': {
+    case 'greenrack_mockup_check': {
       const file = typeof args.file === 'string' ? args.file : 'artboard.dc.html'
       const findings = checkArtboard(registry, file, String(args.html ?? ''))
       const text =
@@ -130,7 +130,7 @@ export function callTool(registry: Registry, name: string, args: Record<string, 
           : findings.map((f) => `${f.file}:${f.line} ${f.rule}: ${f.message}`).join('\n')
       return {text, data: {ok: findings.length === 0, findings}, isError: false}
     }
-    case 'duro_ds_mockup_canvas': {
+    case 'greenrack_mockup_canvas': {
       const artboards = (Array.isArray(args.artboards) ? args.artboards : [])
         .filter((a): a is {file: unknown; html: unknown} => typeof a === 'object' && a !== null)
         .map((a) => ({file: String(a.file ?? 'artboard.dc.html'), html: String(a.html ?? '')}))
@@ -151,17 +151,17 @@ export function callTool(registry: Registry, name: string, args: Record<string, 
 export function listResources(registry: Registry): {uri: string; name: string; mimeType: string}[] {
   return [
     ...Object.keys(registry.components).map((name) => ({
-      uri: `duro://component/${encodeURIComponent(name)}`,
+      uri: `greenrack://component/${encodeURIComponent(name)}`,
       name: `${name} docs`,
       mimeType: 'text/plain',
     })),
     ...Object.keys(registry.recipes).map((name) => ({
-      uri: `duro://recipe/${name}`,
+      uri: `greenrack://recipe/${name}`,
       name: `${name} recipe`,
       mimeType: 'text/plain',
     })),
     ...guideNames(registry).map((name) => ({
-      uri: `duro://guide/${name.slice('guide:'.length)}`,
+      uri: `greenrack://guide/${name.slice('guide:'.length)}`,
       name: `${name} guide`,
       mimeType: 'text/markdown',
     })),
@@ -172,9 +172,9 @@ export function readResource(
   registry: Registry,
   uri: string,
 ): {contents: {uri: string; mimeType: string; text: string}[]} {
-  const componentMatch = /^duro:\/\/component\/(.+)$/.exec(uri)
-  const recipeMatch = /^duro:\/\/recipe\/(.+)$/.exec(uri)
-  const guideMatch = /^duro:\/\/guide\/(.+)$/.exec(uri)
+  const componentMatch = /^greenrack:\/\/component\/(.+)$/.exec(uri)
+  const recipeMatch = /^greenrack:\/\/recipe\/(.+)$/.exec(uri)
+  const guideMatch = /^greenrack:\/\/guide\/(.+)$/.exec(uri)
   let text: string | null = null
   let mimeType = 'text/plain'
   if (guideMatch) {
@@ -205,7 +205,7 @@ export async function runMcp(registry: Registry): Promise<void> {
   }
 
   const server = new sdkServer.Server(
-    {name: 'duro', version: cliVersion()},
+    {name: 'greenrack', version: cliVersion()},
     {capabilities: {tools: {}, resources: {}, prompts: {}}},
   )
 
@@ -232,14 +232,14 @@ export async function runMcp(registry: Registry): Promise<void> {
   server.setRequestHandler(sdkTypes.ListPromptsRequestSchema, () => ({
     prompts: [
       {
-        name: 'duro/build-ui',
-        description: 'Prime a session with the Duro critical rules and component index',
+        name: 'greenrack/build-ui',
+        description: 'Prime a session with the greenrack critical rules and component index',
       },
     ],
   }))
 
   server.setRequestHandler(sdkTypes.GetPromptRequestSchema, (request) => {
-    if (request.params.name !== 'duro/build-ui') {
+    if (request.params.name !== 'greenrack/build-ui') {
       throw new Error(`unknown prompt ${request.params.name}`)
     }
     const componentIndex = Object.entries(registry.components)
@@ -251,7 +251,7 @@ export async function runMcp(registry: Registry): Promise<void> {
           role: 'user',
           content: {
             type: 'text',
-            text: `You are building UI with the Duro design system. Follow these rules:\n\n${registry.rules.critical}\n\nAvailable components:\n${componentIndex}\n\nQuery details with the duro_ds_lookup tool.`,
+            text: `You are building UI with the greenrack design system. Follow these rules:\n\n${registry.rules.critical}\n\nAvailable components:\n${componentIndex}\n\nQuery details with the greenrack_lookup tool.`,
           },
         },
       ],

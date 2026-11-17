@@ -1,6 +1,6 @@
 import {css} from 'react-strict-dom'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 // Web only: native has no field-sizing or lh unit (see native.css.ts).
 export const growCss = css.create({

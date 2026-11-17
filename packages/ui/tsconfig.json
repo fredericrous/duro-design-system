@@ -5,7 +5,7 @@
     "rootDir": "src",
     "customConditions": ["source"],
     "paths": {
-      "@duro-app/tokens": ["../tokens/dist/index.d.ts"]
+      "@greenharness/greenrack-tokens": ["../tokens/dist/index.d.ts"]
     }
   },
   "include": ["src"],

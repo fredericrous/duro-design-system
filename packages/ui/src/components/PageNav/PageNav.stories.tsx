@@ -1,7 +1,7 @@
 import {css, html} from 'react-strict-dom'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn} from 'storybook/test'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 import {PageNav} from './PageNav'
 import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'

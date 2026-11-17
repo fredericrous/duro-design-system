@@ -3,7 +3,7 @@ import {expect, fn, waitFor} from 'storybook/test'
 import {createColumnHelper} from '@tanstack/react-table'
 import {css, html} from 'react-strict-dom'
 import {VirtualTable} from './VirtualTable'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const storyStyles = css.create({
   // Phone-width wrapper: below VirtualTable's 640px stackBelow default.

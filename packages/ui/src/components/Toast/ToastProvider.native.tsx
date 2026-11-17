@@ -25,7 +25,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import {scheduleOnRN} from 'react-native-worklets'
 import {html} from 'react-strict-dom'
-import {DURATION_MS, LAYERS, SPACING_PX} from '@duro-app/tokens/keys'
+import {DURATION_MS, LAYERS, SPACING_PX} from '@greenharness/greenrack-tokens/keys'
 import {Icon} from '../Icon/Icon'
 import {Portal} from '../../shared/portal/PortalHost'
 import {useSafeAreaInsets} from '../../shared/safeArea'
@@ -179,7 +179,7 @@ export interface ToastProviderProps {
 /**
  * Native ToastProvider (plan N0, Slice B): the same store and countdown as
  * the web, drawn through the portal host at `LAYERS.toast`, so a toast shows
- * above the app, every open Duro overlay (a sheet included) and the
+ * above the app, every open greenrack overlay (a sheet included) and the
  * keyboard. A sideways swipe or the close button dismisses it.
  */
 export function ToastProvider({dismissLabel = 'Dismiss', children}: ToastProviderProps) {

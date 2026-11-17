@@ -1,5 +1,5 @@
 import {useRef, useState, useEffect} from 'react'
-import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
+import {breakpointsPx, type Breakpoint} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 
 export type ContainerSize = 'compact' | 'default' | 'spacious'
 

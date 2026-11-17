@@ -1,9 +1,9 @@
 {
-  "name": "@duro-app/eslint-plugin",
+  "name": "@greenharness/greenrack-eslint-plugin",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "ESLint rules enforcing the Duro design system conventions: react-strict-dom html.* elements, deep token imports, token values over raw px/hex, and no deprecated Table parts.",
+  "description": "ESLint rules enforcing the greenrack design system conventions: react-strict-dom html.* elements, deep token imports, token values over raw px/hex, and no deprecated Table parts.",
   "keywords": [
     "eslint",
     "eslintplugin",
@@ -14,12 +14,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/fredericrous/duro-design-system",
+    "url": "https://github.com/greenharness/greenrack",
     "directory": "packages/eslint-plugin"
   },
-  "homepage": "https://github.com/fredericrous/duro-design-system",
+  "homepage": "https://github.com/greenharness/greenrack",
   "bugs": {
-    "url": "https://github.com/fredericrous/duro-design-system/issues"
+    "url": "https://github.com/greenharness/greenrack/issues"
   },
   "publishConfig": {
     "access": "public"
@@ -50,7 +50,7 @@
     "@typescript-eslint/eslint-plugin": "^8.56.0"
   },
   "devDependencies": {
-    "@duro-app/tokens": "workspace:^",
+    "@greenharness/greenrack-tokens": "workspace:^",
     "@typescript-eslint/parser": "^8.0.0",
     "@typescript-eslint/rule-tester": "^8.0.0",
     "@typescript-eslint/utils": "^8.0.0",

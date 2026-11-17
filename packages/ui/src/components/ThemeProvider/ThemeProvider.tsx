@@ -1,10 +1,13 @@
 import {createContext, type ReactNode, useContext, useEffect, useId, useMemo, useState} from 'react'
 import {css, html} from 'react-strict-dom'
-import {validateTokens, type ThemableGroup} from '@duro-app/tokens/theme'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {lightTheme, lightShadows} from '@duro-app/tokens/themes/light.css'
-import {highContrastTheme, highContrastShadows} from '@duro-app/tokens/themes/high-contrast.css'
-import {layers} from '@duro-app/tokens/tokens/layers.css'
+import {validateTokens, type ThemableGroup} from '@greenharness/greenrack-tokens/theme'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {lightTheme, lightShadows} from '@greenharness/greenrack-tokens/themes/light.css'
+import {
+  highContrastTheme,
+  highContrastShadows,
+} from '@greenharness/greenrack-tokens/themes/high-contrast.css'
+import {layers} from '@greenharness/greenrack-tokens/tokens/layers.css'
 import {
   mergeOverrides,
   OverridesContext,
@@ -103,7 +106,7 @@ export function ThemeProvider({theme = 'dark', overrides, tokens, children}: The
   const rule = useMemo(() => overrideRule(scope, effective.tokens, variableOf), [scope, effective])
 
   return (
-    <html.div data-theme={theme} data-duro-theme={rule ? scope : undefined} style={style}>
+    <html.div data-theme={theme} data-gr-theme={rule ? scope : undefined} style={style}>
       {/* A plain, updating <style> (react-strict-dom has no html.style): no
           href or precedence, which would make React hoist it once and ignore
           later changes. */}

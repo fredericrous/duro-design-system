@@ -9,10 +9,10 @@ import {Heading} from '../Heading/Heading'
 import {Stack} from '../Stack/Stack'
 import {Inline} from '../Inline/Inline'
 import {Badge} from '../Badge/Badge'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Components/DetailPanel',

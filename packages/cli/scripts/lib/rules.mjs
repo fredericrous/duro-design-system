@@ -5,8 +5,8 @@ import {staticEval} from './static-eval.mjs'
 import {repoRoot} from './project.mjs'
 
 const PLUGIN_SRC = 'packages/eslint-plugin/src'
-const RULES_START = '<!-- duro:rules:start -->'
-const RULES_END = '<!-- duro:rules:end -->'
+const RULES_START = '<!-- greenrack:rules:start -->'
+const RULES_END = '<!-- greenrack:rules:end -->'
 
 function findProperty(objectLiteral, name) {
   const prop = objectLiteral.getProperty(name)
@@ -19,7 +19,7 @@ export function extractRules(project) {
   const indexFile = project.getSourceFileOrThrow(join(repoRoot, PLUGIN_SRC, 'index.ts'))
   const severities = {}
   indexFile.forEachDescendant((node) => {
-    if (Node.isPropertyAssignment(node) && /^'duro\//.test(node.getNameNode().getText())) {
+    if (Node.isPropertyAssignment(node) && /^'greenrack\//.test(node.getNameNode().getText())) {
       const id = node.getNameNode().getText().slice(1, -1)
       severities[id] = staticEval(node.getInitializerOrThrow(), `index.ts#${id}`)
     }
@@ -46,7 +46,7 @@ export function extractRules(project) {
     const messages = staticEval(findProperty(meta, 'messages'), `${file}#messages`)
     const hasFix = findProperty(meta, 'fixable') !== null
     const hasSuggestions = findProperty(meta, 'hasSuggestions') !== null
-    const id = `duro/${file.replace(/\.ts$/, '')}`
+    const id = `greenrack/${file.replace(/\.ts$/, '')}`
     const severity = severities[id]
     if (!severity)
       throw new Error(`${file}: ${id} missing from configs.recommended in ${PLUGIN_SRC}/index.ts`)
@@ -59,7 +59,7 @@ export function extractRules(project) {
     })
   }
 
-  // Critical-rules prose sliced from CLAUDE.md between the duro:rules markers.
+  // Critical-rules prose sliced from CLAUDE.md between the greenrack:rules markers.
   const claudeMd = readFileSync(join(repoRoot, 'CLAUDE.md'), 'utf8')
   const start = claudeMd.indexOf(RULES_START)
   const end = claudeMd.indexOf(RULES_END)
@@ -69,7 +69,7 @@ export function extractRules(project) {
     )
   }
   const critical = claudeMd.slice(start + RULES_START.length, end).trim()
-  if (critical.length === 0) throw new Error('CLAUDE.md duro:rules region is empty')
+  if (critical.length === 0) throw new Error('CLAUDE.md greenrack:rules region is empty')
 
   return {critical, lint}
 }

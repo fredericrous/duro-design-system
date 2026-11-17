@@ -1,4 +1,4 @@
-import duro from '@duro-app/eslint-plugin'
+import greenrack from '@greenharness/greenrack-eslint-plugin'
 import {base, tests} from '@aval-adr/eslint-config'
 import reactHooks from 'eslint-plugin-react-hooks'
 import tsParser from '@typescript-eslint/parser'
@@ -41,7 +41,7 @@ export default [
     rules: {'react-hooks/rules-of-hooks': 'off'},
   },
   {
-    ...duro.configs.recommended,
+    ...greenrack.configs.recommended,
     // Scoped to the surfaces that model the API for consumers. Component
     // internals are exempt on purpose: Table.tsx *defines* the deprecated
     // Container, and the icon/diagram files are dense SVG whose churn we
@@ -58,13 +58,13 @@ export default [
     // `recommended` stays off component internals, as above. The
     // visually-hidden module is the rule's one named exemption.
     files: ['packages/ui/src/**/*.{ts,tsx}'],
-    plugins: {duro},
+    plugins: {greenrack},
     languageOptions: {
       parser: tsParser,
       parserOptions: {sourceType: 'module', ecmaFeatures: {jsx: true}},
     },
     rules: {
-      'duro/no-raw-design-values': [
+      'greenrack/no-raw-design-values': [
         'error',
         {exemptFiles: ['packages/ui/src/styles/visually-hidden.css.ts']},
       ],

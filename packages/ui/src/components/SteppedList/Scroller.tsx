@@ -12,7 +12,7 @@ interface ScrollerProps {
 export function Scroller({children, maxHeight}: ScrollerProps) {
   return (
     <html.div
-      data-duro-stepped-rows=""
+      data-gr-stepped-rows=""
       style={[styles.rows, styles.rowsMaxHeight(resolveLength(maxHeight))]}
     >
       {children}

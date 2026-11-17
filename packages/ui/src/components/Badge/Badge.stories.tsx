@@ -2,8 +2,8 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Badge} from './Badge'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
 import {ThemeProvider, type ThemeName} from '../ThemeProvider/ThemeProvider'
 
 const meta: Meta<typeof Badge> = {
@@ -170,12 +170,12 @@ export const Dot: Story = {
   play: async ({canvas}) => {
     const online = canvas.getByText('Online')
     // The dot comes before the text and is decorative: the text alone is the Badge's name.
-    const dot = online.querySelector('[data-duro-dot]')
+    const dot = online.querySelector('[data-gr-dot]')
     await expect(dot).not.toBeNull()
     await expect(dot?.getAttribute('aria-hidden')).toBe('true')
     await expect(online.firstElementChild).toBe(dot)
     await expect(online.textContent).toBe('Online')
-    await expect(canvas.getByText('Offline').querySelector('[data-duro-dot]')).not.toBeNull()
-    await expect(canvas.getByText('Plain').querySelector('[data-duro-dot]')).toBeNull()
+    await expect(canvas.getByText('Offline').querySelector('[data-gr-dot]')).not.toBeNull()
+    await expect(canvas.getByText('Plain').querySelector('[data-gr-dot]')).toBeNull()
   },
 }

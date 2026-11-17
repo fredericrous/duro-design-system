@@ -2,7 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {useState} from 'react'
 import {html} from 'react-strict-dom'
 import {expect, fn, waitFor} from 'storybook/test'
-import type {SizeToken} from '@duro-app/tokens/keys'
+import type {SizeToken} from '@greenharness/greenrack-tokens/keys'
 import {VirtualList} from './VirtualList'
 import {Text} from '../Text/Text'
 

@@ -1,7 +1,7 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 /** The ring both platforms draw; each turns it its own way. */
 export const ring = css.create({

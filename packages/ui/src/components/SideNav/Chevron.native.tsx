@@ -1,5 +1,5 @@
 import Svg, {Path} from 'react-native-svg'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import {useResolvedColors} from '../ThemeProvider/ThemeProvider'
 import type {ChevronProps} from './types'
 

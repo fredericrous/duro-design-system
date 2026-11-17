@@ -101,7 +101,7 @@ export const SnapSheet: StoryObj<SheetArgs> = {
 
 const getDialog = () => document.querySelector<HTMLElement>('[role="dialog"]')
 const getGrabber = () => document.querySelector<HTMLElement>('[data-drawer-grabber]')!
-const getBody = () => document.querySelector<HTMLElement>('[role="dialog"] [data-duro-scroll]')!
+const getBody = () => document.querySelector<HTMLElement>('[role="dialog"] [data-gr-scroll]')!
 const sheetHeight = () => getDialog()!.getBoundingClientRect().height
 
 const WINDOW_H = 844

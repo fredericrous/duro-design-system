@@ -523,7 +523,7 @@ export function Cell({children, isActions}: {children: ReactNode; isActions?: bo
  *
  * The TanStack-aware parts — Pagination, SortIndicator, ColumnFilter,
  * SortChip, FromTanstack, useDataTable, VirtualTable — live behind
- * `@duro-app/ui/table`, which re-exports this object with them attached. So
+ * `@greenharness/greenrack-ui/table`, which re-exports this object with them attached. So
  * `Table.Root` is identical either way; only the import specifier differs.
  */
 export const TableCore = {

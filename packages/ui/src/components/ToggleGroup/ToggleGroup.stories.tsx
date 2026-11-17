@@ -4,9 +4,9 @@ import {css, html} from 'react-strict-dom'
 import {ToggleGroup} from './ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
 import {Icon, type IconName} from '../Icon'
-import {SIZES_PX} from '@duro-app/tokens/keys'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta<typeof ToggleGroup> = {
   title: 'Components/ToggleGroup',
@@ -239,7 +239,7 @@ export const IconChoicesStory: Story = {
   play: async ({canvas, canvasElement}) => {
     const scrollTopBefore = document.scrollingElement?.scrollTop
     await expect(ICON_NAMES.length).toBe(42)
-    const viewport = canvasElement.querySelector<HTMLElement>('[data-duro-scroll]')!
+    const viewport = canvasElement.querySelector<HTMLElement>('[data-gr-scroll]')!
     await expect(Math.abs(viewport.clientHeight - 118)).toBeLessThanOrEqual(2)
 
     const pressed = canvas.getByRole('button', {name: ICON_NAMES[39]})

@@ -4,8 +4,8 @@ import {css, html} from 'react-strict-dom'
 import {Meter} from './Meter'
 import {Text} from '../Text/Text'
 import {onThemeSurface} from '../../docs/themedSurface'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const s = css.create({
   col: {display: 'flex', flexDirection: 'column', gap: spacing.md, maxWidth: sizes.gridColMd},

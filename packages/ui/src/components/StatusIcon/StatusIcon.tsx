@@ -1,7 +1,7 @@
 import {html} from 'react-strict-dom'
 import {Icon} from '../Icon'
 import type {IconName, IconSize} from '../Icon'
-import type {ColorToken} from '@duro-app/tokens/keys'
+import type {ColorToken} from '@greenharness/greenrack-tokens/keys'
 import {isNative} from '../../platform'
 import {styles} from './styles.css'
 

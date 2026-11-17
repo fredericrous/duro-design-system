@@ -9,16 +9,16 @@ import {renderPairs} from './format.js'
 // agent has nothing to remember and no excuse to hand-roll a widget the
 // design system ships.
 export const PREAMBLE = [
-  'Duro design-system session bootstrap (duro context).',
+  'greenrack design-system session bootstrap (greenrack context).',
   'The catalog below is already in your context — before hand-rolling ANY',
   'interactive element (menu, badge, tag, dialog, select, tooltip, ...),',
   'pick the design-system component or recipe from this list. When two of',
   'them could both fit, the neighbors section decides; the compose section',
   'says what already wraps what, so you never rebuild it. Details:',
-  'duro <Component> (props+usage) · duro <recipe> --source-only ·',
-  'duro spacing|icons|rules.',
-  'A new screen, page or UI proposal starts with the /duro-mockup skill',
-  '(duro skill install if this repo lacks it; it also installs the colors,',
+  'greenrack <Component> (props+usage) · greenrack <recipe> --source-only ·',
+  'greenrack spacing|icons|rules.',
+  'A new screen, page or UI proposal starts with the /greenrack-mockup skill',
+  '(greenrack skill install if this repo lacks it; it also installs the colors,',
   'typography and ui interface skills): token-seeded artboards, checked,',
   'then implemented from their component map.',
 ].join('\n')
@@ -27,7 +27,7 @@ export const PREAMBLE = [
 function renderGuideIndex(registry: Registry): string {
   const skills = Object.keys(registry.guides ?? {})
   if (skills.length === 0) return ''
-  return `GUIDES: ${skills.map((skill) => `guide:${skill}`).join(' · ')} — interface rules, read with duro_ds_lookup or duro guide:<name>`
+  return `GUIDES: ${skills.map((skill) => `guide:${skill}`).join(' · ')} — interface rules, read with greenrack_lookup or greenrack guide:<name>`
 }
 
 /**
@@ -41,7 +41,7 @@ function renderScreens(registry: Registry): string {
   const rows = entries.map(([name, entry]) => `  ${name.padEnd(width)}${entry.meta.description}`)
   return [
     `SCREENS — START FROM A RECIPE (${entries.length})`,
-    'A new screen copies the closest recipe (duro <recipe> --source-only) and',
+    'A new screen copies the closest recipe (greenrack <recipe> --source-only) and',
     'edits it; a hand-rolled page layout needs a reason in the PR.',
     ...rows,
   ].join('\n')

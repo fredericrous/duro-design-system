@@ -3,16 +3,24 @@ import {basename, dirname, join, relative, resolve, sep} from 'node:path'
 import type {CommandResult} from './lookup.js'
 import {cliVersion} from './manifest.js'
 import {lineOf, maskComments} from '../scan.js'
+import {
+  LEGACY_CLI_PACKAGE,
+  LEGACY_CSS_VARIABLE_PREFIX,
+  LEGACY_DATA_ATTRIBUTE_PREFIX,
+  LEGACY_PROSE_LAYER,
+  LEGACY_TOKENS_PACKAGE,
+  LEGACY_UI_PACKAGE,
+} from '../legacy-names.js'
 
 /**
- * `duro doctor` — checks how the app in the cwd wires @duro-app/ui into its
+ * `greenrack doctor` — checks how the app in the cwd wires @greenharness/greenrack-ui into its
  * build. Every rule here is a way a consumer has shipped design-system
  * components with their spacing flattened while the design system's own
  * stylesheet was correct: the stylesheet is layered (`reset`, then StyleX's
  * `priority1..5`), and anything that lands outside those layers, or declares
  * them in the wrong order, outranks it. Each app used to rediscover this
  * alone; the contract lives here now. One rule is about the tokens rather
- * than the cascade: an app whose build never compiles @duro-app/tokens'
+ * than the cascade: an app whose build never compiles @greenharness/greenrack-tokens'
  * sources cannot use them in css.create (`tokens-compiled`). And one reads
  * fresh build output: a built `@media` that compares against a `var(--…)`
  * never matches (`media-var`).
@@ -31,6 +39,7 @@ export type DoctorRule =
   | 'version-skew'
   | 'tokens-compiled'
   | 'media-var'
+  | 'legacy-names'
 
 export interface DoctorFinding {
   rule: DoctorRule
@@ -53,15 +62,76 @@ export interface DoctorOptions {
   session?: boolean
 }
 
-const DS_CSS = '@duro-app/ui/dist/index.css'
+/**
+ * The package names one scope reads and writes. An app is on the scope whose
+ * UI package it depends on; every package-sensitive check takes that scope, so
+ * the other scope's names are never evidence of a correct wiring.
+ */
+export interface Scope {
+  /** The current names, or the old ones this CLI still recognises until the census. */
+  kind: 'greenrack' | 'legacy'
+  ui: string
+  tokens: string
+  cli: string
+  proseLayer: string
+  /** The prefix of the CSS custom properties the scope publishes. */
+  cssVariablePrefix: string
+  /** The prefix of the data attributes the scope's components set. */
+  dataAttributePrefix: string
+}
+
+const GREENRACK_SCOPE: Scope = {
+  kind: 'greenrack',
+  ui: '@greenharness/greenrack-ui',
+  tokens: '@greenharness/greenrack-tokens',
+  cli: '@greenharness/greenrack-cli',
+  proseLayer: 'gr-prose',
+  cssVariablePrefix: '--gr-',
+  dataAttributePrefix: 'data-gr',
+}
+
+const LEGACY_SCOPE: Scope = {
+  kind: 'legacy',
+  ui: LEGACY_UI_PACKAGE,
+  tokens: LEGACY_TOKENS_PACKAGE,
+  cli: LEGACY_CLI_PACKAGE,
+  proseLayer: LEGACY_PROSE_LAYER,
+  cssVariablePrefix: LEGACY_CSS_VARIABLE_PREFIX,
+  dataAttributePrefix: LEGACY_DATA_ATTRIBUTE_PREFIX,
+}
+
+/** New scope first: an app that depends on both is checked as the new one. */
+export const SCOPES: readonly Scope[] = [GREENRACK_SCOPE, LEGACY_SCOPE]
+
 const PRIORITIES = ['priority1', 'priority2', 'priority3', 'priority4', 'priority5']
 const LAYER_STATEMENT = `@layer reset, ${PRIORITIES.join(', ')};`
 
-/** Layers each design-system stylesheet declares, in declaration order. */
-const DS_SHEETS: Record<string, string[]> = {
-  [DS_CSS]: ['reset', 'duro-prose', ...PRIORITIES],
-  '@duro-app/ui/reset.css': ['reset'],
-  '@duro-app/ui/strict.css': ['reset', 'duro-prose', ...PRIORITIES],
+const dsCss = (scope: Scope) => `${scope.ui}/dist/index.css`
+
+/** Layers each design-system stylesheet of a scope declares, in declaration order. */
+function dsSheets(scope: Scope): Record<string, string[]> {
+  return {
+    [dsCss(scope)]: ['reset', scope.proseLayer, ...PRIORITIES],
+    [`${scope.ui}/reset.css`]: ['reset'],
+    [`${scope.ui}/strict.css`]: ['reset', scope.proseLayer, ...PRIORITIES],
+  }
+}
+
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&')
+
+/** `@scope/name` as source text, also as inside a regex literal (`@scope\/name`). */
+function packageMention(name: string): RegExp {
+  return new RegExp(
+    `${name
+      .split('/')
+      .map(escapeRegExp)
+      .join(String.raw`\\?/`)}(?![\\w-])`,
+  )
+}
+
+/** `from '<tokens>/tokens/…'`: a deep import of a token module. */
+function tokensDeepImport(scope: Scope): RegExp {
+  return new RegExp(String.raw`\bfrom\s*(['"])${escapeRegExp(scope.tokens)}/tokens/[^'"\n]+\1`)
 }
 
 /** Build config that can carry StyleX / react-strict-dom options. */
@@ -119,8 +189,8 @@ const COMPONENT_ELEMENTS = new Set([
 const ZERO_SPACING =
   /(?:^|[;{\s])((?:padding|margin)(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?)\s*:\s*0(?:px|rem|em)?\s*(?:!important\s*)?(?=;|$)/g
 
-/** True when the root, a workspace package or a package one directory down depends on @duro-app/ui. */
-export function isDuroConsumer(root: string): boolean {
+/** True when the root, a workspace package or a package one directory down depends on either scope's UI package. */
+export function isGreenrackConsumer(root: string): boolean {
   return consumerPackages(resolve(root)).length > 0
 }
 
@@ -129,8 +199,8 @@ export function runDoctor(options: DoctorOptions = {}): CommandResult {
   const packages = consumerPackages(root)
   if (packages.length === 0) {
     return {
-      text: options.session ? '' : 'not a Duro consumer',
-      data: {ok: true, findings: [], checked: [], skipped: [], packages: []},
+      text: options.session ? '' : 'not a greenrack consumer',
+      data: {ok: true, findings: [], checked: [], skipped: [], packages: [], scopes: []},
     }
   }
 
@@ -138,22 +208,24 @@ export function runDoctor(options: DoctorOptions = {}): CommandResult {
   const checked: string[] = []
   const rel = (path: string) => relative(root, path) || '.'
   const skipped: string[] = []
-  for (const {dir, pkg} of packages) {
-    findings.push(...checkPackage(dir, pkg, rel, checked, skipped))
+  for (const {dir, pkg, scope} of packages) {
+    findings.push(...checkPackage(dir, pkg, scope, rel, checked, skipped))
   }
   return report(
     findings,
     checked,
     packages.map(({dir}) => rel(dir)),
+    [...new Set(packages.map(({scope}) => scope.ui))],
     options.session === true,
     skipped,
   )
 }
 
-/** Every check, for one package that depends on @duro-app/ui. */
+/** Every check, for one package that depends on its scope's UI package. */
 function checkPackage(
   dir: string,
   pkg: PackageJson,
+  scope: Scope,
   rel: (path: string) => string,
   checked: string[],
   skipped: string[],
@@ -180,17 +252,17 @@ function checkPackage(
     const file = rel(join(dir, name))
     checked.push(file)
     configs.push({file, source})
-    findings.push(...checkRuntimeInjection(file, source))
-    const extraction = checkExtraction(file, source)
+    findings.push(...checkRuntimeInjection(file, source, scope))
+    const extraction = checkExtraction(file, source, scope)
     if (extraction) {
       unlayeredExtraction = true
       findings.push(extraction)
     }
   }
-  const tokens = checkTokensCompiled(dir, configs, rel)
+  const tokens = checkTokensCompiled(dir, configs, rel, scope)
   if (tokens) findings.push(tokens)
 
-  const media = checkMediaVar(dir, names, rel)
+  const media = checkMediaVar(dir, names, rel, scope)
   findings.push(...media.findings)
   if (media.skipped) {
     skipped.push(`${rel(dir) === '.' ? '' : `${rel(dir)}: `}media-var (no fresh build)`)
@@ -201,7 +273,7 @@ function checkPackage(
   const entry = ENTRIES.map((path) => join(dir, path)).find((path) => existsSync(path))
   if (entry !== undefined) {
     checked.push(rel(entry))
-    findings.push(...checkStylesheets(dir, entry, rel, checked, unlayeredExtraction))
+    findings.push(...checkStylesheets(dir, entry, rel, checked, unlayeredExtraction, scope))
   } else if (!isLibrary(pkg)) {
     // A library (it publishes main/exports) has no entry by design: its
     // consumers load the stylesheet, and doctor checks them.
@@ -210,41 +282,43 @@ function checkPackage(
       severity: 'warn',
       file: rel(dir),
       message: `No app entry found (looked for ${ENTRIES.join(', ')}), so the stylesheet wiring was not checked.`,
-      fix: `Import '${DS_CSS}' in the module that renders the app.`,
+      fix: `Import '${dsCss(scope)}' in the module that renders the app.`,
     })
   }
 
-  const skew = uiVersionSkew(dir)
+  const skew = uiVersionSkew(dir, [scope])
   if (skew) {
     findings.push({
       rule: 'version-skew',
       severity: 'warn',
       file: rel(join(dir, 'package.json')),
-      message: `@duro-app/ui is ${skew.installed}, but this CLI documents and checks ${skew.own}.`,
-      fix: `npx -y @duro-app/cli@${skew.installed} doctor, or upgrade @duro-app/ui.`,
+      message: `${skew.ui} is ${skew.installed}, but this CLI documents and checks ${skew.own}.`,
+      fix: `npx -y ${skew.cli}@${skew.installed} doctor, or upgrade ${skew.ui}.`,
     })
   }
+  findings.push(...checkLegacyNames(dir, scope, rel))
   return findings
 }
 
 /**
- * The packages under `root` that depend on @duro-app/ui. The hook runs at
+ * The packages under `root` that depend on @greenharness/greenrack-ui. The hook runs at
  * the repo root, which in a workspace (or an app kept in web/) is not the
  * package that renders anything: follow the workspace globs, and without
  * any, look one directory down.
  */
-function consumerPackages(root: string): Array<{dir: string; pkg: PackageJson}> {
+function consumerPackages(root: string): Array<{dir: string; pkg: PackageJson; scope: Scope}> {
   const rootPkg = readPackage(root)
   const dirs = [root]
   const patterns = workspacePatterns(root, rootPkg)
   for (const pattern of patterns) dirs.push(...expandWorkspace(root, pattern))
-  if (patterns.length === 0 && !(rootPkg && dependsOnUi(rootPkg))) {
+  if (patterns.length === 0 && !(rootPkg && scopeOf(rootPkg))) {
     dirs.push(...childDirs(root))
   }
-  const out: Array<{dir: string; pkg: PackageJson}> = []
+  const out: Array<{dir: string; pkg: PackageJson; scope: Scope}> = []
   for (const dir of new Set(dirs)) {
     const pkg = readPackage(dir)
-    if (pkg && dependsOnUi(pkg)) out.push({dir, pkg})
+    const scope = pkg ? scopeOf(pkg) : null
+    if (pkg && scope) out.push({dir, pkg, scope})
   }
   return out
 }
@@ -333,9 +407,14 @@ function parsePackage(raw: string): PackageJson {
   }
 }
 
-function dependsOnUi(pkg: PackageJson): boolean {
-  return ['dependencies', 'devDependencies', 'peerDependencies'].some(
-    (field) => (pkg[field] as Record<string, string> | undefined)?.['@duro-app/ui'] !== undefined,
+/** The scope whose UI package the package depends on, or null when it uses neither. */
+function scopeOf(pkg: PackageJson): Scope | null {
+  return (
+    SCOPES.find((scope) =>
+      ['dependencies', 'devDependencies', 'peerDependencies'].some(
+        (field) => (pkg[field] as Record<string, string> | undefined)?.[scope.ui] !== undefined,
+      ),
+    ) ?? null
   )
 }
 
@@ -344,21 +423,26 @@ function isLibrary(pkg: PackageJson): boolean {
 }
 
 /**
- * The installed @duro-app/ui version when it differs from this CLI's. The
- * package's exports map does not expose ./package.json, so require() cannot
- * read it: walk up node_modules the way resolution does and read the file.
- * A workspace link (the design system's own checkout) resolves outside any
- * node_modules: its version is the source's, with no release to skew against.
+ * The installed UI package's version when it differs from this CLI's: the
+ * given scope's, or either scope's when none is given. The package's exports
+ * map does not expose ./package.json, so require() cannot read it: walk up
+ * node_modules the way resolution does and read the file. A workspace link
+ * (the design system's own checkout) resolves outside any node_modules: its
+ * version is the source's, with no release to skew against.
  */
-export function uiVersionSkew(cwd: string): {own: string; installed: string} | null {
+export function uiVersionSkew(
+  cwd: string,
+  scopes: readonly Scope[],
+): {own: string; installed: string; ui: string; cli: string} | null {
   const own = cliVersion()
   for (let dir = resolve(cwd); ; dir = dirname(dir)) {
-    const manifest = join(dir, 'node_modules', '@duro-app', 'ui', 'package.json')
-    if (existsSync(manifest)) {
+    for (const {ui, cli} of scopes) {
+      const manifest = join(dir, 'node_modules', ...ui.split('/'), 'package.json')
+      if (!existsSync(manifest)) continue
       try {
         if (!realpathSync(manifest).includes(`${sep}node_modules${sep}`)) return null
         const installed = (JSON.parse(readFileSync(manifest, 'utf8')) as {version?: string}).version
-        return installed && own !== '0.0.0' && installed !== own ? {own, installed} : null
+        return installed && own !== '0.0.0' && installed !== own ? {own, installed, ui, cli} : null
       } catch {
         return null
       }
@@ -367,7 +451,7 @@ export function uiVersionSkew(cwd: string): {own: string; installed: string} | n
   }
 }
 
-function checkRuntimeInjection(file: string, source: string): DoctorFinding[] {
+function checkRuntimeInjection(file: string, source: string, scope: Scope): DoctorFinding[] {
   const masked = maskComments(source, {line: true})
   const out: DoctorFinding[] = []
   const name = basename(file)
@@ -388,14 +472,14 @@ function checkRuntimeInjection(file: string, source: string): DoctorFinding[] {
         literal
           ? `runtimeInjection: ${value}`
           : `runtimeInjection is computed (${value}), and may be on`
-      }${testOnly ? ' (test config only)' : ''} — StyleX then injects react-strict-dom's element reset (padding: 0, margin: 0) into an unlayered <style> at import time. Unlayered rules beat every @layer rule, so it flattens the spacing of every @duro-app/ui component.`,
-      fix: `Set runtimeInjection: false and extract the rules at build time instead: react-strict-dom/postcss-plugin in postcss.config, plus a CSS file containing @react-strict-dom; imported after '${DS_CSS}'.`,
+      }${testOnly ? ' (test config only)' : ''} — StyleX then injects react-strict-dom's element reset (padding: 0, margin: 0) into an unlayered <style> at import time. Unlayered rules beat every @layer rule, so it flattens the spacing of every ${scope.ui} component.`,
+      fix: `Set runtimeInjection: false and extract the rules at build time instead: react-strict-dom/postcss-plugin in postcss.config, plus a CSS file containing @react-strict-dom; imported after '${dsCss(scope)}'.`,
     })
   }
   return out
 }
 
-function checkExtraction(file: string, source: string): DoctorFinding | null {
+function checkExtraction(file: string, source: string, scope: Scope): DoctorFinding | null {
   if (!basename(file).startsWith('postcss.config')) return null
   const masked = maskComments(source, {line: true})
   const match = /\buseCSSLayers\s*:\s*false\b/.exec(masked)
@@ -407,7 +491,7 @@ function checkExtraction(file: string, source: string): DoctorFinding | null {
     line: lineOf(source, match.index),
     message:
       "useCSSLayers: false emits this app's StyleX rules unlayered — including react-strict-dom's element reset (padding: 0) — and unlayered rules beat the design system's layered component styles.",
-    fix: 'Remove useCSSLayers (it defaults to true) so the extracted rules land in the same priority layers as @duro-app/ui.',
+    fix: `Remove useCSSLayers (it defaults to true) so the extracted rules land in the same priority layers as ${scope.ui}.`,
   }
 }
 
@@ -423,9 +507,6 @@ interface ConfigFile {
  */
 const STYLEX_COMPILER =
   /(['"])(?:@stylexjs\/(?:babel-plugin|unplugin|rollup-plugin)|vite-plugin-stylex|@stylex-extend\/[\w-]+|react-strict-dom\/babel-preset)(?:\/[\w./-]*)?\1/
-
-/** `@duro-app/tokens`, also as it appears inside a regex literal (`@duro-app\/tokens`). */
-const TOKENS_MENTION = /@duro-app\\?\/tokens\b/
 
 /** `noExternal: [...]`, `: true`, `: /re/` or `: 'pkg'`. */
 const NO_EXTERNAL =
@@ -497,20 +578,19 @@ function resolveList(
 
 const SSR_CONFIG = /\bssr\s*:|['"]@react-router\/dev\/vite['"]|['"]@remix-run\/dev['"]/
 
-const TOKENS_DEEP_IMPORT = /\bfrom\s*(['"])@duro-app\/tokens\/tokens\/[^'"\n]+\1/
 const STYLEX_CREATE = /\b(?:css|stylex)\.create\s*\(/
 
 const STYLEX_ERROR =
   'Could not resolve the path to the imported file. Please ensure the theme file has a .stylex.js or .stylex.ts extension'
 
 /**
- * `@duro-app/tokens/tokens/*.css` resolves to the package's uncompiled
+ * `@greenharness/greenrack-tokens/tokens/*.css` resolves to the package's uncompiled
  * `src/tokens/*.css.ts` (react-strict-dom `css.defineVars`), which only
  * react-strict-dom's babel preset turns into StyleX theme variables. An app
  * that compiles its own code with StyleX but routes nothing of
- * @duro-app/tokens through that preset cannot use the tokens in css.create.
+ * @greenharness/greenrack-tokens through that preset cannot use the tokens in css.create.
  *
- * Conservative: any vite/babel config text naming @duro-app/tokens outside
+ * Conservative: any vite/babel config text naming @greenharness/greenrack-tokens outside
  * `noExternal` counts as routing it. An error only with evidence — a source file that
  * deep-imports the tokens and calls css.create, whose build fails today;
  * otherwise a warning, since the design system's own rules tell the next
@@ -520,7 +600,9 @@ function checkTokensCompiled(
   dir: string,
   configs: ConfigFile[],
   rel: (path: string) => string,
+  scope: Scope,
 ): DoctorFinding | null {
+  const tokensMention = packageMention(scope.tokens)
   // The bundle's build only: vitest runs its own transform, and a postcss
   // extraction `include` that names the tokens (duro-app's does) collects
   // their rules without compiling the module the bundle imports.
@@ -542,7 +624,7 @@ function checkTokensCompiled(
     const source = readText(join(dir, relative(rel(dir), file)))
     return source === null ? null : maskComments(source, {line: true})
   }
-  const listsTokens = (value: string) => value === 'true' || TOKENS_MENTION.test(value)
+  const listsTokens = (value: string) => value === 'true' || tokensMention.test(value)
 
   let stylex: {file: string; line: number} | null = null
   let ssr = false
@@ -574,7 +656,7 @@ function checkTokensCompiled(
     if (compiler && !stylex) stylex = {file, line: lineOf(source, compiler.index)}
   }
   if (!stylex) return null
-  const routed = [...outside.values()].some((text) => TOKENS_MENTION.test(text))
+  const routed = [...outside.values()].some((text) => tokensMention.test(text))
   const ssrGap = ssr && !ssrExternal
   if (routed && !ssrGap) return null
 
@@ -587,16 +669,16 @@ function checkTokensCompiled(
       severity: 'warn',
       file: opaque.file,
       line: opaque.line,
-      message: `ssr.noExternal is \`${opaque.name}\` in ${opaque.file}:${opaque.line}, which doctor cannot resolve to a list, so it cannot verify that SSR inlines @duro-app/tokens (without it, css.defineVars throws at runtime).`,
-      fix: `Make sure '@duro-app/tokens' is in \`${opaque.name}\`, or declare noExternal inline in ${opaque.file}.`,
+      message: `ssr.noExternal is \`${opaque.name}\` in ${opaque.file}:${opaque.line}, which doctor cannot resolve to a list, so it cannot verify that SSR inlines ${scope.tokens} (without it, css.defineVars throws at runtime).`,
+      fix: `Make sure '${scope.tokens}' is in \`${opaque.name}\`, or declare noExternal inline in ${opaque.file}.`,
     }
   }
 
-  const evidence = tokensInCreate(dir)
+  const evidence = tokensInCreate(dir, scope)
   const where = evidence ? `${rel(evidence.path)}:${evidence.line}` : null
   const cause = routed
-    ? `${stylex.file} routes @duro-app/tokens through Babel, but this app renders on the server and ssr.noExternal does not list it: SSR loads the tokens from node_modules as native ESM, bypassing that rule, and css.defineVars throws at runtime.`
-    : `${stylex.file} compiles the app with StyleX, but nothing compiles @duro-app/tokens' sources: @duro-app/tokens/tokens/*.css resolves to uncompiled src/tokens/*.css.ts (react-strict-dom css.defineVars), which only react-strict-dom/babel-preset turns into StyleX theme variables. css.create then cannot import them — StyleX fails with "${STYLEX_ERROR}".`
+    ? `${stylex.file} routes ${scope.tokens} through Babel, but this app renders on the server and ssr.noExternal does not list it: SSR loads the tokens from node_modules as native ESM, bypassing that rule, and css.defineVars throws at runtime.`
+    : `${stylex.file} compiles the app with StyleX, but nothing compiles ${scope.tokens}' sources: ${scope.tokens}/tokens/*.css resolves to uncompiled src/tokens/*.css.ts (react-strict-dom css.defineVars), which only react-strict-dom/babel-preset turns into StyleX theme variables. css.create then cannot import them — StyleX fails with "${STYLEX_ERROR}".`
   return {
     rule: 'tokens-compiled',
     severity: evidence ? 'error' : 'warn',
@@ -608,16 +690,17 @@ function checkTokensCompiled(
         : 'Latent until a file imports a token into css.create — the import the design system prescribes; the barrel import apps fall back on is forbidden.'
     }`,
     fix: routed
-      ? `Add '@duro-app/tokens' (with 'react-strict-dom') to ssr.noExternal in ${stylex.file}.`
-      : `Compile node_modules/@duro-app/tokens with react-strict-dom/babel-preset, as duro-app's vite.config.ts does — babel({filter: /node_modules\\/@duro-app\\/tokens\\/.*\\.[jt]sx?$/, babelConfig: {presets: ['@babel/preset-typescript', ['react-strict-dom/babel-preset', {platform: 'web', rootDir: process.cwd()}]]}}) from vite-plugin-babel, ahead of the app's StyleX pass — and add '@duro-app/tokens' to ssr.noExternal if the app renders on the server.`,
+      ? `Add '${scope.tokens}' (with 'react-strict-dom') to ssr.noExternal in ${stylex.file}.`
+      : `Compile node_modules/${scope.tokens} with react-strict-dom/babel-preset, as duro-app's vite.config.ts does — babel({filter: /node_modules\\/${scope.tokens.split('/').join('\\/')}\\/.*\\.[jt]sx?$/, babelConfig: {presets: ['@babel/preset-typescript', ['react-strict-dom/babel-preset', {platform: 'web', rootDir: process.cwd()}]]}}) from vite-plugin-babel, ahead of the app's StyleX pass — and add '${scope.tokens}' to ssr.noExternal if the app renders on the server.`,
   }
 }
 
 /** Sources under app/ and src/ scanned for tokens evidence, at most. */
 const SOURCE_SCAN_LIMIT = 5000
 
-/** The first app source that deep-imports @duro-app/tokens and calls css.create. */
-function tokensInCreate(dir: string): {path: string; line: number} | null {
+/** The first app source that deep-imports @greenharness/greenrack-tokens and calls css.create. */
+function tokensInCreate(dir: string, scope: Scope): {path: string; line: number} | null {
+  const deepImport = tokensDeepImport(scope)
   const stack = ['src', 'app'].map((name) => join(dir, name))
   let budget = SOURCE_SCAN_LIMIT
   while (stack.length > 0 && budget > 0) {
@@ -641,7 +724,7 @@ function tokensInCreate(dir: string): {path: string; line: number} | null {
       const source = readText(path)
       if (source === null) continue
       const masked = maskComments(source, {line: true})
-      const deep = TOKENS_DEEP_IMPORT.exec(masked)
+      const deep = deepImport.exec(masked)
       if (deep && STYLEX_CREATE.test(masked)) return {path, line: lineOf(source, deep.index)}
     }
     // Depth-first, alphabetical: the first match is stable across runs.
@@ -744,7 +827,7 @@ function walkFiles(
 /**
  * A media query cannot read a custom property: `@media (max-width:
  * var(--x))` never matches, so the rules inside never apply. It happens when
- * `@duro-app/tokens/tokens/breakpoints.css.ts` reaches the CSS without the
+ * `@greenharness/greenrack-tokens/tokens/breakpoints.css.ts` reaches the CSS without the
  * StyleX/RSD compile that turns its consts into px. Reads built CSS only, and
  * only output newer than every config and source file: stale output says
  * nothing about the code as it is. `skipped` when there is no fresh build;
@@ -754,6 +837,7 @@ function checkMediaVar(
   dir: string,
   configs: string[],
   rel: (path: string) => string,
+  scope: Scope,
 ): {checked: string[]; findings: DoctorFinding[]; skipped: boolean} {
   const unreadable: Unreadable[] = []
   const newest = newestInput(dir, configs, unreadable)
@@ -791,7 +875,7 @@ function checkMediaVar(
       file: rel(path),
       line: lineOf(source, first.index),
       message: `${query}${more} compares against a CSS variable, which a media query cannot read: it never matches, so the rules inside never apply.`,
-      fix: 'compile `@duro-app/tokens/tokens/breakpoints.css.ts` through the StyleX/RSD babel step, rebuild, re-run `npx -y @duro-app/cli doctor`',
+      fix: `compile \`${scope.tokens}/tokens/breakpoints.css.ts\` through the StyleX/RSD babel step, rebuild, re-run \`npx -y ${scope.cli} doctor\``,
     })
   }
   return {checked: fresh.map(rel), findings, skipped: false}
@@ -812,6 +896,8 @@ interface SheetWalk {
   findings: DoctorFinding[]
   seen: Set<string>
   dsImported: boolean
+  scope: Scope
+  sheets: Record<string, string[]>
 }
 
 function checkStylesheets(
@@ -820,6 +906,7 @@ function checkStylesheets(
   rel: (path: string) => string,
   checked: string[],
   unlayeredExtraction: boolean,
+  scope: Scope,
 ): DoctorFinding[] {
   const walk: SheetWalk = {
     root,
@@ -830,6 +917,8 @@ function checkStylesheets(
     findings: [],
     seen: new Set(),
     dsImported: false,
+    scope,
+    sheets: dsSheets(scope),
   }
   const source = readText(entry) ?? ''
   for (const imp of cssImports(source)) {
@@ -841,8 +930,8 @@ function checkStylesheets(
       rule: 'css-imported',
       severity: 'error',
       file: rel(entry),
-      message: `${rel(entry)} never imports '${DS_CSS}'. @duro-app/ui's JavaScript does not load its stylesheet, so every component renders unstyled.`,
-      fix: `Add import '${DS_CSS}' to ${rel(entry)}, before the app's own CSS.`,
+      message: `${rel(entry)} never imports '${dsCss(scope)}'. ${scope.ui}'s JavaScript does not load its stylesheet, so every component renders unstyled.`,
+      fix: `Add import '${dsCss(scope)}' to ${rel(entry)}, before the app's own CSS.`,
     })
     return walk.findings
   }
@@ -858,7 +947,7 @@ function checkStylesheets(
       file: origin.file,
       line: origin.line,
       message: `${origin.file} declares StyleX's priority layers before 'reset'. The first declaration fixes layer order for the whole page, so the design system's reset (* { padding: 0; margin: 0 }) now outranks every component style.`,
-      fix: `Import '${DS_CSS}' before ${origin.file}, or start ${origin.file} with ${LAYER_STATEMENT}`,
+      fix: `Import '${dsCss(scope)}' before ${origin.file}, or start ${origin.file} with ${LAYER_STATEMENT}`,
     })
   }
   return walk.findings
@@ -873,7 +962,7 @@ function cssImports(source: string): Array<{specifier: string; line: number}> {
   )) {
     const [, clause, , specifier] = match
     if (!/\.css(?:\?[\w&=-]*)?$/.test(specifier!)) continue
-    // `import {spacing} from '@duro-app/tokens/tokens/spacing.css'` is a
+    // `import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'` is a
     // .css.ts module, not a stylesheet — only side-effect and ?url imports
     // put CSS on the page.
     if (clause !== undefined && !specifier!.includes('?')) continue
@@ -905,9 +994,9 @@ function visit(
   origin: LayerOrigin,
   layered: boolean,
 ): void {
-  const ds = DS_SHEETS[specifier]
+  const ds = walk.sheets[specifier]
   if (ds) {
-    if (specifier === DS_CSS) walk.dsImported = true
+    if (specifier === dsCss(walk.scope)) walk.dsImported = true
     if (!layered) declare(walk, ds, {file: specifier, line: 0})
     return
   }
@@ -960,7 +1049,7 @@ function scanSheet(walk: SheetWalk, path: string, file: string, layered: boolean
               severity: 'warn',
               file,
               line: lineOf(source, (block.body ?? 0) + decl.index),
-              message: `'${selector.replace(/\s+/g, ' ')} { ${decl[1]}: 0 }' sits outside any @layer, so it beats the spacing @duro-app/ui components set in their layers.`,
+              message: `'${selector.replace(/\s+/g, ' ')} { ${decl[1]}: 0 }' sits outside any @layer, so it beats the spacing ${walk.scope.ui} components set in their layers.`,
               fix: `Wrap the rule in @layer reset { … } — the design system's reset layer, which component styles already outrank.`,
             })
           }
@@ -1014,37 +1103,124 @@ const CONSEQUENCE: Record<DoctorRule, string> = {
   'version-skew': 'the CLI checks a different version than the one installed',
   'tokens-compiled': 'css.create cannot use the design tokens',
   'media-var': 'breakpoint media queries never match',
+  'legacy-names': 'the app still reads names the old scope published',
+}
+
+/** The old CSS names an app's own stylesheet may still carry, with the names that replace them. */
+const LEGACY_CSS_NAME = new RegExp(
+  `${escapeRegExp(LEGACY_SCOPE.cssVariablePrefix)}[\\w-]+|${escapeRegExp(LEGACY_SCOPE.dataAttributePrefix)}[\\w-]*|${escapeRegExp(LEGACY_SCOPE.proseLayer)}`,
+  'g',
+)
+
+function renamedCssName(name: string): string {
+  const from = LEGACY_SCOPE
+  const to = GREENRACK_SCOPE
+  if (name.startsWith(from.cssVariablePrefix)) {
+    return `${to.cssVariablePrefix}${name.slice(from.cssVariablePrefix.length)}`
+  }
+  if (name.startsWith(from.dataAttributePrefix)) {
+    return `${to.dataAttributePrefix}${name.slice(from.dataAttributePrefix.length)}`
+  }
+  return to.proseLayer
+}
+
+/** How many leftover names are reported one by one, before `… and N more`. */
+const LEGACY_NAME_LIMIT = 10
+
+/**
+ * Old CSS names in the app's own stylesheets (the old variable prefix, data attribute prefix and
+ * prose layer), each with its new name: the first LEGACY_NAME_LIMIT, then
+ * one line counting the rest.
+ */
+function checkLegacyNames(
+  dir: string,
+  scope: Scope,
+  rel: (path: string) => string,
+): DoctorFinding[] {
+  const found: DoctorFinding[] = []
+  walkFiles(
+    ['src', 'app'].map((name) => join(dir, name)),
+    (name) => name.endsWith('.css'),
+    (path) => {
+      const source = readText(path)
+      if (source === null) return
+      for (const match of maskComments(source, {line: false}).matchAll(LEGACY_CSS_NAME)) {
+        const renamed = renamedCssName(match[0])
+        found.push({
+          rule: 'legacy-names',
+          severity: 'warn',
+          file: rel(path),
+          line: lineOf(source, match.index),
+          message: `${match[0]} is the old name; the new name is ${renamed}.`,
+          fix: `Rename ${match[0]} to ${renamed}.`,
+        })
+      }
+    },
+    [],
+  )
+  if (found.length === 0) return found
+  // On the old scope these names are still right: one line says what to do on the move.
+  if (scope.kind === 'legacy') {
+    return [
+      {
+        rule: 'legacy-names',
+        severity: 'warn',
+        file: rel(dir),
+        message: `${found.length} old CSS name(s) in the app's own stylesheets, right for ${scope.ui}.`,
+        fix: `Rename them (${LEGACY_SCOPE.cssVariablePrefix}* to ${GREENRACK_SCOPE.cssVariablePrefix}*) when the app moves to ${GREENRACK_SCOPE.ui}.`,
+      },
+    ]
+  }
+  if (found.length <= LEGACY_NAME_LIMIT) return found
+  return [
+    ...found.slice(0, LEGACY_NAME_LIMIT),
+    {
+      rule: 'legacy-names',
+      severity: 'warn',
+      file: rel(dir),
+      message: `… and ${found.length - LEGACY_NAME_LIMIT} more`,
+      fix: 'Rename them the same way.',
+    },
+  ]
 }
 
 function report(
   findings: DoctorFinding[],
   checked: string[],
   packages: string[],
+  scopes: string[],
   session: boolean,
   skipped: string[] = [],
 ): CommandResult {
   const errors = findings.filter((finding) => finding.severity === 'error')
   const warnings = findings.filter((finding) => finding.severity === 'warn')
-  const data = {ok: errors.length === 0, findings, checked, skipped, packages}
+  const summary = {ok: errors.length === 0, findings, checked, skipped, packages, scopes}
+  const scopeNames = scopes.join(' + ')
+  const recheck = SCOPES.filter(({ui}) => scopes.includes(ui)).map(
+    ({cli}) => `npx -y ${cli} doctor`,
+  )
   const where = (finding: DoctorFinding) =>
     finding.line ? `${finding.file}:${finding.line}` : finding.file
   const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
   if (session) {
-    if (findings.length === 0) return {text: '', data}
+    if (findings.length === 0) return {text: '', data: summary}
     const effects = [...new Set(errors.map((finding) => CONSEQUENCE[finding.rule]))]
     return {
       text: [
         errors.length > 0
-          ? `DURO DOCTOR — ${plural(errors.length, 'error')} in this repo's @duro-app/ui setup: ${effects.join('; ')} until fixed. Fix before any styling work:`
-          : `DURO DOCTOR — ${plural(warnings.length, 'warning')} about this repo's @duro-app/ui setup:`,
+          ? `GREENRACK DOCTOR — ${plural(errors.length, 'error')} in ${scopeNames}`
+          : `GREENRACK DOCTOR — ${plural(warnings.length, 'warning')} in ${scopeNames}`,
+        errors.length > 0
+          ? `This repo's setup: ${effects.join('; ')} until fixed. Fix before any styling work:`
+          : "Warnings about this repo's setup:",
         ...findings.map(
           (finding) =>
             `- [${finding.severity}] ${finding.rule} at ${where(finding)}: ${finding.message} Fix: ${finding.fix}`,
         ),
-        'Re-check with: npx -y @duro-app/cli doctor',
+        `Re-check with: ${recheck.join(' or ')}`,
       ].join('\n'),
-      data,
+      data: summary,
     }
   }
 
@@ -1054,13 +1230,14 @@ function report(
   ]
   if (findings.length === 0) {
     return {
-      text: ['duro doctor: no problems found', ...tail].join('\n'),
-      data,
+      text: [`greenrack doctor — ${scopeNames}`, '  no problems found', ...tail].join('\n'),
+      data: summary,
     }
   }
   return {
     text: [
-      `duro doctor: ${errors.length} error(s), ${warnings.length} warning(s)`,
+      `greenrack doctor: ${errors.length} error(s), ${warnings.length} warning(s)`,
+      `  scope: ${scopeNames}`,
       ...findings.flatMap((finding) => [
         `  ${finding.severity.padEnd(5)} ${finding.rule.padEnd(18)} ${where(finding)}`,
         `        ${finding.message}`,
@@ -1068,7 +1245,7 @@ function report(
       ]),
       ...tail,
     ].join('\n'),
-    data,
+    data: summary,
     exitCode: errors.length > 0 ? 1 : undefined,
   }
 }

@@ -2,7 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Callout} from './Callout'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Callout> = {
   title: 'Components/Callout',

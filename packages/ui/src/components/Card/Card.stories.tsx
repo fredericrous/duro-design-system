@@ -2,10 +2,10 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Card} from './Card'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta<typeof Card> = {
   title: 'Components/Card',

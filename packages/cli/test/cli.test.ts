@@ -1,4 +1,4 @@
-import {execFileSync} from 'node:child_process'
+import {execFileSync, spawnSync} from 'node:child_process'
 import {
   existsSync,
   mkdtempSync,
@@ -21,6 +21,7 @@ import {SKILL, SKILL_MIN_CLI, SKILL_PATH} from '../src/skill-template.js'
 import {runHook} from '../src/commands/hook.js'
 import {relatedPairs} from '../src/disambiguation.js'
 import {search} from '../src/search.js'
+import {LEGACY_HOOK_SCRIPT_PATH} from '../src/legacy-names.js'
 import {COMMANDS} from '../src/manifest.js'
 import {
   HOOK_CACHE_IGNORE,
@@ -38,7 +39,7 @@ const registry = loadRegistry()
 const bin = fileURLToPath(new URL('../dist/bin.js', import.meta.url))
 const skillsDir = fileURLToPath(new URL('../skills/', import.meta.url))
 
-function duro(...args: string[]): {stdout: string; code: number} {
+function greenrack(...args: string[]): {stdout: string; code: number} {
   try {
     return {stdout: execFileSync(process.execPath, [bin, ...args], {encoding: 'utf8'}), code: 0}
   } catch (error) {
@@ -145,7 +146,7 @@ describe('command results', () => {
     const ok = runHook(registry, 'session-start')
     expect(ok.exitCode).toBeUndefined()
     expect(ok.text).toContain('hand-rolling')
-    expect(ok.text).toContain('/duro-mockup')
+    expect(ok.text).toContain('/greenrack-mockup')
     expect(ok.text).toContain(runList(registry).text)
     expect(runHook(registry, 'nope').exitCode).toBe(2)
     expect(runHook(registry).exitCode).toBe(2)
@@ -180,35 +181,35 @@ describe('command results', () => {
 })
 
 describe('bin end-to-end', () => {
-  it('duro Button prints the prop table', () => {
-    const {stdout, code} = duro('Button')
+  it('greenrack Button prints the prop table', () => {
+    const {stdout, code} = greenrack('Button')
     expect(code).toBe(0)
-    expect(stdout).toContain("import {Button} from '@duro-app/ui'")
+    expect(stdout).toContain("import {Button} from '@greenharness/greenrack-ui'")
     expect(stdout).toContain('ButtonVariant')
   })
   it('--json emits parseable JSON and nothing else on stdout', () => {
-    const {stdout, code} = duro('Button', '--json')
+    const {stdout, code} = greenrack('Button', '--json')
     expect(code).toBe(0)
     const parsed = JSON.parse(stdout) as {kind: string; key: string}
     expect(parsed).toMatchObject({kind: 'component', key: 'Button'})
   })
   it('--source-only output is pipeable source', () => {
-    const {stdout} = duro('login-form', '--source-only')
+    const {stdout} = greenrack('login-form', '--source-only')
     expect(stdout).toMatch(/^import \{Schema\} from 'effect'/)
     expect(stdout).not.toContain('recipeMeta')
   })
   it('misspellings suggest and exit 1', () => {
-    const {code} = duro('Buton')
+    const {code} = greenrack('Buton')
     expect(code).toBe(1)
   })
   it('unknown flags exit 2', () => {
-    const {code} = duro('Button', '--frobnicate')
+    const {code} = greenrack('Button', '--frobnicate')
     expect(code).toBe(2)
   })
 })
 
 describe('hook install', () => {
-  const repo = () => mkdtempSync(join(tmpdir(), 'duro-hook-'))
+  const repo = () => mkdtempSync(join(tmpdir(), 'greenrack-hook-'))
   const at = (root: string, path: string) => join(root, path)
   const install = (root: string, check = false) => runHook(registry, 'install', {cwd: root, check})
 
@@ -308,16 +309,14 @@ describe('hook install', () => {
     expect(commands).toEqual(['sh other.sh', HOOK_COMMAND])
   })
 
-  it('migrates a legacy inline/renamed duro command in place', () => {
+  it('migrates a legacy inline/renamed hook command in place', () => {
     const root = repo()
     mkdirSync(at(root, '.claude'), {recursive: true})
     writeFileSync(
       at(root, HOOK_SETTINGS_PATH),
       JSON.stringify({
         hooks: {
-          SessionStart: [
-            {hooks: [{type: 'command', command: 'sh ./.claude/hooks/duro-catalog.sh'}]},
-          ],
+          SessionStart: [{hooks: [{type: 'command', command: `sh ./${LEGACY_HOOK_SCRIPT_PATH}`}]}],
         },
       }),
     )
@@ -357,8 +356,8 @@ describe('hook install', () => {
 describe('plan-mode hook script', () => {
   // Runs the generated script exactly as Claude Code would: sh, payload on stdin.
   const run = (stdin: string) => {
-    const root = mkdtempSync(join(tmpdir(), 'duro-plan-'))
-    const script = join(root, 'duro-plan.sh')
+    const root = mkdtempSync(join(tmpdir(), 'greenrack-plan-'))
+    const script = join(root, 'greenrack-plan.sh')
     writeFileSync(script, PLAN_HOOK_SCRIPT)
     // execFileSync throws on a non-zero exit, so returning is the exit-0 assertion.
     return execFileSync('sh', [script], {cwd: root, input: stdin, encoding: 'utf8'})
@@ -384,7 +383,7 @@ describe('plan-mode hook script', () => {
   it('keeps the nudge short and names the trigger', () => {
     expect(PLAN_NUDGE.trimEnd().split('\n').length).toBeLessThanOrEqual(6)
     expect(PLAN_NUDGE).toContain('handoff.fresh-directions-trigger')
-    expect(PLAN_NUDGE).toContain('duro-mockup')
+    expect(PLAN_NUDGE).toContain('greenrack-mockup')
   })
 
   it.each(['default', 'acceptEdits', 'bypassPermissions', 'dontAsk'])(
@@ -407,14 +406,14 @@ describe('plan-mode hook script', () => {
 })
 
 describe('skill install', () => {
-  const repo = () => mkdtempSync(join(tmpdir(), 'duro-skill-'))
+  const repo = () => mkdtempSync(join(tmpdir(), 'greenrack-skill-'))
   const install = (root: string, check = false) => runSkill('install', {cwd: root, check})
 
   const SKILLS = ['colors', 'typography', 'ui']
   const shipped = (name: string) => join(skillsDir, name)
   const installed = (root: string, ...parts: string[]) => join(root, '.claude', 'skills', ...parts)
 
-  it('writes duro-mockup and every packaged file, nested ones included, and nothing else', () => {
+  it('writes greenrack-mockup and every packaged file, nested ones included, and nothing else', () => {
     const root = repo()
     const result = install(root)
     expect(result.exitCode).toBeUndefined()
@@ -428,15 +427,15 @@ describe('skill install', () => {
         )
       }
     }
-    expect(result.text).toContain('/duro-mockup')
-    expect(result.text).toContain('duro-mockup, colors, typography, ui')
+    expect(result.text).toContain('/greenrack-mockup')
+    expect(result.text).toContain('greenrack-mockup, colors, typography, ui')
     expect(result.text.trimEnd().split('\n').pop()).toContain('skill install --check')
     expect(() => readFileSync(join(root, '.claude', 'settings.json'), 'utf8')).toThrow()
     expect(readdirSync(installed(root, 'ui')).some((file) => file.endsWith('.tmp'))).toBe(false)
   })
 
   it('writes a nested file at its relative path and exits 2 on a missing or empty skills directory', () => {
-    const scratch = mkdtempSync(join(tmpdir(), 'duro-skills-src-'))
+    const scratch = mkdtempSync(join(tmpdir(), 'greenrack-skills-src-'))
     mkdirSync(join(scratch, 'ui', 'refs', 'deep'), {recursive: true})
     writeFileSync(join(scratch, 'ui', 'SKILL.md'), 'skill\n')
     writeFileSync(join(scratch, 'ui', 'NOTICE.md'), 'notice\n')
@@ -447,7 +446,7 @@ describe('skill install', () => {
     expect(readFileSync(installed(root, 'ui', 'refs', 'deep', 'a.md'), 'utf8')).toBe('nested\n')
     expect(listFiles(scratch)).toEqual(['ui/NOTICE.md', 'ui/SKILL.md', 'ui/refs/deep/a.md'])
 
-    const empty = mkdtempSync(join(tmpdir(), 'duro-skills-empty-'))
+    const empty = mkdtempSync(join(tmpdir(), 'greenrack-skills-empty-'))
     expect(runSkill('install', {cwd: repo(), skillsDir: pathToFileURL(`${empty}/`)}).exitCode).toBe(
       2,
     )
@@ -541,7 +540,7 @@ describe('skill install', () => {
     execFileSync('git', ['init', '-q'], {cwd: root})
     writeFileSync(join(root, '.gitignore'), '.claude/*\n')
     const result = install(root)
-    for (const name of ['duro-mockup', ...SKILLS]) {
+    for (const name of ['greenrack-mockup', ...SKILLS]) {
       expect(result.text).toContain(`!.claude/skills/${name}/SKILL.md`)
     }
   })
@@ -553,7 +552,7 @@ describe('skill install', () => {
     const result = install(root)
     expect(result.text).toContain('.prettierignore')
     expect(result.text).toContain('  .claude/skills/colors/')
-    expect(result.text).toContain('  .claude/skills/duro-mockup/')
+    expect(result.text).toContain('  .claude/skills/greenrack-mockup/')
     expect(result.text).not.toContain('  .claude/skills/ui/\n')
 
     const covered = repo()
@@ -584,7 +583,7 @@ describe('skill install', () => {
   it('names --force in the command help', () => {
     const skill = COMMANDS.find((command) => command.name === 'skill')
     expect(skill?.flags.find((flag) => flag.name === 'force')?.description).toContain('--force')
-    const help = duro('skill', '--help')
+    const help = greenrack('skill', '--help')
     expect(help.code).toBe(0)
     expect(help.stdout).toContain('--force')
   })
@@ -605,9 +604,9 @@ describe('skill install', () => {
   })
 
   it('the skill overrides the design skill and pins the CLI floor', () => {
-    expect(SKILL).toContain('name: duro-mockup')
+    expect(SKILL).toContain('name: greenrack-mockup')
     expect(SKILL).toContain("overrides the `design` skill's step 0")
-    expect(SKILL).toContain(`npx -y @duro-app/cli@^${SKILL_MIN_CLI} mockup check`)
+    expect(SKILL).toContain(`npx -y @greenharness/greenrack-cli@^${SKILL_MIN_CLI} mockup check`)
     expect(SKILL).toContain('docs/mockups/<screen>')
     expect(SKILL).toContain('Mockup: none')
   })
@@ -618,15 +617,36 @@ describe('skill install', () => {
   })
 })
 
-describe('the /duro-mockup skill names only what the CLI ships', () => {
-  it('every `duro mockup <sub>` it runs is a real subcommand', async () => {
+describe('the /greenrack-mockup skill names only what the CLI ships', () => {
+  it('every `greenrack mockup <sub>` it runs is a real subcommand', async () => {
     const {MOCKUP_SUBCOMMANDS} = await import('../src/commands/mockup.js')
-    const subs = [...SKILL.matchAll(/@duro-app\/cli@\S+ mockup ([a-z-]+)/g)].map((m) => m[1])
+    const subs = [...SKILL.matchAll(/@greenharness\/greenrack-cli@\S+ mockup ([a-z-]+)/g)].map(
+      (m) => m[1],
+    )
     expect(subs).toEqual(expect.arrayContaining(['seed', 'check', 'canvas']))
     for (const sub of subs) expect(MOCKUP_SUBCOMMANDS).toContain(sub)
   })
 
-  it('sends the agent to no helper Duro does not ship', () => {
+  it('sends the agent to no helper greenrack does not ship', () => {
     expect(SKILL).not.toMatch(/seed-canvas|bundled-skills/)
+  })
+})
+
+describe('the version-skew warning', () => {
+  it('names the scope and the CLI of the ui the app installs, old scope included', () => {
+    const root = mkdtempSync(join(tmpdir(), 'greenrack-skew-'))
+    const ui = join(root, 'node_modules', '@duro-app', 'ui')
+    mkdirSync(ui, {recursive: true})
+    writeFileSync(
+      join(ui, 'package.json'),
+      JSON.stringify({name: '@duro-app/ui', version: '6.3.0'}),
+    )
+    const run = spawnSync(process.execPath, [bin, 'list', 'components'], {
+      cwd: root,
+      encoding: 'utf8',
+    })
+    expect(run.stderr).toContain('you have @duro-app/ui@6.3.0')
+    expect(run.stderr).toContain('npm i -D @duro-app/cli@6.3.0')
+    expect(run.stderr).not.toContain('@greenharness/greenrack-cli@6.3.0')
   })
 })

@@ -69,7 +69,7 @@ const SHELLS = ['sh', ...(existsSync('/bin/dash') ? ['dash'] : [])]
 
 /** A repo with the generated hook and a fake npx that prints `catalog`, nothing, or fails. */
 function repo(npx: {catalog: string} | 'fails' | 'empty' | 'no-newline', shell: string) {
-  const dir = mkdtempSync(join(tmpdir(), 'duro-hook-'))
+  const dir = mkdtempSync(join(tmpdir(), 'greenrack-hook-'))
   mkdirSync(join(dir, '.claude/hooks'), {recursive: true})
   writeFileSync(join(dir, HOOK_SCRIPT_PATH), HOOK_SCRIPT)
   const bin = join(dir, 'bin')
@@ -109,7 +109,7 @@ describe.each(SHELLS)('the session hook cache, under %s', (shell) => {
     oldCache(r.cache)
     const out = r.run()
     expect(out.stdout.split('\n')[0]).toBe('CATALOG 4.4')
-    expect(out.stdout).not.toContain('#duro-hook-pin')
+    expect(out.stdout).not.toContain('#greenrack-hook-pin')
     expect(readFileSync(r.cache, 'utf8').split('\n')[0]).toBe(HOOK_PIN_LINE)
   })
 
@@ -122,7 +122,7 @@ describe.each(SHELLS)('the session hook cache, under %s', (shell) => {
     expect(existsSync(`${r.cache}.tmp`)).toBe(false)
     // Printed whole: no catalog line lost to the pin skip.
     expect(out.stdout.startsWith('OLD CATALOG\nold second line')).toBe(true)
-    expect(out.stderr).toContain(`npx -y @duro-app/cli@^${HOOK_MIN_CLI} hook install`)
+    expect(out.stderr).toContain(`npx -y @greenharness/greenrack-cli@^${HOOK_MIN_CLI} hook install`)
   })
 
   it('leaves no pin-only cache when the first fetch fails', () => {

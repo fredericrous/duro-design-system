@@ -3,15 +3,17 @@ name: ui
 description: Polishes the surfaces, icons and motion in your project with exact values for border radius, optical alignment, shadows, icon states and animation. Use when adding or tuning a UI animation or transition, such as a menu or dialog enter and exit, staggered list items, hover and press feedback or an icon swap.
 ---
 
+**Gate.** This skill applies only in a repository whose `package.json` depends on `@greenharness/greenrack-ui`, or on the old `@duro-app/ui` it replaces (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
+
 # UI polish
 
 This skill holds the visual polish for surfaces, icons and motion, with the exact value each detail takes. It applies once the underlying interaction is sound, and a polish finding never outranks a broken interaction.
 
 A decision of this repository (resolved at its applicable scope with `aval resolve`) outranks a value in this skill. Apply token requirements and gap routing only where the repository's decisions require them, keeping their named exemptions. On `duro-stack`, a non-exempt measure without a token is a design-system gap under ADR-0006/0027, never a local literal.
 
-Where Duro defines the value, these win: the `spacing.css.ts` radii, `shadows.css.ts` and `motion.css.ts`.
+Where greenrack defines the value, these win: the `spacing.css.ts` radii, `shadows.css.ts` and `motion.css.ts`.
 
-The ui values `300ms` enter, `100ms` stagger and `cubic-bezier(0.2, 0, 0, 1)` are Duro tokens (`duration.slower`, `duration.stagger`, `easing.emphasized`) that a review uses instead of the literal.
+The ui values `300ms` enter, `100ms` stagger and `cubic-bezier(0.2, 0, 0, 1)` are greenrack tokens (`duration.slower`, `duration.stagger`, `easing.emphasized`) that a review uses instead of the literal.
 
 ## Exact values, optional polish
 

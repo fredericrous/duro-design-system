@@ -16,10 +16,10 @@ importers:
 
   .:
     dependencies:
-      '@duro-app/tokens':
+      '@greenharness/greenrack-tokens':
         specifier: link:../../packages/tokens
         version: link:../../packages/tokens
-      '@duro-app/ui':
+      '@greenharness/greenrack-ui':
         specifier: link:../../packages/ui
         version: link:../../packages/ui
       '@hookform/resolvers':
