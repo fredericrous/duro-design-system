@@ -1,6 +1,6 @@
 import {createElement} from 'react'
-import {ICON_SIZES} from '@duro-app/tokens/keys'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {ICON_SIZES} from '@greenharness/greenrack-tokens/keys'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
 
 import {DEFAULT_VIEW_BOX, GLYPHS, type Shape} from './geometry'
 import type {IconProps} from './types'

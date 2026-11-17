@@ -10,7 +10,7 @@
  * `html` + `css`) or that have a `.native` variant; `pnpm typecheck:native` and
  * `scripts/check-native-graph.mjs` hold the line (plan N0).
  *
- * Tokens resolve fine on native already: @duro-app/tokens's subpath exports
+ * Tokens resolve fine on native already: @greenharness/greenrack-tokens's subpath exports
  * (`./tokens/*.css`, `./themes/*.css`) point straight at their `.css.ts`
  * source, so Metro/StyleX-native compile them directly.
  */

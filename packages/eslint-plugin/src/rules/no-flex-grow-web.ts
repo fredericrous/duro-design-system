@@ -16,7 +16,7 @@ type Options = [
  * render a growing child in a row and in a column and assert computed
  * `flex-grow: 1` and the filled size, and ticket-vision measured the same in
  * its app. The rule stays registered, deprecated, so a config that names it
- * (`'duro/no-flex-grow-web': 'off'`) keeps loading; it is out of the
+ * (`'greenrack/no-flex-grow-web': 'off'`) keeps loading; it is out of the
  * recommended preset.
  */
 export const noFlexGrowWeb: TSESLint.RuleModule<MessageIds, Options> = {

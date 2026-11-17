@@ -200,7 +200,7 @@ export function renderRules(rules: RulesRegistry): string {
     .join('\n')
   return [
     `${bold('CRITICAL RULES')}   ${dim('(source: CLAUDE.md)')}\n\n${rules.critical}`,
-    `${bold('ENFORCED BY @duro-app/eslint-plugin')} ${dim('(duro.configs.recommended)')}\n${lint}`,
+    `${bold('ENFORCED BY @greenharness/greenrack-eslint-plugin')} ${dim('(greenrack.configs.recommended)')}\n${lint}`,
   ].join('\n\n')
 }
 
@@ -240,7 +240,7 @@ export function renderList(registry: Registry, kind?: string): string {
       .join('\n')
     sections.push(`${bold('GUIDES')} (${guideNames(registry).length})\n${rows}`)
   }
-  sections.push(dim(`duro <name> for details · duro rules · duro manifest`))
+  sections.push(dim(`duro <name> for details · duro rules · greenrack manifest`))
   return sections.join('\n\n')
 }
 

@@ -1,6 +1,6 @@
 import {createContext} from 'react'
-import type {ColorToken} from '@duro-app/tokens/keys'
-import {darkColors} from '@duro-app/tokens/raw'
+import type {ColorToken} from '@greenharness/greenrack-tokens/keys'
+import {darkColors} from '@greenharness/greenrack-tokens/raw'
 
 /**
  * The theme styles in force where a component renders: every enclosing

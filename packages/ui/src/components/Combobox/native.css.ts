@@ -1,7 +1,7 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
 
 /** Native Combobox additions to the shared styles: the closed field. */
 export const nativeStyles = css.create({

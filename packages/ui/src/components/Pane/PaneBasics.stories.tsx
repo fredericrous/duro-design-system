@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, fn, userEvent, waitFor, within} from 'storybook/test'
-import {SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX, SPACING_PX} from '@greenharness/greenrack-tokens/keys'
 import {Pane} from './Pane'
 import {Button} from '../Button/Button'
 import {pause, setViewport} from '../Drawer/touchInput'

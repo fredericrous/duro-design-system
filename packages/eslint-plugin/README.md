@@ -1,4 +1,4 @@
-# @duro-app/eslint-plugin
+# @greenharness/greenrack-eslint-plugin
 
 ESLint rules that enforce the Duro design system conventions mechanically —
 what CLAUDE.md can only suggest, these rules gate.
@@ -9,16 +9,19 @@ Requires ESLint 9 (flat config). The plugin has zero runtime dependencies.
 
 ```js
 // eslint.config.js
-import duro from '@duro-app/eslint-plugin'
+import duro from '@greenharness/greenrack-eslint-plugin'
 import tseslint from 'typescript-eslint'
 
 export default [
   ...tseslint.configs.recommended,
-  duro.configs.recommended,
+  greenrack.configs.recommended,
   {
     rules: {
       // Example: a data grid the design system doesn't cover yet.
-      'duro/no-raw-html-element': ['error', {allow: ['table', 'thead', 'tbody', 'tr', 'th', 'td']}],
+      'greenrack/no-raw-html-element': [
+        'error',
+        {allow: ['table', 'thead', 'tbody', 'tr', 'th', 'td']},
+      ],
     },
   },
 ]
@@ -30,14 +33,14 @@ another key — you'd get two live namespaces and confusing config.
 
 ## Rules
 
-| Rule                             | Preset | Fix                  |
-| -------------------------------- | ------ | -------------------- |
-| `duro/no-raw-html-element`       | error  | suggestion           |
-| `duro/no-tokens-barrel-import`   | error  | autofix              |
-| `duro/no-deprecated-table-parts` | error  | autofix / suggestion |
-| `duro/no-raw-design-values`      | error  | suggestion           |
-| `duro/no-raw-layer-values`       | warn   | suggestion           |
-| `duro/no-raw-breakpoint-query`   | error  | autofix              |
+| Rule                                  | Preset | Fix                  |
+| ------------------------------------- | ------ | -------------------- |
+| `greenrack/no-raw-html-element`       | error  | suggestion           |
+| `greenrack/no-tokens-barrel-import`   | error  | autofix              |
+| `greenrack/no-deprecated-table-parts` | error  | autofix / suggestion |
+| `greenrack/no-raw-design-values`      | error  | suggestion           |
+| `greenrack/no-raw-layer-values`       | warn   | suggestion           |
+| `greenrack/no-raw-breakpoint-query`   | error  | autofix              |
 
 ### no-raw-html-element
 
@@ -52,9 +55,9 @@ Options: `{allow?: string[], reportUnsupported?: boolean, htmlModule?: string}`
 
 ### no-tokens-barrel-import
 
-`import {colors} from '@duro-app/tokens'` breaks the StyleX babel plugin. The
+`import {colors} from '@greenharness/greenrack-tokens'` breaks the StyleX babel plugin. The
 autofix splits the barrel import into the right deep imports
-(`@duro-app/tokens/tokens/colors.css`, …), preserving aliases and inline
+(`@greenharness/greenrack-tokens/tokens/colors.css`, …), preserving aliases and inline
 `type` specifiers. Imports with any unmapped specifier report without a fix.
 
 Options: `{packages?: string[]}`
@@ -183,11 +186,11 @@ fix when a local `breakpoints` binding would shadow the import.
 
 The rule data (deep-path map, spacing/radius/breakpoint px values, font
 sizes and weights, shadows, durations, easings, color palette) is mirrored
-from `@duro-app/tokens` as literals so the published plugin stays
+from `@greenharness/greenrack-tokens` as literals so the published plugin stays
 dependency-free. `test/token-drift.test.ts` rebuilds every table from the real
 tokens package and fails CI when they drift.
 
-Only `test/` imports `@duro-app/tokens`; `src/` never does. The root `prepare`
+Only `test/` imports `@greenharness/greenrack-tokens`; `src/` never does. The root `prepare`
 script relies on that: it builds this plugin and the tokens package in parallel
-(`pnpm --no-sort`). If `src/` ever imports `@duro-app/tokens`, drop `--no-sort`
+(`pnpm --no-sort`). If `src/` ever imports `@greenharness/greenrack-tokens`, drop `--no-sort`
 there, or a fresh install can build the plugin before the tokens it reads.

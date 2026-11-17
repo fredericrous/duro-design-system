@@ -1,10 +1,10 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {duration} from '@duro-app/tokens/tokens/motion.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing, radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {duration} from '@greenharness/greenrack-tokens/tokens/motion.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 /** Styles of the Dialog parts both platforms draw (no animations: native has none). */
 export const partStyles = css.create({

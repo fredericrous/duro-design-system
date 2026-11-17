@@ -4,8 +4,8 @@ import {useCallback, useId, useRef, useState} from 'react'
 import {css, html} from 'react-strict-dom'
 import {Textarea} from './Textarea'
 import {Listbox} from '../Listbox/Listbox'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta<typeof Textarea> = {
   title: 'Components/Textarea',

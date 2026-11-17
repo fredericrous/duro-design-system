@@ -7,7 +7,7 @@ import {addDtsExtensions} from '../../scripts/dts-extensions.mjs'
 export default defineConfig({
   build: {
     lib: {
-      name: 'DuroDiagrams',
+      name: 'GreenrackDiagrams',
       entry: './src/index.ts',
       formats: ['es'],
       fileName: 'index',

@@ -1,6 +1,6 @@
 import {useEffect, useCallback, type ReactNode} from 'react'
 import {html} from 'react-strict-dom'
-import {SPACING_PX, type SpacingToken} from '@duro-app/tokens/keys'
+import {SPACING_PX, type SpacingToken} from '@greenharness/greenrack-tokens/keys'
 import {useActionBarStack} from './ActionBarProvider'
 import {styles} from './styles.css'
 

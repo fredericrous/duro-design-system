@@ -8,7 +8,7 @@ export const meta: ComponentMeta = {
     'A sequence of steps where each step is its own page',
   ],
   whenNotToUse: [
-    'Numbered result pages of a table — use Pagination from @duro-app/ui/table',
+    'Numbered result pages of a table — use Pagination from @greenharness/greenrack-ui/table',
     'Going up the hierarchy — use Breadcrumb',
   ],
   anatomy: {

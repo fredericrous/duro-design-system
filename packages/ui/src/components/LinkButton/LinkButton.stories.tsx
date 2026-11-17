@@ -5,8 +5,8 @@ import {LinkButton} from './LinkButton'
 import {clickLink} from '../../docs/clickLink'
 import {onThemeSurface} from '../../docs/themedSurface'
 import type {OnNavigate} from '../../shared/navigate'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 
 const meta: Meta<typeof LinkButton> = {

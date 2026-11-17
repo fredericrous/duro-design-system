@@ -3,7 +3,7 @@ name: colors
 description: Helps you build and check a color system for your project. It generates palettes, names semantic tokens, converts between formats and measures contrast.
 ---
 
-**Gate.** This skill applies only in a repository whose `package.json` depends on `@duro-app/ui` (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
+**Gate.** This skill applies only in a repository whose `package.json` depends on `@greenharness/greenrack-ui` (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
 
 # Colors
 

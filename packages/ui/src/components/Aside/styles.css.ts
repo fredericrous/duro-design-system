@@ -1,10 +1,10 @@
 import {css} from 'react-strict-dom'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {layers} from '@duro-app/tokens/tokens/layers.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {layers} from '@greenharness/greenrack-tokens/tokens/layers.css'
 
-// Kept in step with `--duro-app-shell-bar`, which AppShell/styles.css.ts sets (StyleX needs
+// Kept in step with `--gr-app-shell-bar`, which AppShell/styles.css.ts sets (StyleX needs
 // the literal here, so the name is spelled out twice).
-const BAR = 'var(--duro-app-shell-bar, 0px)'
+const BAR = 'var(--gr-app-shell-bar, 0px)'
 
 export const styles = css.create({
   // Sticky within the viewport, and its own scroll box when taller than the
@@ -22,7 +22,7 @@ export const styles = css.create({
   },
   // The gap above it while stuck, and the same gap kept below it. Inside
   // AppShell below its collapse point the sticky bar covers the top of the
-  // viewport, and AppShell sets `--duro-app-shell-bar` to the bar's height (appBarH)
+  // viewport, and AppShell sets `--gr-app-shell-bar` to the bar's height (appBarH)
   // so the aside sticks under it; anywhere else the property is unset and
   // the fallback 0 leaves the offset alone.
   offsetXs: {

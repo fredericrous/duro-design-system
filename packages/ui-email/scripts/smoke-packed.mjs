@@ -58,11 +58,11 @@ writeFileSync(out, JSON.stringify(result))
 `
 
 try {
-  for (const pkg of ['@duro-app/tokens', '@duro-app/ui-email'])
+  for (const pkg of ['@greenharness/greenrack-tokens', '@greenharness/greenrack-ui-email'])
     run('pnpm', ['--filter', pkg, 'run', 'build'], dsRoot)
   const tgz = join(work, 'tgz')
   mkdirSync(tgz)
-  for (const pkg of ['@duro-app/tokens', '@duro-app/ui-email']) {
+  for (const pkg of ['@greenharness/greenrack-tokens', '@greenharness/greenrack-ui-email']) {
     run('pnpm', ['--filter', pkg, 'pack', '--pack-destination', tgz], dsRoot)
   }
   const tarballs = readdirSync(tgz).map((f) => join(tgz, f))
@@ -106,7 +106,7 @@ try {
   run('node', ['render.mjs', join(work, 'packed.json')], app)
 
   // The same fixture against the workspace build: a directory inside the
-  // ui-email package resolves `@duro-app/ui-email` by package self-reference.
+  // ui-email package resolves `@greenharness/greenrack-ui-email` by package self-reference.
   const local = join(uiEmail, '.smoke-workspace')
   mkdirSync(local, {recursive: true})
   try {
@@ -128,8 +128,8 @@ try {
   // 3. Consumer types with skipLibCheck: false.
   writeFileSync(
     join(app, 'check.ts'),
-    `import {BORDERS_PX, EMAIL_PX, FONT_SIZE_REM, RADII_PX, SPACING_PX, darkColors} from '@duro-app/tokens/raw'
-import {EmailShell, Text, space, font} from '@duro-app/ui-email'
+    `import {BORDERS_PX, EMAIL_PX, FONT_SIZE_REM, RADII_PX, SPACING_PX, darkColors} from '@greenharness/greenrack-tokens/raw'
+import {EmailShell, Text, space, font} from '@greenharness/greenrack-ui-email'
 const width: number = EMAIL_PX.emailCardW + BORDERS_PX.hairline + SPACING_PX.md + RADII_PX.sm + FONT_SIZE_REM.fontSizeMd
 const sizes: string[] = [space.md, font.sizeSm, darkColors.bg]
 export {EmailShell, Text, width, sizes}

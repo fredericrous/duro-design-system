@@ -1,6 +1,6 @@
 import {type ReactNode, Children, createContext, isValidElement, useContext, useId} from 'react'
 import {html} from 'react-strict-dom'
-import type {SpacingToken} from '@duro-app/tokens/keys'
+import type {SpacingToken} from '@greenharness/greenrack-tokens/keys'
 import {styles} from './styles.css'
 
 export type FieldsetGap = Exclude<SpacingToken, 'xxl' | 'xxxl'>

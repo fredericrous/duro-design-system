@@ -220,7 +220,7 @@ export function extractSurface(
     // they have none (the subpath Table is the root Table plus extras).
     let key = name
     if (components[key] && components[key].importPath !== importPath) {
-      key = `${name} (${importPath.replace('@duro-app/', '')})`
+      key = `${name} (${importPath.replace('@greenharness/greenrack-', '')})`
       if (entryRecord.meta === null) entryRecord.meta = components[name].meta
     }
     components[key] = entryRecord

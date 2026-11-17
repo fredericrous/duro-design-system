@@ -7,7 +7,7 @@ const tester = new RuleTester({
   },
 })
 
-const IMPORT = "import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'\n"
+const IMPORT = "import {breakpoints} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'\n"
 
 tester.run('no-raw-breakpoint-query', noRawBreakpointQuery, {
   valid: [
@@ -38,10 +38,10 @@ tester.run('no-raw-breakpoint-query', noRawBreakpointQuery, {
     },
     {
       // Aliased import is respected
-      code: "import {breakpoints as bp} from '@duro-app/tokens/tokens/breakpoints.css'\nwindow.matchMedia('(min-width: 1024px)')",
+      code: "import {breakpoints as bp} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'\nwindow.matchMedia('(min-width: 1024px)')",
       errors: [{messageId: 'rawBreakpointQuery'}],
       output:
-        "import {breakpoints as bp} from '@duro-app/tokens/tokens/breakpoints.css'\nwindow.matchMedia(`(min-width: ${bp.lg})`)",
+        "import {breakpoints as bp} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'\nwindow.matchMedia(`(min-width: ${bp.lg})`)",
     },
     {
       // Off the scale: reported, not fixed

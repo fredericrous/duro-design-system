@@ -2,10 +2,10 @@ import type {Preview} from '@storybook/react-vite'
 import {ThemeProvider} from '../packages/ui/src/components/ThemeProvider/ThemeProvider'
 import {withAiMeta} from './addons/ai-meta/withAiMeta'
 
-import '@duro-app/ui/strict.css'
-import '@duro-app/ui/reset.css'
+import '@greenharness/greenrack-ui/strict.css'
+import '@greenharness/greenrack-ui/reset.css'
 import '../packages/diagrams/src/styles.css'
-// The --duro-* aliases dist/vars.css publishes (no tokens build here).
+// The --gr-* aliases dist/vars.css publishes (no tokens build here).
 import './publicVars'
 
 const bgToTheme: Record<string, 'dark' | 'light' | 'high-contrast'> = {

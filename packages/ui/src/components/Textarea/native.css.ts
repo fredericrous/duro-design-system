@@ -1,5 +1,10 @@
 import {css} from 'react-strict-dom'
-import {FONT_SIZE_REM, LINE_HEIGHT, ROOT_FONT_PX, SPACING_PX} from '@duro-app/tokens/keys'
+import {
+  FONT_SIZE_REM,
+  LINE_HEIGHT,
+  ROOT_FONT_PX,
+  SPACING_PX,
+} from '@greenharness/greenrack-tokens/keys'
 
 // One row of text, in px: the Textarea's font size (fontSizeSm, rem) at the
 // root size, times the typography line height. Native has no `lh` unit.

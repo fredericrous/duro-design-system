@@ -1,6 +1,6 @@
 import {createContext} from 'react'
-import type {ColorToken} from '@duro-app/tokens/keys'
-import type {ThemeTokens} from '@duro-app/tokens/theme'
+import type {ColorToken} from '@greenharness/greenrack-tokens/keys'
+import type {ThemeTokens} from '@greenharness/greenrack-tokens/theme'
 
 /** Colours that replace a theme's own, by token key. */
 export type ColorOverrides = Partial<Record<ColorToken, string>>

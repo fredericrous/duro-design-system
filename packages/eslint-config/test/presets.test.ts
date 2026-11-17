@@ -30,9 +30,9 @@ describe('react', () => {
       "import {Dialog} from '@radix-ui/react-dialog'\nexport {Dialog}\n",
       'src/App.tsx',
     )
-    const message = result.messages.find((m) => m.ruleId === 'duro/no-restricted-imports')
-    expect(message?.message).toContain('@duro-app/ui')
-    expect(message?.message).toContain('duro-design-system')
+    const message = result.messages.find((m) => m.ruleId === 'greenrack/no-restricted-imports')
+    expect(message?.message).toContain('@greenharness/greenrack-ui')
+    expect(message?.message).toContain('greenrack')
   })
 
   it('refuses raw lexical at the app layer', async () => {
@@ -41,7 +41,7 @@ describe('react', () => {
       "import {createEditor} from 'lexical'\nexport {createEditor}\n",
       'src/App.tsx',
     )
-    const message = result.messages.find((m) => m.ruleId === 'duro/no-restricted-imports')
+    const message = result.messages.find((m) => m.ruleId === 'greenrack/no-restricted-imports')
     expect(message?.message).toContain('lexical-multi')
   })
 
@@ -55,7 +55,9 @@ describe('react', () => {
       "import type {SerializedEditorState} from 'lexical'\nexport type {SerializedEditorState}\n",
       'src/App.tsx',
     )
-    expect(result.messages.filter((m) => m.ruleId === 'duro/no-restricted-imports')).toEqual([])
+    expect(result.messages.filter((m) => m.ruleId === 'greenrack/no-restricted-imports')).toEqual(
+      [],
+    )
   })
 
   it('still refuses a VALUE import from a foreign UI library', async () => {
@@ -64,7 +66,7 @@ describe('react', () => {
       "import {Dialog} from '@radix-ui/react-dialog'\nexport {Dialog}\n",
       'src/App.tsx',
     )
-    expect(ruleIds(result)).toContain('duro/no-restricted-imports')
+    expect(ruleIds(result)).toContain('greenrack/no-restricted-imports')
   })
 
   it('carries the duro plugin: raw intrinsics and form primitives report', async () => {
@@ -74,8 +76,8 @@ describe('react', () => {
       'src/App.tsx',
     )
     const ids = ruleIds(result)
-    expect(ids).toContain('duro/no-raw-html-element')
-    expect(ids).toContain('duro/prefer-ds-form-components')
+    expect(ids).toContain('greenrack/no-raw-html-element')
+    expect(ids).toContain('greenrack/prefer-ds-form-components')
   })
 
   it('carries classic hooks correctness, not the compiler-era rules', async () => {
@@ -98,7 +100,7 @@ describe('react', () => {
       "import {css} from 'react-strict-dom'\nexport const s = css.create({row: {flexGrow: 1}})\n",
       'src/styles.ts',
     )
-    expect(result.messages.find((m) => m.ruleId === 'duro/no-flex-grow-web')).toBeUndefined()
+    expect(result.messages.find((m) => m.ruleId === 'greenrack/no-flex-grow-web')).toBeUndefined()
   })
 })
 
@@ -110,12 +112,12 @@ describe('composition with the harness effect preset', () => {
       'src/App.tsx',
     )
     const banned = result.messages.filter((m) =>
-      ['duro/no-restricted-imports', '@typescript-eslint/no-restricted-imports'].includes(
+      ['greenrack/no-restricted-imports', '@typescript-eslint/no-restricted-imports'].includes(
         m.ruleId ?? '',
       ),
     )
     const text = banned.map((m) => m.message).join('\n')
-    expect(text).toContain('@duro-app/ui')
+    expect(text).toContain('@greenharness/greenrack-ui')
     expect(text).toContain('@effect/sql')
   })
 })

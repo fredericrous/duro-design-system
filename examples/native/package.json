@@ -1,5 +1,5 @@
 {
-  "name": "@duro-app/example-native",
+  "name": "@greenharness/greenrack-example-native",
   "private": true,
   "version": "0.0.0",
   "main": "expo-router/entry",
@@ -10,8 +10,8 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
-    "@duro-app/tokens": "link:../../packages/tokens",
-    "@duro-app/ui": "link:../../packages/ui",
+    "@greenharness/greenrack-tokens": "link:../../packages/tokens",
+    "@greenharness/greenrack-ui": "link:../../packages/ui",
     "@hookform/resolvers": "5.2.2",
     "@shopify/react-native-skia": "2.2.12",
     "effect": "3.20.0",

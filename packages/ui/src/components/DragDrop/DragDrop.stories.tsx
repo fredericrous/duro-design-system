@@ -9,9 +9,9 @@ import {Inline} from '../Inline/Inline'
 import {Stack} from '../Stack/Stack'
 import {Tag} from '../Tag/Tag'
 import {Text} from '../Text/Text'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing, radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 const meta: Meta<typeof DragDrop.Root> = {
   title: 'Interaction/DragDrop',

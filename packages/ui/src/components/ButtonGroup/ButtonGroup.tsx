@@ -1,6 +1,6 @@
 import {type ReactNode, useCallback, useMemo} from 'react'
 import {html} from 'react-strict-dom'
-import type {SpacingToken} from '@duro-app/tokens/keys'
+import type {SpacingToken} from '@greenharness/greenrack-tokens/keys'
 import {useOrderedRegistry} from '../../shared/useOrderedRegistry'
 import {ButtonGroupContext, type ButtonGroupContextValue} from './ButtonGroupContext'
 import {styles} from './styles.css'

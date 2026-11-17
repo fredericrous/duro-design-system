@@ -15,9 +15,9 @@ import {css, html} from 'react-strict-dom'
 Use deep imports. Barrel imports break StyleX babel plugin.
 
 ```tsx
-import {colors} from '@duro-app/tokens/tokens/colors.css'     // ✅
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'   // ✅
-import {colors} from '@duro-app/tokens'                        // ❌
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'     // ✅
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'   // ✅
+import {colors} from '@greenharness/greenrack-tokens'                        // ❌
 ```
 
 ## Layout Components
@@ -45,8 +45,8 @@ import {colors} from '@duro-app/tokens'                        // ❌
 
 ```tsx
 import {Schema} from 'effect'
-import {Field, Input, Fieldset, Button} from '@duro-app/ui'
-import {Form} from '@duro-app/ui/form'
+import {Field, Input, Fieldset, Button} from '@greenharness/greenrack-ui'
+import {Form} from '@greenharness/greenrack-ui/form'
 
 const MySchema = Schema.Struct({
   email: Schema.String.pipe(Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {message: () => 'Invalid'})),
@@ -96,4 +96,4 @@ Use `Heading` (level 1-6) for headings, `Text` for body/labels.
 Text variants: `bodySm`, `bodyMd`, `bodyLg`, `caption`, `label`, `code`, `overline`
 
 For the full reference, see CLAUDE.md in the project root — or query it directly:
-`npx @duro-app/cli <Name>` (props+usage) · `... <recipe> --source-only` · `... spacing` · `... manifest --json`
+`npx @greenharness/greenrack-cli <Name>` (props+usage) · `... <recipe> --source-only` · `... spacing` · `... manifest --json`

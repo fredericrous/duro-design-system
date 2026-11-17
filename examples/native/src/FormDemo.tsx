@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {Schema} from 'effect'
-import {Button, Field, Input, ScrollArea, Stack, Text} from '@duro-app/ui'
-import {Form} from '@duro-app/ui/form'
+import {Button, Field, Input, ScrollArea, Stack, Text} from '@greenharness/greenrack-ui'
+import {Form} from '@greenharness/greenrack-ui/form'
 
 const NameSchema = Schema.Struct({
   name: Schema.String.pipe(

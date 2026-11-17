@@ -1,9 +1,9 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {duration} from '@duro-app/tokens/tokens/motion.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {microSpacing, radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {duration} from '@greenharness/greenrack-tokens/tokens/motion.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 export const styles = css.create({
   // --- Root ---

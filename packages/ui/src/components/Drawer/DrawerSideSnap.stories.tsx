@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, spyOn, userEvent, waitFor} from 'storybook/test'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import {Drawer} from './Drawer'
 import {Text} from '../Text/Text'
 import {cdpSend, centre, pause, setViewport, touchDrag} from './touchInput'

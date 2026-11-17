@@ -1,8 +1,8 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {duration, easing} from '@greenharness/greenrack-tokens/tokens/motion.css'
 
 export const styles = css.create({
   track: {

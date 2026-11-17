@@ -1,4 +1,4 @@
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import type {ChevronProps} from './types'
 
 /** The group disclosure's chevron, drawn in the trigger's text colour. */

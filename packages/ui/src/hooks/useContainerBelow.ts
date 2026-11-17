@@ -1,5 +1,5 @@
 import {useEffect, useState, type RefObject} from 'react'
-import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
+import {breakpointsPx, type Breakpoint} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 
 /**
  * Whether the element behind `ref` is narrower than a Duro breakpoint — its

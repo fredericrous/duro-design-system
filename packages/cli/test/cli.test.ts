@@ -145,7 +145,7 @@ describe('command results', () => {
     const ok = runHook(registry, 'session-start')
     expect(ok.exitCode).toBeUndefined()
     expect(ok.text).toContain('hand-rolling')
-    expect(ok.text).toContain('/duro-mockup')
+    expect(ok.text).toContain('/greenrack-mockup')
     expect(ok.text).toContain(runList(registry).text)
     expect(runHook(registry, 'nope').exitCode).toBe(2)
     expect(runHook(registry).exitCode).toBe(2)
@@ -183,7 +183,7 @@ describe('bin end-to-end', () => {
   it('duro Button prints the prop table', () => {
     const {stdout, code} = duro('Button')
     expect(code).toBe(0)
-    expect(stdout).toContain("import {Button} from '@duro-app/ui'")
+    expect(stdout).toContain("import {Button} from '@greenharness/greenrack-ui'")
     expect(stdout).toContain('ButtonVariant')
   })
   it('--json emits parseable JSON and nothing else on stdout', () => {
@@ -316,7 +316,7 @@ describe('hook install', () => {
       JSON.stringify({
         hooks: {
           SessionStart: [
-            {hooks: [{type: 'command', command: 'sh ./.claude/hooks/duro-catalog.sh'}]},
+            {hooks: [{type: 'command', command: 'sh ./.claude/hooks/greenrack-catalog.sh'}]},
           ],
         },
       }),
@@ -358,7 +358,7 @@ describe('plan-mode hook script', () => {
   // Runs the generated script exactly as Claude Code would: sh, payload on stdin.
   const run = (stdin: string) => {
     const root = mkdtempSync(join(tmpdir(), 'duro-plan-'))
-    const script = join(root, 'duro-plan.sh')
+    const script = join(root, 'greenrack-plan.sh')
     writeFileSync(script, PLAN_HOOK_SCRIPT)
     // execFileSync throws on a non-zero exit, so returning is the exit-0 assertion.
     return execFileSync('sh', [script], {cwd: root, input: stdin, encoding: 'utf8'})
@@ -384,7 +384,7 @@ describe('plan-mode hook script', () => {
   it('keeps the nudge short and names the trigger', () => {
     expect(PLAN_NUDGE.trimEnd().split('\n').length).toBeLessThanOrEqual(6)
     expect(PLAN_NUDGE).toContain('handoff.fresh-directions-trigger')
-    expect(PLAN_NUDGE).toContain('duro-mockup')
+    expect(PLAN_NUDGE).toContain('greenrack-mockup')
   })
 
   it.each(['default', 'acceptEdits', 'bypassPermissions', 'dontAsk'])(
@@ -414,7 +414,7 @@ describe('skill install', () => {
   const shipped = (name: string) => join(skillsDir, name)
   const installed = (root: string, ...parts: string[]) => join(root, '.claude', 'skills', ...parts)
 
-  it('writes duro-mockup and every packaged file, nested ones included, and nothing else', () => {
+  it('writes greenrack-mockup and every packaged file, nested ones included, and nothing else', () => {
     const root = repo()
     const result = install(root)
     expect(result.exitCode).toBeUndefined()
@@ -428,8 +428,8 @@ describe('skill install', () => {
         )
       }
     }
-    expect(result.text).toContain('/duro-mockup')
-    expect(result.text).toContain('duro-mockup, colors, typography, ui')
+    expect(result.text).toContain('/greenrack-mockup')
+    expect(result.text).toContain('greenrack-mockup, colors, typography, ui')
     expect(result.text.trimEnd().split('\n').pop()).toContain('skill install --check')
     expect(() => readFileSync(join(root, '.claude', 'settings.json'), 'utf8')).toThrow()
     expect(readdirSync(installed(root, 'ui')).some((file) => file.endsWith('.tmp'))).toBe(false)
@@ -541,7 +541,7 @@ describe('skill install', () => {
     execFileSync('git', ['init', '-q'], {cwd: root})
     writeFileSync(join(root, '.gitignore'), '.claude/*\n')
     const result = install(root)
-    for (const name of ['duro-mockup', ...SKILLS]) {
+    for (const name of ['greenrack-mockup', ...SKILLS]) {
       expect(result.text).toContain(`!.claude/skills/${name}/SKILL.md`)
     }
   })
@@ -553,7 +553,7 @@ describe('skill install', () => {
     const result = install(root)
     expect(result.text).toContain('.prettierignore')
     expect(result.text).toContain('  .claude/skills/colors/')
-    expect(result.text).toContain('  .claude/skills/duro-mockup/')
+    expect(result.text).toContain('  .claude/skills/greenrack-mockup/')
     expect(result.text).not.toContain('  .claude/skills/ui/\n')
 
     const covered = repo()
@@ -605,9 +605,9 @@ describe('skill install', () => {
   })
 
   it('the skill overrides the design skill and pins the CLI floor', () => {
-    expect(SKILL).toContain('name: duro-mockup')
+    expect(SKILL).toContain('name: greenrack-mockup')
     expect(SKILL).toContain("overrides the `design` skill's step 0")
-    expect(SKILL).toContain(`npx -y @duro-app/cli@^${SKILL_MIN_CLI} mockup check`)
+    expect(SKILL).toContain(`npx -y @greenharness/greenrack-cli@^${SKILL_MIN_CLI} mockup check`)
     expect(SKILL).toContain('docs/mockups/<screen>')
     expect(SKILL).toContain('Mockup: none')
   })
@@ -618,8 +618,8 @@ describe('skill install', () => {
   })
 })
 
-describe('the /duro-mockup skill names only what the CLI ships', () => {
-  it('every `duro mockup <sub>` it runs is a real subcommand', async () => {
+describe('the /greenrack-mockup skill names only what the CLI ships', () => {
+  it('every `greenrack mockup <sub>` it runs is a real subcommand', async () => {
     const {MOCKUP_SUBCOMMANDS} = await import('../src/commands/mockup.js')
     const subs = [...SKILL.matchAll(/@duro-app\/cli@\S+ mockup ([a-z-]+)/g)].map((m) => m[1])
     expect(subs).toEqual(expect.arrayContaining(['seed', 'check', 'canvas']))

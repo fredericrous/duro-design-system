@@ -34,7 +34,7 @@ export function runHook(
   if (event === 'install') return runHookInstall(options)
   if (event !== 'session-start') {
     return {
-      text: `duro hook: unknown event "${event ?? ''}" — expected ${EVENTS.join(' | ')}`,
+      text: `greenrack hook: unknown event "${event ?? ''}" — expected ${EVENTS.join(' | ')}`,
       data: {kind: 'usage-error'},
       exitCode: 2,
     }
@@ -170,7 +170,7 @@ function runHookInstall(options: HookOptions): CommandResult {
     settingsNext = nextSettings(settingsRaw)
   } catch (error) {
     return {
-      text: `duro hook install: ${HOOK_SETTINGS_PATH} is not valid JSON (${
+      text: `greenrack hook install: ${HOOK_SETTINGS_PATH} is not valid JSON (${
         error instanceof Error ? error.message : String(error)
       }) — fix or remove it, then rerun`,
       data: {kind: 'usage-error'},
@@ -194,13 +194,13 @@ function runHookInstall(options: HookOptions): CommandResult {
   if (options.check) {
     return stale.length === 0
       ? {
-          text: `duro hook install --check: up to date\n${lines.join('\n')}`,
+          text: `greenrack hook install --check: up to date\n${lines.join('\n')}`,
           data: {ok: true, changes},
         }
       : {
-          text: `duro hook install --check: ${stale.length} file(s) out of date\n${lines.join(
+          text: `greenrack hook install --check: ${stale.length} file(s) out of date\n${lines.join(
             '\n',
-          )}\nRun: npx -y @duro-app/cli hook install`,
+          )}\nRun: npx -y @greenharness/greenrack-cli hook install`,
           data: {ok: false, changes},
           exitCode: 1,
         }

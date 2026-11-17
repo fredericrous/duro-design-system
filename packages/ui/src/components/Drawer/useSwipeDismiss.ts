@@ -272,7 +272,7 @@ export function useSwipeDismiss({
       // A drag handle (a movable Pane's header) moves the panel: a press there never swipes it away.
       if (target.closest(`[${DRAG_HANDLE_ATTR}]`)) return
       const fromGrabber = snapping && target.closest('[data-drawer-grabber]') !== null
-      const scrollEl = fromGrabber ? null : target.closest<HTMLElement>('[data-duro-scroll]')
+      const scrollEl = fromGrabber ? null : target.closest<HTMLElement>('[data-gr-scroll]')
       // Outside a ScrollArea a control keeps its press. Inside one the gesture
       // is decided on the first move even from a control: a list of toggles is
       // all buttons, and touch adjustment snaps a finger onto one. A tap

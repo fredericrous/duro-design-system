@@ -10,8 +10,8 @@ const tester = new RuleTester({
 })
 
 const wrap = (body: string) => `css.create({s: {${body}}})`
-const layersImport = "import {layers} from '@duro-app/tokens/tokens/layers.css'\n"
-const effectsImport = "import {effects} from '@duro-app/tokens/tokens/effects.css'\n"
+const layersImport = "import {layers} from '@greenharness/greenrack-tokens/tokens/layers.css'\n"
+const effectsImport = "import {effects} from '@greenharness/greenrack-tokens/tokens/effects.css'\n"
 
 tester.run('no-raw-layer-values', noRawLayerValues, {
   valid: [
@@ -36,7 +36,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       errors: [
         {
           messageId: 'rawZIndex',
-          data: {value: '1000', token: 'overlay', pkg: '@duro-app/tokens'},
+          data: {value: '1000', token: 'overlay', pkg: '@greenharness/greenrack-tokens'},
           suggestions: [
             {messageId: 'replaceWithToken', output: layersImport + wrap('zIndex: layers.overlay')},
           ],
@@ -88,7 +88,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
           data: {
             value: '16',
             nearest: 'between `layers.raised` (1) and `layers.floating` (50)',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
             localMax: 9,
           },
           suggestions: [],
@@ -104,7 +104,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
           data: {
             value: '10',
             nearest: 'between `layers.raised` (1) and `layers.floating` (50)',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
             localMax: 9,
           },
           suggestions: [],
@@ -117,7 +117,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       errors: [
         {
           messageId: 'rawZIndex',
-          data: {value: '1', token: 'raised', pkg: '@duro-app/tokens'},
+          data: {value: '1', token: 'raised', pkg: '@greenharness/greenrack-tokens'},
           suggestions: [
             {messageId: 'replaceWithToken', output: layersImport + wrap('zIndex: layers.raised')},
           ],
@@ -135,7 +135,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
           data: {
             value: '5',
             nearest: 'between `layers.raised` (1) and `layers.floating` (50)',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
             localMax: 0,
           },
           suggestions: [],
@@ -147,7 +147,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       errors: [
         {
           messageId: 'rawZIndex',
-          data: {value: '1002', token: 'modalRaised', pkg: '@duro-app/tokens'},
+          data: {value: '1002', token: 'modalRaised', pkg: '@greenharness/greenrack-tokens'},
           suggestions: [
             {
               messageId: 'replaceWithToken',
@@ -162,7 +162,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       errors: [
         {
           messageId: 'rawZIndex',
-          data: {value: '60', token: 'floatingRaised', pkg: '@duro-app/tokens'},
+          data: {value: '60', token: 'floatingRaised', pkg: '@greenharness/greenrack-tokens'},
           suggestions: [
             {
               messageId: 'replaceWithToken',
@@ -177,7 +177,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
       errors: [
         {
           messageId: 'rawZIndex',
-          data: {value: '1041', token: 'popoverRaised', pkg: '@duro-app/tokens'},
+          data: {value: '1041', token: 'popoverRaised', pkg: '@greenharness/greenrack-tokens'},
           suggestions: [
             {
               messageId: 'replaceWithToken',
@@ -195,7 +195,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
           data: {
             value: '5000',
             nearest: 'above `layers.portal` (1100)',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
             localMax: 9,
           },
           suggestions: [],
@@ -225,7 +225,7 @@ tester.run('no-raw-layer-values', noRawLayerValues, {
             value: 'blur(6px)',
             property: 'backdropFilter',
             tokenText: ' (it is effects.surfaceBlur)',
-            pkg: '@duro-app/tokens',
+            pkg: '@greenharness/greenrack-tokens',
           },
           suggestions: [
             {
@@ -256,8 +256,8 @@ describe('no-raw-layer-values messages', () => {
 describe('no-raw-layer-values options', () => {
   const lint = (localMax: number) => {
     const config: TSESLint.FlatConfig.Config = {
-      plugins: {duro: {rules: {'no-raw-layer-values': noRawLayerValues}}},
-      rules: {'duro/no-raw-layer-values': ['warn', {localMax}]},
+      plugins: {greenrack: {rules: {'no-raw-layer-values': noRawLayerValues}}},
+      rules: {'greenrack/no-raw-layer-values': ['warn', {localMax}]},
     }
     return new TSESLint.Linter({configType: 'flat'}).verify(wrap('zIndex: 5'), config)
   }

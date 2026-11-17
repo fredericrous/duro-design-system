@@ -39,7 +39,7 @@ export const preferDsFormComponents: TSESLint.RuleModule<MessageIds, Options> = 
     type: 'problem',
     docs: {
       description:
-        'Require @duro-app/ui form components (Field/Input/Select/Textarea) instead of bare html.input/select/textarea',
+        'Require @greenharness/greenrack-ui form components (Field/Input/Select/Textarea) instead of bare html.input/select/textarea',
     },
     schema: [
       {
@@ -53,7 +53,7 @@ export const preferDsFormComponents: TSESLint.RuleModule<MessageIds, Options> = 
     ],
     messages: {
       useFormKit:
-        'Use {{replacement}} from @duro-app/ui instead of html.{{tag}} — the form kit carries the theme and a11y wiring. If the field you need is missing, add it to duro-design-system (`npx duro list`).',
+        'Use {{replacement}} from @greenharness/greenrack-ui instead of html.{{tag}} — the form kit carries the theme and a11y wiring. If the field you need is missing, add it to greenrack (`npx greenrack list`).',
     },
   },
   create(context) {

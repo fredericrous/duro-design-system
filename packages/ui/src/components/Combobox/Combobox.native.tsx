@@ -13,7 +13,7 @@ import {
 import {Pressable as NativePressable, View} from 'react-native'
 import {Pressable} from 'react-native-gesture-handler'
 import {html} from 'react-strict-dom'
-import {DURATION_MS} from '@duro-app/tokens/keys'
+import {DURATION_MS} from '@greenharness/greenrack-tokens/keys'
 import {styles} from './styles.css'
 import {nativeStyles} from './native.css'
 import {nativeStyles as selectNativeStyles} from '../Select/native.css'

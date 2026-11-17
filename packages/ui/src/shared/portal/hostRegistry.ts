@@ -3,7 +3,7 @@ import type {ReactNode} from 'react'
 /** One passive surface (a toast region) waiting for a host to draw it. */
 export interface PortalEntry {
   readonly key: string
-  /** Numeric layer from `LAYERS` in `@duro-app/tokens/keys`; higher draws on top. */
+  /** Numeric layer from `LAYERS` in `@greenharness/greenrack-tokens/keys`; higher draws on top. */
   readonly layer: number
   readonly node: ReactNode
   /**

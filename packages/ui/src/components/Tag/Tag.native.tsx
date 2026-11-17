@@ -1,5 +1,5 @@
 import {html} from 'react-strict-dom'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import {styles} from './styles.css'
 import {RemoveGlyph} from './RemoveGlyph'
 import {variantText, type TagProps} from './types'

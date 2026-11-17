@@ -4,7 +4,7 @@ import {homedir} from 'node:os'
 import {join, relative, resolve} from 'node:path'
 import type {Registry} from '../registry-types.js'
 import {renderCatalog} from '../catalog.js'
-import {isDuroConsumer, runDoctor} from './doctor.js'
+import {isGreenrackConsumer, runDoctor} from './doctor.js'
 import type {CommandResult} from './lookup.js'
 import {cliVersion} from './manifest.js'
 
@@ -20,7 +20,7 @@ export interface ContextOptions {
 /** Directories the build-file scan never enters. */
 const PRUNED = new Set(['node_modules', '.git', 'dist', 'build'])
 const SCAN_DEPTH = 4
-/** The files `duro doctor` reads: build config, entries, stylesheets, manifests. */
+/** The files `greenrack doctor` reads: build config, entries, stylesheets, manifests. */
 const BUILD_FILE =
   /^(?:package\.json|pnpm-workspace\.yaml|.*\.css|vite.*|babel.*|\.babelrc.*|.*\.babel\..*|postcss.*|root\.tsx|main\.tsx|index\.tsx)$/
 
@@ -88,7 +88,7 @@ function writeCache(path: string, content: string): void {
   }
 }
 
-/** `duro doctor --session` output, re-run only when the build files' key changes. */
+/** `greenrack doctor --session` output, re-run only when the build files' key changes. */
 function cachedDoctor(root: string, cacheHome: string): string {
   const dir = join(cacheHome, 'duro', createHash('sha1').update(root).digest('hex').slice(0, 16))
   const key = buildKey(root)
@@ -103,13 +103,13 @@ function cachedDoctor(root: string, cacheHome: string): string {
 }
 
 /**
- * `duro context`: what a session should know about the design system. The
+ * `greenrack context`: what a session should know about the design system. The
  * catalog, then the doctor block when the build wiring is wrong. Outside a
  * Duro consumer it prints nothing, so a harness can run it anywhere.
  */
 export function runContext(registry: Registry, options: ContextOptions = {}): CommandResult {
   const root = resolve(options.cwd ?? process.cwd())
-  if (!isDuroConsumer(root)) return {text: '', data: {consumer: false}}
+  if (!isGreenrackConsumer(root)) return {text: '', data: {consumer: false}}
   const catalog = renderCatalog(registry)
   if (options.catalogOnly) return {text: catalog.text, data: catalog.data}
   const doctor = cachedDoctor(root, options.cacheHome ?? defaultCacheHome())

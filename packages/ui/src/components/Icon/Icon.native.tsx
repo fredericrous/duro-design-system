@@ -1,6 +1,6 @@
 import {createElement} from 'react'
 import Svg, {Circle, Ellipse, Line, Path, Polygon, Polyline, Rect} from 'react-native-svg'
-import {ICON_SIZES, type ColorToken} from '@duro-app/tokens/keys'
+import {ICON_SIZES, type ColorToken} from '@greenharness/greenrack-tokens/keys'
 import {useResolvedColors} from '../ThemeProvider/ThemeProvider'
 import {DEFAULT_VIEW_BOX, GLYPHS, type Paint, type Shape} from './geometry'
 import type {IconProps} from './types'

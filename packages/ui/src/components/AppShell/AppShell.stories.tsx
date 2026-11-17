@@ -5,10 +5,10 @@ import {expect, fn, spyOn, waitFor, within} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {renderToString} from 'react-dom/server'
 import {hydrateRoot} from 'react-dom/client'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
-import {breakpointsPx} from '@duro-app/tokens/tokens/breakpoints.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {SIZES_PX, SPACING_PX} from '@greenharness/greenrack-tokens/keys'
+import {breakpointsPx} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 import {AppShell, type AppShellCollapse} from './AppShell'
 import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 import {SideNav} from '../SideNav/SideNav'
@@ -226,7 +226,7 @@ const meta = {
   parameters: {
     a11y: {
       test: 'error',
-      // holds-until: https://github.com/fredericrous/duro-design-system/issues/79
+      // holds-until: https://github.com/greenharness/greenrack/issues/79
       // — the selected item's accent on bgCardHover is 6.76:1, under AAA's
       // 7:1 (AA passes). Re-enable this rule when that pair reaches 7:1.
       options: {rules: {'color-contrast-enhanced': {enabled: false}}},
@@ -656,10 +656,10 @@ export const AsideBelowBar: Story = {
     const main = canvas.getByRole('main')
     // set inside the query container, not on it
     const container = main.parentElement?.parentElement as HTMLElement
-    await expect(getComputedStyle(main).getPropertyValue('--duro-app-shell-bar').trim()).toBe(
+    await expect(getComputedStyle(main).getPropertyValue('--gr-app-shell-bar').trim()).toBe(
       `${SIZES_PX.appBarH}px`,
     )
-    await expect(getComputedStyle(container).getPropertyValue('--duro-app-shell-bar')).toBe('')
+    await expect(getComputedStyle(container).getPropertyValue('--gr-app-shell-bar')).toBe('')
 
     const scroller = document.scrollingElement as HTMLElement
     const start = scroller.scrollTop

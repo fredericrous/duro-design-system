@@ -1,4 +1,4 @@
-import {Button, Dialog, Inline, Text, useToast} from '@duro-app/ui'
+import {Button, Dialog, Inline, Text, useToast} from '@greenharness/greenrack-ui'
 
 /**
  * Checkpoint B scenarios for Toast: one raised on the screen, one with an

@@ -40,7 +40,7 @@ function Viewport({children, maxHeight, style, rovingOwner = false}: ViewportPro
     <html.div
       ref={viewportRef}
       id={viewportId}
-      data-duro-scroll=""
+      data-gr-scroll=""
       tabIndex={rovingOwner ? undefined : 0}
       role={rovingOwner ? undefined : 'region'}
       aria-label={rovingOwner ? undefined : 'Scrollable content'}

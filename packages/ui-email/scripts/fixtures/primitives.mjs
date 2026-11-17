@@ -18,7 +18,7 @@ import {
   RawLink,
   Section,
   Text,
-} from '@duro-app/ui-email'
+} from '@greenharness/greenrack-ui-email'
 
 const h = React.createElement
 const href = 'https://example.test/path?x=1'

@@ -18,7 +18,7 @@ interface ProseProps {
  */
 export function Prose({children, ref}: ProseProps) {
   return (
-    <html.div ref={ref} data-duro-prose="">
+    <html.div ref={ref} data-gr-prose="">
       {children}
     </html.div>
   )

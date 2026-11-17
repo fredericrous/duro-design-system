@@ -1,14 +1,14 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {css, html} from 'react-strict-dom'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
 import {Stack} from '../components/Stack/Stack'
 import {Inline} from '../components/Inline/Inline'
 import {useContainerQuery} from '../hooks/useContainerQuery'
 import {TokenTable} from './helpers'
-import {typography, typeScale} from '@duro-app/tokens/tokens/typography.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {typography, typeScale} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const primitiveTokens: Record<string, string> = {
   xs: '4px',

@@ -14,8 +14,8 @@ import {
   SIZES_PX,
   SPACING_PX,
   TYPE_SCALE_FONT_SIZE_REM,
-} from '@duro-app/tokens/keys'
-import {darkColors, lightColors, highContrastColors} from '@duro-app/tokens/raw'
+} from '@greenharness/greenrack-tokens/keys'
+import {darkColors, lightColors, highContrastColors} from '@greenharness/greenrack-tokens/raw'
 import {
   BORDER_TOKENS_BY_PX,
   BREAKPOINT_TOKENS_BY_PX,
@@ -38,10 +38,10 @@ import {
 
 // The plugin ships with zero runtime dependencies, so src/util/tokens.ts
 // duplicates token data as literals. These tests rebuild each table from
-// @duro-app/tokens (a workspace devDependency) with the same construction and
+// @greenharness/greenrack-tokens (a workspace devDependency) with the same construction and
 // fail when the packages drift.
 
-describe('token tables match @duro-app/tokens', () => {
+describe('token tables match @greenharness/greenrack-tokens', () => {
   it('SPACING_TOKENS_BY_PX mirrors SPACING_PX', () => {
     const expected = Object.fromEntries(
       Object.entries(SPACING_PX).map(([token, px]) => [px, token]),
@@ -149,7 +149,7 @@ describe('token tables match @duro-app/tokens', () => {
   })
 
   it('TOKEN_DEEP_PATHS keys.ts entries stay in sync with the module', async () => {
-    const keys = await import('@duro-app/tokens/keys')
+    const keys = await import('@greenharness/greenrack-tokens/keys')
     for (const name of Object.keys(keys)) {
       expect(TOKEN_DEEP_PATHS[name], `missing deep path for keys.ts export ${name}`).toBe('keys')
     }

@@ -3,7 +3,7 @@ import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
 import {isNative} from '../../platform'
 import {cellBasis, cellPosition, columnWeights, gridTemplate, type GridColumns} from './columns'
-import type {SpacingToken} from '@duro-app/tokens/keys'
+import type {SpacingToken} from '@greenharness/greenrack-tokens/keys'
 import {resolveLength, resolveTrack, type GridTrack, type Length} from '../../shared/length'
 
 export type GridLayout = 'split' | 'split-wide' | 'content-aside'

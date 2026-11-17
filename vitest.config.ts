@@ -48,12 +48,18 @@ export default defineConfig({
         // (CI's lint job never builds it — Node would demand dist/keys.js).
         resolve: {
           alias: {
-            '@duro-app/tokens/keys': path.join(dirname, 'packages/tokens/src/keys.ts'),
-            '@duro-app/tokens/raw': path.join(dirname, 'packages/tokens/src/raw.ts'),
+            '@greenharness/greenrack-tokens/keys': path.join(
+              dirname,
+              'packages/tokens/src/keys.ts',
+            ),
+            '@greenharness/greenrack-tokens/raw': path.join(dirname, 'packages/tokens/src/raw.ts'),
             // Same reason: the eslint-config preset tests import the plugin,
             // whose package entry is dist/ — point at src so the unit job
             // doesn't need a build step.
-            '@duro-app/eslint-plugin': path.join(dirname, 'packages/eslint-plugin/src/index.ts'),
+            '@greenharness/greenrack-eslint-plugin': path.join(
+              dirname,
+              'packages/eslint-plugin/src/index.ts',
+            ),
           },
         },
         test: {

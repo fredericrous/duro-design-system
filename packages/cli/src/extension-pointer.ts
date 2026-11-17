@@ -2,7 +2,7 @@ import {accessSync, constants, existsSync} from 'node:fs'
 import {delimiter, join} from 'node:path'
 
 const README_POINTER =
-  'duro: the design extension (skills, agent, MCP server) installs with grh — see the Extension section of the @duro-app/cli README'
+  'greenrack: the design extension (skills, agent, MCP server) installs with grh — see the Extension section of the @greenharness/greenrack-cli README'
 
 function onPath(command: string, pathVariable: string): boolean {
   return pathVariable.split(delimiter).some((dir) => {
@@ -17,14 +17,14 @@ function onPath(command: string, pathVariable: string): boolean {
 }
 
 /**
- * The one stderr line `duro hook install` and `duro skill install` add: how to
+ * The one stderr line `greenrack hook install` and `greenrack skill install` add: how to
  * install the same content as a grh extension. A runnable command when grh is
  * on PATH, else a pointer to the README. Nothing here runs grh.
  */
 export function extensionPointer(cwd: string, pathVariable: string): string {
   if (!onPath('grh', pathVariable)) return README_POINTER
   if (existsSync(join(cwd, 'node_modules', '@duro-app', 'cli', 'greenharness.toml'))) {
-    return 'duro: also available as a grh extension: grh install --extension node_modules/@duro-app/cli'
+    return 'greenrack: also available as a grh extension: grh install --extension node_modules/@greenharness/greenrack-cli'
   }
-  return 'duro: also available as a grh extension: npm pack @duro-app/cli@6 && tar -xzf duro-app-cli-6*.tgz && grh install --extension package'
+  return 'greenrack: also available as a grh extension: npm pack @greenharness/greenrack-cli@^7 && tar -xzf duro-app-cli-6*.tgz && grh install --extension package'
 }

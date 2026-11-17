@@ -4,7 +4,7 @@ import dts from 'vite-plugin-dts'
 import path from 'node:path'
 import {addDtsExtensions} from '../../scripts/dts-extensions.mjs'
 
-// Plain React → ESM library. Unlike @duro-app/ui this does NOT use the
+// Plain React → ESM library. Unlike @greenharness/greenrack-ui this does NOT use the
 // react-strict-dom / StyleX babel preset — email components are plain
 // @react-email/components JSX, so we bypass the repo's upward babel config
 // (babelrc:false, configFile:false) and let the React plugin's automatic
@@ -12,13 +12,18 @@ import {addDtsExtensions} from '../../scripts/dts-extensions.mjs'
 export default defineConfig({
   build: {
     lib: {
-      name: 'DuroUIEmail',
+      name: 'GreenrackUIEmail',
       entry: './src/index.ts',
       formats: ['es'],
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime', '@react-email/components', '@duro-app/tokens/raw'],
+      external: [
+        'react',
+        'react/jsx-runtime',
+        '@react-email/components',
+        '@greenharness/greenrack-tokens/raw',
+      ],
     },
     sourcemap: true,
     target: 'es2020',

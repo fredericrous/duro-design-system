@@ -25,7 +25,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import {scheduleOnRN} from 'react-native-worklets'
 import {html} from 'react-strict-dom'
-import {DURATION_MS, LAYERS, SPACING_PX} from '@duro-app/tokens/keys'
+import {DURATION_MS, LAYERS, SPACING_PX} from '@greenharness/greenrack-tokens/keys'
 import {Icon} from '../Icon/Icon'
 import {Portal} from '../../shared/portal/PortalHost'
 import {useSafeAreaInsets} from '../../shared/safeArea'

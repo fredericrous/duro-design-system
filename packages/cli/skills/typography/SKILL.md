@@ -3,7 +3,7 @@ name: typography
 description: Sets and reviews how text renders in your product, from the type scale and spacing to font features, wrapping, truncation and punctuation.
 ---
 
-**Gate.** This skill applies only in a repository whose `package.json` depends on `@duro-app/ui` (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
+**Gate.** This skill applies only in a repository whose `package.json` depends on `@greenharness/greenrack-ui` (a `workspace:` dependency counts). Anywhere else, stop: do not apply it.
 
 # Typography
 

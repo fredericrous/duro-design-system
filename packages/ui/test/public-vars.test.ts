@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
 import {describe, expect, it} from 'vitest'
 
-// .storybook/publicVars.ts rebuilds the --duro-* aliases at runtime because
+// .storybook/publicVars.ts rebuilds the --gr-* aliases at runtime because
 // Storybook does not build dist/vars.css. Its group list is a copy of the
 // shared GROUP_ALIASES (packages/tokens/src/names.ts, which the generator
 // imports); this keeps the two in step, order included.

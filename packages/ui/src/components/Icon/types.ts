@@ -1,4 +1,4 @@
-import type {ColorToken, IconSize} from '@duro-app/tokens/keys'
+import type {ColorToken, IconSize} from '@greenharness/greenrack-tokens/keys'
 
 import type {PhosphorIconName} from './phosphor-glyphs'
 

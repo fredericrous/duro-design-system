@@ -1,8 +1,8 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, userEvent, waitFor, within} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
 import {Drawer} from './Drawer'
 import {Button} from '../Button/Button'
 

@@ -39,9 +39,7 @@ export function Badge({variant = 'default', size = 'md', dot = false, children}:
         dot && styles.withDot,
       ]}
     >
-      {dot ? (
-        <html.span aria-hidden data-duro-dot="" style={[styles.dot, dotMap[variant]]} />
-      ) : null}
+      {dot ? <html.span aria-hidden data-gr-dot="" style={[styles.dot, dotMap[variant]]} /> : null}
       {children}
     </html.span>
   )

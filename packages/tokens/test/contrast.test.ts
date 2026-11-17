@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import {darkColors, highContrastColors, lightColors} from '@duro-app/tokens/raw'
+import {darkColors, highContrastColors, lightColors} from '@greenharness/greenrack-tokens/raw'
 
 function luminance(hex: string): number {
   const digits = hex.replace('#', '')

@@ -47,7 +47,7 @@ import {
   usePortalMount,
   useResolvedColors,
   VirtualList,
-} from '@duro-app/ui'
+} from '@greenharness/greenrack-ui'
 
 const ROWS = ['Row 1', 'Row 2', 'Row 3', 'Row 4']
 

@@ -18,7 +18,7 @@ const isNativeOnly = (id: string): boolean =>
  */
 export function webGraphGuard(): Plugin {
   return {
-    name: 'duro:web-graph-guard',
+    name: 'greenrack:web-graph-guard',
     enforce: 'pre',
     resolveId(id, importer) {
       if (!isNativeOnly(id)) return null

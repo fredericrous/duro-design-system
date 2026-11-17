@@ -6,12 +6,20 @@
 // Decision 2).
 import {createContext, type ReactNode, useContext, useEffect, useMemo, useState} from 'react'
 import {css, html} from 'react-strict-dom'
-import type {ColorToken} from '@duro-app/tokens/keys'
-import {THEMABLE_GROUPS, validateTokens} from '@duro-app/tokens/theme'
-import {darkColors, highContrastColors, lightColors, type RawColors} from '@duro-app/tokens/raw'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {lightTheme, lightShadows} from '@duro-app/tokens/themes/light.css'
-import {highContrastTheme, highContrastShadows} from '@duro-app/tokens/themes/high-contrast.css'
+import type {ColorToken} from '@greenharness/greenrack-tokens/keys'
+import {THEMABLE_GROUPS, validateTokens} from '@greenharness/greenrack-tokens/theme'
+import {
+  darkColors,
+  highContrastColors,
+  lightColors,
+  type RawColors,
+} from '@greenharness/greenrack-tokens/raw'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {lightTheme, lightShadows} from '@greenharness/greenrack-tokens/themes/light.css'
+import {
+  highContrastTheme,
+  highContrastShadows,
+} from '@greenharness/greenrack-tokens/themes/high-contrast.css'
 import {createHostRegistry, type HostRegistry} from '../../shared/portal/hostRegistry'
 import {HostRegistryContext, PortalHost} from '../../shared/portal/PortalHost'
 import {

@@ -1,10 +1,10 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {layers} from '@duro-app/tokens/tokens/layers.css'
-import {breakpoints} from '@duro-app/tokens/tokens/breakpoints.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {layers} from '@greenharness/greenrack-tokens/tokens/layers.css'
+import {breakpoints} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 
 // At and above the collapse point (measured on the shell's own width, not
 // the window) the rail sits beside the page and the Header is a row that
@@ -26,7 +26,7 @@ const WIDE_LG = `@container (min-width: ${breakpoints.lg})`
 // and an ancestor of Main. Above the collapse point it is `initial` (unset),
 // so the Aside's fallback 0px applies: StyleX would write a `0px` as a
 // unitless 0, which makes the Aside's calc() invalid.
-//   '--duro-app-shell-bar'
+//   '--gr-app-shell-bar'
 
 const RAIL_COLUMNS = `${sizes.sidebarW} minmax(0, 1fr)`
 const NARROW_AREAS = '"bar" "main"'
@@ -54,17 +54,17 @@ export const styles = css.create({
   gridSm: {
     gridTemplateColumns: {default: 'minmax(0, 1fr)', [WIDE_SM]: RAIL_COLUMNS},
     gridTemplateAreas: {default: NARROW_AREAS, [WIDE_SM]: WIDE_AREAS},
-    '--duro-app-shell-bar': {default: sizes.appBarH, [WIDE_SM]: 'initial'},
+    '--gr-app-shell-bar': {default: sizes.appBarH, [WIDE_SM]: 'initial'},
   },
   gridMd: {
     gridTemplateColumns: {default: 'minmax(0, 1fr)', [WIDE_MD]: RAIL_COLUMNS},
     gridTemplateAreas: {default: NARROW_AREAS, [WIDE_MD]: WIDE_AREAS},
-    '--duro-app-shell-bar': {default: sizes.appBarH, [WIDE_MD]: 'initial'},
+    '--gr-app-shell-bar': {default: sizes.appBarH, [WIDE_MD]: 'initial'},
   },
   gridLg: {
     gridTemplateColumns: {default: 'minmax(0, 1fr)', [WIDE_LG]: RAIL_COLUMNS},
     gridTemplateAreas: {default: NARROW_AREAS, [WIDE_LG]: WIDE_AREAS},
-    '--duro-app-shell-bar': {default: sizes.appBarH, [WIDE_LG]: 'initial'},
+    '--gr-app-shell-bar': {default: sizes.appBarH, [WIDE_LG]: 'initial'},
   },
 
   // Holds the skip link, the first tab stop: off screen until the link

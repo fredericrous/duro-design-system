@@ -1,4 +1,4 @@
-import {PageShell, PortalHost, Stack, Text} from '@duro-app/ui'
+import {PageShell, PortalHost, Stack, Text} from '@greenharness/greenrack-ui'
 import {DialogDemo} from '../src/DialogDemo'
 
 // A natively presented route: the case where a host at the app root would draw

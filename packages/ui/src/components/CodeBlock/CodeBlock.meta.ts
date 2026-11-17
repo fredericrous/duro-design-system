@@ -25,6 +25,6 @@ export const meta: ComponentMeta = {
     },
   ],
   example: `<CodeBlock copyLabel="Copy" copiedLabel="Copied">
-  <code>pnpm add @duro-app/ui</code>
+  <code>pnpm add @greenharness/greenrack-ui</code>
 </CodeBlock>`,
 }

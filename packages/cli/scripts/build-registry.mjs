@@ -69,19 +69,29 @@ function firstDifference(a, b, path = '$') {
 export function buildRegistry() {
   const project = createProject()
 
-  const surface = extractSurface(project, 'packages/ui/src/index.ts', '@duro-app/ui', {
-    components: {},
-    unions: extractTokenUnions(project),
-  })
-  extractSurface(project, 'packages/ui/src/table.ts', '@duro-app/ui/table', surface)
-  extractSurface(project, 'packages/ui/src/form.ts', '@duro-app/ui/form', surface)
-  extractSurface(project, 'packages/diagrams/src/index.ts', '@duro-app/diagrams', surface)
+  const surface = extractSurface(
+    project,
+    'packages/ui/src/index.ts',
+    '@greenharness/greenrack-ui',
+    {
+      components: {},
+      unions: extractTokenUnions(project),
+    },
+  )
+  extractSurface(project, 'packages/ui/src/table.ts', '@greenharness/greenrack-ui/table', surface)
+  extractSurface(project, 'packages/ui/src/form.ts', '@greenharness/greenrack-ui/form', surface)
+  extractSurface(
+    project,
+    'packages/diagrams/src/index.ts',
+    '@greenharness/greenrack-diagrams',
+    surface,
+  )
 
   // Whether React Native can import it: the root's `react-native` export
   // condition resolves to index.native.ts, which exports a subset.
   const native = nativeExportNames(readFileSync(nativeBarrel, 'utf8'))
   for (const entry of Object.values(surface.components)) {
-    if (entry.importPath === '@duro-app/ui') entry.native = native.has(entry.name)
+    if (entry.importPath === '@greenharness/greenrack-ui') entry.native = native.has(entry.name)
   }
 
   const registry = {
@@ -90,7 +100,7 @@ export function buildRegistry() {
     recipes: extractRecipes(project, surface.components),
     tokens: {
       ...extractTokens(project),
-      // The resolved token stylesheet `duro mockup seed` inlines. Built from the
+      // The resolved token stylesheet `greenrack mockup seed` inlines. Built from the
       // token sources here rather than read from dist/ so the registry stays a
       // function of the tree, and copied verbatim by the CLI so the public
       // names come from ONE generator (packages/tokens/scripts/lib/mockup-css).
@@ -115,7 +125,9 @@ if (args.has('--write-docs')) {
 if (args.has('--check-docs')) {
   const {changed, changedRegion} = spliceDocs(registry, {write: false})
   if (changed) {
-    console.error(`CLAUDE.md generated region "${changedRegion}" is stale — run: pnpm duro:docs`)
+    console.error(
+      `CLAUDE.md generated region "${changedRegion}" is stale — run: pnpm greenrack:docs`,
+    )
     process.exit(1)
   }
   console.log('CLAUDE.md: generated regions up to date')
@@ -126,13 +138,13 @@ if (args.has('--check')) {
   try {
     committed = readFileSync(registryPath, 'utf8')
   } catch {
-    console.error(`registry missing at ${registryPath} — run: pnpm duro:registry`)
+    console.error(`registry missing at ${registryPath} — run: pnpm greenrack:registry`)
     process.exit(1)
   }
   if (committed !== serialized) {
     const diff = firstDifference(JSON.parse(committed), registry)
     console.error(
-      `registry stale (first difference at ${diff ?? 'formatting'}) — run: pnpm duro:registry`,
+      `registry stale (first difference at ${diff ?? 'formatting'}) — run: pnpm greenrack:registry`,
     )
     process.exit(1)
   }

@@ -6,10 +6,10 @@ import {Timeline, type TimelineDate} from './Timeline'
 import {DragDrop, type DragDropEvent} from '../DragDrop/DragDrop'
 import {Text} from '../Text/Text'
 import {onThemeSurface} from '../../docs/themedSurface'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
 
 interface Args {
   onDrop?: (e: DragDropEvent<Task>) => void

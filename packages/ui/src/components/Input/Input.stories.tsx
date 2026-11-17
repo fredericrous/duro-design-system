@@ -4,8 +4,8 @@ import {css, html} from 'react-strict-dom'
 import {Input} from './Input'
 import {Field} from '../Field/Field'
 import {Stack} from '../Stack/Stack'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta<typeof Input> = {
   title: 'Components/Input',

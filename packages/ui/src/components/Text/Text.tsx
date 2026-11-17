@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
-import {typePresets} from '@duro-app/tokens/tokens/type-presets.css'
+import {typePresets} from '@greenharness/greenrack-tokens/tokens/type-presets.css'
 import {styles} from './styles.css'
 
 export type TextVariant = 'bodySm' | 'bodyMd' | 'bodyLg' | 'caption' | 'label' | 'code' | 'overline'

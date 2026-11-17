@@ -9,7 +9,7 @@ import {
   DURATION_MS,
   LAYERS,
   EFFECTS,
-} from '@duro-app/tokens/keys'
+} from '@greenharness/greenrack-tokens/keys'
 import type {Registry} from '../src/registry-types.js'
 
 const registry = JSON.parse(
@@ -88,7 +88,7 @@ describe('token drift', () => {
   const asMap = (group: (typeof groups)[string]) =>
     Object.fromEntries(group.entries.map((entry) => [entry.key, entry.value]))
 
-  it('spacing matches @duro-app/tokens/keys', () => {
+  it('spacing matches @greenharness/greenrack-tokens/keys', () => {
     expect(asMap(groups.spacing)).toEqual(
       Object.fromEntries(Object.entries(SPACING_PX).map(([token, px]) => [token, `${px}px`])),
     )
@@ -128,13 +128,13 @@ describe('token drift', () => {
     const css = registry.tokens.mockupCss
     const kebab = (key: string) => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)
     for (const [key, value] of Object.entries(LAYERS)) {
-      expect(css).toContain(`--duro-layer-${kebab(key)}: ${value};`)
+      expect(css).toContain(`--gr-layer-${kebab(key)}: ${value};`)
     }
     for (const [key, value] of Object.entries(EFFECTS)) {
-      expect(css).toContain(`--duro-effect-${kebab(key)}: ${value};`)
+      expect(css).toContain(`--gr-effect-${kebab(key)}: ${value};`)
     }
-    expect(css).toContain('--duro-layer-modal-raised: 1002;')
-    expect(css).toContain('--duro-effect-surface-blur: blur(6px);')
+    expect(css).toContain('--gr-layer-modal-raised: 1002;')
+    expect(css).toContain('--gr-effect-surface-blur: blur(6px);')
   })
   it('icon sizes match keys', () => {
     expect(registry.icons.sizes).toEqual(ICON_SIZES)
@@ -155,23 +155,23 @@ describe('token drift', () => {
       const start = css.indexOf(selector)
       expect(start, `${selector} block missing`).toBeGreaterThanOrEqual(0)
       const block = css.slice(start, css.indexOf('\n}', start))
-      expect(block).toMatch(/--duro-color-bg: #[0-9a-f]{6};/)
-      expect(block).toMatch(/--duro-shadow-sm: 0 /)
+      expect(block).toMatch(/--gr-color-bg: #[0-9a-f]{6};/)
+      expect(block).toMatch(/--gr-shadow-sm: 0 /)
       expect(block).not.toContain('var(--')
     }
     // Scales are declared once and match the group values.
     for (const [token, px] of Object.entries(SPACING_PX)) {
-      expect(css).toContain(`--duro-spacing-${token}: ${px}px;`)
+      expect(css).toContain(`--gr-spacing-${token}: ${px}px;`)
     }
-    expect(css).toContain('--duro-breakpoint-md: 768px;')
+    expect(css).toContain('--gr-breakpoint-md: 768px;')
   })
   it('every group import path is a real tokens exports key', () => {
     const tokensPkg = JSON.parse(
       readFileSync(new URL('../../tokens/package.json', import.meta.url), 'utf8'),
     ) as {exports: Record<string, unknown>}
     for (const [key, group] of Object.entries(groups)) {
-      if (group.importPath.startsWith('@duro-app/tokens')) {
-        const subpath = group.importPath.replace('@duro-app/tokens', '.')
+      if (group.importPath.startsWith('@greenharness/greenrack-tokens')) {
+        const subpath = group.importPath.replace('@greenharness/greenrack-tokens', '.')
         expect(tokensPkg.exports[subpath], `${key}: ${subpath} not exported`).toBeDefined()
       }
     }
@@ -188,20 +188,20 @@ describe('recipes', () => {
   })
   it('login-form declares its effect peer', () => {
     expect(registry.recipes['login-form'].peerDeps).toEqual(['effect'])
-    expect(registry.recipes['login-form'].source).toContain("from '@duro-app/ui'")
+    expect(registry.recipes['login-form'].source).toContain("from '@greenharness/greenrack-ui'")
   })
 })
 
 describe('rules', () => {
   it('mirrors the lint rules with recommended severities', () => {
     expect(registry.rules.lint.map((rule) => `${rule.severity} ${rule.id}`)).toEqual([
-      'error duro/no-deprecated-table-parts',
-      'error duro/no-raw-breakpoint-query',
-      'error duro/no-raw-design-values',
-      'error duro/no-raw-html-element',
-      'warn duro/no-raw-layer-values',
-      'error duro/no-tokens-barrel-import',
-      'error duro/prefer-ds-form-components',
+      'error greenrack/no-deprecated-table-parts',
+      'error greenrack/no-raw-breakpoint-query',
+      'error greenrack/no-raw-design-values',
+      'error greenrack/no-raw-html-element',
+      'warn greenrack/no-raw-layer-values',
+      'error greenrack/no-tokens-barrel-import',
+      'error greenrack/prefer-ds-form-components',
     ])
   })
   it('carries the CLAUDE.md critical slice', () => {

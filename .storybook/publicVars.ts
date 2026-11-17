@@ -1,4 +1,4 @@
-// The --duro-* custom properties for Storybook. A consumer gets them from
+// The --gr-* custom properties for Storybook. A consumer gets them from
 // dist/vars.css, which packages/tokens/scripts/generate-vars-css.mjs writes
 // from the BUILT tokens — and Storybook (and its Vitest run) compiles the
 // token sources without building them, so that file does not exist here.
@@ -8,16 +8,16 @@
 // their tokens in stories and follow the story's theme.
 //
 // Deep imports: StyleX cannot resolve css.defineVars through a barrel.
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {layers} from '@duro-app/tokens/tokens/layers.css'
-import {effects} from '@duro-app/tokens/tokens/effects.css'
-import {layoutSpacing} from '@duro-app/tokens/tokens/layout-spacing.css'
-import {typeScale, typography} from '@duro-app/tokens/tokens/typography.css'
-import {shadows} from '@duro-app/tokens/tokens/shadows.css'
-import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {microSpacing, radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {layers} from '@greenharness/greenrack-tokens/tokens/layers.css'
+import {effects} from '@greenharness/greenrack-tokens/tokens/effects.css'
+import {layoutSpacing} from '@greenharness/greenrack-tokens/tokens/layout-spacing.css'
+import {typeScale, typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {shadows} from '@greenharness/greenrack-tokens/tokens/shadows.css'
+import {duration, easing} from '@greenharness/greenrack-tokens/tokens/motion.css'
 
 // generate-vars-css.mjs GROUP_NAMES, in its order.
 const GROUPS: Array<[string, object]> = [
@@ -48,16 +48,16 @@ export function publicVarsCss(): string {
   for (const [alias, bag] of GROUPS) {
     for (const [name, value] of Object.entries(bag)) {
       if (typeof value === 'string' && value.startsWith('var(--')) {
-        lines.push(`  --duro-${alias}-${kebab(name)}: ${value};`)
+        lines.push(`  --gr-${alias}-${kebab(name)}: ${value};`)
       }
     }
   }
   return `:root,\n[data-theme] {\n${lines.join('\n')}\n}\n`
 }
 
-if (typeof document !== 'undefined' && !document.getElementById('duro-public-vars')) {
+if (typeof document !== 'undefined' && !document.getElementById('greenrack-public-vars')) {
   const style = document.createElement('style')
-  style.id = 'duro-public-vars'
+  style.id = 'greenrack-public-vars'
   style.textContent = publicVarsCss()
   document.head.appendChild(style)
 }

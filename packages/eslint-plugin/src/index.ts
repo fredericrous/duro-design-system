@@ -11,22 +11,22 @@ const plugin = {
 // object that contains it — the standard ESLint 9 self-referential shape.
 Object.assign(plugin.configs, {
   recommended: {
-    name: 'duro/recommended',
-    plugins: {duro: plugin},
+    name: 'greenrack/recommended',
+    plugins: {greenrack: plugin},
     rules: {
-      'duro/no-raw-html-element': 'error',
-      'duro/no-tokens-barrel-import': 'error',
-      'duro/no-deprecated-table-parts': 'error',
+      'greenrack/no-raw-html-element': 'error',
+      'greenrack/no-tokens-barrel-import': 'error',
+      'greenrack/no-deprecated-table-parts': 'error',
       // Errors since 3.0: a raw design value is the drift the system exists
       // to prevent. Consumers with debt ratchet with an explicit-file
-      // baseline block (see @duro-app/eslint-config README), never a glob
+      // baseline block (see @greenharness/greenrack-eslint-config README), never a glob
       // and never --max-warnings.
-      'duro/no-raw-design-values': 'error',
+      'greenrack/no-raw-design-values': 'error',
       // New in 5.3: raw z-index and blur values. A warning for the 5.x line,
       // so no consumer's lint turns red on a minor; an error in the next major.
-      'duro/no-raw-layer-values': 'warn',
-      'duro/no-raw-breakpoint-query': 'error',
-      'duro/prefer-ds-form-components': 'error',
+      'greenrack/no-raw-layer-values': 'warn',
+      'greenrack/no-raw-breakpoint-query': 'error',
+      'greenrack/prefer-ds-form-components': 'error',
     },
   } satisfies TSESLint.FlatConfig.Config,
 })

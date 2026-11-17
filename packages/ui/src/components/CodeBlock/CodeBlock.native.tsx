@@ -1,6 +1,6 @@
 import {ScrollView} from 'react-native'
 import {html} from 'react-strict-dom'
-import {typePresets} from '@duro-app/tokens/tokens/type-presets.css'
+import {typePresets} from '@greenharness/greenrack-tokens/tokens/type-presets.css'
 import {DiffLines} from './DiffLines'
 import {DiffRows} from './DiffRows'
 import {textOf} from './diffRoles'

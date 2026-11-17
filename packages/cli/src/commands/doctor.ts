@@ -5,14 +5,14 @@ import {cliVersion} from './manifest.js'
 import {lineOf, maskComments} from '../scan.js'
 
 /**
- * `duro doctor` — checks how the app in the cwd wires @duro-app/ui into its
+ * `greenrack doctor` — checks how the app in the cwd wires @greenharness/greenrack-ui into its
  * build. Every rule here is a way a consumer has shipped design-system
  * components with their spacing flattened while the design system's own
  * stylesheet was correct: the stylesheet is layered (`reset`, then StyleX's
  * `priority1..5`), and anything that lands outside those layers, or declares
  * them in the wrong order, outranks it. Each app used to rediscover this
  * alone; the contract lives here now. One rule is about the tokens rather
- * than the cascade: an app whose build never compiles @duro-app/tokens'
+ * than the cascade: an app whose build never compiles @greenharness/greenrack-tokens'
  * sources cannot use them in css.create (`tokens-compiled`). And one reads
  * fresh build output: a built `@media` that compares against a `var(--…)`
  * never matches (`media-var`).
@@ -53,15 +53,15 @@ export interface DoctorOptions {
   session?: boolean
 }
 
-const DS_CSS = '@duro-app/ui/dist/index.css'
+const DS_CSS = '@greenharness/greenrack-ui/dist/index.css'
 const PRIORITIES = ['priority1', 'priority2', 'priority3', 'priority4', 'priority5']
 const LAYER_STATEMENT = `@layer reset, ${PRIORITIES.join(', ')};`
 
 /** Layers each design-system stylesheet declares, in declaration order. */
 const DS_SHEETS: Record<string, string[]> = {
-  [DS_CSS]: ['reset', 'duro-prose', ...PRIORITIES],
-  '@duro-app/ui/reset.css': ['reset'],
-  '@duro-app/ui/strict.css': ['reset', 'duro-prose', ...PRIORITIES],
+  [DS_CSS]: ['reset', 'gr-prose', ...PRIORITIES],
+  '@greenharness/greenrack-ui/reset.css': ['reset'],
+  '@greenharness/greenrack-ui/strict.css': ['reset', 'gr-prose', ...PRIORITIES],
 }
 
 /** Build config that can carry StyleX / react-strict-dom options. */
@@ -119,8 +119,8 @@ const COMPONENT_ELEMENTS = new Set([
 const ZERO_SPACING =
   /(?:^|[;{\s])((?:padding|margin)(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?)\s*:\s*0(?:px|rem|em)?\s*(?:!important\s*)?(?=;|$)/g
 
-/** True when the root, a workspace package or a package one directory down depends on @duro-app/ui. */
-export function isDuroConsumer(root: string): boolean {
+/** True when the root, a workspace package or a package one directory down depends on @greenharness/greenrack-ui. */
+export function isGreenrackConsumer(root: string): boolean {
   return consumerPackages(resolve(root)).length > 0
 }
 
@@ -150,7 +150,7 @@ export function runDoctor(options: DoctorOptions = {}): CommandResult {
   )
 }
 
-/** Every check, for one package that depends on @duro-app/ui. */
+/** Every check, for one package that depends on @greenharness/greenrack-ui. */
 function checkPackage(
   dir: string,
   pkg: PackageJson,
@@ -220,15 +220,15 @@ function checkPackage(
       rule: 'version-skew',
       severity: 'warn',
       file: rel(join(dir, 'package.json')),
-      message: `@duro-app/ui is ${skew.installed}, but this CLI documents and checks ${skew.own}.`,
-      fix: `npx -y @duro-app/cli@${skew.installed} doctor, or upgrade @duro-app/ui.`,
+      message: `@greenharness/greenrack-ui is ${skew.installed}, but this CLI documents and checks ${skew.own}.`,
+      fix: `npx -y @greenharness/greenrack-cli@${skew.installed} doctor, or upgrade @greenharness/greenrack-ui.`,
     })
   }
   return findings
 }
 
 /**
- * The packages under `root` that depend on @duro-app/ui. The hook runs at
+ * The packages under `root` that depend on @greenharness/greenrack-ui. The hook runs at
  * the repo root, which in a workspace (or an app kept in web/) is not the
  * package that renders anything: follow the workspace globs, and without
  * any, look one directory down.
@@ -335,7 +335,9 @@ function parsePackage(raw: string): PackageJson {
 
 function dependsOnUi(pkg: PackageJson): boolean {
   return ['dependencies', 'devDependencies', 'peerDependencies'].some(
-    (field) => (pkg[field] as Record<string, string> | undefined)?.['@duro-app/ui'] !== undefined,
+    (field) =>
+      (pkg[field] as Record<string, string> | undefined)?.['@greenharness/greenrack-ui'] !==
+      undefined,
   )
 }
 
@@ -344,7 +346,7 @@ function isLibrary(pkg: PackageJson): boolean {
 }
 
 /**
- * The installed @duro-app/ui version when it differs from this CLI's. The
+ * The installed @greenharness/greenrack-ui version when it differs from this CLI's. The
  * package's exports map does not expose ./package.json, so require() cannot
  * read it: walk up node_modules the way resolution does and read the file.
  * A workspace link (the design system's own checkout) resolves outside any
@@ -388,7 +390,7 @@ function checkRuntimeInjection(file: string, source: string): DoctorFinding[] {
         literal
           ? `runtimeInjection: ${value}`
           : `runtimeInjection is computed (${value}), and may be on`
-      }${testOnly ? ' (test config only)' : ''} — StyleX then injects react-strict-dom's element reset (padding: 0, margin: 0) into an unlayered <style> at import time. Unlayered rules beat every @layer rule, so it flattens the spacing of every @duro-app/ui component.`,
+      }${testOnly ? ' (test config only)' : ''} — StyleX then injects react-strict-dom's element reset (padding: 0, margin: 0) into an unlayered <style> at import time. Unlayered rules beat every @layer rule, so it flattens the spacing of every @greenharness/greenrack-ui component.`,
       fix: `Set runtimeInjection: false and extract the rules at build time instead: react-strict-dom/postcss-plugin in postcss.config, plus a CSS file containing @react-strict-dom; imported after '${DS_CSS}'.`,
     })
   }
@@ -407,7 +409,7 @@ function checkExtraction(file: string, source: string): DoctorFinding | null {
     line: lineOf(source, match.index),
     message:
       "useCSSLayers: false emits this app's StyleX rules unlayered — including react-strict-dom's element reset (padding: 0) — and unlayered rules beat the design system's layered component styles.",
-    fix: 'Remove useCSSLayers (it defaults to true) so the extracted rules land in the same priority layers as @duro-app/ui.',
+    fix: 'Remove useCSSLayers (it defaults to true) so the extracted rules land in the same priority layers as @greenharness/greenrack-ui.',
   }
 }
 
@@ -424,7 +426,7 @@ interface ConfigFile {
 const STYLEX_COMPILER =
   /(['"])(?:@stylexjs\/(?:babel-plugin|unplugin|rollup-plugin)|vite-plugin-stylex|@stylex-extend\/[\w-]+|react-strict-dom\/babel-preset)(?:\/[\w./-]*)?\1/
 
-/** `@duro-app/tokens`, also as it appears inside a regex literal (`@duro-app\/tokens`). */
+/** `@greenharness/greenrack-tokens`, also as it appears inside a regex literal (`@duro-app\/tokens`). */
 const TOKENS_MENTION = /@duro-app\\?\/tokens\b/
 
 /** `noExternal: [...]`, `: true`, `: /re/` or `: 'pkg'`. */
@@ -504,13 +506,13 @@ const STYLEX_ERROR =
   'Could not resolve the path to the imported file. Please ensure the theme file has a .stylex.js or .stylex.ts extension'
 
 /**
- * `@duro-app/tokens/tokens/*.css` resolves to the package's uncompiled
+ * `@greenharness/greenrack-tokens/tokens/*.css` resolves to the package's uncompiled
  * `src/tokens/*.css.ts` (react-strict-dom `css.defineVars`), which only
  * react-strict-dom's babel preset turns into StyleX theme variables. An app
  * that compiles its own code with StyleX but routes nothing of
- * @duro-app/tokens through that preset cannot use the tokens in css.create.
+ * @greenharness/greenrack-tokens through that preset cannot use the tokens in css.create.
  *
- * Conservative: any vite/babel config text naming @duro-app/tokens outside
+ * Conservative: any vite/babel config text naming @greenharness/greenrack-tokens outside
  * `noExternal` counts as routing it. An error only with evidence — a source file that
  * deep-imports the tokens and calls css.create, whose build fails today;
  * otherwise a warning, since the design system's own rules tell the next
@@ -587,16 +589,16 @@ function checkTokensCompiled(
       severity: 'warn',
       file: opaque.file,
       line: opaque.line,
-      message: `ssr.noExternal is \`${opaque.name}\` in ${opaque.file}:${opaque.line}, which doctor cannot resolve to a list, so it cannot verify that SSR inlines @duro-app/tokens (without it, css.defineVars throws at runtime).`,
-      fix: `Make sure '@duro-app/tokens' is in \`${opaque.name}\`, or declare noExternal inline in ${opaque.file}.`,
+      message: `ssr.noExternal is \`${opaque.name}\` in ${opaque.file}:${opaque.line}, which doctor cannot resolve to a list, so it cannot verify that SSR inlines @greenharness/greenrack-tokens (without it, css.defineVars throws at runtime).`,
+      fix: `Make sure '@greenharness/greenrack-tokens' is in \`${opaque.name}\`, or declare noExternal inline in ${opaque.file}.`,
     }
   }
 
   const evidence = tokensInCreate(dir)
   const where = evidence ? `${rel(evidence.path)}:${evidence.line}` : null
   const cause = routed
-    ? `${stylex.file} routes @duro-app/tokens through Babel, but this app renders on the server and ssr.noExternal does not list it: SSR loads the tokens from node_modules as native ESM, bypassing that rule, and css.defineVars throws at runtime.`
-    : `${stylex.file} compiles the app with StyleX, but nothing compiles @duro-app/tokens' sources: @duro-app/tokens/tokens/*.css resolves to uncompiled src/tokens/*.css.ts (react-strict-dom css.defineVars), which only react-strict-dom/babel-preset turns into StyleX theme variables. css.create then cannot import them — StyleX fails with "${STYLEX_ERROR}".`
+    ? `${stylex.file} routes @greenharness/greenrack-tokens through Babel, but this app renders on the server and ssr.noExternal does not list it: SSR loads the tokens from node_modules as native ESM, bypassing that rule, and css.defineVars throws at runtime.`
+    : `${stylex.file} compiles the app with StyleX, but nothing compiles @greenharness/greenrack-tokens' sources: @greenharness/greenrack-tokens/tokens/*.css resolves to uncompiled src/tokens/*.css.ts (react-strict-dom css.defineVars), which only react-strict-dom/babel-preset turns into StyleX theme variables. css.create then cannot import them — StyleX fails with "${STYLEX_ERROR}".`
   return {
     rule: 'tokens-compiled',
     severity: evidence ? 'error' : 'warn',
@@ -608,15 +610,15 @@ function checkTokensCompiled(
         : 'Latent until a file imports a token into css.create — the import the design system prescribes; the barrel import apps fall back on is forbidden.'
     }`,
     fix: routed
-      ? `Add '@duro-app/tokens' (with 'react-strict-dom') to ssr.noExternal in ${stylex.file}.`
-      : `Compile node_modules/@duro-app/tokens with react-strict-dom/babel-preset, as duro-app's vite.config.ts does — babel({filter: /node_modules\\/@duro-app\\/tokens\\/.*\\.[jt]sx?$/, babelConfig: {presets: ['@babel/preset-typescript', ['react-strict-dom/babel-preset', {platform: 'web', rootDir: process.cwd()}]]}}) from vite-plugin-babel, ahead of the app's StyleX pass — and add '@duro-app/tokens' to ssr.noExternal if the app renders on the server.`,
+      ? `Add '@greenharness/greenrack-tokens' (with 'react-strict-dom') to ssr.noExternal in ${stylex.file}.`
+      : `Compile node_modules/@greenharness/greenrack-tokens with react-strict-dom/babel-preset, as duro-app's vite.config.ts does — babel({filter: /node_modules\\/@duro-app\\/tokens\\/.*\\.[jt]sx?$/, babelConfig: {presets: ['@babel/preset-typescript', ['react-strict-dom/babel-preset', {platform: 'web', rootDir: process.cwd()}]]}}) from vite-plugin-babel, ahead of the app's StyleX pass — and add '@greenharness/greenrack-tokens' to ssr.noExternal if the app renders on the server.`,
   }
 }
 
 /** Sources under app/ and src/ scanned for tokens evidence, at most. */
 const SOURCE_SCAN_LIMIT = 5000
 
-/** The first app source that deep-imports @duro-app/tokens and calls css.create. */
+/** The first app source that deep-imports @greenharness/greenrack-tokens and calls css.create. */
 function tokensInCreate(dir: string): {path: string; line: number} | null {
   const stack = ['src', 'app'].map((name) => join(dir, name))
   let budget = SOURCE_SCAN_LIMIT
@@ -744,7 +746,7 @@ function walkFiles(
 /**
  * A media query cannot read a custom property: `@media (max-width:
  * var(--x))` never matches, so the rules inside never apply. It happens when
- * `@duro-app/tokens/tokens/breakpoints.css.ts` reaches the CSS without the
+ * `@greenharness/greenrack-tokens/tokens/breakpoints.css.ts` reaches the CSS without the
  * StyleX/RSD compile that turns its consts into px. Reads built CSS only, and
  * only output newer than every config and source file: stale output says
  * nothing about the code as it is. `skipped` when there is no fresh build;
@@ -791,7 +793,7 @@ function checkMediaVar(
       file: rel(path),
       line: lineOf(source, first.index),
       message: `${query}${more} compares against a CSS variable, which a media query cannot read: it never matches, so the rules inside never apply.`,
-      fix: 'compile `@duro-app/tokens/tokens/breakpoints.css.ts` through the StyleX/RSD babel step, rebuild, re-run `npx -y @duro-app/cli doctor`',
+      fix: 'compile `@greenharness/greenrack-tokens/tokens/breakpoints.css.ts` through the StyleX/RSD babel step, rebuild, re-run `npx -y @greenharness/greenrack-cli doctor`',
     })
   }
   return {checked: fresh.map(rel), findings, skipped: false}
@@ -841,7 +843,7 @@ function checkStylesheets(
       rule: 'css-imported',
       severity: 'error',
       file: rel(entry),
-      message: `${rel(entry)} never imports '${DS_CSS}'. @duro-app/ui's JavaScript does not load its stylesheet, so every component renders unstyled.`,
+      message: `${rel(entry)} never imports '${DS_CSS}'. @greenharness/greenrack-ui's JavaScript does not load its stylesheet, so every component renders unstyled.`,
       fix: `Add import '${DS_CSS}' to ${rel(entry)}, before the app's own CSS.`,
     })
     return walk.findings
@@ -873,7 +875,7 @@ function cssImports(source: string): Array<{specifier: string; line: number}> {
   )) {
     const [, clause, , specifier] = match
     if (!/\.css(?:\?[\w&=-]*)?$/.test(specifier!)) continue
-    // `import {spacing} from '@duro-app/tokens/tokens/spacing.css'` is a
+    // `import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'` is a
     // .css.ts module, not a stylesheet — only side-effect and ?url imports
     // put CSS on the page.
     if (clause !== undefined && !specifier!.includes('?')) continue
@@ -960,7 +962,7 @@ function scanSheet(walk: SheetWalk, path: string, file: string, layered: boolean
               severity: 'warn',
               file,
               line: lineOf(source, (block.body ?? 0) + decl.index),
-              message: `'${selector.replace(/\s+/g, ' ')} { ${decl[1]}: 0 }' sits outside any @layer, so it beats the spacing @duro-app/ui components set in their layers.`,
+              message: `'${selector.replace(/\s+/g, ' ')} { ${decl[1]}: 0 }' sits outside any @layer, so it beats the spacing @greenharness/greenrack-ui components set in their layers.`,
               fix: `Wrap the rule in @layer reset { … } — the design system's reset layer, which component styles already outrank.`,
             })
           }
@@ -1036,13 +1038,13 @@ function report(
     return {
       text: [
         errors.length > 0
-          ? `DURO DOCTOR — ${plural(errors.length, 'error')} in this repo's @duro-app/ui setup: ${effects.join('; ')} until fixed. Fix before any styling work:`
-          : `DURO DOCTOR — ${plural(warnings.length, 'warning')} about this repo's @duro-app/ui setup:`,
+          ? `GREENRACK DOCTOR — ${plural(errors.length, 'error')} in this repo's @greenharness/greenrack-ui setup: ${effects.join('; ')} until fixed. Fix before any styling work:`
+          : `GREENRACK DOCTOR — ${plural(warnings.length, 'warning')} about this repo's @greenharness/greenrack-ui setup:`,
         ...findings.map(
           (finding) =>
             `- [${finding.severity}] ${finding.rule} at ${where(finding)}: ${finding.message} Fix: ${finding.fix}`,
         ),
-        'Re-check with: npx -y @duro-app/cli doctor',
+        'Re-check with: npx -y @greenharness/greenrack-cli doctor',
       ].join('\n'),
       data,
     }
@@ -1054,13 +1056,13 @@ function report(
   ]
   if (findings.length === 0) {
     return {
-      text: ['duro doctor: no problems found', ...tail].join('\n'),
+      text: ['greenrack doctor: no problems found', ...tail].join('\n'),
       data,
     }
   }
   return {
     text: [
-      `duro doctor: ${errors.length} error(s), ${warnings.length} warning(s)`,
+      `greenrack doctor: ${errors.length} error(s), ${warnings.length} warning(s)`,
       ...findings.flatMap((finding) => [
         `  ${finding.severity.padEnd(5)} ${finding.rule.padEnd(18)} ${where(finding)}`,
         `        ${finding.message}`,

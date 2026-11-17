@@ -1,6 +1,6 @@
 import {css} from 'react-strict-dom'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {layers} from '@duro-app/tokens/tokens/layers.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {layers} from '@greenharness/greenrack-tokens/tokens/layers.css'
 
 // The styles a control takes in an attached ButtonGroup, by its position.
 // Borders collapse into the neighbour's with a negative hairline margin; only

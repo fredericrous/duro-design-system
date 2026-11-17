@@ -6,7 +6,7 @@
  * is an inert string.
  */
 
-import {DURATION_MS, SIZES_PX, SPACING_PX} from '@duro-app/tokens/keys'
+import {DURATION_MS, SIZES_PX, SPACING_PX} from '@greenharness/greenrack-tokens/keys'
 
 /** A bottom-sheet detent (plan N0, Decision 5). */
 export type SnapPoint = 'medium' | 'large'

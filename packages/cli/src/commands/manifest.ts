@@ -33,7 +33,7 @@ export function runManifest(registry: Registry): CommandResult {
     }),
     '',
     `GLOBAL  ${manifest.globalFlags.map((flag) => `--${flag.name}`).join(' · ')}`,
-    `NAMES   ${manifest.enums.names.length} — duro list`,
+    `NAMES   ${manifest.enums.names.length} — greenrack list`,
   ].join('\n')
   return {text, data: manifest}
 }

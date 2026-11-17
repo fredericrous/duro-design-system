@@ -84,7 +84,7 @@ interface ColorModeProviderProps {
   onPreferenceChange?: (preference: ColorModePreference) => void
   /** Cycle order for `cycle()` / `<ColorModeToggle>`. Default `['light', 'dark']`. */
   modes?: readonly ColorModePreference[]
-  /** localStorage key for persistence; `null` disables it. Default `'duro-color-mode'`.
+  /** localStorage key for persistence; `null` disables it. Default `'greenrack-color-mode'`.
    * Native has no localStorage: persist through `preference` and `onPreferenceChange`. */
   storageKey?: string | null
   /** Wrap children in the DS `ThemeProvider` with the resolved theme. Default `true`.
@@ -103,7 +103,7 @@ export function ColorModeProvider({
   preference: controlled,
   onPreferenceChange,
   modes = ['light', 'dark'],
-  storageKey = 'duro-color-mode',
+  storageKey = 'greenrack-color-mode',
   applyTheme = true,
 }: ColorModeProviderProps) {
   const [internal, setInternal] = useState<ColorModePreference>(controlled ?? defaultPreference)

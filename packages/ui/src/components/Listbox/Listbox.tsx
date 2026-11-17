@@ -11,7 +11,7 @@ import {
 } from 'react'
 import {createPortal} from 'react-dom'
 import {html} from 'react-strict-dom'
-import {SPACING_PX} from '@duro-app/tokens/keys'
+import {SPACING_PX} from '@greenharness/greenrack-tokens/keys'
 import {styles} from './styles.css'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {computePopoverPosition} from '../Popover/position'

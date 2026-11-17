@@ -4,8 +4,8 @@ import {useRef, useState} from 'react'
 import {css, html} from 'react-strict-dom'
 import {Button} from './Button'
 import {Icon} from '../Icon/Icon'
-import {RADII_PX} from '@duro-app/tokens/keys'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {RADII_PX} from '@greenharness/greenrack-tokens/keys'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',

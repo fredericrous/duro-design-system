@@ -1,5 +1,5 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
 
 export const styles = css.create({
   // Square, as wide as its container: the caller sizes the column it sits in. Dark modules on the

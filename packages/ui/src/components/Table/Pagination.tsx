@@ -1,11 +1,11 @@
 import type {Table} from '@tanstack/react-table'
 import {html} from 'react-strict-dom'
 import {css} from 'react-strict-dom'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {duration} from '@duro-app/tokens/tokens/motion.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {duration} from '@greenharness/greenrack-tokens/tokens/motion.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 const styles = css.create({
   root: {

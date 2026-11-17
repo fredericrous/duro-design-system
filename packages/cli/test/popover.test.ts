@@ -43,7 +43,7 @@ describe('Popover in the registry and CLI', () => {
     }
   })
 
-  it('duro list components has a short Popover row', () => {
+  it('greenrack list components has a short Popover row', () => {
     const row = duro('list', 'components')
       .split('\n')
       .find((line) => line.trim().startsWith('Popover'))

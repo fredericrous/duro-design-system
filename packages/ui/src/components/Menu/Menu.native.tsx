@@ -11,7 +11,7 @@ import {
 } from 'react'
 import {Platform, Pressable, ScrollView, StyleSheet} from 'react-native'
 import {html} from 'react-strict-dom'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import {styles} from './styles.css'
 import {nativeStyles} from './native.css'
 import {useMenuOpen} from './useMenuOpen'

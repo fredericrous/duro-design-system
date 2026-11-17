@@ -8,7 +8,7 @@ import {Button} from '../../../packages/ui/src/components/Button/Button'
 import {Stack} from '../../../packages/ui/src/components/Stack/Stack'
 import {Heading} from '../../../packages/ui/src/components/Heading/Heading'
 import type {ComponentMeta} from '../types'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const LoginSchema = Schema.Struct({
   username: Schema.String.pipe(

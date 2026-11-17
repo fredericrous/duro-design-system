@@ -3,7 +3,7 @@ import {join} from 'node:path'
 
 /**
  * The packaged interface skills (packages/cli/skills) as registry `guides`:
- * skill name -> relative POSIX path -> file text. `duro skill install` walks
+ * skill name -> relative POSIX path -> file text. `greenrack skill install` walks
  * the same directory (src/commands/skill.ts `listFiles`); a test asserts both
  * list the same files in the same order.
  */
@@ -30,8 +30,8 @@ export function listGuideFiles(dir) {
 export function extractGuides(skillsDir) {
   const guides = {}
   const skills = readdirSync(skillsDir, {withFileTypes: true})
-    // duro-mockup is generated from skill-template.ts and is a workflow, not a guide.
-    .filter((entry) => entry.isDirectory() && entry.name !== 'duro-mockup')
+    // greenrack-mockup is generated from skill-template.ts and is a workflow, not a guide.
+    .filter((entry) => entry.isDirectory() && entry.name !== 'greenrack-mockup')
     .map((entry) => entry.name)
     .sort(byBytes)
   for (const skill of skills) {

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Lint the React Native import graph of @duro-app/ui.
+ * Lint the React Native import graph of @greenharness/greenrack-ui.
  *
  * The file list comes from `tsc -p packages/ui/tsconfig.native.json
  * --listFilesOnly`; ESLint (not a second JSX parser) then runs over the
  * package's own sources in it. These faults bundle fine and crash only on a
  * device, so they fail here instead:
- *   - a lowercase JSX intrinsic, <svg> included (duro/no-raw-html-element
+ *   - a lowercase JSX intrinsic, <svg> included (greenrack/no-raw-html-element
  *     with `svgExempt: false`);
  *   - a `css.keyframes` call (unsupported by react-strict-dom on native);
  *   - an `animationName` key;
@@ -22,7 +22,7 @@ import path from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {ESLint} from 'eslint'
 import tsParser from '@typescript-eslint/parser'
-import duro from '@duro-app/eslint-plugin'
+import duro from '@greenharness/greenrack-eslint-plugin'
 
 const require = createRequire(import.meta.url)
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -33,7 +33,7 @@ const HINT = 'draw it with html.* / Icon, or move it into X.native.tsx'
 const REACT_DOM = 'react-dom import'
 
 const rules = {
-  'duro/no-raw-html-element': ['error', {svgExempt: false}],
+  'greenrack/no-raw-html-element': ['error', {svgExempt: false}],
   'no-restricted-syntax': [
     'error',
     {
@@ -75,7 +75,7 @@ const rules = {
 
 /** The form of a violation, read off the finding. */
 function formOf(message, source) {
-  if (message.ruleId === 'duro/no-raw-html-element') {
+  if (message.ruleId === 'greenrack/no-raw-html-element') {
     const line = source.split('\n')[message.line - 1] ?? ''
     const end = message.endLine === message.line ? message.endColumn - 1 : undefined
     return `raw <${line.slice(message.column - 1, end)}>`

@@ -89,7 +89,7 @@ function consumer(): string {
   const dir = mkdtempSync(join(tmpdir(), 'duro-context-'))
   writeFileSync(
     join(dir, 'package.json'),
-    JSON.stringify({name: 'app', devDependencies: {'@duro-app/ui': '1.0.0'}}),
+    JSON.stringify({name: 'app', devDependencies: {'@greenharness/greenrack-ui': '1.0.0'}}),
   )
   return dir
 }
@@ -118,7 +118,7 @@ describe('greenharness.toml', () => {
       'skills/colors',
       'skills/typography',
       'skills/ui',
-      'skills/duro-mockup',
+      'skills/greenrack-mockup',
     ])
     for (const path of skills) expect(existsSync(join(packageRoot, path, 'SKILL.md'))).toBe(true)
     const agents = (manifest.arrays.agent ?? []).map((entry) => entry.path as string)
@@ -138,9 +138,17 @@ describe('greenharness.toml', () => {
   it('registers the MCP server pinned to the v6 line', () => {
     expect(manifest.arrays.mcp).toEqual([
       {
-        name: 'duro-ds',
+        name: 'greenrack',
         command: 'npx',
-        args: ['-y', '-p', '@duro-app/cli@^6', '-p', '@modelcontextprotocol/sdk', 'duro', 'mcp'],
+        args: [
+          '-y',
+          '-p',
+          '@greenharness/greenrack-cli@^7',
+          '-p',
+          '@modelcontextprotocol/sdk',
+          'duro',
+          'mcp',
+        ],
       },
     ])
   })
@@ -163,37 +171,37 @@ describe('greenharness.toml', () => {
     mkdirSync(join(nested, 'apps', 'web'), {recursive: true})
     writeFileSync(
       join(nested, 'apps', 'web', 'package.json'),
-      '{"dependencies":{"@duro-app/ui":"1"}}',
+      '{"dependencies":{"@greenharness/greenrack-ui":"1"}}',
     )
     expect(run(nested, doctor!).stdout).toBe('RAN doctor\n')
     const hooked = consumer()
     mkdirSync(join(hooked, '.claude', 'hooks'), {recursive: true})
-    writeFileSync(join(hooked, '.claude', 'hooks', 'duro-catalog.sh'), '')
+    writeFileSync(join(hooked, '.claude', 'hooks', 'greenrack-catalog.sh'), '')
     expect(run(hooked, sessionContext!)).toMatchObject({status: 0, stdout: ''})
     expect(run(hooked, doctor!).stdout).toBe('RAN doctor\n')
   })
 })
 
 describe('the skills and the agent', () => {
-  it('commits skills/duro-mockup/SKILL.md as the template renders it', () => {
-    expect(text(join(packageRoot, 'skills/duro-mockup/SKILL.md'))).toBe(SKILL)
+  it('commits skills/greenrack-mockup/SKILL.md as the template renders it', () => {
+    expect(text(join(packageRoot, 'skills/greenrack-mockup/SKILL.md'))).toBe(SKILL)
   })
 
   it('open with the gate after the front matter', () => {
-    for (const name of ['colors', 'typography', 'ui', 'duro-mockup']) {
+    for (const name of ['colors', 'typography', 'ui', 'greenrack-mockup']) {
       const body = text(join(packageRoot, 'skills', name, 'SKILL.md'))
         .split('\n---\n')
         .slice(1)
         .join('\n---\n')
       expect(body.trimStart().startsWith('**Gate.**')).toBe(true)
-      expect(body).toContain('@duro-app/ui')
+      expect(body).toContain('@greenharness/greenrack-ui')
       expect(body.split('\n').find((line) => line.startsWith('**Gate.**'))).toContain('workspace:')
     }
   })
 
   it('states the agent tools and its no-consumer answer', () => {
     const agent = text(join(packageRoot, 'agents/design-system-lookup.md'))
-    expect(agent).toContain('tools: Read, Grep, Glob, mcp__duro-ds__duro_ds_lookup')
+    expect(agent).toContain('tools: Read, Grep, Glob, mcp__greenrack__greenrack_lookup')
     expect(agent).toContain('no design system in this repository')
     expect(agent).toContain('no decision was checked')
     expect(agent).toContain('`aval resolve <key>` outranks this')
@@ -201,7 +209,7 @@ describe('the skills and the agent', () => {
   })
 })
 
-describe('duro context', () => {
+describe('greenrack context', () => {
   it('prints nothing outside a Duro consumer', () => {
     const cacheHome = mkdtempSync(join(tmpdir(), 'duro-cache-'))
     const result = runContext(registry, {cwd: bystander(), cacheHome})
@@ -226,8 +234,10 @@ describe('duro context', () => {
     runContext(registry, {cwd, cacheHome})
     const [slot] = readdirSync(join(cacheHome, 'duro'))
     expect(readdirSync(join(cacheHome, 'duro', slot!)).sort()).toEqual(['doctor', 'doctor.key'])
-    writeFileSync(join(cacheHome, 'duro', slot!, 'doctor'), 'DURO DOCTOR — cached')
-    expect(runContext(registry, {cwd, cacheHome}).text).toBe(`${catalog}\n\nDURO DOCTOR — cached`)
+    writeFileSync(join(cacheHome, 'duro', slot!, 'doctor'), 'GREENRACK DOCTOR — cached')
+    expect(runContext(registry, {cwd, cacheHome}).text).toBe(
+      `${catalog}\n\nGREENRACK DOCTOR — cached`,
+    )
     writeFileSync(join(cwd, 'vite.config.ts'), 'export default {}')
     expect(runContext(registry, {cwd, cacheHome}).text).not.toContain('cached')
     expect(existsSync(join(cwd, '.claude'))).toBe(false)
@@ -241,7 +251,7 @@ describe('duro context', () => {
   })
 })
 
-describe('duro doctor outside a consumer', () => {
+describe('greenrack doctor outside a consumer', () => {
   it('prints not a Duro consumer and exits 0', () => {
     const result = runDoctor({cwd: bystander()})
     expect(result.text).toBe('not a Duro consumer')
@@ -260,12 +270,12 @@ describe('the grh pointer', () => {
   it('is a runnable command when grh is on PATH, a README pointer without it', () => {
     const cwd = consumer()
     expect(extensionPointer(cwd, fakeGrh())).toContain(
-      'npm pack @duro-app/cli@6 && tar -xzf duro-app-cli-6*.tgz && grh install --extension package',
+      'npm pack @greenharness/greenrack-cli@^7 && tar -xzf duro-app-cli-6*.tgz && grh install --extension package',
     )
-    mkdirSync(join(cwd, 'node_modules/@duro-app/cli'), {recursive: true})
-    writeFileSync(join(cwd, 'node_modules/@duro-app/cli/greenharness.toml'), '')
+    mkdirSync(join(cwd, 'node_modules/@greenharness/greenrack-cli'), {recursive: true})
+    writeFileSync(join(cwd, 'node_modules/@greenharness/greenrack-cli/greenharness.toml'), '')
     expect(extensionPointer(cwd, fakeGrh())).toContain(
-      'grh install --extension node_modules/@duro-app/cli',
+      'grh install --extension node_modules/@greenharness/greenrack-cli',
     )
     expect(extensionPointer(cwd, '')).toContain('Extension section')
   })

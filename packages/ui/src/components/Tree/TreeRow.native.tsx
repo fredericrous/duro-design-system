@@ -1,5 +1,5 @@
 import {html} from 'react-strict-dom'
-import {SPACING_PX} from '@duro-app/tokens/keys'
+import {SPACING_PX} from '@greenharness/greenrack-tokens/keys'
 import {styles} from './styles.css'
 import type {TreeRowProps} from './TreeRowProps'
 import {devWarnOnce} from '../../shared/devWarnOnce'

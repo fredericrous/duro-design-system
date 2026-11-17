@@ -1,15 +1,15 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {css, html} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {typePresets} from '@duro-app/tokens/tokens/type-presets.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typePresets} from '@greenharness/greenrack-tokens/tokens/type-presets.css'
 import {Stack} from '../components/Stack/Stack'
 import {Text} from '../components/Text/Text'
 import {Heading} from '../components/Heading/Heading'
 import {TypeScaleTable} from './helpers'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta = {
   title: 'Foundations/Typography',

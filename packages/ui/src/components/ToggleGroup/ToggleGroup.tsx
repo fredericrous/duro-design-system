@@ -88,7 +88,7 @@ export function ToggleGroup({
   const {items} = roving
   useLayoutEffect(() => {
     if (!scrolls || pressedValue === undefined) return
-    const viewport = rootRef.current?.closest<HTMLElement>('[data-duro-scroll]')
+    const viewport = rootRef.current?.closest<HTMLElement>('[data-gr-scroll]')
     if (!viewport) return
     // Measured against the viewport's own box, not offsetTop: a positioned
     // ancestor (a Drawer panel) would otherwise be the reference.

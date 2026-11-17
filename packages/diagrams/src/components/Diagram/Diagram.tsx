@@ -13,7 +13,7 @@ export function Diagram({width, height, title, desc, viewBox, children}: Diagram
   return (
     <svg
       role="img"
-      className="duro-diagram"
+      className="gr-diagram"
       viewBox={viewBox ?? `0 0 ${width} ${height}`}
       width="100%"
       style={{maxWidth: width, height: 'auto', display: 'block'}}
@@ -23,7 +23,7 @@ export function Diagram({width, height, title, desc, viewBox, children}: Diagram
       {desc ? <desc>{desc}</desc> : null}
       <defs>
         <marker
-          id="duro-arrow"
+          id="greenrack-arrow"
           viewBox="0 0 10 10"
           refX={8}
           refY={5}

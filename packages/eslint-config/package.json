@@ -1,5 +1,5 @@
 {
-  "name": "@duro-app/eslint-config",
+  "name": "@greenharness/greenrack-eslint-config",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
@@ -13,12 +13,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/fredericrous/duro-design-system",
+    "url": "https://github.com/greenharness/greenrack",
     "directory": "packages/eslint-config"
   },
-  "homepage": "https://github.com/fredericrous/duro-design-system",
+  "homepage": "https://github.com/greenharness/greenrack",
   "bugs": {
-    "url": "https://github.com/fredericrous/duro-design-system/issues"
+    "url": "https://github.com/greenharness/greenrack/issues"
   },
   "publishConfig": {
     "access": "public"
@@ -47,7 +47,7 @@
     "eslint": "^9.0.0 || ^10.0.0"
   },
   "dependencies": {
-    "@duro-app/eslint-plugin": "workspace:^",
+    "@greenharness/greenrack-eslint-plugin": "workspace:^",
     "eslint-plugin-react-hooks": "^7.0.1",
     "typescript-eslint": "^8.56.0"
   },

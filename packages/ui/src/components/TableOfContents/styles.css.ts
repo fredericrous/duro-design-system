@@ -1,10 +1,10 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {microSpacing, radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {typeScale, typography} from '@duro-app/tokens/tokens/typography.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {microSpacing, radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typeScale, typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {duration, easing} from '@greenharness/greenrack-tokens/tokens/motion.css'
 
 // The picked docs browser: the list is Reader.dc.html's `.toc` / `.tocitem`
 // (a hairline rail, the active item marked by the nav marker bar), the menu is

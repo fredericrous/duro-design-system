@@ -1,7 +1,7 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
-import type {SizeToken} from '@duro-app/tokens/keys'
-import type {Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
+import type {SizeToken} from '@greenharness/greenrack-tokens/keys'
+import type {Breakpoint} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 import {styles} from './styles.css'
 
 interface RootProps {

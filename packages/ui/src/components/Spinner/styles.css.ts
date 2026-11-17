@@ -1,5 +1,5 @@
 import {css} from 'react-strict-dom'
-import {easing} from '@duro-app/tokens/tokens/motion.css'
+import {easing} from '@greenharness/greenrack-tokens/tokens/motion.css'
 
 const spin = css.keyframes({
   '0%': {transform: 'rotate(0deg)'},

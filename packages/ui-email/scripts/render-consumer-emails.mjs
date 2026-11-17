@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 // Email equality harness (plan 2026-10-06-every-measure-is-a-token, Verification 9).
 //
-// Renders a consumer's real email templates twice — against @duro-app/tokens and
-// @duro-app/ui-email packed from a BASELINE duro-design-system SHA, then from a
+// Renders a consumer's real email templates twice — against @greenharness/greenrack-tokens and
+// @greenharness/greenrack-ui-email packed from a BASELINE greenrack SHA, then from a
 // CANDIDATE SHA — and fails on any HTML difference, Outlook conditionals and the
 // dark-mode <style> block included. Mail clients see the HTML, so only the HTML
 // can prove a release left email output alone; Storybook cannot.
 //
 //   node packages/ui-email/scripts/render-consumer-emails.mjs \
 //     --consumer <consumer checkout> --variants <manifest.json> \
-//     --base <duro-design-system SHA> --candidate <SHA> \
+//     --base <greenrack SHA> --candidate <SHA> \
 //     [--consumer-ref <SHA, default HEAD>] [--out <dir>] [--keep]
 //
 // Each side gets fresh git worktrees of both repositories, so neither checkout
@@ -32,7 +32,7 @@ import {dirname, join, resolve} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const PACKAGES = ['@duro-app/tokens', '@duro-app/ui-email']
+const PACKAGES = ['@greenharness/greenrack-tokens', '@greenharness/greenrack-ui-email']
 const USAGE = `usage: node packages/ui-email/scripts/render-consumer-emails.mjs \\
   --consumer <checkout> --variants <manifest.json> --base <SHA> --candidate <SHA> \\
   [--consumer-ref <SHA>] [--out <dir>] [--keep]`
@@ -72,7 +72,7 @@ const sides = {
   candidate: git(dsRoot, 'rev-parse', args.candidate),
 }
 // Pack each package at the version the consumer already has installed, so the
-// install keeps the dependency tree's shape (a range like @duro-app/ui's
+// install keeps the dependency tree's shape (a range like @greenharness/greenrack-ui's
 // `^4` on tokens stays satisfied) and only the packed content differs.
 const consumerLock = JSON.parse(git(consumer, 'show', `${consumerSha}:package-lock.json`)).packages
 const installedVersion = (pkg) => {
@@ -89,7 +89,7 @@ function addWorktree(repo, sha, path) {
   worktrees.push({repo, path})
 }
 
-/** Pack @duro-app/tokens and @duro-app/ui-email from a duro-design-system SHA. */
+/** Pack @greenharness/greenrack-tokens and @greenharness/greenrack-ui-email from a greenrack SHA. */
 function packDesignSystem(side, sha) {
   const ds = join(work, `ds-${side}`)
   addWorktree(dsRoot, sha, ds)

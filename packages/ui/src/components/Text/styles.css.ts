@@ -1,6 +1,6 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
 
 export const styles = css.create({
   // Colors

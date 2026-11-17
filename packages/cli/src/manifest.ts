@@ -1,7 +1,7 @@
 import type {Registry} from './registry-types.js'
 import {lookupNames} from './registry.js'
 
-/** `duro mockup <sub>`: the spec owns the names, the command dispatches on them. */
+/** `greenrack mockup <sub>`: the spec owns the names, the command dispatches on them. */
 export const MOCKUP_SUBCOMMANDS = ['seed', 'check', 'canvas']
 
 /**
@@ -48,7 +48,7 @@ export const COMMANDS: CommandSpec[] = [
       'duro login-form --source-only',
       'duro "tags that wrap"',
     ],
-    mcpTool: 'duro_ds_lookup',
+    mcpTool: 'greenrack_lookup',
   },
   {
     name: 'list',
@@ -63,8 +63,8 @@ export const COMMANDS: CommandSpec[] = [
     ],
     flags: [],
     returns: {shape: 'ListEntry[]', description: '{name, kind, importPath?, description}'},
-    examples: ['duro list', 'duro list recipes --json'],
-    mcpTool: 'duro_ds_list',
+    examples: ['greenrack list', 'greenrack list recipes --json'],
+    mcpTool: 'greenrack_list',
   },
   {
     name: 'manifest',
@@ -72,8 +72,8 @@ export const COMMANDS: CommandSpec[] = [
     args: [],
     flags: [],
     returns: {shape: 'Manifest', description: 'Commands, flags, shapes, and enums of valid names'},
-    examples: ['duro manifest --json'],
-    mcpTool: 'duro_ds_manifest',
+    examples: ['greenrack manifest --json'],
+    mcpTool: 'greenrack_manifest',
   },
   {
     name: 'hook',
@@ -98,19 +98,23 @@ export const COMMANDS: CommandSpec[] = [
     returns: {
       shape: '{preamble: string, entries: ListEntry[]} | {ok: boolean, changes: FileChange[]}',
       description:
-        'session-start: the preamble plus the same entries as duro list. install: what each wired file did',
+        'session-start: the preamble plus the same entries as greenrack list. install: what each wired file did',
     },
-    examples: ['duro hook session-start', 'duro hook install', 'duro hook install --check'],
+    examples: [
+      'greenrack hook session-start',
+      'greenrack hook install',
+      'greenrack hook install --check',
+    ],
   },
   {
     name: 'skill',
     summary:
-      'Claude Code skills — /duro-mockup (the mockup → implementation → proof workflow) plus the colors, typography and ui interface skills; install writes all four into the current repo; --force overwrites a skill directory of your own and removes the files in it that the package does not ship',
+      'Claude Code skills — /greenrack-mockup (the mockup → implementation → proof workflow) plus the colors, typography and ui interface skills; install writes all four into the current repo; --force overwrites a skill directory of your own and removes the files in it that the package does not ship',
     args: [
       {
         name: 'action',
         required: true,
-        description: 'install (write .claude/skills/{duro-mockup,colors,typography,ui}/)',
+        description: 'install (write .claude/skills/{greenrack-mockup,colors,typography,ui}/)',
         valuesFrom: 'skillActions',
       },
     ],
@@ -131,7 +135,7 @@ export const COMMANDS: CommandSpec[] = [
       shape: '{ok: boolean, changes: FileChange[]}',
       description: 'What each wired file did: written, unchanged, stale or removed',
     },
-    examples: ['duro skill install', 'duro skill install --check'],
+    examples: ['greenrack skill install', 'greenrack skill install --check'],
   },
   {
     name: 'mockup',
@@ -163,7 +167,7 @@ export const COMMANDS: CommandSpec[] = [
         name: 'overrides',
         type: 'string',
         description:
-          'seed: a theme JSON file, the tokens shape ThemeProvider takes ({colors?, typography?, radii?, sizes?, … for every themable group}, or a flat map of colour keys), validated by @duro-app/tokens/theme and written into the token block as --duro-<group>-<key> rules',
+          'seed: a theme JSON file, the tokens shape ThemeProvider takes ({colors?, typography?, radii?, sizes?, … for every themable group}, or a flat map of colour keys), validated by @greenharness/greenrack-tokens/theme and written into the token block as --gr-<group>-<key> rules',
       },
       {
         name: 'title',
@@ -178,12 +182,12 @@ export const COMMANDS: CommandSpec[] = [
         'seed: where it wrote. check: {file, line, rule, message} per finding — raw-color, raw-length, raw-breakpoint, unknown-component, no-component-map, unannotated-control',
     },
     examples: [
-      'duro mockup seed --name Main --out docs/mockups/approvals',
-      'duro mockup check docs/mockups/approvals/*.dc.html',
-      'duro mockup check Main.dc.html --json',
-      'duro mockup canvas docs/mockups/approvals',
+      'greenrack mockup seed --name Main --out docs/mockups/approvals',
+      'greenrack mockup check docs/mockups/approvals/*.dc.html',
+      'greenrack mockup check Main.dc.html --json',
+      'greenrack mockup canvas docs/mockups/approvals',
     ],
-    mcpTool: 'duro_ds_mockup_check',
+    mcpTool: 'greenrack_mockup_check',
   },
   {
     name: 'context',
@@ -201,12 +205,12 @@ export const COMMANDS: CommandSpec[] = [
       shape: '{preamble, entries, contrast, composition, doctor?: string} | {consumer: false}',
       description: 'The catalog data, plus the doctor session text unless --catalog-only',
     },
-    examples: ['duro context', 'duro context --catalog-only'],
+    examples: ['greenrack context', 'greenrack context --catalog-only'],
   },
   {
     name: 'doctor',
     summary:
-      "Check how the app in the cwd wires @duro-app/ui into its build: runtimeInjection left on, unlayered StyleX extraction, the stylesheet missing from the entry, layers declared out of order, unlayered resets. Each one flattens component spacing while the design system's own CSS is fine. It also flags a StyleX build that never compiles @duro-app/tokens, so css.create cannot import the tokens, and fresh built CSS whose @media reads a var() (media-var). Exits 1 on an error, 0 on warnings",
+      "Check how the app in the cwd wires @greenharness/greenrack-ui into its build: runtimeInjection left on, unlayered StyleX extraction, the stylesheet missing from the entry, layers declared out of order, unlayered resets. Each one flattens component spacing while the design system's own CSS is fine. It also flags a StyleX build that never compiles @greenharness/greenrack-tokens, so css.create cannot import the tokens, and fresh built CSS whose @media reads a var() (media-var). Exits 1 on an error, 0 on warnings",
     args: [],
     flags: [
       {
@@ -221,24 +225,24 @@ export const COMMANDS: CommandSpec[] = [
       description:
         '{rule, severity, file, line?, message, fix} per finding — runtime-injection, layered-extraction, css-imported, css-load-order, unlayered-reset, version-skew. Exit 1 on any error',
     },
-    examples: ['duro doctor', 'duro doctor --json', 'duro doctor --session'],
+    examples: ['greenrack doctor', 'greenrack doctor --json', 'greenrack doctor --session'],
   },
   {
     name: 'mcp',
     summary:
-      'Run a stdio MCP server exposing duro_ds_lookup / duro_ds_list / duro_ds_manifest / duro_ds_mockup_check / duro_ds_mockup_canvas',
+      'Run a stdio MCP server exposing greenrack_lookup / greenrack_list / greenrack_manifest / greenrack_mockup_check / greenrack_mockup_canvas',
     args: [],
     flags: [],
     returns: {shape: 'never', description: 'Serves until stdin closes'},
     examples: [
-      'claude mcp add duro -- npx -y -p @duro-app/cli -p @modelcontextprotocol/sdk duro mcp',
+      'claude mcp add duro -- npx -y -p @greenharness/greenrack-cli -p @modelcontextprotocol/sdk greenrack mcp',
     ],
   },
 ]
 
 export function buildManifest(registry: Registry, version: string) {
   return {
-    name: '@duro-app/cli',
+    name: '@greenharness/greenrack-cli',
     bin: 'duro',
     version,
     schemaVersion: registry.schemaVersion,

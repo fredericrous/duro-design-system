@@ -33,7 +33,7 @@ export function runLookup(
           text: guide.content,
           data: {kind: 'guide', skill: guide.skill, file: guide.file, content: guide.content},
         }
-      : {text: `duro: ${guide.message}`, data: {kind: 'unknown-guide', query}, exitCode: 1}
+      : {text: `greenrack: ${guide.message}`, data: {kind: 'unknown-guide', query}, exitCode: 1}
   }
   const hit = lookup(registry, query)
   if (hit) {
@@ -87,7 +87,7 @@ export function runLookup(
   const didYouMean = suggestions(registry, query)
   const hint = didYouMean.length > 0 ? ` Did you mean: ${didYouMean.join(', ')}?` : ''
   return {
-    text: `duro: nothing found for "${query}".${hint} Try: duro list`,
+    text: `greenrack: nothing found for "${query}".${hint} Try: greenrack list`,
     data: {kind: 'not-found', query, suggestions: didYouMean},
     exitCode: 1,
   }

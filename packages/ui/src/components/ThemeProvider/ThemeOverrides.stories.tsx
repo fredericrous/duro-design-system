@@ -2,10 +2,10 @@ import {useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
 import {ThemeProvider, type ColorOverrides, type ThemeName} from './ThemeProvider'
 import {Button} from '../Button/Button'
 import {Badge} from '../Badge/Badge'
@@ -79,7 +79,7 @@ function Stepper() {
 }
 
 const bgOf = (el: Element) => getComputedStyle(el).backgroundColor
-const aliasOf = (el: Element) => getComputedStyle(el).getPropertyValue('--duro-color-bg').trim()
+const aliasOf = (el: Element) => getComputedStyle(el).getPropertyValue('--gr-color-bg').trim()
 
 export const OverridesUpdateInPlace: StoryObj = {
   render: () => <Stepper />,
@@ -91,14 +91,14 @@ export const OverridesUpdateInPlace: StoryObj = {
 
     // The outer provider's scope while it has overrides.
     const provider = outer.parentElement!
-    await waitFor(() => expect(provider.getAttribute('data-duro-theme')).toBeTruthy())
-    const scope = provider.getAttribute('data-duro-theme')!
+    await waitFor(() => expect(provider.getAttribute('data-gr-theme')).toBeTruthy())
+    const scope = provider.getAttribute('data-gr-theme')!
 
     for (const step of [A, B, A]) {
       await waitFor(() => expect(bgOf(outer)).toBe(step.bg))
       // Button's fill eases between colours: wait for it to settle.
       await waitFor(() => expect(getComputedStyle(next).backgroundColor).toBe(step.accent))
-      // The --duro-* alias follows the override.
+      // The --gr-* alias follows the override.
       await expect(aliasOf(outer)).toBe(step.bg)
       // A nested provider with no overrides, same theme: the outer's colours.
       await expect(bgOf(inherits)).toBe(step.bg)
@@ -111,7 +111,7 @@ export const OverridesUpdateInPlace: StoryObj = {
     // No overrides: the theme's own colours, and no outer rule left.
     await waitFor(() => expect(bgOf(outer)).toBe('rgb(15, 15, 15)'))
     const rules = [...document.querySelectorAll('style')].map((s) => s.textContent ?? '')
-    await expect(provider.hasAttribute('data-duro-theme')).toBe(false)
+    await expect(provider.hasAttribute('data-gr-theme')).toBe(false)
     await expect(rules.filter((r) => r.includes(`"${scope}"`))).toHaveLength(0)
     // The invalid value never reaches a rule, and nothing leaked onto body.
     await expect(rules.some((r) => r.includes('body{'))).toBe(false)

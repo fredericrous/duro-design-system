@@ -1,8 +1,8 @@
 /*
- * @duro-app/diagrams — design system for static SVG diagrams.
+ * @greenharness/greenrack-diagrams — design system for static SVG diagrams.
  *
  * Single source of truth for the 9 colour ramps × 7 stops. Light/dark/high-contrast
- * themes pick stops from this table. All selectors are scoped under `.duro-diagram`
+ * themes pick stops from this table. All selectors are scoped under `.gr-diagram`
  * so the package never bleeds class names like `.t`/`.box`/`.arr`/`.c-blue` into a
  * host page. Themes are driven by the `data-theme` attribute set by ThemeProvider.
  *
@@ -31,201 +31,201 @@
 
 /* Default = dark. Applies when there is no [data-theme] ancestor or it is 'dark'. */
 :where(:root, [data-theme='dark']) {
-  --duro-diagram-purple-fill: #5b21b6;
-  --duro-diagram-purple-stroke: #ddd6fe;
-  --duro-diagram-purple-title: #ede9fe;
-  --duro-diagram-purple-subtitle: #ddd6fe;
+  --gr-diagram-purple-fill: #5b21b6;
+  --gr-diagram-purple-stroke: #ddd6fe;
+  --gr-diagram-purple-title: #ede9fe;
+  --gr-diagram-purple-subtitle: #ddd6fe;
 
-  --duro-diagram-teal-fill: #115e59;
-  --duro-diagram-teal-stroke: #99f6e4;
-  --duro-diagram-teal-title: #ccfbf1;
-  --duro-diagram-teal-subtitle: #99f6e4;
+  --gr-diagram-teal-fill: #115e59;
+  --gr-diagram-teal-stroke: #99f6e4;
+  --gr-diagram-teal-title: #ccfbf1;
+  --gr-diagram-teal-subtitle: #99f6e4;
 
-  --duro-diagram-coral-fill: #9f1239;
-  --duro-diagram-coral-stroke: #fecdd3;
-  --duro-diagram-coral-title: #ffe4e6;
-  --duro-diagram-coral-subtitle: #fecdd3;
+  --gr-diagram-coral-fill: #9f1239;
+  --gr-diagram-coral-stroke: #fecdd3;
+  --gr-diagram-coral-title: #ffe4e6;
+  --gr-diagram-coral-subtitle: #fecdd3;
 
-  --duro-diagram-pink-fill: #9d174d;
-  --duro-diagram-pink-stroke: #fbcfe8;
-  --duro-diagram-pink-title: #fce7f3;
-  --duro-diagram-pink-subtitle: #fbcfe8;
+  --gr-diagram-pink-fill: #9d174d;
+  --gr-diagram-pink-stroke: #fbcfe8;
+  --gr-diagram-pink-title: #fce7f3;
+  --gr-diagram-pink-subtitle: #fbcfe8;
 
-  --duro-diagram-gray-fill: #262626;
-  --duro-diagram-gray-stroke: #d4d4d4;
-  --duro-diagram-gray-title: #e5e5e5;
-  --duro-diagram-gray-subtitle: #d4d4d4;
+  --gr-diagram-gray-fill: #262626;
+  --gr-diagram-gray-stroke: #d4d4d4;
+  --gr-diagram-gray-title: #e5e5e5;
+  --gr-diagram-gray-subtitle: #d4d4d4;
 
-  --duro-diagram-blue-fill: #1e3a8a;
-  --duro-diagram-blue-stroke: #bfdbfe;
-  --duro-diagram-blue-title: #dbeafe;
-  --duro-diagram-blue-subtitle: #bfdbfe;
+  --gr-diagram-blue-fill: #1e3a8a;
+  --gr-diagram-blue-stroke: #bfdbfe;
+  --gr-diagram-blue-title: #dbeafe;
+  --gr-diagram-blue-subtitle: #bfdbfe;
 
-  --duro-diagram-green-fill: #166534;
-  --duro-diagram-green-stroke: #bbf7d0;
-  --duro-diagram-green-title: #dcfce7;
-  --duro-diagram-green-subtitle: #bbf7d0;
+  --gr-diagram-green-fill: #166534;
+  --gr-diagram-green-stroke: #bbf7d0;
+  --gr-diagram-green-title: #dcfce7;
+  --gr-diagram-green-subtitle: #bbf7d0;
 
-  --duro-diagram-amber-fill: #92400e;
-  --duro-diagram-amber-stroke: #fde68a;
-  --duro-diagram-amber-title: #fef3c7;
-  --duro-diagram-amber-subtitle: #fde68a;
+  --gr-diagram-amber-fill: #92400e;
+  --gr-diagram-amber-stroke: #fde68a;
+  --gr-diagram-amber-title: #fef3c7;
+  --gr-diagram-amber-subtitle: #fde68a;
 
-  --duro-diagram-red-fill: #991b1b;
-  --duro-diagram-red-stroke: #fecaca;
-  --duro-diagram-red-title: #fee2e2;
-  --duro-diagram-red-subtitle: #fecaca;
+  --gr-diagram-red-fill: #991b1b;
+  --gr-diagram-red-stroke: #fecaca;
+  --gr-diagram-red-title: #fee2e2;
+  --gr-diagram-red-subtitle: #fecaca;
 
-  --duro-diagram-arrow-stroke: #6b6b6b;
-  --duro-diagram-leader-stroke: #4a4a4a;
-  --duro-diagram-box-fill: transparent;
-  --duro-diagram-box-stroke: #333333;
-  --duro-diagram-text: #e5e5e5;
-  --duro-diagram-text-muted: #b0b0b0;
+  --gr-diagram-arrow-stroke: #6b6b6b;
+  --gr-diagram-leader-stroke: #4a4a4a;
+  --gr-diagram-box-fill: transparent;
+  --gr-diagram-box-stroke: #333333;
+  --gr-diagram-text: #e5e5e5;
+  --gr-diagram-text-muted: #b0b0b0;
 }
 
 [data-theme='light'] {
-  --duro-diagram-purple-fill: #f5f3ff;
-  --duro-diagram-purple-stroke: #7c3aed;
-  --duro-diagram-purple-title: #5b21b6;
-  --duro-diagram-purple-subtitle: #7c3aed;
+  --gr-diagram-purple-fill: #f5f3ff;
+  --gr-diagram-purple-stroke: #7c3aed;
+  --gr-diagram-purple-title: #5b21b6;
+  --gr-diagram-purple-subtitle: #7c3aed;
 
-  --duro-diagram-teal-fill: #f0fdfa;
-  --duro-diagram-teal-stroke: #0d9488;
-  --duro-diagram-teal-title: #115e59;
-  --duro-diagram-teal-subtitle: #0d9488;
+  --gr-diagram-teal-fill: #f0fdfa;
+  --gr-diagram-teal-stroke: #0d9488;
+  --gr-diagram-teal-title: #115e59;
+  --gr-diagram-teal-subtitle: #0d9488;
 
-  --duro-diagram-coral-fill: #fff1f2;
-  --duro-diagram-coral-stroke: #e11d48;
-  --duro-diagram-coral-title: #9f1239;
-  --duro-diagram-coral-subtitle: #e11d48;
+  --gr-diagram-coral-fill: #fff1f2;
+  --gr-diagram-coral-stroke: #e11d48;
+  --gr-diagram-coral-title: #9f1239;
+  --gr-diagram-coral-subtitle: #e11d48;
 
-  --duro-diagram-pink-fill: #fdf2f8;
-  --duro-diagram-pink-stroke: #db2777;
-  --duro-diagram-pink-title: #9d174d;
-  --duro-diagram-pink-subtitle: #db2777;
+  --gr-diagram-pink-fill: #fdf2f8;
+  --gr-diagram-pink-stroke: #db2777;
+  --gr-diagram-pink-title: #9d174d;
+  --gr-diagram-pink-subtitle: #db2777;
 
-  --duro-diagram-gray-fill: #f5f5f5;
-  --duro-diagram-gray-stroke: #525252;
-  --duro-diagram-gray-title: #262626;
-  --duro-diagram-gray-subtitle: #525252;
+  --gr-diagram-gray-fill: #f5f5f5;
+  --gr-diagram-gray-stroke: #525252;
+  --gr-diagram-gray-title: #262626;
+  --gr-diagram-gray-subtitle: #525252;
 
-  --duro-diagram-blue-fill: #eff6ff;
-  --duro-diagram-blue-stroke: #2563eb;
-  --duro-diagram-blue-title: #1e3a8a;
-  --duro-diagram-blue-subtitle: #2563eb;
+  --gr-diagram-blue-fill: #eff6ff;
+  --gr-diagram-blue-stroke: #2563eb;
+  --gr-diagram-blue-title: #1e3a8a;
+  --gr-diagram-blue-subtitle: #2563eb;
 
-  --duro-diagram-green-fill: #f0fdf4;
-  --duro-diagram-green-stroke: #16a34a;
-  --duro-diagram-green-title: #166534;
-  --duro-diagram-green-subtitle: #16a34a;
+  --gr-diagram-green-fill: #f0fdf4;
+  --gr-diagram-green-stroke: #16a34a;
+  --gr-diagram-green-title: #166534;
+  --gr-diagram-green-subtitle: #16a34a;
 
-  --duro-diagram-amber-fill: #fffbeb;
-  --duro-diagram-amber-stroke: #d97706;
-  --duro-diagram-amber-title: #92400e;
-  --duro-diagram-amber-subtitle: #d97706;
+  --gr-diagram-amber-fill: #fffbeb;
+  --gr-diagram-amber-stroke: #d97706;
+  --gr-diagram-amber-title: #92400e;
+  --gr-diagram-amber-subtitle: #d97706;
 
-  --duro-diagram-red-fill: #fef2f2;
-  --duro-diagram-red-stroke: #dc2626;
-  --duro-diagram-red-title: #991b1b;
-  --duro-diagram-red-subtitle: #dc2626;
+  --gr-diagram-red-fill: #fef2f2;
+  --gr-diagram-red-stroke: #dc2626;
+  --gr-diagram-red-title: #991b1b;
+  --gr-diagram-red-subtitle: #dc2626;
 
-  --duro-diagram-arrow-stroke: #888888;
-  --duro-diagram-leader-stroke: #c0c0c0;
-  --duro-diagram-box-fill: transparent;
-  --duro-diagram-box-stroke: #d4d4d4;
-  --duro-diagram-text: #1a1a1a;
-  --duro-diagram-text-muted: #4a4a4a;
+  --gr-diagram-arrow-stroke: #888888;
+  --gr-diagram-leader-stroke: #c0c0c0;
+  --gr-diagram-box-fill: transparent;
+  --gr-diagram-box-stroke: #d4d4d4;
+  --gr-diagram-text: #1a1a1a;
+  --gr-diagram-text-muted: #4a4a4a;
 }
 
 [data-theme='high-contrast'] {
-  --duro-diagram-purple-fill: #4c1d95;
-  --duro-diagram-purple-stroke: #ede9fe;
-  --duro-diagram-purple-title: #f5f3ff;
-  --duro-diagram-purple-subtitle: #ede9fe;
+  --gr-diagram-purple-fill: #4c1d95;
+  --gr-diagram-purple-stroke: #ede9fe;
+  --gr-diagram-purple-title: #f5f3ff;
+  --gr-diagram-purple-subtitle: #ede9fe;
 
-  --duro-diagram-teal-fill: #134e4a;
-  --duro-diagram-teal-stroke: #ccfbf1;
-  --duro-diagram-teal-title: #f0fdfa;
-  --duro-diagram-teal-subtitle: #ccfbf1;
+  --gr-diagram-teal-fill: #134e4a;
+  --gr-diagram-teal-stroke: #ccfbf1;
+  --gr-diagram-teal-title: #f0fdfa;
+  --gr-diagram-teal-subtitle: #ccfbf1;
 
-  --duro-diagram-coral-fill: #881337;
-  --duro-diagram-coral-stroke: #ffe4e6;
-  --duro-diagram-coral-title: #fff1f2;
-  --duro-diagram-coral-subtitle: #ffe4e6;
+  --gr-diagram-coral-fill: #881337;
+  --gr-diagram-coral-stroke: #ffe4e6;
+  --gr-diagram-coral-title: #fff1f2;
+  --gr-diagram-coral-subtitle: #ffe4e6;
 
-  --duro-diagram-pink-fill: #831843;
-  --duro-diagram-pink-stroke: #fce7f3;
-  --duro-diagram-pink-title: #fdf2f8;
-  --duro-diagram-pink-subtitle: #fce7f3;
+  --gr-diagram-pink-fill: #831843;
+  --gr-diagram-pink-stroke: #fce7f3;
+  --gr-diagram-pink-title: #fdf2f8;
+  --gr-diagram-pink-subtitle: #fce7f3;
 
-  --duro-diagram-gray-fill: #171717;
-  --duro-diagram-gray-stroke: #e5e5e5;
-  --duro-diagram-gray-title: #f5f5f5;
-  --duro-diagram-gray-subtitle: #e5e5e5;
+  --gr-diagram-gray-fill: #171717;
+  --gr-diagram-gray-stroke: #e5e5e5;
+  --gr-diagram-gray-title: #f5f5f5;
+  --gr-diagram-gray-subtitle: #e5e5e5;
 
-  --duro-diagram-blue-fill: #1e1b4b;
-  --duro-diagram-blue-stroke: #dbeafe;
-  --duro-diagram-blue-title: #eff6ff;
-  --duro-diagram-blue-subtitle: #dbeafe;
+  --gr-diagram-blue-fill: #1e1b4b;
+  --gr-diagram-blue-stroke: #dbeafe;
+  --gr-diagram-blue-title: #eff6ff;
+  --gr-diagram-blue-subtitle: #dbeafe;
 
-  --duro-diagram-green-fill: #14532d;
-  --duro-diagram-green-stroke: #dcfce7;
-  --duro-diagram-green-title: #f0fdf4;
-  --duro-diagram-green-subtitle: #dcfce7;
+  --gr-diagram-green-fill: #14532d;
+  --gr-diagram-green-stroke: #dcfce7;
+  --gr-diagram-green-title: #f0fdf4;
+  --gr-diagram-green-subtitle: #dcfce7;
 
-  --duro-diagram-amber-fill: #78350f;
-  --duro-diagram-amber-stroke: #fef3c7;
-  --duro-diagram-amber-title: #fffbeb;
-  --duro-diagram-amber-subtitle: #fef3c7;
+  --gr-diagram-amber-fill: #78350f;
+  --gr-diagram-amber-stroke: #fef3c7;
+  --gr-diagram-amber-title: #fffbeb;
+  --gr-diagram-amber-subtitle: #fef3c7;
 
-  --duro-diagram-red-fill: #7f1d1d;
-  --duro-diagram-red-stroke: #fee2e2;
-  --duro-diagram-red-title: #fef2f2;
-  --duro-diagram-red-subtitle: #fee2e2;
+  --gr-diagram-red-fill: #7f1d1d;
+  --gr-diagram-red-stroke: #fee2e2;
+  --gr-diagram-red-title: #fef2f2;
+  --gr-diagram-red-subtitle: #fee2e2;
 
-  --duro-diagram-arrow-stroke: #ffffff;
-  --duro-diagram-leader-stroke: #888888;
-  --duro-diagram-box-fill: transparent;
-  --duro-diagram-box-stroke: #555555;
-  --duro-diagram-text: #ffffff;
-  --duro-diagram-text-muted: #b0b0b0;
+  --gr-diagram-arrow-stroke: #ffffff;
+  --gr-diagram-leader-stroke: #888888;
+  --gr-diagram-box-fill: transparent;
+  --gr-diagram-box-stroke: #555555;
+  --gr-diagram-text: #ffffff;
+  --gr-diagram-text-muted: #b0b0b0;
 }
 
 /* ============================================================
- * Typography (scoped under .duro-diagram)
+ * Typography (scoped under .gr-diagram)
  * ============================================================ */
 
-.duro-diagram .t {
+.gr-diagram .t {
   font:
     400 14px/1.4 -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
     Roboto,
     sans-serif;
-  fill: var(--duro-diagram-text);
+  fill: var(--gr-diagram-text);
   stroke: none;
 }
 
-.duro-diagram .ts {
+.gr-diagram .ts {
   font:
     400 12px/1.4 -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
     Roboto,
     sans-serif;
-  fill: var(--duro-diagram-text-muted);
+  fill: var(--gr-diagram-text-muted);
   stroke: none;
 }
 
-.duro-diagram .th {
+.gr-diagram .th {
   font:
     500 14px/1.4 -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
     Roboto,
     sans-serif;
-  fill: var(--duro-diagram-text);
+  fill: var(--gr-diagram-text);
   stroke: none;
 }
 
@@ -233,20 +233,20 @@
  * Structural classes
  * ============================================================ */
 
-.duro-diagram .box {
-  fill: var(--duro-diagram-box-fill);
-  stroke: var(--duro-diagram-box-stroke);
+.gr-diagram .box {
+  fill: var(--gr-diagram-box-fill);
+  stroke: var(--gr-diagram-box-stroke);
   stroke-width: 0.5;
 }
 
-.duro-diagram .arr {
-  stroke: var(--duro-diagram-arrow-stroke);
+.gr-diagram .arr {
+  stroke: var(--gr-diagram-arrow-stroke);
   stroke-width: 1.5;
   fill: none;
 }
 
-.duro-diagram .leader {
-  stroke: var(--duro-diagram-leader-stroke);
+.gr-diagram .leader {
+  stroke: var(--gr-diagram-leader-stroke);
   stroke-width: 0.5;
   stroke-dasharray: 3 3;
   fill: none;
@@ -259,101 +259,101 @@
  * Ramps — fill/stroke on the <rect>, text colour on .th/.ts children
  * ============================================================ */
 
-.duro-diagram .c-purple > rect {
-  fill: var(--duro-diagram-purple-fill);
-  stroke: var(--duro-diagram-purple-stroke);
+.gr-diagram .c-purple > rect {
+  fill: var(--gr-diagram-purple-fill);
+  stroke: var(--gr-diagram-purple-stroke);
 }
-.duro-diagram .c-purple > .th {
-  fill: var(--duro-diagram-purple-title);
+.gr-diagram .c-purple > .th {
+  fill: var(--gr-diagram-purple-title);
 }
-.duro-diagram .c-purple > .ts {
-  fill: var(--duro-diagram-purple-subtitle);
-}
-
-.duro-diagram .c-teal > rect {
-  fill: var(--duro-diagram-teal-fill);
-  stroke: var(--duro-diagram-teal-stroke);
-}
-.duro-diagram .c-teal > .th {
-  fill: var(--duro-diagram-teal-title);
-}
-.duro-diagram .c-teal > .ts {
-  fill: var(--duro-diagram-teal-subtitle);
+.gr-diagram .c-purple > .ts {
+  fill: var(--gr-diagram-purple-subtitle);
 }
 
-.duro-diagram .c-coral > rect {
-  fill: var(--duro-diagram-coral-fill);
-  stroke: var(--duro-diagram-coral-stroke);
+.gr-diagram .c-teal > rect {
+  fill: var(--gr-diagram-teal-fill);
+  stroke: var(--gr-diagram-teal-stroke);
 }
-.duro-diagram .c-coral > .th {
-  fill: var(--duro-diagram-coral-title);
+.gr-diagram .c-teal > .th {
+  fill: var(--gr-diagram-teal-title);
 }
-.duro-diagram .c-coral > .ts {
-  fill: var(--duro-diagram-coral-subtitle);
-}
-
-.duro-diagram .c-pink > rect {
-  fill: var(--duro-diagram-pink-fill);
-  stroke: var(--duro-diagram-pink-stroke);
-}
-.duro-diagram .c-pink > .th {
-  fill: var(--duro-diagram-pink-title);
-}
-.duro-diagram .c-pink > .ts {
-  fill: var(--duro-diagram-pink-subtitle);
+.gr-diagram .c-teal > .ts {
+  fill: var(--gr-diagram-teal-subtitle);
 }
 
-.duro-diagram .c-gray > rect {
-  fill: var(--duro-diagram-gray-fill);
-  stroke: var(--duro-diagram-gray-stroke);
+.gr-diagram .c-coral > rect {
+  fill: var(--gr-diagram-coral-fill);
+  stroke: var(--gr-diagram-coral-stroke);
 }
-.duro-diagram .c-gray > .th {
-  fill: var(--duro-diagram-gray-title);
+.gr-diagram .c-coral > .th {
+  fill: var(--gr-diagram-coral-title);
 }
-.duro-diagram .c-gray > .ts {
-  fill: var(--duro-diagram-gray-subtitle);
-}
-
-.duro-diagram .c-blue > rect {
-  fill: var(--duro-diagram-blue-fill);
-  stroke: var(--duro-diagram-blue-stroke);
-}
-.duro-diagram .c-blue > .th {
-  fill: var(--duro-diagram-blue-title);
-}
-.duro-diagram .c-blue > .ts {
-  fill: var(--duro-diagram-blue-subtitle);
+.gr-diagram .c-coral > .ts {
+  fill: var(--gr-diagram-coral-subtitle);
 }
 
-.duro-diagram .c-green > rect {
-  fill: var(--duro-diagram-green-fill);
-  stroke: var(--duro-diagram-green-stroke);
+.gr-diagram .c-pink > rect {
+  fill: var(--gr-diagram-pink-fill);
+  stroke: var(--gr-diagram-pink-stroke);
 }
-.duro-diagram .c-green > .th {
-  fill: var(--duro-diagram-green-title);
+.gr-diagram .c-pink > .th {
+  fill: var(--gr-diagram-pink-title);
 }
-.duro-diagram .c-green > .ts {
-  fill: var(--duro-diagram-green-subtitle);
-}
-
-.duro-diagram .c-amber > rect {
-  fill: var(--duro-diagram-amber-fill);
-  stroke: var(--duro-diagram-amber-stroke);
-}
-.duro-diagram .c-amber > .th {
-  fill: var(--duro-diagram-amber-title);
-}
-.duro-diagram .c-amber > .ts {
-  fill: var(--duro-diagram-amber-subtitle);
+.gr-diagram .c-pink > .ts {
+  fill: var(--gr-diagram-pink-subtitle);
 }
 
-.duro-diagram .c-red > rect {
-  fill: var(--duro-diagram-red-fill);
-  stroke: var(--duro-diagram-red-stroke);
+.gr-diagram .c-gray > rect {
+  fill: var(--gr-diagram-gray-fill);
+  stroke: var(--gr-diagram-gray-stroke);
 }
-.duro-diagram .c-red > .th {
-  fill: var(--duro-diagram-red-title);
+.gr-diagram .c-gray > .th {
+  fill: var(--gr-diagram-gray-title);
 }
-.duro-diagram .c-red > .ts {
-  fill: var(--duro-diagram-red-subtitle);
+.gr-diagram .c-gray > .ts {
+  fill: var(--gr-diagram-gray-subtitle);
+}
+
+.gr-diagram .c-blue > rect {
+  fill: var(--gr-diagram-blue-fill);
+  stroke: var(--gr-diagram-blue-stroke);
+}
+.gr-diagram .c-blue > .th {
+  fill: var(--gr-diagram-blue-title);
+}
+.gr-diagram .c-blue > .ts {
+  fill: var(--gr-diagram-blue-subtitle);
+}
+
+.gr-diagram .c-green > rect {
+  fill: var(--gr-diagram-green-fill);
+  stroke: var(--gr-diagram-green-stroke);
+}
+.gr-diagram .c-green > .th {
+  fill: var(--gr-diagram-green-title);
+}
+.gr-diagram .c-green > .ts {
+  fill: var(--gr-diagram-green-subtitle);
+}
+
+.gr-diagram .c-amber > rect {
+  fill: var(--gr-diagram-amber-fill);
+  stroke: var(--gr-diagram-amber-stroke);
+}
+.gr-diagram .c-amber > .th {
+  fill: var(--gr-diagram-amber-title);
+}
+.gr-diagram .c-amber > .ts {
+  fill: var(--gr-diagram-amber-subtitle);
+}
+
+.gr-diagram .c-red > rect {
+  fill: var(--gr-diagram-red-fill);
+  stroke: var(--gr-diagram-red-stroke);
+}
+.gr-diagram .c-red > .th {
+  fill: var(--gr-diagram-red-title);
+}
+.gr-diagram .c-red > .ts {
+  fill: var(--gr-diagram-red-subtitle);
 }

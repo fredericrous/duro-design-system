@@ -1,6 +1,6 @@
-// Token data mirrored from @duro-app/tokens. The published plugin stays
+// Token data mirrored from @greenharness/greenrack-tokens. The published plugin stays
 // dependency-free, so these tables are literals; the drift test in
-// test/token-drift.test.ts rebuilds each one from @duro-app/tokens (a
+// test/token-drift.test.ts rebuilds each one from @greenharness/greenrack-tokens (a
 // workspace devDependency) with the same construction and fails on divergence.
 
 /** Barrel specifier → deep-import path, keyed by the *imported* name. */

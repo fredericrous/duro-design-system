@@ -1,8 +1,8 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {SPACING_KEYS, SPACING_PX, type SpacingToken} from '@duro-app/tokens/keys'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {SPACING_KEYS, SPACING_PX, type SpacingToken} from '@greenharness/greenrack-tokens/keys'
 import {Aside} from './Aside'
 import {Grid} from '../Grid/Grid'
 import {Stack} from '../Stack/Stack'
@@ -86,7 +86,7 @@ export const StickyAndScrolling: Story = {
     await expect(cs.position).toBe('sticky')
     // outside AppShell there is no bar to clear: the bar's custom property is
     // unset, its fallback is 0, and only the offset remains
-    await expect(cs.getPropertyValue('--duro-app-shell-bar')).toBe('')
+    await expect(cs.getPropertyValue('--gr-app-shell-bar')).toBe('')
     await expect(cs.top).toBe(`${SPACING_PX.lg}px`)
     await expect(cs.zIndex).toBe('1')
     // taller than the room it has: it scrolls on its own, inside the viewport

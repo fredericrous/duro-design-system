@@ -1,8 +1,8 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing, radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {duration, easing} from '@greenharness/greenrack-tokens/tokens/motion.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 /**
  * SplitPane, the picked B0 direction (docs/mockups/split-pane/Hairline.dc.html):

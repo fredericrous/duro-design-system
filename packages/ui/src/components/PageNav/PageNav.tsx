@@ -10,7 +10,7 @@ import {linkClickHandler, type OnNavigate} from '../../shared/navigate'
  * missing, so Next stays right-aligned on the last-but-one page too; on a
  * narrow container (below the `xs` breakpoint) the two stack.
  *
- * Not `Pagination` (numbered result pages, in `@duro-app/ui/table`). */
+ * Not `Pagination` (numbered result pages, in `@greenharness/greenrack-ui/table`). */
 
 // Prev and Next place themselves in Root's two-column grid.
 const PageNavContext = createContext(false)

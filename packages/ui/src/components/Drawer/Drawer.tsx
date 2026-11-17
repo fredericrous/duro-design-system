@@ -1,7 +1,7 @@
 import {createPortal} from 'react-dom'
 import {type ReactNode, useState, useEffect, useCallback} from 'react'
 import {html} from 'react-strict-dom'
-import {SPACING_PX, type DurationToken} from '@duro-app/tokens/keys'
+import {SPACING_PX, type DurationToken} from '@greenharness/greenrack-tokens/keys'
 import {styles} from './styles.css'
 import {useEscapeLayer} from '../../shared/escapeStack'
 import {devWarnOnce} from '../../shared/devWarnOnce'
@@ -393,7 +393,7 @@ function Body({children, flush = false}: BodyProps) {
   return (
     <html.div
       style={[styles.body, flush && styles.bodyFlush]}
-      data-duro-scroll={snapPoints.length > 0 ? '' : undefined}
+      data-gr-scroll={snapPoints.length > 0 ? '' : undefined}
     >
       {children}
     </html.div>

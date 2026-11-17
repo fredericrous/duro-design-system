@@ -2,8 +2,8 @@ import type {Meta, StoryObj} from '@storybook/react'
 import {expect, userEvent, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {ToastProvider, useToast} from './ToastProvider'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 const s = css.create({
   row: {display: 'flex', flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap'},

@@ -1,11 +1,11 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
 
-// The premise of `duro/no-flex-grow-web` was that react-strict-dom's web
+// The premise of `greenrack/no-flex-grow-web` was that react-strict-dom's web
 // runtime forces `flex-grow: 0`, so a growing child collapses. These stories
 // hold RSD on web to what it actually does, so the rule follows the evidence.
 const meta: Meta = {

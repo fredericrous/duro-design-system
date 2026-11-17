@@ -1,4 +1,4 @@
-import {describeDropped, type DroppedToken} from '@duro-app/tokens/theme'
+import {describeDropped, type DroppedToken} from '@greenharness/greenrack-tokens/theme'
 
 // Process-wide on purpose: every provider on a page shares one theme file, so
 // one warning per value is enough. holds-until: two apps with different theme

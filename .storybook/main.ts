@@ -33,7 +33,7 @@ const config: StorybookConfig = {
 
     config.plugins.push(webGraphGuard(), react({babel: {configFile: true}}), babel())
 
-    // @duro-app/tokens/theme is the one tokens entry built to dist/ (the CLI runs it
+    // @greenharness/greenrack-tokens/theme is the one tokens entry built to dist/ (the CLI runs it
     // under Node); every other entry points at src. Read its source here too, so
     // Storybook and its tests need no library build first.
     const tokensTheme = {

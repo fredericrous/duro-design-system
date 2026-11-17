@@ -1,7 +1,7 @@
 import type {ReactNode} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
-import type {SpacingToken} from '@duro-app/tokens/keys'
+import type {SpacingToken} from '@greenharness/greenrack-tokens/keys'
 
 interface InlineProps {
   gap?: SpacingToken

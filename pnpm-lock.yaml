@@ -82,13 +82,13 @@ importers:
       '@aval-adr/eslint-config':
         specifier: ^0.16.0
         version: 0.16.0(eslint@9.39.5)(typescript-eslint@8.67.0(eslint@9.39.5)(typescript@5.9.3))
-      '@duro-app/cli':
+      '@greenharness/greenrack-cli':
         specifier: workspace:*
         version: link:packages/cli
-      '@duro-app/eslint-config':
+      '@greenharness/greenrack-eslint-config':
         specifier: workspace:^
         version: link:packages/eslint-config
-      '@duro-app/eslint-plugin':
+      '@greenharness/greenrack-eslint-plugin':
         specifier: workspace:*
         version: link:packages/eslint-plugin
       '@storybook/addon-a11y':
@@ -148,14 +148,14 @@ importers:
 
   packages/cli:
     dependencies:
-      '@duro-app/tokens':
+      '@greenharness/greenrack-tokens':
         specifier: workspace:^
         version: link:../tokens
     devDependencies:
-      '@duro-app/eslint-plugin':
+      '@greenharness/greenrack-eslint-plugin':
         specifier: workspace:^
         version: link:../eslint-plugin
-      '@duro-app/ui':
+      '@greenharness/greenrack-ui':
         specifier: workspace:^
         version: link:../ui
       '@modelcontextprotocol/sdk':
@@ -183,7 +183,7 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.28.0
         version: 7.28.5(@babel/core@7.29.7)
-      '@duro-app/ui':
+      '@greenharness/greenrack-ui':
         specifier: workspace:^
         version: link:../ui
       '@types/react':
@@ -210,7 +210,7 @@ importers:
 
   packages/eslint-config:
     dependencies:
-      '@duro-app/eslint-plugin':
+      '@greenharness/greenrack-eslint-plugin':
         specifier: workspace:^
         version: link:../eslint-plugin
       eslint-plugin-react-hooks:
@@ -236,7 +236,7 @@ importers:
         specifier: ^8.56.0
         version: 8.67.0(@typescript-eslint/parser@8.67.0(eslint@9.39.5)(typescript@5.9.3))(eslint@9.39.5)(typescript@5.9.3)
     devDependencies:
-      '@duro-app/tokens':
+      '@greenharness/greenrack-tokens':
         specifier: workspace:^
         version: link:../tokens
       '@typescript-eslint/parser':
@@ -282,7 +282,7 @@ importers:
 
   packages/ui:
     dependencies:
-      '@duro-app/tokens':
+      '@greenharness/greenrack-tokens':
         specifier: workspace:^
         version: link:../tokens
       '@tanstack/react-table':
@@ -364,7 +364,7 @@ importers:
 
   packages/ui-email:
     dependencies:
-      '@duro-app/tokens':
+      '@greenharness/greenrack-tokens':
         specifier: workspace:^
         version: link:../tokens
       '@react-email/components':

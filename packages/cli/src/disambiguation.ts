@@ -11,7 +11,7 @@ export interface RelatedPair {
 /**
  * Derive the neighbour pairs the session bootstrap ships alongside the index.
  *
- * The catalog in `duro list` says what EXISTS. It does not say which one, and
+ * The catalog in `greenrack list` says what EXISTS. It does not say which one, and
  * it does not say what goes inside what — and those are the two ways agents
  * go wrong: a Menu built out of a Select, or a hand-rolled label next to an
  * Input that should have been wrapped in Field.Root. Both answers are already

@@ -208,7 +208,7 @@ export const Named: Story = {
   parameters: {
     a11y: {
       test: 'error',
-      // holds-until: https://github.com/fredericrous/duro-design-system/issues/79
+      // holds-until: https://github.com/greenharness/greenrack/issues/79
       // — the selected item's accent on bgCardHover is 6.76:1, under AAA's
       // 7:1 (AA passes). Re-enable this rule when that pair reaches 7:1.
       options: {rules: {'color-contrast-enhanced': {enabled: false}}},

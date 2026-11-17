@@ -1,5 +1,5 @@
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {SIZE_KEYS, type SizeToken} from '@duro-app/tokens/keys'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {SIZE_KEYS, type SizeToken} from '@greenharness/greenrack-tokens/keys'
 
 /**
  * A length a measure prop accepts without a token: zero, a relative unit or a

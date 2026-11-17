@@ -1,4 +1,4 @@
-# @duro-app/eslint-config
+# @greenharness/greenrack-eslint-config
 
 Shareable ESLint flat config for the Duro stack — the policies CLAUDE.md and
 agent memory can only suggest, wired into the linter so every consumer repo
@@ -12,14 +12,14 @@ UI-library policy, as `react`. The general conventions (`base`, `effect`,
 which this package extends and declares as a peer: install both.
 
 ```sh
-pnpm add -D @duro-app/eslint-config @aval-adr/eslint-config
+pnpm add -D @greenharness/greenrack-eslint-config @aval-adr/eslint-config
 ```
 
 ## Usage
 
 ```js
 // eslint.config.js (repo root — amont only detects a ROOT config)
-import {react} from '@duro-app/eslint-config'
+import {react} from '@greenharness/greenrack-eslint-config'
 import {effect, tests} from '@aval-adr/eslint-config'
 
 export default [
@@ -33,25 +33,25 @@ export default [
 
 ## Presets
 
-| Preset   | From                      | Composes                                                         | For                       |
-| -------- | ------------------------- | ---------------------------------------------------------------- | ------------------------- |
-| `react`  | `@duro-app/eslint-config` | aval `base` + classic react-hooks + the duro plugin + UI policy  | RSD / `@duro-app/ui` apps |
-| `base`   | `@aval-adr/eslint-config` | `@eslint/js` + `typescript-eslint` recommended, prettier interop | every TypeScript package  |
-| `effect` | `@aval-adr/eslint-config` | `base` + `@effect` plugin + server-stack policy                  | Effect services           |
-| `tests`  | `@aval-adr/eslint-config` | accessibility-first selectors (self-scoped to test/e2e files)    | any repo with tests       |
+| Preset   | From                                    | Composes                                                         | For                                     |
+| -------- | --------------------------------------- | ---------------------------------------------------------------- | --------------------------------------- |
+| `react`  | `@greenharness/greenrack-eslint-config` | aval `base` + classic react-hooks + the duro plugin + UI policy  | RSD / `@greenharness/greenrack-ui` apps |
+| `base`   | `@aval-adr/eslint-config`               | `@eslint/js` + `typescript-eslint` recommended, prettier interop | every TypeScript package                |
+| `effect` | `@aval-adr/eslint-config`               | `base` + `@effect` plugin + server-stack policy                  | Effect services                         |
+| `tests`  | `@aval-adr/eslint-config`               | accessibility-first selectors (self-scoped to test/e2e files)    | any repo with tests                     |
 
-`react` reports its import bans as `duro/no-restricted-imports`, apart from
+`react` reports its import bans as `greenrack/no-restricted-imports`, apart from
 `effect`'s `@typescript-eslint/no-restricted-imports` and adr-lint's
 `adr-lint/no-restricted-imports`, so composing them keeps every ban: none of
 the three overrides another.
 
 ## What the policy enforces
 
-- **`react`**: UI primitives come from `@duro-app/ui` only. react-aria,
+- **`react`**: UI primitives come from `@greenharness/greenrack-ui` only. react-aria,
   Spectrum, MUI, Radix, Chakra, headlessui, antd and `@frontjutsu/ui` are
   banned with a message that says where to add a missing component. Rich
   text goes through `@fredericrous/lexical-multi`, never raw `lexical`. It
-  also carries everything in `@duro-app/eslint-plugin`: html.\* elements,
+  also carries everything in `@greenharness/greenrack-eslint-plugin`: html.\* elements,
   deep token imports, token values and the form kit.
 - `effect` and `tests` are documented with `@aval-adr/eslint-config`.
 
@@ -61,8 +61,8 @@ informs everywhere. Don't add `--max-warnings=0` — promote a rule to
 
 ### Adopting 3.0 with existing debt
 
-3.0 promotes `duro/no-raw-design-values` to `error` and adds
-`duro/no-raw-breakpoint-query`. A repo that already carries raw values keeps
+3.0 promotes `greenrack/no-raw-design-values` to `error` and adds
+`greenrack/no-raw-breakpoint-query`. A repo that already carries raw values keeps
 the gate for every **new** file and ratchets the old ones down with an
 explicit file list — never a glob, never `--max-warnings`:
 
@@ -79,7 +79,7 @@ export const RAW_VALUES_BASELINE = [
 import {RAW_VALUES_BASELINE} from './eslint.duro-baseline.js'
 export default [
   ...react,
-  {files: RAW_VALUES_BASELINE, rules: {'duro/no-raw-design-values': 'warn'}},
+  {files: RAW_VALUES_BASELINE, rules: {'greenrack/no-raw-design-values': 'warn'}},
 ]
 ```
 
@@ -96,7 +96,7 @@ Flat config is last-wins — scope an override after the preset:
 {
   // The one file allowed to import the raw engine reset:
   files: ['packages/editor/src/usePageNode.ts'],
-  rules: {'duro/no-restricted-imports': 'off'},
+  rules: {'greenrack/no-restricted-imports': 'off'},
 }
 ```
 
@@ -107,7 +107,7 @@ exactly. Import them from `@aval-adr/eslint-config` and put them last. Their
 bans have their own rule id, so no `stack` option is needed (6.0 drops it):
 
 ```js
-import {react} from '@duro-app/eslint-config'
+import {react} from '@greenharness/greenrack-eslint-config'
 import {adrLint} from '@aval-adr/eslint-config'
 
 export default [...react, ...adrLint()]
@@ -118,4 +118,4 @@ export default [...react, ...adrLint()]
 - Add `@aval-adr/eslint-config` (`^0.16.0`) beside this package.
 - Import `base`, `effect`, `tests` and `adrLint` from it; keep `react` from here.
 - Drop `stack` from an `adrLint` call.
-- An override of `no-restricted-imports` for the UI bans becomes `duro/no-restricted-imports`.
+- An override of `no-restricted-imports` for the UI bans becomes `greenrack/no-restricted-imports`.

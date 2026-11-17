@@ -1,4 +1,4 @@
-// Side-effect-only module: registers `@duro-app/ui`'s additions to
+// Side-effect-only module: registers `@greenharness/greenrack-ui`'s additions to
 // TanStack's `ColumnMeta` so consumers can write
 //   meta: { stackLabel: 'X', isActions: true }
 // on column defs and have it type-check, regardless of whether they
@@ -6,7 +6,7 @@
 //
 // `index.ts` re-exports this module so the augmentation registers as
 // soon as any file in the consumer's TS program imports from
-// `@duro-app/ui`. Keeping the augmentation in a standalone file (instead
+// `@greenharness/greenrack-ui`. Keeping the augmentation in a standalone file (instead
 // of co-located with `FromTanstack.tsx`) also keeps it from being
 // tree-shaken out of the published types.
 

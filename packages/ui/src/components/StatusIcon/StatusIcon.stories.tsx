@@ -1,10 +1,10 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import {css, html} from 'react-strict-dom'
 import {StatusIcon} from './StatusIcon'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const meta: Meta<typeof StatusIcon> = {
   title: 'Components/StatusIcon',

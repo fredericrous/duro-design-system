@@ -13,7 +13,7 @@ import {
   SteppedList,
   Text,
   Tooltip,
-} from '@duro-app/ui'
+} from '@greenharness/greenrack-ui'
 
 /**
  * Checkpoint B scenarios for the anchored overlays: a Menu whose item opens a
@@ -35,7 +35,7 @@ export function OverlayDemo() {
           <Menu.Item onClick={() => setRenaming(true)}>Rename…</Menu.Item>
           <Menu.Item>Duplicate</Menu.Item>
           <Menu.Separator />
-          <Menu.LinkItem href="https://github.com/fredericrous/duro-design-system">
+          <Menu.LinkItem href="https://github.com/greenharness/greenrack">
             Open on GitHub
           </Menu.LinkItem>
         </Menu.Popup>

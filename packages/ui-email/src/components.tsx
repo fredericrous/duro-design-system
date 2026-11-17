@@ -12,7 +12,7 @@ import {
   Link as RELink,
   Preview,
 } from '@react-email/components'
-import {BORDERS_PX, EMAIL_PX} from '@duro-app/tokens/raw'
+import {BORDERS_PX, EMAIL_PX} from '@greenharness/greenrack-tokens/raw'
 import {palette, space, radius, font, cls, darkModeCss} from './theme.js'
 
 const L = palette.light

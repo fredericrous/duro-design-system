@@ -18,6 +18,6 @@ export const rules = {
   'no-flex-grow-web': noFlexGrowWeb,
   'prefer-ds-form-components': preferDsFormComponents,
   // typescript-eslint's rule under the duro prefix: the UI bans keep `allowTypeImports`
-  // and report as `duro/no-restricted-imports`, apart from the harness's own ban.
+  // and report as `greenrack/no-restricted-imports`, apart from the harness's own ban.
   'no-restricted-imports': tseslintPlugin.rules['no-restricted-imports'],
 }

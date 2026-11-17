@@ -1,5 +1,5 @@
 {
-  "name": "@duro-app/cli",
+  "name": "@greenharness/greenrack-cli",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
@@ -13,12 +13,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/fredericrous/duro-design-system",
+    "url": "https://github.com/greenharness/greenrack",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/fredericrous/duro-design-system",
+  "homepage": "https://github.com/greenharness/greenrack",
   "bugs": {
-    "url": "https://github.com/fredericrous/duro-design-system/issues"
+    "url": "https://github.com/greenharness/greenrack/issues"
   },
   "publishConfig": {
     "access": "public"
@@ -48,20 +48,20 @@
   },
   "scripts": {
     "registry": "node scripts/build-registry.mjs",
-    "prebuild": "pnpm --filter @duro-app/tokens run build && node scripts/build-registry.mjs --check",
+    "prebuild": "pnpm --filter @greenharness/greenrack-tokens run build && node scripts/build-registry.mjs --check",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "skill:generate": "pnpm run build && node scripts/generate-mockup-skill.mjs"
   },
   "dependencies": {
-    "@duro-app/tokens": "workspace:^"
+    "@greenharness/greenrack-tokens": "workspace:^"
   },
   "peerDependencies": {
-    "@duro-app/ui": "workspace:^",
+    "@greenharness/greenrack-ui": "workspace:^",
     "@modelcontextprotocol/sdk": ">=1.0.0"
   },
   "peerDependenciesMeta": {
-    "@duro-app/ui": {
+    "@greenharness/greenrack-ui": {
       "optional": true
     },
     "@modelcontextprotocol/sdk": {
@@ -69,8 +69,8 @@
     }
   },
   "devDependencies": {
-    "@duro-app/eslint-plugin": "workspace:^",
-    "@duro-app/ui": "workspace:^",
+    "@greenharness/greenrack-eslint-plugin": "workspace:^",
+    "@greenharness/greenrack-ui": "workspace:^",
     "@modelcontextprotocol/sdk": "^1.12.0",
     "@types/node": "^24.0.0",
     "ts-morph": "^26.0.0",

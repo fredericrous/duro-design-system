@@ -13,7 +13,7 @@ import {
 } from 'react'
 import {createPortal} from 'react-dom'
 import {html} from 'react-strict-dom'
-import type {SpacingToken} from '@duro-app/tokens/keys'
+import type {SpacingToken} from '@greenharness/greenrack-tokens/keys'
 import {styles} from './styles.css'
 import {usePortalMount} from '../ThemeProvider/ThemeProvider'
 import {isNative} from '../../platform'

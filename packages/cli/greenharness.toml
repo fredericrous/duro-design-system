@@ -17,20 +17,20 @@ path = "skills/typography"
 path = "skills/ui"
 
 [[skill]]
-path = "skills/duro-mockup"
+path = "skills/greenrack-mockup"
 
 [[agent]]
 path = "agents/design-system-lookup.md"
 
 [[mcp]]
-name = "duro-ds"
+name = "greenrack"
 command = "npx"
-args = ["-y", "-p", "@duro-app/cli@^6", "-p", "@modelcontextprotocol/sdk", "duro", "mcp"]
+args = ["-y", "-p", "@greenharness/greenrack-cli@^7", "-p", "@modelcontextprotocol/sdk", "duro", "mcp"]
 
-# Quiet outside a Duro consumer; quiet too when `duro hook install` already
+# Quiet outside a Duro consumer; quiet too when `greenrack hook install` already
 # wired the catalog hook, so a session never gets the catalog twice.
 [[session_context]]
-command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; [ -e .claude/hooks/duro-catalog.sh ] && exit 0; exec npx -y @duro-app/cli@^6 context'"
+command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@greenharness/greenrack-\" {} + 2>/dev/null)\" ] || exit 0; [ -e .claude/hooks/greenrack-catalog.sh ] && exit 0; exec npx -y @greenharness/greenrack-cli@^7 context'"
 
 [[doctor]]
-command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@duro-app/\" {} + 2>/dev/null)\" ] || exit 0; exec npx -y @duro-app/cli@^6 doctor'"
+command = "sh -c '[ -n \"$(find . -maxdepth 3 -name package.json -not -path \"*/node_modules/*\" -exec grep -l \"@greenharness/greenrack-\" {} + 2>/dev/null)\" ] || exit 0; exec npx -y @greenharness/greenrack-cli@^7 doctor'"

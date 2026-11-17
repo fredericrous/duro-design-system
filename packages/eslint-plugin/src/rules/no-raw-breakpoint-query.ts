@@ -6,7 +6,7 @@ type MessageIds = 'rawBreakpointQuery'
 type Options = []
 
 const QUERY_RE = /\((?:min|max)-(?:width|height)\s*:\s*(\d+)px\)/
-const BREAKPOINTS_MODULE = '@duro-app/tokens/tokens/breakpoints.css'
+const BREAKPOINTS_MODULE = '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 
 const SCALE = Object.keys(BREAKPOINT_TOKENS_BY_PX)
   .map(Number)
@@ -34,7 +34,7 @@ export const noRawBreakpointQuery: TSESLint.RuleModule<MessageIds, Options> = {
     schema: [],
     messages: {
       rawBreakpointQuery:
-        '{{value}}px is a raw breakpoint in a media query. Use `breakpoints.{{token}}` from @duro-app/tokens/tokens/breakpoints.css (the scale is {{scale}}px).',
+        '{{value}}px is a raw breakpoint in a media query. Use `breakpoints.{{token}}` from @greenharness/greenrack-tokens/tokens/breakpoints.css (the scale is {{scale}}px).',
     },
   },
   create(context) {

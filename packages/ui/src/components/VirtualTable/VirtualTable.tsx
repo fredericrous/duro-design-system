@@ -11,9 +11,9 @@ import {
   type Row,
 } from '@tanstack/react-table'
 import {useVirtualizer} from '@tanstack/react-virtual'
-import {breakpointsPx, type Breakpoint} from '@duro-app/tokens/tokens/breakpoints.css'
+import {breakpointsPx, type Breakpoint} from '@greenharness/greenrack-tokens/tokens/breakpoints.css'
 import {styles} from './styles.css'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import {resolveLength, type Length} from '../../shared/length'
 
 // Measure + commit before paint on the client; no-op-safe on the server.

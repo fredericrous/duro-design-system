@@ -1,8 +1,8 @@
 // How a token group and key are named in the published CSS custom properties
-// (`--duro-<alias>-<kebab key>`). No imports, so the build scripts can load
+// (`--gr-<alias>-<kebab key>`). No imports, so the build scripts can load
 // this file straight from source (Node strips the types), which keeps
 // `build-registry.mjs` a function of the tree and not of a tokens build.
-// `theme.ts` re-exports both for `@duro-app/tokens/theme`.
+// `theme.ts` re-exports both for `@greenharness/greenrack-tokens/theme`.
 
 /** Group name in the emitted variable. Singularised where the plural reads oddly (`radii` → `radius`). */
 export const GROUP_ALIASES = {

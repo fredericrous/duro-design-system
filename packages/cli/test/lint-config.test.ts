@@ -6,7 +6,7 @@ import {beforeAll, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {TOKEN_DEEP_PATHS} from '../../eslint-plugin/src/util/tokens.js'
 
-// Duro's own eslint.config.js applies duro/no-raw-design-values to every
+// Duro's own eslint.config.js applies greenrack/no-raw-design-values to every
 // component source (ADR-0027). A glob typo there would silently lint nothing;
 // this lints seeded code at real paths through the real config.
 const root = fileURLToPath(new URL('../../..', import.meta.url))
@@ -20,10 +20,14 @@ const eslint = new ESLint({cwd: root, overrideConfigFile: `${root}/eslint.config
 // build step); a clean checkout has no dist yet, so build it once here.
 beforeAll(() => {
   if (existsSync(`${root}/packages/eslint-plugin/dist/index.js`)) return
-  const build = spawnSync('pnpm', ['--filter', '@duro-app/eslint-plugin', 'run', 'build'], {
-    cwd: root,
-    encoding: 'utf8',
-  })
+  const build = spawnSync(
+    'pnpm',
+    ['--filter', '@greenharness/greenrack-eslint-plugin', 'run', 'build'],
+    {
+      cwd: root,
+      encoding: 'utf8',
+    },
+  )
   if (build.status !== 0) throw new Error(`eslint-plugin build failed: ${build.stderr}`)
 }, 120_000)
 const seeded = `import {css} from 'react-strict-dom'\nexport const s = css.create({a: {width: 44}})\n`
@@ -58,16 +62,16 @@ describe('token groups', () => {
 describe("Duro's eslint.config.js", () => {
   it('reports a raw width in a component source', async () => {
     expect(await ruleIds(seeded, 'packages/ui/src/components/Seeded/styles.css.ts')).toContain(
-      'duro/no-raw-design-values',
+      'greenrack/no-raw-design-values',
     )
   })
 
   it('exempts only the visually-hidden module', async () => {
     expect(await ruleIds(hidden, 'packages/ui/src/styles/visually-hidden.css.ts')).not.toContain(
-      'duro/no-raw-design-values',
+      'greenrack/no-raw-design-values',
     )
     expect(await ruleIds(hidden, 'packages/ui/src/styles/x.css.ts')).toContain(
-      'duro/no-raw-design-values',
+      'greenrack/no-raw-design-values',
     )
   })
 })

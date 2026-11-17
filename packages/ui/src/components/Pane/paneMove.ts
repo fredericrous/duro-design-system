@@ -1,5 +1,5 @@
 import {useEffect} from 'react'
-import {SPACING_PX} from '@duro-app/tokens/keys'
+import {SPACING_PX} from '@greenharness/greenrack-tokens/keys'
 import {DRAG_HANDLE_ATTR} from '../Drawer/useSwipeDismiss'
 
 export {DRAG_HANDLE_ATTR}
@@ -62,7 +62,7 @@ export function placePanel(panel: HTMLElement, x: number, y: number) {
 }
 
 /** The event a placed panel sends, so the drag hook can watch its size. */
-const PANEL_MOVED = 'duro-pane-moved'
+const PANEL_MOVED = 'greenrack-pane-moved'
 
 /** Back to the default place, the one the Drawer gave it. */
 export function resetPanel(panel: HTMLElement) {

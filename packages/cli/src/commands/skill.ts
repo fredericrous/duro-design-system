@@ -14,11 +14,11 @@ import type {CommandResult} from './lookup.js'
 import {SKILL, SKILL_NOTES_PATH, SKILL_PATH} from '../skill-template.js'
 
 /*
- * duro skill install — wire the mockup → PR workflow into a consuming repo.
+ * greenrack skill install — wire the mockup → PR workflow into a consuming repo.
  *
  * Claude Code discovers `.claude/skills/<name>/SKILL.md` on its own, so
  * unlike the SessionStart hook there is no settings entry to add. Install
- * writes duro-mockup (a template string) and every file of the packaged
+ * writes greenrack-mockup (a template string) and every file of the packaged
  * `skills/<name>/` (colors, typography, ui), byte-compared so a change is a
  * regenerate everywhere rather than a hand-edit per repo.
  */
@@ -78,8 +78,8 @@ function packagedSkills(skillsDir: URL): Map<string, string[]> | null {
   try {
     const skills = new Map<string, string[]>()
     const names = readdirSync(root, {withFileTypes: true})
-      // duro-mockup is written from the template, not copied as a packaged skill.
-      .filter((entry) => entry.isDirectory() && entry.name !== 'duro-mockup')
+      // greenrack-mockup is written from the template, not copied as a packaged skill.
+      .filter((entry) => entry.isDirectory() && entry.name !== 'greenrack-mockup')
       .map((entry) => entry.name)
       .sort(byBytes)
     for (const name of names) {
@@ -190,7 +190,7 @@ function unignoredByPrettier(root: string, names: string[]): string[] {
 export function runSkill(action: string | undefined, options: SkillOptions = {}): CommandResult {
   if (action !== 'install') {
     return {
-      text: `duro skill: unknown action "${action ?? ''}" — expected ${ACTIONS.join(' | ')}`,
+      text: `greenrack skill: unknown action "${action ?? ''}" — expected ${ACTIONS.join(' | ')}`,
       data: {kind: 'usage-error'},
       exitCode: 2,
     }
@@ -202,14 +202,14 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
     packaged = packagedSkills(skillsDir)
   } catch (error) {
     return {
-      text: `duro skill: cannot read the packaged skills directory (${fileURLToPath(skillsDir)}): ${error instanceof Error ? error.message : String(error)}`,
+      text: `greenrack skill: cannot read the packaged skills directory (${fileURLToPath(skillsDir)}): ${error instanceof Error ? error.message : String(error)}`,
       data: {kind: 'unreadable-skills'},
       exitCode: 2,
     }
   }
   if (!packaged) {
     return {
-      text: `duro skill: the packaged skills directory is missing or empty (${fileURLToPath(skillsDir)}) — reinstall @duro-app/cli`,
+      text: `greenrack skill: the packaged skills directory is missing or empty (${fileURLToPath(skillsDir)}) — reinstall @greenharness/greenrack-cli`,
       data: {kind: 'missing-skills'},
       exitCode: 2,
     }
@@ -229,8 +229,8 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
     if (foreign.length > 0) {
       return {
         text: [
-          `duro skill install: ${foreign.map((name) => `${SKILLS_ROOT}/${name}`).join(', ')} exist${foreign.length === 1 ? 's' : ''} without the shipped ${NOTICE}, so ${foreign.length === 1 ? 'it looks' : 'they look'} like your own skill.`,
-          'Nothing was written. Re-run with --force to overwrite: npx -y @duro-app/cli skill install --force',
+          `greenrack skill install: ${foreign.map((name) => `${SKILLS_ROOT}/${name}`).join(', ')} exist${foreign.length === 1 ? 's' : ''} without the shipped ${NOTICE}, so ${foreign.length === 1 ? 'it looks' : 'they look'} like your own skill.`,
+          'Nothing was written. Re-run with --force to overwrite: npx -y @greenharness/greenrack-cli skill install --force',
         ].join('\n'),
         data: {kind: 'foreign-skill-directory', directories: foreign},
         exitCode: 1,
@@ -239,7 +239,7 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
   }
 
   const planned: PlannedFile[] = [
-    {skill: 'duro-mockup', path: SKILL_PATH, content: Buffer.from(SKILL, 'utf8')},
+    {skill: 'greenrack-mockup', path: SKILL_PATH, content: Buffer.from(SKILL, 'utf8')},
   ]
   for (const [name, files] of packaged) {
     for (const rel of files) {
@@ -301,7 +301,7 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
 
   // One line per skill when nothing changed in it, one per file otherwise.
   const lines: string[] = []
-  for (const name of ['duro-mockup', ...packaged.keys()]) {
+  for (const name of ['greenrack-mockup', ...packaged.keys()]) {
     const mine = changes.filter((change) => skillOf.get(change.path) === name)
     const touched = mine.filter((change) => change.status !== 'unchanged')
     if (touched.length === 0) {
@@ -317,24 +317,24 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
   if (options.check) {
     return stale.length === 0
       ? {
-          text: `duro skill install --check: up to date\n${lines.join('\n')}`,
+          text: `greenrack skill install --check: up to date\n${lines.join('\n')}`,
           data: {ok: true, changes},
         }
       : {
-          text: `duro skill install --check: ${stale.length} file(s) out of date\n${lines.join(
+          text: `greenrack skill install --check: ${stale.length} file(s) out of date\n${lines.join(
             '\n',
-          )}\nRun: npx -y @duro-app/cli skill install`,
+          )}\nRun: npx -y @greenharness/greenrack-cli skill install`,
           data: {ok: false, changes},
           exitCode: 1,
         }
   }
 
   const ignored = ignoredTrackables(root, [...planned.map((file) => file.path), SKILL_NOTES_PATH])
-  const skillNames = ['duro-mockup', ...packaged.keys()]
+  const skillNames = ['greenrack-mockup', ...packaged.keys()]
   const prettierUnignored = unignoredByPrettier(root, skillNames)
   return {
     text: [
-      `Duro skills installed: ${skillNames.join(', ')} — invoke the workflow as /duro-mockup.`,
+      `Duro skills installed: ${skillNames.join(', ')} — invoke the workflow as /greenrack-mockup.`,
       ...lines,
       '',
       `Repo-specific notes: put them in ${SKILL_NOTES_PATH} — the skill reads that file,`,
@@ -356,7 +356,7 @@ export function runSkill(action: string | undefined, options: SkillOptions = {})
             ...prettierUnignored.map((path) => `  ${path}`),
           ]),
       '',
-      'Next: npx -y @duro-app/cli skill install --check',
+      'Next: npx -y @greenharness/greenrack-cli skill install --check',
     ].join('\n'),
     data: {ok: true, changes, ignored, prettierUnignored},
   }

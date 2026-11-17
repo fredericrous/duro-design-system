@@ -11,10 +11,10 @@ import {Input} from '../Input/Input'
 import {Field} from '../Field/Field'
 import {Select} from '../Select/Select'
 import {Popover} from '../Popover/Popover'
-import {spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {DURATION_MS} from '@duro-app/tokens/keys'
+import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {DURATION_MS} from '@greenharness/greenrack-tokens/keys'
 
 const meta: Meta = {
   title: 'Components/Dialog',

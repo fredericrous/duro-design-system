@@ -22,7 +22,7 @@ import {mergeRefs} from '../../shared/mergeRefs'
 import {ModalContext} from '../../shared/ModalContext'
 import type {ControlSize} from '../../shared/types'
 import {resolveLength} from '../../shared/length'
-import type {SizeToken} from '@duro-app/tokens/keys'
+import type {SizeToken} from '@greenharness/greenrack-tokens/keys'
 import {useTooltipHint} from '../Tooltip/TooltipHint'
 import {ControlContextBoundary} from '../Toolbar/ControlContextBoundary'
 

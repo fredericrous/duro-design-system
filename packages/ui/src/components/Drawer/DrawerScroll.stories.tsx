@@ -4,7 +4,7 @@ import {Drawer} from './Drawer'
 import {ToggleGroup} from '../ToggleGroup/ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
 import {Icon, type IconName} from '../Icon'
-import {SIZES_PX} from '@duro-app/tokens/keys'
+import {SIZES_PX} from '@greenharness/greenrack-tokens/keys'
 import {cdpSend, pause, setViewport, toPage, touchDrag, type Point} from './touchInput'
 
 const meta: Meta = {
@@ -87,7 +87,7 @@ function Scene({pressed}: {pressed?: string} = {}) {
   )
 }
 
-const getViewport = () => document.querySelector<HTMLElement>('[data-duro-scroll]')!
+const getViewport = () => document.querySelector<HTMLElement>('[data-gr-scroll]')!
 const getDialog = () => document.querySelector('[role="dialog"]')
 
 /**

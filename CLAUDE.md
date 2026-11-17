@@ -2,43 +2,43 @@
 
 > AI-facing guide for code generation. Read this before generating any UI code using Duro components.
 >
-> **Machine-queryable docs:** run `npx @duro-app/cli manifest --json` once — every component's props,
-> every recipe's source, tokens and rules follow from it (`npx @duro-app/cli Button`,
-> `npx @duro-app/cli login-form --source-only`, `npx @duro-app/cli "tags that wrap"`).
-> As an MCP server: `duro mcp` (tools `duro_ds_lookup` / `duro_ds_list` / `duro_ds_manifest` /
-> `duro_ds_mockup_check` / `duro_ds_mockup_canvas`).
+> **Machine-queryable docs:** run `npx @greenharness/greenrack-cli manifest --json` once — every component's props,
+> every recipe's source, tokens and rules follow from it (`npx @greenharness/greenrack-cli Button`,
+> `npx @greenharness/greenrack-cli login-form --source-only`, `npx @greenharness/greenrack-cli "tags that wrap"`).
+> As an MCP server: `greenrack mcp` (tools `greenrack_lookup` / `greenrack_list` / `greenrack_manifest` /
+> `greenrack_mockup_check` / `greenrack_mockup_canvas`).
 >
-> **Consuming apps:** run `npx -y @duro-app/cli hook install` once in the repo root. It wires a
+> **Consuming apps:** run `npx -y @greenharness/greenrack-cli hook install` once in the repo root. It wires a
 > Claude Code `SessionStart` hook that puts this catalog in every agent session automatically, and
 > a `UserPromptSubmit` hook that, in plan mode only, nudges a plan with a new screen or a material
 > UI choice to start from mockup directions — `--check` in CI keeps both from drifting.
-> `npx -y @duro-app/cli skill install` adds the colors, typography and ui interface skills (also served
-> as `duro_ds_lookup guide:<name>`; `--force` overwrites a directory of your own) and the `/duro-mockup` skill: token-seeded artboards (`duro mockup seed`), a checker that refuses raw
-> values and unnamed controls (`duro mockup check`), the review page of every direction
-> (`duro mockup canvas`), and the implement-and-prove steps that follow
-> the picked direction. `npx -y @duro-app/cli doctor` checks the app's build wiring
+> `npx -y @greenharness/greenrack-cli skill install` adds the colors, typography and ui interface skills (also served
+> as `greenrack_lookup guide:<name>`; `--force` overwrites a directory of your own) and the `/greenrack-mockup` skill: token-seeded artboards (`greenrack mockup seed`), a checker that refuses raw
+> values and unnamed controls (`greenrack mockup check`), the review page of every direction
+> (`greenrack mockup canvas`), and the implement-and-prove steps that follow
+> the picked direction. `npx -y @greenharness/greenrack-cli doctor` checks the app's build wiring
 > (`runtimeInjection`, layered extraction, stylesheet import and layer order) — the ways an app
 > flattens component spacing while this package's CSS is fine — and whether the build compiles
-> `@duro-app/tokens` at all, without which `css.create` cannot import the tokens (StyleX: "ensure
+> `@greenharness/greenrack-tokens` at all, without which `css.create` cannot import the tokens (StyleX: "ensure
 > the theme file has a .stylex.js or .stylex.ts extension"); the session hook runs it too.
 >
 > **Green Harness:** the same content also ships as the `design` extension of `grh` (ADR-0048):
 > `packages/cli/greenharness.toml` declares the four skills (self-gating: they apply only where
-> `package.json` depends on `@duro-app/ui`), the `design-system-lookup` agent, the `duro-ds` MCP
-> server, and `duro context` / `duro doctor` as session context and doctor checks. Install it with
-> `grh install --extension node_modules/@duro-app/cli`; `duro hook install` and `duro skill install`
+> `package.json` depends on `@greenharness/greenrack-ui`), the `design-system-lookup` agent, the `greenrack` MCP
+> server, and `greenrack context` / `greenrack doctor` as session context and doctor checks. Install it with
+> `grh install --extension node_modules/@greenharness/greenrack-cli`; `greenrack hook install` and `greenrack skill install`
 > keep working beside it and print a pointer to it on stderr. See `packages/cli/README.md`.
 
 ## Architecture
 
 - **Monorepo** managed by pnpm workspaces
-- **Packages:** `@duro-app/ui` (components), `@duro-app/tokens` (design tokens), `@duro-app/eslint-plugin` (lint rules enforcing the Critical Rules below — `duro.configs.recommended`), `@duro-app/eslint-config` (shareable flat config for consumer repos: the `react` preset only, bundling the plugin plus the UI policy — UI imports only from `@duro-app/ui`; the `base`, `effect` and `tests` presets come from `@aval-adr/eslint-config`, which it extends)
+- **Packages:** `@greenharness/greenrack-ui` (components), `@greenharness/greenrack-tokens` (design tokens), `@greenharness/greenrack-eslint-plugin` (lint rules enforcing the Critical Rules below — `greenrack.configs.recommended`), `@greenharness/greenrack-eslint-config` (shareable flat config for consumer repos: the `react` preset only, bundling the plugin plus the UI policy — UI imports only from `@greenharness/greenrack-ui`; the `base`, `effect` and `tests` presets come from `@aval-adr/eslint-config`, which it extends)
 - **Rendering:** [react-strict-dom](https://github.com/nicklockwood/react-strict-dom) — all elements use `html.*` (e.g. `html.div`, `html.button`), **never** raw `<div>` or `<span>`
 - **Styling:** `css.create()` from `react-strict-dom` with token references
-- **Form validation:** Effect Schema + react-hook-form via `@hookform/resolvers` — `Form` imports from `@duro-app/ui/form` (4.0.0); `react-hook-form` is a required peer, `@hookform/resolvers` and `effect` are needed only by apps that import that subpath
+- **Form validation:** Effect Schema + react-hook-form via `@hookform/resolvers` — `Form` imports from `@greenharness/greenrack-ui/form` (4.0.0); `react-hook-form` is a required peer, `@hookform/resolvers` and `effect` are needed only by apps that import that subpath
 - **React 19**, TypeScript strict mode
 
-<!-- duro:rules:start -->
+<!-- greenrack:rules:start -->
 
 ## Critical Rules
 
@@ -57,22 +57,22 @@ import {css, html} from 'react-strict-dom'
 
 ```tsx
 // ✅ Correct — deep imports
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {typography} from '@duro-app/tokens/tokens/typography.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing, radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {typography} from '@greenharness/greenrack-tokens/tokens/typography.css'
 
 // ❌ Wrong — barrel imports break StyleX babel plugin
-import {colors, spacing} from '@duro-app/tokens'
+import {colors, spacing} from '@greenharness/greenrack-tokens'
 ```
 
 ### 3. Styling with css.create()
 
 ```tsx
 import {css, html} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {radii, spacing} from '@duro-app/tokens/tokens/spacing.css'
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {radii, spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 const styles = css.create({
   container: {
@@ -88,7 +88,7 @@ const styles = css.create({
 <html.div style={[styles.container, isActive && styles.active]}>
 ```
 
-<!-- duro:rules:end -->
+<!-- greenrack:rules:end -->
 
 ### 4. Every measure is a token
 
@@ -97,17 +97,17 @@ token (`sizes.*`, `borders.*`, `spacing.*`, `microSpacing.*`, `radii.*`,
 `colors.*`, `duration.*`): ADR-0027, `design-system.every-measure-is-a-token`.
 Allowed raw: `0`, relative units (`%`, `vh`, `fr`, `rem`…), keywords (`auto`,
 `max-content`…) and a `calc()` of tokens. When no token fits, add one to
-`@duro-app/tokens` with the value the design needs — never the nearest one.
+`@greenharness/greenrack-tokens` with the value the design needs — never the nearest one.
 Measure props take token keys: `<Grid minColumnWidth="gridColMd">`,
-`<ScrollArea.Viewport maxHeight="listMaxH">`. `duro/no-raw-design-values`
+`<ScrollArea.Viewport maxHeight="listMaxH">`. `greenrack/no-raw-design-values`
 reports the rest.
 
 A z-index comes from `layers.*` and a blur from `effects.*` (5.3):
-`duro/no-raw-layer-values` warns on the raw ones for the 5.x line, and
+`greenrack/no-raw-layer-values` warns on the raw ones for the 5.x line, and
 becomes an error in the next major. A z-index from `2` to `9` that orders
 children inside one component is not a layer and is not reported (5.4,
 the rule's `localMax`). On React Native, read the numbers from `LAYERS` in
-`@duro-app/tokens/keys`.
+`@greenharness/greenrack-tokens/keys`.
 
 ## Layout Decision Tree
 
@@ -187,7 +187,7 @@ These components **must** be wrapped in their `.Root`:
 
 ## Component Quick Reference
 
-<!-- duro:generated:components START -->
+<!-- greenrack:generated:components START -->
 
 | Component | Description | Key props |
 | --- | --- | --- |
@@ -277,9 +277,9 @@ These components **must** be wrapped in their `.Root`:
 | **VirtualTable** | Sortable data table that windows its rows above a threshold (default 150) with @tanstack/react-virtual, shows a floating position indicator, and reports the visible page so the caller can mirror it in the URL | `data`, `columns`, `sorting` |
 | **VisuallyHidden** | Text for assistive tech only: kept in the accessibility tree, clipped off screen | `id` |
 
-Full props, usage guidance and examples: `npx @duro-app/cli <Name>` (or the `duro_ds_lookup` MCP tool).
+Full props, usage guidance and examples: `npx @greenharness/greenrack-cli <Name>` (or the `greenrack_lookup` MCP tool).
 
-<!-- duro:generated:components END -->
+<!-- greenrack:generated:components END -->
 
 ## Form Composition Pattern
 
@@ -287,8 +287,8 @@ The canonical nesting for forms with validation:
 
 ```tsx
 import {Schema} from 'effect'
-import {Field, Input, Textarea, Fieldset, Button, Select, Checkbox} from '@duro-app/ui'
-import {Form} from '@duro-app/ui/form'
+import {Field, Input, Textarea, Fieldset, Button, Select, Checkbox} from '@greenharness/greenrack-ui'
+import {Form} from '@greenharness/greenrack-ui/form'
 
 // 1. Define your schema
 const MySchema = Schema.Struct({
@@ -350,7 +350,7 @@ const MySchema = Schema.Struct({
 
 ## Token Reference
 
-<!-- duro:generated:tokens START -->
+<!-- greenrack:generated:tokens START -->
 
 ### Spacing Scale
 
@@ -367,7 +367,7 @@ const MySchema = Schema.Struct({
 
 ### Micro Spacing
 
-Optical nudges below and between the scale (`microSpacing` from `@duro-app/tokens/tokens/spacing.css`). Not a layout choice: prefer the scale.
+Optical nudges below and between the scale (`microSpacing` from `@greenharness/greenrack-tokens/tokens/spacing.css`). Not a layout choice: prefer the scale.
 
 | Token | Value |
 | --- | --- |
@@ -506,9 +506,9 @@ Optical nudges below and between the scale (`microSpacing` from `@duro-app/token
 
 ### Layers
 
-The z-index scale (`layers` from `@duro-app/tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@duro-app/tokens/keys`.
+The z-index scale (`layers` from `@greenharness/greenrack-tokens/tokens/layers.css`). Values order one stacking context: the ThemeProvider portal mount, where Dialog, Drawer, the popups and toasts render. React Native takes the numbers from `LAYERS` in `@greenharness/greenrack-tokens/keys`.
 
-A floating surface picks its layer by `useInModal()` from `@duro-app/ui`, as a Popover does: `floating` outside a modal, `popover` inside a Dialog or Drawer. `floatingRaised` / `popoverRaised` are the same pair for one floating surface that must cover a sibling floating one (a link editor over a selection format bar); a Popover takes it with `<Popover.Popup raised>`, and a Popover nested in a raised one is raised too. A raised surface never covers a modal: a Dialog opened later still covers it.
+A floating surface picks its layer by `useInModal()` from `@greenharness/greenrack-ui`, as a Popover does: `floating` outside a modal, `popover` inside a Dialog or Drawer. `floatingRaised` / `popoverRaised` are the same pair for one floating surface that must cover a sibling floating one (a link editor over a selection format bar); a Popover takes it with `<Popover.Popup raised>`, and a Popover nested in a raised one is raised too. A raised surface never covers a modal: a Dialog opened later still covers it.
 
 | Token | Value |
 | --- | --- |
@@ -527,14 +527,14 @@ A floating surface picks its layer by `useInModal()` from `@duro-app/ui`, as a P
 
 ### Effects
 
-`effects` from `@duro-app/tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport). `surfaceBlur` frosts a surface over imagery (a pill or a chip on a photo) and follows the same rule: put it on that surface element only.
+`effects` from `@greenharness/greenrack-tokens/tokens/effects.css`. Put `overlayBlur` on a backdrop element only: a `backdropFilter` on an ancestor becomes the containing block for fixed overlays (a Dialog inside it is placed against the ancestor, not the viewport). `surfaceBlur` frosts a surface over imagery (a pill or a chip on a photo) and follows the same rule: put it on that surface element only.
 
 | Token | Value |
 | --- | --- |
 | `overlayBlur` | blur(2px) |
 | `surfaceBlur` | blur(6px) |
 
-<!-- duro:generated:tokens END -->
+<!-- greenrack:generated:tokens END -->
 
 ### Typography Presets
 
@@ -561,21 +561,21 @@ A floating surface picks its layer by `useInModal()` from `@duro-app/ui`, as a P
 
 Inside components, always go through `css.create()` with the token imports
 above. When an app genuinely needs a token in its own stylesheet (a CSS
-module, a global rule), use the published `--duro-*` custom properties:
+module, a global rule), use the published `--gr-*` custom properties:
 
 ```css
 .card {
-  background: var(--duro-color-bg-card);
-  border: var(--duro-border-hairline) solid var(--duro-color-border);
-  padding: var(--duro-spacing-md);
-  border-radius: var(--duro-radius-md);
+  background: var(--gr-color-bg-card);
+  border: var(--gr-border-hairline) solid var(--gr-color-border);
+  padding: var(--gr-spacing-md);
+  border-radius: var(--gr-radius-md);
 }
 ```
 
-Naming is `--duro-<group>-<token>` in kebab-case: `sizes.touchTarget` →
-`--duro-size-touch-target`, `borders.hairline` → `--duro-border-hairline`, `colors.bgCard` →
-`--duro-color-bg-card`, `spacing.md` → `--duro-spacing-md`, `radii.md` →
-`--duro-radius-md`. They come with `@duro-app/ui`'s stylesheet, and they
+Naming is `--gr-<group>-<token>` in kebab-case: `sizes.touchTarget` →
+`--gr-size-touch-target`, `borders.hairline` → `--gr-border-hairline`, `colors.bgCard` →
+`--gr-color-bg-card`, `spacing.md` → `--gr-spacing-md`, `radii.md` →
+`--gr-radius-md`. They come with `@greenharness/greenrack-ui`'s stylesheet, and they
 follow the active theme — including inside a `ThemeProvider` subtree.
 
 **Don't** reference the StyleX variables directly (`var(--bg-xqkwqtp)`). The
@@ -643,7 +643,7 @@ is added.
 
 ## Icon Names
 
-<!-- duro:generated:icons START -->
+<!-- greenrack:generated:icons START -->
 
 **Stroke icons:** `x-circle`, `check-circle`, `check-done`, `clock`, `forbidden`, `info-circle`, `alert-triangle`, `shield`, `lock`, `key`
 
@@ -667,15 +667,15 @@ is added.
 
 Sizes: `lg` 24px · `md` 18px · `sm` 16px · `xl` 36px · `xxl` 48px — `<Icon name="server" size="md" />`
 
-<!-- duro:generated:icons END -->
+<!-- greenrack:generated:icons END -->
 
 ## Component guidance
 
-Hand-written judgment that props alone can't carry. (Per-component reference: `npx @duro-app/cli <Name>`.)
+Hand-written judgment that props alone can't carry. (Per-component reference: `npx @greenharness/greenrack-cli <Name>`.)
 
 ### Form
 
-**Import `Form` from `@duro-app/ui/form`, not the package root** (since
+**Import `Form` from `@greenharness/greenrack-ui/form`, not the package root** (since
 4.0.0). `Form` is the only component that needs `@hookform/resolvers` and
 `effect`; keeping it behind a subpath keeps those two optional peers genuinely
 optional for apps that never validate a schema. `Field`, `Input`, `Textarea`
@@ -683,7 +683,7 @@ and the rest stay on the root and auto-bind when rendered inside a `Form`
 (they need only `react-hook-form`, a required peer):
 
 ```tsx
-import {Form} from '@duro-app/ui/form'
+import {Form} from '@greenharness/greenrack-ui/form'
 ```
 
 Migrating from 3.x is that one line. `FormProps` moves with it;
@@ -691,14 +691,14 @@ Migrating from 3.x is that one line. `FormProps` moves with it;
 
 ### Data Table
 
-**Import from `@duro-app/ui/table`, not the package root.** Everything that
+**Import from `@greenharness/greenrack-ui/table`, not the package root.** Everything that
 touches TanStack — `FromTanstack`, `Pagination`, `SortChip`, `SortIndicator`,
 `ColumnFilter`, `useDataTable`, `VirtualTable` — lives behind that subpath, so
 `@tanstack/react-table` stays an optional peer for apps that never render a
 data table:
 
 ```tsx
-import {Table, useDataTable} from '@duro-app/ui/table'
+import {Table, useDataTable} from '@greenharness/greenrack-ui/table'
 ```
 
 The object it exports is the root's `Table` with those pieces attached, so
@@ -708,7 +708,7 @@ the root and need no TanStack install at all.
 
 **Prefer `Table.FromTanstack` when your data has a TanStack table instance** — it collapses the
 `flexRender`/header/body ceremony into one component and wires SortChip, Pagination, and
-clickable-row keyboard activation. See `npx @duro-app/cli data-table --source-only`.
+clickable-row keyboard activation. See `npx @greenharness/greenrack-cli data-table --source-only`.
 
 #### Don't
 
@@ -732,7 +732,7 @@ a chevron, which costs every destination inside it an extra click and removes
 it from scanning.
 
 ```tsx
-import {SideNav, Icon} from '@duro-app/ui'
+import {SideNav, Icon} from '@greenharness/greenrack-ui'
 ;<SideNav.Root value={pathname} onValueChange={(v) => navigate(v)}>
   <SideNav.Section label="Infrastructure">
     <SideNav.Item value="/nodes" icon={<Icon name="server" size="md" />}>
@@ -898,7 +898,7 @@ pieces a reader page needs, each owning its accessibility:
   `Main` sticks below the bar (`appBarH`).
 - **`Prose`** styles HTML you do not write as JSX (headings, lists, tables,
   blockquotes, inline code, links, images) from tokens. Its rules are plain
-  CSS in `dist/index.css`, in their own cascade layer (`duro-prose`, after
+  CSS in `dist/index.css`, in their own cascade layer (`gr-prose`, after
   the reset and before every component style) and wrapped in `:where()`: a
   Duro component inside it keeps its styles, and an app's CSS Module wins.
 - **`useContainerBelow(ref, 'md')`** answers what CSS cannot choose (a TOC as
@@ -912,19 +912,19 @@ pieces a reader page needs, each owning its accessibility:
 
 ## Canonical Recipes
 
-<!-- duro:generated:recipes START -->
+<!-- greenrack:generated:recipes START -->
 
 Complete, runnable compositions. Each emits consumer-ready source (imports already point at the published packages):
 
-- **action-menu** — Dropdown action menu with button trigger, action items, and a link item. `npx @duro-app/cli action-menu --source-only`
-- **admin-detail-page** — Admin detail page for one record: a Breadcrumb back to the collection, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape). `npx @duro-app/cli admin-detail-page --source-only`
-- **data-table** — Striped data table with badge status column. `npx @duro-app/cli data-table --source-only`
-- **empty-state** — Empty state inside a card with icon and action button. `npx @duro-app/cli empty-state --source-only`
-- **filter-bar** — Filter bar with Select dropdowns, ToggleGroup for view switching, and reset button. `npx @duro-app/cli filter-bar --source-only`
-- **login-form** — Login form with username/password fields and Effect Schema validation. `npx @duro-app/cli login-form --source-only`
-- **page-with-sidenav** — Page with a side navigation rail: SideNav in the narrow column of Grid layout="split-wide", the routed content in the wide one; the rail stacks above the content when the page is narrower than md. `npx @duro-app/cli page-with-sidenav --source-only`
-- **settings-page** — Full settings page with tabbed navigation, profile form, notification switches, and page shell. `npx @duro-app/cli settings-page --source-only`
-- **split-pane** — List/detail split: a selectable List beside a Panel showing the selection, in a SplitPane (the list starts at sidebarW, resizes up to panelLg with the handle, and the panes stack when the split is narrower than sm). `npx @duro-app/cli split-pane --source-only`
+- **action-menu** — Dropdown action menu with button trigger, action items, and a link item. `npx @greenharness/greenrack-cli action-menu --source-only`
+- **admin-detail-page** — Admin detail page for one record: a Breadcrumb back to the collection, heading with status and actions, then Tabs whose panels hold the sections (the /admin/<collection>/:id shape). `npx @greenharness/greenrack-cli admin-detail-page --source-only`
+- **data-table** — Striped data table with badge status column. `npx @greenharness/greenrack-cli data-table --source-only`
+- **empty-state** — Empty state inside a card with icon and action button. `npx @greenharness/greenrack-cli empty-state --source-only`
+- **filter-bar** — Filter bar with Select dropdowns, ToggleGroup for view switching, and reset button. `npx @greenharness/greenrack-cli filter-bar --source-only`
+- **login-form** — Login form with username/password fields and Effect Schema validation. `npx @greenharness/greenrack-cli login-form --source-only`
+- **page-with-sidenav** — Page with a side navigation rail: SideNav in the narrow column of Grid layout="split-wide", the routed content in the wide one; the rail stacks above the content when the page is narrower than md. `npx @greenharness/greenrack-cli page-with-sidenav --source-only`
+- **settings-page** — Full settings page with tabbed navigation, profile form, notification switches, and page shell. `npx @greenharness/greenrack-cli settings-page --source-only`
+- **split-pane** — List/detail split: a selectable List beside a Panel showing the selection, in a SplitPane (the list starts at sidebarW, resizes up to panelLg with the handle, and the panes stack when the split is narrower than sm). `npx @greenharness/greenrack-cli split-pane --source-only`
 
 One inline exemplar (the others follow the same shape — fetch them with the CLI):
 
@@ -933,10 +933,10 @@ One inline exemplar (the others follow the same shape — fetch them with the CL
 ```tsx
 import {Schema} from 'effect'
 import {css, html} from 'react-strict-dom'
-import {Field, Input, Fieldset, Button, Stack, Heading} from '@duro-app/ui'
-import {Form} from '@duro-app/ui/form'
+import {Field, Input, Fieldset, Button, Stack, Heading} from '@greenharness/greenrack-ui'
+import {Form} from '@greenharness/greenrack-ui/form'
 
-import {sizes} from '@duro-app/tokens/tokens/sizes.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
 
 const LoginSchema = Schema.Struct({
   username: Schema.String.pipe(
@@ -987,7 +987,7 @@ export function LoginFormRecipe() {
 }
 ```
 
-<!-- duro:generated:recipes END -->
+<!-- greenrack:generated:recipes END -->
 
 <!-- greengate:start -->
 

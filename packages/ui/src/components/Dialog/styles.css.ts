@@ -1,11 +1,11 @@
 import {css} from 'react-strict-dom'
-import {colors} from '@duro-app/tokens/tokens/colors.css'
-import {spacing, radii} from '@duro-app/tokens/tokens/spacing.css'
-import {shadows} from '@duro-app/tokens/tokens/shadows.css'
-import {duration, easing} from '@duro-app/tokens/tokens/motion.css'
-import {borders} from '@duro-app/tokens/tokens/borders.css'
-import {effects} from '@duro-app/tokens/tokens/effects.css'
-import {layers} from '@duro-app/tokens/tokens/layers.css'
+import {colors} from '@greenharness/greenrack-tokens/tokens/colors.css'
+import {spacing, radii} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {shadows} from '@greenharness/greenrack-tokens/tokens/shadows.css'
+import {duration, easing} from '@greenharness/greenrack-tokens/tokens/motion.css'
+import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
+import {effects} from '@greenharness/greenrack-tokens/tokens/effects.css'
+import {layers} from '@greenharness/greenrack-tokens/tokens/layers.css'
 
 export const styles = css.create({
   // --- Backdrop ---

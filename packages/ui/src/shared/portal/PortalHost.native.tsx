@@ -69,7 +69,7 @@ export function PortalHost({placement = 'presented'}: PortalHostProps) {
 }
 
 interface PortalProps {
-  /** Numeric layer from `LAYERS` in `@duro-app/tokens/keys`. */
+  /** Numeric layer from `LAYERS` in `@greenharness/greenrack-tokens/keys`. */
   layer: number
   /** `top` (default): above an open Modal, like a toast. `base`: below one, like a non-modal pane. */
   host?: 'base' | 'top'
