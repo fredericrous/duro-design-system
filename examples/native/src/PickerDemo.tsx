@@ -78,7 +78,7 @@ export function PickerDemo() {
         <Combobox.Input placeholder="Search repositories" />
         <Combobox.Popup label="Repository">
           {REPOS.map((r) => (
-            <Combobox.Item key={r} value={r}>
+            <Combobox.Item key={r} value={r} leading="📦" description="A repository">
               {r}
             </Combobox.Item>
           ))}

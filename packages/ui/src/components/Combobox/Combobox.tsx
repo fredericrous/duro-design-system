@@ -1,6 +1,7 @@
 import {type ReactNode, useCallback, useRef, useId, useEffect, useState} from 'react'
 import {html} from 'react-strict-dom'
 import {styles} from './styles.css'
+import {styles as selectStyles} from '../Select/styles.css'
 import {ComboboxContext, useCombobox} from './ComboboxContext'
 import {useComboboxRoot} from './useComboboxRoot'
 import {matchesQuery} from './comboboxState'
@@ -167,20 +168,29 @@ function Popup({children, label}: PopupProps) {
 // --- Item ---
 interface ItemProps {
   value: string
+  /** A second line under the option's text, in muted type. Not part of the option's name, its filtering or the input's text. */
+  description?: ReactNode
+  /** An icon or a small preview before the option's text. Decorative: hidden from assistive technology. */
+  leading?: ReactNode
   children: ReactNode
 }
 
-function Item({value: itemValue, children}: ItemProps) {
+function Item({value: itemValue, description, leading, children}: ItemProps) {
   const {value: selectedValue, inputValue, labels, registerLabel, registerItem} = useCombobox()
   const id = useId()
+  const textId = useId()
+  const descriptionId = useId()
   const ref = useRef<HTMLDivElement>(null)
+  const textRef = useRef<HTMLSpanElement>(null)
   const isSelected = selectedValue === itemValue
+  const detailed = description != null || leading != null
+  const hasDescription = description != null
 
-  // Filter: check if this item matches the input
+  // Filter: check if this item matches the input (the label, never the description)
   const isVisible = matchesQuery(labels[itemValue] ?? itemValue, inputValue)
 
   useEffect(() => {
-    const el = ref.current
+    const el = textRef.current
     if (!el) return
     const text = el.textContent
     if (text) registerLabel(itemValue, text)
@@ -192,11 +202,41 @@ function Item({value: itemValue, children}: ItemProps) {
     return registerItem(id, itemValue, el)
   }, [id, itemValue, registerItem])
 
+  // Listbox.Option owns the option element and takes no aria props, so the
+  // name (the label text alone) and the description are set on it here.
+  useEffect(() => {
+    const el = ref.current
+    if (!el || !isVisible) return
+    el.setAttribute('aria-labelledby', textId)
+    if (hasDescription) el.setAttribute('aria-describedby', descriptionId)
+    else el.removeAttribute('aria-describedby')
+  }, [isVisible, textId, descriptionId, hasDescription])
+
   if (!isVisible) return null
 
   return (
     <Listbox.Option ref={ref} id={id} value={itemValue} selected={isSelected}>
-      {children}
+      {leading != null && (
+        <html.span aria-hidden style={selectStyles.itemLeading}>
+          {leading}
+        </html.span>
+      )}
+      {detailed ? (
+        <html.span style={selectStyles.itemBody}>
+          <html.span ref={textRef} id={textId}>
+            {children}
+          </html.span>
+          {hasDescription && (
+            <html.span id={descriptionId} style={selectStyles.itemDescription}>
+              {description}
+            </html.span>
+          )}
+        </html.span>
+      ) : (
+        <html.span ref={textRef} id={textId}>
+          {children}
+        </html.span>
+      )}
     </Listbox.Option>
   )
 }
