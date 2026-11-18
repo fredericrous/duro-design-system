@@ -69,4 +69,33 @@ jobs:
         run: node packages/cli/scripts/check-pin-major.mjs "${TAG#v}"
       - run: pnpm build
       - run: pnpm check:types-packed
-      - run: pnpm -r publish --no-git-checks --provenance
+      # pnpm packs (it rewrites `workspace:` ranges); npm publishes. `pnpm -r
+      # publish` hands npm a tarball, and npm then never tried the OIDC
+      # exchange (ENEEDAUTH, v7.0.0's fourth run). npm publishing a directory
+      # is greengate's path, which trusted publishing serves.
+      - name: Publish (trusted publishing)
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          out="$RUNNER_TEMP/publish"
+          mkdir -p "$out"
+          # Workspace packages in dependency order, one path per line.
+          pnpm -r --workspace-concurrency=1 exec pwd > "$out/order"
+          while IFS= read -r dir; do
+            name=$(jq -r .name "$dir/package.json")
+            if [ "$(jq -r '.private // false' "$dir/package.json")" = true ]; then
+              echo "private, skipped: $name"
+              continue
+            fi
+            # A missing version prints nothing and still exits 0.
+            if [ -n "$(npm view "$name@$VERSION" version 2>/dev/null)" ]; then
+              echo "already on npm, skipped: $name@$VERSION"
+              continue
+            fi
+            work="$out/$(basename "$dir")"
+            mkdir -p "$work"
+            (cd "$dir" && pnpm pack --pack-destination "$work" >/dev/null)
+            tar -xzf "$work"/*.tgz -C "$work"
+            npm publish "$work/package" --provenance --access public --ignore-scripts
+            echo "published: $name@$VERSION"
+          done < "$out/order"
