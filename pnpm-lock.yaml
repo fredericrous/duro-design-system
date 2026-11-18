@@ -82,6 +82,9 @@ importers:
       '@aval-adr/eslint-config':
         specifier: ^0.16.0
         version: 0.16.0(eslint@9.39.5)(typescript-eslint@8.67.0(eslint@9.39.5)(typescript@5.9.3))
+      '@greenharness/greengate':
+        specifier: ^4.11.0
+        version: 4.11.0
       '@greenharness/greenrack-cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -115,9 +118,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.18
         version: 4.0.18(@vitest/browser@4.1.12)(vitest@4.1.12)
-      amont:
-        specifier: ^1.49.1
-        version: 1.49.1
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
@@ -394,39 +394,6 @@ packages:
 
   '@adobe/css-tools@4.4.4':
     resolution: {integrity: sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==}
-
-  '@amont-hooks/darwin-arm64@1.49.1':
-    resolution: {integrity: sha512-6FbzphvQP3tubYuDw4JVCkYNB8Ou2dBIonmShB2YmKHn/9sIdBHDMlgdGIl7Rqf9CdTVRSsHxhSyQVlY4i++qg==}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@amont-hooks/darwin-x64@1.49.1':
-    resolution: {integrity: sha512-fzWVYc+RKg/Pj5pgK5I71InCfqidZBqfBLdah5TWy300WWQREC7iyccbLzBxdoaLH8yoPctqtUAp1CmMvkljTg==}
-    cpu: [x64]
-    os: [darwin]
-
-  '@amont-hooks/linux-arm64-gnu@1.49.1':
-    resolution: {integrity: sha512-wwTmxcjk9QC78qRSVG4ebBmLbfK4H8njV94lThAasKWUKpiRlvF/5N6IIw5qOlw8qsfujM8MblR/rz9DU/QVHQ==}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@amont-hooks/linux-x64-gnu@1.49.1':
-    resolution: {integrity: sha512-EhjhOqO2pdARrlAXolZf0UQiIeuaGsjr6U62efUuF8EXWaa9r2wqD3dv2HbHgTYQ3VCWOz2h74nUNIBZEleS6w==}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@amont-hooks/linux-x64-musl@1.49.1':
-    resolution: {integrity: sha512-dRdI0UUYbFAr/iFnkVphyfedl+AdamRt+IkuOITiFHsVaeu+rT3FUcBqLOLch/vkTyiC27i0XgPT4TQ6WbEszg==}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@amont-hooks/win32-x64@1.49.1':
-    resolution: {integrity: sha512-eJZtAfDUXlrEHRYZGnW0e97t7lpaWGPjlNesRomAUI6dQ0Cg5wJhvllcXtgyIrFg48IbvCXzxdb6ZTu9Yzo4gQ==}
-    cpu: [x64]
-    os: [win32]
 
   '@andrewbranch/untar.js@1.0.4':
     resolution: {integrity: sha512-pVXSwPsLuw8IGLo2Di0EaOfsk+ntVvpkk942J/sHYIkwvtKUakEcPh7HBgZ6tuimgzKSEHgCvO4XgQ05DEbwDw==}
@@ -1182,6 +1149,44 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@greenharness/greengate-darwin-arm64@4.11.0':
+    resolution: {integrity: sha512-RtB1Y3faLpJAr36VFdYFeOIVQKDSgx4EfRkNIt25heHW4V90w5oih8FUiDasPZ3ZIuo9l9w3FCr03GvD3cVpQg==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@greenharness/greengate-darwin-x64@4.11.0':
+    resolution: {integrity: sha512-QYAppgRMhUTB7femfr9lMr1yYiuCudiMG6Rao5yiuEs+kxljB00tcdzg+IHOT5ze+jIw1sVtDdtAVkIxjOvtjA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@greenharness/greengate-linux-arm64-gnu@4.11.0':
+    resolution: {integrity: sha512-nI7MvkbMOkvWu4fBBVp3bXQDl3AgEhHLMZBe6gQnE6H68BI2lqGruAWAKfY1KLoK6g/vtFeJIBoqLefBmbETdg==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@greenharness/greengate-linux-x64-gnu@4.11.0':
+    resolution: {integrity: sha512-jOGgXXPbKYyhfXjlCdtJz0iOKC5g8rkGh36HX9YIRWf3SfDgxk8j6QK8a8qS6GB3P9WuxHOftWZqUFPEKn3xLA==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@greenharness/greengate-linux-x64-musl@4.11.0':
+    resolution: {integrity: sha512-kdv0F00TiptP/uuP37o+frM2F63BoajBgb/cYJoBb9hC/IV+WjWQRA9V07WssPsSJuwQARF9HxEcWk6c26KFvw==}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@greenharness/greengate-win32-x64@4.11.0':
+    resolution: {integrity: sha512-vko2cVktDlVssESb+dGR+JDeox7VqYM5k+laWPeF2vI9WpwyK2QeczL2XEkoPMlY5ANyOjnBnb8U55Phhp4yCQ==}
+    cpu: [x64]
+    os: [win32]
+
+  '@greenharness/greengate@4.11.0':
+    resolution: {integrity: sha512-FMmoCI5dot7C9s7EF9ki0yGnTAubnyIqjJpFEroeVwAQuIBvRH2k9LzQPpz7yZ6PACxV74IvjbhpBtYEkUpa/A==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   '@hono/node-server@2.1.8':
     resolution: {integrity: sha512-jdf7FHh6A1lzjpHHQUgxsg2GeER2vMetnAOfeActzcoli6jamlK+NAwL6Dsr5Fl3BS3tYUQzCdtZjU8Qxv7bEA==}
@@ -2463,11 +2468,6 @@ packages:
 
   alien-signals@0.4.14:
     resolution: {integrity: sha512-itUAVzhczTmP2U5yX67xVpsbbOiquusbWVyA9N+sy6+r6YVbFkahXvNCeEPWEOMhwDYwbVbGHFkVL03N9I5g+Q==}
-
-  amont@1.49.1:
-    resolution: {integrity: sha512-1ilup4xWzPJPYYfLYEXxteutrxgiT8wzLr/aVop9hR223RCDqX+f9gWXrLjsNQi8MENERp5lVB/IQJ8tfJ1TaA==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   anser@1.4.10:
     resolution: {integrity: sha512-hCv9AqTQ8ycjpSd3upOJd7vFwW1JaoYQ7tpham03GJ1ca8/65rqn0RpaWpItOAd6ylW9wAw6luXYPJIyPFVOww==}
@@ -4953,24 +4953,6 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@amont-hooks/darwin-arm64@1.49.1':
-    optional: true
-
-  '@amont-hooks/darwin-x64@1.49.1':
-    optional: true
-
-  '@amont-hooks/linux-arm64-gnu@1.49.1':
-    optional: true
-
-  '@amont-hooks/linux-x64-gnu@1.49.1':
-    optional: true
-
-  '@amont-hooks/linux-x64-musl@1.49.1':
-    optional: true
-
-  '@amont-hooks/win32-x64@1.49.1':
-    optional: true
-
   '@andrewbranch/untar.js@1.0.4': {}
 
   '@arethetypeswrong/cli@0.18.5':
@@ -5793,6 +5775,33 @@ snapshots:
     dependencies:
       '@eslint/core': 0.17.0
       levn: 0.4.1
+
+  '@greenharness/greengate-darwin-arm64@4.11.0':
+    optional: true
+
+  '@greenharness/greengate-darwin-x64@4.11.0':
+    optional: true
+
+  '@greenharness/greengate-linux-arm64-gnu@4.11.0':
+    optional: true
+
+  '@greenharness/greengate-linux-x64-gnu@4.11.0':
+    optional: true
+
+  '@greenharness/greengate-linux-x64-musl@4.11.0':
+    optional: true
+
+  '@greenharness/greengate-win32-x64@4.11.0':
+    optional: true
+
+  '@greenharness/greengate@4.11.0':
+    optionalDependencies:
+      '@greenharness/greengate-darwin-arm64': 4.11.0
+      '@greenharness/greengate-darwin-x64': 4.11.0
+      '@greenharness/greengate-linux-arm64-gnu': 4.11.0
+      '@greenharness/greengate-linux-x64-gnu': 4.11.0
+      '@greenharness/greengate-linux-x64-musl': 4.11.0
+      '@greenharness/greengate-win32-x64': 4.11.0
 
   '@hono/node-server@2.1.8(hono@4.13.18)':
     dependencies:
@@ -7125,15 +7134,6 @@ snapshots:
       require-from-string: 2.0.2
 
   alien-signals@0.4.14: {}
-
-  amont@1.49.1:
-    optionalDependencies:
-      '@amont-hooks/darwin-arm64': 1.49.1
-      '@amont-hooks/darwin-x64': 1.49.1
-      '@amont-hooks/linux-arm64-gnu': 1.49.1
-      '@amont-hooks/linux-x64-gnu': 1.49.1
-      '@amont-hooks/linux-x64-musl': 1.49.1
-      '@amont-hooks/win32-x64': 1.49.1
 
   anser@1.4.10: {}
 
