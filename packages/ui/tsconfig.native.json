@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
+    "noImplicitReturns": true,
     "declaration": false,
     "declarationMap": false,
     "sourceMap": false,

@@ -328,7 +328,8 @@ function Item({value: itemValue, description, leading, children}: ItemProps) {
     if (collecting && label) registerLabel(itemValue, label)
   }, [collecting, itemValue, label, registerLabel])
   useEffect(() => {
-    if (collecting) return registerItem(itemValue, label || itemValue)
+    if (!collecting) return undefined
+    return registerItem(itemValue, label || itemValue)
   }, [collecting, itemValue, label, registerItem])
   if (collecting || !matchesQuery(labels[itemValue] ?? label, query)) return null
   if (description != null || leading != null) {
