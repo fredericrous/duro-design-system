@@ -5,8 +5,9 @@ on:
     tags:
       - 'v*'
   # Resume a publish that failed part-way: `gh workflow run release.yaml -f
-  # tag=v7.0.0`. `pnpm -r publish` skips each version already on npm, so the
-  # run publishes only what is missing; read its log for the skips.
+  # tag=v7.0.0`. The publish step skips each name@version that `npm view`
+  # already finds, so the run publishes only what is missing; its log shows
+  # the skips as `already on npm, skipped:` lines.
   workflow_dispatch:
     inputs:
       tag:

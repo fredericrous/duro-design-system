@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/greenrack
 repos: [duro-design-system, decisions]
 adrs: [ADR-0075, ADR-0076]
@@ -58,7 +58,7 @@ included. Then check, and repair what fails:
   environment still deploys;
 - `NPM_TOKEN` is still listed;
 - the `origin` of the live checkout is set to the new URL;
-- the branch rules and the org's Actions policy still let `ci.yml` run
+- the branch rules and the org's Actions policy still let `ci.yaml` run
   `fredericrous/attest@v1` and download from `fredericrous/aval`. A green
   CI run on a throwaway PR shows it, before the rename PR. The old Pages
   URL has no redirect.
@@ -205,35 +205,30 @@ branches of the person are not touched.
    `.claude/skills`. Finally run `greengate agents-md` and verify registry
    and docs freshness. Prove this sequence from a fresh worktree without
    pre-existing node_modules or dist directories.
-4. **The release workflow** (`.github/workflows/release.yml`):
-   - add `id-token: write`;
+4. **The release workflow** (`.github/workflows/release.yaml`), as shipped
+   on 2026-11-18 (the Decision log and Phase 3 say why it changed):
+   - `id-token: write` is the only credential: npm's trusted publishing,
+     with no `NPM_TOKEN` and no setup-node `registry-url` (its `.npmrc`
+     sent the token instead of the OIDC one);
    - install npm 11.6.2, because trusted publishing needs 11.5.1 or later;
-   - add `--provenance`. It needs every `package.json` to carry a
-     `repository` URL naming `greenharness/greenrack`, and `ui-email` has
-     none, so it gets one;
-   - keep `NODE_AUTH_TOKEN: secrets.NPM_TOKEN`. npm tries OIDC first and
-     falls back to the token, and a new package can only be created by a
-     token;
+   - `--provenance`. It needs every `package.json` to carry a `repository`
+     URL naming `greenharness/greenrack`, and `ui-email` has none, so it
+     gets one;
    - add `workflow_dispatch` with a `tag` input, so a failed publish can
      be resumed. One `TAG` (`inputs.tag || github.ref_name`) feeds
      `actions/checkout`'s `ref`, the version step and `check-pin-major.mjs`,
      which today read `GITHUB_REF_NAME` (`main` on a dispatch);
-   - rely on `pnpm -r publish`, which skips a version already on npm and
-     publishes in dependency order. The run's log is read for the skips.
+   - pnpm packs each package (rewriting `workspace:` ranges) in dependency
+     order, and npm publishes each unpacked directory, skipping a
+     `name@version` already on npm (`already on npm, skipped:` in the log).
 
-**Release.** Before the tag, the person confirms that `NPM_TOKEN` has not
-lapsed (it was set 2026-09-01) and can write `@greenharness`, or swaps it.
-Then use the `tag-release` skill to tag `v7.0.0`
-on the merge commit and read the run's `conclusion`.
-
-If the first package is refused because `NPM_TOKEN` cannot write
-`@greenharness`, nothing has been published yet. The person then swaps
-the token (one granular token with write on `@greenharness`), and
-`gh workflow run release.yml -f tag=v7.0.0` resumes.
-
-After 7.0.0, the person names `greenharness/greenrack`'s `release.yml` as
-the trusted publisher of each of the seven packages on npmjs.com, then
-deletes `NPM_TOKEN`.
+**Release.** npm cannot create a package through trusted publishing, so
+the person publishes a `0.0.0-reserved` placeholder of each new name and
+names `greenharness/greenrack`'s `release.yaml` (no environment) as its
+trusted publisher on npmjs.com. Then use the `tag-release` skill to tag
+`v7.0.0` on the merge commit and read the run's `conclusion`. A failed
+publish is resumed with `gh workflow run release.yaml -f tag=v7.0.0`,
+which runs the workflow from `main` and checks out the tag.
 
 ## Non-goals
 
@@ -249,13 +244,13 @@ deletes `NPM_TOKEN`.
 
 ## Code review
 
-- duro-design-system: backend, lang:typescript, unix, tui, react, architect, platform (platform added for the release workflow; ui-design left out, because nothing renders differently and only names change)
+- duro-design-system: platform (the release follow-up, #190–#193, changes only CI YAML, an audit waiver and two test path strings; backend, lang:typescript, unix, tui, react and architect reviewed the rename itself, greenrack#189, on its own tree, recorded under Implementation review; ui-design left out, because nothing renders differently and only names change)
 - decisions: none — markdown only
 
 ## Phases
 
 - [x] Phase 1 — Transfer: run the transfer and then the checks under
-      Behaviour: Pages deploys through `.github/workflows/pages.yml` from the
+      Behaviour: Pages deploys through `.github/workflows/pages.yaml` from the
       new repo, and the live checkout's `origin` is set to the new URL.
 - [x] Phase 2 — The rename PR: worktree `duro-design-system-wt-greenrack`
       on `feat/greenrack` from `origin/main`. It covers steps 1–4 of the
@@ -270,15 +265,15 @@ deletes `NPM_TOKEN`.
     `scripts/lib/mockup-css.mjs`;
   - `.storybook/publicVars.ts` and `packages/eslint-plugin/src/index.ts`;
   - `packages/ui/src/components/ColorMode/ColorMode.tsx`;
-  - `.github/workflows/release.yml`.
-- [ ] Phase 3 — Once Phase 4 has passed, release `v7.0.0` through `.github/workflows/release.yml`
-      and `.github/workflows/pages.yml`: read the conclusion, check that npm
+  - `.github/workflows/release.yaml`.
+- [x] Phase 3 — Once Phase 4 has passed, release `v7.0.0` through `.github/workflows/release.yaml`
+      and `.github/workflows/pages.yaml`: read the conclusion, check that npm
       lists the seven packages at 7.0.0, and check that
       `greenharness.github.io/greenrack` serves Storybook.
 - [x] Phase 4 — Before the tag, prove the migration on a scratch app
       outside the repo. Wire it with `npx @duro-app/cli@^6 hook install` and
       `skill install`. Then, in the worktree, set every package to `7.0.0-rc.0` (as
-      `release.yml` does), `pnpm pack` tokens and cli, and install both
+      `release.yaml` does), `pnpm pack` tokens and cli, and install both
       tarballs together, because cli needs tokens. Run that CLI's `hook
 install`, `skill install` and `doctor`. Then run the old 6.x `hook
 install`, which adds a second entry and rewrites `duro-catalog.sh`.
@@ -286,7 +281,7 @@ install`, which adds a second entry and rewrites `duro-catalog.sh`.
       entry per hook. The stop number is read after that last install. The scratch app's files are
       `.claude/settings.json`, `.claude/hooks/greenrack-catalog.sh` and
       `.claude/skills/greenrack-mockup/SKILL.md`.
-- [ ] Phase 5 — Record t06's Resolution in
+- [x] Phase 5 — Record t06's Resolution in
       `docs/programmes/greenrack-rename/t06-move-and-release.md` and
       `docs/programmes/greenrack-rename/map.md`, on
       `prog/greenrack-rename/t06-move-and-release` in decisions. Open the dated
@@ -345,7 +340,50 @@ new_owner=fredericrous -f new_name=duro-design-system`. Never create a
 
 ## Outcome
 
-Next: Phase 3. Once this PR is merged, the person confirms `NPM_TOKEN` writes `@greenharness`, then tag `v7.0.0`. Phase 5 follows.
+Done 2026-11-18: `@greenharness/greenrack-*` 7.0.0 is on npm with provenance, published by trusted publishing only; t06 is closed in decisions (decisions#245).
+
+**Phase 3, observed 2026-11-18:**
+
+- `v7.0.0` was tagged on 8a8a0180 through `greengate land --tag` (the audit
+  gate passed under the waivers). Six release runs, all on that tag; nothing
+  was published before the sixth:
+  1. tag push (44183194939): `E404 PUT` for tokens. `NPM_TOKEN` could not
+     write `@greenharness`, though both of us expected it could.
+  2. The person published a `0.0.0-reserved` placeholder of each name
+     (`/tmp/greenrack-reserve.sh`), since npm cannot create a package
+     through trusted publishing; dispatch 44206061893 still got `E404`.
+  3. Dispatch 44210797865, with trusted publishers on tokens and ui: still
+     `E404`. greengate's release showed why: setup-node's `registry-url`
+     writes an `.npmrc` that sends the token. greenrack#191 dropped it and
+     the token.
+  4. Dispatch 44212830665: `ENEEDAUTH`. greenrack#192 packs with pnpm and
+     publishes each unpacked directory with npm.
+  5. Dispatch 44215483246: `ENEEDAUTH` again. A `--loglevel silly` run from a
+     branch (44216423533) showed GitHub issuing the identity token (200) and
+     npm's exchange answering `404 OIDC token exchange error - package not
+found`: no trusted-publisher entry matched.
+  6. The workflows were renamed `*.yaml` like the org (greenrack#193), the
+     person re-entered all seven entries (`greenharness` / `greenrack` /
+     `release.yaml`, no environment), and dispatch 44258504572 concluded
+     `success`: seven exchanges answered 201, seven `Signed provenance
+statement` lines, seven `published:` lines.
+- The registry → `latest` 7.0.0 for all seven, each with attestations, and
+  the internal ranges `^7.0.0` → yes, 144 s after the run.
+- A scratch `npm install --prefer-online` of cli and tokens 7.0.0 →
+  `greenrack --version` prints 7.0.0, `greenrack Button` answers from
+  `@greenharness/greenrack-ui`, and `npm audit signatures` verifies 2
+  signatures and 2 attestations. Without `--prefer-online` this Mac's cache
+  answered `ETARGET` (it held the packument from before the publish).
+- `greenharness.github.io/greenrack` answers 200.
+- `NPM_TOKEN` is deleted from the repo; trusted publishing is the only
+  credential. The debug branch is deleted.
+
+**Phase 5, observed 2026-11-18:** decisions#245 closes t06 with the
+Resolution and the map line, gives t08 the hook-count and npm-cache notes,
+and opens t13, "Drop the old scope from greenrack's detection", blocked on
+t08 and t08b (the nine deliberate lows can ride it). No dated check is
+needed for the trusted publishers or the token: both are done.
+`relais programme check` exits 0.
 
 **Phase 1, observed 2026-11-17:**
 
@@ -434,6 +472,7 @@ launched, and was done by hand.
   - one comment on an empty catch;
   - `Scope` and `SCOPES` live in `doctor.ts` instead of a `scopes.ts`.
 - **Header risk raised on Delta, verified:** every old CLI wrote `` GENERATED by `duro hook install` ``. That holds across hook-script history (3c64b7bb, cb7551f3, wording unchanged) and in real 3.x, 4.x, 5.x and 6.x installs (marker present).
+- **Release follow-up (#190–#193 and the close), 2026-11-18:** implementation-review approve-with-changes (81k, 51 s), then approve on Delta (48k, 12 s); platform approve-with-changes (67k, 50 s), then approve (22k, 7 s). Fixed: the native filter still matched `ci.yml`, the resume comment, and Behaviour step 4 as shipped. Left to the person: deprecating the seven `0.0.0-reserved` placeholders (needs 2FA).
 
 ## Decision log
 
@@ -444,3 +483,9 @@ launched, and was done by hand.
   publishing. Each package moves to trusted publishing after 7.0.0.
 
 <!-- panel: repos=duro-design-system,decisions adds=contract reviewers=architect,backend,lang:typescript,platform,po,react,tui,ui-design,unix body-sha=3e511b4d2b59 -->
+
+- 2026-11-18: publish through trusted publishing only, no token; a new
+  name is created once by hand as a `0.0.0-reserved` placeholder (the
+  person published the seven, then set each trusted publisher).
+- 2026-11-18: the workflows are named `*.yaml`, like every other
+  greenharness repo (the person: "let's get consistent").
