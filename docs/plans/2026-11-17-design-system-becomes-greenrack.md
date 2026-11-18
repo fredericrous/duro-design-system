@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/greenrack
 repos: [duro-design-system, decisions]
 adrs: [ADR-0075, ADR-0076]
@@ -271,7 +271,7 @@ deletes `NPM_TOKEN`.
   - `.storybook/publicVars.ts` and `packages/eslint-plugin/src/index.ts`;
   - `packages/ui/src/components/ColorMode/ColorMode.tsx`;
   - `.github/workflows/release.yml`.
-- [ ] Phase 3 — Once Phase 4 has passed, release `v7.0.0` through `.github/workflows/release.yml`
+- [x] Phase 3 — Once Phase 4 has passed, release `v7.0.0` through `.github/workflows/release.yml`
       and `.github/workflows/pages.yml`: read the conclusion, check that npm
       lists the seven packages at 7.0.0, and check that
       `greenharness.github.io/greenrack` serves Storybook.
@@ -286,7 +286,7 @@ install`, which adds a second entry and rewrites `duro-catalog.sh`.
       entry per hook. The stop number is read after that last install. The scratch app's files are
       `.claude/settings.json`, `.claude/hooks/greenrack-catalog.sh` and
       `.claude/skills/greenrack-mockup/SKILL.md`.
-- [ ] Phase 5 — Record t06's Resolution in
+- [x] Phase 5 — Record t06's Resolution in
       `docs/programmes/greenrack-rename/t06-move-and-release.md` and
       `docs/programmes/greenrack-rename/map.md`, on
       `prog/greenrack-rename/t06-move-and-release` in decisions. Open the dated
@@ -345,7 +345,50 @@ new_owner=fredericrous -f new_name=duro-design-system`. Never create a
 
 ## Outcome
 
-Next: Phase 3. Once this PR is merged, the person confirms `NPM_TOKEN` writes `@greenharness`, then tag `v7.0.0`. Phase 5 follows.
+Done 2026-11-18: `@greenharness/greenrack-*` 7.0.0 is on npm with provenance, published by trusted publishing only; t06 is closed in decisions (decisions#245).
+
+**Phase 3, observed 2026-11-18:**
+
+- `v7.0.0` was tagged on 8a8a0180 through `greengate land --tag` (the audit
+  gate passed under the waivers). Six release runs, all on that tag; nothing
+  was published before the sixth:
+  1. tag push (44183194939): `E404 PUT` for tokens. `NPM_TOKEN` could not
+     write `@greenharness`, though both of us expected it could.
+  2. The person published a `0.0.0-reserved` placeholder of each name
+     (`/tmp/greenrack-reserve.sh`), since npm cannot create a package
+     through trusted publishing; dispatch 44206061893 still got `E404`.
+  3. Dispatch 44210797865, with trusted publishers on tokens and ui: still
+     `E404`. greengate's release showed why: setup-node's `registry-url`
+     writes an `.npmrc` that sends the token. greenrack#191 dropped it and
+     the token.
+  4. Dispatch 44212830665: `ENEEDAUTH`. greenrack#192 packs with pnpm and
+     publishes each unpacked directory with npm.
+  5. Dispatch 44215483246: `ENEEDAUTH` again. A `--loglevel silly` run from a
+     branch (44216423533) showed GitHub issuing the identity token (200) and
+     npm's exchange answering `404 OIDC token exchange error - package not
+found`: no trusted-publisher entry matched.
+  6. The workflows were renamed `*.yaml` like the org (greenrack#193), the
+     person re-entered all seven entries (`greenharness` / `greenrack` /
+     `release.yaml`, no environment), and dispatch 44258504572 concluded
+     `success`: seven exchanges answered 201, seven `Signed provenance
+statement` lines, seven `published:` lines.
+- The registry → `latest` 7.0.0 for all seven, each with attestations, and
+  the internal ranges `^7.0.0` → yes, 144 s after the run.
+- A scratch `npm install --prefer-online` of cli and tokens 7.0.0 →
+  `greenrack --version` prints 7.0.0, `greenrack Button` answers from
+  `@greenharness/greenrack-ui`, and `npm audit signatures` verifies 2
+  signatures and 2 attestations. Without `--prefer-online` this Mac's cache
+  answered `ETARGET` (it held the packument from before the publish).
+- `greenharness.github.io/greenrack` answers 200.
+- `NPM_TOKEN` is deleted from the repo; trusted publishing is the only
+  credential. The debug branch is deleted.
+
+**Phase 5, observed 2026-11-18:** decisions#245 closes t06 with the
+Resolution and the map line, gives t08 the hook-count and npm-cache notes,
+and opens t13, "Drop the old scope from greenrack's detection", blocked on
+t08 and t08b (the nine deliberate lows can ride it). No dated check is
+needed for the trusted publishers or the token: both are done.
+`relais programme check` exits 0.
 
 **Phase 1, observed 2026-11-17:**
 
@@ -444,3 +487,9 @@ launched, and was done by hand.
   publishing. Each package moves to trusted publishing after 7.0.0.
 
 <!-- panel: repos=duro-design-system,decisions adds=contract reviewers=architect,backend,lang:typescript,platform,po,react,tui,ui-design,unix body-sha=3e511b4d2b59 -->
+
+- 2026-11-18: publish through trusted publishing only, no token; a new
+  name is created once by hand as a `0.0.0-reserved` placeholder (the
+  person published the seven, then set each trusted publisher).
+- 2026-11-18: the workflows are named `*.yaml`, like every other
+  greenharness repo (the person: "let's get consistent").
