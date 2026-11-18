@@ -24,10 +24,13 @@ jobs:
     concurrency:
       group: release-${{ inputs.tag || github.ref_name }}
       cancel-in-progress: false
-    # `id-token: write` lets npm try trusted publishing (OIDC) first and signs
-    # `--provenance` with the same grant. NPM_TOKEN stays as the fallback:
-    # npm cannot create a package through trusted publishing, so the first
-    # publish of each @greenharness/greenrack-* name needs the token.
+    # `id-token: write` is the whole credential: npm's trusted publishing
+    # trades this workflow's OIDC token for a short-lived publish token, and
+    # `--provenance` signs with the same grant. There is no NPM_TOKEN. Each
+    # @greenharness/greenrack-* package names greenharness/greenrack's
+    # `release.yml` (no environment) as its trusted publisher on npmjs.com;
+    # a package that does not is refused with a 404. A new name is created
+    # once by hand (a 0.0.0-reserved placeholder) before its first release.
     permissions:
       contents: read
       id-token: write
@@ -45,7 +48,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+      # No `registry-url`: it writes an .npmrc that sends NODE_AUTH_TOKEN, a
+      # stray credential that npm used instead of the OIDC one (v7.0.0's first
+      # three runs, 404 on PUT). npm's default registry is registry.npmjs.org.
       # Trusted publishing needs npm 11.5.1 or later.
       - run: npm install -g npm@11.6.2 && npm --version
       - run: pnpm install --frozen-lockfile
@@ -65,5 +70,3 @@ jobs:
       - run: pnpm build
       - run: pnpm check:types-packed
       - run: pnpm -r publish --no-git-checks --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
