@@ -18,11 +18,12 @@
     "greenrack:docs": "node packages/cli/scripts/build-registry.mjs --write-docs",
     "test": "vitest --project=storybook",
     "test:unit": "vitest --project=unit",
-    "prepare": "amont init && pnpm --no-sort --filter @greenharness/greenrack-eslint-plugin --filter @greenharness/greenrack-tokens run build"
+    "prepare": "greengate init && pnpm --no-sort --filter @greenharness/greenrack-eslint-plugin --filter @greenharness/greenrack-tokens run build"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@aval-adr/eslint-config": "^0.16.0",
+    "@greenharness/greengate": "^4.11.0",
     "@greenharness/greenrack-cli": "workspace:*",
     "@greenharness/greenrack-eslint-config": "workspace:^",
     "@greenharness/greenrack-eslint-plugin": "workspace:*",
@@ -34,7 +35,6 @@
     "@typescript-eslint/parser": "^8.0.0",
     "@vitest/browser-playwright": "^4.1.12",
     "@vitest/coverage-v8": "^4.0.18",
-    "amont": "^1.49.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.20.0",
     "eslint-plugin-react-hooks": "^7.1.1",
