@@ -312,13 +312,13 @@ describe('the grh pointer', () => {
 
 describe('the release plumbing', () => {
   it('writes the tag version into greenharness.toml in the npm pkg set step', () => {
-    const release = text(join(repoRoot, '.github/workflows/release.yml'))
+    const release = text(join(repoRoot, '.github/workflows/release.yaml'))
     const step = release.split('- name:').find((chunk) => chunk.includes('npm pkg set'))!
     expect(step).toContain('packages/cli/greenharness.toml')
   })
 
   it('checks the pack listing in ci', () => {
-    const ci = text(join(repoRoot, '.github/workflows/ci.yml'))
+    const ci = text(join(repoRoot, '.github/workflows/ci.yaml'))
     expect(ci).toContain('npm pack --dry-run')
     expect(ci).toContain('agents/design-system-lookup.md')
   })

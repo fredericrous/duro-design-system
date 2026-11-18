@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*'
-  # Resume a publish that failed part-way: `gh workflow run release.yml -f
+  # Resume a publish that failed part-way: `gh workflow run release.yaml -f
   # tag=v7.0.0`. `pnpm -r publish` skips each version already on npm, so the
   # run publishes only what is missing; read its log for the skips.
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
     # trades this workflow's OIDC token for a short-lived publish token, and
     # `--provenance` signs with the same grant. There is no NPM_TOKEN. Each
     # @greenharness/greenrack-* package names greenharness/greenrack's
-    # `release.yml` (no environment) as its trusted publisher on npmjs.com;
+    # `release.yaml` (no environment) as its trusted publisher on npmjs.com;
     # a package that does not is refused with a 404. A new name is created
     # once by hand (a 0.0.0-reserved placeholder) before its first release.
     permissions:
