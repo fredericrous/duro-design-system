@@ -58,7 +58,7 @@ included. Then check, and repair what fails:
   environment still deploys;
 - `NPM_TOKEN` is still listed;
 - the `origin` of the live checkout is set to the new URL;
-- the branch rules and the org's Actions policy still let `ci.yml` run
+- the branch rules and the org's Actions policy still let `ci.yaml` run
   `fredericrous/attest@v1` and download from `fredericrous/aval`. A green
   CI run on a throwaway PR shows it, before the rename PR. The old Pages
   URL has no redirect.
@@ -205,35 +205,30 @@ branches of the person are not touched.
    `.claude/skills`. Finally run `greengate agents-md` and verify registry
    and docs freshness. Prove this sequence from a fresh worktree without
    pre-existing node_modules or dist directories.
-4. **The release workflow** (`.github/workflows/release.yml`):
-   - add `id-token: write`;
+4. **The release workflow** (`.github/workflows/release.yaml`), as shipped
+   on 2026-11-18 (the Decision log and Phase 3 say why it changed):
+   - `id-token: write` is the only credential: npm's trusted publishing,
+     with no `NPM_TOKEN` and no setup-node `registry-url` (its `.npmrc`
+     sent the token instead of the OIDC one);
    - install npm 11.6.2, because trusted publishing needs 11.5.1 or later;
-   - add `--provenance`. It needs every `package.json` to carry a
-     `repository` URL naming `greenharness/greenrack`, and `ui-email` has
-     none, so it gets one;
-   - keep `NODE_AUTH_TOKEN: secrets.NPM_TOKEN`. npm tries OIDC first and
-     falls back to the token, and a new package can only be created by a
-     token;
+   - `--provenance`. It needs every `package.json` to carry a `repository`
+     URL naming `greenharness/greenrack`, and `ui-email` has none, so it
+     gets one;
    - add `workflow_dispatch` with a `tag` input, so a failed publish can
      be resumed. One `TAG` (`inputs.tag || github.ref_name`) feeds
      `actions/checkout`'s `ref`, the version step and `check-pin-major.mjs`,
      which today read `GITHUB_REF_NAME` (`main` on a dispatch);
-   - rely on `pnpm -r publish`, which skips a version already on npm and
-     publishes in dependency order. The run's log is read for the skips.
+   - pnpm packs each package (rewriting `workspace:` ranges) in dependency
+     order, and npm publishes each unpacked directory, skipping a
+     `name@version` already on npm (`already on npm, skipped:` in the log).
 
-**Release.** Before the tag, the person confirms that `NPM_TOKEN` has not
-lapsed (it was set 2026-09-01) and can write `@greenharness`, or swaps it.
-Then use the `tag-release` skill to tag `v7.0.0`
-on the merge commit and read the run's `conclusion`.
-
-If the first package is refused because `NPM_TOKEN` cannot write
-`@greenharness`, nothing has been published yet. The person then swaps
-the token (one granular token with write on `@greenharness`), and
-`gh workflow run release.yml -f tag=v7.0.0` resumes.
-
-After 7.0.0, the person names `greenharness/greenrack`'s `release.yml` as
-the trusted publisher of each of the seven packages on npmjs.com, then
-deletes `NPM_TOKEN`.
+**Release.** npm cannot create a package through trusted publishing, so
+the person publishes a `0.0.0-reserved` placeholder of each new name and
+names `greenharness/greenrack`'s `release.yaml` (no environment) as its
+trusted publisher on npmjs.com. Then use the `tag-release` skill to tag
+`v7.0.0` on the merge commit and read the run's `conclusion`. A failed
+publish is resumed with `gh workflow run release.yaml -f tag=v7.0.0`,
+which runs the workflow from `main` and checks out the tag.
 
 ## Non-goals
 
@@ -255,7 +250,7 @@ deletes `NPM_TOKEN`.
 ## Phases
 
 - [x] Phase 1 — Transfer: run the transfer and then the checks under
-      Behaviour: Pages deploys through `.github/workflows/pages.yml` from the
+      Behaviour: Pages deploys through `.github/workflows/pages.yaml` from the
       new repo, and the live checkout's `origin` is set to the new URL.
 - [x] Phase 2 — The rename PR: worktree `duro-design-system-wt-greenrack`
       on `feat/greenrack` from `origin/main`. It covers steps 1–4 of the
@@ -270,15 +265,15 @@ deletes `NPM_TOKEN`.
     `scripts/lib/mockup-css.mjs`;
   - `.storybook/publicVars.ts` and `packages/eslint-plugin/src/index.ts`;
   - `packages/ui/src/components/ColorMode/ColorMode.tsx`;
-  - `.github/workflows/release.yml`.
-- [x] Phase 3 — Once Phase 4 has passed, release `v7.0.0` through `.github/workflows/release.yml`
-      and `.github/workflows/pages.yml`: read the conclusion, check that npm
+  - `.github/workflows/release.yaml`.
+- [x] Phase 3 — Once Phase 4 has passed, release `v7.0.0` through `.github/workflows/release.yaml`
+      and `.github/workflows/pages.yaml`: read the conclusion, check that npm
       lists the seven packages at 7.0.0, and check that
       `greenharness.github.io/greenrack` serves Storybook.
 - [x] Phase 4 — Before the tag, prove the migration on a scratch app
       outside the repo. Wire it with `npx @duro-app/cli@^6 hook install` and
       `skill install`. Then, in the worktree, set every package to `7.0.0-rc.0` (as
-      `release.yml` does), `pnpm pack` tokens and cli, and install both
+      `release.yaml` does), `pnpm pack` tokens and cli, and install both
       tarballs together, because cli needs tokens. Run that CLI's `hook
 install`, `skill install` and `doctor`. Then run the old 6.x `hook
 install`, which adds a second entry and rewrites `duro-catalog.sh`.
