@@ -8,12 +8,13 @@ import {layers} from '@greenharness/greenrack-tokens/tokens/layers.css'
 const overlap = `calc(-1 * ${borders.hairline})`
 
 export const attached = css.create({
-  // A focused control rises above its neighbours, so their borders never
-  // cover its focus ring. Position makes the z-index apply to a trigger that
+  // A hovered or focused control rises above its neighbours, so their borders
+  // never cover its state edge or its focus ring (Primer, Spectrum and Ant
+  // raise on hover too). Position makes the z-index apply to a trigger that
   // is not itself the flex item (Select and Menu triggers sit in a Root).
   item: {
     position: 'relative',
-    zIndex: {default: null, ':focus-visible': layers.raised},
+    zIndex: {default: null, ':hover': layers.raised, ':focus-visible': layers.raised},
   },
   horizontalFirst: {
     borderTopRightRadius: 0,

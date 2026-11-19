@@ -1,4 +1,5 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
+import {html} from 'react-strict-dom'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, userEvent, waitFor, within} from 'storybook/test'
 import {
@@ -13,6 +14,7 @@ import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 import {ButtonGroup} from './ButtonGroup'
 import type {ControlSize} from '../../shared/types'
 import {Button} from '../Button/Button'
+import {centre, mouseMove} from '../Drawer/touchInput'
 import {Icon} from '../Icon/Icon'
 import {Inline} from '../Inline/Inline'
 import {Menu} from '../Menu/Menu'
@@ -251,6 +253,33 @@ export const AttachedFocusMiddle: Story = {
     const y = r.top + r.height / 2
     await expect(middle.contains(document.elementFromPoint(r.left + 0.5, y))).toBe(true)
     await expect(middle.contains(document.elementFromPoint(r.right - 0.5, y))).toBe(true)
+    // The design system's ring, not the browser's default outline.
+    await expect(getComputedStyle(middle).outlineStyle).toBe('solid')
+    await expect(getComputedStyle(middle).outlineWidth).toBe('2px')
+  },
+}
+
+/** A hovered Select in an attached group hovers like the Buttons and Toggles
+ *  beside it: transparent at rest, a fill on hover, the border unchanged, and
+ *  it rises above its neighbours so the whole edge is its own. */
+export const AttachedHoverMiddle: Story = {
+  render: () => <TextStyleSelects />,
+  play: async ({canvas}) => {
+    const [first, middle] = canvas.getAllByRole('combobox')
+    await expect(getComputedStyle(middle).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    const restBorder = getComputedStyle(middle).borderTopColor
+    await mouseMove(centre(middle))
+    try {
+      await waitFor(() =>
+        expect(getComputedStyle(middle).backgroundColor).not.toBe('rgba(0, 0, 0, 0)'),
+      )
+      await expect(getComputedStyle(middle).borderTopColor).toBe(restBorder)
+      await expect(getComputedStyle(middle).zIndex).toBe(String(LAYERS.raised))
+      await expect(getComputedStyle(first).zIndex).toBe('auto')
+    } finally {
+      // The pointer is shared by every story file: park it off the controls.
+      await mouseMove({x: 0, y: 0})
+    }
   },
 }
 
@@ -528,4 +557,44 @@ export const SmallTriggersRowCoarsePointer: Story = {
       }
     })
   },
+}
+
+interface HoverBorderArgs {
+  hoverBorder: string
+}
+
+/**
+ * A playground, not the component: a stylesheet added for the story colours
+ * the border of whichever control in the groups below is hovered, so a hover
+ * border can be judged against the joined corners (round at the ends, square
+ * inside) and the raise above the neighbours. The components themselves keep
+ * the border unchanged on hover.
+ */
+function HoverBorderPlayground({hoverBorder}: HoverBorderArgs) {
+  useEffect(() => {
+    const sheet = document.createElement('style')
+    sheet.textContent = `[data-hover-border] [role="group"] button:hover { border-color: ${hoverBorder} !important; }`
+    document.head.appendChild(sheet)
+    return () => sheet.remove()
+  }, [hoverBorder])
+  return (
+    <html.div data-hover-border="">
+      <Stack gap="md">
+        <TextStyleSelects />
+        <FormatGroup />
+      </Stack>
+    </html.div>
+  )
+}
+
+/** Pick a hover border colour and hover across both groups. */
+export const AttachedHoverBorderPlayground: StoryObj<HoverBorderArgs> = {
+  args: {hoverBorder: '#6aaffc'},
+  argTypes: {
+    hoverBorder: {
+      control: 'color',
+      description: 'border-color of the hovered control (story only; the components keep theirs)',
+    },
+  },
+  render: ({hoverBorder}) => <HoverBorderPlayground hoverBorder={hoverBorder} />,
 }

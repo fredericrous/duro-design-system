@@ -62,10 +62,10 @@ export const styles = css.create({
       default: 'transparent',
       ':hover': colors.bgCardHover,
     },
-    borderColor: {
-      default: colors.border,
-      ':hover': colors.textMuted,
-    },
+    // Hover changes the fill only, as Button's secondary and ghost variants
+    // do: in an attached ButtonGroup a Toggle sits beside them, and a border
+    // that darkened on hover made it the odd one out.
+    borderColor: colors.border,
     color: colors.textMuted,
   },
   pressed: {
