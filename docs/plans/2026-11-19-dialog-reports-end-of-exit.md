@@ -99,7 +99,7 @@ onOpenChange={(next) => setDismissed(!next)} onExitComplete={report}>`,
 
 ## Phases
 
-- [ ] Phase 1 — DS: `onExitComplete` on web and native Dialog, forwarded by
+- [x] Phase 1 — DS: `onExitComplete` on web and native Dialog, forwarded by
       ConfirmDialog, documented, two stories (an outside close and an Escape
       close, each unmounting on the notice and asserting focus on the opener),
       plus one that reopens mid-exit, waits `DURATION_MS.fast * 2`, counts zero
@@ -130,6 +130,9 @@ onOpenChange={(next) => setDismissed(!next)} onExitComplete={report}>`,
   close, for the reasons under Non-goals.
 - 2026-11-19 — fire from the focus-return effect, not the timer, so that
   unmounting in the callback cannot skip the focus hand-back.
+- 2026-11-19 — Phase 1 implemented by relais run `run-660a6e6c7b4db-d8de`
+  (accepted). The reopen story's wait was raised by hand to
+  `DURATION_MS.slow * 2`, since the story uses the slow exit.
 
 ## Verification
 
@@ -143,6 +146,12 @@ onOpenChange={(next) => setDismissed(!next)} onExitComplete={report}>`,
   `build-registry.mjs --check` and `--check-docs` exit 0. Native has no
   test harness (no `*.native.test.*`): its branch is checked by typecheck
   and review only.
+  - Observed: `vitest --project=storybook` on `Dialog.stories.tsx` → 22 of 22
+    pass. With the web `onExitCompleteRef.current?.()` call removed, the three
+    new stories fail (3 failed, 19 passed), so they test the notice.
+    `build-registry.mjs --check` → "registry: up to date";
+    `--check-docs` → "CLAUDE.md: generated regions up to date". Typecheck,
+    lint and the full suite ran in the relais verification profile → pass.
 - Phase 2: `npm view @greenharness/greenrack-ui@7.1.0 version` → 7.1.0, and
   the tarball's Dialog `.d.ts` has `onExitComplete`, and
   `npx @greenharness/greenrack-cli@7.1.0 Dialog` lists it with the
