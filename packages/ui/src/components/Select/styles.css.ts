@@ -36,6 +36,21 @@ export const styles = css.create({
     cursor: 'pointer',
     transitionProperty: 'border-color',
     transitionDuration: duration.fast,
+    // The design system's focus ring, as Button's: the browser's own outline
+    // was the only thing a focused trigger showed.
+    outlineWidth: {default: 0, ':focus-visible': borders.focusRing},
+    outlineStyle: {default: 'none', ':focus-visible': 'solid'},
+    outlineColor: {default: 'transparent', ':focus-visible': colors.accent},
+    outlineOffset: {default: 0, ':focus-visible': borders.focusOffset},
+  },
+  // In an attached ButtonGroup the trigger is one control of the group, not a
+  // form field: transparent like the Buttons and Toggles beside it, and a
+  // hover that changes the fill only, so no item of the group outlines on its
+  // own (the accent hover border stays for the standalone, Input-like trigger).
+  triggerAttached: {
+    backgroundColor: {default: 'transparent', ':hover': colors.bgCardHover},
+    borderColor: colors.border,
+    transitionProperty: 'background-color',
   },
   // The whole control disabled: Button's disabled look, and no hover accent.
   triggerDisabled: {

@@ -113,6 +113,7 @@ function Trigger({
       style={[
         styles.trigger,
         size === 'small' && styles.triggerSmall,
+        grouped.attached && styles.triggerAttached,
         disabled && styles.triggerDisabled,
         grouped.style,
       ]}

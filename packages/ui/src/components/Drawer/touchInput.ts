@@ -88,6 +88,14 @@ export async function touchTap(at: Point) {
   await cdpSend('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []})
 }
 
+/**
+ * The mouse pointer moved to a point: a real `:hover`, which testing-library's
+ * synthetic `userEvent.hover` never produces.
+ */
+export async function mouseMove(at: Point) {
+  await cdpSend('Input.dispatchMouseEvent', {type: 'mouseMoved', ...toPage(at)})
+}
+
 /** The centre of an element, in its own document's coordinates. */
 export function centre(el: Element): Point {
   const r = el.getBoundingClientRect()
