@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 branch: feat/dialog-exit-complete
 repos: [duro-design-system, duro-lexical-multi]
 adrs: []
@@ -112,15 +112,15 @@ onOpenChange={(next) => setDismissed(!next)} onExitComplete={report}>`,
       `.changeset/dialog-exit-complete.md`, and `packages/cli/registry.json`
       plus the CLAUDE.md prop blocks, regenerated with
       `packages/cli/scripts/build-registry.mjs`
-- [ ] Phase 2 — DS release 7.1.0 via the `tag-release` skill (a new prop,
+- [x] Phase 2 — DS release 7.1.0 via the `tag-release` skill (a new prop,
       so a minor; the release workflow sets the version from the tag); check
       the npm package lists the prop in its `.d.ts`
-- [ ] Phase 3 — greenrack-lexical: peer and dev `@greenharness/greenrack-ui`
-      to `^7.1.0`, the Modal rewrite, the `Widgets` story green, release 1.2.0
+- [x] Phase 3 — greenrack-lexical: peer and dev `@greenharness/greenrack-ui`
+      to `^7.1.0`, the Modal rewrite, the `Widgets` story green, release 1.3.0
       (minor, because the peer floor rises): `package.json`, `pnpm-lock.yaml`,
       `src/ui/Modal.tsx`, `src/UiComponents.stories.tsx` (only if its play
       needs a change)
-- [ ] Phase 4 — close t14 in decisions (ticket `status = "done"`, map
+- [x] Phase 4 — close t14 in decisions (ticket `status = "done"`, map
       Handoff): `docs/programmes/greenrack-rename/t14-dialog-exit-notice.md`,
       `docs/programmes/greenrack-rename/map.md`
 
@@ -137,12 +137,21 @@ onOpenChange={(next) => setDismissed(!next)} onExitComplete={report}>`,
 - 2026-11-19 — Phase 1 implemented by relais run `run-660a6e6c7b4db-d8de`
   (accepted). The reopen story's wait was raised by hand to
   `DURATION_MS.slow * 2`, since the story uses the slow exit.
+- 2026-11-19 — lexical ships as 1.3.0, not 1.2.0. Another session released
+  1.2.0 (greenrack-lexical#42) about an hour before this branch.
+- 2026-11-19 — lexical's Modal close is one-way. The react code review found
+  that the first rewrite (relais run `run-660a7a782c04a-3ed5`) let a kept
+  Modal reopen after an outside close, with no second `onClose`. One effect
+  now latches `dismissed`. `ModalOutsideCloseStaysClosed` and
+  `ModalClosedBeforeShown` fail against the earlier Modal. The fix was by hand.
 
 ## Implementation review
 
 - implementation-review: approve-with-changes. The real wait in the reopen story is kept as deliberate (see the Decision log). The pack refresh already sits in its own `chore(adr)` commit. The bare "pass" is replaced by commands and their output. 75k, 41 s.
 - react: approve. Kept deliberate: a raw `html.button` opener, because the story needs its DOM ref to compare `document.activeElement`. 68k, 26 s.
 - lang:typescript: approve. Its note on the real wait is covered by the same decision. 72k, 28 s.
+
+- greenrack-lexical (#43): implementation-review, react and lang:typescript each said approve-with-changes in round 1, then approve on the delta. The one-way close came from the react seat. The plan record, which this repository holds, is this close-out.
 
 ## Verification
 
@@ -167,6 +176,13 @@ onOpenChange={(next) => setDismissed(!next)} onExitComplete={report}>`,
   the tarball's Dialog `.d.ts` has `onExitComplete`, and
   `npx @greenharness/greenrack-cli@7.1.0 Dialog` lists it with the
   unmount-on-`onOpenChange(false)` caveat.
+  - Observed: tag `v7.1.0` at e4f3bb13 (greenrack#198), release run 44615875569
+    → success, which published all seven packages at 7.1.0 with provenance.
+    The registry tarball has `onExitComplete` in
+    `dist/components/Dialog/Dialog.d.ts`. `npx -y @greenharness/greenrack-cli@7.1.0 Dialog`
+    prints it with the order and the caveat. `npm pack` returned ETARGET for
+    about a minute after `npm view` already showed 7.1.0: the registry
+    propagates in pieces.
 - Phase 3: lexical's Storybook test of `Widgets` → green, including the
   useModal in-content close returning focus to `hookOpener`; a grep of
   `src/` → no `outsideClose` and no `TODO(greenrack)` left in Modal; a
@@ -174,7 +190,38 @@ onOpenChange={(next) => setDismissed(!next)} onExitComplete={report}>`,
   `browser-check` on the local Storybook: open a modal from the Widgets
   story, close it from its content (the outside path) and with Escape →
   focus returns to the opener both times, no console error.
+  - Observed: greenrack-lexical#43 merged at 82a7afd, and tag `v1.3.0` is
+    published to the Forgejo registry (latest 1.3.0, peer `^7.1.0`). The
+    tarball's dist calls `onExitComplete`. `vitest --project=storybook
+src/UiComponents.stories.tsx` → 3 of 3 pass. Without
+    `onExitComplete={report}`, Widgets fails. Against the earlier Modal, the
+    two one-way stories fail. A grep of `src/` for `outsideClose` and
+    `TODO(greenrack)` finds nothing. In the browser (chrome-devtools,
+    isolated profile): the hook modal's "Done" leaves focus on "Open hook
+    modal", and Escape leaves it on "Open modal". The never-shown and
+    outside-close stories read "closes:1" with no dialog, also after "Set
+    open again". No console errors. The preview's before/after pair (Widgets)
+    is byte-identical.
 - Phase 4: `relais programme check` on the greenrack-rename programme
   exits 0.
+  - Observed: on the decisions#281 branch, exit 0 on greenrack-rename and on
+    follow-ups. t14 is closed with its Resolution and both repos. t15 records
+    its second step. f70 (Drawer) and f71 (the apps take lexical 1.3.0) are
+    filed.
+
+## Outcome
+
+Shipped: greenrack 7.1.0 with `Dialog.Root onExitComplete` on web and
+native, forwarded by ConfirmDialog, and greenrack-lexical 1.3.0, whose Modal
+uses it and whose close is one-way. Not shipped: Drawer's notice (f70), and
+the apps' upgrade with its in-app check and a 1.3.1 rollback if it fails
+(f71). The surprises:
+
+- relais's accepted Phase 1 candidate failed the repository's own pre-commit
+  lint (a raw `<button>`), which its profile did not run.
+- The first lexical rewrite was plausible but reopened a kept Modal. Only the
+  review caught it.
+- npm propagation made a commit gate fail for about a minute after the
+  publish.
 
 <!-- panel: repos=duro-design-system,duro-lexical-multi adds=contract reviewers=backend,lang:typescript,react,ui-design,tui,unix,architect,po body-sha=61af6f685956 -->
