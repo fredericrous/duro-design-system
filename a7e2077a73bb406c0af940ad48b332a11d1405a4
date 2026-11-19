@@ -1,0 +1,15 @@
+greengate-provenance-v1
+commit a7e2077a73bb406c0af940ad48b332a11d1405a4
+tree bff56fa1ed2a70da0d19ec7647ca3ff87a2b5bd0
+canon 35873c32c50fd6717ed094da0dce9dde176d0f8b
+plan docs/plans/2026-11-19-dialog-reports-end-of-exit.md 9cb5b889771dc8d3d45fd51dd86301a1fec4bac78f297d03e4e2c647705ed25e
+review reviewed a5035864c108e0df2d33a0915957d775dee87632f54dcdf94dd187cedeae4069
+preview not-required
+producer greenbelay 6.5.0
+
+-----BEGIN SSH SIGNATURE-----
+U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAg7UOvJ8myo4dhW907VFty7T/bUV
+RFQerK+MWJ4bjChwcAAAAUZ3JlZW5nYXRlLXByb3ZlbmFuY2UAAAAAAAAABnNoYTUxMgAA
+AFMAAAALc3NoLWVkMjU1MTkAAABAHAvwTpJlElPj2PTZe5vG6a6PuXeeJfT7n+kSt2gDpu
+YM1X1W5bzy+B7jgkOepusbImNSsbjV6yM0KsLZi8gvAQ==
+-----END SSH SIGNATURE-----
