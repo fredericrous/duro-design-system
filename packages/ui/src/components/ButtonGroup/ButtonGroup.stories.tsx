@@ -1,4 +1,5 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
+import {html} from 'react-strict-dom'
 import type {Meta, StoryObj} from '@storybook/react'
 import {expect, userEvent, waitFor, within} from 'storybook/test'
 import {
@@ -556,4 +557,44 @@ export const SmallTriggersRowCoarsePointer: Story = {
       }
     })
   },
+}
+
+interface HoverBorderArgs {
+  hoverBorder: string
+}
+
+/**
+ * A playground, not the component: a stylesheet added for the story colours
+ * the border of whichever control in the groups below is hovered, so a hover
+ * border can be judged against the joined corners (round at the ends, square
+ * inside) and the raise above the neighbours. The components themselves keep
+ * the border unchanged on hover.
+ */
+function HoverBorderPlayground({hoverBorder}: HoverBorderArgs) {
+  useEffect(() => {
+    const sheet = document.createElement('style')
+    sheet.textContent = `[data-hover-border] [role="group"] button:hover { border-color: ${hoverBorder} !important; }`
+    document.head.appendChild(sheet)
+    return () => sheet.remove()
+  }, [hoverBorder])
+  return (
+    <html.div data-hover-border="">
+      <Stack gap="md">
+        <TextStyleSelects />
+        <FormatGroup />
+      </Stack>
+    </html.div>
+  )
+}
+
+/** Pick a hover border colour and hover across both groups. */
+export const AttachedHoverBorderPlayground: StoryObj<HoverBorderArgs> = {
+  args: {hoverBorder: '#6aaffc'},
+  argTypes: {
+    hoverBorder: {
+      control: 'color',
+      description: 'border-color of the hovered control (story only; the components keep theirs)',
+    },
+  },
+  render: ({hoverBorder}) => <HoverBorderPlayground hoverBorder={hoverBorder} />,
 }
