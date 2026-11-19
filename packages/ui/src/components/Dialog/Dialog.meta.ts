@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Modal dialog with backdrop overlay. Centered on screen with scale+fade animation. Moves focus in on open (initialFocus, else the first focusable element, else the dialog) and back on close; dismisses on backdrop click (dismissable) or Escape (closeOnEscape, independent of dismissable). Use for confirmations, forms, or content that requires user attention before continuing.',
+    'Modal dialog with backdrop overlay. Centered on screen with scale+fade animation. Moves focus in on open (initialFocus, else the first focusable element, else the dialog) and back on close; dismisses on backdrop click (dismissable) or Escape (closeOnEscape, independent of dismissable). `onExitComplete` is called once per finished exit after focus is back, the place to unmount: for an inside close (Escape, backdrop, Dialog.Close) `onOpenChange(false)` runs first, then `onExitComplete`; an outside close (controlled open turning false) calls only `onExitComplete`; it is not called for an exit cancelled by a reopen; an owner that unmounts on `onOpenChange(false)` instead loses the focus hand-back; on native it runs after the accessibility-focus request is sent (delivery not confirmed). Use for confirmations, forms, or content that requires user attention before continuing.',
   whenToUse: [
     'Confirmation prompts (delete, revoke, destructive actions)',
     'Short forms or data entry that blocks the main flow',

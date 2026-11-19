@@ -60,6 +60,15 @@ interface RootProps {
   initialFocus?: RefObject<HTMLElement | null>
   /** Motion token for the close animation. Default: 'fast' (150ms) */
   closeAnimationDuration?: DurationToken
+  /**
+   * Called once per finished exit, after focus is back on what held it before
+   * the open: the place to unmount. For an inside close (Escape, backdrop,
+   * Dialog.Close) `onOpenChange(false)` runs first, then `onExitComplete`; an
+   * outside close (a controlled `open` turning false) calls only
+   * `onExitComplete`. Not called for an exit cancelled by a reopen. An owner
+   * that unmounts on `onOpenChange(false)` instead loses the focus hand-back.
+   */
+  onExitComplete?: () => void
 }
 
 function Root({
@@ -71,6 +80,7 @@ function Root({
   closeOnEscape = true,
   initialFocus,
   closeAnimationDuration = 'fast',
+  onExitComplete,
 }: RootProps) {
   const {
     open: isOpen,
@@ -116,6 +126,10 @@ function Root({
       closeCountRef.current -= 1
     }
   }, [])
+  const onExitCompleteRef = useRef(onExitComplete)
+  useEffect(() => {
+    onExitCompleteRef.current = onExitComplete
+  })
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const wasOpenRef = useRef(false)
   useEffect(() => {
@@ -137,6 +151,7 @@ function Root({
       const target = previousFocusRef.current
       previousFocusRef.current = null
       if (target?.isConnected) target.focus({preventScroll: true})
+      onExitCompleteRef.current?.()
     }
     wasOpenRef.current = present
   }, [isOpen, present, initialFocus, closeOnEscape])

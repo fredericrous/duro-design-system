@@ -29,6 +29,8 @@ interface ConfirmDialogProps {
   onConfirm?: () => void
   confirmLabel?: ReactNode
   size?: DialogSize
+  /** Called once per finished exit, after focus is back; see Dialog.Root `onExitComplete`. */
+  onExitComplete?: () => void
 }
 
 /**
@@ -49,6 +51,7 @@ export function ConfirmDialog({
   onConfirm,
   confirmLabel = 'Confirm',
   size = 'sm',
+  onExitComplete,
 }: ConfirmDialogProps) {
   const [typed, setTyped] = useState('')
   const satisfied = !confirmPhrase || typed.trim() === confirmPhrase
@@ -59,7 +62,7 @@ export function ConfirmDialog({
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+    <Dialog.Root open={open} onOpenChange={handleOpenChange} onExitComplete={onExitComplete}>
       <Dialog.Portal size={size}>
         <Dialog.Header>
           <Dialog.Title>{title}</Dialog.Title>

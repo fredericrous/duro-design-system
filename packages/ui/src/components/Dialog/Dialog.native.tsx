@@ -82,6 +82,17 @@ interface RootProps {
   /** Web only: on native, screen-reader focus moves to the dialog itself. */
   initialFocus?: RefObject<HTMLElement | null>
   closeAnimationDuration?: DurationToken
+  /**
+   * Called once per finished exit, after focus is back on what held it before
+   * the open: the place to unmount. For an inside close (Escape, backdrop,
+   * Dialog.Close) `onOpenChange(false)` runs first, then `onExitComplete`; an
+   * outside close (a controlled `open` turning false) calls only
+   * `onExitComplete`. Not called for an exit cancelled by a reopen. An owner
+   * that unmounts on `onOpenChange(false)` instead loses the focus hand-back.
+   * On native it runs after the accessibility-focus request is sent (delivery
+   * is not confirmed).
+   */
+  onExitComplete?: () => void
 }
 
 /**
@@ -98,6 +109,7 @@ function Root({
   dismissable = true,
   closeOnEscape = true,
   closeAnimationDuration = 'fast',
+  onExitComplete,
 }: RootProps) {
   const {present, closing, requestOpen, requestClose} = useOverlayOpenState({
     open: controlledOpen,
@@ -113,10 +125,18 @@ function Root({
   const panelRef = useRef<View>(null)
   const registerClose = useCallback(() => () => {}, [])
 
-  // Back to the trigger once the dialog is gone.
+  const onExitCompleteRef = useRef(onExitComplete)
+  useEffect(() => {
+    onExitCompleteRef.current = onExitComplete
+  })
+
+  // Back to the trigger once the dialog is gone, then tell the owner.
   const wasPresent = useRef(present)
   useEffect(() => {
-    if (wasPresent.current && !present) focusForAccessibility(triggerRef.current, 'Dialog')
+    if (wasPresent.current && !present) {
+      focusForAccessibility(triggerRef.current, 'Dialog')
+      onExitCompleteRef.current?.()
+    }
     wasPresent.current = present
   }, [present])
 
