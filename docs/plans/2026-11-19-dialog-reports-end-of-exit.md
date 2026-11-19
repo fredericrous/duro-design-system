@@ -130,9 +130,19 @@ onOpenChange={(next) => setDismissed(!next)} onExitComplete={report}>`,
   close, for the reasons under Non-goals.
 - 2026-11-19 — fire from the focus-return effect, not the timer, so that
   unmounting in the callback cannot skip the focus hand-back.
+- 2026-11-19 — deliberate: the reopen story keeps a real
+  `setTimeout` wait (tests.no-real-waits). It proves that a cancelled exit
+  timer never fires, the same pattern as `DoubleCloseReportsOnce`, and fake
+  timers do not combine with userEvent in the storybook browser project.
 - 2026-11-19 — Phase 1 implemented by relais run `run-660a6e6c7b4db-d8de`
   (accepted). The reopen story's wait was raised by hand to
   `DURATION_MS.slow * 2`, since the story uses the slow exit.
+
+## Implementation review
+
+- implementation-review: approve-with-changes. The real wait in the reopen story is kept as deliberate (see the Decision log). The pack refresh already sits in its own `chore(adr)` commit. The bare "pass" is replaced by commands and their output. 75k, 41 s.
+- react: approve. Kept deliberate: a raw `html.button` opener, because the story needs its DOM ref to compare `document.activeElement`. 68k, 26 s.
+- lang:typescript: approve. Its note on the real wait is covered by the same decision. 72k, 28 s.
 
 ## Verification
 
@@ -150,8 +160,9 @@ onOpenChange={(next) => setDismissed(!next)} onExitComplete={report}>`,
     pass. With the web `onExitCompleteRef.current?.()` call removed, the three
     new stories fail (3 failed, 19 passed), so they test the notice.
     `build-registry.mjs --check` → "registry: up to date";
-    `--check-docs` → "CLAUDE.md: generated regions up to date". Typecheck,
-    lint and the full suite ran in the relais verification profile → pass.
+    `--check-docs` → "CLAUDE.md: generated regions up to date". `pnpm typecheck` → exit 0; `pnpm lint` → exit 0, 0 errors (13
+    warnings, all in files this branch does not touch). ConfirmDialog has
+    no stories, so its forward is covered by typecheck only.
 - Phase 2: `npm view @greenharness/greenrack-ui@7.1.0 version` → 7.1.0, and
   the tarball's Dialog `.d.ts` has `onExitComplete`, and
   `npx @greenharness/greenrack-cli@7.1.0 Dialog` lists it with the
