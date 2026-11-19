@@ -680,3 +680,124 @@ export const EscapeClosesPopoverFirst: Story = {
     await waitFor(() => expect(page.queryByRole('dialog', {name: 'Host'})).not.toBeInTheDocument())
   },
 }
+
+// --- onExitComplete ---
+
+interface ExitCompleteOwnerProps {
+  outside: boolean
+}
+
+function ExitCompleteOwner({outside}: ExitCompleteOwnerProps) {
+  const [mounted, setMounted] = useState(true)
+  const [open, setOpen] = useState(false)
+  const [exits, setExits] = useState(0)
+  const [focusOnOpener, setFocusOnOpener] = useState('not yet')
+  const [order, setOrder] = useState<string[]>([])
+  const openerRef = useRef<HTMLButtonElement>(null)
+  return (
+    <Stack gap="sm">
+      <html.button ref={openerRef} onClick={() => setOpen(true)}>
+        Open notice
+      </html.button>
+      {outside && <Button onClick={() => setOpen(false)}>Close from outside</Button>}
+      <Text>{`Mounted: ${mounted ? 'yes' : 'no'}`}</Text>
+      <Text>{`Exits reported: ${exits}`}</Text>
+      <Text>{`Focus on opener at notice: ${focusOnOpener}`}</Text>
+      <Text>{`Order: ${order.join(', ')}`}</Text>
+      {mounted && (
+        <Dialog.Root
+          open={open}
+          onOpenChange={(next) => {
+            setOpen(next)
+            if (!next) setOrder((log) => [...log, 'onOpenChange(false)'])
+          }}
+          onExitComplete={() => {
+            setFocusOnOpener(document.activeElement === openerRef.current ? 'yes' : 'no')
+            setExits((count) => count + 1)
+            setOrder((log) => [...log, 'onExitComplete'])
+            setMounted(false)
+          }}
+        >
+          <Dialog.Portal size="sm" aria-label="Notice">
+            <Dialog.Body>
+              <Text>Notice body</Text>
+            </Dialog.Body>
+          </Dialog.Portal>
+        </Dialog.Root>
+      )}
+    </Stack>
+  )
+}
+
+/** An owner that unmounts on the notice after an outside close still gets focus back. */
+export const UnmountOnExitCompleteOutside: Story = {
+  render: () => <ExitCompleteOwner outside />,
+  play: async ({canvasElement}) => {
+    const canvas = within(canvasElement)
+    const page = within(canvasElement.ownerDocument.body)
+    await userEvent.click(canvas.getByRole('button', {name: 'Open notice'}))
+    await page.findByRole('dialog')
+    await userEvent.click(page.getByRole('button', {name: 'Close from outside'}))
+    await waitFor(() => expect(canvas.getByText('Mounted: no')).toBeInTheDocument())
+    await expect(canvas.getByText('Exits reported: 1')).toBeInTheDocument()
+    await expect(canvas.getByText('Focus on opener at notice: yes')).toBeInTheDocument()
+  },
+}
+
+/** Escape reports `onOpenChange(false)` first, then the notice, and focus is on the opener. */
+export const UnmountOnExitCompleteEscape: Story = {
+  render: () => <ExitCompleteOwner outside={false} />,
+  play: async ({canvasElement}) => {
+    const canvas = within(canvasElement)
+    const page = within(canvasElement.ownerDocument.body)
+    await userEvent.click(canvas.getByRole('button', {name: 'Open notice'}))
+    await page.findByRole('dialog')
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(canvas.getByText('Mounted: no')).toBeInTheDocument())
+    await expect(canvas.getByText('Exits reported: 1')).toBeInTheDocument()
+    await expect(canvas.getByText('Focus on opener at notice: yes')).toBeInTheDocument()
+    await expect(canvas.getByText('Order: onOpenChange(false), onExitComplete')).toBeInTheDocument()
+  },
+}
+
+function ReopenMidExitDemo() {
+  const [open, setOpen] = useState(true)
+  const [exits, setExits] = useState(0)
+  return (
+    <Stack gap="sm">
+      <Button onClick={() => setOpen(false)}>Close it</Button>
+      <Button onClick={() => setOpen(true)}>Reopen it</Button>
+      <Text>{`Exits reported: ${exits}`}</Text>
+      <Dialog.Root
+        open={open}
+        onOpenChange={setOpen}
+        closeAnimationDuration="slow"
+        onExitComplete={() => setExits((count) => count + 1)}
+      >
+        <Dialog.Portal size="sm" aria-label="Reopened">
+          <Dialog.Body>
+            <Text>Body</Text>
+          </Dialog.Body>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </Stack>
+  )
+}
+
+/** A reopen during the exit cancels it: no notice, then one after a full close. */
+export const ReopenMidExitReportsNothing: Story = {
+  render: () => <ReopenMidExitDemo />,
+  play: async ({canvasElement}) => {
+    const canvas = within(canvasElement)
+    const page = within(canvasElement.ownerDocument.body)
+    await page.findByRole('dialog')
+    await userEvent.click(canvas.getByRole('button', {name: 'Close it'}))
+    await userEvent.click(canvas.getByRole('button', {name: 'Reopen it'}))
+    // Past the slow exit timer the reopen cancelled.
+    await new Promise((resolve) => setTimeout(resolve, DURATION_MS.slow * 2))
+    await expect(canvas.getByText('Exits reported: 0')).toBeInTheDocument()
+    await expect(page.getByRole('dialog')).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole('button', {name: 'Close it'}))
+    await waitFor(() => expect(canvas.getByText('Exits reported: 1')).toBeInTheDocument())
+  },
+}
