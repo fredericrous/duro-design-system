@@ -6,6 +6,11 @@ import {Button} from './Button'
 import {Icon} from '../Icon/Icon'
 import {RADII_PX} from '@greenharness/greenrack-tokens/keys'
 import {spacing} from '@greenharness/greenrack-tokens/tokens/spacing.css'
+import {sizes} from '@greenharness/greenrack-tokens/tokens/sizes.css'
+import {Inline} from '../Inline/Inline'
+import {Input} from '../Input/Input'
+import {Field} from '../Field/Field'
+import {withCoarsePointer, withFinePointer} from '../../docs/coarsePointer'
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
@@ -194,5 +199,37 @@ export const Ghost: Story = {
   play: async ({canvas}) => {
     const button = canvas.getByRole('button', {name: 'Ghost'})
     await expect(getComputedStyle(button).borderTopWidth).toBe('0px')
+  },
+}
+
+const crowded = css.create({row: {width: sizes.gridColSm}})
+
+/**
+ * A Button beside a long field in a narrow row keeps its label inside its
+ * padding, with a mouse and under a coarse pointer. The touch target's
+ * `min-width` replaces the flex item's `min-width: auto`, so without
+ * `flexShrink: 0` the row squeezed the button below its label (5.45 to 7.1.0).
+ */
+export const CrowdedRow: Story = {
+  render: () => (
+    <html.div style={crowded.row}>
+      <Inline gap="sm" align="end">
+        <Field.Root name="title">
+          <Field.Label>Task title</Field.Label>
+          <Input name="title" defaultValue="feat/a-very-long-branch-name-to-check-wrapping" />
+          <Field.Description>
+            Future sessions on feat/a-very-long-branch-name-to-check-wrapping attach automatically.
+          </Field.Description>
+        </Field.Root>
+        <Button type="submit">New task</Button>
+      </Inline>
+    </html.div>
+  ),
+  play: async ({canvas}) => {
+    const button = canvas.getByRole('button', {name: 'New task'})
+    const fits = () => expect(button.scrollWidth).toBeLessThanOrEqual(button.clientWidth)
+    await withFinePointer()
+    await fits()
+    await withCoarsePointer(fits)
   },
 }
