@@ -180,10 +180,10 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
           const highlighted = highlightedRef.current
           if (highlighted) {
             // A highlighted option the filter has hidden is never committed.
-            const item = visibleOrder.includes(highlighted)
+            const highlightedOption = visibleOrder.includes(highlighted)
               ? itemsRef.current.get(highlighted)
               : undefined
-            if (item) selectValue(item.value)
+            if (highlightedOption) selectValue(highlightedOption.value)
           } else if (!inputValue.trim()) {
             // Empty input + Enter = clear selection (reset to "All")
             selectValue('')
@@ -214,12 +214,12 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
   // element and Enter commits nothing hidden.
   useEffect(() => {
     if (!highlightedId) return
-    const item = itemsRef.current.get(highlightedId)
-    if (!item) {
+    const highlightedOption = itemsRef.current.get(highlightedId)
+    if (!highlightedOption) {
       setHighlightedId(null)
       return
     }
-    item.element.scrollIntoView({block: 'nearest'})
+    highlightedOption.element.scrollIntoView({block: 'nearest'})
   }, [highlightedId, query, setHighlightedId])
 
   const ctx: ComboboxContextValue = useMemo(
