@@ -23,6 +23,10 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
   // The list's items mount after the open, so the highlight they should take
   // is settled as they register.
   const pendingHighlightRef = useRef(false)
+  // Synced after each commit: an option that mounts in the same commit as a
+  // value change would read the old one. Unreachable today (the options mount
+  // in the commit after the open); a controlled value changed while the list is
+  // open would need the highlight settled from an effect on `value`.
   const valueRef = useRef(value)
   useEffect(() => {
     valueRef.current = value
@@ -99,6 +103,9 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
   const registerItem = useCallback(
     (id: string, itemValue: string, element: HTMLElement) => {
       itemsRef.current.set(id, {value: itemValue, element})
+      // holds-until: a few hundred options. Each (re-)registration sorts every
+      // registered id by document position, and a filter change re-registers
+      // each option it shows again; past that, sort once per pass instead.
       const map = itemsRef.current
       const ids = [...map.keys()]
       ids.sort((a, b) => {

@@ -110,14 +110,14 @@ function Input({
         onMouseDown={() => {
           pointerFocusRef.current = document.activeElement !== localRef.current
         }}
-        onMouseUp={(e: any) => {
+        onMouseUp={() => {
           // The pointer that focused the field would collapse the selection.
-          if (pointerFocusRef.current) e.target.select()
+          if (pointerFocusRef.current) localRef.current?.select()
           pointerFocusRef.current = false
         }}
-        onFocus={(e: any) => {
+        onFocus={() => {
           setFocused(true)
-          e.target.select()
+          localRef.current?.select()
           onInputFocus()
         }}
         onBlur={() => {
@@ -236,6 +236,9 @@ function Item({value: itemValue, description, leading, children}: ItemProps) {
     if (text) registerLabel(itemValue, text)
   }, [itemValue, registerLabel])
 
+  // An option the filter hides unmounts its element, so it registers again when
+  // it shows again (`isVisible`): that is also how a pending open highlight
+  // settles on it after a filter change.
   useEffect(() => {
     const el = ref.current
     if (!el) return

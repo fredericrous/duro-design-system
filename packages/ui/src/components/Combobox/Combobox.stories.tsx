@@ -211,6 +211,10 @@ function FruitList() {
 
 const optionCount = () => screen.queryAllByRole('option').length
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+// Past the input's 150 ms blur close, so a close that was going to fire has.
+// Real time on purpose: these run in a browser, where fake timers would also
+// freeze userEvent's own delays.
+const AFTER_BLUR_CLOSE_MS = 300
 
 export const OpensWithEveryOption: Story = {
   render: () => (
@@ -373,6 +377,40 @@ export const OpenChangeFiresOncePerTransition: StoryObj<{onOpen: (open: boolean)
   play: async ({args, canvas, userEvent}) => {
     const onOpen = args.onOpen as ReturnType<typeof fn>
     const sequence = () => onOpen.mock.calls.map((call: unknown[]) => call[0])
+    // React reports a parent update made during render on console.error.
+    const consoleError = console.error
+    const errors: string[] = []
+    console.error = (...parts: unknown[]) => {
+      errors.push(parts.map(String).join(' '))
+      consoleError(...parts)
+    }
+    try {
+      await runOpenChangeSequence({onOpen, sequence, canvas, userEvent})
+    } finally {
+      console.error = consoleError
+    }
+    await expect(
+      errors.filter((line) => /Cannot update a component|while rendering/.test(line)),
+    ).toEqual([])
+  },
+}
+
+async function runOpenChangeSequence({
+  onOpen,
+  sequence,
+  canvas,
+  userEvent,
+}: {
+  onOpen: ReturnType<typeof fn>
+  sequence: () => unknown[]
+  canvas: {getByRole: (role: string) => HTMLElement}
+  userEvent: {
+    click: (el: Element) => Promise<void>
+    clear: (el: Element) => Promise<void>
+    keyboard: (text: string) => Promise<void>
+  }
+}) {
+  {
     const input = canvas.getByRole('combobox')
     input.focus()
     await waitFor(() => expect(onOpen).toHaveBeenCalledTimes(1))
@@ -380,7 +418,7 @@ export const OpenChangeFiresOncePerTransition: StoryObj<{onOpen: (open: boolean)
     await waitFor(() => expect(onOpen).toHaveBeenCalledTimes(2))
     // A blur while closed does not fire it.
     input.blur()
-    await pause(300)
+    await pause(AFTER_BLUR_CLOSE_MS)
     await expect(onOpen).toHaveBeenCalledTimes(2)
     // Focus then blur: one open, one close.
     onOpen.mockClear()
@@ -393,7 +431,7 @@ export const OpenChangeFiresOncePerTransition: StoryObj<{onOpen: (open: boolean)
     onOpen.mockClear()
     await userEvent.click(input)
     await userEvent.click(await screen.findByRole('option', {name: 'Fig'}))
-    await pause(300)
+    await pause(AFTER_BLUR_CLOSE_MS)
     await expect(sequence()).toEqual([true, false])
     await expect(input).toHaveValue('Fig')
     // An Enter pick whose handler updates parent state.
@@ -401,9 +439,9 @@ export const OpenChangeFiresOncePerTransition: StoryObj<{onOpen: (open: boolean)
     await userEvent.clear(input)
     await userEvent.keyboard('gr{ArrowDown}{Enter}')
     await waitFor(() => expect(input).toHaveValue('Grape'))
-    await pause(300)
+    await pause(AFTER_BLUR_CLOSE_MS)
     await expect(sequence()).toEqual([true, false])
-  },
+  }
 }
 
 function ControlledInputDemo({onInput}: {onInput: (text: string) => void}) {
@@ -465,5 +503,23 @@ export const NamedByFieldLabel: Story = {
   ),
   play: async ({canvas}) => {
     await expect(canvas.getByRole('combobox', {name: 'Pick a fruit'})).toBeInTheDocument()
+  },
+}
+
+export const InvalidInsideField: Story = {
+  render: () => (
+    <Field.Root invalid>
+      <Field.Label>Pick a fruit</Field.Label>
+      <Combobox.Root>
+        <Combobox.Input />
+        <FruitList />
+      </Combobox.Root>
+      <Field.Error>Choose a fruit from the list.</Field.Error>
+    </Field.Root>
+  ),
+  play: async ({canvas}) => {
+    const input = canvas.getByRole('combobox', {name: 'Pick a fruit'})
+    await expect(input).toHaveAttribute('aria-invalid', 'true')
+    await expect(input).toHaveAccessibleDescription('Choose a fruit from the list.')
   },
 }

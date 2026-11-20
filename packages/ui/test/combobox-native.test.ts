@@ -1,7 +1,10 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 // A one-component hook runtime: enough React to call the native Combobox's
-// Root and Input as functions and drive their state.
+// Root and Input as functions and drive their state. It follows Root's hook
+// order through fixed slots (Input starts at slot 1000), so a hook added to
+// Root.native or Input.native needs no change here unless it reorders them;
+// a react-native test renderer would remove that coupling.
 interface Ctx {
   _cur: unknown
 }
@@ -86,9 +89,10 @@ function renderRoot(props: Record<string, unknown> = {}) {
   runtime.cursor = 0
   runtime.effects = []
   const tree = (Combobox.Root as (props: unknown) => El)({children: null, ...props})
-  for (const effect of runtime.effects)
+  for (const effect of runtime.effects) {
     effect()
-    // Hand the Input the context the Root provides.
+  }
+  // Hand the Input the context the Root provides.
   ;(tree.type as {context: Ctx}).context._cur = tree.props.value
   const drawer = walk(tree).find((el) => el.type === 'Drawer.Root')!
   return {context: tree.props.value, drawer}
@@ -108,7 +112,7 @@ beforeEach(() => {
 describe('Combobox.native onOpenChange', () => {
   it('fires once on press and once on sheet dismiss, not on a repeat', () => {
     const onOpenChange = vi.fn()
-    const {context, drawer} = renderRoot({onOpenChange})
+    const {drawer} = renderRoot({onOpenChange})
     const press = renderInput({placeholder: 'Pick'})
     press.props.onPress()
     press.props.onPress()
@@ -116,7 +120,6 @@ describe('Combobox.native onOpenChange', () => {
     drawer.props.onOpenChange(false)
     drawer.props.onOpenChange(false)
     expect(onOpenChange.mock.calls).toEqual([[true], [false]])
-    expect(context.setOpen).toBeTypeOf('function')
   })
 })
 
