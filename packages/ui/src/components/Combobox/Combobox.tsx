@@ -6,6 +6,7 @@ import {ComboboxContext, useCombobox} from './ComboboxContext'
 import {useComboboxRoot} from './useComboboxRoot'
 import {matchesQuery} from './comboboxState'
 import {Listbox, getAnchorProps} from '../Listbox/Listbox'
+import {useFieldContext} from '../Field/FieldContext'
 
 // --- Root ---
 interface RootProps {
@@ -15,6 +16,8 @@ interface RootProps {
   onValueChange?: (value: string | null) => void
   inputValue?: string
   onInputChange?: (value: string) => void
+  /** Called once each time the list opens or closes. There is no controlled `open`, as on Select. */
+  onOpenChange?: (open: boolean) => void
   initialLabels?: Record<string, string>
   children: ReactNode
 }
@@ -26,6 +29,7 @@ function Root({
   onValueChange,
   inputValue,
   onInputChange,
+  onOpenChange,
   initialLabels,
   children,
 }: RootProps) {
@@ -35,6 +39,7 @@ function Root({
     onValueChange,
     inputValue,
     onInputChange,
+    onOpenChange,
     initialLabels,
   })
 
@@ -49,9 +54,32 @@ function Root({
 }
 
 // --- Input ---
-function Input({placeholder, children}: {placeholder?: string; children?: ReactNode}) {
-  const {open, openPopup, close, inputValue, setInputValue, listboxId, highlightedId, inputRef} =
-    useCombobox()
+function Input({
+  placeholder,
+  'aria-label': ariaLabel,
+  children,
+}: {
+  placeholder?: string
+  /** The input's accessible name; inside a Field.Root the Field.Label names it. */
+  'aria-label'?: string
+  children?: ReactNode
+}) {
+  const {
+    open,
+    openPopup,
+    inputValue,
+    setInputValue,
+    onInputFocus,
+    onInputBlur,
+    listboxId,
+    highlightedId,
+    inputRef,
+  } = useCombobox()
+  const fieldCtx = useFieldContext()
+  const describedBy = fieldCtx
+    ? `${fieldCtx.descriptionId} ${fieldCtx.invalid ? fieldCtx.errorId : ''}`.trim()
+    : undefined
+  const pointerFocusRef = useRef(false)
   const localRef = useRef<HTMLInputElement>(null)
   const [focused, setFocused] = useState(false)
   const anchor = getAnchorProps({id: listboxId, open, highlightedId})
@@ -64,10 +92,14 @@ function Input({placeholder, children}: {placeholder?: string; children?: ReactN
     <html.div style={[styles.inputWrapper, focused && styles.inputWrapperFocused]}>
       <html.input
         ref={localRef}
+        id={fieldCtx?.controlId}
         type="text"
         role={'combobox' as 'listbox'}
         value={inputValue}
         placeholder={placeholder}
+        aria-label={ariaLabel}
+        aria-describedby={describedBy || undefined}
+        aria-invalid={fieldCtx?.invalid || undefined}
         aria-expanded={anchor['aria-expanded']}
         aria-haspopup="listbox"
         aria-controls={anchor['aria-controls']}
@@ -75,14 +107,22 @@ function Input({placeholder, children}: {placeholder?: string; children?: ReactN
         aria-autocomplete={'list' as 'none'}
         autoComplete="off"
         style={styles.input}
-        onFocus={() => {
+        onMouseDown={() => {
+          pointerFocusRef.current = document.activeElement !== localRef.current
+        }}
+        onMouseUp={(e: any) => {
+          // The pointer that focused the field would collapse the selection.
+          if (pointerFocusRef.current) e.target.select()
+          pointerFocusRef.current = false
+        }}
+        onFocus={(e: any) => {
           setFocused(true)
-          openPopup()
+          e.target.select()
+          onInputFocus()
         }}
         onBlur={() => {
           setFocused(false)
-          // Delay close to allow item click to register
-          setTimeout(close, 150)
+          onInputBlur()
         }}
         onChange={(e: any) => {
           setInputValue(e.target.value)
@@ -176,7 +216,7 @@ interface ItemProps {
 }
 
 function Item({value: itemValue, description, leading, children}: ItemProps) {
-  const {value: selectedValue, inputValue, labels, registerLabel, registerItem} = useCombobox()
+  const {value: selectedValue, query, labels, registerLabel, registerItem} = useCombobox()
   const id = useId()
   const textId = useId()
   const descriptionId = useId()
@@ -187,7 +227,7 @@ function Item({value: itemValue, description, leading, children}: ItemProps) {
   const hasDescription = description != null
 
   // Filter: check if this item matches the input (the label, never the description)
-  const isVisible = matchesQuery(labels[itemValue] ?? itemValue, inputValue)
+  const isVisible = matchesQuery(labels[itemValue] ?? itemValue, query)
 
   useEffect(() => {
     const el = textRef.current
@@ -200,7 +240,7 @@ function Item({value: itemValue, description, leading, children}: ItemProps) {
     const el = ref.current
     if (!el) return
     return registerItem(id, itemValue, el)
-  }, [id, itemValue, registerItem])
+  }, [id, itemValue, registerItem, isVisible])
 
   // Listbox.Option owns the option element and takes no aria props, so the
   // name (the label text alone) and the description are set on it here.
@@ -248,13 +288,13 @@ function ItemText({children}: {children: ReactNode}) {
 
 // --- Empty ---
 function Empty({children}: {children: ReactNode}) {
-  const {open, inputValue, labels} = useCombobox()
+  const {open, query, labels} = useCombobox()
 
   if (!open) return null
 
   // Check if any items are visible
   const hasVisibleItems =
-    !inputValue || Object.values(labels).some((label) => matchesQuery(label, inputValue))
+    !query || Object.values(labels).some((label) => matchesQuery(label, query))
 
   if (hasVisibleItems) return null
 

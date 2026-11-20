@@ -1,9 +1,10 @@
-import {useState} from 'react'
+import {StrictMode, useState} from 'react'
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect, screen, waitFor} from 'storybook/test'
+import {expect, fn, screen, waitFor} from 'storybook/test'
 import {Combobox} from './Combobox'
 import {Stack} from '../Stack/Stack'
 import {Text} from '../Text/Text'
+import {Field} from '../Field/Field'
 
 const meta: Meta = {
   title: 'Components/Combobox',
@@ -190,5 +191,208 @@ export const DescriptionAndLeading: Story = {
     await userEvent.type(input, 'de')
     await userEvent.click(await screen.findByRole('option', {name: 'Deep'}))
     await waitFor(() => expect(input).toHaveValue('Deep'))
+  },
+}
+
+const fruitLabels = Object.fromEntries(fruits.map((f) => [f.toLowerCase(), f]))
+
+function FruitList() {
+  return (
+    <Combobox.Popup label="Fruit">
+      {fruits.map((fruit) => (
+        <Combobox.Item key={fruit} value={fruit.toLowerCase()}>
+          <Combobox.ItemText>{fruit}</Combobox.ItemText>
+        </Combobox.Item>
+      ))}
+      <Combobox.Empty>No fruits found</Combobox.Empty>
+    </Combobox.Popup>
+  )
+}
+
+const optionCount = () => screen.queryAllByRole('option').length
+const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+export const OpensWithEveryOption: Story = {
+  render: () => (
+    <Combobox.Root defaultValue="cherry" initialLabels={fruitLabels}>
+      <Combobox.Input aria-label="Fruit" />
+      <FruitList />
+    </Combobox.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByRole('combobox')
+    input.focus()
+    await waitFor(() => expect(optionCount()).toBe(fruits.length))
+    await expect(screen.getByRole('option', {name: 'Cherry'})).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    await expect(input).toHaveAttribute('aria-activedescendant')
+    // ArrowDown on the unfiltered list reaches every option.
+    for (let step = 0; step < fruits.length - 3; step++) await userEvent.keyboard('{ArrowDown}')
+    await expect(input.getAttribute('aria-activedescendant')).toBe(
+      screen.getByRole('option', {name: 'Honeydew'}).id,
+    )
+    // Open then close without typing keeps the value and its label.
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(optionCount()).toBe(0))
+    await expect(input).toHaveValue('Cherry')
+  },
+}
+
+export const PointerClickThenType: Story = {
+  render: () => (
+    <Combobox.Root defaultValue="cherry" initialLabels={fruitLabels}>
+      <Combobox.Input aria-label="Fruit" />
+      <FruitList />
+    </Combobox.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByRole('combobox')
+    await userEvent.click(input)
+    await waitFor(() => expect(optionCount()).toBe(fruits.length))
+    await userEvent.keyboard('b')
+    await expect(input).toHaveValue('b')
+    await waitFor(() => expect(screen.getAllByRole('option').length).toBeLessThan(fruits.length))
+    await expect(screen.getByRole('option', {name: 'Banana'})).toBeInTheDocument()
+  },
+}
+
+export const TypedTextSurvivesBlurWithoutValue: Story = {
+  render: () => (
+    <Combobox.Root>
+      <Combobox.Input aria-label="Fruit" />
+      <FruitList />
+    </Combobox.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByRole('combobox')
+    await userEvent.click(input)
+    await userEvent.keyboard('an')
+    await userEvent.tab()
+    await waitFor(() => expect(optionCount()).toBe(0))
+    await userEvent.click(input)
+    await waitFor(() => expect(optionCount()).toBeGreaterThan(0))
+    await expect(optionCount()).toBeLessThan(fruits.length)
+    await expect(input).toHaveValue('an')
+  },
+}
+
+function OpenChangeDemo({onOpen}: {onOpen: (open: boolean) => void}) {
+  const [open, setOpen] = useState(false)
+  return (
+    <StrictMode>
+      <Combobox.Root
+        onOpenChange={(next) => {
+          setOpen(next)
+          onOpen(next)
+        }}
+      >
+        <Combobox.Input aria-label="Fruit" />
+        <FruitList />
+      </Combobox.Root>
+      <Text variant="bodySm">{open ? 'open' : 'closed'}</Text>
+    </StrictMode>
+  )
+}
+
+export const OpenChangeFiresOncePerTransition: StoryObj<{onOpen: (open: boolean) => void}> = {
+  args: {onOpen: fn()},
+  render: (args) => <OpenChangeDemo onOpen={args.onOpen} />,
+  play: async ({args, canvas, userEvent}) => {
+    const onOpen = args.onOpen as ReturnType<typeof fn>
+    const sequence = () => onOpen.mock.calls.map((call: unknown[]) => call[0])
+    const input = canvas.getByRole('combobox')
+    input.focus()
+    await waitFor(() => expect(onOpen).toHaveBeenCalledTimes(1))
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(onOpen).toHaveBeenCalledTimes(2))
+    // A blur while closed does not fire it.
+    input.blur()
+    await pause(300)
+    await expect(onOpen).toHaveBeenCalledTimes(2)
+    // Focus then blur: one open, one close.
+    onOpen.mockClear()
+    input.focus()
+    await waitFor(() => expect(onOpen).toHaveBeenCalledTimes(1))
+    input.blur()
+    await waitFor(() => expect(onOpen).toHaveBeenCalledTimes(2))
+    await expect(sequence()).toEqual([true, false])
+    // A pointer pick closes once, with no close-open-close.
+    onOpen.mockClear()
+    await userEvent.click(input)
+    await userEvent.click(await screen.findByRole('option', {name: 'Fig'}))
+    await pause(300)
+    await expect(sequence()).toEqual([true, false])
+    await expect(input).toHaveValue('Fig')
+    // An Enter pick whose handler updates parent state.
+    onOpen.mockClear()
+    await userEvent.clear(input)
+    await userEvent.keyboard('gr{ArrowDown}{Enter}')
+    await waitFor(() => expect(input).toHaveValue('Grape'))
+    await pause(300)
+    await expect(sequence()).toEqual([true, false])
+  },
+}
+
+function ControlledInputDemo({onInput}: {onInput: (text: string) => void}) {
+  const [text, setText] = useState('Cherry')
+  return (
+    <Combobox.Root
+      defaultValue="cherry"
+      initialLabels={fruitLabels}
+      inputValue={text}
+      onInputChange={(next) => {
+        onInput(next)
+        setText(next)
+      }}
+    >
+      <Combobox.Input aria-label="Fruit" />
+      <FruitList />
+    </Combobox.Root>
+  )
+}
+
+export const ControlledInputValue: StoryObj<{onInput: (text: string) => void}> = {
+  args: {onInput: fn()},
+  render: (args) => <ControlledInputDemo onInput={args.onInput} />,
+  play: async ({args, canvas, userEvent}) => {
+    const onInput = args.onInput as ReturnType<typeof fn>
+    const input = canvas.getByRole('combobox')
+    await userEvent.click(input)
+    await waitFor(() => expect(optionCount()).toBe(fruits.length))
+    await expect(onInput).not.toHaveBeenCalled()
+    await userEvent.click(await screen.findByRole('option', {name: 'Date'}))
+    await waitFor(() => expect(onInput).toHaveBeenLastCalledWith('Date'))
+    await userEvent.keyboard('{Control>}a{/Control}x')
+    await userEvent.tab()
+    await waitFor(() => expect(onInput).toHaveBeenLastCalledWith('Date'))
+  },
+}
+
+export const NamedByAriaLabel: Story = {
+  render: () => (
+    <Combobox.Root>
+      <Combobox.Input aria-label="Favourite fruit" />
+      <FruitList />
+    </Combobox.Root>
+  ),
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('combobox', {name: 'Favourite fruit'})).toBeInTheDocument()
+  },
+}
+
+export const NamedByFieldLabel: Story = {
+  render: () => (
+    <Field.Root>
+      <Field.Label>Pick a fruit</Field.Label>
+      <Combobox.Root>
+        <Combobox.Input />
+        <FruitList />
+      </Combobox.Root>
+    </Field.Root>
+  ),
+  play: async ({canvas}) => {
+    await expect(canvas.getByRole('combobox', {name: 'Pick a fruit'})).toBeInTheDocument()
   },
 }

@@ -7,7 +7,11 @@ export interface ComboboxContextValue {
   value: string | null
   setValue: (value: string) => void
   inputValue: string
+  /** What filters the list: empty while the field shows the chosen option's label. */
+  query: string
   setInputValue: (value: string) => void
+  onInputFocus: () => void
+  onInputBlur: () => void
   labels: Record<string, string>
   registerLabel: (value: string, label: string) => void
   listboxId: string
