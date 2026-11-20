@@ -24,6 +24,8 @@ export const styles = css.create({
     transitionTimingFunction: easing.standard,
     // Matches Button: the 44px target under a coarse pointer (5.6).
     minWidth: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
+    // As Button: the min-width above would let a crowded row squeeze the label.
+    flexShrink: 0,
   },
   sizeDefault: {
     paddingTop: spacing.sm,

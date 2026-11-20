@@ -28,6 +28,10 @@ export const styles = css.create({
     // A touch screen gets the 44px target, as Toggle and the triggers do; a
     // mouse keeps the compact control (5.6, the person's decision).
     minWidth: {default: null, '@media (pointer: coarse)': sizes.touchTarget},
+    // That min-width replaces the flex item's `min-width: auto`, so in a
+    // crowded row the button would shrink below its nowrap label. It never
+    // shrinks: the row wraps or the field gives way.
+    flexShrink: 0,
     // Tactile press feedback. The scale is suppressed under reduced motion (and
     // duration.fast collapses to 0ms there too), so it's inert for those users.
     transform: {
