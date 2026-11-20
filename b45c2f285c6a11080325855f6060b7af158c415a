@@ -1,0 +1,21 @@
+greengate-provenance-v1
+commit b45c2f285c6a11080325855f6060b7af158c415a
+tree ef0bb418c0fc4d68cc5f5fdfc7419dc26a8959d4
+canon 9cea5d54be0f607b7b935efa265f53148024316a
+patch e50f543d54fbf62c1c41dad25106711c500aa67c
+plan docs/plans/2026-11-20-sweep-happier-onto-greenrack.md a55b26f891e85fe6fadfe7f7282b6f341921b32d95ad08f698af9c0866b86a4e
+review reviewed 17ead606f50e058c27f5411d75e52a184aa7233c73503a600de6432681297b5f
+code-review backend reviewed 17ead606f50e058c27f5411d75e52a184aa7233c73503a600de6432681297b5f
+code-review lang:typescript reviewed 17ead606f50e058c27f5411d75e52a184aa7233c73503a600de6432681297b5f
+code-review react reviewed 17ead606f50e058c27f5411d75e52a184aa7233c73503a600de6432681297b5f
+code-review ui-design reviewed 17ead606f50e058c27f5411d75e52a184aa7233c73503a600de6432681297b5f
+code-review architect carried fe279218f3751c33bbf5ac1bf321da9c7b4b2a135d2c04aa0db7ec9459a6b795
+preview approved
+producer greenbelay 6.5.0
+
+-----BEGIN SSH SIGNATURE-----
+U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAg7UOvJ8myo4dhW907VFty7T/bUV
+RFQerK+MWJ4bjChwcAAAAUZ3JlZW5nYXRlLXByb3ZlbmFuY2UAAAAAAAAABnNoYTUxMgAA
+AFMAAAALc3NoLWVkMjU1MTkAAABAM+N0xcV2aLvY1tlpnquzhIRTtpzsJVNfO/E4Tk0IhU
+DxwMouIr8zbv21zpQG3SMhLwOFYZsd6BhrSvld+cieBw==
+-----END SSH SIGNATURE-----
