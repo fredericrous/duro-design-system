@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react'
+import {useCallback, useEffect, useRef, useState} from 'react'
 import {useControllableValue} from '../../hooks/useControllableValue'
 
 export interface ComboboxStateOptions {
@@ -7,6 +7,8 @@ export interface ComboboxStateOptions {
   onValueChange?: (value: string | null) => void
   inputValue?: string
   onInputChange?: (value: string) => void
+  /** Called once per real open/close transition, never inside a state updater. */
+  onOpenChange?: (open: boolean) => void
   initialLabels?: Record<string, string>
 }
 
@@ -28,6 +30,7 @@ export function useComboboxState({
   onValueChange,
   inputValue: controlledInputValue,
   onInputChange,
+  onOpenChange,
   initialLabels,
 }: ComboboxStateOptions) {
   const [value, setValue] = useControllableValue<string | null>(
@@ -51,7 +54,20 @@ export function useComboboxState({
     [controlledInputValue, onInputChange],
   )
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpenState] = useState(false)
+  // The latest open, written before the state setter so two calls in one
+  // event see each other; onOpenChange fires only when it changes.
+  const openRef = useRef(false)
+  const onOpenChangeRef = useRef(onOpenChange)
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange
+  })
+  const setOpen = useCallback((next: boolean) => {
+    if (openRef.current === next) return
+    openRef.current = next
+    setOpenState(next)
+    onOpenChangeRef.current?.(next)
+  }, [])
   const [labels, setLabels] = useState<Record<string, string>>(initialLabels ?? {})
 
   const registerLabel = useCallback((v: string, label: string) => {
@@ -65,7 +81,7 @@ export function useComboboxState({
       setInputValue(labels[itemValue] ?? itemValue)
       setOpen(false)
     },
-    [setValue, labels, setInputValue],
+    [setValue, labels, setInputValue, setOpen],
   )
 
   // Reconcile input text with the committed value once the popup closes.

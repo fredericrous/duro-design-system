@@ -24,8 +24,8 @@ import {sheetStyles} from '../Listbox/native.css'
 import {Button} from '../Button/Button'
 import {Icon} from '../Icon/Icon'
 import {Chevron} from '../SideNav/Chevron'
-import {focusForAccessibility} from '../../shared/accessibilityFocus'
-import {focusInput} from '../../shared/focusInput'
+import {focusForAccessibility} from '../../shared/accessibilityFocus.native'
+import {focusInput} from '../../shared/focusInput.native'
 import {textOf} from '../../shared/textOf'
 
 /** The picker sheet's detents (plan N0, Decision 5); a Combobox opens at large. */
@@ -71,6 +71,8 @@ interface RootProps {
   /** The field's text: the chosen option's label on native */
   inputValue?: string
   onInputChange?: (value: string) => void
+  /** Called once each time the sheet opens or closes. There is no controlled `open`, as on Select. */
+  onOpenChange?: (open: boolean) => void
   initialLabels?: Record<string, string>
   children: ReactNode
 }
@@ -88,6 +90,7 @@ function Root({
   onValueChange,
   inputValue,
   onInputChange,
+  onOpenChange,
   initialLabels,
   children,
 }: RootProps) {
@@ -97,6 +100,7 @@ function Root({
     onValueChange,
     inputValue,
     onInputChange,
+    onOpenChange,
     initialLabels,
   })
   const {open, setOpen, chooseValue} = state
@@ -158,7 +162,16 @@ function Root({
  * The closed field: the chosen option's label, or the placeholder. A press
  * opens the sheet, where the typing happens.
  */
-function Input({placeholder, children}: {placeholder?: string; children?: ReactNode}) {
+function Input({
+  placeholder,
+  'aria-label': ariaLabel,
+  children,
+}: {
+  placeholder?: string
+  /** The field's accessible name; the shown value then rides in its accessibility value. */
+  'aria-label'?: string
+  children?: ReactNode
+}) {
   const {value, labels, open, setOpen, setPlaceholder, triggerRef} = useCombobox()
   const display = value ? (labels[value] ?? value) : null
 
@@ -171,7 +184,8 @@ function Input({placeholder, children}: {placeholder?: string; children?: ReactN
       ref={triggerRef as RefObject<never>}
       onPress={() => setOpen(true)}
       accessibilityRole="combobox"
-      accessibilityLabel={display ?? placeholder}
+      accessibilityLabel={ariaLabel ?? display ?? placeholder}
+      accessibilityValue={ariaLabel && display ? {text: display} : undefined}
       accessibilityState={{expanded: open}}
     >
       <html.div style={[styles.inputWrapper, nativeStyles.field]}>

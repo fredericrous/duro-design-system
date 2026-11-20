@@ -1739,7 +1739,7 @@
             "Item"
           ]
         },
-        "description": "Searchable dropdown for selecting a value from a filterable list. Combines a text input with a popup listbox. Compound component — Root is required. Combobox.Popup takes label (the list's accessible name). On React Native the field opens a bottom sheet at its large detent, above the keyboard, titled by label with a Cancel text button (cancelLabel): a search field is pinned under the header and focused, the list below filters as you type, Combobox.Empty shows when nothing matches, and a press picks an option and closes the sheet. The sheet's search text starts empty each time; Combobox.Trigger renders nothing on native. An Item takes description (a muted second line) and leading (an icon or small preview, decorative), laid out as Select.Item's are: the option's accessible name, its filtering and the text committed to the field stay its label, and the description is its accessible description.",
+        "description": "Searchable dropdown for selecting a value from a filterable list. Combines a text input with a popup listbox. Compound component — Root is required. Combobox.Popup takes label (the list's accessible name). On React Native the field opens a bottom sheet at its large detent, above the keyboard, titled by label with a Cancel text button (cancelLabel): a search field is pinned under the header and focused, the list below filters as you type, Combobox.Empty shows when nothing matches, and a press picks an option and closes the sheet. The sheet's search text starts empty each time; Combobox.Trigger renders nothing on native. An Item takes description (a muted second line) and leading (an icon or small preview, decorative), laid out as Select.Item's are: the option's accessible name, its filtering and the text committed to the field stay its label, and the description is its accessible description. Root takes onOpenChange, called once each time the list (web) or sheet (native) opens or closes; there is no controlled open, as on Select, and it is not called when the Root unmounts while open. On the web the list opens with every option while the field shows its chosen option's label, and filters only once the text is edited; opening by focus selects the text. Combobox.Input is named by aria-label, or inside Field.Root by Field.Label. On native the field's accessibility label is aria-label, else the shown value, else the placeholder, and the shown value is its accessibility value when aria-label is given; native does not read Field.Label, so a native field inside Field.Root needs aria-label.",
         "example": "<Combobox.Root name=\"country\" defaultValue=\"us\" initialLabels={{us: 'United States'}}>\n  <Combobox.Input placeholder=\"Search countries…\" />\n  <Combobox.Popup>\n    <Combobox.Item value=\"us\">United States</Combobox.Item>\n    <Combobox.Item value=\"gb\">United Kingdom</Combobox.Item>\n    <Combobox.Item value=\"fr\">France</Combobox.Item>\n    <Combobox.Item value=\"de\">Germany</Combobox.Item>\n    <Combobox.Empty>No countries found</Combobox.Empty>\n  </Combobox.Popup>\n</Combobox.Root>",
         "relatedTo": [
           {
@@ -1793,6 +1793,12 @@
           "props": [
             {
               "name": "placeholder",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "The input's accessible name; inside a Field.Root the Field.Label names it.",
+              "name": "aria-label",
               "required": false,
               "type": "string"
             },
@@ -1898,6 +1904,12 @@
               "name": "onInputChange",
               "required": false,
               "type": "(value: string) => void"
+            },
+            {
+              "description": "Called once each time the list opens or closes. There is no controlled `open`, as on Select.",
+              "name": "onOpenChange",
+              "required": false,
+              "type": "(open: boolean) => void"
             },
             {
               "name": "initialLabels",

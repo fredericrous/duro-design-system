@@ -9,20 +9,50 @@ import {matchesQuery, useComboboxState, type ComboboxStateOptions} from './combo
 export function useComboboxRoot(options: ComboboxStateOptions) {
   const {value, inputValue, setInputValue, open, setOpen, labels, registerLabel, chooseValue} =
     useComboboxState(options)
-  const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const [highlightedId, setHighlightedState] = useState<string | null>(null)
+  const highlightedRef = useRef<string | null>(null)
+  const setHighlightedId = useCallback((id: string | null) => {
+    highlightedRef.current = id
+    setHighlightedState(id)
+  }, [])
+  // The list opens with every option while the field shows the chosen
+  // option's label; the label only filters once it is edited.
+  const query = value && inputValue === labels[value] ? '' : inputValue
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const refocusAfterChooseRef = useRef(false)
+  // The list's items mount after the open, so the highlight they should take
+  // is settled as they register.
+  const pendingHighlightRef = useRef(false)
+  // Synced after each commit: an option that mounts in the same commit as a
+  // value change would read the old one. Unreachable today (the options mount
+  // in the commit after the open); a controlled value changed while the list is
+  // open would need the highlight settled from an effect on `value`.
+  const valueRef = useRef(value)
+  useEffect(() => {
+    valueRef.current = value
+  })
   const listboxId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
   const itemsRef = useRef(new Map<string, {value: string; element: HTMLElement}>())
   const orderRef = useRef<string[]>([])
 
+  const cancelBlurClose = useCallback(() => {
+    if (blurTimerRef.current !== null) clearTimeout(blurTimerRef.current)
+    blurTimerRef.current = null
+  }, [])
+
+  useEffect(() => cancelBlurClose, [cancelBlurClose])
+
   const close = useCallback(() => {
     setOpen(false)
+    pendingHighlightRef.current = false
     setHighlightedId(null)
-  }, [setOpen])
+  }, [setOpen, setHighlightedId])
 
   const openPopup = useCallback(() => {
     setOpen(true)
+    pendingHighlightRef.current = true
     // Highlight the selected item or first visible item
     const items = itemsRef.current
     const order = orderRef.current
@@ -35,43 +65,80 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
       }
     }
     setHighlightedId(found ?? (order.length > 0 ? order[0] : null))
-  }, [value, setOpen])
+    if (found) pendingHighlightRef.current = false
+  }, [value, setOpen, setHighlightedId])
+
+  // Focus opens the list, except the refocus that follows choosing an option.
+  const onInputFocus = useCallback(() => {
+    cancelBlurClose()
+    if (refocusAfterChooseRef.current) return
+    openPopup()
+  }, [cancelBlurClose, openPopup])
+
+  // Delay close to allow an item click to register.
+  const onInputBlur = useCallback(() => {
+    cancelBlurClose()
+    blurTimerRef.current = setTimeout(() => {
+      blurTimerRef.current = null
+      close()
+    }, 150)
+  }, [cancelBlurClose, close])
 
   // Choosing keeps focus in the input (the web's editable combobox).
   const selectValue = useCallback(
     (itemValue: string) => {
+      cancelBlurClose()
       chooseValue(itemValue)
       setHighlightedId(null)
-      inputRef.current?.focus()
+      refocusAfterChooseRef.current = true
+      try {
+        inputRef.current?.focus()
+      } finally {
+        refocusAfterChooseRef.current = false
+      }
     },
-    [chooseValue],
+    [chooseValue, cancelBlurClose, setHighlightedId],
   )
 
-  const registerItem = useCallback((id: string, itemValue: string, element: HTMLElement) => {
-    itemsRef.current.set(id, {value: itemValue, element})
-    const map = itemsRef.current
-    const ids = [...map.keys()]
-    ids.sort((a, b) => {
-      const elA = map.get(a)?.element
-      const elB = map.get(b)?.element
-      if (!elA || !elB) return 0
-      return elA.compareDocumentPosition(elB) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
-    })
-    orderRef.current = ids
-    return () => {
-      itemsRef.current.delete(id)
-      orderRef.current = orderRef.current.filter((i) => i !== id)
-    }
-  }, [])
+  const registerItem = useCallback(
+    (id: string, itemValue: string, element: HTMLElement) => {
+      itemsRef.current.set(id, {value: itemValue, element})
+      // holds-until: a few hundred options. Each (re-)registration sorts every
+      // registered id by document position, and a filter change re-registers
+      // each option it shows again; past that, sort once per pass instead.
+      const map = itemsRef.current
+      const ids = [...map.keys()]
+      ids.sort((a, b) => {
+        const elA = map.get(a)?.element
+        const elB = map.get(b)?.element
+        if (!elA || !elB) return 0
+        return elA.compareDocumentPosition(elB) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+      })
+      orderRef.current = ids
+      if (pendingHighlightRef.current) {
+        if (itemValue === valueRef.current) {
+          pendingHighlightRef.current = false
+          setHighlightedId(id)
+        } else if (highlightedRef.current === null) {
+          setHighlightedId(ids[0] ?? null)
+        }
+      }
+      return () => {
+        itemsRef.current.delete(id)
+        orderRef.current = orderRef.current.filter((i) => i !== id)
+      }
+    },
+    [setHighlightedId],
+  )
 
   // Get visible items (those matching the filter)
   const getVisibleOrder = useCallback(() => {
-    if (!inputValue) return orderRef.current
+    if (!query) return orderRef.current
     return orderRef.current.filter((id) => {
       const item = itemsRef.current.get(id)
-      return item ? matchesQuery(labels[item.value] ?? item.value, inputValue) : false
+      return item ? matchesQuery(labels[item.value] ?? item.value, query) : false
     })
-  }, [inputValue, labels])
+  }, [query, labels])
 
   // Keyboard navigation
   useEffect(() => {
@@ -79,24 +146,23 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
     if (!root || !open) return
 
     function handleKeyDown(e: KeyboardEvent) {
+      pendingHighlightRef.current = false
       const visibleOrder = getVisibleOrder()
       if (visibleOrder.length === 0 && e.key !== 'Escape' && e.key !== 'Tab') return
 
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault()
-          setHighlightedId((prev) => {
-            const idx = prev ? visibleOrder.indexOf(prev) : -1
-            return visibleOrder[(idx + 1) % visibleOrder.length] ?? null
-          })
+          const idx = highlightedRef.current ? visibleOrder.indexOf(highlightedRef.current) : -1
+          setHighlightedId(visibleOrder[(idx + 1) % visibleOrder.length] ?? null)
           break
         }
         case 'ArrowUp': {
           e.preventDefault()
-          setHighlightedId((prev) => {
-            const idx = prev ? visibleOrder.indexOf(prev) : 0
-            return visibleOrder[(idx - 1 + visibleOrder.length) % visibleOrder.length] ?? null
-          })
+          const idx = highlightedRef.current ? visibleOrder.indexOf(highlightedRef.current) : 0
+          setHighlightedId(
+            visibleOrder[(idx - 1 + visibleOrder.length) % visibleOrder.length] ?? null,
+          )
           break
         }
         case 'Home': {
@@ -111,16 +177,17 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
         }
         case 'Enter': {
           e.preventDefault()
-          setHighlightedId((prev) => {
-            if (prev) {
-              const item = itemsRef.current.get(prev)
-              if (item) selectValue(item.value)
-            } else if (!inputValue.trim()) {
-              // Empty input + Enter = clear selection (reset to "All")
-              selectValue('')
-            }
-            return prev
-          })
+          const highlighted = highlightedRef.current
+          if (highlighted) {
+            // A highlighted option the filter has hidden is never committed.
+            const highlightedOption = visibleOrder.includes(highlighted)
+              ? itemsRef.current.get(highlighted)
+              : undefined
+            if (highlightedOption) selectValue(highlightedOption.value)
+          } else if (!inputValue.trim()) {
+            // Empty input + Enter = clear selection (reset to "All")
+            selectValue('')
+          }
           break
         }
         case 'Escape': {
@@ -138,14 +205,22 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
 
     root.addEventListener('keydown', handleKeyDown)
     return () => root.removeEventListener('keydown', handleKeyDown)
-  }, [open, close, selectValue, getVisibleOrder])
+  }, [open, close, selectValue, getVisibleOrder, inputValue, setHighlightedId])
 
-  // Scroll highlighted item into view
+  // Keep the highlighted item in view, also when the filter widens the list
+  // above it (typing the chosen label back shows every option again). An
+  // option the filter hides has unregistered (its effects ran before this
+  // one): drop the highlight, so aria-activedescendant never names a missing
+  // element and Enter commits nothing hidden.
   useEffect(() => {
     if (!highlightedId) return
-    const item = itemsRef.current.get(highlightedId)
-    item?.element.scrollIntoView({block: 'nearest'})
-  }, [highlightedId])
+    const highlightedOption = itemsRef.current.get(highlightedId)
+    if (!highlightedOption) {
+      setHighlightedId(null)
+      return
+    }
+    highlightedOption.element.scrollIntoView({block: 'nearest'})
+  }, [highlightedId, query, setHighlightedId])
 
   const ctx: ComboboxContextValue = useMemo(
     () => ({
@@ -155,7 +230,10 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
       value,
       setValue: selectValue,
       inputValue,
+      query,
       setInputValue,
+      onInputFocus,
+      onInputBlur,
       labels,
       registerLabel,
       listboxId,
@@ -172,7 +250,10 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
       value,
       selectValue,
       inputValue,
+      query,
       setInputValue,
+      onInputFocus,
+      onInputBlur,
       labels,
       registerLabel,
       listboxId,
