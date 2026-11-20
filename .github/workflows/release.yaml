@@ -97,6 +97,27 @@ jobs:
             mkdir -p "$work"
             (cd "$dir" && pnpm pack --pack-destination "$work" >/dev/null)
             tar -xzf "$work"/*.tgz -C "$work"
-            npm publish "$work/package" --provenance --access public --ignore-scripts
-            echo "published: $name@$VERSION"
+            # Sigstore's client resubmits a Rekor entry after a timeout, and
+            # the resubmit gets 409 (TLOG_CREATE_ENTRY_ERROR) for the entry
+            # its first try already wrote. npm stops before the registry PUT,
+            # so the version is not published; a fresh try signs again with a
+            # new key. Any other failure stops the run (v7.0.1 needed three
+            # runs for this).
+            try=1
+            while :; do
+              if npm publish "$work/package" --provenance --access public --ignore-scripts 2>&1 | tee "$work/publish.log"; then
+                echo "published: $name@$VERSION"
+                break
+              fi
+              if ! grep -q TLOG_CREATE_ENTRY_ERROR "$work/publish.log" || [ "$try" -ge 3 ]; then
+                exit 1
+              fi
+              sleep $((try * 15))
+              try=$((try + 1))
+              if [ -n "$(npm view "$name@$VERSION" version 2>/dev/null)" ]; then
+                echo "already on npm after tlog 409, skipped: $name@$VERSION"
+                break
+              fi
+              echo "tlog 409, retrying ($try/3): $name@$VERSION"
+            done
           done < "$out/order"
