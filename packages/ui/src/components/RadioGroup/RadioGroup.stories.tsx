@@ -28,6 +28,10 @@ export const Default: Story = {
     await expect(radios.length).toBe(3)
     await expect(radios[0]).toBeChecked()
     await expect(radios[1]).not.toBeChecked()
+    // Each hidden input is placed against its own label, never a page ancestor.
+    for (const radio of radios) {
+      await expect(radio.offsetParent).toBe(radio.closest('label'))
+    }
   },
 }
 

@@ -8,6 +8,10 @@ import {borders} from '@greenharness/greenrack-tokens/tokens/borders.css'
 
 export const styles = css.create({
   root: {
+    // The containing block of the visually hidden input (position: absolute):
+    // without it the input escapes to the nearest positioned ancestor, outside
+    // any scroller between, and lengthens the page.
+    position: 'relative',
     display: 'inline-flex',
     alignItems: 'center',
     gap: spacing.sm,
