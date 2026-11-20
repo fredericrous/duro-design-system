@@ -26,6 +26,8 @@ export const Default: Story = {
     const switchEl = canvas.getByRole('switch')
     await expect(switchEl).toBeInTheDocument()
     await expect(switchEl).not.toBeChecked()
+    // The hidden input is placed against its own label, never a page ancestor.
+    await expect(switchEl.offsetParent).toBe(switchEl.closest('label'))
 
     await userEvent.click(switchEl)
     await expect(args.onCheckedChange).toHaveBeenCalledWith(true)

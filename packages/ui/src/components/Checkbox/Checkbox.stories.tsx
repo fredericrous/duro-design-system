@@ -26,6 +26,8 @@ export const Default: Story = {
     const checkbox = canvas.getByRole('checkbox')
     await expect(checkbox).toBeInTheDocument()
     await expect(checkbox).toBeEnabled()
+    // The hidden input is placed against its own label, never a page ancestor.
+    await expect(checkbox.offsetParent).toBe(checkbox.closest('label'))
 
     await userEvent.click(checkbox)
     await expect(args.onChange).toHaveBeenCalledTimes(1)
