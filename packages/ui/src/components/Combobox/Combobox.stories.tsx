@@ -13,6 +13,9 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
+// Edge-case harnesses: run in CI, hidden from the sidebar and the docs page.
+const TEST_ONLY = ['!dev', '!autodocs']
+
 const fruits = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew']
 
 export const Default: Story = {
@@ -217,6 +220,7 @@ const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const AFTER_BLUR_CLOSE_MS = 300
 
 export const OpensWithEveryOption: Story = {
+  tags: TEST_ONLY,
   render: () => (
     <Combobox.Root defaultValue="cherry" initialLabels={fruitLabels}>
       <Combobox.Input aria-label="Fruit" />
@@ -245,6 +249,7 @@ export const OpensWithEveryOption: Story = {
 }
 
 export const PointerClickThenType: Story = {
+  tags: TEST_ONLY,
   render: () => (
     <Combobox.Root defaultValue="cherry" initialLabels={fruitLabels}>
       <Combobox.Input aria-label="Fruit" />
@@ -290,17 +295,28 @@ export const LongListChosenNearTheEnd: Story = {
     await waitFor(() => expect(optionCount()).toBe(languages.length))
     const chosen = screen.getByRole('option', {name: 'Language 110'})
     await waitFor(() => expect(input.getAttribute('aria-activedescendant')).toBe(chosen.id))
-    const list = screen.getByRole('listbox').getBoundingClientRect()
-    await waitFor(() => {
-      const box = chosen.getBoundingClientRect()
-      expect(box.top).toBeGreaterThanOrEqual(list.top)
-      expect(box.bottom).toBeLessThanOrEqual(list.bottom)
-    })
+    const chosenInView = () =>
+      waitFor(() => {
+        const list = screen.getByRole('listbox').getBoundingClientRect()
+        const box = screen.getByRole('option', {name: 'Language 110'}).getBoundingClientRect()
+        expect(box.top).toBeGreaterThanOrEqual(list.top)
+        expect(box.bottom).toBeLessThanOrEqual(list.bottom)
+      })
+    await chosenInView()
     await userEvent.keyboard('Language 11')
     await waitFor(() => expect(optionCount()).toBe(10))
-    await userEvent.keyboard('9x')
+    // Typing the label back widens the list again: the chosen option stays in view.
+    await userEvent.keyboard('0')
+    await waitFor(() => expect(optionCount()).toBe(languages.length))
+    await chosenInView()
+    await userEvent.keyboard('x')
     await waitFor(() => expect(optionCount()).toBe(0))
     await expect(screen.getByText('No language found')).toBeInTheDocument()
+    // The filter hid the highlighted option: the input no longer points at it.
+    await waitFor(() => expect(input).not.toHaveAttribute('aria-activedescendant'))
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(optionCount()).toBe(0))
+    await expect(input).toHaveValue('Language 110')
   },
 }
 
@@ -309,6 +325,7 @@ export const LongListChosenNearTheEnd: Story = {
  * every option again, and clearing the field then closing removes the value.
  */
 export const TypedBackToTheLabelThenCleared: Story = {
+  tags: TEST_ONLY,
   render: () => (
     <Combobox.Root defaultValue="cherry" initialLabels={fruitLabels}>
       <Combobox.Input aria-label="Fruit" />
@@ -334,6 +351,7 @@ export const TypedBackToTheLabelThenCleared: Story = {
 }
 
 export const TypedTextSurvivesBlurWithoutValue: Story = {
+  tags: TEST_ONLY,
   render: () => (
     <Combobox.Root>
       <Combobox.Input aria-label="Fruit" />
@@ -357,16 +375,20 @@ function OpenChangeDemo({onOpen}: {onOpen: (open: boolean) => void}) {
   const [open, setOpen] = useState(false)
   return (
     <StrictMode>
-      <Combobox.Root
-        onOpenChange={(next) => {
-          setOpen(next)
-          onOpen(next)
-        }}
-      >
-        <Combobox.Input aria-label="Fruit" />
-        <FruitList />
-      </Combobox.Root>
-      <Text variant="bodySm">{open ? 'open' : 'closed'}</Text>
+      <Stack gap="sm">
+        <Combobox.Root
+          onOpenChange={(next) => {
+            setOpen(next)
+            onOpen(next)
+          }}
+        >
+          <Combobox.Input aria-label="Fruit" />
+          <FruitList />
+        </Combobox.Root>
+        <Text variant="bodySm" color="muted">
+          List {open ? 'open' : 'closed'}
+        </Text>
+      </Stack>
     </StrictMode>
   )
 }

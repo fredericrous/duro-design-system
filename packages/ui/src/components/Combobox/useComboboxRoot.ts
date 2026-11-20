@@ -207,12 +207,20 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
     return () => root.removeEventListener('keydown', handleKeyDown)
   }, [open, close, selectValue, getVisibleOrder, inputValue, setHighlightedId])
 
-  // Scroll highlighted item into view
+  // Keep the highlighted item in view, also when the filter widens the list
+  // above it (typing the chosen label back shows every option again). An
+  // option the filter hides has unregistered (its effects ran before this
+  // one): drop the highlight, so aria-activedescendant never names a missing
+  // element and Enter commits nothing hidden.
   useEffect(() => {
     if (!highlightedId) return
     const item = itemsRef.current.get(highlightedId)
-    item?.element.scrollIntoView({block: 'nearest'})
-  }, [highlightedId])
+    if (!item) {
+      setHighlightedId(null)
+      return
+    }
+    item.element.scrollIntoView({block: 'nearest'})
+  }, [highlightedId, query, setHighlightedId])
 
   const ctx: ComboboxContextValue = useMemo(
     () => ({
