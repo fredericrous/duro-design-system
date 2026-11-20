@@ -258,6 +258,77 @@ export const PointerClickThenType: Story = {
   },
 }
 
+const languages = Array.from({length: 120}, (_, i) => `Language ${String(i + 1).padStart(3, '0')}`)
+const languageLabels = Object.fromEntries(languages.map((name) => [name.toLowerCase(), name]))
+
+/**
+ * A long list whose chosen option sits near its end (a language picker): the
+ * list opens with every option, the chosen one highlighted and scrolled into
+ * view, and typing narrows it down to `Empty`.
+ */
+export const LongListChosenNearTheEnd: Story = {
+  render: () => (
+    <Combobox.Root defaultValue="language 110" initialLabels={languageLabels}>
+      <Combobox.Input aria-label="Language" />
+      <Combobox.Popup label="Language">
+        {languages.map((name) => (
+          <Combobox.Item key={name} value={name.toLowerCase()}>
+            <Combobox.ItemText>{name}</Combobox.ItemText>
+          </Combobox.Item>
+        ))}
+        <Combobox.Empty>No language found</Combobox.Empty>
+      </Combobox.Popup>
+    </Combobox.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByRole('combobox')
+    await userEvent.click(input)
+    await waitFor(() => expect(optionCount()).toBe(languages.length))
+    const chosen = screen.getByRole('option', {name: 'Language 110'})
+    await waitFor(() => expect(input.getAttribute('aria-activedescendant')).toBe(chosen.id))
+    const list = screen.getByRole('listbox').getBoundingClientRect()
+    await waitFor(() => {
+      const box = chosen.getBoundingClientRect()
+      expect(box.top).toBeGreaterThanOrEqual(list.top)
+      expect(box.bottom).toBeLessThanOrEqual(list.bottom)
+    })
+    await userEvent.keyboard('Language 11')
+    await waitFor(() => expect(optionCount()).toBe(10))
+    await userEvent.keyboard('9x')
+    await waitFor(() => expect(optionCount()).toBe(0))
+    await expect(screen.getByText('No language found')).toBeInTheDocument()
+  },
+}
+
+/**
+ * The edges of the unfiltered open: typing the chosen label back exactly shows
+ * every option again, and clearing the field then closing removes the value.
+ */
+export const TypedBackToTheLabelThenCleared: Story = {
+  render: () => (
+    <Combobox.Root defaultValue="cherry" initialLabels={fruitLabels}>
+      <Combobox.Input aria-label="Fruit" />
+      <FruitList />
+    </Combobox.Root>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByRole('combobox')
+    await userEvent.click(input)
+    await userEvent.keyboard('Cherr')
+    await waitFor(() => expect(optionCount()).toBe(1))
+    await userEvent.keyboard('y')
+    await waitFor(() => expect(optionCount()).toBe(fruits.length))
+    await userEvent.clear(input)
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(optionCount()).toBe(0))
+    await expect(input).toHaveValue('')
+    input.blur()
+    input.focus()
+    await waitFor(() => expect(optionCount()).toBe(fruits.length))
+    await expect(screen.queryByRole('option', {selected: true})).toBeNull()
+  },
+}
+
 export const TypedTextSurvivesBlurWithoutValue: Story = {
   render: () => (
     <Combobox.Root>
