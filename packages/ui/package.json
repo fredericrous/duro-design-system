@@ -108,7 +108,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.0.0",
-    "effect": "^3.0.0",
+    "effect": "^3.22.5",
     "react-hook-form": "^7.55.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "2.28.0",
