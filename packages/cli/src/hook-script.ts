@@ -19,7 +19,7 @@ export const HOOK_CACHE_PATH = '.claude/.greenrack-session.cache'
 export const HOOK_DOCTOR_CACHE_PATH = `${HOOK_CACHE_PATH}.doctor`
 /**
  * Glob, not the bare path: the script stages the fetch through
- * "<cache>.tmp", and a session-start hook killed mid-npx leaves that behind.
+ * `<cache>.tmp.<pid>`, and a session-start hook killed mid-npx leaves that behind.
  */
 export const HOOK_CACHE_IGNORE = `${HOOK_CACHE_PATH}*`
 /** Repo-specific caveats, appended by the hook and never touched by install. */
@@ -68,6 +68,25 @@ cache="${HOOK_CACHE_PATH}"
 notes="${HOOK_NOTES_PATH}"
 doctor="${HOOK_DOCTOR_CACHE_PATH}"
 pin="${HOOK_PIN_LINE}"
+# Seconds a fetch may take before it is killed and counts as failed.
+bound="\${GREENRACK_HOOK_TIMEOUT:-60}"
+
+# Run a command for at most $bound seconds, without timeout(1) (macOS lacks it).
+# The watchdog exits quietly when stopped, and its output goes to /dev/null so it never holds the hook's pipe open.
+bounded() {
+  "$@" &
+  command_pid=$!
+  ( trap 'kill "$sleeper" 2>/dev/null; exit 0' TERM
+    sleep "$bound" &
+    sleeper=$!
+    wait "$sleeper"
+    kill "$command_pid" ) >/dev/null 2>&1 &
+  watchdog_pid=$!
+  wait "$command_pid"
+  command_status=$?
+  kill "$watchdog_pid" >/dev/null 2>&1
+  return "$command_status"
+}
 
 # npx resolution dominates session start; the catalog only changes on upgrade.
 # Refetch when it is missing, a week old, fetched with another floor (its
@@ -76,13 +95,19 @@ if [ ! -s "$cache" ] || [ "$(head -n 1 "$cache" 2>/dev/null)" != "$pin" ] ||
   [ -n "$(find "$cache" -mtime +7 2>/dev/null)" ] || [ "${HOOK_SCRIPT_PATH}" -nt "$cache" ]; then
   # The pin is written with the payload, so a failed fetch (or one that
   # printed nothing) leaves the old cache as it was and never a pin-only file.
-  if { echo "$pin"; npx -y @greenharness/greenrack-cli@^${HOOK_MIN_CLI} hook session-start; } >"$cache.tmp" 2>/dev/null &&
-    [ -n "$(tail -n +2 "$cache.tmp")" ]; then
-    mv "$cache.tmp" "$cache"
+  # Staged under this process's own name, so two sessions starting together
+  # never write one file; mv publishes it whole.
+  if { echo "$pin"; bounded npx -y @greenharness/greenrack-cli@^${HOOK_MIN_CLI} hook session-start; } >"$cache.tmp.$$" 2>/dev/null &&
+    [ -n "$(tail -n +2 "$cache.tmp.$$")" ]; then
+    mv "$cache.tmp.$$" "$cache"
   else
-    rm -f "$cache.tmp"
-    if [ -s "$cache" ] && [ "$(head -n 1 "$cache")" != "$pin" ]; then
-      echo "greenrack: the catalog below is from an older CLI and could not be refreshed; run: npx -y @greenharness/greenrack-cli@^${HOOK_MIN_CLI} hook install" >&2
+    rm -f "$cache.tmp.$$"
+    if [ -s "$cache" ]; then
+      if [ "$(head -n 1 "$cache")" != "$pin" ]; then
+        echo "greenrack: the catalog below is from an older CLI and could not be refreshed; run: npx -y @greenharness/greenrack-cli@^${HOOK_MIN_CLI} hook install" >&2
+      fi
+    else
+      echo "greenrack: no catalog yet (the fetch failed or timed out); once the registry is reachable run: sh ${HOOK_SCRIPT_PATH}" >&2
     fi
   fi
 fi
@@ -111,11 +136,11 @@ key=$(find . -maxdepth 4 \\( -name node_modules -o -name .git -o -name dist -o -
 # The floor is part of the key: a new floor reruns the doctor.
 key="${HOOK_MIN_CLI} $key"
 if [ "$key" != "$(cat "$doctor.key" 2>/dev/null)" ]; then
-  if npx -y @greenharness/greenrack-cli@^${HOOK_MIN_CLI} doctor --session >"$doctor.tmp" 2>/dev/null; then
-    mv "$doctor.tmp" "$doctor"
+  if bounded npx -y @greenharness/greenrack-cli@^${HOOK_MIN_CLI} doctor --session >"$doctor.tmp.$$" 2>/dev/null; then
+    mv "$doctor.tmp.$$" "$doctor"
     echo "$key" >"$doctor.key"
   else
-    rm -f "$doctor.tmp"
+    rm -f "$doctor.tmp.$$"
   fi
 fi
 if [ -s "$doctor" ]; then

@@ -1,10 +1,11 @@
 import {describe, expect, it, vi} from 'vitest'
-import {spawnSync} from 'node:child_process'
+import {spawn, spawnSync} from 'node:child_process'
 import {
   chmodSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   utimesSync,
   writeFileSync,
@@ -153,5 +154,84 @@ describe.each(SHELLS)('the session hook cache, under %s', (shell) => {
     const out = r.run()
     expect(out.stdout.split('\n')[0]).toBe('CATALOG 4.4')
     expect(out.stderr).toBe('')
+  })
+})
+
+describe('the session hook template', () => {
+  it('stages both fetches through per-process names', () => {
+    expect(HOOK_SCRIPT).toContain('"$cache.tmp.$$"')
+    expect(HOOK_SCRIPT).toContain('"$doctor.tmp.$$"')
+    expect(HOOK_SCRIPT).not.toMatch(/"\$cache\.tmp"/)
+    expect(HOOK_SCRIPT).not.toMatch(/"\$doctor\.tmp"/)
+  })
+})
+
+const leftovers = (dir: string) =>
+  readdirSync(join(dir, '.claude')).filter((f) => f.includes('.tmp.'))
+const NO_CACHE_LINE = 'sh .claude/hooks/greenrack-catalog.sh'
+
+describe.each(SHELLS)('the session hook under concurrency and failure, under %s', (shell) => {
+  it('serves two simultaneous sessions the whole catalog and leaves a complete cache', async () => {
+    const r = repo({catalog: 'L1\nL2\nL3\nL4'}, shell)
+    writeFileSync(
+      join(r.dir, 'bin/npx'),
+      `#!/bin/sh\ncase "$*" in *session-start*) for l in L1 L2 L3 L4; do echo $l; sleep 0.3; done ;; esac\n`,
+    )
+    const runOne = () =>
+      new Promise<string>((resolve) => {
+        const child = spawn(shell, [HOOK_SCRIPT_PATH], {
+          cwd: r.dir,
+          env: {...process.env, PATH: `${join(r.dir, 'bin')}:${process.env['PATH']}`},
+        })
+        let out = ''
+        child.stdout.on('data', (chunk) => (out += chunk))
+        child.on('close', () => resolve(out))
+      })
+    const [first, second] = await Promise.all([runOne(), runOne()])
+    expect(first.startsWith('L1\nL2\nL3\nL4\n')).toBe(true)
+    expect(second.startsWith('L1\nL2\nL3\nL4\n')).toBe(true)
+    expect(readFileSync(r.cache, 'utf8')).toBe(`${HOOK_PIN_LINE}\nL1\nL2\nL3\nL4\n`)
+    expect(leftovers(r.dir)).toEqual([])
+  })
+
+  it('kills a hung fetch at GREENRACK_HOOK_TIMEOUT and takes the failure branch', () => {
+    const r = repo('fails', shell)
+    writeFileSync(join(r.dir, 'bin/npx'), '#!/bin/sh\nsleep 30\n')
+    const started = Date.now()
+    const out = spawnSync(shell, [HOOK_SCRIPT_PATH], {
+      cwd: r.dir,
+      env: {
+        ...process.env,
+        PATH: `${join(r.dir, 'bin')}:${process.env['PATH']}`,
+        GREENRACK_HOOK_TIMEOUT: '1',
+      },
+      encoding: 'utf8',
+    })
+    expect(Date.now() - started).toBeLessThan(10_000)
+    expect(existsSync(r.cache)).toBe(false)
+    expect(leftovers(r.dir)).toEqual([])
+    expect(out.stdout).toBe('')
+    expect(out.stderr).toContain(NO_CACHE_LINE)
+    expect(out.status).toBe(0)
+  })
+
+  it('says one line, naming the command to rerun, when the fetch fails with no cache', () => {
+    const r = repo('fails', shell)
+    const out = r.run()
+    expect(existsSync(r.cache)).toBe(false)
+    expect(out.stdout).toBe('')
+    expect(out.status).toBe(0)
+    expect(out.stderr.trim().split('\n')).toHaveLength(1)
+    expect(out.stderr).toContain(NO_CACHE_LINE)
+  })
+
+  it('keeps the old cache byte for byte and does not print the no-cache line', () => {
+    const r = repo('fails', shell)
+    oldCache(r.cache)
+    const before = readFileSync(r.cache, 'utf8')
+    const out = r.run()
+    expect(readFileSync(r.cache, 'utf8')).toBe(before)
+    expect(out.stderr).toContain('older CLI')
+    expect(out.stderr).not.toContain(NO_CACHE_LINE)
   })
 })

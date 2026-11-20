@@ -5,6 +5,8 @@ import {describe, expect, it} from 'vitest'
 import {runHook} from '../src/commands/hook.js'
 import {loadRegistry} from '../src/registry.js'
 import {
+  GITIGNORE_BLOCK,
+  HOOK_CACHE_IGNORE,
   HOOK_COMMAND,
   HOOK_NOTES_PATH,
   HOOK_SCRIPT_PATH,
@@ -13,6 +15,8 @@ import {
   PLAN_HOOK_SCRIPT_PATH,
 } from '../src/hook-script.js'
 import {
+  LEGACY_GITIGNORE_COMMENT,
+  LEGACY_HOOK_CACHE_IGNORE,
   LEGACY_HOOK_CACHE_PATH,
   LEGACY_HOOK_GENERATED_MARKER,
   LEGACY_HOOK_NOTES_PATH,
@@ -168,5 +172,71 @@ describe('hook install migrates the old wiring', () => {
     expect(installReport.exitCode).toBe(2)
     expect(installReport.text).toContain('"hooks.SessionStart" is not an array')
     expect(installReport.text).not.toContain('not valid JSON')
+  })
+})
+
+describe('hook install replaces the old .gitignore glob', () => {
+  const ignoreOf = (root: string) => readFileSync(at(root, '.gitignore'), 'utf8')
+
+  it('drops the generated comment with the glob and writes the new block where it stood', () => {
+    const root = oldApp()
+    writeFileSync(
+      at(root, '.gitignore'),
+      `node_modules\n${LEGACY_GITIGNORE_COMMENT}\n${LEGACY_HOOK_CACHE_IGNORE}\ndist\n`,
+    )
+    const report = install(root)
+    expect(ignoreOf(root)).toBe(`node_modules\n${GITIGNORE_BLOCK}dist\n`)
+    expect(report.text.split('\n')).toContain(`removed: ${LEGACY_HOOK_CACHE_IGNORE} (.gitignore)`)
+  })
+
+  it('leaves a hand-written comment above the glob alone', () => {
+    const root = oldApp()
+    writeFileSync(at(root, '.gitignore'), `a\n# mine\n${LEGACY_HOOK_CACHE_IGNORE}\nb\n`)
+    install(root)
+    expect(ignoreOf(root)).toBe(`a\n# mine\n${GITIGNORE_BLOCK}b\n`)
+  })
+
+  it('only removes the glob when the new one is already there', () => {
+    const root = oldApp()
+    writeFileSync(at(root, '.gitignore'), `${LEGACY_HOOK_CACHE_IGNORE}\n${HOOK_CACHE_IGNORE}\n`)
+    install(root)
+    expect(ignoreOf(root)).toBe(`${HOOK_CACHE_IGNORE}\n`)
+  })
+
+  it("takes the old block's blank separator with it when the new block is already below", () => {
+    // The shape `duro hook install` then `greenrack hook install` left: two blocks, a blank between.
+    const root = oldApp()
+    writeFileSync(
+      at(root, '.gitignore'),
+      `a\n\n${LEGACY_GITIGNORE_COMMENT}\n${LEGACY_HOOK_CACHE_IGNORE}\n\n${GITIGNORE_BLOCK}`,
+    )
+    const report = install(root, true)
+    expect(report.text).toContain(`drops ${LEGACY_HOOK_CACHE_IGNORE}`)
+    install(root)
+    expect(ignoreOf(root)).toBe(`a\n\n${GITIGNORE_BLOCK}`)
+  })
+
+  it('--check reports .gitignore stale and writes nothing', () => {
+    const root = oldApp()
+    const before = `${LEGACY_GITIGNORE_COMMENT}\n${LEGACY_HOOK_CACHE_IGNORE}\n`
+    writeFileSync(at(root, '.gitignore'), before)
+    const report = install(root, true)
+    expect(report.exitCode).toBe(1)
+    const changes = (report.data as {changes: Array<{path: string; status: string}>}).changes
+    expect(changes).toContainEqual(expect.objectContaining({path: '.gitignore', status: 'stale'}))
+    expect(ignoreOf(root)).toBe(before)
+  })
+
+  it('a .gitignore holding only the new glob is unchanged by a second install', () => {
+    const root = oldApp()
+    writeFileSync(
+      at(root, '.gitignore'),
+      `${LEGACY_GITIGNORE_COMMENT}\n${LEGACY_HOOK_CACHE_IGNORE}\n`,
+    )
+    install(root)
+    const first = ignoreOf(root)
+    const again = install(root)
+    expect(ignoreOf(root)).toBe(first)
+    expect(again.text).not.toContain('(.gitignore)')
   })
 })

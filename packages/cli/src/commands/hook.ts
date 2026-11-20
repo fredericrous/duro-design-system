@@ -10,6 +10,8 @@ import {
 } from 'node:fs'
 import {dirname, join} from 'node:path'
 import {
+  LEGACY_GITIGNORE_COMMENT,
+  LEGACY_HOOK_CACHE_IGNORE,
   LEGACY_HOOK_CACHE_PATH,
   LEGACY_HOOK_GENERATED_MARKER,
   LEGACY_HOOK_NOTES_PATH,
@@ -195,15 +197,40 @@ function nextSettings(current: string | null): {
   return {text: JSON.stringify(parsed, null, 2) + '\n', events, legacy}
 }
 
-/** Append the cache to .gitignore, unless some rule already covers the path. */
-function nextGitignore(current: string | null): string | null {
-  if (current !== null && current.split('\n').some((line) => line.trim() === HOOK_CACHE_IGNORE)) {
-    return null
+/**
+ * The .gitignore install writes: the old duro glob (and the comment install
+ * generated above it) replaced by the new block where it stood, else the new
+ * block appended, unless some rule already covers the path. Null when nothing
+ * changes; `removedLegacy` says the old glob was found.
+ */
+function nextGitignore(current: string | null): {text: string | null; removedLegacy: boolean} {
+  const lines = current === null ? [] : current.split('\n')
+  const hasNew = lines.some((line) => line.trim() === HOOK_CACHE_IGNORE)
+  const legacyIndex = lines.findIndex((line) => line.trim() === LEGACY_HOOK_CACHE_IGNORE)
+  if (legacyIndex !== -1) {
+    const commentAbove = lines[legacyIndex - 1]?.trim() === LEGACY_GITIGNORE_COMMENT
+    const start = commentAbove ? legacyIndex - 1 : legacyIndex
+    const replacement = hasNew ? [] : GITIGNORE_BLOCK.split('\n').slice(0, -1)
+    lines.splice(start, legacyIndex - start + 1, ...replacement)
+    // Removing the block alone can leave its blank separator beside another
+    // blank line (or at the top of the file): drop that one, nothing else.
+    if (
+      replacement.length === 0 &&
+      lines[start]?.trim() === '' &&
+      (start === 0 || lines[start - 1]?.trim() === '')
+    ) {
+      lines.splice(start, 1)
+    }
+    return {text: lines.join('\n'), removedLegacy: true}
   }
-  if (current === null || current === '') return GITIGNORE_BLOCK
-  return current.endsWith('\n')
-    ? `${current}\n${GITIGNORE_BLOCK}`
-    : `${current}\n\n${GITIGNORE_BLOCK}`
+  if (hasNew) return {text: null, removedLegacy: false}
+  if (current === null || current === '') return {text: GITIGNORE_BLOCK, removedLegacy: false}
+  return {
+    text: current.endsWith('\n')
+      ? `${current}\n${GITIGNORE_BLOCK}`
+      : `${current}\n\n${GITIGNORE_BLOCK}`,
+    removedLegacy: false,
+  }
 }
 
 /**
@@ -290,10 +317,20 @@ function runHookInstall(options: HookOptions): CommandResult {
   }
 
   const gitignoreRaw = read(at('.gitignore'))
-  apply('.gitignore', nextGitignore(gitignoreRaw), `ignores ${HOOK_CACHE_IGNORE}`)
+  const gitignoreNext = nextGitignore(gitignoreRaw)
+  apply(
+    '.gitignore',
+    gitignoreNext.text,
+    gitignoreNext.removedLegacy
+      ? `ignores ${HOOK_CACHE_IGNORE}, drops ${LEGACY_HOOK_CACHE_IGNORE}`
+      : `ignores ${HOOK_CACHE_IGNORE}`,
+  )
 
   // Last: the old files go only after settings.json no longer runs them.
   const migration: string[] = []
+  if (gitignoreNext.removedLegacy && !options.check) {
+    migration.push(`removed: ${LEGACY_HOOK_CACHE_IGNORE} (.gitignore)`)
+  }
   for (const wiring of settingsNext.legacy) {
     if (!options.check) migration.push(`migrated: ${wiring.legacyScript} -> ${wiring.script}`)
   }
