@@ -1,5 +1,5 @@
 ---
-status: active
+status: done
 plan-id: p-01M7XDDV3TXZGPD4HST8NQNC1Q
 branch: feat/field-native-validation
 repos: [greenrack, social-planner, decisions]
@@ -134,11 +134,11 @@ social-planner's dialog wraps its Input in a labelled Field and shows it.
       and CLAUDE.md generated regions (`packages/cli/scripts/build-registry.mjs`;
       regenerate with `pnpm greenrack:registry && pnpm greenrack:docs`, since a bare
       run writes only registry.json)
-- [ ] Phase 2 — release greenrack 7.3.0 (a minor: new behaviour, no API
+- [x] Phase 2 — release greenrack 7.3.0 (a minor: new behaviour, no API
       removed) via the `tag-release` skill, which consumes the changeset;
       check the npm tarball (the release consumes
       `.changeset/field-native-validation.md`)
-- [ ] Phase 3 — social-planner: `@greenharness/greenrack-ui` to `^7.3.0`;
+- [x] Phase 3 — social-planner: `@greenharness/greenrack-ui` to `^7.3.0`;
       AddLinkDialog's Input in `Field.Root`: `Field.Label` "Link", the Input,
       the helper text as `Field.Description`, then `Field.Error` whose
       children are the server `result.error`, with
@@ -146,7 +146,7 @@ social-planner's dialog wraps its Input in a labelled Field and shows it.
       describedby too (one error line per Field; the
       success Text stays outside); PR, merge, release (tag) and observe the deployed dialog:
       `package.json`, `pnpm-lock.yaml`, `app/components/AddLinkDialog.tsx`
-- [ ] Phase 4 — close f31 in decisions: ticket `status = "done"`, its
+- [x] Phase 4 — close f31 in decisions: ticket `status = "done"`, its
       "Answer looks like" amended to the Field-scoped answer, map
       entry: `docs/programmes/follow-ups/f31-greenrack-native-validation-message.md`,
       `docs/programmes/follow-ups/map.md`
@@ -206,6 +206,25 @@ typecheck` and `pnpm lint` exit 0; `build-registry.mjs --check` and
   any Field with two alerts or a layout break pins back to 7.2.x until a
   7.3.1. Other consumers get an inbox line to run the same sweep at bump.
 - Phase 4: `relais programme check docs/programmes/follow-ups` exits 0.
+  - Observed (Phase 2): released as 7.4.0, not 7.3.0 (Decision log). Tag
+    v7.4.0 at afda27d0 (greenrack#213), release run 44900928033 success;
+    `npm view @greenharness/greenrack-ui@7.4.0 version` → 7.4.0; the
+    tarball's dist has `registerError` and `onInvalid` (#209 uses the JSX
+    prop). `npm pack` returned ETARGET for about a minute after `npm view`
+    already showed it.
+  - Observed (Phase 3): social-planner#86 (e45dadc) on `^7.4.0`, recorded
+    in full in social-planner's pointer plan: AddLinkDialog tests 7/7,
+    browser-check on the production build at 1280 and 390, sweep of 17
+    Fields (none with a second error slot; bottom-aligned rows shift,
+    f112). Released v0.6.0 (release and chart-sync runs success);
+    homelab#1270 (788eb8bbe) moved the pin, and the HelmRelease is Ready at
+    chart 0.6.0 (v32), both pods on image 0.6.0, 0 restarts. Through a
+    port-forward: `/planner` and `/health` 200; the JS carries the Field
+    label "Link", its description and greenrack's `registerError` and
+    `onInvalid`. The app renders dark only (no light mode), so light was not seen in-app. The live dialog behind Authelia is the person's step (below).
+  - Observed (Phase 4): decisions#332 (merged 7d1cc9c2) closes f31 (answer amended, Resolution)
+    and files f110–f113; `relais programme check docs/programmes/follow-ups`
+    exits 0.
 
 ## Decision log
 
@@ -254,6 +273,34 @@ typecheck` and `pnpm lint` exit 0; `build-registry.mjs --check` and
 - 2026-11-20 — the board showed `feat/breakpoints-doctor-overlay` touching
   Field and Input; it dates from 2026-09-28 (pre-rename, Form subpath
   since shipped), not live work.
+
+- 2026-11-21 — released as 7.4.0: a third session tagged v7.3.0 at
+  greenrack#211 between this branch's merge and the tag, without #209's
+  follow-up. 7.4.0 also carries greenrack#212 (agreed with that session).
+- 2026-11-21 — the deploy is a homelab PR (the chart version is pinned in
+  `kubernetes/homelab/apps/social-planner/helm-release.yaml`), homelab#1270.
+- 2026-11-21 — the person chose to ship with the bottom-aligned rows' shift
+  and fix it upstream (f112).
+- 2026-11-21 — deliberate: the deployed check is the bundle through a
+  port-forward plus the person's look at the live dialog (the agent's
+  browser has no Authelia session), as the greenrack sweep plan did; the
+  plan is done with that step listed below.
+- 2026-11-21 — the "other consumers" sweep line became ticket f111
+  (happier was swept by another session the same day: no double alert).
+- 2026-11-21 — 7.4.0 takes its version from the tag (the release workflow
+  sets it); the changesets stay in `.changeset/`, as for every release
+  before it.
+
+### 🧑 Your steps
+
+- `greenbelay open 'https://social-planner.daddyshome.fr/planner'`, then click "+ Add link", type `nope` and press Add link: "Please enter a URL." shows under the "Link" field — because the agent's browser has no Authelia session for the live site
+
+## Outcome
+
+f31 is done. Inside a Field, greenrack 7.4.0 shows the browser's
+validation message as the field's error and clears it when it stops being
+true. social-planner's Add link dialog uses it, deployed as v0.6.0. Next:
+f112 (field rows that stay aligned), f110, f111, f113.
 
 ## Implementation review
 
