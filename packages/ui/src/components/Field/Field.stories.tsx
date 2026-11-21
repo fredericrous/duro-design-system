@@ -339,11 +339,14 @@ export const NativeValidationErrorMounts: Story = {
     })
     observer.observe(canvasElement, {childList: true, subtree: true})
     const toggle = canvas.getByRole('button', {name: 'Toggle error'})
-    await userEvent.click(toggle)
-    await waitFor(() => expect(canvas.getByRole('alert').parentElement).toBeTruthy())
-    await userEvent.click(toggle)
-    await waitFor(() => expect(canvas.getAllByRole('alert')).toHaveLength(1))
-    observer.disconnect()
+    try {
+      await userEvent.click(toggle)
+      await waitFor(() => expect(canvas.getAllByRole('alert')).toHaveLength(1))
+      await userEvent.click(toggle)
+      await waitFor(() => expect(canvas.getAllByRole('alert')).toHaveLength(1))
+    } finally {
+      observer.disconnect()
+    }
     await expect(most).toBeLessThanOrEqual(1)
   },
 }

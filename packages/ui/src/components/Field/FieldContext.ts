@@ -50,6 +50,13 @@ interface NativeValidityTarget {
   } | null
 }
 
+/** The shown message is still the browser's current one for this control. */
+function stillShowing(element: NativeValidityTarget, shownMessage: string | undefined): boolean {
+  return (
+    element.willValidate && !element.validity.valid && element.validationMessage === shownMessage
+  )
+}
+
 /** Wires a text control to its Field's native validation message: the DOM
  *  `invalid` event creates it (nothing else does), and it is only ever
  *  cleared, never rewritten in place: a rewrite would re-announce the
@@ -60,13 +67,6 @@ interface NativeValidityTarget {
  *  the new reason. The browser's own bubble is left alone. Outside a Field both
  *  handlers are undefined.
  *  Structural types: the native build (no DOM lib) types this too. */
-/** The shown message is still the browser's current one for this control. */
-function stillShowing(element: NativeValidityTarget, shownMessage: string | undefined): boolean {
-  return (
-    element.willValidate && !element.validity.valid && element.validationMessage === shownMessage
-  )
-}
-
 export function useNativeValidation() {
   const ctx = useFieldContext()
   const setNativeError = ctx?.setNativeError
