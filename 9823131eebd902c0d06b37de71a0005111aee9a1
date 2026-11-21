@@ -1,0 +1,19 @@
+greengate-provenance-v1
+commit 0d6210683bfc14da5107031c7f5ff823dd8c0692
+tree 9823131eebd902c0d06b37de71a0005111aee9a1
+canon 7425fd74f789268e4b3464be50303dd3958f9a4c
+patch fb5389c235ce8b46d88543ec1c48ad1b5f0bb3a9
+plan docs/plans/2026-11-21-fields-show-native-validation-message.md 5f751513cc9f84a7764edc841534f5235bb8727e8a9e12abf7e1b0aeed4e8204
+review reviewed 4e58f9b98bc371c168c02d40dada3d40502cfa06b6c7f33a37cddd78609fd11c
+code-review react carried d164645a152dd37dab53d03dbd199f72ef7287fc95814cab5f41ab83002882e9
+code-review lang:typescript reviewed 4e58f9b98bc371c168c02d40dada3d40502cfa06b6c7f33a37cddd78609fd11c
+code-review ui-design reviewed 4e58f9b98bc371c168c02d40dada3d40502cfa06b6c7f33a37cddd78609fd11c
+preview approved
+producer greenbelay 6.6.0
+
+-----BEGIN SSH SIGNATURE-----
+U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAg7UOvJ8myo4dhW907VFty7T/bUV
+RFQerK+MWJ4bjChwcAAAAUZ3JlZW5nYXRlLXByb3ZlbmFuY2UAAAAAAAAABnNoYTUxMgAA
+AFMAAAALc3NoLWVkMjU1MTkAAABAn947nh1XdjTYFI7rQavZ679jsgvAbxbRHldXq8Pjy+
+zkcj4r/rGFXV3eETBVOp8HojKLiyTPASDNkhWR8owrDw==
+-----END SSH SIGNATURE-----
