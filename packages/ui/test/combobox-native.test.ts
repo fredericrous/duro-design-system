@@ -50,6 +50,9 @@ vi.mock('react', () => {
     useEffect: (effect: () => void) => {
       runtime.effects.push(effect)
     },
+    useLayoutEffect: (effect: () => void) => {
+      runtime.effects.push(effect)
+    },
   }
 })
 vi.mock('react-native', () => ({Pressable: 'NativePressable', View: 'View'}))

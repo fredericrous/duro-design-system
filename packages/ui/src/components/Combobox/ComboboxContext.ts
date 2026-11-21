@@ -18,6 +18,8 @@ export interface ComboboxContextValue {
   highlightedId: string | null
   setHighlightedId: (id: string | null) => void
   registerItem: (id: string, value: string, element: HTMLElement) => () => void
+  /** How many options the list shows now (mounted and not filtered out). */
+  shownCount: number
   inputRef: React.RefObject<HTMLInputElement | null>
   rootRef: React.RefObject<HTMLDivElement | null>
 }

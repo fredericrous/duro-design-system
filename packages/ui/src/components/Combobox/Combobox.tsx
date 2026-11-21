@@ -291,15 +291,11 @@ function ItemText({children}: {children: ReactNode}) {
 
 // --- Empty ---
 function Empty({children}: {children: ReactNode}) {
-  const {open, query, labels} = useCombobox()
+  const {open, shownCount} = useCombobox()
 
-  if (!open) return null
-
-  // Check if any items are visible
-  const hasVisibleItems =
-    !query || Object.values(labels).some((label) => matchesQuery(label, query))
-
-  if (hasVisibleItems) return null
+  // Shown while the list holds no option: none matches what was typed, or the
+  // options have not arrived yet.
+  if (!open || shownCount > 0) return null
 
   return <Listbox.Empty>{children}</Listbox.Empty>
 }

@@ -36,6 +36,9 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const itemsRef = useRef(new Map<string, {value: string; element: HTMLElement}>())
   const orderRef = useRef<string[]>([])
+  // The options mounted and not filtered out, as state so Empty follows them:
+  // a list whose options have not arrived yet shows Empty too.
+  const [shownCount, setShownCount] = useState(0)
 
   const cancelBlurClose = useCallback(() => {
     if (blurTimerRef.current !== null) clearTimeout(blurTimerRef.current)
@@ -115,6 +118,7 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
         return elA.compareDocumentPosition(elB) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
       })
       orderRef.current = ids
+      setShownCount(map.size)
       if (pendingHighlightRef.current) {
         if (itemValue === valueRef.current) {
           pendingHighlightRef.current = false
@@ -126,6 +130,7 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
       return () => {
         itemsRef.current.delete(id)
         orderRef.current = orderRef.current.filter((i) => i !== id)
+        setShownCount(itemsRef.current.size)
       }
     },
     [setHighlightedId],
@@ -240,6 +245,7 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
       highlightedId,
       setHighlightedId,
       registerItem,
+      shownCount,
       inputRef,
       rootRef,
     }),
@@ -260,6 +266,7 @@ export function useComboboxRoot(options: ComboboxStateOptions) {
       highlightedId,
       setHighlightedId,
       registerItem,
+      shownCount,
     ],
   )
 
