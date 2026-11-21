@@ -2,7 +2,7 @@ import type {ComponentMeta} from '../component-meta'
 
 export const meta: ComponentMeta = {
   description:
-    'Compound form field with label, description, and error display. Inside Form, auto-binds to react-hook-form via name prop. Works standalone with manual invalid prop. A native validation message from an Input or Textarea (required, type, pattern) is shown by Field.Error; explicit Error children and form errors take precedence.',
+    'Compound form field with label, description, and error display. Inside Form, auto-binds to react-hook-form via name prop. Works standalone with manual invalid prop. A native validation message from an Input or Textarea (required, type, pattern) is shown by Field.Error; explicit Error children and form errors take precedence. Field.Root shows the native message itself when it has no Field.Error.',
   whenToUse: [
     'Any form input that needs a label and/or error message',
     'Standalone labeled input (without Form) with manual error display',

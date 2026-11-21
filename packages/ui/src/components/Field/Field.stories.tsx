@@ -1,9 +1,12 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import {expect} from 'storybook/test'
+import {useState} from 'react'
+import {Schema} from 'effect'
+import {expect, fn, waitFor} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Field} from './Field'
 import {Input} from '../Input/Input'
 import {Button} from '../Button/Button'
+import {Form} from '../Form/Form'
 import {ToggleGroup} from '../ToggleGroup/ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
 import {CheckboxGroup} from '../CheckboxGroup/CheckboxGroup'
@@ -278,5 +281,225 @@ export const NativeValidation: Story = {
 
     await userEvent.type(input, 'https://example.com')
     await expect(canvas.queryByRole('alert')).not.toBeInTheDocument()
+  },
+}
+
+const websitePlaceholder = 'https://example.com'
+
+export const NativeValidationWithoutFieldError: Story = {
+  render: () => (
+    <html.form>
+      <Field.Root>
+        <Field.Label>Website</Field.Label>
+        <Input type="url" required placeholder={websitePlaceholder} />
+      </Field.Root>
+      <Button type="submit">Submit</Button>
+    </html.form>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByPlaceholderText(websitePlaceholder) as HTMLInputElement
+    await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
+    const alert = await canvas.findByRole('alert')
+    await expect(canvas.getAllByRole('alert')).toHaveLength(1)
+    await expect(alert.textContent).toBe(input.validationMessage)
+    await expect(input.getAttribute('aria-describedby')).toContain(alert.id)
+    // The reason changes ("fill out" becomes "enter a URL"): the line clears
+    // rather than rewriting the alert, which would announce it again.
+    await userEvent.type(input, 'n')
+    await waitFor(() => expect(canvas.queryByRole('alert')).not.toBeInTheDocument())
+  },
+}
+
+function ErrorMounts() {
+  const [mounted, setMounted] = useState(false)
+  return (
+    <html.form>
+      <Field.Root>
+        <Field.Label>Website</Field.Label>
+        <Input type="url" required placeholder={websitePlaceholder} />
+        {mounted ? <Field.Error /> : null}
+      </Field.Root>
+      <Button type="submit">Submit</Button>
+      <Button type="button" onClick={() => setMounted((previous) => !previous)}>
+        Toggle error
+      </Button>
+    </html.form>
+  )
+}
+
+export const NativeValidationErrorMounts: Story = {
+  render: () => <ErrorMounts />,
+  play: async ({canvas, canvasElement, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
+    await canvas.findByRole('alert')
+    // Count alerts at each mutation batch: never two after any toggle settles.
+    let most = 0
+    const observer = new MutationObserver(() => {
+      most = Math.max(most, canvasElement.querySelectorAll('[role="alert"]').length)
+    })
+    observer.observe(canvasElement, {childList: true, subtree: true})
+    const toggle = canvas.getByRole('button', {name: 'Toggle error'})
+    try {
+      await userEvent.click(toggle)
+      await waitFor(() => expect(canvas.getAllByRole('alert')).toHaveLength(1))
+      await userEvent.click(toggle)
+      await waitFor(() => expect(canvas.getAllByRole('alert')).toHaveLength(1))
+    } finally {
+      observer.disconnect()
+    }
+    await expect(most).toBeLessThanOrEqual(1)
+  },
+}
+
+function ProgrammaticClear() {
+  const [text, setText] = useState('')
+  return (
+    <html.form>
+      <Field.Root>
+        <Field.Label>Website</Field.Label>
+        <Input
+          type="url"
+          placeholder={websitePlaceholder}
+          value={text}
+          onChange={(event: {currentTarget: {value: string}}) => setText(event.currentTarget.value)}
+        />
+        <Field.Error />
+      </Field.Root>
+      <Button type="submit">Submit</Button>
+      <Button type="button" onClick={() => setText('')}>
+        Clear value
+      </Button>
+    </html.form>
+  )
+}
+
+export const NativeValidationProgrammaticClear: Story = {
+  render: () => <ProgrammaticClear />,
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByLabelText('Website') as HTMLInputElement
+    await userEvent.type(input, 'nope')
+    await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
+    await canvas.findByRole('alert')
+    // The value changes to '' with no input event: the message must go.
+    await userEvent.click(canvas.getByRole('button', {name: 'Clear value'}))
+    await waitFor(() => expect(canvas.queryByRole('alert')).not.toBeInTheDocument())
+  },
+}
+
+export const NativeValidationFormReset: Story = {
+  render: () => (
+    <html.form>
+      <Field.Root>
+        <Field.Label>Website</Field.Label>
+        <Input type="url" required placeholder={websitePlaceholder} />
+      </Field.Root>
+      <Button type="submit">Submit</Button>
+    </html.form>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByPlaceholderText(websitePlaceholder) as HTMLInputElement
+    await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
+    await canvas.findByRole('alert')
+    // react-strict-dom keeps no type="reset" on a button; reset the form itself.
+    input.form?.reset()
+    await waitFor(() => expect(canvas.queryByRole('alert')).not.toBeInTheDocument())
+    await expect(input).not.toHaveAttribute('aria-invalid')
+  },
+}
+
+function ConstraintChange() {
+  const [required, setRequired] = useState(true)
+  return (
+    <html.form>
+      <Field.Root>
+        <Field.Label>Name</Field.Label>
+        <Input required={required} placeholder="Jane Doe" />
+      </Field.Root>
+      <Button type="submit">Submit</Button>
+      <Button type="button" onClick={() => setRequired(false)}>
+        Not required
+      </Button>
+    </html.form>
+  )
+}
+
+export const NativeValidationConstraintChange: Story = {
+  render: () => <ConstraintChange />,
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByLabelText('Name')
+    await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
+    await canvas.findByRole('alert')
+    await userEvent.click(canvas.getByRole('button', {name: 'Not required'}))
+    await waitFor(() => expect(canvas.queryByRole('alert')).not.toBeInTheDocument())
+    await expect(input).not.toHaveAttribute('aria-invalid')
+  },
+}
+
+export const NativeValidationDefaultValue: Story = {
+  render: () => (
+    <html.form>
+      <Field.Root>
+        <Field.Label>Website</Field.Label>
+        <Input type="url" defaultValue="nope" placeholder={websitePlaceholder} />
+      </Field.Root>
+      <Button type="submit">Submit</Button>
+    </html.form>
+  ),
+  play: async ({canvas, userEvent}) => {
+    await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
+    const alert = await canvas.findByRole('alert')
+    // Let the commit after the invalid event run its effects (two frames, no
+    // wall clock): a value no input event set must not read as a change.
+    await new Promise(requestAnimationFrame)
+    await new Promise(requestAnimationFrame)
+    await expect(canvas.getAllByRole('alert')).toHaveLength(1)
+    await expect(alert.textContent).toBe(
+      (canvas.getByLabelText('Website') as HTMLInputElement).validationMessage,
+    )
+  },
+}
+
+const nativeFormSchema = Schema.Struct({name: Schema.String})
+
+export const NativeValidationInForm: Story = {
+  render: () => {
+    const onSubmit = fn()
+    return (
+      <Form schema={nativeFormSchema} defaultValues={{name: ''}} onSubmit={onSubmit}>
+        {(methods) => (
+          <>
+            <Field.Root name="name">
+              <Field.Label>Name</Field.Label>
+              <Input required placeholder="Jane Doe" />
+            </Field.Root>
+            <Button type="submit">Submit</Button>
+            <Button
+              type="button"
+              onClick={() => methods.setError('name', {type: 'server', message: 'Taken'})}
+            >
+              Set error
+            </Button>
+            <Button type="button" onClick={() => methods.clearErrors('name')}>
+              Clear errors
+            </Button>
+          </>
+        )}
+      </Form>
+    )
+  },
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByLabelText('Name') as HTMLInputElement
+    await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
+    const alert = await canvas.findByRole('alert')
+    await expect(alert.textContent).toBe(input.validationMessage)
+    // Blur first: the blur runs the resolver, which would clear a server error
+    // set in the same click.
+    await userEvent.tab()
+    await userEvent.click(canvas.getByRole('button', {name: 'Set error'}))
+    await waitFor(() => expect(canvas.getByRole('alert').textContent).toBe('Taken'))
+    await expect(canvas.getAllByRole('alert')).toHaveLength(1)
+    await userEvent.click(canvas.getByRole('button', {name: 'Clear errors'}))
+    await waitFor(() => expect(canvas.getByRole('alert').textContent).toBe(input.validationMessage))
+    await expect(canvas.getAllByRole('alert')).toHaveLength(1)
   },
 }
