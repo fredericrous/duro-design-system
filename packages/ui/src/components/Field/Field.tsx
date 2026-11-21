@@ -28,11 +28,11 @@ function useNativeErrorState() {
   return {nativeError, setNativeError, errorCount, registerError}
 }
 
-function ownError(ctx: FieldContextValue, errorCount: number): ReactNode {
-  if (ctx.nativeError === undefined || errorCount > 0) return null
+function ownError(fieldContext: FieldContextValue, errorCount: number): ReactNode {
+  if (fieldContext.nativeError === undefined || errorCount > 0) return null
   return (
-    <html.span id={ctx.errorId} role="alert" style={styles.error}>
-      {ctx.errorMessage ?? ctx.nativeError}
+    <html.span id={fieldContext.errorId} role="alert" style={styles.error}>
+      {fieldContext.errorMessage ?? fieldContext.nativeError}
     </html.span>
   )
 }

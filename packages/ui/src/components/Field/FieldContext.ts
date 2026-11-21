@@ -51,12 +51,22 @@ interface NativeValidityTarget {
 }
 
 /** Wires a text control to its Field's native validation message: the DOM
- *  `invalid` event creates it (nothing else does), and while it is shown the
- *  control keeps it true: a change clears or refreshes it, and so does a value
- *  set without input (controlled state, a form library's reset), a constraint
- *  change (`required` removed) and the owning form's reset. The browser's own
- *  bubble is left alone. Outside a Field both handlers are undefined.
+ *  `invalid` event creates it (nothing else does), and it is only ever
+ *  cleared, never rewritten in place: a rewrite would re-announce the
+ *  `role="alert"` line on each keystroke. It clears once it stops being the
+ *  browser's current message (the value is valid, the reason changed, a
+ *  constraint went), when the value changes without input (controlled state, a
+ *  form library's reset) and on the owning form's reset; the next submit shows
+ *  the new reason. The browser's own bubble is left alone. Outside a Field both
+ *  handlers are undefined.
  *  Structural types: the native build (no DOM lib) types this too. */
+/** The shown message is still the browser's current one for this control. */
+function stillShowing(element: NativeValidityTarget, shownMessage: string | undefined): boolean {
+  return (
+    element.willValidate && !element.validity.valid && element.validationMessage === shownMessage
+  )
+}
+
 export function useNativeValidation() {
   const ctx = useFieldContext()
   const setNativeError = ctx?.setNativeError
@@ -67,15 +77,15 @@ export function useNativeValidation() {
 
   // No dependency array on purpose: a constraint or value can change in any commit.
   useEffect(() => {
+    if (!shown) {
+      control.current = null
+      return
+    }
     const element = control.current
-    if (!shown || !element || !setNativeError) return
-    if (element.value !== recordedValue.current) {
+    if (!element || !setNativeError) return
+    if (element.value !== recordedValue.current || !stillShowing(element, nativeError)) {
       recordedValue.current = element.value
       setNativeError(undefined)
-    } else if (!element.willValidate || element.validity.valid) {
-      setNativeError(undefined)
-    } else if (element.validationMessage !== nativeError) {
-      setNativeError(element.validationMessage)
     }
   })
 
@@ -101,7 +111,7 @@ export function useNativeValidation() {
           const target = event.currentTarget as NativeValidityTarget
           control.current = target
           recordedValue.current = target.value
-          setNativeError(target.validity.valid ? undefined : target.validationMessage)
+          if (!stillShowing(target, nativeError)) setNativeError(undefined)
         }
       : undefined,
   }

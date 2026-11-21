@@ -303,6 +303,10 @@ export const NativeValidationWithoutFieldError: Story = {
     await expect(canvas.getAllByRole('alert')).toHaveLength(1)
     await expect(alert.textContent).toBe(input.validationMessage)
     await expect(input.getAttribute('aria-describedby')).toContain(alert.id)
+    // The reason changes ("fill out" becomes "enter a URL"): the line clears
+    // rather than rewriting the alert, which would announce it again.
+    await userEvent.type(input, 'n')
+    await waitFor(() => expect(canvas.queryByRole('alert')).not.toBeInTheDocument())
   },
 }
 
@@ -325,14 +329,22 @@ function ErrorMounts() {
 
 export const NativeValidationErrorMounts: Story = {
   render: () => <ErrorMounts />,
-  play: async ({canvas, userEvent}) => {
+  play: async ({canvas, canvasElement, userEvent}) => {
     await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
     await canvas.findByRole('alert')
-    await expect(canvas.getAllByRole('alert')).toHaveLength(1)
-    await userEvent.click(canvas.getByRole('button', {name: 'Toggle error'}))
+    // Count alerts at each mutation batch: never two after any toggle settles.
+    let most = 0
+    const observer = new MutationObserver(() => {
+      most = Math.max(most, canvasElement.querySelectorAll('[role="alert"]').length)
+    })
+    observer.observe(canvasElement, {childList: true, subtree: true})
+    const toggle = canvas.getByRole('button', {name: 'Toggle error'})
+    await userEvent.click(toggle)
+    await waitFor(() => expect(canvas.getByRole('alert').parentElement).toBeTruthy())
+    await userEvent.click(toggle)
     await waitFor(() => expect(canvas.getAllByRole('alert')).toHaveLength(1))
-    await userEvent.click(canvas.getByRole('button', {name: 'Toggle error'}))
-    await waitFor(() => expect(canvas.getAllByRole('alert')).toHaveLength(1))
+    observer.disconnect()
+    await expect(most).toBeLessThanOrEqual(1)
   },
 }
 
@@ -341,10 +353,10 @@ function ProgrammaticClear() {
   return (
     <html.form>
       <Field.Root>
-        <Field.Label>Name</Field.Label>
+        <Field.Label>Website</Field.Label>
         <Input
           type="url"
-          placeholder="Name"
+          placeholder={websitePlaceholder}
           value={text}
           onChange={(event: {currentTarget: {value: string}}) => setText(event.currentTarget.value)}
         />
@@ -361,7 +373,7 @@ function ProgrammaticClear() {
 export const NativeValidationProgrammaticClear: Story = {
   render: () => <ProgrammaticClear />,
   play: async ({canvas, userEvent}) => {
-    const input = canvas.getByPlaceholderText('Name') as HTMLInputElement
+    const input = canvas.getByLabelText('Website') as HTMLInputElement
     await userEvent.type(input, 'nope')
     await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
     await canvas.findByRole('alert')
@@ -398,7 +410,7 @@ function ConstraintChange() {
     <html.form>
       <Field.Root>
         <Field.Label>Name</Field.Label>
-        <Input required={required} placeholder="Name" />
+        <Input required={required} placeholder="Jane Doe" />
       </Field.Root>
       <Button type="submit">Submit</Button>
       <Button type="button" onClick={() => setRequired(false)}>
@@ -411,7 +423,7 @@ function ConstraintChange() {
 export const NativeValidationConstraintChange: Story = {
   render: () => <ConstraintChange />,
   play: async ({canvas, userEvent}) => {
-    const input = canvas.getByPlaceholderText('Name')
+    const input = canvas.getByLabelText('Name')
     await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
     await canvas.findByRole('alert')
     await userEvent.click(canvas.getByRole('button', {name: 'Not required'}))
@@ -432,9 +444,15 @@ export const NativeValidationDefaultValue: Story = {
   ),
   play: async ({canvas, userEvent}) => {
     await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
-    await canvas.findByRole('alert')
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    const alert = await canvas.findByRole('alert')
+    // Let the commit after the invalid event run its effects (two frames, no
+    // wall clock): a value no input event set must not read as a change.
+    await new Promise(requestAnimationFrame)
+    await new Promise(requestAnimationFrame)
     await expect(canvas.getAllByRole('alert')).toHaveLength(1)
+    await expect(alert.textContent).toBe(
+      (canvas.getByLabelText('Website') as HTMLInputElement).validationMessage,
+    )
   },
 }
 
@@ -449,7 +467,7 @@ export const NativeValidationInForm: Story = {
           <>
             <Field.Root name="name">
               <Field.Label>Name</Field.Label>
-              <Input required placeholder="Name" />
+              <Input required placeholder="Jane Doe" />
             </Field.Root>
             <Button type="submit">Submit</Button>
             <Button
@@ -467,7 +485,7 @@ export const NativeValidationInForm: Story = {
     )
   },
   play: async ({canvas, userEvent}) => {
-    const input = canvas.getByPlaceholderText('Name') as HTMLInputElement
+    const input = canvas.getByLabelText('Name') as HTMLInputElement
     await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
     const alert = await canvas.findByRole('alert')
     await expect(alert.textContent).toBe(input.validationMessage)
