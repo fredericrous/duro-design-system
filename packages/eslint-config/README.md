@@ -45,6 +45,25 @@ export default [
 `adr-lint/no-restricted-imports`, so composing them keeps every ban: none of
 the three overrides another.
 
+A repository that scopes `react` to part of its tree restates its import bans
+for the other files by name: `uiImportBans` is the
+`greenrack/no-restricted-imports` entry `react` sets, and `greenrackPlugin` is
+the plugin it registers (the same object, so ESLint never sees two plugins
+under one key):
+
+```js
+import {greenrackPlugin, react, uiImportBans} from '@greenharness/greenrack-eslint-config'
+
+export default [
+  ...react.map((c) => ({...c, files: ['app/**/*.{ts,tsx}']})),
+  {
+    ignores: ['app/**'],
+    plugins: {greenrack: greenrackPlugin},
+    rules: {'greenrack/no-restricted-imports': uiImportBans},
+  },
+]
+```
+
 ## What the policy enforces
 
 - **`react`**: UI primitives come from `@greenharness/greenrack-ui` only. react-aria,
