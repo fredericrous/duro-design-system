@@ -501,6 +501,66 @@ export const ControlledInputValue: StoryObj<{onInput: (text: string) => void}> =
   },
 }
 
+/**
+ * Options that load when the list first opens (an account's voices fetched on
+ * demand): until they arrive the field shows the stored value as its own
+ * label, then the option's label replaces it, and the list still opens with
+ * every option.
+ */
+function LoadsOnOpenDemo({delayMs}: {delayMs: number}) {
+  const [loaded, setLoaded] = useState(false)
+  return (
+    <Combobox.Root
+      defaultValue="cherry"
+      initialLabels={{cherry: 'cherry'}}
+      onOpenChange={(open) => {
+        if (open) setTimeout(() => setLoaded(true), delayMs)
+      }}
+    >
+      <Combobox.Input aria-label="Fruit" />
+      <Combobox.Popup label="Fruit">
+        {loaded
+          ? fruits.map((fruit) => (
+              <Combobox.Item key={fruit} value={fruit.toLowerCase()}>
+                {fruit}
+              </Combobox.Item>
+            ))
+          : null}
+        <Combobox.Empty>{loaded ? 'No fruits found' : 'Loading fruits'}</Combobox.Empty>
+      </Combobox.Popup>
+    </Combobox.Root>
+  )
+}
+
+/** Open the field: the list says it is loading for a second, then shows every fruit with Cherry chosen. */
+export const LoadOnOpen: Story = {
+  render: () => <LoadsOnOpenDemo delayMs={1000} />,
+}
+
+export const OptionsLoadOnOpen: Story = {
+  tags: TEST_ONLY,
+  render: () => <LoadsOnOpenDemo delayMs={50} />,
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByRole('combobox')
+    await expect(input).toHaveValue('cherry')
+    await userEvent.click(input)
+    await expect(await screen.findByText('Loading fruits')).toBeInTheDocument()
+    await waitFor(() => expect(optionCount()).toBe(fruits.length))
+    await waitFor(() => expect(input).toHaveValue('Cherry'))
+    await expect(screen.getByRole('option', {name: 'Cherry'})).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(optionCount()).toBe(0))
+    await expect(input).toHaveValue('Cherry')
+    // Typing still filters once the label has arrived.
+    await userEvent.click(input)
+    await userEvent.keyboard('{Control>}a{/Control}ban')
+    await waitFor(() => expect(optionCount()).toBe(1))
+  },
+}
+
 export const NamedByAriaLabel: Story = {
   render: () => (
     <Combobox.Root>

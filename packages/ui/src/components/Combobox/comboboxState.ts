@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react'
 import {useControllableValue} from '../../hooks/useControllableValue'
 
 export interface ComboboxStateOptions {
@@ -83,6 +83,18 @@ export function useComboboxState({
     },
     [setValue, labels, setInputValue, setOpen],
   )
+
+  // A label that arrives after the field showed the value (options loaded on
+  // open, initialLabels holding a stand-in) replaces the shown text, unless it
+  // was edited since. Before paint, so the stale text never filters the list.
+  const chosenLabel = value ? labels[value] : undefined
+  const shownLabelRef = useRef(chosenLabel)
+  useLayoutEffect(() => {
+    const previous = shownLabelRef.current
+    shownLabelRef.current = chosenLabel
+    if (!chosenLabel || chosenLabel === previous) return
+    if (inputValue === (previous ?? value)) setInputValue(chosenLabel)
+  }, [chosenLabel, inputValue, value, setInputValue])
 
   // Reconcile input text with the committed value once the popup closes.
   // Three cases when transitioning from open → closed:
