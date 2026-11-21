@@ -1,10 +1,41 @@
-import {type ReactNode, Children, isValidElement, useId, useMemo, useState} from 'react'
+import {
+  type ReactNode,
+  Children,
+  isValidElement,
+  useCallback,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react'
 import {html} from 'react-strict-dom'
 import {useFormContext as useRHFFormContext, useController} from 'react-hook-form'
 import {FieldContext, useFieldContext} from './FieldContext'
+import type {FieldContextValue} from './FieldContext'
 import {useFormContext} from '../Form/FormContext'
 import type {LabelPosition} from '../Form/FormContext'
 import {styles} from './styles.css'
+
+// Native error state shared by both roots, with a count of mounted Field.Error
+// parts: Root shows the native message itself only while the count is zero.
+function useNativeErrorState() {
+  const [nativeError, setNativeError] = useState<string | undefined>()
+  const [errorCount, setErrorCount] = useState(0)
+  const registerError = useCallback(() => {
+    setErrorCount((count) => count + 1)
+    return () => setErrorCount((count) => count - 1)
+  }, [])
+  return {nativeError, setNativeError, errorCount, registerError}
+}
+
+function ownError(ctx: FieldContextValue, errorCount: number): ReactNode {
+  if (ctx.nativeError === undefined || errorCount > 0) return null
+  return (
+    <html.span id={ctx.errorId} role="alert" style={styles.error}>
+      {ctx.errorMessage ?? ctx.nativeError}
+    </html.span>
+  )
+}
 
 // --- Root ---
 interface RootProps {
@@ -64,7 +95,7 @@ function ControlledRoot({
   const id = useId()
   const {control} = useRHFFormContext()
   const {field, fieldState} = useController({control, name})
-  const [nativeError, setNativeError] = useState<string | undefined>()
+  const {nativeError, setNativeError, errorCount, registerError} = useNativeErrorState()
   const invalid = invalidProp || !!fieldState.error || nativeError !== undefined
 
   const effectiveDisabled = disabled ?? formCtx.disabled
@@ -93,6 +124,7 @@ function ControlledRoot({
       errorMessage: fieldState.error?.message,
       nativeError,
       setNativeError,
+      registerError,
     }),
     [
       id,
@@ -109,12 +141,16 @@ function ControlledRoot({
       field.name,
       fieldState.error,
       nativeError,
+      setNativeError,
+      registerError,
     ],
   )
 
   return (
     <FieldContext.Provider value={ctx}>
-      <FieldLayout labelPosition={effectiveLabelPosition}>{children}</FieldLayout>
+      <FieldLayout labelPosition={effectiveLabelPosition} ownError={ownError(ctx, errorCount)}>
+        {children}
+      </FieldLayout>
     </FieldContext.Provider>
   )
 }
@@ -136,7 +172,7 @@ function StaticRoot({
   children: ReactNode
 }) {
   const id = useId()
-  const [nativeError, setNativeError] = useState<string | undefined>()
+  const {nativeError, setNativeError, errorCount, registerError} = useNativeErrorState()
   const invalid = invalidProp || nativeError !== undefined
   const ctx = useMemo(
     () => ({
@@ -151,13 +187,26 @@ function StaticRoot({
       labelPosition,
       nativeError,
       setNativeError,
+      registerError,
     }),
-    [id, group, invalid, required, disabled, labelPosition, nativeError],
+    [
+      id,
+      group,
+      invalid,
+      required,
+      disabled,
+      labelPosition,
+      nativeError,
+      setNativeError,
+      registerError,
+    ],
   )
 
   return (
     <FieldContext.Provider value={ctx}>
-      <FieldLayout labelPosition={labelPosition}>{children}</FieldLayout>
+      <FieldLayout labelPosition={labelPosition} ownError={ownError(ctx, errorCount)}>
+        {children}
+      </FieldLayout>
     </FieldContext.Provider>
   )
 }
@@ -167,13 +216,20 @@ function StaticRoot({
 // and wraps the non-label children in a content column.
 function FieldLayout({
   labelPosition,
+  ownError,
   children,
 }: {
   labelPosition: LabelPosition
+  ownError: ReactNode
   children: ReactNode
 }) {
   if (labelPosition !== 'side') {
-    return <html.div style={styles.root}>{children}</html.div>
+    return (
+      <html.div style={styles.root}>
+        {children}
+        {ownError}
+      </html.div>
+    )
   }
 
   let labelNode: ReactNode = null
@@ -190,7 +246,10 @@ function FieldLayout({
   return (
     <html.div style={styles.rootSide}>
       {labelNode}
-      <html.div style={styles.fieldContent}>{rest}</html.div>
+      <html.div style={styles.fieldContent}>
+        {rest}
+        {ownError}
+      </html.div>
     </html.div>
   )
 }
@@ -254,6 +313,10 @@ function Description({children}: DescriptionProps) {
   )
 }
 
+function rendersSomething(node: ReactNode): boolean {
+  return node !== undefined && node !== null && node !== false && node !== true && node !== ''
+}
+
 // --- Error ---
 interface ErrorProps {
   children?: ReactNode
@@ -261,7 +324,9 @@ interface ErrorProps {
 
 function Error({children}: ErrorProps) {
   const ctx = useFieldContext()
-  const content = children ?? ctx?.errorMessage ?? ctx?.nativeError
+  const registerError = ctx?.registerError
+  useLayoutEffect(() => registerError?.(), [registerError])
+  const content = [children, ctx?.errorMessage, ctx?.nativeError].find(rendersSomething)
   if (!ctx?.invalid && !content) return null
 
   return (

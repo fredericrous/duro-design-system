@@ -1,4 +1,4 @@
-import {createContext, useContext} from 'react'
+import {createContext, useContext, useEffect, useRef} from 'react'
 import type {LabelPosition, NecessityIndicator} from '../Form/FormContext'
 
 interface FieldContextValue {
@@ -27,6 +27,8 @@ interface FieldContextValue {
   /** The control's own `validationMessage`, reported by the DOM `invalid` event. */
   nativeError?: string
   setNativeError?: (message: string | undefined) => void
+  /** A mounted Field.Error registers here; the returned function unregisters it. */
+  registerError?: () => () => void
 }
 
 export type {FieldContextValue}
@@ -38,26 +40,67 @@ export function useFieldContext() {
 }
 
 interface NativeValidityTarget {
+  value: string
+  willValidate: boolean
   validationMessage: string
   validity: {valid: boolean}
+  form?: {
+    addEventListener: (type: 'reset', listener: () => void) => void
+    removeEventListener: (type: 'reset', listener: () => void) => void
+  } | null
 }
 
 /** Wires a text control to its Field's native validation message: the DOM
- *  `invalid` event sets it, and a later change clears or refreshes it. The
- *  browser's own bubble is left alone. Outside a Field both handlers are
- *  undefined. Structural types: the native build (no DOM lib) types this too. */
+ *  `invalid` event creates it (nothing else does), and while it is shown the
+ *  control keeps it true: a change clears or refreshes it, and so does a value
+ *  set without input (controlled state, a form library's reset), a constraint
+ *  change (`required` removed) and the owning form's reset. The browser's own
+ *  bubble is left alone. Outside a Field both handlers are undefined.
+ *  Structural types: the native build (no DOM lib) types this too. */
 export function useNativeValidation() {
   const ctx = useFieldContext()
   const setNativeError = ctx?.setNativeError
+  const nativeError = ctx?.nativeError
+  const shown = nativeError !== undefined
+  const control = useRef<NativeValidityTarget | null>(null)
+  const recordedValue = useRef('')
+
+  // No dependency array on purpose: a constraint or value can change in any commit.
+  useEffect(() => {
+    const element = control.current
+    if (!shown || !element || !setNativeError) return
+    if (element.value !== recordedValue.current) {
+      recordedValue.current = element.value
+      setNativeError(undefined)
+    } else if (!element.willValidate || element.validity.valid) {
+      setNativeError(undefined)
+    } else if (element.validationMessage !== nativeError) {
+      setNativeError(element.validationMessage)
+    }
+  })
+
+  useEffect(() => {
+    const form = control.current?.form
+    if (!shown || !form || !setNativeError) return
+    const clear = () => setNativeError(undefined)
+    form.addEventListener('reset', clear)
+    return () => form.removeEventListener('reset', clear)
+  }, [shown, setNativeError])
+
   if (!setNativeError) return {onInvalid: undefined, afterChange: undefined}
-  const hasNativeError = ctx.nativeError !== undefined
   return {
-    onInvalid: (event: {currentTarget: object}) =>
-      setNativeError((event.currentTarget as NativeValidityTarget).validationMessage),
-    afterChange: hasNativeError
+    onInvalid: (event: {currentTarget: object}) => {
+      // Native DOM typings lack the validity members on the element type.
+      const target = event.currentTarget as NativeValidityTarget
+      control.current = target
+      recordedValue.current = target.value
+      setNativeError(target.validationMessage)
+    },
+    afterChange: shown
       ? (event: {currentTarget: object}) => {
-          // Native DOM typings lack the validity members on the element type.
           const target = event.currentTarget as NativeValidityTarget
+          control.current = target
+          recordedValue.current = target.value
           setNativeError(target.validity.valid ? undefined : target.validationMessage)
         }
       : undefined,
