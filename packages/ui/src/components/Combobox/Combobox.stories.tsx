@@ -507,14 +507,14 @@ export const ControlledInputValue: StoryObj<{onInput: (text: string) => void}> =
  * label, then the option's label replaces it, and the list still opens with
  * every option.
  */
-function LoadsOnOpenDemo() {
+function LoadsOnOpenDemo({delayMs}: {delayMs: number}) {
   const [loaded, setLoaded] = useState(false)
   return (
     <Combobox.Root
       defaultValue="cherry"
       initialLabels={{cherry: 'cherry'}}
       onOpenChange={(open) => {
-        if (open) setTimeout(() => setLoaded(true), 50)
+        if (open) setTimeout(() => setLoaded(true), delayMs)
       }}
     >
       <Combobox.Input aria-label="Fruit" />
@@ -532,9 +532,14 @@ function LoadsOnOpenDemo() {
   )
 }
 
+/** Open the field: the list says it is loading for a second, then shows every fruit with Cherry chosen. */
+export const LoadOnOpen: Story = {
+  render: () => <LoadsOnOpenDemo delayMs={1000} />,
+}
+
 export const OptionsLoadOnOpen: Story = {
   tags: TEST_ONLY,
-  render: () => <LoadsOnOpenDemo />,
+  render: () => <LoadsOnOpenDemo delayMs={50} />,
   play: async ({canvas, userEvent}) => {
     const input = canvas.getByRole('combobox')
     await expect(input).toHaveValue('cherry')
