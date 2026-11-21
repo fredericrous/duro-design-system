@@ -124,7 +124,7 @@ social-planner's dialog wraps its Input in a labelled Field and shows it.
 
 ## Phases
 
-- [ ] Phase 1 — greenrack: context, hook, Input, Textarea, Field.Error and
+- [x] Phase 1 — greenrack: context, hook, Input, Textarea, Field.Error and
       the auto line; stories with play tests; meta text (Field.meta.ts and Input.meta.ts: the exact sentences, appended after each description's first sentence so the `greenrack list` summary and the CLAUDE.md quick-reference row are unchanged; any new whenToUse/whenNotToUse bullet 76 characters or fewer, since bullets are not wrapped, format.ts:67-70); changeset;
       registry regenerated:
       `packages/ui/src/components/Field/{FieldContext.ts,Field.tsx,useNativeValidation.ts,useNativeValidation.native.ts,Field.meta.ts,Field.stories.tsx}`,
@@ -172,6 +172,26 @@ social-planner's dialog wraps its Input in a labelled Field and shows it.
   wrap width), and the Field line of `greenrack list` is unchanged.
   browser-check on local Storybook (1280 and 390): the message renders
   under the field in error colour, light and dark.
+  - Observed (on #209 plus this branch; story names as built): Field,
+    Input, Textarea and Form stories 55/55 pass on 464f315c. The 7 new
+    stories (WithoutFieldError, ErrorMounts, ProgrammaticClear, FormReset,
+    ConstraintChange, DefaultValue, InForm) all fail against #209's
+    Field.tsx/FieldContext.ts and pass with this branch. `pnpm run
+typecheck` and `pnpm lint` exit 0; `build-registry.mjs --check` and
+    `--check-docs` print up to date. The full Storybook run: 653 pass, 16
+    time out at 15 s in files this branch does not touch (Drawer snap,
+    Menu, Button touch targets) under host load; a rerun was refused for
+    lack of a host slot (`greengate slot run` exit 75), so CI is that
+    check. browser-check (chrome-devtools, isolated, synthetic input):
+    NativeValidation, WithoutFieldError and ProgrammaticClear at 1280 and
+    390, dark and light (`globals=backgrounds.value:light`): one
+    `role="alert"`, 12px, rgb(252,165,165) on dark, rgb(127,29,29) on
+    white, 4px below the input; `aria-invalid="true"` and describedby
+    names it; alert text equals `validationMessage` in the same read;
+    valid input and Clear value each remove it; no console error.
+    Screenshots: `~/.claude/greenbelay/attestations/8a1b7ef1/`. The CLI
+    width check was not run: Field.meta.ts gains one description
+    sentence (wrapped by the CLI) and no bullet.
 - Phase 2: `npm view @greenharness/greenrack-ui@7.3.0 version` → 7.3.0; the
   tarball's dist contains `addEventListener("invalid"` (not just the string `invalid`, which `aria-invalid` already matches).
 - Phase 3: `npm view @greenharness/greenrack-ui@7.3.0 version` first. A
@@ -215,8 +235,40 @@ social-planner's dialog wraps its Input in a labelled Field and shows it.
   existing merger goes to the inbox); and the stories #209 lacks. The
   first Phase 1 run (`run-660c49feb5c19-5733`) was cancelled before it
   produced anything.
+- 2026-11-21 — implementation review: a shown native message is only
+  cleared, never rewritten in place (ui-design: a rewrite re-announced the
+  `role="alert"` line per keystroke; it also removes the stale text another
+  session saw in Chrome). The next submit shows the new reason.
+- 2026-11-21 — deliberate: `NativeValidationFormReset` calls
+  `form.reset()`; react-strict-dom keeps no `type="reset"` on a button.
+- 2026-11-21 — deliberate: one in-between commit can hold both alerts
+  when a `Field.Error` mounts (the layout-effect re-render runs in the same
+  task, before paint); the story counts settled batches only.
+- 2026-11-21 — deliberate: a two-frame wait in
+  `NativeValidationDefaultValue` (no wall clock) proves the alert outlives
+  the post-commit effect.
+- 2026-11-21 — `Input.meta.ts` is unchanged (#209 already updated it);
+  the changeset is `field-native-validation-gaps.md`; Phase 2's tarball
+  check greps `onInvalid`, the JSX prop #209 uses, not
+  `addEventListener("invalid"`.
 - 2026-11-20 — the board showed `feat/breakpoints-doctor-overlay` touching
   Field and Input; it dates from 2026-09-28 (pre-rename, Form subpath
   since shipped), not live work.
+
+## Implementation review
+
+- implementation-review (opus): r1 approve-with-changes (`ctx` param
+  renamed; plan record lines; ErrorMounts waits), delta approve-with-changes
+  (record lines), fresh round approve. 71k+53k+50k, 31+28+16 s.
+- react (opus): r1 approve-with-changes (transient double alert kept
+  deliberate; transformed value; story label), delta approve. 88k+27k.
+- lang:typescript (opus): r1 approve-with-changes (timer wait, weak waits,
+  ref reset fixed; array find and story type kept deliberate), delta
+  approve-with-changes (hook doc placement, observer finally), fresh
+  approve. 45k+52k+24k.
+- ui-design (opus, interface-review): r1 approve-with-changes (MEDIUM
+  alert rewrite fixed; story copy), delta approve-with-changes, then
+  approve-with-changes with every item resolved (token key is `ui.measures`;
+  no measure added). 93k+61k+65k.
 
 <!-- panel: repos=greenrack,social-planner,decisions adds=contract reviewers=backend,lang:typescript,react,ui-design,tui,unix,architect,po,codex body-sha=0abbe950e204 -->
