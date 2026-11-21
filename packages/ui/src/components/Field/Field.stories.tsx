@@ -3,6 +3,7 @@ import {expect} from 'storybook/test'
 import {css, html} from 'react-strict-dom'
 import {Field} from './Field'
 import {Input} from '../Input/Input'
+import {Button} from '../Button/Button'
 import {ToggleGroup} from '../ToggleGroup/ToggleGroup'
 import {Toggle} from '../Toggle/Toggle'
 import {CheckboxGroup} from '../CheckboxGroup/CheckboxGroup'
@@ -251,5 +252,31 @@ export const FieldsetLegendNamesTheGroup: Story = {
   ),
   play: async ({canvas}) => {
     await expect(canvas.getByRole('group', {name: 'Notifications'})).toBeInTheDocument()
+  },
+}
+
+export const NativeValidation: Story = {
+  render: () => (
+    <html.form>
+      <Field.Root>
+        <Field.Label>Website</Field.Label>
+        <Input type="url" required placeholder="https://example.com" />
+        <Field.Error />
+      </Field.Root>
+      <Button type="submit">Submit</Button>
+    </html.form>
+  ),
+  play: async ({canvas, userEvent}) => {
+    const input = canvas.getByPlaceholderText('https://example.com') as HTMLInputElement
+    await userEvent.click(canvas.getByRole('button', {name: 'Submit'}))
+    const alert = await canvas.findByRole('alert')
+    await expect(alert).toBeInTheDocument()
+    await expect(alert.textContent).not.toBe('')
+    await expect(alert.textContent).toBe(input.validationMessage)
+    await expect(input).toHaveAttribute('aria-invalid', 'true')
+    await expect(input.getAttribute('aria-describedby')).toContain(alert.id)
+
+    await userEvent.type(input, 'https://example.com')
+    await expect(canvas.queryByRole('alert')).not.toBeInTheDocument()
   },
 }

@@ -1,5 +1,5 @@
 import {html} from 'react-strict-dom'
-import {useFieldContext} from '../Field/FieldContext'
+import {useFieldContext, useNativeValidation} from '../Field/FieldContext'
 import {useInputGroupContext} from '../InputGroup/InputGroupContext'
 import {styles} from './styles.css'
 
@@ -105,6 +105,7 @@ export function Input({
   ref,
 }: InputProps) {
   const ctx = useFieldContext()
+  const {onInvalid, afterChange} = useNativeValidation()
   const groupCtx = useInputGroupContext()
 
   const fieldCtx = ctx?.field
@@ -136,6 +137,7 @@ export function Input({
   if (inputMode !== undefined) extraProps.inputMode = inputMode
   if (list !== undefined) extraProps.list = list
   if (ariaLabel !== undefined) extraProps['aria-label'] = ariaLabel
+  if (onInvalid) extraProps.onInvalid = onInvalid
 
   return (
     <html.input
@@ -153,7 +155,14 @@ export function Input({
       disabled={effectiveDisabled}
       aria-describedby={describedBy || undefined}
       aria-invalid={invalid || undefined}
-      onChange={effectiveOnChange as StrictInputProps['onChange']}
+      onChange={
+        (afterChange
+          ? (e: React.ChangeEvent<HTMLInputElement>) => {
+              ;(effectiveOnChange as ((e: unknown) => void) | undefined)?.(e)
+              afterChange(e)
+            }
+          : effectiveOnChange) as StrictInputProps['onChange']
+      }
       onBlur={effectiveOnBlur as StrictInputProps['onBlur']}
       onFocus={onFocus as StrictInputProps['onFocus']}
       onKeyDown={onKeyDown as StrictInputProps['onKeyDown']}
