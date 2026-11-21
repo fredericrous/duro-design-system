@@ -202,6 +202,19 @@ social-planner's dialog wraps its Input in a labelled Field and shows it.
 - 2026-11-20 — no mockup directions: the dialog only gains a label and
   its error line, the Phase 1 story is the reference.
 - 2026-11-20 — the bubble and the `role="alert"` line announce the same message twice; accepted, since suppressing the bubble drops the focus move.
+- 2026-11-21 — scope change: another session merged greenrack#209
+  (0be66ce7) on the same ticket, unaware of this branch. It already does
+  the core: `nativeError` in Field context, Field.Error's fallback, and
+  JSX `onInvalid`/`onChange` on Input and Textarea (react-strict-dom
+  passes `onInvalid`; its story proves it). Phase 1 now builds on it and
+  adds only the gaps against this plan's Behaviour: Field.Root's own
+  error line with the registration counter; clearing on a value change
+  with no user input, on form reset and on a constraint change (the
+  element comes from the `invalid` event's `currentTarget`, so no ref
+  merger is added and the React 19 ref-cleanup item lapses; Textarea's
+  existing merger goes to the inbox); and the stories #209 lacks. The
+  first Phase 1 run (`run-660c49feb5c19-5733`) was cancelled before it
+  produced anything.
 - 2026-11-20 — the board showed `feat/breakpoints-doctor-overlay` touching
   Field and Input; it dates from 2026-09-28 (pre-rename, Form subpath
   since shipped), not live work.
