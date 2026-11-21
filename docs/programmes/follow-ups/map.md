@@ -16,7 +16,7 @@ boundary.
 
 ## Handoff
 
-2026-11-21, boundary 2 (greenrack#208 merged and released as v7.2.1, pinned in happier#24). This map was started to file f01. Next: f01.
+2026-11-21, boundary 3 (greenrack#212 merged, released in v7.4.0, pinned in happier#27, closing happier's f02). Filed f02 from the inbox. Next: f01, f02.
 
 ## Not yet specified
 
