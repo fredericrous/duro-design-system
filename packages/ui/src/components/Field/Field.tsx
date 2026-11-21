@@ -1,9 +1,9 @@
-import {type ReactNode, Children, isValidElement, useId, useMemo} from 'react'
+import {type ReactNode, Children, isValidElement, useId, useMemo, useState} from 'react'
 import {html} from 'react-strict-dom'
 import {useFormContext as useRHFFormContext, useController} from 'react-hook-form'
 import {FieldContext, useFieldContext} from './FieldContext'
 import {useFormContext} from '../Form/FormContext'
-import type {LabelPosition, NecessityIndicator} from '../Form/FormContext'
+import type {LabelPosition} from '../Form/FormContext'
 import {styles} from './styles.css'
 
 // --- Root ---
@@ -64,7 +64,8 @@ function ControlledRoot({
   const id = useId()
   const {control} = useRHFFormContext()
   const {field, fieldState} = useController({control, name})
-  const invalid = invalidProp || !!fieldState.error
+  const [nativeError, setNativeError] = useState<string | undefined>()
+  const invalid = invalidProp || !!fieldState.error || nativeError !== undefined
 
   const effectiveDisabled = disabled ?? formCtx.disabled
   const effectiveLabelPosition = labelPosition ?? formCtx.labelPosition
@@ -90,6 +91,8 @@ function ControlledRoot({
         name: field.name,
       },
       errorMessage: fieldState.error?.message,
+      nativeError,
+      setNativeError,
     }),
     [
       id,
@@ -105,6 +108,7 @@ function ControlledRoot({
       field.ref,
       field.name,
       fieldState.error,
+      nativeError,
     ],
   )
 
@@ -118,7 +122,7 @@ function ControlledRoot({
 // Current behavior, no RHF dependency
 function StaticRoot({
   group,
-  invalid = false,
+  invalid: invalidProp = false,
   required,
   disabled,
   labelPosition = 'top',
@@ -132,6 +136,8 @@ function StaticRoot({
   children: ReactNode
 }) {
   const id = useId()
+  const [nativeError, setNativeError] = useState<string | undefined>()
+  const invalid = invalidProp || nativeError !== undefined
   const ctx = useMemo(
     () => ({
       controlId: `${id}-control`,
@@ -143,8 +149,10 @@ function StaticRoot({
       required,
       disabled,
       labelPosition,
+      nativeError,
+      setNativeError,
     }),
-    [id, group, invalid, required, disabled, labelPosition],
+    [id, group, invalid, required, disabled, labelPosition, nativeError],
   )
 
   return (
@@ -253,7 +261,7 @@ interface ErrorProps {
 
 function Error({children}: ErrorProps) {
   const ctx = useFieldContext()
-  const content = children ?? ctx?.errorMessage
+  const content = children ?? ctx?.errorMessage ?? ctx?.nativeError
   if (!ctx?.invalid && !content) return null
 
   return (

@@ -1,7 +1,7 @@
 import {useCallback, useRef} from 'react'
 import {html} from 'react-strict-dom'
 import {isNative} from '../../platform'
-import {useFieldContext} from '../Field/FieldContext'
+import {useFieldContext, useNativeValidation} from '../Field/FieldContext'
 import type {ListboxAnchorProps} from '../Listbox/Listbox'
 import {useAutoGrowFallback} from './useAutoGrowFallback'
 import {useFileDrop} from './useFileDrop'
@@ -84,6 +84,7 @@ export function Textarea({
   ref,
 }: TextareaProps) {
   const ctx = useFieldContext()
+  const {onInvalid, afterChange} = useNativeValidation()
 
   const fieldCtx = ctx?.field
   const effectiveName = name ?? fieldCtx?.name
@@ -96,6 +97,7 @@ export function Textarea({
 
   const extraProps: Record<string, unknown> = {}
   if (autoFocus) extraProps.autoFocus = true
+  if (onInvalid) extraProps.onInvalid = onInvalid
   if (onSelectionChange) {
     // Structural event types: the native build (no DOM lib) types this file too.
     if (isNative) {
@@ -146,7 +148,14 @@ export function Textarea({
         ctx ? `${ctx.descriptionId} ${ctx.invalid ? ctx.errorId : ''}`.trim() : undefined
       }
       aria-invalid={ctx?.invalid || variant === 'error' || undefined}
-      onChange={effectiveOnChange as StrictTextareaProps['onChange']}
+      onChange={
+        (afterChange
+          ? (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+              ;(effectiveOnChange as ((e: unknown) => void) | undefined)?.(e)
+              afterChange(e)
+            }
+          : effectiveOnChange) as StrictTextareaProps['onChange']
+      }
       onBlur={effectiveOnBlur as StrictTextareaProps['onBlur']}
       onFocus={onFocus as StrictTextareaProps['onFocus']}
       onKeyDown={onKeyDown as StrictTextareaProps['onKeyDown']}
