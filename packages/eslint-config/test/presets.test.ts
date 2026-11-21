@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import {ESLint} from 'eslint'
-import {react} from '../src/index.js'
+import {greenrackPlugin, react, uiImportBans} from '../src/index.js'
 import {effect} from '@aval-adr/eslint-config'
 
 /**
@@ -24,6 +24,15 @@ function ruleIds(result: {messages: {ruleId: string | null}[]}) {
 }
 
 describe('react', () => {
+  it('sets the exported uiImportBans and registers the exported plugin', () => {
+    const bans = react.filter((c) => c.rules?.['greenrack/no-restricted-imports'])
+    expect(bans).toHaveLength(1)
+    expect(bans[0]?.rules?.['greenrack/no-restricted-imports']).toBe(uiImportBans)
+    const plugins = react.filter((c) => c.plugins?.greenrack)
+    expect(plugins).toHaveLength(1)
+    expect(plugins[0]?.plugins?.greenrack).toBe(greenrackPlugin)
+  })
+
   it('refuses a foreign UI library import, naming the replacement', async () => {
     const result = await lint(
       react,

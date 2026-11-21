@@ -43,6 +43,22 @@ const LEXICAL_PATTERN = {
   message: LEXICAL_MESSAGE,
 }
 
+/**
+ * The `greenrack/no-restricted-imports` entry the `react` preset sets: the
+ * foreign-UI and raw-Lexical bans. Exported, with the plugin that defines the
+ * rule, so a consumer that scopes `react` to part of its tree can restate the
+ * same bans elsewhere by name instead of searching the preset's blocks.
+ */
+export const uiImportBans = [
+  'error',
+  {
+    patterns: [FOREIGN_UI_PATTERN, LEXICAL_PATTERN],
+  },
+]
+
+/** The greenrack ESLint plugin, the same object the `react` preset registers. */
+export const greenrackPlugin = greenrack
+
 /** @type {import('eslint').Linter.Config[]} */
 export const react = [
   ...base,
@@ -70,12 +86,7 @@ export const react = [
       // it uses the wrapper correctly and needed one type the wrapper does not
       // re-export — and had to carry a local override to say so.
       'no-restricted-imports': 'off',
-      'greenrack/no-restricted-imports': [
-        'error',
-        {
-          patterns: [FOREIGN_UI_PATTERN, LEXICAL_PATTERN],
-        },
-      ],
+      'greenrack/no-restricted-imports': uiImportBans,
     },
   },
 ]
