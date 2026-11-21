@@ -221,7 +221,7 @@ typecheck` and `pnpm lint` exit 0; `build-registry.mjs --check` and
     chart 0.6.0 (v32), both pods on image 0.6.0, 0 restarts. Through a
     port-forward: `/planner` and `/health` 200; the JS carries the Field
     label "Link", its description and greenrack's `registerError` and
-    `onInvalid`. The live dialog behind Authelia is the person's step.
+    `onInvalid`. The app renders dark only (no light mode), so light was not seen in-app. The live dialog behind Authelia is the person's step (below).
   - Observed (Phase 4): decisions#332 (merged 7d1cc9c2) closes f31 (answer amended, Resolution)
     and files f110–f113; `relais programme check docs/programmes/follow-ups`
     exits 0.
@@ -281,6 +281,19 @@ typecheck` and `pnpm lint` exit 0; `build-registry.mjs --check` and
   `kubernetes/homelab/apps/social-planner/helm-release.yaml`), homelab#1270.
 - 2026-11-21 — the person chose to ship with the bottom-aligned rows' shift
   and fix it upstream (f112).
+- 2026-11-21 — deliberate: the deployed check is the bundle through a
+  port-forward plus the person's look at the live dialog (the agent's
+  browser has no Authelia session), as the greenrack sweep plan did; the
+  plan is done with that step listed below.
+- 2026-11-21 — the "other consumers" sweep line became ticket f111
+  (happier was swept by another session the same day: no double alert).
+- 2026-11-21 — 7.4.0 takes its version from the tag (the release workflow
+  sets it); the changesets stay in `.changeset/`, as for every release
+  before it.
+
+### 🧑 Your steps
+
+- `greenbelay open 'https://social-planner.daddyshome.fr/planner'`, then click "+ Add link", type `nope` and press Add link: "Please enter a URL." shows under the "Link" field — because the agent's browser has no Authelia session for the live site
 
 ## Outcome
 
